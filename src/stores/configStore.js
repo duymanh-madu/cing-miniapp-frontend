@@ -1,52 +1,53 @@
-import { create }
-  from "zustand";
-
-/**
- * =========================================================
- * CONFIG STORE
- * =========================================================
- */
+import {
+  create,
+} from "zustand";
 
 const useConfigStore =
-  create((set) => ({
+  create(
+    (
+      set
+    ) => ({
 
-    config:
-      null,
+      loaded:
+        false,
 
-    loading:
-      false,
+      config:
+        {},
 
-    error:
-      null,
+      setConfig:
+        (
+          config
+        ) => {
 
-    setConfig:
-      (config) => {
+          set({
 
-        set({
-          config,
-        });
+            loaded:
+              true,
 
-      },
+            config:
+              config || {},
 
-    setLoading:
-      (loading) => {
+          });
 
-        set({
-          loading,
-        });
+        },
 
-      },
+      reset:
+        () => {
 
-    setError:
-      (error) => {
+          set({
 
-        set({
-          error,
-        });
+            loaded:
+              false,
 
-      },
+            config:
+              {},
 
-  }));
+          });
+
+        },
+
+    })
+  );
 
 export default
   useConfigStore;

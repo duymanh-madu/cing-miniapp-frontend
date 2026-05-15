@@ -2,8 +2,11 @@ import {
   useEffect,
 } from "react";
 
-import useRuntimeStore
-  from "@/stores/runtimeStore";
+import useSystemRuntime from "@/hooks/useSystemRuntime";
+
+import queryRealtimeSync from "@/services/query/queryRealtimeSync";
+
+import offlineSyncService from "@/services/offline/offlineSyncService";
 
 /**
  * =========================================================
@@ -14,26 +17,15 @@ import useRuntimeStore
 function RuntimeProvider({
   children,
 }) {
-
-  const setLoading =
-    useRuntimeStore(
-      (state) =>
-        state.setLoading
-    );
+  useSystemRuntime();
 
   useEffect(() => {
+    queryRealtimeSync.register();
 
-    /**
-     * MOCK BOOTSTRAP
-     */
-
-    setLoading(false);
-
+    offlineSyncService.init();
   }, []);
 
   return children;
-
 }
 
-export default
-  RuntimeProvider;
+export default RuntimeProvider;

@@ -2,55 +2,53 @@ import {
   create,
 } from "zustand";
 
-/**
- * ============================================
- * NOTIFICATION STORE
- * ============================================
- */
-
 const useNotificationStore =
-  create((set) => ({
-    /**
-     * STATE
-     */
+  create(
+    (
+      set
+    ) => ({
 
-    notifications: [],
+      notifications:
+        [],
 
-    unreadCount: 0,
+      pushNotification:
+        (
+          notification
+        ) => {
 
-    /**
-     * ACTIONS
-     */
+          set(
+            (
+              state
+            ) => ({
 
-    setNotifications:
-      (
-        notifications
-      ) =>
-        set({
-          notifications,
-        }),
+              notifications:
+                [
 
-    pushNotification:
-      (
-        notification
-      ) =>
-        set((state) => ({
-          notifications: [
-            notification,
+                  notification,
 
-            ...state.notifications,
-          ],
+                  ...state.notifications,
 
-          unreadCount:
-            state.unreadCount +
-            1,
-        })),
+                ],
 
-    markAllRead:
-      () =>
-        set({
-          unreadCount: 0,
-        }),
-  }));
+            })
+          );
 
-export default useNotificationStore;
+        },
+
+      clearNotifications:
+        () => {
+
+          set({
+
+            notifications:
+              [],
+
+          });
+
+        },
+
+    })
+  );
+
+export default
+  useNotificationStore;

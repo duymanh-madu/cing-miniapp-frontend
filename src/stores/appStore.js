@@ -2,135 +2,89 @@ import {
   create,
 } from "zustand";
 
-/**
- * ============================================
- * APP STORE
- * ============================================
- */
-
 const useAppStore =
-  create((set) => ({
-    /**
-     * APP
-     */
+  create(
+    (
+      set
+    ) => ({
 
-    appReady: false,
+      initialized:
+        false,
 
-    appBooting: true,
+      bootstrapped:
+        false,
 
-    /**
-     * AUTH
-     */
+      hydrated:
+        false,
 
-    authenticated: false,
+      setInitialized:
+        (
+          value
+        ) => {
 
-    user: null,
+          set({
 
-    /**
-     * SOCKET
-     */
+            initialized:
+              Boolean(
+                value
+              ),
 
-    socketConnected: false,
+          });
 
-    reconnecting: false,
+        },
 
-    /**
-     * MEMBER
-     */
+      setBootstrapped:
+        (
+          value
+        ) => {
 
-    memberPoints: 0,
+          set({
 
-    memberTier: "Silver",
+            bootstrapped:
+              Boolean(
+                value
+              ),
 
-    /**
-     * GAME
-     */
+          });
 
-    gamePlaying: false,
+        },
 
-    /**
-     * NOTIFICATIONS
-     */
+      setHydrated:
+        (
+          value
+        ) => {
 
-    unreadNotifications: 0,
+          set({
 
-    /**
-     * ACTIONS
-     */
+            hydrated:
+              Boolean(
+                value
+              ),
 
-    setAppReady:
-      (value) =>
-        set({
-          appReady: value,
-        }),
+          });
 
-    setAppBooting:
-      (value) =>
-        set({
-          appBooting: value,
-        }),
+        },
 
-    setAuthenticated:
-      (value) =>
-        set({
-          authenticated:
-            value,
-        }),
+      reset:
+        () => {
 
-    setUser: (
-      user
-    ) =>
-      set({
-        user,
-      }),
+          set({
 
-    setSocketConnected:
-      (value) =>
-        set({
-          socketConnected:
-            value,
-        }),
+            initialized:
+              false,
 
-    setReconnecting:
-      (value) =>
-        set({
-          reconnecting:
-            value,
-        }),
+            bootstrapped:
+              false,
 
-    setMemberPoints:
-      (points) =>
-        set({
-          memberPoints:
-            points,
-        }),
+            hydrated:
+              false,
 
-    setMemberTier:
-      (tier) =>
-        set({
-          memberTier: tier,
-        }),
+          });
 
-    setGamePlaying:
-      (value) =>
-        set({
-          gamePlaying:
-            value,
-        }),
+        },
 
-    incrementNotifications:
-      () =>
-        set((state) => ({
-          unreadNotifications:
-            state.unreadNotifications +
-            1,
-        })),
+    })
+  );
 
-    clearNotifications:
-      () =>
-        set({
-          unreadNotifications: 0,
-        }),
-  }));
-
-export default useAppStore;
+export default
+  useAppStore;

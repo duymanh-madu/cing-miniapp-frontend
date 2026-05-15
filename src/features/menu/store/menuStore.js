@@ -1,122 +1,38 @@
-import {
-  create,
-} from "zustand";
+import { create } from "zustand";
 
-import menuData from "../mock/menuData";
+const initialState = {
+  selectedCategory:
+    "all",
 
-/**
- * ============================================
- * MENU STORE
- * ============================================
- */
+  searchKeyword:
+    "",
+};
 
 const useMenuStore =
   create((set) => ({
-    /**
-     * DATA
-     */
+    ...initialState,
 
-    categories:
-      menuData,
-
-    activeCategory:
-      "milk-tea",
-
-    loading: false,
-
-    lastUpdated: null,
-
-    /**
-     * ACTIONS
-     */
-
-    setCategories:
-      (categories) =>
+    setCategory:
+      (category) =>
         set({
-          categories,
+          selectedCategory:
+            category ||
+            "all",
         }),
 
-    setActiveCategory:
-      (categoryId) =>
+    setSearchKeyword:
+      (keyword) =>
         set({
-          activeCategory:
-            categoryId,
+          searchKeyword:
+            keyword || "",
         }),
 
-    setLoading:
-      (value) =>
-        set({
-          loading: value,
-        }),
-
-    updateProductStock:
-      ({
-        productId,
-        stock,
-      }) =>
-        set((state) => ({
-          categories:
-            state.categories.map(
-              (
-                category
-              ) => ({
-                ...category,
-
-                products:
-                  category.products.map(
-                    (
-                      product
-                    ) =>
-                      product.id ===
-                      productId
-                        ? {
-                            ...product,
-
-                            stock,
-                          }
-                        : product
-                  ),
-              })
-            ),
-        })),
-
-    updateProductPrice:
-      ({
-        productId,
-        price,
-      }) =>
-        set((state) => ({
-          categories:
-            state.categories.map(
-              (
-                category
-              ) => ({
-                ...category,
-
-                products:
-                  category.products.map(
-                    (
-                      product
-                    ) =>
-                      product.id ===
-                      productId
-                        ? {
-                            ...product,
-
-                            price,
-                          }
-                        : product
-                  ),
-              })
-            ),
-        })),
-
-    markMenuUpdated:
+    resetMenuStore:
       () =>
         set({
-          lastUpdated:
-            Date.now(),
+          ...initialState,
         }),
   }));
 
-export default useMenuStore;
+export default
+  useMenuStore;

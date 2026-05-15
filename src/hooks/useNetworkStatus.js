@@ -2,8 +2,7 @@ import { useEffect } from "react";
 
 import toast from "react-hot-toast";
 
-import useAppStore
-from "@/stores/appStore";
+import useAppStore from "@/stores/appStore";
 
 function useNetworkStatus() {
   const setOnline =

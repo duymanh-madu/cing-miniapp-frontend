@@ -1,79 +1,60 @@
-import useMenuStore from "../store/menuStore";
+import useMenuCategories from "../hooks/useMenuCategories";
 
 /**
- * ============================================
+ * =========================================================
  * MENU CATEGORIES
- * ============================================
+ * =========================================================
  */
 
 function MenuCategories() {
+
   const categories =
-    useMenuStore(
-      (state) =>
-        state.categories
-    );
-
-  const activeCategory =
-    useMenuStore(
-      (state) =>
-        state.activeCategory
-    );
-
-  const setActiveCategory =
-    useMenuStore(
-      (state) =>
-        state.setActiveCategory
-    );
+    useMenuCategories();
 
   return (
+
     <div
       className="
         flex
         gap-3
         overflow-x-auto
         pb-2
-        no-scrollbar
       "
     >
-      {categories.map(
-        (category) => (
-          <button
-            key={category.id}
-            onClick={() =>
-              setActiveCategory(
-                category.id
-              )
-            }
-            className={`
-              whitespace-nowrap
-              rounded-full
-              px-5
-              py-3
-              text-sm
-              font-black
-              transition-all
 
-              ${
-                activeCategory ===
-                category.id
-                  ? `
-                    bg-brand-orange
-                    text-white
-                    shadow-[0_15px_35px_rgba(242,140,40,0.35)]
-                  `
-                  : `
-                    bg-white
-                    text-gray-700
-                  `
-              }
-            `}
-          >
-            {category.label}
-          </button>
+      {
+
+        categories.map(
+          (
+            category
+          ) => (
+
+            <button
+              key={category}
+              className="
+                whitespace-nowrap
+                rounded-full
+                bg-white
+                px-4
+                py-2
+                text-sm
+                font-medium
+                shadow-sm
+              "
+            >
+              {category}
+            </button>
+
+          )
         )
-      )}
+
+      }
+
     </div>
+
   );
+
 }
 
-export default MenuCategories;
+export default
+  MenuCategories;

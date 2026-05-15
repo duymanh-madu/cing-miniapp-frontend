@@ -1,21 +1,53 @@
-import httpClient
-  from "../http/httpClient";
-
 /**
  * =========================================================
- * FETCH RUNTIME CONFIG
+ * RUNTIME CONFIG SERVICE
  * =========================================================
  */
 
-export async function
-fetchRuntimeConfig() {
+class RuntimeConfigService {
+  config = null;
 
-  const response =
+  loaded = false;
 
-    await httpClient.get(
-      "/app/config"
-    );
+  async load() {
+    if (this.loaded) {
+      return this.config;
+    }
 
-  return response;
+    const config = {
+      appName:
+        import.meta.env.VITE_APP_NAME ||
+        "Cing Hu Tang",
 
+      apiBaseUrl:
+        import.meta.env.VITE_API_BASE_URL ||
+        "",
+
+      socketUrl:
+        import.meta.env.VITE_SOCKET_URL ||
+        "",
+
+      environment:
+        import.meta.env.MODE,
+
+      realtimeEnabled: true,
+
+      monitoringEnabled: true,
+    };
+
+    this.config = config;
+
+    this.loaded = true;
+
+    return config;
+  }
+
+  get() {
+    return this.config;
+  }
 }
+
+const runtimeConfigService =
+  new RuntimeConfigService();
+
+export default runtimeConfigService;

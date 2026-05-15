@@ -1,15 +1,31 @@
 import {
-  FaBell,
-  FaWifi,
-  FaTriangleExclamation,
-} from "react-icons/fa6";
+  useLocation,
+} from "react-router-dom";
 
-import useRuntimeStore
-  from "@/stores/runtimeStore";
+/**
+ * =========================================================
+ * TITLES
+ * =========================================================
+ */
 
-import {
-  useSocket,
-} from "@/providers/SocketProvider";
+const titles = {
+
+  "/":
+    "Cing Hu Tang",
+
+  "/menu":
+    "Menu",
+
+  "/game":
+    "Mini Game",
+
+  "/leaderboard":
+    "Bảng xếp hạng",
+
+  "/account":
+    "Tài khoản",
+
+};
 
 /**
  * =========================================================
@@ -19,68 +35,16 @@ import {
 
 function AppHeader() {
 
-  /**
-   * =======================================================
-   * RUNTIME CONFIG
-   * =======================================================
-   */
+  const location =
+    useLocation();
 
-  const config =
-    useRuntimeStore(
-      (state) =>
-        state.config
-    );
+  const title =
 
-  /**
-   * =======================================================
-   * SOCKET
-   * =======================================================
-   */
+    titles[
+      location.pathname
+    ] ||
 
-  const socketContext =
-    useSocket();
-
-  const connected =
-    socketContext?.connected ||
-    false;
-
-  /**
-   * =======================================================
-   * APP CONFIG
-   * =======================================================
-   */
-
-  const app =
-    config?.app || {};
-
-  const appName =
-    app.name ||
     "Cing Hu Tang";
-
-  const appTagline =
-    app.tagline ||
-    "Luxury Milk Tea";
-
-  /**
-   * =======================================================
-   * SOCKET STATUS UI
-   * =======================================================
-   */
-
-  const socketStatusClass =
-    connected
-
-      ? `
-        border-emerald-100
-        bg-emerald-50
-        text-emerald-500
-      `
-
-      : `
-        border-red-100
-        bg-red-50
-        text-red-400
-      `;
 
   return (
 
@@ -90,11 +54,11 @@ function AppHeader() {
         top-0
         z-40
         border-b
-        border-white/40
-        bg-brand-cream/90
-        px-5
+        border-[#f3f4f6]
+        bg-white/90
+        px-4
         py-4
-        backdrop-blur-xl
+        backdrop-blur
       "
     >
 
@@ -106,133 +70,16 @@ function AppHeader() {
         "
       >
 
-        {/* =================================================
-            LEFT
-        ================================================= */}
-
-        <div>
-
-          <h1
-            className="
-              text-xl
-              font-black
-              tracking-tight
-              text-brand-dark
-            "
-          >
-            {appName}
-          </h1>
-
-          <p
-            className="
-              mt-1
-              text-sm
-              text-brand-gray
-            "
-          >
-            {appTagline}
-          </p>
-
-        </div>
-
-        {/* =================================================
-            RIGHT
-        ================================================= */}
-
-        <div
+        <h1
           className="
-            flex
-            items-center
-            gap-3
+            text-lg
+            font-black
+            tracking-tight
+            text-[#111827]
           "
         >
-
-          {/* ===============================================
-              SOCKET STATUS
-          =============================================== */}
-
-          <div
-            className={`
-              flex
-              h-10
-              w-10
-              items-center
-              justify-center
-              rounded-full
-              border
-              transition-all
-              ${socketStatusClass}
-            `}
-          >
-
-            {
-              connected
-
-                ? (
-                  <FaWifi />
-                )
-
-                : (
-                  <FaTriangleExclamation />
-                )
-            }
-
-          </div>
-
-          {/* ===============================================
-              NOTIFICATION BUTTON
-          =============================================== */}
-
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="
-              relative
-              flex
-              h-12
-              w-12
-              items-center
-              justify-center
-              rounded-full
-              bg-brand-orange
-              text-white
-              shadow-premium
-              transition-all
-              duration-300
-              active:scale-95
-            "
-          >
-
-            <FaBell />
-
-            {/* ===========================================
-                BADGE
-            =========================================== */}
-
-            <span
-              className="
-                absolute
-                right-0
-                top-0
-                flex
-                h-5
-                min-w-5
-                items-center
-                justify-center
-                rounded-full
-                bg-red-500
-                px-1
-                text-[10px]
-                font-bold
-                text-white
-              "
-            >
-              3
-            </span>
-
-          </button>
-
-        </div>
+          {title}
+        </h1>
 
       </div>
 
@@ -242,4 +89,5 @@ function AppHeader() {
 
 }
 
-export default AppHeader;
+export default
+  AppHeader;

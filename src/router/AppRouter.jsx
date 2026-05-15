@@ -1,150 +1,29 @@
 import {
   BrowserRouter,
-  Routes,
-  Route,
   Navigate,
+  Route,
+  Routes,
 } from "react-router-dom";
 
+import AppLayout from "@/layouts/AppLayout";
+
 import {
-  Suspense,
-} from "react";
+  MenuPage,
+} from "@/features/menu";
 
-import MobileLayout
-  from "@/layouts/MobileLayout";
+import {
+  AccountPage,
+} from "@/features/account";
 
-import RuntimeProvider
-  from "@/providers/RuntimeProvider";
+import {
+  GamePage,
+} from "@/features/game";
 
-import HomePage
-  from "@/pages/HomePage";
+import {
+  LeaderboardPage,
+} from "@/features/leaderboard";
 
-import MenuPage
-  from "@/pages/MenuPage";
-
-import GamePage
-  from "@/pages/GamePage";
-
-import LeaderboardPage
-  from "@/pages/LeaderboardPage";
-
-import AccountPage
-  from "@/pages/AccountPage";
-
-/**
- * =========================================================
- * ROUTE CONFIG
- * =========================================================
- */
-
-const routes = [
-
-  {
-    id: "home",
-
-    path: "/",
-
-    element:
-      <HomePage />,
-  },
-
-  {
-    id: "menu",
-
-    path: "/menu",
-
-    element:
-      <MenuPage />,
-  },
-
-  {
-    id: "game",
-
-    path: "/game",
-
-    element:
-      <GamePage />,
-  },
-
-  {
-    id: "leaderboard",
-
-    path:
-      "/leaderboard",
-
-    element:
-      <LeaderboardPage />,
-  },
-
-  {
-    id: "account",
-
-    path:
-      "/account",
-
-    element:
-      <AccountPage />,
-  },
-
-];
-
-/**
- * =========================================================
- * LOADING FALLBACK
- * =========================================================
- */
-
-function RouteFallback() {
-
-  return (
-
-    <div
-      className="
-        flex
-        min-h-screen
-        items-center
-        justify-center
-        bg-brand-cream
-      "
-    >
-
-      <div
-        className="
-          flex
-          flex-col
-          items-center
-          gap-4
-        "
-      >
-
-        <div
-          className="
-            h-12
-            w-12
-            rounded-full
-            border-4
-            border-brand-orange/20
-            border-t-brand-orange
-            animate-spin
-          "
-        />
-
-        <p
-          className="
-            text-sm
-            font-medium
-            text-brand-gray
-          "
-        >
-          Đang tải hệ thống...
-        </p>
-
-      </div>
-
-    </div>
-
-  );
-
-}
+import HomePage from "@/pages/HomePage";
 
 /**
  * =========================================================
@@ -158,64 +37,58 @@ function AppRouter() {
 
     <BrowserRouter>
 
-      <RuntimeProvider>
+      <AppLayout>
 
-        <MobileLayout>
+        <Routes>
 
-          <Suspense
-            fallback={
-              <RouteFallback />
+          <Route
+            path="/"
+            element={
+              <HomePage />
             }
-          >
+          />
 
-            <Routes>
+          <Route
+            path="/menu"
+            element={
+              <MenuPage />
+            }
+          />
 
-              {
-                routes.map(
-                  (route) => (
+          <Route
+            path="/game"
+            element={
+              <GamePage />
+            }
+          />
 
-                    <Route
-                      key={
-                        route.id
-                      }
+          <Route
+            path="/leaderboard"
+            element={
+              <LeaderboardPage />
+            }
+          />
 
-                      path={
-                        route.path
-                      }
+          <Route
+            path="/account"
+            element={
+              <AccountPage />
+            }
+          />
 
-                      element={
-                        route.element
-                      }
-                    />
-
-                  )
-                )
-              }
-
-              {/* =====================================
-                  FALLBACK
-              ===================================== */}
-
-              <Route
-
-                path="*"
-
-                element={
-                  <Navigate
-                    to="/"
-                    replace
-                  />
-                }
-
+          <Route
+            path="*"
+            element={
+              <Navigate
+                replace
+                to="/"
               />
+            }
+          />
 
-            </Routes>
+        </Routes>
 
-          </Suspense>
-
-        </MobileLayout>
-
-      </RuntimeProvider>
+      </AppLayout>
 
     </BrowserRouter>
 

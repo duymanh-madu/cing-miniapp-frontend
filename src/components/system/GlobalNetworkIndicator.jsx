@@ -7,34 +7,101 @@ import {
   FaCloudArrowUp,
 } from "react-icons/fa6";
 
-import useApiStatus from "../../hooks/useApiStatus";
+import useApiStatus from "@/hooks/useApiStatus";
+
+import useSocketStore from "@/stores/socketStore";
 
 /**
- * ============================================
+ * =========================================================
  * GLOBAL NETWORK INDICATOR
- * ============================================
+ * =========================================================
  */
 
 function GlobalNetworkIndicator() {
+
+  /**
+   * =======================================================
+   * API STATUS
+   * =======================================================
+   */
+
   const {
     active,
   } = useApiStatus();
 
+  /**
+   * =======================================================
+   * SOCKET STATUS
+   * =======================================================
+   */
+
+  const reconnecting =
+    useSocketStore(
+      (state) =>
+        state.reconnecting
+    );
+
+  const offline =
+    useSocketStore(
+      (state) =>
+        state.offline
+    );
+
+  /**
+   * =======================================================
+   * HIDE WHEN OFFLINE
+   * =======================================================
+   */
+
+  if (offline) {
+    return null;
+  }
+
+  /**
+   * =======================================================
+   * ACTIVE STATE
+   * =======================================================
+   */
+
+  const visible =
+    active ||
+    reconnecting;
+
+  /**
+   * =======================================================
+   * LABEL
+   * =======================================================
+   */
+
+  const label =
+    reconnecting
+      ? "Đang khôi phục realtime..."
+      : "Đồng bộ dữ liệu...";
+
   return (
+
     <AnimatePresence>
-      {active && (
+
+      {visible && (
+
         <motion.div
           initial={{
             opacity: 0,
-            y: -10,
+            y: -12,
+            scale: 0.95,
           }}
           animate={{
             opacity: 1,
             y: 0,
+            scale: 1,
           }}
           exit={{
             opacity: 0,
-            y: -10,
+            y: -12,
+            scale: 0.95,
+          }}
+          transition={{
+            duration: 0.2,
           }}
           className="
             fixed
@@ -42,7 +109,6 @@ function GlobalNetworkIndicator() {
             top-4
             z-[9999]
             flex
-            -translate-x-1/2
             items-center
             gap-2
             rounded-full
@@ -51,11 +117,15 @@ function GlobalNetworkIndicator() {
             py-2
             text-white
             shadow-[0_20px_40px_rgba(0,0,0,0.25)]
+            backdrop-blur-md
+            -translate-x-1/2
           "
         >
+
           <FaCloudArrowUp
             className="
               text-sm
+              shrink-0
             "
           />
 
@@ -63,14 +133,21 @@ function GlobalNetworkIndicator() {
             className="
               text-[12px]
               font-bold
+              whitespace-nowrap
             "
           >
-            Đồng bộ dữ liệu...
+            {label}
           </span>
+
         </motion.div>
+
       )}
+
     </AnimatePresence>
+
   );
+
 }
 
-export default GlobalNetworkIndicator;
+export default
+GlobalNetworkIndicator;

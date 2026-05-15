@@ -1,37 +1,171 @@
-import {
-  useSocket,
-}
-from "@/providers/SocketProvider";
-
 import useNotificationStore from "../stores/notificationStore";
 
 /**
- * ============================================
- * NOTIFICATION EVENTS
- * ============================================
+ * =========================================================
+ * NOTIFICATION REALTIME STATE
+ * =========================================================
  */
 
-export function initializeNotificationEvents() {
-  socket.on(
-    "notification_created",
+let initialized =
+  false;
+
+/**
+ * =========================================================
+ * HANDLERS
+ * =========================================================
+ */
+
+let handleNotificationCreated;
+
+/**
+ * =========================================================
+ * INITIALIZE NOTIFICATION EVENTS
+ * =========================================================
+ */
+
+export function
+initializeNotificationEvents(
+  socket
+) {
+
+  /**
+   * =======================================================
+   * SOCKET REQUIRED
+   * =======================================================
+   */
+
+  if (
+    !socket
+  ) {
+
+    return;
+
+  }
+
+  /**
+   * =======================================================
+   * PREVENT DUPLICATE
+   * =======================================================
+   */
+
+  if (
+    initialized
+  ) {
+
+    return;
+
+  }
+
+  initialized =
+    true;
+
+  /**
+   * =======================================================
+   * NOTIFICATION CREATED
+   * =======================================================
+   */
+
+  handleNotificationCreated =
     (payload) => {
+
+      /**
+       * ===================================================
+       * VALIDATE
+       * ===================================================
+       */
+
+      if (
+        !payload ||
+        !payload.notification
+      ) {
+
+        return;
+
+      }
+
+      console.log(
+        "🔔 NOTIFICATION RECEIVED",
+        payload
+      );
+
+      /**
+       * ===================================================
+       * PUSH NOTIFICATION
+       * ===================================================
+       */
+
       useNotificationStore
         .getState()
         .pushNotification(
           payload.notification
         );
-    }
+
+    };
+
+  /**
+   * =======================================================
+   * REGISTER EVENTS
+   * =======================================================
+   */
+
+  socket.on(
+    "notification_created",
+    handleNotificationCreated
   );
+
+  console.log(
+    "🟢 NOTIFICATION EVENTS INITIALIZED"
+  );
+
 }
 
 /**
- * ============================================
- * DESTROY EVENTS
- * ============================================
+ * =========================================================
+ * DESTROY NOTIFICATION EVENTS
+ * =========================================================
  */
 
-export function destroyNotificationEvents() {
+export function
+destroyNotificationEvents(
+  socket
+) {
+
+  /**
+   * =======================================================
+   * SOCKET REQUIRED
+   * =======================================================
+   */
+
+  if (
+    !socket
+  ) {
+
+    return;
+
+  }
+
+  /**
+   * =======================================================
+   * RESET
+   * =======================================================
+   */
+
+  initialized =
+    false;
+
+  /**
+   * =======================================================
+   * REMOVE LISTENERS
+   * =======================================================
+   */
+
   socket.off(
-    "notification_created"
+    "notification_created",
+    handleNotificationCreated
   );
+
+  console.log(
+    "🔴 NOTIFICATION EVENTS DESTROYED"
+  );
+
 }

@@ -17,12 +17,14 @@
     "framer-motion": "^11.18.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.468.0",
+    "phaser": "^4.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.6.0",
     "react-router-dom": "^6.30.3",
     "socket.io-client": "^4.8.3",
+    "zmp-sdk": "^2.51.1",
     "zustand": "^5.0.13"
   },
   "devDependencies": {

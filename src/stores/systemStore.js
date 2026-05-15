@@ -1,82 +1,27 @@
-import {
-  create,
-} from "zustand";
+import { create } from "zustand";
 
 /**
- * ============================================
+ * =========================================================
  * SYSTEM STORE
- * ============================================
+ * =========================================================
  */
 
-const useSystemStore =
-  create((set) => ({
-    /**
-     * SYSTEM
-     */
+const useSystemStore = create(
+  (set) => ({
+    runtimeReady: false,
 
-    initialized: false,
+    runtimeBootedAt: null,
 
-    bootCompleted: false,
+    runtimeError: null,
 
-    bootTimestamp: null,
-
-    environment:
-      import.meta.env.MODE,
-
-    /**
-     * NETWORK
-     */
-
-    online:
-      navigator.onLine,
-
-    /**
-     * PERFORMANCE
-     */
-
-    fps: 60,
-
-    memoryUsage: null,
-
-    /**
-     * ACTIONS
-     */
-
-    setInitialized:
-      (value) =>
-        set({
-          initialized:
-            value,
-        }),
-
-    setBootCompleted:
-      (value) =>
-        set({
-          bootCompleted:
-            value,
-
-          bootTimestamp:
-            Date.now(),
-        }),
-
-    setOnline:
-      (value) =>
-        set({
-          online: value,
-        }),
-
-    setFPS:
-      (value) =>
-        set({
-          fps: value,
-        }),
-
-    setMemoryUsage:
-      (value) =>
-        set({
-          memoryUsage:
-            value,
-        }),
-  }));
+    setRuntimeReady: (
+      runtimeReady
+    ) => {
+      set({
+        runtimeReady,
+      });
+    },
+  })
+);
 
 export default useSystemStore;

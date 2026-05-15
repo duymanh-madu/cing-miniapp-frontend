@@ -1,33 +1,26 @@
-import { io }
-  from "socket.io-client";
+import { io } from "socket.io-client";
 
-/**
- * =========================================================
- * SOCKET URL
- * =========================================================
- */
+import {
+  SOCKET_CONFIG,
+} from "@/config/appConfig";
 
-const SOCKET_URL =
-  import.meta.env
-    .VITE_SOCKET_URL ||
-  "http://localhost:5050";
-
-/**
- * =========================================================
- * SOCKET INSTANCE
- * =========================================================
- */
-
-const socket = io(
-  SOCKET_URL,
+const socketClient = io(
+  SOCKET_CONFIG.url,
   {
-    autoConnect:
-      false,
+    path:
+      SOCKET_CONFIG.path ||
+      "/socket.io",
 
     transports: [
       "websocket",
       "polling",
     ],
+
+    autoConnect:
+      false,
+
+    withCredentials:
+      true,
 
     reconnection:
       true,
@@ -39,50 +32,11 @@ const socket = io(
       1000,
 
     reconnectionDelayMax:
-      5000,
+      10000,
 
     timeout:
       20000,
-
-    withCredentials:
-      true,
   }
 );
 
-/**
- * =========================================================
- * DEBUG
- * =========================================================
- */
-
-socket.on(
-  "connect",
-  () => {
-    console.log(
-      "🟢 SOCKET CONNECTED:",
-      socket.id
-    );
-  }
-);
-
-socket.on(
-  "disconnect",
-  (reason) => {
-    console.log(
-      "🔴 SOCKET DISCONNECTED:",
-      reason
-    );
-  }
-);
-
-socket.on(
-  "connect_error",
-  (error) => {
-    console.error(
-      "❌ SOCKET ERROR:",
-      error.message
-    );
-  }
-);
-
-export default socket;
+export default socketClient;

@@ -2,35 +2,39 @@ import React from "react";
 
 import ReactDOM from "react-dom/client";
 
+import {
+  BrowserRouter,
+} from "react-router-dom";
+
 import App from "./App";
 
-import "@/styles/index.css";
+import "./index.css";
 
-/**
- * =========================================================
- * ROOT
- * =========================================================
- */
+import webviewPerformanceBootstrap from "@/core/webview/webviewPerformanceBootstrap";
 
-const rootElement =
-  document.getElementById(
-    "root"
+async function bootstrap() {
+
+  await webviewPerformanceBootstrap
+    .bootstrap();
+
+  ReactDOM.createRoot(
+    document.getElementById(
+      "root"
+    )
+  ).render(
+
+    <React.StrictMode>
+
+      <BrowserRouter>
+
+        <App />
+
+      </BrowserRouter>
+
+    </React.StrictMode>
+
   );
 
-/**
- * =========================================================
- * ROOT RENDER
- * =========================================================
- */
+}
 
-ReactDOM.createRoot(
-  rootElement
-).render(
-
-  <React.StrictMode>
-
-    <App />
-
-  </React.StrictMode>
-
-);
+bootstrap();

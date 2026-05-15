@@ -2,105 +2,81 @@ import {
   create,
 } from "zustand";
 
-/**
- * ============================================
- * AUTH STORE
- * ============================================
- */
+const defaultState =
+  {
+
+    authenticated:
+      false,
+
+    accessToken:
+      null,
+
+    refreshToken:
+      null,
+
+    profile:
+      null,
+
+  };
 
 const useAuthStore =
-  create((set) => ({
-    /**
-     * STATE
-     */
+  create(
+    (
+      set
+    ) => ({
 
-    initialized: false,
+      ...defaultState,
 
-    loading: false,
+      setSession:
+        ({
+          accessToken,
+          refreshToken,
+          profile,
+        }) => {
 
-    authenticated: false,
+          set({
 
-    accessToken: null,
+            authenticated:
+              true,
 
-    refreshToken: null,
+            accessToken:
+              accessToken || null,
 
-    user: null,
+            refreshToken:
+              refreshToken || null,
 
-    role: "guest",
+            profile:
+              profile || null,
 
-    permissions: [],
+          });
 
-    /**
-     * ACTIONS
-     */
+        },
 
-    setLoading:
-      (value) =>
-        set({
-          loading: value,
-        }),
+      updateProfile:
+        (
+          profile
+        ) => {
 
-    initialize:
-      (payload) =>
-        set({
-          initialized: true,
+          set({
 
-          authenticated:
-            payload.authenticated,
+            profile:
+              profile || null,
 
-          accessToken:
-            payload.accessToken,
+          });
 
-          refreshToken:
-            payload.refreshToken,
+        },
 
-          user:
-            payload.user,
+      clearSession:
+        () => {
 
-          role:
-            payload.role,
+          set({
+            ...defaultState,
+          });
 
-          permissions:
-            payload.permissions ||
-            [],
-        }),
+        },
 
-    login:
-      (payload) =>
-        set({
-          authenticated: true,
+    })
+  );
 
-          accessToken:
-            payload.accessToken,
-
-          refreshToken:
-            payload.refreshToken,
-
-          user:
-            payload.user,
-
-          role:
-            payload.role,
-
-          permissions:
-            payload.permissions ||
-            [],
-        }),
-
-    logout: () =>
-      set({
-        authenticated: false,
-
-        accessToken: null,
-
-        refreshToken: null,
-
-        user: null,
-
-        role: "guest",
-
-        permissions: [],
-      }),
-  }));
-
-export default useAuthStore;
+export default
+  useAuthStore;

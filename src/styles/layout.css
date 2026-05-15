@@ -1,0 +1,63 @@
+html,
+body,
+#root {
+
+  margin: 0;
+
+  padding: 0;
+
+  width: 100%;
+
+  min-height: 100%;
+
+}
+
+html {
+
+  -webkit-tap-highlight-color:
+    transparent;
+
+}
+
+body {
+
+  overflow-x:
+    hidden;
+
+  background:
+    #f8f8f8;
+
+  color:
+    #111827;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  -webkit-font-smoothing:
+    antialiased;
+
+  text-rendering:
+    optimizeLegibility;
+
+  overscroll-behavior:
+    none;
+
+}
+
+* {
+
+  box-sizing:
+    border-box;
+
+}
+
+button,
+input,
+textarea,
+select {
+
+  font:
+    inherit;
+
+}

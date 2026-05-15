@@ -1,507 +1,140 @@
-import httpClient
-  from "../http/httpClient";
+import apiClient from "@/services/api/apiClient";
+
+import loggerService from "@/services/logger/loggerService";
 
 /**
  * =========================================================
- * SAFE STRING
+ * PRODUCT SERVICE
  * =========================================================
  */
 
-function safeString(
-  value,
-  fallback = ""
-) {
+class ProductService {
 
-  return typeof value ===
-    "string"
+  /**
+   * =======================================================
+   * FETCH PRODUCTS
+   * =======================================================
+   */
 
-    ? value.trim()
+  async fetchProducts() {
 
-    : fallback;
+    try {
 
-}
+      const response =
+        await apiClient.get(
+          "/products"
+        );
 
-/**
- * =========================================================
- * SAFE NUMBER
- * =========================================================
- */
+      return (
+        response?.data ||
+        []
+      );
 
-function safeNumber(
-  value,
-  fallback = 0
-) {
+    } catch (error) {
 
-  const parsed =
-    Number(value);
+      loggerService.error(
+        "PRODUCT_FETCH_ERROR",
+        error
+      );
 
-  return Number.isFinite(
-    parsed
-  )
-    ? parsed
-    : fallback;
+      return [];
 
-}
+    }
 
-/**
- * =========================================================
- * SAFE ARRAY
- * =========================================================
- */
+  }
 
-function safeArray(
-  value
-) {
+  /**
+   * =======================================================
+   * FETCH FEATURED
+   * =======================================================
+   */
 
-  return Array.isArray(
-    value
-  )
-    ? value
-    : [];
+  async fetchFeaturedProducts() {
 
-}
+    try {
 
-/**
- * =========================================================
- * EXTRACT API DATA
- * =========================================================
- */
+      const response =
+        await apiClient.get(
+          "/products/featured"
+        );
 
-function extractData(
-  response
-) {
+      return (
+        response?.data ||
+        []
+      );
 
-  if (
-    !response ||
-    typeof response !==
-      "object"
+    } catch (error) {
+
+      loggerService.error(
+        "FEATURED_PRODUCTS_ERROR",
+        error
+      );
+
+      return [];
+
+    }
+
+  }
+
+  /**
+   * =======================================================
+   * SEARCH
+   * =======================================================
+   */
+
+  async searchProducts(
+    keyword = ""
   ) {
 
-    return null;
+    try {
+
+      const response =
+        await apiClient.get(
+          "/products/search",
+          {
+            params: {
+              keyword,
+            },
+          }
+        );
+
+      return (
+        response?.data ||
+        []
+      );
+
+    } catch (error) {
+
+      loggerService.error(
+        "PRODUCT_SEARCH_ERROR",
+        error
+      );
+
+      return [];
+
+    }
 
   }
 
-  return (
-    response?.data?.data ||
+}
 
-    response?.data ||
+const productService =
+  new ProductService();
 
-    null
+export const fetchProducts =
+  productService.fetchProducts.bind(
+    productService
   );
 
-}
-
-/**
- * =========================================================
- * NORMALIZE PRODUCT
- * =========================================================
- */
-
-export function
-normalizeProduct(
-  product
-) {
-
-  const safeProduct =
-
-    product &&
-    typeof product ===
-      "object"
-
-      ? product
-
-      : {};
-
-  return {
-
-    /**
-     * =====================================================
-     * IDENTIFIERS
-     * =====================================================
-     */
-
-    id:
-
-      safeString(
-
-        safeProduct.id ||
-
-        safeProduct.item_id ||
-
-        safeProduct.code ||
-
-        crypto.randomUUID()
-
-      ),
-
-    sku:
-
-      safeString(
-        safeProduct.sku
-      ),
-
-    /**
-     * =====================================================
-     * CONTENT
-     * =====================================================
-     */
-
-    name:
-
-      safeString(
-
-        safeProduct.name ||
-
-        safeProduct.item_name ||
-
-        "Unnamed Product"
-
-      ),
-
-    description:
-
-      safeString(
-
-        safeProduct.description ||
-
-        safeProduct.short_description ||
-
-        ""
-
-      ),
-
-    /**
-     * =====================================================
-     * PRICING
-     * =====================================================
-     */
-
-    price:
-
-      safeNumber(
-
-        safeProduct.price ||
-
-        safeProduct.base_price
-
-      ),
-
-    originalPrice:
-
-      safeNumber(
-
-        safeProduct.original_price
-
-      ),
-
-    /**
-     * =====================================================
-     * MEDIA
-     * =====================================================
-     */
-
-    image:
-
-      safeString(
-
-        safeProduct.image ||
-
-        safeProduct.thumbnail ||
-
-        ""
-
-      ),
-
-    gallery:
-
-      safeArray(
-        safeProduct.gallery
-      ),
-
-    /**
-     * =====================================================
-     * CATEGORY
-     * =====================================================
-     */
-
-    category:
-
-      safeString(
-
-        safeProduct.category ||
-
-        "milk-tea"
-
-      ),
-
-    /**
-     * =====================================================
-     * INVENTORY
-     * =====================================================
-     */
-
-    inventory:
-
-      safeNumber(
-
-        safeProduct.inventory ||
-
-        safeProduct.stock
-
-      ),
-
-    /**
-     * =====================================================
-     * FLAGS
-     * =====================================================
-     */
-
-    active:
-
-      safeProduct.active !==
-      false,
-
-    featured:
-      Boolean(
-        safeProduct.featured
-      ),
-
-    /**
-     * =====================================================
-     * REALTIME META
-     * =====================================================
-     */
-
-    fetchedAt:
-      Date.now(),
-
-    sync:
-      "synced",
-
-    /**
-     * =====================================================
-     * RAW
-     * =====================================================
-     */
-
-    raw: safeProduct,
-
-  };
-
-}
-
-/**
- * =========================================================
- * NORMALIZE PRODUCTS
- * =========================================================
- */
-
-function normalizeProducts(
-  products
-) {
-
-  return safeArray(
-    products
-  )
-    .map(
-      normalizeProduct
-    )
-    .filter(
-      (product) =>
-        Boolean(
-          product.id
-        )
-    );
-
-}
-
-/**
- * =========================================================
- * FETCH PRODUCTS
- * =========================================================
- */
-
-export async function
-fetchProducts() {
-
-  try {
-
-    const response =
-
-      await httpClient.get(
-        "/products"
-      );
-
-    const data =
-      extractData(
-        response
-      );
-
-    return normalizeProducts(
-      data
-    );
-
-  } catch (error) {
-
-    console.error(
-
-      "[FETCH PRODUCTS ERROR]",
-
-      error
-
-    );
-
-    return [];
-
-  }
-
-}
-
-/**
- * =========================================================
- * FETCH FEATURED PRODUCTS
- * =========================================================
- */
-
-export async function
-fetchFeaturedProducts() {
-
-  try {
-
-    const response =
-
-      await httpClient.get(
-        "/products/featured"
-      );
-
-    const data =
-      extractData(
-        response
-      );
-
-    return normalizeProducts(
-      data
-    );
-
-  } catch (error) {
-
-    console.error(
-
-      "[FEATURED PRODUCTS ERROR]",
-
-      error
-
-    );
-
-    return [];
-
-  }
-
-}
-
-/**
- * =========================================================
- * FETCH PRODUCT DETAIL
- * =========================================================
- */
-
-export async function
-fetchProductById(
-  productId
-) {
-
-  try {
-
-    if (!productId) {
-
-      return null;
-
-    }
-
-    const response =
-
-      await httpClient.get(
-
-        `/products/${productId}`
-
-      );
-
-    const data =
-      extractData(
-        response
-      );
-
-    if (!data) {
-
-      return null;
-
-    }
-
-    return normalizeProduct(
-      data
-    );
-
-  } catch (error) {
-
-    console.error(
-
-      "[FETCH PRODUCT DETAIL ERROR]",
-
-      error
-
-    );
-
-    return null;
-
-  }
-
-}
-
-/**
- * =========================================================
- * SEARCH PRODUCTS
- * =========================================================
- */
-
-export async function
-searchProducts(
-  keyword = ""
-) {
-
-  try {
-
-    const response =
-
-      await httpClient.get(
-        "/products/search",
-        {
-          params: {
-            keyword,
-          },
-        }
-      );
-
-    const data =
-      extractData(
-        response
-      );
-
-    return normalizeProducts(
-      data
-    );
-
-  } catch (error) {
-
-    console.error(
-
-      "[SEARCH PRODUCTS ERROR]",
-
-      error
-
-    );
-
-    return [];
-
-  }
-
-}
+export const fetchFeaturedProducts =
+  productService.fetchFeaturedProducts.bind(
+    productService
+  );
+
+export const searchProducts =
+  productService.searchProducts.bind(
+    productService
+  );
+
+export default
+  productService;

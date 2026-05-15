@@ -1,63 +1,32 @@
 import {
-  useEffect,
-} from "react";
+  useQuery,
+} from "@tanstack/react-query";
 
-import useMenuStore from "../store/menuStore";
+import queryKeys from "@/services/query/queryKeys";
 
 import {
-  fetchMenuData,
-} from "../services/menuService";
+  fetchProducts,
+} from "@/services/product/productService";
 
 /**
- * ============================================
- * MENU DATA
- * ============================================
+ * =========================================================
+ * USE MENU
+ * =========================================================
  */
 
-function useMenuData() {
-  const {
-    setMenuData,
-    setLoading,
-  } = useMenuStore();
+function useMenu() {
 
-  useEffect(() => {
-    let mounted = true;
+  return useQuery({
 
-    async function loadMenu() {
-      try {
-        setLoading(true);
+    queryKey:
+      queryKeys.menu.list(),
 
-        const response =
-          await fetchMenuData();
+    queryFn:
+      fetchProducts,
 
-        if (
-          mounted &&
-          response.success
-        ) {
-          setMenuData({
-            categories:
-              response.categories,
+  });
 
-            products:
-              response.products,
-          });
-        }
-      } catch (error) {
-        console.error(
-          "menu load error:",
-          error
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadMenu();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 }
 
-export default useMenuData;
+export default
+  useMenu;

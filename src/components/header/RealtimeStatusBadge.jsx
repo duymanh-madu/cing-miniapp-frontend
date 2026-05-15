@@ -2,99 +2,62 @@ import {
   motion,
 } from "framer-motion";
 
-import useRealtimeStatus from "../../hooks/useRealtimeStatus";
-
 /**
- * ============================================
+ * =========================================================
  * REALTIME STATUS BADGE
- * ============================================
+ * =========================================================
  */
 
 function RealtimeStatusBadge() {
-  const {
-    socketConnected,
-    reconnecting,
-  } =
-    useRealtimeStatus();
-
-  /**
-   * STATUS
-   */
-
-  let label =
-    "Offline";
-
-  let color =
-    "bg-red-500";
-
-  if (
-    reconnecting
-  ) {
-    label =
-      "Reconnecting";
-
-    color =
-      "bg-yellow-500";
-  }
-
-  if (
-    socketConnected &&
-    !reconnecting
-  ) {
-    label =
-      "Realtime Online";
-
-    color =
-      "bg-green-500";
-  }
 
   return (
-    <div
+
+    <motion.div
+      initial={{
+        opacity: 0,
+        y: -6,
+      }}
+
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+
       className="
-        inline-flex
+        flex
         items-center
         gap-2
         rounded-full
-        bg-white/90
-        backdrop-blur-xl
-        px-4
-        py-2
-        shadow-[0_8px_20px_rgba(0,0,0,0.06)]
+        bg-[#ecfdf3]
+        px-3
+        py-1
       "
     >
-      <motion.div
-        animate={{
-          scale: [
-            1,
-            1.25,
-            1,
-          ],
-        }}
-        transition={{
-          repeat:
-            Infinity,
 
-          duration: 1.2,
-        }}
-        className={`
-          h-3
-          w-3
+      <div
+        className="
+          h-2
+          w-2
           rounded-full
-          ${color}
-        `}
+          bg-[#22c55e]
+        "
       />
 
       <span
         className="
-          text-[12px]
-          font-bold
-          text-gray-700
+          text-[11px]
+          font-semibold
+          text-[#15803d]
         "
       >
-        {label}
+        Realtime Online
       </span>
-    </div>
+
+    </motion.div>
+
   );
+
 }
 
-export default RealtimeStatusBadge;
+export default
+  RealtimeStatusBadge;

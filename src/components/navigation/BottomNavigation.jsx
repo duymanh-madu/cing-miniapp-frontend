@@ -2,91 +2,55 @@ import {
   NavLink,
 } from "react-router-dom";
 
-import {
-  FaGift,
-  FaHouse,
-  FaMedal,
-  FaMugHot,
-  FaGamepad,
-} from "react-icons/fa6";
-
-import useSystemNavigation
-  from "../../hooks/useSystemNavigation";
-
 /**
  * =========================================================
- * ICON REGISTRY
+ * NAVIGATION ITEMS
  * =========================================================
  */
 
-const iconRegistry = {
+const items = [
 
-  home:
-    FaHouse,
+  {
+    label:
+      "Trang chủ",
 
-  menu:
-    FaMugHot,
+    path:
+      "/",
+  },
 
-  game:
-    FaGamepad,
+  {
+    label:
+      "Menu",
 
-  voucher:
-    FaGift,
+    path:
+      "/menu",
+  },
 
-  membership:
-    FaMedal,
+  {
+    label:
+      "Game",
 
-};
+    path:
+      "/game",
+  },
 
-/**
- * =========================================================
- * FALLBACK ICON
- * =========================================================
- */
+  {
+    label:
+      "BXH",
 
-const FallbackIcon =
-  FaHouse;
+    path:
+      "/leaderboard",
+  },
 
-/**
- * =========================================================
- * NAV ITEM CLASS
- * =========================================================
- */
+  {
+    label:
+      "Tài khoản",
 
-function buildNavItemClass(
-  isActive
-) {
+    path:
+      "/account",
+  },
 
-  return `
-
-    flex
-    flex-col
-    items-center
-    gap-2
-    rounded-2xl
-    px-4
-    py-2
-    transition-all
-    duration-300
-
-    ${
-      isActive
-
-        ? `
-          bg-brand-orange
-          text-white
-          shadow-[0_12px_30px_rgba(242,140,40,0.35)]
-        `
-
-        : `
-          text-gray-400
-          active:scale-95
-        `
-    }
-
-  `;
-
-}
+];
 
 /**
  * =========================================================
@@ -96,188 +60,95 @@ function buildNavItemClass(
 
 function BottomNavigation() {
 
-  const navigation =
-    useSystemNavigation();
-
-  /**
-   * =======================================================
-   * EMPTY NAVIGATION
-   * =======================================================
-   */
-
-  if (
-    !Array.isArray(
-      navigation
-    ) ||
-
-    !navigation.length
-  ) {
-
-    return null;
-
-  }
-
   return (
 
     <nav
-
-      aria-label=
-        "Bottom Navigation"
-
       className="
         fixed
         bottom-0
         left-0
         right-0
         z-50
-        border-t
-        border-white/30
-        bg-white/80
-        backdrop-blur-2xl
+        flex
+        justify-center
+        pb-safe
       "
     >
 
       <div
         className="
-          mx-auto
           flex
+          w-full
           max-w-[520px]
           items-center
           justify-around
-          px-3
-          pb-[max(env(safe-area-inset-bottom),16px)]
-          pt-3
+          border-t
+          border-[#e5e7eb]
+          bg-white/95
+          px-2
+          py-3
+          backdrop-blur
         "
       >
 
-        {navigation.map(
-          (item) => {
+        {
 
-            /**
-             * =============================================
-             * INVALID ITEM
-             * =============================================
-             */
-
-            if (
-
-              !item ||
-
-              typeof item !==
-                "object"
-
-            ) {
-
-              return null;
-
-            }
-
-            /**
-             * =============================================
-             * ICON
-             * =============================================
-             */
-
-            const Icon =
-
-              iconRegistry[
-                item.icon
-              ] ||
-
-              FallbackIcon;
-
-            return (
+          items.map(
+            (
+              item
+            ) => (
 
               <NavLink
-
                 key={
-                  item.id
+                  item.path
                 }
 
                 to={
                   item.path
                 }
 
-                aria-label={
-                  item.label
-                }
+                className={(
+                  {
+                    isActive,
+                  }
+                ) => `
+                  flex
+                  min-w-[64px]
+                  flex-col
+                  items-center
+                  gap-1
+                  rounded-2xl
+                  px-3
+                  py-2
+                  text-[11px]
+                  font-semibold
+                  transition-all
 
-                className={({
-                  isActive,
-                }) =>
-
-                  buildNavItemClass(
+                  ${
                     isActive
-                  )
 
-                }
+                      ? `
+                        bg-[#fff1e6]
+                        text-[#ff7a00]
+                      `
 
+                      : `
+                        text-[#6b7280]
+                      `
+                  }
+                `}
               >
 
-                <div
-                  className="
-                    relative
-                  "
-                >
-
-                  <Icon
-                    className="
-                      text-lg
-                    "
-                  />
-
-                  {
-                    item.badge >
-
-                    0 && (
-
-                      <span
-                        className="
-                          absolute
-                          -right-2
-                          -top-2
-                          flex
-                          h-4
-                          min-w-4
-                          items-center
-                          justify-center
-                          rounded-full
-                          bg-red-500
-                          px-1
-                          text-[10px]
-                          font-bold
-                          text-white
-                        "
-                      >
-
-                        {
-                          item.badge
-                        }
-
-                      </span>
-
-                    )
-                  }
-
-                </div>
-
-                <span
-                  className="
-                    text-[11px]
-                    font-bold
-                  "
-                >
-
+                <span>
                   {item.label}
-
                 </span>
 
               </NavLink>
 
-            );
+            )
+          )
 
-          }
-        )}
+        }
 
       </div>
 

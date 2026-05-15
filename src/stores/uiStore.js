@@ -2,109 +2,71 @@ import {
   create,
 } from "zustand";
 
-/**
- * ============================================
- * UI STORE
- * ============================================
- */
+const useUiStore =
+  create(
+    (
+      set
+    ) => ({
 
-const useUIStore =
-  create((set) => ({
-    /**
-     * DRAWERS
-     */
+      globalLoading:
+        false,
 
-    activeDrawer:
-      null,
+      sidebarOpened:
+        false,
 
-    /**
-     * MODALS
-     */
+      modalOpened:
+        false,
 
-    activeModal:
-      null,
+      setGlobalLoading:
+        (
+          value
+        ) => {
 
-    modalPayload:
-      null,
+          set({
 
-    /**
-     * LOADING
-     */
+            globalLoading:
+              Boolean(
+                value
+              ),
 
-    globalLoading: false,
+          });
 
-    /**
-     * TOASTS
-     */
+        },
 
-    blockingToast:
-      null,
+      setSidebarOpened:
+        (
+          value
+        ) => {
 
-    /**
-     * SEARCH
-     */
+          set({
 
-    globalSearchOpen: false,
+            sidebarOpened:
+              Boolean(
+                value
+              ),
 
-    /**
-     * ACTIONS
-     */
+          });
 
-    openDrawer:
-      (drawer) =>
-        set({
-          activeDrawer:
-            drawer,
-        }),
+        },
 
-    closeDrawer:
-      () =>
-        set({
-          activeDrawer:
-            null,
-        }),
+      setModalOpened:
+        (
+          value
+        ) => {
 
-    openModal: (
-      modal,
-      payload = null
-    ) =>
-      set({
-        activeModal:
-          modal,
+          set({
 
-        modalPayload:
-          payload,
-      }),
+            modalOpened:
+              Boolean(
+                value
+              ),
 
-    closeModal:
-      () =>
-        set({
-          activeModal:
-            null,
+          });
 
-          modalPayload:
-            null,
-        }),
+        },
 
-    setGlobalLoading:
-      (value) =>
-        set({
-          globalLoading:
-            value,
-        }),
+    })
+  );
 
-    openGlobalSearch:
-      () =>
-        set({
-          globalSearchOpen: true,
-        }),
-
-    closeGlobalSearch:
-      () =>
-        set({
-          globalSearchOpen:
-            false,
-        }),
-  }));
-
-export default useUIStore;
+export default
+  useUiStore;
