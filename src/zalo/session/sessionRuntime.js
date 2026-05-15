@@ -1,19 +1,53 @@
 class SessionRuntime {
-  getJwt() {
-    return localStorage.getItem(
-      "miniapp_jwt"
+
+  SESSION_KEY =
+    "cing_zalo_session";
+
+  save(payload) {
+
+    localStorage.setItem(
+      this.SESSION_KEY,
+      JSON.stringify(payload)
     );
+
   }
 
-  hasSession() {
-    return !!this.getJwt();
+  restore() {
+
+    try {
+
+      const raw =
+        localStorage.getItem(
+          this.SESSION_KEY
+        );
+
+      if (!raw) {
+        return null;
+      }
+
+      return JSON.parse(raw);
+
+    } catch (error) {
+
+      console.error(
+        "session restore failed",
+        error
+      );
+
+      return null;
+
+    }
+
   }
 
   clear() {
+
     localStorage.removeItem(
-      "miniapp_jwt"
+      this.SESSION_KEY
     );
+
   }
+
 }
 
 const sessionRuntime =

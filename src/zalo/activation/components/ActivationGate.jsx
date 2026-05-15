@@ -1,24 +1,58 @@
-import { useEffect } from "react";
+import {
+  useEffect,
+} from "react";
 
-import activationRuntime from "../activationRuntime";
+import activationService from "@/zalo/activation/services/activationService";
 
-import useActivationStore from "../activationStore";
+import useActivationStore from "@/stores/activationStore";
 
-function ActivationGate() {
+function ActivationGate({
+  children,
+}) {
+
   const activated =
     useActivationStore(
-      (state) => state.activated
+      (state) =>
+        state.activated
+    );
+
+  const setActivated =
+    useActivationStore(
+      (state) =>
+        state.setActivated
     );
 
   useEffect(() => {
-    if (activated) {
-      return;
+
+    async function boot() {
+
+      const result =
+        await activationService
+          .activate();
+
+      if (result) {
+
+        setActivated(
+          true
+        );
+
+      }
+
     }
 
-    activationRuntime.activate();
-  }, [activated]);
+    boot();
 
-  return null;
+  }, []);
+
+  if (!activated) {
+
+    return null;
+
+  }
+
+  return children;
+
 }
 
-export default ActivationGate;
+export default
+  ActivationGate;

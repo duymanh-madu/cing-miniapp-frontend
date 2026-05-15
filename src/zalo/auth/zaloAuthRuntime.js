@@ -1,47 +1,61 @@
-import { getUserInfo, getAccessToken } from "zmp-sdk/apis";
+import {
+  getAccessToken,
+  getUserInfo,
+} from "zmp-sdk/apis";
 
 class ZaloAuthRuntime {
-  constructor() {
-    this.initialized = false;
-  }
 
-  async bootstrap() {
+  accessToken = null;
+
+  profile = null;
+
+  async initialize() {
+
     try {
-      const accessToken = await getAccessToken({});
+
+      this.accessToken =
+        await getAccessToken({});
+
+      this.profile =
+        await getUserInfo({
+          autoRequestPermission: true,
+        });
 
       return {
-        success: true,
-        accessToken,
+        accessToken:
+          this.accessToken,
+        profile:
+          this.profile,
       };
+
     } catch (error) {
-      console.error("zalo auth bootstrap failed", error);
 
-      return {
-        success: false,
-        error,
-      };
+      console.error(
+        "zalo auth initialize failed",
+        error
+      );
+
+      return null;
+
     }
+
   }
 
-  async getProfile() {
-    try {
-      const response = await getUserInfo({});
+  getProfile() {
 
-      return {
-        success: true,
-        profile: response.userInfo,
-      };
-    } catch (error) {
-      console.error("get profile failed", error);
+    return this.profile;
 
-      return {
-        success: false,
-        error,
-      };
-    }
   }
+
+  getAccessTokenValue() {
+
+    return this.accessToken;
+
+  }
+
 }
 
-const zaloAuthRuntime = new ZaloAuthRuntime();
+const zaloAuthRuntime =
+  new ZaloAuthRuntime();
 
 export default zaloAuthRuntime;
