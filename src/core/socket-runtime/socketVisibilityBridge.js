@@ -1,6 +1,6 @@
 import visibilityRuntime from "@/core/visibility/visibilityRuntime";
 
-import socketConnectionManager from "./socketConnectionManager";
+import socketManager from "@/services/socket/socketManager";
 
 class SocketVisibilityBridge {
 
@@ -15,12 +15,12 @@ class SocketVisibilityBridge {
           visible
         ) {
 
-          socketConnectionManager
+          socketManager
             .connect();
 
         } else {
 
-          socketConnectionManager
+          socketManager
             .disconnect();
 
         }

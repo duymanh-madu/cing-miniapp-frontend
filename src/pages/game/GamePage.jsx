@@ -1,4 +1,23 @@
+import {
+  useEffect,
+} from "react";
+
+import GameCanvas from "@/game/components/GameCanvas";
+
+import GameLeaderboard from "@/game/components/GameLeaderboard";
+
+import MyGameRankCard from "@/game/components/MyGameRankCard";
+
+import gameRealtimeRuntime from "@/game/runtime/gameRealtimeRuntime";
+
 function GamePage() {
+
+  useEffect(() => {
+
+    gameRealtimeRuntime
+      .initialize();
+
+  }, []);
 
   return (
 
@@ -6,19 +25,42 @@ function GamePage() {
       className="
         min-h-screen
         bg-black
-        p-6
+        p-5
         text-white
       "
     >
 
       <div
         className="
-          text-3xl
+          mb-6
+          text-4xl
           font-black
         "
       >
-        Mini Game
+        Cing Bird
       </div>
+
+      <div
+        className="
+          mb-5
+        "
+      >
+
+        <MyGameRankCard />
+
+      </div>
+
+      <div
+        className="
+          mb-6
+        "
+      >
+
+        <GameCanvas />
+
+      </div>
+
+      <GameLeaderboard />
 
     </div>
 

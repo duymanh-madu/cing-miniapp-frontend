@@ -1,5 +1,4 @@
-import socketConnectionManager from "@/core/socket-runtime/socketConnectionManager";
-
+import socketManager from "@/services/socket/socketManager";
 class WebviewResumeRuntime {
 
   initialized =
@@ -21,7 +20,7 @@ class WebviewResumeRuntime {
 
       () => {
 
-        socketConnectionManager
+        socketManager
           .connect();
 
       }
@@ -34,7 +33,7 @@ class WebviewResumeRuntime {
 
       () => {
 
-        socketConnectionManager
+        socketManager
           .disconnect();
 
       }

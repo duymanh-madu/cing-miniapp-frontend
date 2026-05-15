@@ -1,5 +1,4 @@
-import socketConnectionManager from "@/sockets/socketConnectionManager";
-
+import socketManager from "@/services/socket/socketManager";
 import loggerService from "@/services/logger/loggerService";
 
 /**
@@ -16,7 +15,7 @@ class SocketMonitoringService {
       return;
     }
 
-    socketConnectionManager.on(
+    socketManager.on(
       "message",
       this.handleMessage
     );

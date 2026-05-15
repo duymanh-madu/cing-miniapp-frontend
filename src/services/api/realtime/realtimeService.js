@@ -1,4 +1,4 @@
-import socketClient from "@/sockets/socketClient";
+import socketClient from "@/services/socket/socketClient";
 
 import {
   queryClient,

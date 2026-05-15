@@ -1,4 +1,4 @@
-import socketConnectionManager from "@/core/socket-runtime/socketConnectionManager";
+import socketManager from "@/services/socket/socketManager";
 
 class AppLifecycleManager {
 
@@ -25,12 +25,12 @@ class AppLifecycleManager {
           document.hidden
         ) {
 
-          socketConnectionManager
+         socketManager
             .disconnect();
 
         } else {
 
-          socketConnectionManager
+          socketManager
             .connect();
 
         }
@@ -45,7 +45,7 @@ class AppLifecycleManager {
 
       () => {
 
-        socketConnectionManager
+        socketManager
           .disconnect();
 
       }

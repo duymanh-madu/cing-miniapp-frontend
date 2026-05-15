@@ -1,4 +1,4 @@
-import socketConnectionManager from "./socketConnectionManager";
+import socketManager from "@/services/socket/socketManager";
 
 class SocketRoomRuntime {
 
@@ -7,8 +7,7 @@ class SocketRoomRuntime {
   ) {
 
     const socket =
-      socketConnectionManager
-        .connect();
+  socketManager.connect();
 
     if (
       !socket
@@ -30,7 +29,7 @@ class SocketRoomRuntime {
   ) {
 
     const socket =
-      socketConnectionManager
+      socketManager
         .socket;
 
     if (

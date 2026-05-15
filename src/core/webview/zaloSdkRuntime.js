@@ -18,14 +18,14 @@ class ZaloSdkRuntime {
 
       });
 
-    } catch (
-      error
-    ) {
+    } catch (error) {
 
-      console.error(
+      console.warn(
         "Zalo SDK init failed",
         error
       );
+
+      return null;
 
     }
 

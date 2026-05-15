@@ -1,4 +1,4 @@
-import socketConnectionManager from "@/sockets/socketConnectionManager";
+import socketManager from "@/services/socket/socketManager";
 
 import realtimeChannelRegistry from "@/services/realtime/realtimeChannelRegistry";
 
@@ -16,7 +16,7 @@ class RealtimeEventRouter {
       return;
     }
 
-    socketConnectionManager.on(
+    socketManager.on(
       "message",
       this.handleMessage
     );
@@ -25,7 +25,7 @@ class RealtimeEventRouter {
   }
 
   stop() {
-    socketConnectionManager.off(
+    socketManager.off(
       "message",
       this.handleMessage
     );

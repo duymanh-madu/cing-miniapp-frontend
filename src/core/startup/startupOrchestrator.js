@@ -12,29 +12,42 @@ import socketRecoveryRuntime from "@/core/socket/socketRecoveryRuntime";
 
 import startupMetricsRuntime from "@/core/startup/startupMetricsRuntime";
 
+import remoteConfigRuntime from "@/cms/runtime/remoteConfigRuntime";
+
 class StartupOrchestrator {
 
   async start() {
 
-    startupMetricsRuntime.start();
+    startupMetricsRuntime
+      .start();
+
+    await remoteConfigRuntime
+      .initialize();
 
     await Promise.all([
 
-      hydrationCache.restore(),
+      hydrationCache
+        .restore(),
 
-      sessionHydrator.restore(),
+      sessionHydrator
+        .restore(),
 
-      offlineSnapshotRuntime.restore(),
+      offlineSnapshotRuntime
+        .restore(),
 
     ]);
 
-    runtimeWarmCache.warm();
+    runtimeWarmCache
+      .warm();
 
-    routePreloader.preload();
+    routePreloader
+      .preload();
 
-    socketRecoveryRuntime.initialize();
+    socketRecoveryRuntime
+      .initialize();
 
-    startupMetricsRuntime.end();
+    startupMetricsRuntime
+      .end();
 
   }
 
@@ -43,4 +56,5 @@ class StartupOrchestrator {
 const startupOrchestrator =
   new StartupOrchestrator();
 
-export default startupOrchestrator;
+export default
+  startupOrchestrator;

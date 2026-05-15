@@ -4,20 +4,26 @@ import {
 } from "react";
 
 import {
-  BrowserRouter,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
 
-import CustomerAppShell
-  from "@/core/app-shell/customerAppShell";
+import CustomerAppShell from "@/core/app-shell/customerAppShell";
 
-import ActivationGate
-  from "@/zalo/activation/components/ActivationGate";
+import ActivationGate from "@/zalo/activation/components/ActivationGate";
 
-import ActivationLoader
-  from "@/components/activation/ActivationLoader";
+import ActivationLoader from "@/components/activation/ActivationLoader";
+
+import RealtimeProvider from "@/providers/RealtimeProvider";
+
+import RealtimeStatusBadge from "@/components/system/RealtimeStatusBadge";
+
+/**
+ * =====================================================
+ * CUSTOMER PAGES
+ * =====================================================
+ */
 
 const HomePage =
   lazy(() =>
@@ -47,6 +53,12 @@ const VoucherPage =
     )
   );
 
+/**
+ * =====================================================
+ * ADMIN
+ * =====================================================
+ */
+
 const AdminApp =
   lazy(() =>
     import(
@@ -54,19 +66,25 @@ const AdminApp =
     )
   );
 
+/**
+ * =====================================================
+ * APP
+ * =====================================================
+ */
+
 function App() {
 
   return (
 
-    <BrowserRouter>
+    <RealtimeProvider>
 
-      <Suspense
-        fallback={
-          <ActivationLoader />
-        }
-      >
+      <ActivationGate>
 
-        <ActivationGate>
+        <Suspense
+          fallback={
+            <ActivationLoader />
+          }
+        >
 
           <Routes>
 
@@ -132,20 +150,24 @@ function App() {
             <Route
               path="*"
               element={
+
                 <Navigate
                   to="/"
                   replace
                 />
+
               }
             />
 
           </Routes>
 
-        </ActivationGate>
+          <RealtimeStatusBadge />
 
-      </Suspense>
+        </Suspense>
 
-    </BrowserRouter>
+      </ActivationGate>
+
+    </RealtimeProvider>
 
   );
 

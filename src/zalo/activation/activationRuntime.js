@@ -1,65 +1,110 @@
-import zaloAuthRuntime from "@/zalo/auth/zaloAuthRuntime";
-
-import useActivationStore from "./activationStore";
-
-import { activateMiniAppUser } from "./activationApi";
-
 class ActivationRuntime {
+
   async activate() {
-    const activationStore =
-      useActivationStore.getState();
+
+    let auth = null;
 
     try {
-      activationStore.setLoading(true);
 
-      const auth =
+      auth =
         await zaloAuthRuntime.bootstrap();
 
-      if (!auth.success) {
-        throw new Error("auth failed");
-      }
+    } catch (error) {
 
-      const profileResponse =
-        await zaloAuthRuntime.getProfile();
-
-      if (!profileResponse.success) {
-        throw new Error("profile failed");
-      }
-
-      const activationResponse =
-        await activateMiniAppUser({
-          accessToken: auth.accessToken,
-          profile: profileResponse.profile,
-        });
-
-      activationStore.activate({
-        accessToken: auth.accessToken,
-        profile: profileResponse.profile,
-        jwt: activationResponse.jwt,
-      });
-
-      localStorage.setItem(
-        "miniapp_jwt",
-        activationResponse.jwt
+      console.warn(
+        "Zalo auth bootstrap failed",
+        error
       );
 
-      return {
-        success: true,
-      };
-    } catch (error) {
-      console.error("activation failed", error);
+      return null;
 
-      return {
-        success: false,
-        error,
-      };
-    } finally {
-      activationStore.setLoading(false);
     }
+
+    if (!auth?.success) {
+
+      console.warn(
+        "Zalo auth unavailable"
+      );
+
+      return null;
+
+    }
+
+    let profileResponse = null;
+
+    try {
+
+      profileResponse =
+        await zaloAuthRuntime.getProfile();
+
+    } catch (error) {
+
+      console.warn(
+        "Zalo profile fetch failed",
+        error
+      );
+
+      return null;
+
+    }
+
+    if (!profileResponse?.success) {
+
+      console.warn(
+        "Zalo profile unavailable"
+      );
+
+      return null;
+
+    }
+
+    let activationResponse = null;
+
+    try {
+
+      activationResponse =
+        await activateMiniAppUser({
+
+          accessToken:
+            auth.accessToken,
+
+          profile:
+            profileResponse.profile,
+
+        });
+
+    } catch (error) {
+
+      console.warn(
+        "Mini app activation failed",
+        error
+      );
+
+      return null;
+
+    }
+
+    activationStore.activate({
+
+      profile:
+        profileResponse.profile,
+
+      accessToken:
+        auth.accessToken,
+
+      customer:
+        activationResponse?.customer,
+
+    });
+
+    return activationResponse;
+
   }
+
 }
 
 const activationRuntime =
   new ActivationRuntime();
 
-export default activationRuntime;
+export default
+  activationRuntime;

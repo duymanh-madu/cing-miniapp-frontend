@@ -4,7 +4,7 @@ import realtimeEventRouter from "@/services/realtime/realtimeEventRouter";
 
 import realtimeChannelRegistry from "@/services/realtime/realtimeChannelRegistry";
 
-import socketConnectionManager from "@/sockets/socketConnectionManager";
+import socketManager from "@/services/socket/socketManager";
 
 import runtimeFeatureBootstrap from "@/services/runtime/runtimeFeatureBootstrap";
 
@@ -33,7 +33,7 @@ class RuntimeBootstrapper {
 
       await runtimeConfigService.load();
 
-      socketConnectionManager.connect();
+      socketManager.connect();
 
       realtimeChannelRegistry.register({
         channel: "system",

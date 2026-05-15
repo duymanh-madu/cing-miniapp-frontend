@@ -1,3 +1,27 @@
+window.addEventListener(
+  "unhandledrejection",
+  (event) => {
+
+    console.error(
+      "UNHANDLED PROMISE REJECTION",
+      event.reason
+    );
+
+  }
+);
+
+window.addEventListener(
+  "error",
+  (event) => {
+
+    console.error(
+      "GLOBAL ERROR",
+      event.error
+    );
+
+  }
+);
+
 import React from "react";
 
 import ReactDOM from "react-dom/client";

@@ -1,8 +1,38 @@
 import {
-  Link,
-} from "react-router-dom";
+  useEffect,
+} from "react";
+
+import CustomerIdentityBootstrap from "@/customer/components/CustomerIdentityBootstrap";
+
+import CustomerTierBadge from "@/customer/components/CustomerTierBadge";
+
+import DynamicCampaignBanner from "@/cms/components/DynamicCampaignBanner";
+
+import DynamicCmsRenderer from "@/cms/components/DynamicCmsRenderer";
+
+import DynamicHomeSectionRenderer from "@/cms/components/DynamicHomeSectionRenderer";
+
+import useCmsHomepage from "@/cms/hooks/useCmsHomepage";
+
+import remoteConfigRuntime from "@/cms/runtime/remoteConfigRuntime";
+
+import dynamicHomeLayoutRuntime from "@/cms/runtime/dynamicHomeLayoutRuntime";
 
 function HomePage() {
+
+  const cmsPage =
+    useCmsHomepage();
+
+  const sections =
+    dynamicHomeLayoutRuntime
+      .getSections();
+
+  useEffect(() => {
+
+    remoteConfigRuntime
+      .initialize();
+
+  }, []);
 
   return (
 
@@ -10,69 +40,69 @@ function HomePage() {
       className="
         min-h-screen
         bg-black
-        p-6
+        p-5
         text-white
       "
     >
 
+      <CustomerIdentityBootstrap />
+
       <div
         className="
-          mb-8
-          text-4xl
-          font-black
+          mb-6
+          flex
+          items-center
+          justify-between
         "
       >
-        Cing Hu Tang
+
+        <div
+          className="
+            text-4xl
+            font-black
+          "
+        >
+          Cing Hu Tang
+        </div>
+
+        <CustomerTierBadge />
+
       </div>
 
       <div
         className="
-          mb-10
-          text-zinc-400
+          mb-5
         "
       >
-        Ultra Fast Zalo Mini App
+        <DynamicCampaignBanner />
       </div>
 
       <div
         className="
-          grid
-          gap-4
+          mb-5
         "
       >
 
-        <Link
-          to="/menu"
-          className="
-            rounded-2xl
-            bg-zinc-900
-            p-5
-          "
-        >
-          Menu
-        </Link>
+        <DynamicHomeSectionRenderer
+          sections={
+            sections
+          }
+        />
 
-        <Link
-          to="/game"
-          className="
-            rounded-2xl
-            bg-zinc-900
-            p-5
-          "
-        >
-          Mini Game
-        </Link>
+      </div>
 
-        <Link
-          to="/voucher"
-          className="
-            rounded-2xl
-            bg-zinc-900
-            p-5
-          "
-        >
-          Voucher
-        </Link>
+      <div
+        className="
+          mb-5
+        "
+      >
+
+        <DynamicCmsRenderer
+          sections={
+            cmsPage?.sections ||
+            []
+          }
+        />
 
       </div>
 

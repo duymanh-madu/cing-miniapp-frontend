@@ -1,24 +1,37 @@
-import { useEffect }
-  from "react";
+import {
+  useEffect,
+} from "react";
 
-import registerQueryInvalidation from "@/services/http/registerQueryInvalidation";
+import {
+  initializeSocket,
+} from "@/services/socket/socketManager";
+
+import {
+  registerSocketEvents,
+} from "@/services/socket/socketEvents";
+
+/**
+ * =====================================================
+ * REALTIME PROVIDER
+ * =====================================================
+ */
 
 function RealtimeProvider({
+
   children,
+
 }) {
 
-  useEffect(() => {
+  useEffect(
+    () => {
 
-    const cleanup =
-      registerQueryInvalidation();
+      initializeSocket();
 
-    return () => {
+      registerSocketEvents();
 
-      cleanup();
-
-    };
-
-  }, []);
+    },
+    []
+  );
 
   return children;
 
