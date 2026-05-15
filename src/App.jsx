@@ -4,12 +4,17 @@ import {
 } from "react";
 
 import {
+  BrowserRouter,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
 
 import CustomerAppShell from "@/core/app-shell/customerAppShell";
+
+import ActivationGate from "@/zalo/activation/components/ActivationGate";
+
+import ActivationLoader from "@/components/activation/ActivationLoader";
 
 const HomePage =
   lazy(() =>
@@ -50,88 +55,95 @@ function App() {
 
   return (
 
-    <Suspense
-      fallback={null}
-    >
+    <BrowserRouter>
 
-      <Routes>
+      <ActivationGate />
 
-        <Route
-          path="/"
-          element={
+      <ActivationLoader />
 
-            <CustomerAppShell>
+      <Suspense
+        fallback={null}
+      >
 
-              <HomePage />
+        <Routes>
 
-            </CustomerAppShell>
+          <Route
+            path="/"
+            element={
 
-          }
-        />
+              <CustomerAppShell>
 
-        <Route
-          path="/menu"
-          element={
+                <HomePage />
 
-            <CustomerAppShell>
+              </CustomerAppShell>
 
-              <MenuPage />
+            }
+          />
 
-            </CustomerAppShell>
+          <Route
+            path="/menu"
+            element={
 
-          }
-        />
+              <CustomerAppShell>
 
-        <Route
-          path="/game"
-          element={
+                <MenuPage />
 
-            <CustomerAppShell>
+              </CustomerAppShell>
 
-              <GamePage />
+            }
+          />
 
-            </CustomerAppShell>
+          <Route
+            path="/game"
+            element={
 
-          }
-        />
+              <CustomerAppShell>
 
-        <Route
-          path="/voucher"
-          element={
+                <GamePage />
 
-            <CustomerAppShell>
+              </CustomerAppShell>
 
-              <VoucherPage />
+            }
+          />
 
-            </CustomerAppShell>
+          <Route
+            path="/voucher"
+            element={
 
-          }
-        />
+              <CustomerAppShell>
 
-        <Route
-          path="/admin/*"
-          element={
-            <AdminApp />
-          }
-        />
+                <VoucherPage />
 
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to="/"
-              replace
-            />
-          }
-        />
+              </CustomerAppShell>
 
-      </Routes>
+            }
+          />
 
-    </Suspense>
+          <Route
+            path="/admin/*"
+            element={
+              <AdminApp />
+            }
+          />
+
+          <Route
+            path="*"
+            element={
+              <Navigate
+                to="/"
+                replace
+              />
+            }
+          />
+
+        </Routes>
+
+      </Suspense>
+
+    </BrowserRouter>
 
   );
 
 }
 
-export default
-  App;
+export default App;
