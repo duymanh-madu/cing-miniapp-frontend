@@ -5,51 +5,113 @@ import {
 
 class ZaloAuthRuntime {
 
-  accessToken = null;
+  constructor() {
 
-  profile = null;
+    this.accessToken =
+      null;
+
+    this.profile =
+      null;
+
+  }
 
   async initialize() {
+
+    /**
+     * ============================================
+     * ACCESS TOKEN
+     * ============================================
+     */
 
     try {
 
       this.accessToken =
         await getAccessToken({});
 
-      this.profile =
-        await getUserInfo({
-          autoRequestPermission: true,
-        });
-
-      return {
-        accessToken:
-          this.accessToken,
-        profile:
-          this.profile,
-      };
-
     } catch (error) {
 
-      console.error(
-        "zalo auth initialize failed",
+      console.warn(
+        "zalo access token failed",
         error
       );
 
-      return null;
+      return {
+        success: false,
+      };
 
     }
 
+    /**
+     * ============================================
+     * USER PROFILE
+     * ============================================
+     */
+
+    try {
+
+      this.profile =
+        await getUserInfo({
+          autoRequestPermission:
+            true,
+        });
+
+    } catch (error) {
+
+      console.warn(
+        "zalo profile failed",
+        error
+      );
+
+      return {
+        success: false,
+      };
+
+    }
+
+    /**
+     * ============================================
+     * SUCCESS
+     * ============================================
+     */
+
+    return {
+
+      success: true,
+
+      accessToken:
+        this.accessToken,
+
+      profile:
+        this.profile,
+
+    };
+
   }
 
-  getProfile() {
+  async bootstrap() {
 
-    return this.profile;
+    return this.initialize();
 
   }
 
-  getAccessTokenValue() {
+  async getProfile() {
 
-    return this.accessToken;
+    if (!this.profile) {
+
+      return {
+        success: false,
+      };
+
+    }
+
+    return {
+
+      success: true,
+
+      profile:
+        this.profile,
+
+    };
 
   }
 
@@ -58,4 +120,5 @@ class ZaloAuthRuntime {
 const zaloAuthRuntime =
   new ZaloAuthRuntime();
 
-export default zaloAuthRuntime;
+export default
+  zaloAuthRuntime;
