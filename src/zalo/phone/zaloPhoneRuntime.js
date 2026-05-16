@@ -8,25 +8,41 @@ class ZaloPhoneRuntime {
 
     try {
 
-      const response =
-        await getPhoneNumber({});
+  const phone =
 
-      return response;
+    await getPhoneNumber({});
 
-    } catch (error) {
+  return {
 
-      console.error(
-        "phone request failed",
-        error
-      );
+    success: true,
 
-      return null;
+    phone,
+
+  };
+
+} catch (error) {
+
+  console.warn(
+
+    "phone request failed",
+
+    error
+
+  );
+
+  return {
+
+    success: false,
+
+  };
+
+}
+
+  
 
     }
 
   }
-
-}
 
 const zaloPhoneRuntime =
   new ZaloPhoneRuntime();

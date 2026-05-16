@@ -62,3 +62,15 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+window.addEventListener(
+  "unhandledrejection",
+  (event) => {
+
+    console.warn(
+      "UNHANDLED PROMISE",
+      event.reason
+    );
+
+  }
+);
