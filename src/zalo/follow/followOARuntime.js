@@ -6,24 +6,62 @@ class FollowOARuntime {
 
   async requestFollow() {
 
+    /**
+     * ============================================
+     * VALIDATE OA ID
+     * ============================================
+     */
+
+    const oaId =
+      import.meta.env
+        .VITE_ZALO_OA_ID;
+
+    if (!oaId) {
+
+      console.warn(
+        "missing zalo oa id"
+      );
+
+      return {
+
+        success: false,
+
+      };
+
+    }
+
+    /**
+     * ============================================
+     * FOLLOW OA
+     * ============================================
+     */
+
     try {
 
       await followOA({
-        id:
-          import.meta.env
-            .VITE_ZALO_OA_ID,
+
+        id: oaId,
+
       });
 
-      return true;
+      return {
+
+        success: true,
+
+      };
 
     } catch (error) {
 
-      console.error(
+      console.warn(
         "follow oa failed",
         error
       );
 
-      return false;
+      return {
+
+        success: false,
+
+      };
 
     }
 
@@ -34,4 +72,5 @@ class FollowOARuntime {
 const followOARuntime =
   new FollowOARuntime();
 
-export default followOARuntime;
+export default
+  followOARuntime;
