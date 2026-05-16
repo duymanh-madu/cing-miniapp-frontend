@@ -67,6 +67,8 @@ window.addEventListener(
   "unhandledrejection",
   (event) => {
 
+    event.preventDefault();
+
     console.warn(
       "UNHANDLED PROMISE",
       event.reason
