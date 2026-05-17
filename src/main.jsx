@@ -1,78 +1,28 @@
-window.addEventListener(
-  "unhandledrejection",
-  (event) => {
+import './index.css'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 
-    console.error(
-      "UNHANDLED PROMISE REJECTION",
-      event.reason
-    );
-
-  }
-);
-
-window.addEventListener(
-  "error",
-  (event) => {
-
-    console.error(
-      "GLOBAL ERROR",
-      event.error
-    );
-
-  }
-);
-
-import React from "react";
-
-import ReactDOM from "react-dom/client";
-
-import {
-  BrowserRouter,
-} from "react-router-dom";
-
-import App from "./App";
-
-import "./index.css";
-
-import webviewPerformanceBootstrap from "@/core/webview/webviewPerformanceBootstrap";
-
-async function bootstrap() {
-
-  await webviewPerformanceBootstrap
-    .bootstrap();
-
-  ReactDOM.createRoot(
-    document.getElementById(
-      "root"
-    )
-  ).render(
-
-    <React.StrictMode>
-
-      <BrowserRouter>
-
-        <App />
-
-      </BrowserRouter>
-
-    </React.StrictMode>
-
-  );
-
+function App() {
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#000',
+        color: '#fff',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: '32px',
+        fontWeight: 'bold'
+      }}
+    >
+      Cing Hu Tang Mini App 🚀
+    </div>
+  )
 }
 
-bootstrap();
-
-window.addEventListener(
-  "unhandledrejection",
-  (event) => {
-
-    event.preventDefault();
-
-    console.warn(
-      "UNHANDLED PROMISE",
-      event.reason
-    );
-
-  }
-);
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+)

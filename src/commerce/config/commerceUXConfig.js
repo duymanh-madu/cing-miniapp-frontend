@@ -1,0 +1,18 @@
+export const COMMERCE_UX_CONFIG = {
+
+  ORDER_TIMELINE_LIMIT:
+    10,
+
+  MAX_VOUCHERS:
+    20,
+
+  LOYALTY_REFRESH_MS:
+    10000,
+
+  ORDER_STATUS_ANIMATION_MS:
+    250,
+
+  SAFE_RETRY_LIMIT:
+    3,
+
+};

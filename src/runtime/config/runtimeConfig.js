@@ -1,0 +1,18 @@
+export const RUNTIME_CONFIG = {
+
+  MAX_LISTENERS:
+    50,
+
+  CLEANUP_INTERVAL_MS:
+    30000,
+
+  MAX_RUNTIME_ERRORS:
+    20,
+
+  ENABLE_SAFE_MODE:
+    true,
+
+  ENABLE_RUNTIME_RECOVERY:
+    true,
+
+};

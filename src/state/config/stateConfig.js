@@ -1,0 +1,18 @@
+export const STATE_CONFIG = {
+
+  MAX_ACTIVITY_HISTORY:
+    50,
+
+  MAX_ORDER_CACHE:
+    100,
+
+  MAX_REWARD_CACHE:
+    50,
+
+  MAX_NOTIFICATION_CACHE:
+    50,
+
+  STATE_PERSIST_VERSION:
+    1,
+
+};

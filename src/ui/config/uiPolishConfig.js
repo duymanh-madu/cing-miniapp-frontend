@@ -1,0 +1,18 @@
+export const UI_POLISH_CONFIG = {
+
+  DEFAULT_RADIUS:
+    24,
+
+  DEFAULT_SPACING:
+    16,
+
+  DEFAULT_TRANSITION_MS:
+    180,
+
+  ENABLE_TACTILE_FEEDBACK:
+    true,
+
+  ENABLE_SUBTLE_MOTION:
+    true,
+
+};

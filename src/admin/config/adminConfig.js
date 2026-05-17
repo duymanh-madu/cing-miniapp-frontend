@@ -1,0 +1,18 @@
+export const ADMIN_CONFIG = {
+
+  MAX_ACTIVITY_LOGS:
+    100,
+
+  DASHBOARD_REFRESH_MS:
+    5000,
+
+  MAX_CAMPAIGNS:
+    20,
+
+  MAX_REALTIME_ALERTS:
+    30,
+
+  ENABLE_REALTIME_OPERATIONS:
+    true,
+
+};

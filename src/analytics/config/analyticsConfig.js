@@ -1,0 +1,18 @@
+export const ANALYTICS_CONFIG = {
+
+  MAX_EVENTS:
+    100,
+
+  FLUSH_INTERVAL_MS:
+    10000,
+
+  MAX_QUEUE_SIZE:
+    50,
+
+  ENABLE_DEBUG:
+    false,
+
+  SESSION_TIMEOUT_MS:
+    1800000,
+
+};

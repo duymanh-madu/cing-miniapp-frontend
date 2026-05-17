@@ -19,6 +19,8 @@ import RealtimeProvider from "@/providers/RealtimeProvider";
 
 import RealtimeStatusBadge from "@/components/system/RealtimeStatusBadge";
 
+import GlobalRealtimeOverlay from "@/ui/realtime/GlobalRealtimeOverlay";
+
 /**
  * =====================================================
  * CUSTOMER PAGES
@@ -85,6 +87,10 @@ function App() {
             <ActivationLoader />
           }
         >
+
+          {/* ========================================= */}
+          {/* ROUTES */}
+          {/* ========================================= */}
 
           <Routes>
 
@@ -161,7 +167,17 @@ function App() {
 
           </Routes>
 
+          {/* ========================================= */}
+          {/* REALTIME STATUS */}
+          {/* ========================================= */}
+
           <RealtimeStatusBadge />
+
+          {/* ========================================= */}
+          {/* GLOBAL REALTIME OVERLAY */}
+          {/* ========================================= */}
+
+          <GlobalRealtimeOverlay />
 
         </Suspense>
 
