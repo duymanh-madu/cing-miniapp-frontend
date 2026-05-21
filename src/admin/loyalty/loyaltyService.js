@@ -1,4 +1,4 @@
-import apiClient from "@/services/api/apiClient";
+import apiClient from "@/infra/api/apiClient";
 
 class LoyaltyService {
 

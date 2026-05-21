@@ -1,6 +1,6 @@
 import {
   useAdminRealtime,
-} from "../hooks/useAdminRealtime";
+} from "../shared/hooks/useAdminRealtime";
 
 import AdminRealtimeAlertPanel from "../components/AdminRealtimeAlertPanel";
 

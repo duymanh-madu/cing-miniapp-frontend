@@ -1,6 +1,6 @@
 import {
   useCampaignsQuery,
-} from "@/services/api/campaign/campaignQueries";
+} from "@/infra/api/campaign/campaignQueries";
 
 export function useCampaignFeed() {
   const query =

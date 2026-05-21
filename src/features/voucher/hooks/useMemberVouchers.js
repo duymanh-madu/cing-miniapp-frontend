@@ -1,6 +1,6 @@
 import {
   useMemberVouchersQuery,
-} from "@/services/api/voucher/voucherQueries";
+} from "@/infra/api/voucher/voucherQueries";
 
 export function useMemberVouchers(
   userId

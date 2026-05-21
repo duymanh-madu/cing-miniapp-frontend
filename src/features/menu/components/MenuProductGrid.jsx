@@ -1,6 +1,6 @@
 import ProductCard from "./ProductCard";
 
-import useFilteredMenuProducts from "../hooks/useFilteredMenuProducts";
+import useFilteredMenuProducts from "../shared/hooks/useFilteredMenuProducts";
 
 function MenuProductGrid() {
 

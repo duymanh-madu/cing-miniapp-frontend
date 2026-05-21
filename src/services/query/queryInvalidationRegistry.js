@@ -1,18 +1,18 @@
 import {
   MENU_QUERY_KEYS,
-} from "@/services/api/menu/menuQueryKeys";
+} from "@/infra/api/menu/menuQueryKeys";
 
 import {
   VOUCHER_QUERY_KEYS,
-} from "@/services/api/voucher/voucherQueryKeys";
+} from "@/infra/api/voucher/voucherQueryKeys";
 
 import {
   CAMPAIGN_QUERY_KEYS,
-} from "@/services/api/campaign/campaignQueryKeys";
+} from "@/infra/api/campaign/campaignQueryKeys";
 
 import {
   LOYALTY_QUERY_KEYS,
-} from "@/services/api/loyalty/loyaltyQueryKeys";
+} from "@/infra/api/loyalty/loyaltyQueryKeys";
 
 export const QUERY_INVALIDATION_REGISTRY =
   Object.freeze({

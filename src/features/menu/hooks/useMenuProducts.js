@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import {
   useMenuQuery,
-} from "@/services/api/menu/menuQueries";
+} from "@/infra/api/menu/menuQueries";
 
 import useMenuStore from "../stores/menuStore";
 

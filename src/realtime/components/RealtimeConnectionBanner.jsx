@@ -4,7 +4,7 @@ import {
 
 import {
   useRealtimeConnection,
-} from "../hooks/useRealtimeConnection";
+} from "../shared/hooks/useRealtimeConnection";
 
 function RealtimeConnectionBanner() {
 

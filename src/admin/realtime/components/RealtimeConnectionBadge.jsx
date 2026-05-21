@@ -1,4 +1,4 @@
-import useAdminRealtime from "../hooks/useAdminRealtime";
+import useAdminRealtime from "../shared/hooks/useAdminRealtime";
 
 function RealtimeConnectionBadge() {
 

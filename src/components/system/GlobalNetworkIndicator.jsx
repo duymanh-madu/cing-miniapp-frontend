@@ -7,7 +7,7 @@ import {
   FaCloudArrowUp,
 } from "react-icons/fa6";
 
-import useApiStatus from "@/hooks/useApiStatus";
+import useApiStatus from "@/shared/hooks/useApiStatus";
 
 import useSocketStore from "@/stores/socketStore";
 

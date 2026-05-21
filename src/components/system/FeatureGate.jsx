@@ -1,4 +1,4 @@
-import useFeatureAccess from "../../hooks/useFeatureAccess";
+import useFeatureAccess from "../../shared/hooks/useFeatureAccess";
 
 /**
  * ============================================

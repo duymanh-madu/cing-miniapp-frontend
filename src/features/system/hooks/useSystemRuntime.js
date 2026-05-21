@@ -1,6 +1,6 @@
 import {
   useSystemBootstrapQuery,
-} from "@/services/api/system/systemQueries";
+} from "@/infra/api/system/systemQueries";
 
 export function useSystemRuntime() {
   const query =

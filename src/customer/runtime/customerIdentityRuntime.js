@@ -1,44 +1,47 @@
-import realtimeCustomerStore from "@/stores/realtimeCustomerStore";
+import useRealtimeCustomerStore
+  from "@/stores/realtimeCustomerStore";
 
-import customerProfileApi from "@/customer/services/customerProfileApi";
+/**
+ * =====================================================
+ * CUSTOMER IDENTITY RUNTIME
+ * =====================================================
+ */
 
 class CustomerIdentityRuntime {
 
-  initialized =
-    false;
-
-  async initialize() {
-
-    if (
-      this.initialized
-    ) {
-
-      return;
-
-    }
+  initialize() {
 
     try {
 
-      const profile =
-        await customerProfileApi
-          .getMyProfile();
+      const profile = {
 
-      if (
-        profile
-      ) {
+        id:
+          "customer_001",
 
-        realtimeCustomerStore
-          .getState()
-          .setProfile(
-            profile
-          );
+        name:
+          "Nguyễn Duy Mạnh",
 
-      }
+        tier:
+          "Bronze",
 
-      this.initialized =
-        true;
+        points:
+          12500,
 
-    } catch (error) {
+      };
+
+      useRealtimeCustomerStore
+        .getState()
+        .setProfile(
+          profile
+        );
+
+      console.log(
+        "customer identity initialized"
+      );
+
+    } catch (
+      error
+    ) {
 
       console.error(
         "customer identity initialize failed",

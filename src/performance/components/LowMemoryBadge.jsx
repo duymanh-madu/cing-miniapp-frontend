@@ -4,7 +4,7 @@ import {
 
 import {
   useLowMemoryMode,
-} from "../hooks/useLowMemoryMode";
+} from "../shared/hooks/useLowMemoryMode";
 
 function LowMemoryBadge() {
 

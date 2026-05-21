@@ -1,4 +1,4 @@
-import { useRealtimeStore } from "../stores/useRealtimeStore";
+import useRealtimeStore from "@/stores/realtimeStore";
 
 export function useRealtimeOverlay() {
 

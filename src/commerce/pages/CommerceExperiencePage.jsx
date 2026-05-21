@@ -1,6 +1,6 @@
 import {
   useCommerceRealtime,
-} from "../hooks/useCommerceRealtime";
+} from "../shared/hooks/useCommerceRealtime";
 
 import OrderConfidenceBanner from "../components/OrderConfidenceBanner";
 

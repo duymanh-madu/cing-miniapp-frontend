@@ -49,11 +49,13 @@ function AppRouter() {
           />
 
           <Route
-            path="/menu"
-            element={
-              <MenuPage />
-            }
-          />
+  path="/menu"
+  element={
+    <div className="min-h-screen bg-red-500 text-white text-6xl">
+      TEST MENU
+    </div>
+  }
+/>
 
           <Route
             path="/game"

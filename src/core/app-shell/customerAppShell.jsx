@@ -29,7 +29,6 @@ function CustomerAppShell({
 
       {children}
 
-      <DynamicBottomNavigation />
 
     </div>
 

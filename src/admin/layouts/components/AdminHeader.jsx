@@ -1,4 +1,4 @@
-import useAdminSession from "@/admin/hooks/useAdminSession";
+import useAdminSession from "@/admin/shared/hooks/useAdminSession";
 
 function AdminHeader() {
 

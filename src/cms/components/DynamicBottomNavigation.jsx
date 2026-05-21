@@ -1,70 +1,32 @@
 import {
-  Link,
-} from "react-router-dom";
+  useEffect,
+} from "react";
 
-import navigationRuntime from "@/cms/runtime/navigationRuntime";
+import dynamicThemeRuntime
+  from "@/cms/runtime/dynamicThemeRuntime";
 
-function DynamicBottomNavigation() {
+function CustomerAppShell({
+  children,
+}) {
 
-  const items =
-    navigationRuntime
-      .getNavigation();
+  useEffect(() => {
+
+    dynamicThemeRuntime
+      .applyTheme();
+
+  }, []);
 
   return (
 
     <div
       className="
-        fixed
-        bottom-0
-        left-0
-        right-0
-        z-50
-        border-t
-        border-zinc-800
+        min-h-screen
         bg-black
-        px-4
-        py-3
+        pb-24
       "
     >
 
-      <div
-        className="
-          flex
-          items-center
-          justify-around
-        "
-      >
-
-        {
-          items.map(
-            (
-              item
-            ) => (
-
-              <Link
-                key={
-                  item.id
-                }
-                to={
-                  item.path
-                }
-                className="
-                  text-xs
-                  text-white
-                "
-              >
-
-                {
-                  item.label
-                }
-
-              </Link>
-
-            )
-          )
-        }
-
-      </div>
+      {children}
 
     </div>
 
@@ -73,4 +35,4 @@ function DynamicBottomNavigation() {
 }
 
 export default
-  DynamicBottomNavigation;
+  CustomerAppShell;

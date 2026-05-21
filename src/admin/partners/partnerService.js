@@ -1,5 +1,5 @@
 import apiClient
-  from "@/services/api/apiClient";
+  from "@/infra/api/apiClient";
 
 class PartnerService {
 

@@ -7,8 +7,12 @@ import {
 } from "@/services/socket/socketManager";
 
 import {
-  registerSocketEvents,
-} from "@/services/socket/socketEvents";
+  initializeVisibilityRecovery,
+} from "@/realtime/services/realtimeVisibilityRecovery";
+
+import {
+  initializeCustomerRealtimeBridge,
+} from "@/customer/services/customerRealtimeBridge";
 
 /**
  * =====================================================
@@ -25,9 +29,29 @@ function RealtimeProvider({
   useEffect(
     () => {
 
+      /**
+       * ============================================
+       * SOCKET
+       * ============================================
+       */
+
       initializeSocket();
 
-      registerSocketEvents();
+      /**
+       * ============================================
+       * VISIBILITY RECOVERY
+       * ============================================
+       */
+
+      initializeVisibilityRecovery();
+
+      /**
+       * ============================================
+       * CUSTOMER REALTIME HYDRATION
+       * ============================================
+       */
+
+      initializeCustomerRealtimeBridge();
 
     },
     []

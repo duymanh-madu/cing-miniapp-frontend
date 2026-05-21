@@ -1,25 +1,49 @@
-import realtimeSocket from "../socket";
+import socket from "@/services/socket/socketClient";
+
+/**
+ * =====================================================
+ * VISIBILITY RECOVERY
+ * =====================================================
+ */
 
 export function initializeVisibilityRecovery() {
 
-  function recover() {
-
-    if (
-
-      document.visibilityState ===
-      "visible"
-
-    ) {
-
-      realtimeSocket.connect();
-
-    }
-
-  }
-
   document.addEventListener(
     "visibilitychange",
-    recover
+    () => {
+
+      /**
+       * ============================================
+       * TAB ACTIVE AGAIN
+       * ============================================
+       */
+
+      if (
+        document.visibilityState ===
+        "visible"
+      ) {
+
+        /**
+         * ========================================
+         * RECOVER SOCKET
+         * ========================================
+         */
+
+        if (
+          !socket.connected
+        ) {
+
+          console.log(
+            "recovering socket..."
+          );
+
+          socket.connect();
+
+        }
+
+      }
+
+    }
   );
 
 }

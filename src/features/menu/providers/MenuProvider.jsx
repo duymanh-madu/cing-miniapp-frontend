@@ -1,8 +1,8 @@
 import useMenuBootstrap
-  from "../hooks/useMenuBootstrap";
+  from "../shared/hooks/useMenuBootstrap";
 
 import useRegisterMenuRealtime
-  from "../hooks/useRegisterMenuRealtime";
+  from "../shared/hooks/useRegisterMenuRealtime";
 
 function MenuProvider({
   children,

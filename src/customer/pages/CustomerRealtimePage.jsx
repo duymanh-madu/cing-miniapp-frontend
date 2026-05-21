@@ -1,6 +1,6 @@
 import {
   useCustomerRealtime,
-} from "../hooks/useCustomerRealtime";
+} from "../shared/hooks/useCustomerRealtime";
 
 import RealtimeReconnectBanner from "../components/RealtimeReconnectBanner";
 

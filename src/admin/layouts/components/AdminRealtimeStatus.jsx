@@ -1,4 +1,4 @@
-import useAdminRealtime from "@/admin/realtime/hooks/useAdminRealtime";
+import useAdminRealtime from "@/admin/realtime/shared/hooks/useAdminRealtime";
 
 function AdminRealtimeStatus() {
 

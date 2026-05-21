@@ -2,7 +2,7 @@ import NotificationCenter from "./NotificationCenter";
 
 import {
   useNotificationRealtime,
-} from "../hooks/useNotificationRealtime";
+} from "../shared/hooks/useNotificationRealtime";
 
 function RealtimeNotificationLayer() {
 

@@ -1,9 +1,7 @@
 export const API_CONFIG = {
 
   BASE_URL:
-
-    import.meta.env
-      .VITE_API_URL,
+    "http://localhost:5050",
 
   REQUEST_TIMEOUT:
     10000,
@@ -18,3 +16,25 @@ export const API_CONFIG = {
     15000,
 
 };
+
+export const API_ENDPOINTS = {
+
+  PAYMENT: {
+
+    CREATE_SESSION:
+      "/api/payment/create-session",
+
+    VERIFY:
+      "/api/payment/verify",
+
+    STATUS:
+      "/api/payment/status",
+
+  },
+
+};
+
+console.log(
+  "API BASE URL:",
+  API_CONFIG.BASE_URL
+);

@@ -2,73 +2,103 @@ import {
   create,
 } from "zustand";
 
-const realtimeCustomerStore =
-  create((set) => ({
+/**
+ * =====================================================
+ * REALTIME CUSTOMER STORE
+ * =====================================================
+ */
 
-    profile:
-      null,
+const useRealtimeCustomerStore =
+  create(
+    (
+      set
+    ) => ({
 
-    points:
-      0,
+      profile: {
 
-    tier:
-      null,
+        id:
+          null,
 
-    vouchers:
-      [],
+        name:
+          "Khách",
 
-    wallet:
-      null,
+        tier:
+          "Bronze",
 
-    spending:
-      0,
+        points:
+          0,
 
-    rank:
-      null,
+        avatar:
+          null,
 
-    setProfile:
-      (profile) =>
-        set({
-          profile,
-        }),
+      },
 
-    setPoints:
-      (points) =>
-        set({
-          points,
-        }),
+      online:
+        false,
 
-    setTier:
-      (tier) =>
-        set({
-          tier,
-        }),
+      setProfile:
+        (
+          profile
+        ) => {
 
-    setVouchers:
-      (vouchers) =>
-        set({
-          vouchers,
-        }),
+          set(
+            (
+              state
+            ) => ({
 
-    setWallet:
-      (wallet) =>
-        set({
-          wallet,
-        }),
+              profile: {
 
-    setSpending:
-      (spending) =>
-        set({
-          spending,
-        }),
+                ...state.profile,
 
-    setRank:
-      (rank) =>
-        set({
-          rank,
-        }),
+                ...profile,
 
-  }));
+              },
+
+            })
+          );
+
+        },
+
+      setOnline:
+        (
+          online
+        ) => {
+
+          set({
+
+            online,
+
+          });
+
+        },
+
+      increasePoints:
+        (
+          points
+        ) => {
+
+          set(
+            (
+              state
+            ) => ({
+
+              profile: {
+
+                ...state.profile,
+
+                points:
+                  state.profile.points +
+                  points,
+
+              },
+
+            })
+          );
+
+        },
+
+    })
+  );
 
 export default
-  realtimeCustomerStore;
+  useRealtimeCustomerStore;

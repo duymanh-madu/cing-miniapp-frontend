@@ -1,6 +1,6 @@
 import {
   useMembershipQuery,
-} from "@/services/api/loyalty/loyaltyQueries";
+} from "@/infra/api/loyalty/loyaltyQueries";
 
 export function useMembershipProfile(
   userId

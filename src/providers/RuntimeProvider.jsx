@@ -2,7 +2,7 @@ import {
   useEffect,
 } from "react";
 
-import useSystemRuntime from "@/hooks/useSystemRuntime";
+import useSystemRuntime from "@/shared/hooks/useSystemRuntime";
 
 import queryRealtimeSync from "@/services/query/queryRealtimeSync";
 

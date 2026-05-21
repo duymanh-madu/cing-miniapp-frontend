@@ -27,3 +27,7 @@ export {
   default as useUiStore,
 }
 from "./uiStore";
+
+export {
+  default as realtimeGameStore,
+} from "./realtimeGameStore";

@@ -2,27 +2,41 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 
-import queryKeys from "@/services/query/queryKeys";
-
-import {
-  fetchProducts,
-} from "@/services/product/productService";
+import apiClient from "@/infra/api/apiClient";
 
 /**
- * =========================================================
+ * =====================================================
  * USE MENU
- * =========================================================
+ * =====================================================
  */
 
 function useMenu() {
 
   return useQuery({
 
-    queryKey:
-      queryKeys.menu.list(),
+    queryKey: [
+      "menu",
+    ],
 
     queryFn:
-      fetchProducts,
+      async () => {
+
+        const response =
+          await apiClient.get(
+            "/menu"
+          );
+
+        console.log(
+          "MENU API RESPONSE:",
+          response.data
+        );
+
+        return (
+          response.data
+            ?.items || []
+        );
+
+      },
 
   });
 

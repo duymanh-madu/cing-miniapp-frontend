@@ -1,6 +1,6 @@
 import {
   useCampaignRealtime,
-} from "../hooks/useCampaignRealtime";
+} from "../shared/hooks/useCampaignRealtime";
 
 import CampaignBannerCarousel from "../components/CampaignBannerCarousel";
 

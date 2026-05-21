@@ -1,51 +1,96 @@
-import {
-  useCustomerUXStore,
-} from "../stores/customerUXStore";
+import socket from "@/services/socket/socketClient";
 
-export function connectCustomerRealtime({
-  socket,
-}) {
+import useRealtimeCustomerStore
+  from "@/stores/realtimeCustomerStore";
+
+/**
+ * =====================================================
+ * CUSTOMER REALTIME BRIDGE
+ * =====================================================
+ */
+
+export function initializeCustomerRealtimeBridge() {
+
+  /**
+   * ============================================
+   * POINTS UPDATED
+   * ============================================
+   */
 
   socket.on(
-    "customer.reward",
-    (payload) => {
+    "customer:points_updated",
+    (
+      payload
+    ) => {
 
-      useCustomerUXStore
+      useRealtimeCustomerStore
         .getState()
-        .pushReward(payload);
+        .setPoints(
+          payload.points
+        );
+
+      console.log(
+        "points updated",
+        payload
+      );
 
     }
   );
 
-  socket.on(
-    "customer.order",
-    (payload) => {
+  /**
+   * ============================================
+   * TIER UPDATED
+   * ============================================
+   */
 
-      useCustomerUXStore
+  socket.on(
+    "customer:tier_updated",
+    (
+      payload
+    ) => {
+
+      useRealtimeCustomerStore
         .getState()
-        .pushOrder(payload);
+        .setTier(
+          payload.tier
+        );
+
+      console.log(
+        "tier updated",
+        payload
+      );
 
     }
   );
 
-  socket.on(
-    "connect_error",
-    () => {
-
-      useCustomerUXStore
-        .getState()
-        .setReconnecting(true);
-
-    }
-  );
+  /**
+   * ============================================
+   * NEW VOUCHER
+   * ============================================
+   */
 
   socket.on(
-    "connect",
-    () => {
+    "voucher:new_voucher",
+    (
+      payload
+    ) => {
 
-      useCustomerUXStore
+      const current =
+        useRealtimeCustomerStore
+          .getState()
+          .vouchers;
+
+      useRealtimeCustomerStore
         .getState()
-        .setReconnecting(false);
+        .setVouchers([
+          payload,
+          ...current,
+        ]);
+
+      console.log(
+        "new voucher",
+        payload
+      );
 
     }
   );

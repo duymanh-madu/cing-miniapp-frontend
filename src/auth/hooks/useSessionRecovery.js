@@ -4,7 +4,7 @@ import {
 
 import {
   restoreSession,
-} from "../services/authSessionService";
+} from "../infra/authSessionService";
 
 export function useSessionRecovery() {
 

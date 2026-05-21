@@ -1,6 +1,6 @@
 import {
   restoreSession,
-} from "../services/authSessionService";
+} from "../infra/auth/SessionService";
 
 export function bootstrapAuthLayer() {
 

@@ -2,7 +2,7 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import useAdminSession from "@/admin/hooks/useAdminSession";
+import useAdminSession from "@/admin/shared/hooks/useAdminSession";
 
 function AdminAuthGuard({
   children,

@@ -9,11 +9,9 @@ import {
 
 export default function GlobalRealtimeOverlay() {
 
-  const {
-
-    overlays,
-
-  } = useRealtimeOverlay();
+const {
+  overlays = [],
+} = useRealtimeOverlay() || {};
 
   return (
 

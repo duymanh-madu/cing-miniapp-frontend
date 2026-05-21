@@ -2,7 +2,7 @@ import MenuCategoryTabs from "@/features/menu/components/MenuCategoryTabs";
 
 import MenuProductGrid from "@/features/menu/components/MenuProductGrid";
 
-import useMenuRealtime from "@/features/menu/hooks/useMenuRealtime";
+import useMenuRealtime from "@/features/menu/shared/hooks/useMenuRealtime";
 
 function MenuPage() {
 

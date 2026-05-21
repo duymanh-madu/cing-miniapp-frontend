@@ -1,6 +1,6 @@
 import {
   useMembershipRealtime,
-} from "../hooks/useMembershipRealtime";
+} from "../shared/hooks/useMembershipRealtime";
 
 import MembershipTierCard from "../components/MembershipTierCard";
 

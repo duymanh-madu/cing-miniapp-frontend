@@ -1,6 +1,6 @@
 import {
   useAppReady,
-} from "@/hooks/useAppReady";
+} from "@/shared/hooks/useAppReady";
 
 import QueryProvider from "./QueryProvider";
 

@@ -4,7 +4,7 @@ import {
 
 import {
   recoverRealtimeAuth,
-} from "../services/authRealtimeRecovery";
+} from "../infra/authRealtimeRecovery";
 
 export function useVisibilitySessionRecovery() {
 

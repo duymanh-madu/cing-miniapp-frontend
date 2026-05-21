@@ -1,4 +1,50 @@
-import socketManager from "@/services/socket/socketManager";
+import socket from "@/services/socket/socketManager";
+
+import useRealtimeStore from "@/stores/realtimeStore";
+
+/**
+ * =====================================================
+ * SAFE STORE ACCESS
+ * =====================================================
+ */
+
+function getRealtimeActions() {
+
+  try {
+
+    const store =
+      useRealtimeStore.getState?.();
+
+    return {
+
+      setConnected:
+        typeof store?.setConnected ===
+        "function"
+
+          ? store.setConnected
+
+          : null,
+
+    };
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Realtime store error:",
+      error
+    );
+
+    return {
+
+      setConnected: null,
+
+    };
+
+  }
+
+}
 
 /**
  * =====================================================
@@ -8,18 +54,49 @@ import socketManager from "@/services/socket/socketManager";
 
 export function registerSocketEvents() {
 
+  const {
+
+    setConnected,
+
+  } = getRealtimeActions();
+
   /**
-   * ============================================
-   * CONNECT
-   * ============================================
+   * =================================================
+   * SAFE CONNECTED UPDATE
+   * =================================================
    */
 
-  socketManager.socket?.on(
+  function updateConnection(
+    state
+  ) {
+
+    if (
+      typeof setConnected ===
+      "function"
+    ) {
+
+      setConnected(state);
+
+    }
+
+  }
+
+  /**
+   * =================================================
+   * CONNECT
+   * =================================================
+   */
+
+  socket.on(
     "connect",
     () => {
 
+      updateConnection(
+        true
+      );
+
       console.log(
-        "socket connected",
+        "✅ socket connected:",
         socket.id
       );
 
@@ -27,19 +104,23 @@ export function registerSocketEvents() {
   );
 
   /**
-   * ============================================
+   * =================================================
    * DISCONNECT
-   * ============================================
+   * =================================================
    */
 
-  socketManager.socket?.on(
+  socket.on(
     "disconnect",
     (
       reason
     ) => {
 
+      updateConnection(
+        false
+      );
+
       console.log(
-        "socket disconnected",
+        "⚠️ socket disconnected:",
         reason
       );
 
@@ -47,20 +128,71 @@ export function registerSocketEvents() {
   );
 
   /**
-   * ============================================
+   * =================================================
    * CONNECT ERROR
-   * ============================================
+   * =================================================
    */
 
-  socketManager.socket?.on(
+  socket.on(
     "connect_error",
     (
       error
     ) => {
 
+      updateConnection(
+        false
+      );
+
       console.error(
-        "socket connect error",
-        error.message
+        "❌ socket connect error:",
+        error?.message
+      );
+
+    }
+  );
+
+  /**
+   * =================================================
+   * RECONNECT
+   * =================================================
+   */
+
+  socket.io.on(
+    "reconnect",
+    (
+      attempt
+    ) => {
+
+      updateConnection(
+        true
+      );
+
+      console.log(
+        `🔄 socket reconnected (${attempt})`
+      );
+
+    }
+  );
+
+  /**
+   * =================================================
+   * RECONNECT ERROR
+   * =================================================
+   */
+
+  socket.io.on(
+    "reconnect_error",
+    (
+      error
+    ) => {
+
+      updateConnection(
+        false
+      );
+
+      console.error(
+        "❌ reconnect error:",
+        error?.message
       );
 
     }

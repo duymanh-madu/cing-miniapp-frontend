@@ -1,6 +1,6 @@
 import {
   usePaymentRealtime,
-} from "../hooks/usePaymentRealtime";
+} from "../shared/hooks/usePaymentRealtime";
 
 import PaymentStatusCard from "../components/PaymentStatusCard";
 

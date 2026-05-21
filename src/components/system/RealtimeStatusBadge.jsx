@@ -1,4 +1,4 @@
-import useSocketStatus from "@/hooks/useSocketStatus";
+import useSocketStatus from "@/shared/hooks/useSocketStatus";
 
 /**
  * =====================================================

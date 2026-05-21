@@ -1,6 +1,6 @@
 import ProductCard from "@/features/menu/components/ProductCard";
 
-import useFeaturedProducts from "@/features/menu/hooks/useFeaturedProducts";
+import useFeaturedProducts from "@/features/menu/shared/hooks/useFeaturedProducts";
 
 function HomeMenuPreview() {
 

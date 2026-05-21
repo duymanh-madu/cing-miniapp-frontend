@@ -10,7 +10,7 @@ import {
 
 const SOCKET_URL =
   import.meta.env
-    .VITE_API_BASE_URL;
+    .VITE_SOCKET_URL;
 
 /**
  * =====================================================

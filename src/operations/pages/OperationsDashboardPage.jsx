@@ -1,6 +1,6 @@
 import {
   useOperationsRealtime,
-} from "../hooks/useOperationsRealtime";
+} from "../shared/hooks/useOperationsRealtime";
 
 import OperationsLiveOrders from "../components/OperationsLiveOrders";
 

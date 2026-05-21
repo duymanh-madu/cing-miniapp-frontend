@@ -1,4 +1,4 @@
-import useMenu from "../hooks/useMenu";
+import useMenu from "../shared/hooks/useMenu";
 
 import SurfaceCard from "@/components/ui/SurfaceCard";
 

@@ -1,6 +1,6 @@
 import useMenuStore from "@/stores/menuStore";
 
-import useMenuCategories from "../hooks/useMenuCategories";
+import useMenuCategories from "../shared/hooks/useMenuCategories";
 
 function MenuCategoryTabs() {
 

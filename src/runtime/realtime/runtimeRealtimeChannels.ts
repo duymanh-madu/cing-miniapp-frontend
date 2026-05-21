@@ -1,0 +1,29 @@
+import {
+  REALTIME_CHANNELS,
+} from "./runtimeRealtimeConstants";
+
+export function getRealtimeChannels() {
+
+  return [
+
+    REALTIME_CHANNELS.PAYMENT,
+
+    REALTIME_CHANNELS.ORDER,
+
+    REALTIME_CHANNELS.LOYALTY,
+
+    REALTIME_CHANNELS.NOTIFICATION,
+
+    REALTIME_CHANNELS.GAME,
+
+    REALTIME_CHANNELS.LEADERBOARD,
+
+    REALTIME_CHANNELS.CMS,
+
+    REALTIME_CHANNELS.ADMIN,
+
+    REALTIME_CHANNELS.CAMPAIGN,
+
+  ];
+
+}

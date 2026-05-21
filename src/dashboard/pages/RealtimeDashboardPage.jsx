@@ -10,7 +10,7 @@ import RealtimeActivityFeed from "../components/RealtimeActivityFeed";
 
 import {
   useDashboardRealtime,
-} from "../hooks/useDashboardRealtime";
+} from "../shared/hooks/useDashboardRealtime";
 
 function RealtimeDashboardPage() {
 

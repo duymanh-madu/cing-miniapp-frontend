@@ -1,6 +1,6 @@
 import {
   useOrderRealtime,
-} from "../hooks/useOrderRealtime";
+} from "../shared/hooks/useOrderRealtime";
 
 import PaymentPendingBanner from "../components/PaymentPendingBanner";
 

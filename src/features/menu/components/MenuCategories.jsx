@@ -1,4 +1,4 @@
-import useMenuCategories from "../hooks/useMenuCategories";
+import useMenuCategories from "../shared/hooks/useMenuCategories";
 
 /**
  * =========================================================

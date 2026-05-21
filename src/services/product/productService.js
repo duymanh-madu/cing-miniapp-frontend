@@ -1,4 +1,4 @@
-import apiClient from "@/services/api/apiClient";
+import apiClient from "@/infra/api/apiClient";
 
 import loggerService from "@/services/logger/loggerService";
 
@@ -22,11 +22,11 @@ class ProductService {
 
       const response =
         await apiClient.get(
-          "/products"
+          "/menu"
         );
 
       return (
-        response?.data ||
+        response?.data?.items ||
         []
       );
 
@@ -55,11 +55,11 @@ class ProductService {
 
       const response =
         await apiClient.get(
-          "/products/featured"
+          "/menu"
         );
 
       return (
-        response?.data ||
+        response?.data?.items ||
         []
       );
 
@@ -78,7 +78,7 @@ class ProductService {
 
   /**
    * =======================================================
-   * SEARCH
+   * SEARCH PRODUCTS
    * =======================================================
    */
 
@@ -90,17 +90,20 @@ class ProductService {
 
       const response =
         await apiClient.get(
-          "/products/search",
-          {
-            params: {
-              keyword,
-            },
-          }
+          "/menu"
         );
 
-      return (
-        response?.data ||
-        []
+      const items =
+        response?.data?.items ||
+        [];
+
+      return items.filter(
+        (item) =>
+          item?.name
+            ?.toLowerCase()
+            ?.includes(
+              keyword.toLowerCase()
+            )
       );
 
     } catch (error) {
