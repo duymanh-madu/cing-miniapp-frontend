@@ -67,12 +67,28 @@ export default function CheckoutPage() {
     if(orderType==="delivery"&&!address.trim()){setError("Vui long nhap dia chi");return;}
     setLoading(true);setError("");
     try{
-      await apiClient.post("/orders",{
-        customer_id:profile?.id||null,customer_name:name.trim(),
-        customer_phone:phone.trim(),delivery_address:address.trim(),
-        order_type:orderType,payment_method:"momo",note:note.trim(),
-        items:items.map(i=>({item_id:i.id,item_code:i.code,name:i.displayName||i.name,price:i.price,quantity:i.qty,note:i.note||""})),
-        subtotal,shipping_fee:shipFee,total_amount:total,distance_km:distKm,
+      const userId = profile?.id || profile?.userId || profile?.zalo_id || "guest";
+      await apiClient.post("/orders/create",{
+        user_id: userId,
+        customer_name: name.trim(),
+        customer_phone: phone.trim(),
+        delivery_address: address.trim(),
+        order_type: orderType,
+        payment_method: "momo",
+        note: note.trim(),
+        items: items.map(i=>({
+          item_id: i.id,
+          item_code: i.code || i.id,
+          name: i.displayName || i.name,
+          price: i.price,
+          quantity: i.qty,
+          note: i.note || "",
+        })),
+        subtotal,
+        shipping_fee: shipFee,
+        total_amount: total,
+        distance_km: distKm,
+        status_code: "pending_payment",
       });
       clearCart();navigate("/order-success");
     }catch{setError("Dat hang that bai. Vui long thu lai.");}
@@ -88,7 +104,7 @@ export default function CheckoutPage() {
   );
 
   return(
-    <div style={{background:"#f5f5f5",minHeight:"100vh",paddingBottom:200}}>
+    <div style={{background:"#f5f5f5",minHeight:"100vh",paddingBottom:220}}>
       <div style={{background:"white",padding:"14px 16px",display:"flex",alignItems:"center",gap:12,borderBottom:"1px solid #f0f0f0",position:"sticky",top:0,zIndex:10}}>
         <button onClick={()=>navigate(-1)} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",padding:0,color:"#333"}}>←</button>
         <h1 style={{fontSize:17,fontWeight:900,margin:0}}>Gio hang ({count} mon)</h1>
@@ -165,7 +181,7 @@ export default function CheckoutPage() {
           style={{width:"100%",border:"1.5px solid #f0f0f0",borderRadius:10,padding:"8px 10px",fontSize:12,color:"#333",resize:"none",outline:"none",boxSizing:"border-box",fontFamily:"inherit"}}/>
       </div>
 
-      <div style={{position:"fixed",bottom:0,left:0,right:0,background:"white",borderTop:"1px solid #f0f0f0",padding:"10px 16px 32px"}}>
+      <div style={{position:"fixed",bottom:0,left:0,right:0,background:"white",borderTop:"1px solid #f0f0f0",padding:"12px 16px 36px"}}>
         <div style={{marginBottom:8}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,color:"#666"}}>Tam tinh</span><span style={{fontSize:12,fontWeight:600}}>{fmt(subtotal)}</span></div>
           {orderType==="delivery"&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,color:"#666"}}>Phi ship</span><span style={{fontSize:12,fontWeight:600,color:shipFee===0?"#2e7d32":"#1a1a1a"}}>{shipLoading?"Dang tinh...":shipFee===0?"Mien phi":fmt(shipFee)}</span></div>}
