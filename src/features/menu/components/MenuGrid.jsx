@@ -1,16 +1,43 @@
 import { useMenuProducts } from "../hooks/useMenuProducts";
-import { useNavigate } from "react-router-dom";
-
-const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='180' viewBox='0 0 200 180'%3E%3Crect width='200' height='180' fill='%23f3f4f6'/%3E%3Ctext x='100' y='95' text-anchor='middle' font-size='40'%3E%F0%9F%A7%8B%3C/text%3E%3C/svg%3E";
 
 function formatPrice(price) {
-  if (!price) return "";
+  if (!price && price !== 0) return "";
   return new Intl.NumberFormat("vi-VN").format(price) + "d";
+}
+
+function ProductImage({ src, name }) {
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={name}
+        className="w-full h-full object-cover"
+        onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+        loading="lazy"
+      />
+    );
+  }
+  return null;
+}
+
+function PlaceholderImage() {
+  return (
+    <div
+      className="w-full h-full flex items-center justify-center"
+      style={{ background: "linear-gradient(135deg, #D4521A 0%, #E8703A 40%, #C94010 100%)" }}
+    >
+      <img
+        src="/logo-cing.png"
+        alt="Cing Hu Tang"
+        className="w-16 h-16 object-contain opacity-90"
+        style={{ filter: "brightness(0) invert(1)" }}
+      />
+    </div>
+  );
 }
 
 function MenuGrid() {
   const { data = [], isLoading } = useMenuProducts();
-  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -32,37 +59,51 @@ function MenuGrid() {
   }
 
   return (
-    <div className="mt-4 px-4 grid grid-cols-2 gap-3 pb-4">
+    <div className="mt-4 px-4 grid grid-cols-2 gap-3">
       {data.map((item) => (
         <div
           key={item.id}
           className="bg-white rounded-2xl shadow-sm overflow-hidden active:scale-[0.97] transition-transform"
-          onClick={() => {}}
         >
-          {/* Product image */}
-          <div className="relative h-[150px] bg-gray-50 overflow-hidden">
-            <img
-              src={item.image || PLACEHOLDER}
-              alt={item.name}
-              className="w-full h-full object-cover"
-              onError={(e) => { e.target.src = PLACEHOLDER; }}
-              loading="lazy"
-            />
+          <div className="relative h-[150px] overflow-hidden bg-gray-50">
+            {item.image ? (
+              <>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                    e.target.parentNode.querySelector(".placeholder").style.display = "flex";
+                  }}
+                  loading="lazy"
+                />
+                <div className="placeholder hidden w-full h-full absolute inset-0 items-center justify-center"
+                  style={{ background: "linear-gradient(135deg, #D4521A 0%, #E8703A 40%, #C94010 100%)" }}>
+                  <img src="/logo-cing.png" alt="" className="w-14 h-14 object-contain"
+                    style={{ filter: "brightness(0) invert(1)" }} />
+                </div>
+              </>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center"
+                style={{ background: "linear-gradient(135deg, #D4521A 0%, #E8703A 40%, #C94010 100%)" }}>
+                <img src="/logo-cing.png" alt="" className="w-14 h-14 object-contain"
+                  style={{ filter: "brightness(0) invert(1)" }} />
+              </div>
+            )}
             {item.featured && (
-              <span className="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <span className="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
                 Hot
               </span>
             )}
             {!item.available && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <span className="text-white text-xs font-bold bg-black/60 px-2 py-1 rounded-full">
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <span className="text-white text-xs font-bold bg-black/70 px-3 py-1 rounded-full">
                   Het hang
                 </span>
               </div>
             )}
           </div>
-
-          {/* Product info */}
           <div className="p-3">
             <h3 className="text-xs font-bold text-gray-800 line-clamp-2 leading-tight min-h-[32px]">
               {item.name}
@@ -72,8 +113,8 @@ function MenuGrid() {
                 {formatPrice(item.price)}
               </p>
               <button
-                className="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center text-lg font-bold active:scale-90 transition-transform"
-                onClick={(e) => { e.stopPropagation(); }}
+                className="w-7 h-7 rounded-full bg-orange-500 text-white text-lg font-bold flex items-center justify-center active:scale-90 transition-transform shadow-sm"
+                onClick={(e) => e.stopPropagation()}
               >
                 +
               </button>
