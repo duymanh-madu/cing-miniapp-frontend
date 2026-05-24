@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function BlackPearlRush() {
+export default function BlackPearlRush({ onExit }) {
   const navigate = useNavigate();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -367,7 +367,7 @@ export default function BlackPearlRush() {
               className="bg-[rgba(0,0,0,0.55)] text-white font-black text-sm rounded-2xl px-4 h-[42px] shadow-lg">
               🏆 BXH
             </button>
-            <button onClick={() => navigate("/game-center")}
+            <button onClick={() => { if(onExit) onExit(); else navigate("/game-center"); }}
               className="bg-[#2b160b] text-white font-black text-[12px] rounded-2xl px-4 h-[42px] shadow-lg">
               🎮 Game Center
             </button>

@@ -29,7 +29,7 @@ export default function GameCenterPage() {
             🏆 BXH
           </button>
         </div>
-        <div style={{ flex:1 }}><GameComp /></div>
+        <div style={{ flex:1 }}><GameComp onExit={() => setActiveGame(null)} /></div>
         {showBoard && (
           <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />
         )}
