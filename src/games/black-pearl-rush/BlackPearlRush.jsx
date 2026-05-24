@@ -68,10 +68,25 @@ export default function BlackPearlRush() {
     canvas.style.height =
       `${HEIGHT}px`;
 
-    ctx.scale(
-      DPR,
-      DPR
-    );
+    ctx.scale(DPR, DPR);
+
+    /**
+     * =====================================
+     * CACHED GRADIENTS (tạo 1 lần, dùng mãi)
+     * =====================================
+     */
+    const cachedBgGradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+    cachedBgGradient.addColorStop(0, "#f7f0e4");
+    cachedBgGradient.addColorStop(1, "#eadcc7");
+
+    const cachedObstacleGradient = ctx.createLinearGradient(0, 0, 60, 0);
+    cachedObstacleGradient.addColorStop(0, "#ff9d00");
+    cachedObstacleGradient.addColorStop(1, "#ff6200");
+
+    const cachedPearlGradient = ctx.createRadialGradient(-10, -14, 4, 0, 0, 36);
+    cachedPearlGradient.addColorStop(0, "#4b2a19");
+    cachedPearlGradient.addColorStop(0.4, "#1a0f09");
+    cachedPearlGradient.addColorStop(1, "#050505");
 
     /**
      * =====================================
@@ -768,32 +783,7 @@ export default function BlackPearlRush() {
       obstacle
     ) {
 
-      const gradient =
-        ctx.createLinearGradient(
-
-          obstacle.x,
-
-          0,
-
-          obstacle.x +
-            obstacle.width,
-
-          0
-
-        );
-
-      gradient.addColorStop(
-        0,
-        "#ff9d00"
-      );
-
-      gradient.addColorStop(
-        1,
-        "#ff6200"
-      );
-
-      ctx.fillStyle =
-        gradient;
+      ctx.fillStyle = cachedObstacleGradient;
 
       ctx.beginPath();
 
@@ -860,12 +850,7 @@ export default function BlackPearlRush() {
         1 / p.squash
       );
 
-      const wingFlap =
-
-        Math.sin(
-          Date.now() *
-            0.02
-        ) * 0.12;
+      const wingFlap = Math.sin(game.frameTime * 0.02) * 0.12;
 
       function wing(
         offset,
@@ -931,40 +916,7 @@ export default function BlackPearlRush() {
         -1
       );
 
-      const gradient =
-        ctx.createRadialGradient(
-
-          -10,
-
-          -14,
-
-          4,
-
-          0,
-
-          0,
-
-          36
-
-        );
-
-      gradient.addColorStop(
-        0,
-        "#4b2a19"
-      );
-
-      gradient.addColorStop(
-        0.4,
-        "#1a0f09"
-      );
-
-      gradient.addColorStop(
-        1,
-        "#050505"
-      );
-
-      ctx.fillStyle =
-        gradient;
+      ctx.fillStyle = cachedPearlGradient;
 
       ctx.beginPath();
 
@@ -1140,45 +1092,18 @@ export default function BlackPearlRush() {
         HEIGHT
       );
 
-      const bg =
-        ctx.createLinearGradient(
-          0,
-          0,
-          0,
-          HEIGHT
-        );
-
-      bg.addColorStop(
-        0,
-        "#f7f0e4"
-      );
-
-      bg.addColorStop(
-        1,
-        "#eadcc7"
-      );
-
-      ctx.fillStyle =
-        bg;
-
-      ctx.fillRect(
-        0,
-        0,
-        WIDTH,
-        HEIGHT
-      );
+      ctx.fillStyle = cachedBgGradient;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
       ctx.save();
 
-      ctx.translate(
-
-        (Math.random() - 0.5) *
-          game.shake,
-
-        (Math.random() - 0.5) *
-          game.shake
-
-      );
+      if (game.shake > 0) {
+        const s = game.shake | 0;
+        ctx.translate(
+          ((Math.random() * s) | 0) - (s >> 1),
+          ((Math.random() * s) | 0) - (s >> 1)
+        );
+      }
 
       game.obstacles.forEach(
         drawObstacle
@@ -1332,17 +1257,11 @@ export default function BlackPearlRush() {
      * =====================================
      */
 
-    function loop() {
-
+    function loop(timestamp) {
+      game.frameTime = timestamp || performance.now();
       update();
-
       draw();
-
-      animationRef.current =
-        requestAnimationFrame(
-          loop
-        );
-
+      animationRef.current = requestAnimationFrame(loop);
     }
 
     loop();
