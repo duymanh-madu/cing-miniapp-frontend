@@ -1,4 +1,1 @@
-export {
-  default as GamePage,
-}
-from "./pages/GamePage";
+export { default } from "./pages/GamePage";

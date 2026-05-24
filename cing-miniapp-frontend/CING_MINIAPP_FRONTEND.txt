@@ -1,0 +1,15 @@
+.
+├── CING_MINIAPP_FRONTEND.txt
+└── __audit__
+    └── phase-1-cleanup
+        ├── all-files.txt
+        ├── api-http-layers.txt
+        ├── build-output.txt
+        ├── deprecated-files.txt
+        ├── large-files.txt
+        ├── mock-demo-hardcode.txt
+        ├── realtime-layers.txt
+        ├── runtime-ownership.txt
+        └── store-layers.txt
+
+3 directories, 10 files

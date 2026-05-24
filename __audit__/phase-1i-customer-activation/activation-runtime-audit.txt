@@ -1,0 +1,721 @@
+src/order/stores/checkoutStore.js:20:      phone:
+src/infra/auth/useAuthenticated.js:1:import useAuthStore from "@/stores/auth";
+src/infra/auth/useAuthenticated.js:3:export function useAuthenticated() {
+src/infra/auth/useAuthenticated.js:5:  return useAuthStore(
+src/infra/auth/useAuthenticated.js:8:    ) => state.authenticated
+src/infra/auth/useSession.js:1:import useAuthStore from "@/stores/auth";
+src/infra/auth/useSession.js:5:  return useAuthStore(
+src/infra/auth/useSession.js:10:      authenticated:
+src/infra/auth/useSession.js:11:        state.authenticated,
+src/infra/auth/bootstrapAuth.js:4:} from "./authStorage";
+src/infra/auth/bootstrapAuth.js:6:import useAuthStore from "@/stores/auth";
+src/infra/auth/bootstrapAuth.js:8:export function bootstrapAuth() {
+src/infra/auth/bootstrapAuth.js:25:  useAuthStore
+src/infra/auth/bootstrapAuth.js:39:    "🟢 AUTH RESTORED"
+src/infra/auth/logout.js:3:} from "./authSession";
+src/infra/auth/index.js:2:  bootstrapAuth,
+src/infra/auth/index.js:4:from "./bootstrapAuth";
+src/infra/auth/index.js:10:from "./authSession";
+src/infra/auth/index.js:18:  useAuthenticated,
+src/infra/auth/index.js:20:from "./useAuthenticated";
+src/infra/auth/authSession.js:4:  clearAuthStorage,
+src/infra/auth/authSession.js:5:} from "./authStorage";
+src/infra/auth/authSession.js:7:import useAuthStore from "@/stores/auth";
+src/infra/auth/authSession.js:23:  useAuthStore
+src/infra/auth/authSession.js:39:  clearAuthStorage();
+src/infra/auth/authSession.js:41:  useAuthStore
+src/infra/auth/authService.js:9: * NORMALIZE AUTH RESPONSE
+src/infra/auth/authService.js:13:function normalizeAuthResponse(
+src/infra/auth/authService.js:84:    phone:
+src/infra/auth/authService.js:86:      profile.phone ||
+src/infra/auth/authService.js:111: * LOGIN
+src/infra/auth/authService.js:116:login({
+src/infra/auth/authService.js:118:  phone,
+src/infra/auth/authService.js:130:    !phone ||
+src/infra/auth/authService.js:149:      "🔐 LOGIN START",
+src/infra/auth/authService.js:151:        phone,
+src/infra/auth/authService.js:164:        "/auth/login",
+src/infra/auth/authService.js:168:          phone,
+src/infra/auth/authService.js:181:    const auth =
+src/infra/auth/authService.js:182:      normalizeAuthResponse(
+src/infra/auth/authService.js:189:      "🟢 LOGIN SUCCESS",
+src/infra/auth/authService.js:192:          auth.user?.id,
+src/infra/auth/authService.js:202:    return auth;
+src/infra/auth/authService.js:218:      "❌ LOGIN FAILED",
+src/infra/auth/authService.js:276:        "/auth/refresh",
+src/infra/auth/authService.js:293:    const auth =
+src/infra/auth/authService.js:294:      normalizeAuthResponse(
+src/infra/auth/authService.js:310:    return auth;
+src/infra/auth/authService.js:359:        "/auth/profile"
+src/infra/api/loyalty/loyaltyQueries.js:10:  fetchMembership,
+src/infra/api/loyalty/loyaltyQueries.js:18:export function useMembershipQuery(
+src/infra/api/loyalty/loyaltyQueries.js:24:        LOYALTY_QUERY_KEYS.MEMBERSHIP(
+src/infra/api/loyalty/loyaltyQueries.js:30:          fetchMembership(
+src/infra/api/loyalty/loyaltyApi.js:11:  MEMBERSHIP:
+src/infra/api/loyalty/loyaltyApi.js:12:    "/api/loyalty/membership",
+src/infra/api/loyalty/loyaltyApi.js:85: * MEMBERSHIP DETAIL
+src/infra/api/loyalty/loyaltyApi.js:90:getMembershipDetail({
+src/infra/api/loyalty/loyaltyApi.js:129:        `${LOYALTY_ENDPOINTS.MEMBERSHIP}/${normalizedUserId}`,
+src/infra/api/loyalty/loyaltyApi.js:155:      "🟢 MEMBERSHIP DETAIL FETCHED",
+src/infra/api/loyalty/loyaltyApi.js:183:      "❌ MEMBERSHIP DETAIL ERROR",
+src/infra/api/loyalty/loyaltyService.js:3:  getMembershipDetail,
+src/infra/api/loyalty/loyaltyService.js:13:  normalizeMembership,
+src/infra/api/loyalty/loyaltyService.js:177: * FETCH MEMBERSHIP
+src/infra/api/loyalty/loyaltyService.js:182:fetchMembership({
+src/infra/api/loyalty/loyaltyService.js:199:      await getMembershipDetail({
+src/infra/api/loyalty/loyaltyService.js:213:    const membership =
+src/infra/api/loyalty/loyaltyService.js:215:      normalizeMembership(
+src/infra/api/loyalty/loyaltyService.js:226:      "🟢 MEMBERSHIP FETCHED",
+src/infra/api/loyalty/loyaltyService.js:230:          membership.id,
+src/infra/api/loyalty/loyaltyService.js:233:          membership.level,
+src/infra/api/loyalty/loyaltyService.js:238:    return membership;
+src/infra/api/loyalty/loyaltyService.js:249:      "❌ FETCH MEMBERSHIP ERROR",
+src/infra/api/loyalty/loyaltyQueryKeys.js:45:     * MEMBERSHIP
+src/infra/api/loyalty/loyaltyQueryKeys.js:49:    MEMBERSHIP:
+src/infra/api/loyalty/loyaltyQueryKeys.js:53:        "membership",
+src/infra/api/loyalty/loyaltyQueryKeys.js:60:     * MEMBERSHIP DETAIL
+src/infra/api/loyalty/loyaltyQueryKeys.js:64:    MEMBERSHIP_DETAIL:
+src/infra/api/loyalty/loyaltyQueryKeys.js:68:        "membership-detail",
+src/infra/api/loyalty/loyaltyQueryKeys.js:75:     * MEMBERSHIP TYPES
+src/infra/api/loyalty/loyaltyQueryKeys.js:79:    MEMBERSHIP_TYPES:
+src/infra/api/loyalty/loyaltyQueryKeys.js:83:        "membership-types",
+src/infra/api/loyalty/loyaltyMapper.js:3: * MEMBERSHIP LEVELS
+src/infra/api/loyalty/loyaltyMapper.js:7:export const MEMBERSHIP_LEVELS = {
+src/infra/api/loyalty/loyaltyMapper.js:159: * NORMALIZE MEMBERSHIP LEVEL
+src/infra/api/loyalty/loyaltyMapper.js:163:function normalizeMembershipLevel(
+src/infra/api/loyalty/loyaltyMapper.js:174:      MEMBERSHIP_LEVELS
+src/infra/api/loyalty/loyaltyMapper.js:184:  return MEMBERSHIP_LEVELS.BRONZE;
+src/infra/api/loyalty/loyaltyMapper.js:221: * MEMBERSHIP STATUS
+src/infra/api/loyalty/loyaltyMapper.js:225:function resolveMembershipStatus(
+src/infra/api/loyalty/loyaltyMapper.js:226:  membership
+src/infra/api/loyalty/loyaltyMapper.js:230:    membership?.blocked
+src/infra/api/loyalty/loyaltyMapper.js:238:    membership?.active === false
+src/infra/api/loyalty/loyaltyMapper.js:251: * NORMALIZE MEMBERSHIP
+src/infra/api/loyalty/loyaltyMapper.js:256:normalizeMembership(
+src/infra/api/loyalty/loyaltyMapper.js:257:  membership
+src/infra/api/loyalty/loyaltyMapper.js:260:  const safeMembership =
+src/infra/api/loyalty/loyaltyMapper.js:262:    membership &&
+src/infra/api/loyalty/loyaltyMapper.js:263:    typeof membership ===
+src/infra/api/loyalty/loyaltyMapper.js:266:      ? membership
+src/infra/api/loyalty/loyaltyMapper.js:277:    normalizeMembershipLevel(
+src/infra/api/loyalty/loyaltyMapper.js:279:      safeMembership.level ||
+src/infra/api/loyalty/loyaltyMapper.js:281:      safeMembership.membership_type ||
+src/infra/api/loyalty/loyaltyMapper.js:283:      safeMembership.tier
+src/infra/api/loyalty/loyaltyMapper.js:294:    resolveMembershipStatus(
+src/infra/api/loyalty/loyaltyMapper.js:295:      safeMembership
+src/infra/api/loyalty/loyaltyMapper.js:310:        safeMembership.id ||
+src/infra/api/loyalty/loyaltyMapper.js:312:        safeMembership.user_id ||
+src/infra/api/loyalty/loyaltyMapper.js:322:        safeMembership.member_code ||
+src/infra/api/loyalty/loyaltyMapper.js:324:        safeMembership.code
+src/infra/api/loyalty/loyaltyMapper.js:338:        safeMembership.name ||
+src/infra/api/loyalty/loyaltyMapper.js:340:        safeMembership.user_name ||
+src/infra/api/loyalty/loyaltyMapper.js:349:        safeMembership.avatar
+src/infra/api/loyalty/loyaltyMapper.js:352:    phone:
+src/infra/api/loyalty/loyaltyMapper.js:356:        safeMembership.phone ||
+src/infra/api/loyalty/loyaltyMapper.js:358:        safeMembership.phone_number
+src/infra/api/loyalty/loyaltyMapper.js:365:        safeMembership.email
+src/infra/api/loyalty/loyaltyMapper.js:377:        safeMembership.points
+src/infra/api/loyalty/loyaltyMapper.js:384:        safeMembership.lifetime_points
+src/infra/api/loyalty/loyaltyMapper.js:392:        safeMembership.expiring_points
+src/infra/api/loyalty/loyaltyMapper.js:400:        safeMembership.total_spent ||
+src/infra/api/loyalty/loyaltyMapper.js:402:        safeMembership.spending
+src/infra/api/loyalty/loyaltyMapper.js:410:        safeMembership.total_orders
+src/infra/api/loyalty/loyaltyMapper.js:416:     * MEMBERSHIP
+src/infra/api/loyalty/loyaltyMapper.js:425:        safeMembership.next_level
+src/infra/api/loyalty/loyaltyMapper.js:440:        safeMembership.progression_percent
+src/infra/api/loyalty/loyaltyMapper.js:448:        safeMembership.points_to_next_level
+src/infra/api/loyalty/loyaltyMapper.js:462:        safeMembership.joined_at ||
+src/infra/api/loyalty/loyaltyMapper.js:464:        safeMembership.created_at
+src/infra/api/loyalty/loyaltyMapper.js:471:        safeMembership.updated_at
+src/infra/api/loyalty/loyaltyMapper.js:493:      safeMembership,
+src/infra/api/system/systemService.js:153:      "zalo-miniapp",
+src/zalo/auth/zaloAuthRuntime.js:4:  login,
+src/zalo/auth/zaloAuthRuntime.js:7:class ZaloAuthRuntime {
+src/zalo/auth/zaloAuthRuntime.js:29:     * LOGIN
+src/zalo/auth/zaloAuthRuntime.js:35:      await login({});
+src/zalo/auth/zaloAuthRuntime.js:40:        "zalo login failed",
+src/zalo/auth/zaloAuthRuntime.js:174:const zaloAuthRuntime =
+src/zalo/auth/zaloAuthRuntime.js:175:  new ZaloAuthRuntime();
+src/zalo/auth/zaloAuthRuntime.js:178:  zaloAuthRuntime;
+src/zalo/follow/followOARuntime.js:2:  followOA,
+src/zalo/follow/followOARuntime.js:5:class FollowOARuntime {
+src/zalo/follow/followOARuntime.js:25:      await followOA({
+src/zalo/follow/followOARuntime.js:46:const followOARuntime =
+src/zalo/follow/followOARuntime.js:47:  new FollowOARuntime();
+src/zalo/follow/followOARuntime.js:50:  followOARuntime;
+src/zalo/constants/zaloEvents.js:7:    "zalo.follow_oa",
+src/zalo/activation/activationRuntime.js:1:class ActivationRuntime {
+src/zalo/activation/activationRuntime.js:3:  async activate() {
+src/zalo/activation/activationRuntime.js:5:    let auth = null;
+src/zalo/activation/activationRuntime.js:9:      auth =
+src/zalo/activation/activationRuntime.js:10:        await zaloAuthRuntime.bootstrap();
+src/zalo/activation/activationRuntime.js:15:        "Zalo auth bootstrap failed",
+src/zalo/activation/activationRuntime.js:23:    if (!auth?.success) {
+src/zalo/activation/activationRuntime.js:26:        "Zalo auth unavailable"
+src/zalo/activation/activationRuntime.js:38:        await zaloAuthRuntime.getProfile();
+src/zalo/activation/activationRuntime.js:61:    let activationResponse = null;
+src/zalo/activation/activationRuntime.js:65:      activationResponse =
+src/zalo/activation/activationRuntime.js:66:        await activateMiniAppUser({
+src/zalo/activation/activationRuntime.js:69:            auth.accessToken,
+src/zalo/activation/activationRuntime.js:79:        "Mini app activation failed",
+src/zalo/activation/activationRuntime.js:87:    activationStore.activate({
+src/zalo/activation/activationRuntime.js:93:        auth.accessToken,
+src/zalo/activation/activationRuntime.js:96:        activationResponse?.customer,
+src/zalo/activation/activationRuntime.js:100:    return activationResponse;
+src/zalo/activation/activationRuntime.js:106:const activationRuntime =
+src/zalo/activation/activationRuntime.js:107:  new ActivationRuntime();
+src/zalo/activation/activationRuntime.js:110:  activationRuntime;
+src/zalo/activation/runtime/activationAnalyticsRuntime.js:1:class ActivationAnalyticsRuntime {
+src/zalo/activation/runtime/activationAnalyticsRuntime.js:6:      "activation_event",
+src/zalo/activation/runtime/activationAnalyticsRuntime.js:15:const activationAnalyticsRuntime =
+src/zalo/activation/runtime/activationAnalyticsRuntime.js:16:  new ActivationAnalyticsRuntime();
+src/zalo/activation/runtime/activationAnalyticsRuntime.js:19:  activationAnalyticsRuntime;
+src/zalo/activation/runtime/activationConfigRuntime.js:1:class ActivationConfigRuntime {
+src/zalo/activation/runtime/activationConfigRuntime.js:5:    requirePhone:
+src/zalo/activation/runtime/activationConfigRuntime.js:24:const activationConfigRuntime =
+src/zalo/activation/runtime/activationConfigRuntime.js:25:  new ActivationConfigRuntime();
+src/zalo/activation/runtime/activationConfigRuntime.js:27:export default activationConfigRuntime;
+src/zalo/activation/components/ActivationGate.jsx:5:import activationService from "@/zalo/activation/services/activationService";
+src/zalo/activation/components/ActivationGate.jsx:7:import useActivationStore from "@/zalo/activation/store/activationRuntimeStore";
+src/zalo/activation/components/ActivationGate.jsx:9:function ActivationGate({
+src/zalo/activation/components/ActivationGate.jsx:13:  const activated =
+src/zalo/activation/components/ActivationGate.jsx:14:    useActivationStore(
+src/zalo/activation/components/ActivationGate.jsx:16:        state.activated
+src/zalo/activation/components/ActivationGate.jsx:19:  const setActivated =
+src/zalo/activation/components/ActivationGate.jsx:20:    useActivationStore(
+src/zalo/activation/components/ActivationGate.jsx:22:        state.setActivated
+src/zalo/activation/components/ActivationGate.jsx:30:        await activationService
+src/zalo/activation/components/ActivationGate.jsx:31:          .activate();
+src/zalo/activation/components/ActivationGate.jsx:35:        setActivated(
+src/zalo/activation/components/ActivationGate.jsx:47:  if (!activated) {
+src/zalo/activation/components/ActivationGate.jsx:58:  ActivationGate;
+src/zalo/activation/hooks/useActivation.js:5:import useActivationStore from "@/zalo/activation/store/activationRuntimeStore";
+src/zalo/activation/hooks/useActivation.js:9:function useActivation() {
+src/zalo/activation/hooks/useActivation.js:11:  const setActivated =
+src/zalo/activation/hooks/useActivation.js:12:    useActivationStore(
+src/zalo/activation/hooks/useActivation.js:14:        state.setActivated
+src/zalo/activation/hooks/useActivation.js:25:      setActivated(
+src/zalo/activation/hooks/useActivation.js:36:  useActivation;
+src/zalo/activation/activationStore.js:3:const useActivationStore = create((set) => ({
+src/zalo/activation/activationStore.js:4:  activated: false,
+src/zalo/activation/activationStore.js:17:  activate: (payload) =>
+src/zalo/activation/activationStore.js:19:      activated: true,
+src/zalo/activation/activationStore.js:25:      activated: false,
+src/zalo/activation/activationStore.js:31:export default useActivationStore;
+src/zalo/activation/services/activationService.js:1:import zaloAuthRuntime from "@/zalo/auth/zaloAuthRuntime";
+src/zalo/activation/services/activationService.js:3:import zaloPhoneRuntime from "@/zalo/phone/zaloPhoneRuntime";
+src/zalo/activation/services/activationService.js:5:import followOARuntime from "@/zalo/follow/followOARuntime";
+src/zalo/activation/services/activationService.js:9:class ActivationService {
+src/zalo/activation/services/activationService.js:11:  async activate() {
+src/zalo/activation/services/activationService.js:13:    const auth =
+src/zalo/activation/services/activationService.js:14:      await zaloAuthRuntime
+src/zalo/activation/services/activationService.js:17:    if (!auth) {
+src/zalo/activation/services/activationService.js:21:    const phone =
+src/zalo/activation/services/activationService.js:22:      await zaloPhoneRuntime
+src/zalo/activation/services/activationService.js:23:        .requestPhoneNumber();
+src/zalo/activation/services/activationService.js:26:      await followOARuntime
+src/zalo/activation/services/activationService.js:31:      auth,
+src/zalo/activation/services/activationService.js:32:      phone,
+src/zalo/activation/services/activationService.js:34:      activatedAt:
+src/zalo/activation/services/activationService.js:49:const activationService =
+src/zalo/activation/services/activationService.js:50:  new ActivationService();
+src/zalo/activation/services/activationService.js:52:export default activationService;
+src/zalo/activation/store/activationStore.js:4:const useActivationStore =
+src/zalo/activation/store/activationStore.js:7:    activated: false,
+src/zalo/activation/store/activationStore.js:13:    setActivated:
+src/zalo/activation/store/activationStore.js:16:          activated: value,
+src/zalo/activation/store/activationStore.js:34:  useActivationStore;
+src/zalo/activation/activationApi.js:6:export async function activateMiniAppUser(payload) {
+src/zalo/activation/activationApi.js:8:    `${API_BASE_URL}/activation/bootstrap`,
+src/zalo/phone/zaloPhoneRuntime.js:2:  getPhoneNumber,
+src/zalo/phone/zaloPhoneRuntime.js:5:class ZaloPhoneRuntime {
+src/zalo/phone/zaloPhoneRuntime.js:7:  async requestPhoneNumber() {
+src/zalo/phone/zaloPhoneRuntime.js:11:      const phone =
+src/zalo/phone/zaloPhoneRuntime.js:12:        await getPhoneNumber({});
+src/zalo/phone/zaloPhoneRuntime.js:18:        phone,
+src/zalo/phone/zaloPhoneRuntime.js:25:        "phone request failed",
+src/zalo/phone/zaloPhoneRuntime.js:33:        phone: null,
+src/zalo/phone/zaloPhoneRuntime.js:43:const zaloPhoneRuntime =
+src/zalo/phone/zaloPhoneRuntime.js:44:  new ZaloPhoneRuntime();
+src/zalo/phone/zaloPhoneRuntime.js:47:  zaloPhoneRuntime;
+src/zalo/phone/phonePermissionRuntime.js:1:import { getPhoneNumber } from "zmp-sdk/apis";
+src/zalo/phone/phonePermissionRuntime.js:3:class PhonePermissionRuntime {
+src/zalo/phone/phonePermissionRuntime.js:4:  async requestPhoneNumber() {
+src/zalo/phone/phonePermissionRuntime.js:7:        await getPhoneNumber({});
+src/zalo/phone/phonePermissionRuntime.js:15:        "phone permission failed",
+src/zalo/phone/phonePermissionRuntime.js:27:const phonePermissionRuntime =
+src/zalo/phone/phonePermissionRuntime.js:28:  new PhonePermissionRuntime();
+src/zalo/phone/phonePermissionRuntime.js:30:export default phonePermissionRuntime;
+src/zalo/services/zaloShareService.js:5:export async function shareMiniApp({
+src/zalo/services/zaloFollowOAService.js:14:  return zmp.followOA({
+src/core/startup/activationBootstrap.js:3:class ActivationBootstrap {
+src/core/startup/activationBootstrap.js:21:const activationBootstrap =
+src/core/startup/activationBootstrap.js:22:  new ActivationBootstrap();
+src/core/startup/activationBootstrap.js:24:export default activationBootstrap;
+src/core/store/runtimeStoreRegistry.ts:3:  auth:
+src/core/store/runtimeStoreRegistry.ts:4:    "useAuthRuntimeStore",
+src/core/store/authRuntimeStore.ts:3:interface AuthRuntimeState {
+src/core/store/authRuntimeStore.ts:5:  authenticated: boolean;
+src/core/store/authRuntimeStore.ts:13:  setAuthenticated: (
+src/core/store/authRuntimeStore.ts:30:export const useAuthRuntimeStore =
+src/core/store/authRuntimeStore.ts:31:  create<AuthRuntimeState>(
+src/core/store/authRuntimeStore.ts:37:      authenticated: false,
+src/core/store/authRuntimeStore.ts:45:      setAuthenticated: (
+src/core/store/authRuntimeStore.ts:49:        authenticated:
+src/bootstrap/constants/bootstrapLayers.js:6:  AUTH:
+src/bootstrap/constants/bootstrapLayers.js:7:    "auth",
+src/app/admin/services/adminAuthService.js:3:class AdminAuthService {
+src/app/admin/services/adminAuthService.js:16:  async login(payload) {
+src/app/admin/services/adminAuthService.js:20:        "/admin/login",
+src/app/admin/services/adminAuthService.js:30:const adminAuthService =
+src/app/admin/services/adminAuthService.js:31:  new AdminAuthService();
+src/app/admin/services/adminAuthService.js:34:  adminAuthService;
+src/auth/useAuthSession.js:1:import useAuthStore from "./authState";
+src/auth/useAuthSession.js:3:export function useAuthSession() {
+src/auth/useAuthSession.js:5:  return useAuthStore(
+src/auth/useAuthSession.js:8:      authenticated:
+src/auth/useAuthSession.js:9:        state.authenticated,
+src/auth/authState.js:5:const useAuthStore =
+src/auth/authState.js:8:    authenticated:
+src/auth/authState.js:17:    setAuthenticated:
+src/auth/authState.js:19:        authenticated
+src/auth/authState.js:22:          authenticated,
+src/auth/authState.js:37:    resetAuth:
+src/auth/authState.js:41:          authenticated:
+src/auth/authState.js:55:  useAuthStore;
+src/auth/bootstrap/authBootstrap.js:3:} from "../infra/auth/SessionService";
+src/auth/bootstrap/authBootstrap.js:5:export function bootstrapAuthLayer() {
+src/auth/bootstrap/authBootstrap.js:10:    "🔐 Auth layer booted"
+src/auth/bootstrapAuth.js:3:} from "./authSession";
+src/auth/bootstrapAuth.js:5:import useAuthStore from "./authState";
+src/auth/bootstrapAuth.js:7:export function bootstrapAuth() {
+src/auth/bootstrapAuth.js:9:  const authenticated =
+src/auth/bootstrapAuth.js:12:  useAuthStore
+src/auth/bootstrapAuth.js:14:    .setAuthenticated(
+src/auth/bootstrapAuth.js:15:      authenticated
+src/auth/bootstrapAuth.js:19:    "🟢 AUTH READY"
+src/auth/config/authConfig.js:1:export const AUTH_CONFIG = {
+src/auth/index.js:2:  default as RequireAuth,
+src/auth/index.js:4:from "./RequireAuth";
+src/auth/index.js:7:  useAuthSession,
+src/auth/index.js:9:from "./useAuthSession";
+src/auth/index.js:12:  default as useAuthStore,
+src/auth/index.js:14:from "./authState";
+src/auth/index.js:17:  AUTH_EVENTS,
+src/auth/index.js:19:from "./authEvents";
+src/auth/authStorage.js:49:export function clearAuthStorage() {
+src/auth/storage/refreshTokenStorage.js:2:  AUTH_CONFIG,
+src/auth/storage/refreshTokenStorage.js:3:} from "../config/authConfig";
+src/auth/storage/refreshTokenStorage.js:11:    AUTH_CONFIG
+src/auth/storage/refreshTokenStorage.js:24:    AUTH_CONFIG
+src/auth/storage/refreshTokenStorage.js:35:    AUTH_CONFIG
+src/auth/storage/tokenStorage.js:2:  AUTH_CONFIG,
+src/auth/storage/tokenStorage.js:3:} from "../config/authConfig";
+src/auth/storage/tokenStorage.js:11:    AUTH_CONFIG
+src/auth/storage/tokenStorage.js:24:    AUTH_CONFIG
+src/auth/storage/tokenStorage.js:35:    AUTH_CONFIG
+src/auth/authEvents.js:1:export const AUTH_EVENTS =
+src/auth/authEvents.js:4:    LOGIN:
+src/auth/authEvents.js:5:      "auth.login",
+src/auth/authEvents.js:8:      "auth.logout",
+src/auth/authEvents.js:11:      "auth.session.expired",
+src/auth/useAuthBootstrap.js:6:  bootstrapAuth,
+src/auth/useAuthBootstrap.js:7:} from "./bootstrapAuth";
+src/auth/useAuthBootstrap.js:9:export function useAuthBootstrap() {
+src/auth/useAuthBootstrap.js:13:    bootstrapAuth();
+src/auth/hooks/useVisibilitySessionRecovery.js:6:  recoverRealtimeAuth,
+src/auth/hooks/useVisibilitySessionRecovery.js:7:} from "../infra/authRealtimeRecovery";
+src/auth/hooks/useVisibilitySessionRecovery.js:22:        recoverRealtimeAuth();
+src/auth/hooks/useSessionRecovery.js:7:} from "../infra/authSessionService";
+src/auth/authSession.js:3:} from "./authStorage";
+src/auth/RequireAuth.jsx:6:  useAuthSession,
+src/auth/RequireAuth.jsx:7:} from "./useAuthSession";
+src/auth/RequireAuth.jsx:9:function RequireAuth({
+src/auth/RequireAuth.jsx:14:    authenticated,
+src/auth/RequireAuth.jsx:16:    useAuthSession();
+src/auth/RequireAuth.jsx:19:    !authenticated
+src/auth/RequireAuth.jsx:36:  RequireAuth;
+src/auth/services/authRefreshService.js:21:      "/auth/refresh",
+src/auth/services/authSessionService.js:6:  useAuthStore,
+src/auth/services/authSessionService.js:7:} from "../stores/auth";
+src/auth/services/authSessionService.js:20:  useAuthStore
+src/auth/services/authSessionService.js:22:    .setAuthenticated(
+src/auth/services/authRealtimeRecovery.js:3:export function recoverRealtimeAuth() {
+src/auth/store/authStore.js:4:export const useAuthStore =
+src/auth/store/authStore.js:7:    authenticated:
+src/auth/store/authStore.js:13:    setAuthenticated(
+src/auth/store/authStore.js:19:        authenticated:
+src/features/auth/authStorage.js:3: * AUTH STORAGE
+src/features/auth/authStorage.js:80: * CLEAR AUTH
+src/features/auth/authStorage.js:84:export function clearAuth() {
+src/features/auth/authService.js:3: * AUTH SERVICE
+src/features/auth/authService.js:6: * - Authentication is delegated to Zalo identity runtime
+src/features/auth/authService.js:9: * - Guest activation is handled through runtime activation flow.
+src/features/auth/authService.js:13:export async function loginGuest() {
+src/features/auth/authService.js:19:    requiresActivation:
+src/features/loyalty/hooks/useMembershipProfile.js:2:  useMembershipQuery,
+src/features/loyalty/hooks/useMembershipProfile.js:5:export function useMembershipProfile(
+src/features/loyalty/hooks/useMembershipProfile.js:9:    useMembershipQuery(
+src/features/loyalty/hooks/useMembershipProfile.js:14:    membership:
+src/features/system/systemFeatureRegistry.js:31:      key: "membership",
+src/features/system/systemFeatureRegistry.js:34:        "Membership engine",
+src/runtime/card/runtimeMembershipCardBrandLayer.ts:1:export function buildMembershipBrandLayer() {
+src/runtime/card/runtimeMembershipBarcodeEngine.ts:1:export function buildMembershipBarcode(
+src/runtime/card/runtimeMembershipBarcodeEngine.ts:2:  phone: string,
+src/runtime/card/runtimeMembershipBarcodeEngine.ts:5:  const safePhone =
+src/runtime/card/runtimeMembershipBarcodeEngine.ts:6:    phone.replace(
+src/runtime/card/runtimeMembershipBarcodeEngine.ts:14:      safePhone,
+src/runtime/card/runtimeMembershipBarcodeEngine.ts:17:      safePhone,
+src/runtime/card/runtimeMembershipTierProgressEngine.ts:40:export function calculateMembershipTierProgress({
+src/runtime/card/runtimeMembershipCardRenderer.ts:2:  resolveMembershipCardTheme,
+src/runtime/card/runtimeMembershipCardRenderer.ts:3:} from "./runtimeMembershipCardThemeEngine";
+src/runtime/card/runtimeMembershipCardRenderer.ts:6:  calculateMembershipTierProgress,
+src/runtime/card/runtimeMembershipCardRenderer.ts:7:} from "./runtimeMembershipTierProgressEngine";
+src/runtime/card/runtimeMembershipCardRenderer.ts:10:  buildMembershipBarcode,
+src/runtime/card/runtimeMembershipCardRenderer.ts:11:} from "./runtimeMembershipBarcodeEngine";
+src/runtime/card/runtimeMembershipCardRenderer.ts:14:  buildMembershipBrandLayer,
+src/runtime/card/runtimeMembershipCardRenderer.ts:15:} from "./runtimeMembershipCardBrandLayer";
+src/runtime/card/runtimeMembershipCardRenderer.ts:17:export function buildMembershipCardRuntime({
+src/runtime/card/runtimeMembershipCardRenderer.ts:27:    phone: string;
+src/runtime/card/runtimeMembershipCardRenderer.ts:40:    resolveMembershipCardTheme(
+src/runtime/card/runtimeMembershipCardRenderer.ts:45:    calculateMembershipTierProgress({
+src/runtime/card/runtimeMembershipCardRenderer.ts:56:    buildMembershipBarcode(
+src/runtime/card/runtimeMembershipCardRenderer.ts:57:      customer.phone,
+src/runtime/card/runtimeMembershipCardRenderer.ts:61:    buildMembershipBrandLayer();
+src/runtime/card/runtimeMembershipCardThemeEngine.ts:1:export const MEMBERSHIP_THEME_MAP = {
+src/runtime/card/runtimeMembershipCardThemeEngine.ts:138:export function resolveMembershipCardTheme(
+src/runtime/card/runtimeMembershipCardThemeEngine.ts:143:    MEMBERSHIP_THEME_MAP[
+src/runtime/card/runtimeMembershipCardThemeEngine.ts:144:      tier as keyof typeof MEMBERSHIP_THEME_MAP
+src/runtime/card/runtimeMembershipCardThemeEngine.ts:146:    MEMBERSHIP_THEME_MAP.hoi_vien
+src/runtime/crm/runtimeCrmMappingEngine.ts:33:      payload.membership_payment_amount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:35:      payload.membershipPaymentAmount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:51:      payload.membership_point ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:53:      payload.membershipPoint ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:70:    payload.membership_type ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:72:    payload.membershipType ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:96:    phone:
+src/runtime/crm/runtimeCrmMappingEngine.ts:98:      payload.phone ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:100:      payload.customer_phone ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:114:     * MEMBERSHIP
+src/runtime/crm/runtimeCrmMappingEngine.ts:120:    membershipType:
+src/runtime/crm/runtimeCrmMappingEngine.ts:122:      payload.membership_type ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:124:      payload.membershipType ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:162:        payload.membership_point_amount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:164:        payload.membershipPointAmount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:169:    membershipPoint:
+src/runtime/crm/runtimeCrmMappingEngine.ts:173:        payload.membership_point ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:175:        payload.membershipPoint ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:180:    membershipPointAmount:
+src/runtime/crm/runtimeCrmMappingEngine.ts:184:        payload.membership_point_amount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:186:        payload.membershipPointAmount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:191:    membershipPaymentAmount:
+src/runtime/crm/runtimeCrmMappingEngine.ts:249:    oaFollowed:
+src/runtime/crm/runtimeCrmMappingEngine.ts:251:      payload.oaFollowed ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:256:     * ACTIVATION
+src/runtime/crm/runtimeCrmMappingEngine.ts:260:    activated:
+src/runtime/crm/runtimeCrmMappingEngine.ts:262:      payload.activated ||
+src/runtime/crm/runtimeCrmTypes.ts:12:  phone:
+src/runtime/crm/runtimeCrmTypes.ts:20:   * MEMBERSHIP
+src/runtime/crm/runtimeCrmTypes.ts:27:  membershipType?:
+src/runtime/crm/runtimeCrmTypes.ts:57:  membershipPoint?:
+src/runtime/crm/runtimeCrmTypes.ts:60:  membershipPointAmount?:
+src/runtime/crm/runtimeCrmTypes.ts:63:  membershipPaymentAmount?:
+src/runtime/crm/runtimeCrmTypes.ts:99:  oaFollowed:
+src/runtime/crm/runtimeCrmTypes.ts:104:   * ACTIVATION
+src/runtime/crm/runtimeCrmTypes.ts:108:  activated:
+src/runtime/runtimeBootstrap.ts:18:  initializeMembershipCardRuntime,
+src/runtime/runtimeBootstrap.ts:19:} from "../modules/membership-card/runtimeMembershipCardOrchestrator";
+src/runtime/runtimeBootstrap.ts:30:  initializeCustomerIdentityRuntime,
+src/runtime/runtimeBootstrap.ts:31:} from "./customer/runtimeCustomerIdentityOrchestrator";
+src/runtime/runtimeBootstrap.ts:74:  MEMBERSHIP:
+src/runtime/runtimeBootstrap.ts:75:    "MEMBERSHIP_READY",
+src/runtime/runtimeBootstrap.ts:193:    await initializeCustomerIdentityRuntime();
+src/runtime/runtimeBootstrap.ts:206:     * - Customer data is hydrated only after Zalo phone/OA activation
+src/runtime/runtimeBootstrap.ts:229:     * MEMBERSHIP
+src/runtime/runtimeBootstrap.ts:233:    await initializeMembershipCardRuntime();
+src/runtime/runtimeBootstrap.ts:236:      runtimePhases.MEMBERSHIP
+src/runtime/membership/types/runtimeMembershipCard.types.ts:1:export type RuntimeMembershipTier =
+src/runtime/membership/types/runtimeMembershipCard.types.ts:12:export interface RuntimeMembershipCardData {
+src/runtime/membership/types/runtimeMembershipCard.types.ts:18:  phone: string;
+src/runtime/membership/types/runtimeMembershipCard.types.ts:22:  memberTier?: RuntimeMembershipTier;
+src/runtime/membership/config/runtimeMembershipThemeMap.ts:1:export const runtimeMembershipThemeMap = {
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:7:  initializeCustomerIdentityEngine,
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:8:} from "./runtimeCustomerIdentityEngine";
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:10:export async function initializeCustomerIdentityRuntime() {
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:16:  await initializeCustomerIdentityEngine();
+src/runtime/customer/runtimeCustomerFollowEngine.ts:5:export async function verifyOAFollowStatus() {
+src/runtime/customer/runtimeCustomerEligibilityEngine.ts:3:  phoneGranted:
+src/runtime/customer/runtimeCustomerEligibilityEngine.ts:6:  oaFollowed:
+src/runtime/customer/runtimeCustomerEligibilityEngine.ts:11:export function isEligibleForMembership(
+src/runtime/customer/runtimeCustomerEligibilityEngine.ts:17:    input.phoneGranted &&
+src/runtime/customer/runtimeCustomerEligibilityEngine.ts:18:    input.oaFollowed
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:2:  requestPhonePermission,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:6:  verifyOAFollowStatus,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:10:  activateCustomerMembership,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:11:} from "./runtimeCustomerActivationEngine";
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:22:export async function initializeCustomerIdentityEngine() {
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:28:  const phoneGranted =
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:29:    await requestPhonePermission();
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:31:  const oaFollowed =
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:32:    await verifyOAFollowStatus();
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:37:      phoneGranted,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:38:      oaFollowed,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:42:  const activated =
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:43:    await activateCustomerMembership();
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:46:    activated
+src/runtime/customer/runtimeCustomerPermissionEngine.ts:5:export async function requestPhonePermission() {
+src/runtime/customer/runtimeCustomerPermissionEngine.ts:8:    "[IDENTITY] Requesting phone permission"
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:1:export type RuntimeMembershipTier =
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:10:export interface RuntimeCustomerIdentity {
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:18:  phone?:
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:27:  oaFollowed:
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:30:  phoneGranted:
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:33:  memberActivated:
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:37:    RuntimeMembershipTier;
+src/runtime/customer/runtimeCustomerIdentityUtils.ts:2:  RuntimeMembershipTier,
+src/runtime/customer/runtimeCustomerIdentityUtils.ts:3:} from "./runtimeCustomerIdentityTypes";
+src/runtime/customer/runtimeCustomerIdentityUtils.ts:5:export function calculateMembershipTier(
+src/runtime/customer/runtimeCustomerIdentityUtils.ts:8:): RuntimeMembershipTier {
+src/runtime/customer/runtimeCustomerActivationEngine.ts:7:  isEligibleForMembership,
+src/runtime/customer/runtimeCustomerActivationEngine.ts:10:export async function activateCustomerMembership() {
+src/runtime/customer/runtimeCustomerActivationEngine.ts:13:    isEligibleForMembership({
+src/runtime/customer/runtimeCustomerActivationEngine.ts:15:      phoneGranted:
+src/runtime/customer/runtimeCustomerActivationEngine.ts:18:      oaFollowed:
+src/runtime/customer/runtimeCustomerActivationEngine.ts:28:      "[ACTIVATION] Customer not eligible"
+src/runtime/customer/runtimeCustomerActivationEngine.ts:36:    "[ACTIVATION] Membership activated"
+src/runtime/customer/runtimeCustomerIdentityConstants.ts:1:export const MEMBER_ACTIVATION_REQUIREMENTS = {
+src/runtime/customer/runtimeCustomerIdentityConstants.ts:3:  phoneRequired:
+src/runtime/session/runtimeAuthHydrator.ts:17:    "[IDENTITY] Runtime identity awaiting activation"
+src/runtime/session/runtimeSessionOrchestrator.ts:12:} from "./runtimeAuthHydrator";
+src/admin/customer360/components/CustomerProfileCard.jsx:40:        {profile.phone}
+src/admin/auth/adminAuthStore.js:5:const useAdminAuthStore =
+src/admin/auth/adminAuthStore.js:17:      authenticated:
+src/admin/auth/adminAuthStore.js:20:      setAdminAuth:
+src/admin/auth/adminAuthStore.js:37:            authenticated:
+src/admin/auth/adminAuthStore.js:59:            authenticated:
+src/admin/auth/adminAuthStore.js:70:  useAdminAuthStore;
+src/admin/auth/AdminProtectedRoute.jsx:5:import useAdminAuthStore from "./adminAuthStore";
+src/admin/auth/AdminProtectedRoute.jsx:11:  const authenticated =
+src/admin/auth/AdminProtectedRoute.jsx:12:    useAdminAuthStore(
+src/admin/auth/AdminProtectedRoute.jsx:16:        state.authenticated
+src/admin/auth/AdminProtectedRoute.jsx:20:    !authenticated
+src/admin/auth/AdminProtectedRoute.jsx:26:        to="/admin/login"
+src/admin/auth/pages/AdminLoginPage.jsx:9:import useAdminAuthStore from "../adminAuthStore";
+src/admin/auth/pages/AdminLoginPage.jsx:11:function AdminLoginPage() {
+src/admin/auth/pages/AdminLoginPage.jsx:16:  const setAdminAuth =
+src/admin/auth/pages/AdminLoginPage.jsx:17:    useAdminAuthStore(
+src/admin/auth/pages/AdminLoginPage.jsx:21:        state.setAdminAuth
+src/admin/auth/pages/AdminLoginPage.jsx:34:  async function handleLogin(
+src/admin/auth/pages/AdminLoginPage.jsx:42:     * ADMIN AUTH GOVERNANCE
+src/admin/auth/pages/AdminLoginPage.jsx:44:     * Temporary local admin login is disabled.
+src/admin/auth/pages/AdminLoginPage.jsx:45:     * Admin authentication must be verified by backend runtime.
+src/admin/auth/pages/AdminLoginPage.jsx:49:    setAdminAuth({
+src/admin/auth/pages/AdminLoginPage.jsx:83:          handleLogin
+src/admin/auth/pages/AdminLoginPage.jsx:101:          Admin Login
+src/admin/auth/pages/AdminLoginPage.jsx:150:          Login
+src/admin/auth/pages/AdminLoginPage.jsx:162:  AdminLoginPage;
+src/admin/providers/AdminProvider.jsx:8:import adminAuthService from "@/admin/services/adminAuthService";
+src/admin/providers/AdminProvider.jsx:30:          await adminAuthService.getSession();
+src/admin/AdminApp.jsx:14:import AdminProtectedRoute from "@/admin/auth/AdminProtectedRoute";
+src/admin/AdminApp.jsx:16:const AdminLoginPage =
+src/admin/AdminApp.jsx:19:      "@/admin/auth/pages/AdminLoginPage"
+src/admin/AdminApp.jsx:43:            path="/login"
+src/admin/AdminApp.jsx:45:              <AdminLoginPage />
+src/admin/services/adminAuthService.js:3:class AdminAuthService {
+src/admin/services/adminAuthService.js:16:  async login(payload) {
+src/admin/services/adminAuthService.js:20:        "/admin/login",
+src/admin/services/adminAuthService.js:30:const adminAuthService =
+src/admin/services/adminAuthService.js:31:  new AdminAuthService();
+src/admin/services/adminAuthService.js:33:export default adminAuthService;
+src/admin/guards/AdminAuthGuard.jsx:7:function AdminAuthGuard({
+src/admin/guards/AdminAuthGuard.jsx:13:  if (!session?.authenticated) {
+src/admin/guards/AdminAuthGuard.jsx:17:        to="/admin/login"
+src/admin/guards/AdminAuthGuard.jsx:28:export default AdminAuthGuard;
+src/stores/auth/index.js:3:} from "./authStore";
+src/stores/auth/authStore.js:8:    authenticated:
+src/stores/auth/authStore.js:22:const useAuthStore =
+src/stores/auth/authStore.js:39:            authenticated:
+src/stores/auth/authStore.js:82:  useAuthStore;
+src/stores/index.js:9:  default as useAuthStore,
+src/stores/index.js:11:} from "./auth";
+src/shared/hooks/useAuthSession.js:5:import useAuthStore from "../stores/auth";
+src/shared/hooks/useAuthSession.js:9:} from "../infra/auth/authStorage";
+src/shared/hooks/useAuthSession.js:13: * USE AUTH SESSION
+src/shared/hooks/useAuthSession.js:17:function useAuthSession() {
+src/shared/hooks/useAuthSession.js:19:    useAuthStore(
+src/shared/hooks/useAuthSession.js:35:        authenticated: true,
+src/shared/hooks/useAuthSession.js:60:        authenticated: false,
+src/shared/hooks/useAuthSession.js:76:export default useAuthSession;
+src/shared/hooks/useAuth.js:11:} from "../features/auth/authStorage";
+src/shared/hooks/useAuth.js:14:  loginGuest,
+src/shared/hooks/useAuth.js:15:} from "../features/auth/authService";
+src/shared/hooks/useAuth.js:19: * USE AUTH
+src/shared/hooks/useAuth.js:23:function useAuth() {
+src/shared/hooks/useAuth.js:30:  const authenticated =
+src/shared/hooks/useAuth.js:33:        state.authenticated
+src/shared/hooks/useAuth.js:42:  const setAuthenticated =
+src/shared/hooks/useAuth.js:45:        state.setAuthenticated
+src/shared/hooks/useAuth.js:49:   * BOOT AUTH
+src/shared/hooks/useAuth.js:59:      setAuthenticated(
+src/shared/hooks/useAuth.js:65:    setAuthenticated,
+src/shared/hooks/useAuth.js:69:   * LOGIN
+src/shared/hooks/useAuth.js:72:  async function login() {
+src/shared/hooks/useAuth.js:74:      await loginGuest();
+src/shared/hooks/useAuth.js:91:      setAuthenticated(
+src/shared/hooks/useAuth.js:102:    authenticated,
+src/shared/hooks/useAuth.js:104:    login,
+src/shared/hooks/useAuth.js:108:export default useAuth;
+src/shared/hooks/usePermission.js:1:import useAuthStore from "../stores/auth";
+src/shared/hooks/usePermission.js:13:    useAuthStore(
+src/ios/utils/isIosDevice.js:3:  return /iPhone|iPad|iPod/i.test(
+src/components/activation/ActivationLoader.jsx:1:function ActivationLoader() {
+src/components/activation/ActivationLoader.jsx:36:  ActivationLoader;
+src/components/system/systemNavigationRegistry.js:62:      id: "membership",
+src/components/system/systemNavigationRegistry.js:66:      path: "/membership",
+src/components/system/systemNavigationRegistry.js:68:      icon: "membership",
+src/components/system/systemNavigationRegistry.js:71:        "membership",
+src/components/CustomerInfoModal.jsx:115:            value={customer.phone}
+src/components/CustomerInfoModal.jsx:119:                phone:
+src/components/header/AppHeader.jsx:71:    path: "/membership",
+src/cms/runtime/dynamicRewardConfigRuntime.js:5:  getActivationReward() {
+src/cms/runtime/dynamicRewardConfigRuntime.js:9:        "activation_reward",
+src/cms/runtime/dynamicVoucherRuntime.js:11:          "miniapp_jwt"
+src/cms/runtime/dynamicVoucherRuntime.js:23:              Authorization:
+src/modules/membership-card/runtimeMembershipCardEngine.ts:6:  hydrateMembershipCard,
+src/modules/membership-card/runtimeMembershipCardEngine.ts:7:} from "./runtimeMembershipCardHydrator";
+src/modules/membership-card/runtimeMembershipCardEngine.ts:11:} from "./runtimeMembershipCardUtils";
+src/modules/membership-card/runtimeMembershipCardEngine.ts:14:  calculateMembershipProgress,
+src/modules/membership-card/runtimeMembershipCardEngine.ts:15:} from "./runtimeMembershipProgressEngine";
+src/modules/membership-card/runtimeMembershipCardEngine.ts:19:  useRuntimeMembershipCardStore,
+src/modules/membership-card/runtimeMembershipCardEngine.ts:20:} from "./runtimeMembershipCardStore";
+src/modules/membership-card/runtimeMembershipCardEngine.ts:22:export async function initializeMembershipCardEngine() {
+src/modules/membership-card/runtimeMembershipCardEngine.ts:25:    "[CARD] Membership card initializing"
+src/modules/membership-card/runtimeMembershipCardEngine.ts:29:    await hydrateMembershipCard();
+src/modules/membership-card/runtimeMembershipCardEngine.ts:37:    calculateMembershipProgress(
+src/modules/membership-card/runtimeMembershipCardEngine.ts:52:  useRuntimeMembershipCardStore
+src/modules/membership-card/runtimeMembershipCardEngine.ts:59:    "[CARD] Membership card ready",
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:12: * MEMBERSHIP CARD HYDRATOR
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:15: * - No demo/fake membership card data.
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:21:export async function hydrateMembershipCard() {
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:24:    "[CARD] Hydrating membership card from CRM runtime"
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:46:      pendingActivation:
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:61:      customer.membershipType ||
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:67:        customer.membershipPaymentAmount ||
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:74:        customer.membershipPoint ||
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:78:    pendingActivation:
+src/modules/membership-card/runtimeMembershipCardStore.ts:5:type RuntimeMembershipCardState = {
+src/modules/membership-card/runtimeMembershipCardStore.ts:8:  pendingActivation: boolean;
+src/modules/membership-card/runtimeMembershipCardStore.ts:14:export const useRuntimeMembershipCardStore =
+src/modules/membership-card/runtimeMembershipCardStore.ts:15:  create<RuntimeMembershipCardState>((set) => ({
+src/modules/membership-card/runtimeMembershipCardStore.ts:23:    pendingActivation:
+src/modules/membership-card/runtimeMembershipCardStore.ts:38:        pendingActivation:
+src/modules/membership-card/runtimeMembershipCardStore.ts:39:          Boolean(card?.pendingActivation),
+src/modules/membership-card/runtimeMembershipCardStore.ts:58:        pendingActivation:
+src/modules/membership-card/runtimeMembershipTierPresenter.ts:1:export function presentMembershipTier(
+src/modules/membership-card/runtimeMembershipCardTypes.ts:1:export interface MembershipCardRuntime {
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:6:  initializeMembershipCardEngine,
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:7:} from "./runtimeMembershipCardEngine";
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:11:  initializeMembershipCardSubscriptions,
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:12:} from "./runtimeMembershipCardSubscriptions";
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:14:export async function initializeMembershipCardRuntime() {
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:20:  await initializeMembershipCardEngine();
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:22:  await initializeMembershipCardSubscriptions();
+src/modules/membership-card/runtimeMembershipCardUtils.ts:2:  MEMBERSHIP_THRESHOLDS,
+src/modules/membership-card/runtimeMembershipCardUtils.ts:3:} from "./runtimeMembershipCardConstants";
+src/modules/membership-card/runtimeMembershipCardUtils.ts:11:    totalSpent < MEMBERSHIP_THRESHOLDS.hoi_vien_than_thiet
+src/modules/membership-card/runtimeMembershipCardUtils.ts:19:        MEMBERSHIP_THRESHOLDS.hoi_vien_than_thiet -
+src/modules/membership-card/runtimeMembershipCardUtils.ts:26:    totalSpent < MEMBERSHIP_THRESHOLDS.hoi_vien_bac
+src/modules/membership-card/runtimeMembershipCardUtils.ts:34:        MEMBERSHIP_THRESHOLDS.hoi_vien_bac -
+src/modules/membership-card/runtimeMembershipCardUtils.ts:41:    totalSpent < MEMBERSHIP_THRESHOLDS.hoi_vien_vang
+src/modules/membership-card/runtimeMembershipCardUtils.ts:49:        MEMBERSHIP_THRESHOLDS.hoi_vien_vang -
+src/modules/membership-card/runtimeMembershipCardUtils.ts:56:    totalSpent < MEMBERSHIP_THRESHOLDS.hoi_vien_kim_cuong
+src/modules/membership-card/runtimeMembershipCardUtils.ts:64:        MEMBERSHIP_THRESHOLDS.hoi_vien_kim_cuong -
+src/modules/membership-card/runtimeMembershipCardSubscriptions.ts:5:export async function initializeMembershipCardSubscriptions() {
+src/modules/membership-card/runtimeMembershipCardSubscriptions.ts:8:    "[CARD] Membership subscriptions ready"
+src/modules/membership-card/runtimeMembershipProgressEngine.ts:1:export function calculateMembershipProgress(
+src/modules/membership-card/runtimeMembershipBenefitEngine.ts:1:export function getMembershipBenefits(
+src/modules/membership-card/runtimeMembershipCardConstants.ts:1:export const MEMBERSHIP_THRESHOLDS = {
+src/pages/home/index.jsx:47:      route: "/membership",
+src/pages/checkout/CheckoutPage.jsx:221:      const customerPhone =
+src/pages/checkout/CheckoutPage.jsx:222:        runtimeIdentity?.phone ||
+src/pages/checkout/CheckoutPage.jsx:233:      if (!customerPhone) {
+src/pages/checkout/CheckoutPage.jsx:251:        customer_phone:
+src/pages/checkout/CheckoutPage.jsx:252:          customerPhone,
+src/pages/checkout/CheckoutPage.jsx:295:          customer_phone:
+src/pages/checkout/CheckoutPage.jsx:296:            customerPhone,
+src/games/runtime/gameRewardRuntime.js:13:          "miniapp_jwt"
+src/games/runtime/gameRewardRuntime.js:28:            Authorization:
+src/services/platform/platformService.js:11:    return /Android|iPhone|iPad|iPod/i.test(
+src/services/platform/platformService.js:27:    return /iPhone|iPad|iPod/i.test(
+src/guards/AuthGuard.jsx:5:import useAuthStore from "../stores/auth";
+src/guards/AuthGuard.jsx:9: * AUTH GUARD
+src/guards/AuthGuard.jsx:13:function AuthGuard({
+src/guards/AuthGuard.jsx:16:  const authenticated =
+src/guards/AuthGuard.jsx:17:    useAuthStore(
+src/guards/AuthGuard.jsx:19:        state.authenticated
+src/guards/AuthGuard.jsx:23:    !authenticated
+src/guards/AuthGuard.jsx:36:export default AuthGuard;
+src/guards/AdminGuard.jsx:5:import useAuthStore from "../stores/auth";
+src/guards/AdminGuard.jsx:16:  const authenticated =
+src/guards/AdminGuard.jsx:17:    useAuthStore(
+src/guards/AdminGuard.jsx:19:        state.authenticated
+src/guards/AdminGuard.jsx:23:    useAuthStore(
+src/guards/AdminGuard.jsx:29:    !authenticated
+src/membership/config/membershipConfig.js:1:export const MEMBERSHIP_CONFIG = {
+src/membership/config/membershipConfig.js:9:  MEMBERSHIP_REFRESH_MS:
+src/membership/constants/membershipRealtimeEvents.js:1:export const MEMBERSHIP_REALTIME_EVENTS = {
+src/membership/constants/membershipRealtimeEvents.js:4:    "membership.points",
+src/membership/constants/membershipRealtimeEvents.js:7:    "membership.tier",
+src/membership/components/CustomerWalletList.jsx:6:  useMembershipStore,
+src/membership/components/CustomerWalletList.jsx:7:} from "../store/membershipStore";
+src/membership/components/CustomerWalletList.jsx:12:    useMembershipStore(
+src/membership/components/LoyaltyPointsCard.jsx:6:  useMembershipStore,
+src/membership/components/LoyaltyPointsCard.jsx:7:} from "../store/membershipStore";
+src/membership/components/LoyaltyPointsCard.jsx:12:    useMembershipStore(
+src/membership/components/LoyaltyHistoryList.jsx:6:  useMembershipStore,
+src/membership/components/LoyaltyHistoryList.jsx:7:} from "../store/membershipStore";
+src/membership/components/LoyaltyHistoryList.jsx:12:    useMembershipStore(
+src/membership/components/MembershipTierCard.jsx:6:  useMembershipStore,
+src/membership/components/MembershipTierCard.jsx:7:} from "../store/membershipStore";
+src/membership/components/MembershipTierCard.jsx:9:function MembershipTierCard() {
+src/membership/components/MembershipTierCard.jsx:12:    useMembershipStore(
+src/membership/components/MembershipTierCard.jsx:14:        state.membershipTier
+src/membership/components/MembershipTierCard.jsx:41:        Membership Tier
+src/membership/components/MembershipTierCard.jsx:67:  MembershipTierCard
+src/membership/hooks/useMembershipRealtime.js:8:  connectMembershipRealtime,
+src/membership/hooks/useMembershipRealtime.js:9:} from "../services/membershipRealtimeBridge";
+src/membership/hooks/useMembershipRealtime.js:11:export function useMembershipRealtime() {
+src/membership/hooks/useMembershipRealtime.js:15:    connectMembershipRealtime({
+src/membership/pages/MembershipPage.jsx:2:  useMembershipRealtime,
+src/membership/pages/MembershipPage.jsx:3:} from "../shared/hooks/useMembershipRealtime";
+src/membership/pages/MembershipPage.jsx:5:import MembershipTierCard from "../components/MembershipTierCard";
+src/membership/pages/MembershipPage.jsx:13:function MembershipPage() {
+src/membership/pages/MembershipPage.jsx:15:  useMembershipRealtime();
+src/membership/pages/MembershipPage.jsx:29:      <MembershipTierCard />
+src/membership/pages/MembershipPage.jsx:43:export default MembershipPage;
+src/membership/services/membershipRealtimeBridge.js:2:  useMembershipStore,
+src/membership/services/membershipRealtimeBridge.js:3:} from "../store/membershipStore";
+src/membership/services/membershipRealtimeBridge.js:5:export function connectMembershipRealtime({
+src/membership/services/membershipRealtimeBridge.js:10:    "membership.points",
+src/membership/services/membershipRealtimeBridge.js:13:      useMembershipStore
+src/membership/services/membershipRealtimeBridge.js:23:    "membership.tier",
+src/membership/services/membershipRealtimeBridge.js:26:      useMembershipStore
+src/membership/services/membershipRealtimeBridge.js:28:        .setMembershipTier(
+src/membership/store/membershipStore.js:4:export const useMembershipStore =
+src/membership/store/membershipStore.js:7:    membershipTier:
+src/membership/store/membershipStore.js:17:    setMembershipTier(tier) {
+src/membership/store/membershipStore.js:21:        membershipTier:
+src/customer/runtime/customerIdentityRuntime.js:10:class CustomerIdentityRuntime {
+src/customer/runtime/customerIdentityRuntime.js:57:const customerIdentityRuntime =
+src/customer/runtime/customerIdentityRuntime.js:58:  new CustomerIdentityRuntime();
+src/customer/runtime/customerIdentityRuntime.js:61:  customerIdentityRuntime;
+src/customer/runtime/customerRewardRuntime.js:9:  rewardActivation() {
+src/customer/runtime/customerRewardRuntime.js:13:        .getActivationReward();
+src/customer/components/CustomerIdentityCard.jsx:10:function CustomerIdentityCard() {
+src/customer/components/CustomerIdentityCard.jsx:134:  CustomerIdentityCard;
+src/customer/components/CustomerIdentityBootstrap.jsx:5:import customerIdentityRuntime from "@/customer/runtime/customerIdentityRuntime";
+src/customer/components/CustomerIdentityBootstrap.jsx:11:function CustomerIdentityBootstrap() {
+src/customer/components/CustomerIdentityBootstrap.jsx:18:    customerIdentityRuntime
+src/customer/components/CustomerIdentityBootstrap.jsx:31:  CustomerIdentityBootstrap;
+src/customer/services/customerProfileApi.js:15:          "miniapp_jwt"
+src/customer/services/customerProfileApi.js:27:              Authorization:

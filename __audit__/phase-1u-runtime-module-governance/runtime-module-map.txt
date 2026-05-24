@@ -1,0 +1,103 @@
+src/admin/behavior/behaviorRuntimeModule.js:11:const behaviorRuntimeModule = {
+src/admin/behavior/behaviorRuntimeModule.js:19:  priority:
+src/admin/behavior/behaviorRuntimeModule.js:22:  status:
+src/admin/behavior/behaviorRuntimeModule.js:54:  behaviorRuntimeModule;
+src/admin/ecosystem/components/EcosystemAppsGrid.jsx:61:                Status:
+src/admin/releases/releaseStore.js:17:      environmentStatus:
+src/admin/releases/releaseStore.js:42:      setEnvironmentStatus:
+src/admin/ipos/iposStore.js:11:      connectionStatus:
+src/admin/ipos/iposStore.js:20:      setConnectionStatus:
+src/admin/config/modules/adminModuleManifest.js:21:    status: "active",
+src/admin/config/modules/adminModuleManifest.js:22:    priority: 10,
+src/admin/config/modules/adminModuleManifest.js:29:    status: "active",
+src/admin/config/modules/adminModuleManifest.js:30:    priority: 20,
+src/admin/config/modules/adminModuleManifest.js:37:    status: "active",
+src/admin/config/modules/adminModuleManifest.js:38:    priority: 30,
+src/admin/config/modules/adminModuleManifest.js:45:    status: "active",
+src/admin/config/modules/adminModuleManifest.js:46:    priority: 40,
+src/admin/config/modules/adminModuleManifest.js:53:    status: "active",
+src/admin/config/modules/adminModuleManifest.js:54:    priority: 50,
+src/admin/config/modules/adminModuleManifest.js:67:    status: "dormant",
+src/admin/config/modules/adminModuleManifest.js:68:    priority: 200,
+src/admin/config/modules/adminModuleManifest.js:75:    status: "dormant",
+src/admin/config/modules/adminModuleManifest.js:76:    priority: 210,
+src/admin/config/modules/adminModuleManifest.js:83:    status: "dormant",
+src/admin/config/modules/adminModuleManifest.js:84:    priority: 220,
+src/admin/config/modules/adminModuleManifest.js:91:    status: "dormant",
+src/admin/config/modules/adminModuleManifest.js:92:    priority: 230,
+src/admin/config/modules/adminModuleManifest.js:99:    status: "dormant",
+src/admin/config/modules/adminModuleManifest.js:100:    priority: 240,
+src/admin/ai-agents/components/AiAgentGrid.jsx:61:                Status:
+src/admin/distribution/distributionStore.js:17:      rolloutStatus:
+src/admin/distribution/distributionStore.js:42:      setRolloutStatus:
+src/admin/observability/observabilityRuntimeModule.js:11:const observabilityRuntimeModule = {
+src/admin/observability/observabilityRuntimeModule.js:19:  priority:
+src/admin/observability/observabilityRuntimeModule.js:52:  observabilityRuntimeModule;
+src/admin/observability/pages/ObservabilityPage.jsx:9:import observabilityRuntimeModule from "../observabilityRuntimeModule";
+src/admin/observability/pages/ObservabilityPage.jsx:33:    runtimeOrchestrator.register(
+src/admin/observability/pages/ObservabilityPage.jsx:34:      observabilityRuntimeModule
+src/admin/observability/pages/ObservabilityPage.jsx:37:    runtimeOrchestrator.activate(
+src/admin/federation/federationStore.js:17:      runtimeModules:
+src/admin/federation/federationStore.js:45:      setRuntimeModules:
+src/admin/federation/federationStore.js:47:          runtimeModules
+src/admin/federation/federationStore.js:51:            runtimeModules,
+src/admin/automation/components/pages/AutomationPage.jsx:11:import automationRuntimeModule from "../../automationRuntimeModule";
+src/admin/automation/components/pages/AutomationPage.jsx:36:    runtimeOrchestrator.register(
+src/admin/automation/components/pages/AutomationPage.jsx:37:      automationRuntimeModule
+src/admin/automation/components/pages/AutomationPage.jsx:40:    runtimeOrchestrator.activate(
+src/admin/automation/automationRuntimeModule.js:9:const automationRuntimeModule = {
+src/admin/automation/automationRuntimeModule.js:17:  priority:
+src/admin/automation/automationRuntimeModule.js:47:  automationRuntimeModule;
+src/admin/orders/orderRuntimeModule.js:13:const orderRuntimeModule = {
+src/admin/orders/orderRuntimeModule.js:21:  priority:
+src/admin/orders/orderRuntimeModule.js:54:  orderRuntimeModule;
+src/admin/orders/pages/OrdersPage.jsx:9:import orderRuntimeModule from "../orderRuntimeModule";
+src/admin/orders/pages/OrdersPage.jsx:30:    runtimeOrchestrator.register(
+src/admin/orders/pages/OrdersPage.jsx:31:      orderRuntimeModule
+src/admin/orders/pages/OrdersPage.jsx:34:    runtimeOrchestrator.activate(
+src/admin/analytics/analyticsRuntimeModule.js:9:const analyticsRuntimeModule = {
+src/admin/analytics/analyticsRuntimeModule.js:17:  priority:
+src/admin/analytics/analyticsRuntimeModule.js:47:  analyticsRuntimeModule;
+src/runtime/notification/runtimeNotificationOrchestrator.ts:41:    priority:
+src/runtime/notification/runtimeNotificationTypes.ts:18:  priority:
+src/runtime/orchestrator/runtimeOrchestrator.ts:5:import runtimeModuleRegistry from "./runtimeModuleRegistry";
+src/runtime/orchestrator/runtimeOrchestrator.ts:9:  RuntimeModuleDefinition,
+src/runtime/orchestrator/runtimeOrchestrator.ts:24:      RuntimeModuleDefinition
+src/runtime/orchestrator/runtimeOrchestrator.ts:27:    return runtimeModuleRegistry.register(
+src/runtime/orchestrator/runtimeOrchestrator.ts:40:      runtimeModuleRegistry.get(
+src/runtime/orchestrator/runtimeOrchestrator.ts:61:      runtimeModuleRegistry.getState(
+src/runtime/orchestrator/runtimeOrchestrator.ts:74:    runtimeModuleRegistry.updateStatus(
+src/runtime/orchestrator/runtimeOrchestrator.ts:109:        runtimeModuleRegistry.updateStatus(
+src/runtime/orchestrator/runtimeOrchestrator.ts:137:      runtimeModuleRegistry.updateStatus(
+src/runtime/orchestrator/runtimeOrchestrator.ts:153:      runtimeModuleRegistry.get(
+src/runtime/orchestrator/runtimeOrchestrator.ts:165:    runtimeModuleRegistry.updateStatus(
+src/runtime/orchestrator/runtimeOrchestrator.ts:183:        runtimeModuleRegistry.updateStatus(
+src/runtime/orchestrator/runtimeOrchestrator.ts:219:    return runtimeModuleRegistry;
+src/runtime/orchestrator/runtimeModuleRegistry.ts:2:  RuntimeModuleDefinition,
+src/runtime/orchestrator/runtimeModuleRegistry.ts:3:  RuntimeModuleState,
+src/runtime/orchestrator/runtimeModuleRegistry.ts:4:  RuntimeModuleStatus,
+src/runtime/orchestrator/runtimeModuleRegistry.ts:15:class RuntimeModuleRegistry {
+src/runtime/orchestrator/runtimeModuleRegistry.ts:20:      RuntimeModuleDefinition
+src/runtime/orchestrator/runtimeModuleRegistry.ts:26:      RuntimeModuleState
+src/runtime/orchestrator/runtimeModuleRegistry.ts:31:      RuntimeModuleDefinition
+src/runtime/orchestrator/runtimeModuleRegistry.ts:60:          status:
+src/runtime/orchestrator/runtimeModuleRegistry.ts:125:    status: RuntimeModuleStatus
+src/runtime/orchestrator/runtimeModuleRegistry.ts:195:const runtimeModuleRegistry =
+src/runtime/orchestrator/runtimeModuleRegistry.ts:196:  new RuntimeModuleRegistry();
+src/runtime/orchestrator/runtimeModuleRegistry.ts:199:  runtimeModuleRegistry;
+src/runtime/orchestrator/runtimeLifecycleTypes.ts:9:export type RuntimeModuleStatus =
+src/runtime/orchestrator/runtimeLifecycleTypes.ts:18:export interface RuntimeModuleDefinition {
+src/runtime/orchestrator/runtimeLifecycleTypes.ts:28:  status?: RuntimeModuleStatus;
+src/runtime/orchestrator/runtimeLifecycleTypes.ts:55:export interface RuntimeModuleState {
+src/runtime/orchestrator/runtimeLifecycleTypes.ts:59:  status: RuntimeModuleStatus;
+src/runtime/orchestrator/index.ts:4:export { default as runtimeModuleRegistry }
+src/runtime/orchestrator/index.ts:5:  from "./runtimeModuleRegistry";
+src/runtime/orchestrator/index.ts:9:  RuntimeModuleDefinition,
+src/runtime/orchestrator/index.ts:10:  RuntimeModuleState,
+src/runtime/orchestrator/index.ts:11:  RuntimeModuleStatus,
+src/runtime/customer/runtimeCustomerIdentityStore.ts:20:  activationStatus: ActivationStatus;
+src/runtime/customer/runtimeCustomerIdentityStore.ts:32:  setActivationStatus: (
+src/runtime/customer/runtimeCustomerIdentityStore.ts:33:    status: ActivationStatus
+src/runtime/customer/runtimeCustomerIdentityStore.ts:67:    activationStatus:
+src/runtime/customer/runtimeCustomerIdentityStore.ts:122:        activationStatus:
+src/runtime/customer/runtimeCustomerIdentityStore.ts:178:        activationStatus:

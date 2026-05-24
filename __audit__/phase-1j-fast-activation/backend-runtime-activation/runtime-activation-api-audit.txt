@@ -1,0 +1,10 @@
+src/infra/api/loyalty/loyaltyQueryKeys.js:64:    MEMBERSHIP_DETAIL:
+src/zalo/activation/activationApi.js:8:    `${API_BASE_URL}/activation/bootstrap`,
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:14:export function syncRuntimeCrmCustomer(
+src/runtime/runtimeBootstrap.ts:22:  syncRuntimeCrmCustomer,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:18:  hydrateCustomerProfile,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:98:    await hydrateCustomerProfile();
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:6:  syncRuntimeCrmCustomer,
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:27:export async function hydrateCustomerProfile():
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:118:      syncRuntimeCrmCustomer(
+src/customer/services/customerProfileApi.js:21:          `${API_BASE_URL}/customer/me`,

@@ -1,0 +1,15 @@
+src/core/runtime-metrics/runtimeMemoryMonitor.js:36:   * MEMORY SAMPLE
+src/core/runtime-metrics/runtimeMemoryMonitor.js:40:  sampleMemoryUsage() {
+src/core/runtime-metrics/runtimeMemoryMonitor.js:101:        sampledAt:
+src/core/runtime-metrics/runtimeMemoryMonitor.js:176:            this.sampleMemoryUsage();
+src/features/auth/authService.js:8: * - Frontend must never seed fake guest users.
+src/runtime/crm/runtimeCrmEvaluationCycleEngine.ts:5:   * TODO:
+src/runtime/admin/runtimeAdminCrmImportEngine.ts:11:   * TODO:
+src/runtime/runtimeBootstrap.ts:205:     * - Runtime bootstrap must not seed fake customer data.
+src/runtime/runtimeBootstrap.ts:339:     * TODO:
+src/admin/auth/pages/AdminLoginPage.jsx:44:     * Temporary local admin login is disabled.
+src/admin/providers/AdminRuntimeProvider.jsx:30: * - no fake data
+src/components/home/SystemDemoActions.jsx:49:function SystemDemoActions() {
+src/components/home/SystemDemoActions.jsx:115:export default SystemDemoActions;
+src/modules/loyalty/runtimeLoyaltyProgressEngine.ts:7:   * TODO:
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:10: * - No demo/fake membership card data.

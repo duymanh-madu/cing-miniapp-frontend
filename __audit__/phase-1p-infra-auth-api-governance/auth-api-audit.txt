@@ -1,0 +1,21 @@
+src/infra/auth/bootstrapAuth.js:38:  console.log(
+src/infra/auth/logout.js:15:  console.log(
+src/infra/auth/authService.js:1:import httpClient from "@/api/client/httpClient";
+src/infra/auth/authService.js:148:    console.log(
+src/infra/auth/authService.js:162:      await httpClient.post(
+src/infra/auth/authService.js:188:    console.log(
+src/infra/auth/authService.js:217:    console.error(
+src/infra/auth/authService.js:263:    console.log(
+src/infra/auth/authService.js:274:      await httpClient.post(
+src/infra/auth/authService.js:300:    console.log(
+src/infra/auth/authService.js:325:    console.error(
+src/infra/auth/authService.js:347:    console.log(
+src/infra/auth/authService.js:358:      await httpClient.get(
+src/infra/auth/authService.js:377:    console.log(
+src/infra/auth/authService.js:406:    console.error(
+src/auth/services/authRefreshService.js:1:import httpClient from "@/api/client/httpClient";
+src/auth/services/authRefreshService.js:19:    await httpClient.post(
+src/auth/services/authSessionService.js:8:  runtimeLogger,
+src/auth/services/authSessionService.js:9:} from "@/runtime/logger/runtimeLogger";
+src/auth/services/authSessionService.js:27:    runtimeLogger.info(
+src/auth/services/authSessionService.js:51:  runtimeLogger.info(

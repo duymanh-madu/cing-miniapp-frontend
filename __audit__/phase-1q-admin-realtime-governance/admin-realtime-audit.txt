@@ -1,0 +1,375 @@
+src/admin/behavior/behaviorRealtimeSocket.js:2:  registerSocketListener,
+src/admin/behavior/behaviorRealtimeSocket.js:6:  registerSocketListener,
+src/admin/behavior/behaviorRealtimeSocket.js:23:  initialized =
+src/admin/behavior/behaviorRealtimeSocket.js:26:  unsubscribers =
+src/admin/behavior/behaviorRealtimeSocket.js:57:      this.initialized
+src/admin/behavior/behaviorRealtimeSocket.js:64:    const unsubscribeActivity =
+src/admin/behavior/behaviorRealtimeSocket.js:65:      registerSocketListener(
+src/admin/behavior/behaviorRealtimeSocket.js:73:    this.unsubscribers.push(
+src/admin/behavior/behaviorRealtimeSocket.js:75:      unsubscribeActivity
+src/admin/behavior/behaviorRealtimeSocket.js:79:    this.initialized =
+src/admin/behavior/behaviorRealtimeSocket.js:82:    console.log(
+src/admin/behavior/behaviorRealtimeSocket.js:94:  destroy() {
+src/admin/behavior/behaviorRealtimeSocket.js:96:    this.unsubscribers.forEach(
+src/admin/behavior/behaviorRealtimeSocket.js:98:        unsubscribe
+src/admin/behavior/behaviorRealtimeSocket.js:103:          unsubscribe();
+src/admin/behavior/behaviorRealtimeSocket.js:109:          console.error(
+src/admin/behavior/behaviorRealtimeSocket.js:122:    this.unsubscribers =
+src/admin/behavior/behaviorRealtimeSocket.js:125:    this.initialized =
+src/admin/behavior/behaviorRealtimeSocket.js:128:    console.log(
+src/admin/ecosystem/ecosystemRealtimeSocket.js:2:  registerSocketListener,
+src/admin/ecosystem/ecosystemRealtimeSocket.js:10:  initialized =
+src/admin/ecosystem/ecosystemRealtimeSocket.js:16:      this.initialized
+src/admin/ecosystem/ecosystemRealtimeSocket.js:32:    registerSocketListener(
+src/admin/ecosystem/ecosystemRealtimeSocket.js:50:    this.initialized =
+src/admin/ecosystem/ecosystemBootstrap.js:7:  initialized =
+src/admin/ecosystem/ecosystemBootstrap.js:13:      this.initialized
+src/admin/ecosystem/ecosystemBootstrap.js:69:      this.initialized =
+src/admin/ecosystem/ecosystemStore.js:23:      initialized:
+src/admin/releases/releaseBootstrap.js:7:  initialized =
+src/admin/releases/releaseBootstrap.js:13:      this.initialized
+src/admin/releases/releaseBootstrap.js:48:    this.initialized =
+src/admin/payments/paymentRealtimeSocket.js:2:  registerSocketListener,
+src/admin/payments/paymentRealtimeSocket.js:10:  initialized =
+src/admin/payments/paymentRealtimeSocket.js:16:      this.initialized
+src/admin/payments/paymentRealtimeSocket.js:32:    registerSocketListener(
+src/admin/payments/paymentRealtimeSocket.js:50:    this.initialized =
+src/admin/devops/devopsRealtimeSocket.js:2:  registerSocketListener,
+src/admin/devops/devopsRealtimeSocket.js:10:  initialized =
+src/admin/devops/devopsRealtimeSocket.js:16:      this.initialized
+src/admin/devops/devopsRealtimeSocket.js:32:    registerSocketListener(
+src/admin/devops/devopsRealtimeSocket.js:50:    this.initialized =
+src/admin/ipos/iposRealtimeSocket.js:2:  registerSocketListener,
+src/admin/ipos/iposRealtimeSocket.js:10:  initialized =
+src/admin/ipos/iposRealtimeSocket.js:16:      this.initialized
+src/admin/ipos/iposRealtimeSocket.js:32:    registerSocketListener(
+src/admin/ipos/iposRealtimeSocket.js:50:    this.initialized =
+src/admin/ipos/iposBootstrap.js:7:  initialized =
+src/admin/ipos/iposBootstrap.js:13:      this.initialized
+src/admin/ipos/iposBootstrap.js:48:    this.initialized =
+src/admin/bootstrap/adminBootstrap.js:3:  console.log(
+src/admin/customer360/customer360Store.js:23:      initialized:
+src/admin/customer360/customer360RealtimeSocket.js:2:  registerSocketListener,
+src/admin/customer360/customer360RealtimeSocket.js:10:  initialized =
+src/admin/customer360/customer360RealtimeSocket.js:16:      this.initialized
+src/admin/customer360/customer360RealtimeSocket.js:32:    registerSocketListener(
+src/admin/customer360/customer360RealtimeSocket.js:52:    this.initialized =
+src/admin/customer360/customer360Bootstrap.js:7:  initialized =
+src/admin/customer360/customer360Bootstrap.js:13:      this.initialized
+src/admin/customer360/customer360Bootstrap.js:44:      this.initialized =
+src/admin/config/runtimeConfigBootstrap.js:7:  initialized =
+src/admin/config/runtimeConfigBootstrap.js:13:      this.initialized
+src/admin/config/runtimeConfigBootstrap.js:44:      this.initialized =
+src/admin/config/runtimeConfigStore.js:14:      initialized:
+src/admin/config/runtimeConfigStore.js:29:            initialized:
+src/admin/security/securityRealtimeSocket.js:2:  registerSocketListener,
+src/admin/security/securityRealtimeSocket.js:10:  initialized =
+src/admin/security/securityRealtimeSocket.js:16:      this.initialized
+src/admin/security/securityRealtimeSocket.js:32:    registerSocketListener(
+src/admin/security/securityRealtimeSocket.js:50:    registerSocketListener(
+src/admin/security/securityRealtimeSocket.js:68:    this.initialized =
+src/admin/ai-agents/aiAgentRealtimeSocket.js:2:  registerSocketListener,
+src/admin/ai-agents/aiAgentRealtimeSocket.js:10:  initialized =
+src/admin/ai-agents/aiAgentRealtimeSocket.js:16:      this.initialized
+src/admin/ai-agents/aiAgentRealtimeSocket.js:32:    registerSocketListener(
+src/admin/ai-agents/aiAgentRealtimeSocket.js:50:    registerSocketListener(
+src/admin/ai-agents/aiAgentRealtimeSocket.js:68:    this.initialized =
+src/admin/ai-agents/aiAgentStore.js:23:      initialized:
+src/admin/ai-agents/aiAgentBootstrap.js:7:  initialized =
+src/admin/ai-agents/aiAgentBootstrap.js:13:      this.initialized
+src/admin/ai-agents/aiAgentBootstrap.js:60:      this.initialized =
+src/admin/runtime/runtimeEngineRealtimeSocket.js:2:  registerSocketListener,
+src/admin/runtime/runtimeEngineRealtimeSocket.js:10:  initialized =
+src/admin/runtime/runtimeEngineRealtimeSocket.js:16:      this.initialized
+src/admin/runtime/runtimeEngineRealtimeSocket.js:32:    registerSocketListener(
+src/admin/runtime/runtimeEngineRealtimeSocket.js:50:    this.initialized =
+src/admin/error-boundary/EnterpriseErrorBoundary.jsx:46:    console.error(
+src/admin/scheduler/campaignSchedulerBootstrap.js:7:  initialized =
+src/admin/scheduler/campaignSchedulerBootstrap.js:13:      this.initialized
+src/admin/scheduler/campaignSchedulerBootstrap.js:30:    this.initialized =
+src/admin/loyalty/loyaltyBootstrap.js:7:  initialized =
+src/admin/loyalty/loyaltyBootstrap.js:13:      this.initialized
+src/admin/loyalty/loyaltyBootstrap.js:60:      this.initialized =
+src/admin/loyalty/loyaltyStore.js:20:      initialized:
+src/admin/loyalty/loyaltyRealtimeSocket.js:2:  registerSocketListener,
+src/admin/loyalty/loyaltyRealtimeSocket.js:10:  initialized =
+src/admin/loyalty/loyaltyRealtimeSocket.js:16:      this.initialized
+src/admin/loyalty/loyaltyRealtimeSocket.js:32:    registerSocketListener(
+src/admin/loyalty/loyaltyRealtimeSocket.js:50:    this.initialized =
+src/admin/franchise/franchiseBootstrap.js:7:  initialized =
+src/admin/franchise/franchiseBootstrap.js:13:      this.initialized
+src/admin/franchise/franchiseBootstrap.js:69:      this.initialized =
+src/admin/franchise/franchiseRealtimeSocket.js:2:  registerSocketListener,
+src/admin/franchise/franchiseRealtimeSocket.js:10:  initialized =
+src/admin/franchise/franchiseRealtimeSocket.js:16:      this.initialized
+src/admin/franchise/franchiseRealtimeSocket.js:32:    registerSocketListener(
+src/admin/franchise/franchiseRealtimeSocket.js:50:    this.initialized =
+src/admin/franchise/franchiseStore.js:23:      initialized:
+src/admin/observability/observabilityRealtimeSocket.js:2:  registerSocketListener,
+src/admin/observability/observabilityRealtimeSocket.js:6:  registerSocketListener,
+src/admin/observability/observabilityRealtimeSocket.js:23:  initialized =
+src/admin/observability/observabilityRealtimeSocket.js:26:  unsubscribers =
+src/admin/observability/observabilityRealtimeSocket.js:89:      this.initialized
+src/admin/observability/observabilityRealtimeSocket.js:96:    const unsubscribeLogs =
+src/admin/observability/observabilityRealtimeSocket.js:97:      registerSocketListener(
+src/admin/observability/observabilityRealtimeSocket.js:105:    const unsubscribeHealth =
+src/admin/observability/observabilityRealtimeSocket.js:106:      registerSocketListener(
+src/admin/observability/observabilityRealtimeSocket.js:114:    const unsubscribeIncident =
+src/admin/observability/observabilityRealtimeSocket.js:115:      registerSocketListener(
+src/admin/observability/observabilityRealtimeSocket.js:123:    this.unsubscribers.push(
+src/admin/observability/observabilityRealtimeSocket.js:125:      unsubscribeLogs,
+src/admin/observability/observabilityRealtimeSocket.js:127:      unsubscribeHealth,
+src/admin/observability/observabilityRealtimeSocket.js:129:      unsubscribeIncident,
+src/admin/observability/observabilityRealtimeSocket.js:133:    this.initialized =
+src/admin/observability/observabilityRealtimeSocket.js:136:    console.log(
+src/admin/observability/observabilityRealtimeSocket.js:148:  destroy() {
+src/admin/observability/observabilityRealtimeSocket.js:150:    this.unsubscribers.forEach(
+src/admin/observability/observabilityRealtimeSocket.js:152:        unsubscribe
+src/admin/observability/observabilityRealtimeSocket.js:157:          unsubscribe();
+src/admin/observability/observabilityRealtimeSocket.js:163:          console.error(
+src/admin/observability/observabilityRealtimeSocket.js:176:    this.unsubscribers =
+src/admin/observability/observabilityRealtimeSocket.js:179:    this.initialized =
+src/admin/observability/observabilityRealtimeSocket.js:182:    console.log(
+src/admin/observability/observabilityBootstrap.js:7:  initialized =
+src/admin/observability/observabilityBootstrap.js:13:      this.initialized
+src/admin/observability/observabilityBootstrap.js:87:      this.initialized =
+src/admin/observability/observabilityStore.js:29:      initialized:
+src/admin/tenants/tenantBootstrap.js:7:  initialized =
+src/admin/tenants/tenantBootstrap.js:13:      this.initialized
+src/admin/tenants/tenantBootstrap.js:57:    this.initialized =
+src/admin/operations/operationsRealtimeSocket.js:2:  registerSocketListener,
+src/admin/operations/operationsRealtimeSocket.js:10:  initialized =
+src/admin/operations/operationsRealtimeSocket.js:16:      this.initialized
+src/admin/operations/operationsRealtimeSocket.js:32:    registerSocketListener(
+src/admin/operations/operationsRealtimeSocket.js:50:    this.initialized =
+src/admin/alerts/alertRealtimeSocket.js:2:  registerSocketListener,
+src/admin/alerts/alertRealtimeSocket.js:10:  initialized =
+src/admin/alerts/alertRealtimeSocket.js:16:      this.initialized
+src/admin/alerts/alertRealtimeSocket.js:32:    registerSocketListener(
+src/admin/alerts/alertRealtimeSocket.js:50:    this.initialized =
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:2:  registerSocketListener,
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:6:  registerSocketListener,
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:23:  initialized =
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:26:  unsubscribers =
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:32:      this.initialized
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:45:    const unsubscribeMetrics =
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:46:      registerSocketListener(
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:70:    const unsubscribeEventFeed =
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:71:      registerSocketListener(
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:95:    this.unsubscribers.push(
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:97:      unsubscribeMetrics,
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:99:      unsubscribeEventFeed,
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:103:    this.initialized =
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:106:    console.log(
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:118:  destroy() {
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:120:    this.unsubscribers.forEach(
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:122:        unsubscribe
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:127:          unsubscribe();
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:133:          console.error(
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:146:    this.unsubscribers =
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:149:    this.initialized =
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:152:    console.log(
+src/admin/realtime/hooks/useAdminRealtime.js:8:  registerSocketListener,
+src/admin/realtime/hooks/useAdminRealtime.js:81:    const unsubscribeConnect =
+src/admin/realtime/hooks/useAdminRealtime.js:82:      registerSocketListener(
+src/admin/realtime/hooks/useAdminRealtime.js:102:    const unsubscribeDisconnect =
+src/admin/realtime/hooks/useAdminRealtime.js:103:      registerSocketListener(
+src/admin/realtime/hooks/useAdminRealtime.js:123:    const unsubscribeLatency =
+src/admin/realtime/hooks/useAdminRealtime.js:124:      registerSocketListener(
+src/admin/realtime/hooks/useAdminRealtime.js:150:      unsubscribeConnect?.();
+src/admin/realtime/hooks/useAdminRealtime.js:152:      unsubscribeDisconnect?.();
+src/admin/realtime/hooks/useAdminRealtime.js:154:      unsubscribeLatency?.();
+src/admin/integrations/integrationRealtimeSocket.js:2:  registerSocketListener,
+src/admin/integrations/integrationRealtimeSocket.js:10:  initialized =
+src/admin/integrations/integrationRealtimeSocket.js:16:      this.initialized
+src/admin/integrations/integrationRealtimeSocket.js:32:    registerSocketListener(
+src/admin/integrations/integrationRealtimeSocket.js:50:    this.initialized =
+src/admin/schema/schemaDesignerBootstrap.js:7:  initialized =
+src/admin/schema/schemaDesignerBootstrap.js:13:      this.initialized
+src/admin/schema/schemaDesignerBootstrap.js:30:    this.initialized =
+src/admin/ai-runtime/aiRuntimeBootstrap.js:7:  initialized =
+src/admin/ai-runtime/aiRuntimeBootstrap.js:13:      this.initialized
+src/admin/ai-runtime/aiRuntimeBootstrap.js:48:    this.initialized =
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:2:  registerSocketListener,
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:10:  initialized =
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:16:      this.initialized
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:32:    registerSocketListener(
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:50:    this.initialized =
+src/admin/cms/cmsBootstrap.js:7:  initialized =
+src/admin/cms/cmsBootstrap.js:13:      this.initialized
+src/admin/cms/cmsBootstrap.js:44:      this.initialized =
+src/admin/cms/cmsStore.js:14:      initialized:
+src/admin/cms/cmsStore.js:29:            initialized:
+src/admin/ai/aiInsightsBootstrap.js:7:  initialized =
+src/admin/ai/aiInsightsBootstrap.js:13:      this.initialized
+src/admin/ai/aiInsightsBootstrap.js:57:    this.initialized =
+src/admin/partners/partnerBootstrap.js:7:  initialized =
+src/admin/partners/partnerBootstrap.js:13:      this.initialized
+src/admin/partners/partnerBootstrap.js:48:    this.initialized =
+src/admin/vouchers/voucherStore.js:17:      initialized:
+src/admin/vouchers/voucherBootstrap.js:7:  initialized =
+src/admin/vouchers/voucherBootstrap.js:13:      this.initialized
+src/admin/vouchers/voucherBootstrap.js:44:      this.initialized =
+src/admin/vouchers/voucherRealtimeSocket.js:2:  registerSocketListener,
+src/admin/vouchers/voucherRealtimeSocket.js:10:  initialized =
+src/admin/vouchers/voucherRealtimeSocket.js:16:      this.initialized
+src/admin/vouchers/voucherRealtimeSocket.js:32:    registerSocketListener(
+src/admin/vouchers/voucherRealtimeSocket.js:50:    this.initialized =
+src/admin/members/memberBootstrap.js:7:  initialized =
+src/admin/members/memberBootstrap.js:13:      this.initialized
+src/admin/members/memberBootstrap.js:48:    this.initialized =
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:2:  registerSocketListener,
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:10:  initialized =
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:16:      this.initialized
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:32:    registerSocketListener(
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:50:    this.initialized =
+src/admin/automation/automationRealtimeSocket.js:2:  registerSocketListener,
+src/admin/automation/automationRealtimeSocket.js:6:  registerSocketListener,
+src/admin/automation/automationRealtimeSocket.js:23:  initialized =
+src/admin/automation/automationRealtimeSocket.js:26:  unsubscribers =
+src/admin/automation/automationRealtimeSocket.js:32:      this.initialized
+src/admin/automation/automationRealtimeSocket.js:45:    const unsubscribeExecution =
+src/admin/automation/automationRealtimeSocket.js:46:      registerSocketListener(
+src/admin/automation/automationRealtimeSocket.js:70:    const unsubscribeMetrics =
+src/admin/automation/automationRealtimeSocket.js:71:      registerSocketListener(
+src/admin/automation/automationRealtimeSocket.js:95:    this.unsubscribers.push(
+src/admin/automation/automationRealtimeSocket.js:97:      unsubscribeExecution,
+src/admin/automation/automationRealtimeSocket.js:99:      unsubscribeMetrics,
+src/admin/automation/automationRealtimeSocket.js:103:    this.initialized =
+src/admin/automation/automationRealtimeSocket.js:106:    console.log(
+src/admin/automation/automationRealtimeSocket.js:118:  destroy() {
+src/admin/automation/automationRealtimeSocket.js:120:    this.unsubscribers.forEach(
+src/admin/automation/automationRealtimeSocket.js:122:        unsubscribe
+src/admin/automation/automationRealtimeSocket.js:127:          unsubscribe();
+src/admin/automation/automationRealtimeSocket.js:133:          console.error(
+src/admin/automation/automationRealtimeSocket.js:146:    this.unsubscribers =
+src/admin/automation/automationRealtimeSocket.js:149:    this.initialized =
+src/admin/automation/automationRealtimeSocket.js:152:    console.log(
+src/admin/automation/automationBootstrap.js:7:  initialized =
+src/admin/automation/automationBootstrap.js:13:      this.initialized
+src/admin/automation/automationBootstrap.js:60:      this.initialized =
+src/admin/automation/automationStore.js:20:      initialized:
+src/admin/campaigns/campaignRealtimeSocket.js:2:  registerSocketListener,
+src/admin/campaigns/campaignRealtimeSocket.js:10:  initialized =
+src/admin/campaigns/campaignRealtimeSocket.js:16:      this.initialized
+src/admin/campaigns/campaignRealtimeSocket.js:32:    registerSocketListener(
+src/admin/campaigns/campaignRealtimeSocket.js:67:    this.initialized =
+src/admin/campaigns/campaignBootstrap.js:7:  initialized =
+src/admin/campaigns/campaignBootstrap.js:13:      this.initialized
+src/admin/campaigns/campaignBootstrap.js:44:      this.initialized =
+src/admin/campaigns/campaignStore.js:20:      initialized:
+src/admin/campaigns/campaignStore.js:32:            initialized:
+src/admin/orders/orderBootstrap.js:7:  initialized =
+src/admin/orders/orderBootstrap.js:13:      this.initialized
+src/admin/orders/orderBootstrap.js:60:      this.initialized =
+src/admin/orders/orderStore.js:23:      initialized:
+src/admin/orders/orderRealtimeSocket.js:2:  registerSocketListener,
+src/admin/orders/orderRealtimeSocket.js:6:  runtimeLogger,
+src/admin/orders/orderRealtimeSocket.js:7:} from "@/runtime/logger/runtimeLogger";
+src/admin/orders/orderRealtimeSocket.js:23:  initialized =
+src/admin/orders/orderRealtimeSocket.js:26:  unsubscribers =
+src/admin/orders/orderRealtimeSocket.js:70:      this.initialized
+src/admin/orders/orderRealtimeSocket.js:77:    const unsubscribeNewOrder =
+src/admin/orders/orderRealtimeSocket.js:78:      registerSocketListener(
+src/admin/orders/orderRealtimeSocket.js:86:    const unsubscribeMetrics =
+src/admin/orders/orderRealtimeSocket.js:87:      registerSocketListener(
+src/admin/orders/orderRealtimeSocket.js:95:    this.unsubscribers.push(
+src/admin/orders/orderRealtimeSocket.js:97:      unsubscribeNewOrder,
+src/admin/orders/orderRealtimeSocket.js:99:      unsubscribeMetrics,
+src/admin/orders/orderRealtimeSocket.js:103:    this.initialized =
+src/admin/orders/orderRealtimeSocket.js:106:    runtimeLogger.info(
+src/admin/orders/orderRealtimeSocket.js:119:  destroy() {
+src/admin/orders/orderRealtimeSocket.js:121:    this.unsubscribers.forEach(
+src/admin/orders/orderRealtimeSocket.js:123:        unsubscribe
+src/admin/orders/orderRealtimeSocket.js:128:          unsubscribe?.();
+src/admin/orders/orderRealtimeSocket.js:134:          runtimeLogger.error(
+src/admin/orders/orderRealtimeSocket.js:149:    this.unsubscribers =
+src/admin/orders/orderRealtimeSocket.js:152:    this.initialized =
+src/admin/orders/orderRealtimeSocket.js:155:    runtimeLogger.info(
+src/admin/featureFlags/featureFlagStore.js:14:      initialized:
+src/admin/featureFlags/featureFlagStore.js:26:            initialized:
+src/admin/featureFlags/featureFlagBootstrap.js:7:  initialized =
+src/admin/featureFlags/featureFlagBootstrap.js:13:      this.initialized
+src/admin/featureFlags/featureFlagBootstrap.js:30:    this.initialized =
+src/admin/monitoring/socketMonitoringSocket.js:2:  registerSocketListener,
+src/admin/monitoring/socketMonitoringSocket.js:10:  initialized =
+src/admin/monitoring/socketMonitoringSocket.js:16:      this.initialized
+src/admin/monitoring/socketMonitoringSocket.js:32:    registerSocketListener(
+src/admin/monitoring/socketMonitoringSocket.js:50:    this.initialized =
+src/admin/events/eventFeedSocket.js:2:  registerSocketListener,
+src/admin/events/eventFeedSocket.js:10:  initialized =
+src/admin/events/eventFeedSocket.js:16:      this.initialized
+src/admin/events/eventFeedSocket.js:32:    registerSocketListener(
+src/admin/events/eventFeedSocket.js:50:    this.initialized =
+src/admin/audience/audienceBootstrap.js:7:  initialized =
+src/admin/audience/audienceBootstrap.js:13:      this.initialized
+src/admin/audience/audienceBootstrap.js:30:    this.initialized =
+src/admin/builder/pageBuilderRealtimeSocket.js:2:  registerSocketListener,
+src/admin/builder/pageBuilderRealtimeSocket.js:10:  initialized =
+src/admin/builder/pageBuilderRealtimeSocket.js:16:      this.initialized
+src/admin/builder/pageBuilderRealtimeSocket.js:32:    registerSocketListener(
+src/admin/builder/pageBuilderRealtimeSocket.js:50:    this.initialized =
+src/admin/builder/pageBuilderBootstrap.js:7:  initialized =
+src/admin/builder/pageBuilderBootstrap.js:13:      this.initialized
+src/admin/builder/pageBuilderBootstrap.js:44:      this.initialized =
+src/admin/builder/pageBuilderStore.js:26:      initialized:
+src/admin/messaging/messageTimelineRealtimeSocket.js:2:  registerSocketListener,
+src/admin/messaging/messageTimelineRealtimeSocket.js:10:  initialized =
+src/admin/messaging/messageTimelineRealtimeSocket.js:16:      this.initialized
+src/admin/messaging/messageTimelineRealtimeSocket.js:32:    registerSocketListener(
+src/admin/messaging/messageTimelineRealtimeSocket.js:50:    this.initialized =
+src/admin/notifications/notificationRealtimeSocket.js:2:  registerSocketListener,
+src/admin/notifications/notificationRealtimeSocket.js:20:  initialized =
+src/admin/notifications/notificationRealtimeSocket.js:23:  unsubscribeDelivery =
+src/admin/notifications/notificationRealtimeSocket.js:26:  unsubscribeMetrics =
+src/admin/notifications/notificationRealtimeSocket.js:82:      this.initialized
+src/admin/notifications/notificationRealtimeSocket.js:95:    this.unsubscribeDelivery =
+src/admin/notifications/notificationRealtimeSocket.js:96:      registerSocketListener(
+src/admin/notifications/notificationRealtimeSocket.js:104:    this.unsubscribeMetrics =
+src/admin/notifications/notificationRealtimeSocket.js:105:      registerSocketListener(
+src/admin/notifications/notificationRealtimeSocket.js:119:    this.initialized =
+src/admin/notifications/notificationRealtimeSocket.js:138:    this.unsubscribeDelivery?.();
+src/admin/notifications/notificationRealtimeSocket.js:146:    this.unsubscribeMetrics?.();
+src/admin/notifications/notificationRealtimeSocket.js:154:    this.unsubscribeDelivery =
+src/admin/notifications/notificationRealtimeSocket.js:157:    this.unsubscribeMetrics =
+src/admin/notifications/notificationRealtimeSocket.js:160:    this.initialized =
+src/admin/notifications/notificationRealtimeSocket.js:171:  destroy() {
+src/admin/notifications/notificationBootstrap.js:7:  initialized =
+src/admin/notifications/notificationBootstrap.js:13:      this.initialized
+src/admin/notifications/notificationBootstrap.js:60:      this.initialized =
+src/admin/notifications/adminNotificationStore.js:23:      initialized:
+src/admin/services/adminRealtimeBridge.js:2:  registerSocketListener,
+src/admin/services/adminRealtimeBridge.js:20:  initialized =
+src/admin/services/adminRealtimeBridge.js:23:  unsubscribers =
+src/admin/services/adminRealtimeBridge.js:35:      this.initialized
+src/admin/services/adminRealtimeBridge.js:48:    const unsubscribeActivity =
+src/admin/services/adminRealtimeBridge.js:49:      registerSocketListener(
+src/admin/services/adminRealtimeBridge.js:73:    const unsubscribeAlert =
+src/admin/services/adminRealtimeBridge.js:74:      registerSocketListener(
+src/admin/services/adminRealtimeBridge.js:98:    this.unsubscribers.push(
+src/admin/services/adminRealtimeBridge.js:100:      unsubscribeActivity,
+src/admin/services/adminRealtimeBridge.js:102:      unsubscribeAlert,
+src/admin/services/adminRealtimeBridge.js:106:    this.initialized =
+src/admin/services/adminRealtimeBridge.js:109:    console.log(
+src/admin/services/adminRealtimeBridge.js:121:  destroy() {
+src/admin/services/adminRealtimeBridge.js:123:    this.unsubscribers.forEach(
+src/admin/services/adminRealtimeBridge.js:125:        unsubscribe
+src/admin/services/adminRealtimeBridge.js:130:          unsubscribe();
+src/admin/services/adminRealtimeBridge.js:136:          console.error(
+src/admin/services/adminRealtimeBridge.js:149:    this.unsubscribers =
+src/admin/services/adminRealtimeBridge.js:152:    this.initialized =
+src/admin/services/adminRealtimeBridge.js:155:    console.log(
+src/admin/services/adminRealtimeBridge.js:176:    .destroy();
+src/admin/branches-runtime/branchRuntimeRealtimeSocket.js:2:  registerSocketListener,
+src/admin/branches-runtime/branchRuntimeRealtimeSocket.js:10:  initialized =
+src/admin/branches-runtime/branchRuntimeRealtimeSocket.js:16:      this.initialized
+src/admin/branches-runtime/branchRuntimeRealtimeSocket.js:32:    registerSocketListener(
+src/admin/branches-runtime/branchRuntimeRealtimeSocket.js:50:    this.initialized =
+src/admin/analytics/analyticsBootstrap.js:7:  initialized =
+src/admin/analytics/analyticsBootstrap.js:13:      this.initialized
+src/admin/analytics/analyticsBootstrap.js:44:      this.initialized =
+src/admin/analytics/analyticsStore.js:17:      initialized:
+src/admin/analytics/analyticsStore.js:32:            initialized:
+src/admin/channels/channelBootstrap.js:7:  initialized =
+src/admin/channels/channelBootstrap.js:13:      this.initialized
+src/admin/channels/channelBootstrap.js:48:    this.initialized =

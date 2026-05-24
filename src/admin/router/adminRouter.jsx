@@ -11,28 +11,28 @@ import {
 const AdminDashboardPage =
   lazy(() =>
     import(
-      "@/admin/dashboard/pages/AdminDashboardPage"
+      "@/admin/dashboa../features/AdminDashboardPage"
     )
   );
 
 const AnalyticsPage =
   lazy(() =>
     import(
-      "@/admin/analytics/pages/AnalyticsPage"
+      "@/admin/analyti../features/AnalyticsPage"
     )
   );
 
 const RealtimeMonitoringPage =
   lazy(() =>
     import(
-      "@/admin/monitoring/pages/RealtimeMonitoringPage"
+      "@/admin/monitori../features/RealtimeMonitoringPage"
     )
   );
 
 const SettingsPage =
   lazy(() =>
     import(
-      "@/admin/settings/pages/SettingsPage"
+      "@/admin/settin../features/SettingsPage"
     )
   );
 
@@ -45,14 +45,14 @@ const SettingsPage =
 const CampaignsPage =
   lazy(() =>
     import(
-      "@/admin/campaigns/pages/CampaignsPage"
+      "@/admin/campaig../features/CampaignsPage"
     )
   );
 
 const CampaignSchedulerPage =
   lazy(() =>
     import(
-      "@/admin/scheduler/pages/CampaignSchedulerPage"
+      "@/admin/schedul../features/CampaignSchedulerPage"
     )
   );
 
@@ -65,7 +65,7 @@ const CampaignSchedulerPage =
 const CMSPage =
   lazy(() =>
     import(
-      "@/admin/cms/pages/CMSPage"
+      "@/admin/c../features/CMSPage"
     )
   );
 
@@ -78,21 +78,21 @@ const CMSPage =
 const MembersPage =
   lazy(() =>
     import(
-      "@/admin/members/pages/MembersPage"
+      "@/admin/membe../features/MembersPage"
     )
   );
 
 const Customer360Page =
   lazy(() =>
     import(
-      "@/admin/customer360/pages/Customer360Page"
+      "@/admin/customer3../features/Customer360Page"
     )
   );
 
 const AudiencePage =
   lazy(() =>
     import(
-      "@/admin/audience/pages/AudiencePage"
+      "@/admin/audien../features/AudiencePage"
     )
   );
 
@@ -105,14 +105,14 @@ const AudiencePage =
 const LoyaltyPage =
   lazy(() =>
     import(
-      "@/admin/loyalty/pages/LoyaltyPage"
+      "@/admin/loyal../features/LoyaltyPage"
     )
   );
 
 const VoucherPage =
   lazy(() =>
     import(
-      "@/admin/vouchers/pages/VoucherPage"
+      "@/admin/vouche../features/VoucherPage"
     )
   );
 
@@ -125,14 +125,14 @@ const VoucherPage =
 const AutomationPage =
   lazy(() =>
     import(
-      "@/admin/automation/pages/AutomationPage"
+      "@/admin/automati../features/AutomationPage"
     )
   );
 
 const AiInsightsPage =
   lazy(() =>
     import(
-      "@/admin/ai/pages/AiInsightsPage"
+      "@/admin/../features/AiInsightsPage"
     )
   );
 
@@ -145,14 +145,14 @@ const AiInsightsPage =
 const NotificationPage =
   lazy(() =>
     import(
-      "@/admin/notifications/pages/NotificationPage"
+      "@/admin/notificatio../features/NotificationPage"
     )
   );
 
 const ChannelManagementPage =
   lazy(() =>
     import(
-      "@/admin/channels/pages/ChannelManagementPage"
+      "@/admin/channe../features/ChannelManagementPage"
     )
   );
 
@@ -165,63 +165,63 @@ const ChannelManagementPage =
 const GamesPage =
   lazy(() =>
     import(
-      "@/admin/games/pages/GamesPage"
+      "@/admin/gam../features/GamesPage"
     )
   );
 
   const EcosystemPlatformPage =
   lazy(() =>
     import(
-      "@/admin/ecosystem/pages/EcosystemPlatformPage"
+      "@/admin/ecosyst../features/EcosystemPlatformPage"
     )
   );
 
   const AiAutonomousPage =
   lazy(() =>
     import(
-      "@/admin/ai-agents/pages/AiAutonomousPage"
+      "@/admin/ai-agen../features/AiAutonomousPage"
     )
   );
 
 const AiRuntimePage =
   lazy(() =>
     import(
-      "@/admin/ai-runtime/pages/AiRuntimePage"
+      "@/admin/ai-runti../features/AiRuntimePage"
     )
   );
 
   const FranchiseManagementPage =
   lazy(() =>
     import(
-      "@/admin/franchise/pages/FranchiseManagementPage"
+      "@/admin/franchi../features/FranchiseManagementPage"
     )
   );
 
 const TenantManagementPage =
   lazy(() =>
     import(
-      "@/admin/tenants/pages/TenantManagementPage"
+      "@/admin/tenan../features/TenantManagementPage"
     )
   );
 
   const ObservabilityPage =
   lazy(() =>
     import(
-      "@/admin/observability/pages/ObservabilityPage"
+      "@/admin/observabili../features/ObservabilityPage"
     )
   );
 
 const ReleaseManagementPage =
   lazy(() =>
     import(
-      "@/admin/releases/pages/ReleaseManagementPage"
+      "@/admin/releas../features/ReleaseManagementPage"
     )
   );
 
   const PageBuilderPage =
   lazy(() =>
     import(
-      "@/admin/builder/pages/PageBuilderPage"
+      "@/admin/build../features/PageBuilderPage"
     )
 
   );
@@ -229,14 +229,14 @@ const ReleaseManagementPage =
 const SchemaDesignerPage =
   lazy(() =>
     import(
-      "@/admin/schema/pages/SchemaDesignerPage"
+      "@/admin/sche../features/SchemaDesignerPage"
     )
   );
 
 const OrdersPage =
   lazy(() =>
     import(
-      "@/admin/orders/pages/OrdersPage"
+      "@/admin/orde../features/OrdersPage"
     )
 
   );
@@ -244,7 +244,7 @@ const OrdersPage =
 const IposOperationsPage =
   lazy(() =>
     import(
-      "@/admin/ipos/pages/IposOperationsPage"
+      "@/admin/ip../features/IposOperationsPage"
     )
   );
 

@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
+
     "target": "ES2020",
+
     "useDefineForClassFields": true,
 
     "lib": [
@@ -10,8 +12,11 @@
     ],
 
     "allowJs": false,
+
     "skipLibCheck": true,
+
     "esModuleInterop": true,
+
     "allowSyntheticDefaultImports": true,
 
     "strict": false,
@@ -19,19 +24,29 @@
     "forceConsistentCasingInFileNames": true,
 
     "module": "ESNext",
+
     "moduleResolution": "bundler",
 
     "resolveJsonModule": true,
+
     "isolatedModules": true,
 
     "noEmit": true,
 
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+
+    "paths": {
+
+      "@/*": [
+        "./src/*"
+      ]
+
+    }
+
   },
 
   "include": [
     "src"
-  ],
+  ]
 
-  "references": []
 }

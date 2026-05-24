@@ -1,0 +1,52 @@
+src/infra/api/realtime/realtimeService.js:5:} from "@/runtime/socket/runtimeSocketClient";
+src/app/admin/services/adminRealtimeSocket.js:5:} from "@/runtime/socket/runtimeSocketClient";
+src/runtime/runtimeBootstrap.ts:3:} from "./socket/runtimeSocketClient";
+src/runtime/realtime/runtimeEventBus.ts:7:} from "../socket/runtimeSocketClient";
+src/runtime/orchestration/runtimeOrchestrator.ts:7:} from "../socket/runtimeSocketClient";
+src/runtime/socket/runtimeSocketClient.ts:342:    io(
+src/admin/behavior/behaviorRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/behavior/behaviorRealtimeSocket.js:7:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/ecosystem/ecosystemRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/payments/paymentRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/devops/devopsRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/ipos/iposRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/customer360/customer360RealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/security/securityRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/ai-agents/aiAgentRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/runtime/runtimeEngineRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/loyalty/loyaltyRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/franchise/franchiseRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/observability/observabilityRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/observability/observabilityRealtimeSocket.js:7:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/operations/operationsRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/alerts/alertRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:7:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/realtime/hooks/useAdminRealtime.js:9:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/realtime/adminRealtimeClient.js:5:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/integrations/integrationRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/vouchers/voucherRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/automation/automationRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/automation/automationRealtimeSocket.js:7:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/campaigns/campaignRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/orders/orderRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/orders/orderRealtimeSocket.js:7:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/monitoring/socketMonitoringSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/events/eventFeedSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/builder/pageBuilderRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/messaging/messageTimelineRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/notifications/notificationRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/services/adminRealtimeBridge.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/admin/branches-runtime/branchRuntimeRealtimeSocket.js:3:} from "@/runtime/socket/runtimeSocketClient";
+src/realtime/gamification/realtimeGamificationBinder.js:1:import { socket } from "../socketClient";
+src/games/runtime/gameRealtimeRuntime.js:7:} from "@/runtime/socket/runtimeSocketClient";
+src/games/runtime/gameAudioRuntime.js:9:      new Audio(
+src/games/runtime/gameAudioRuntime.js:14:      new Audio(
+src/games/runtime/gameAudioRuntime.js:19:      new Audio(
+src/games/black-pearl-rush/index.jsx:104:          new Audio(src);
+src/games/black-pearl-rush/index.jsx:129:    function unlockAudio() {
+src/games/black-pearl-rush/index.jsx:1360:      unlockAudio();
+src/customer/runtime/customerRealtimeRuntime.js:7:} from "@/runtime/socket/runtimeSocketClient";
+src/customer/services/customerRealtimeBridge.js:7:} from "@/runtime/socket/runtimeSocketClient";

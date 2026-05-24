@@ -1,0 +1,18 @@
+export const CMS_CONFIG = {
+
+  REMOTE_CACHE_MS:
+    30000,
+
+  FEATURE_FLAG_CACHE_MS:
+    10000,
+
+  MAX_REMOTE_BLOCKS:
+    50,
+
+  ENABLE_REMOTE_HOMEPAGE:
+    true,
+
+  ENABLE_REMOTE_CAMPAIGNS:
+    true,
+
+};

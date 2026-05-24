@@ -20,7 +20,7 @@ class PageBuilderService {
     const response =
       await apiClient.get(
 
-        `/admin/builder/pages/${pageId}/graph`
+        `/admin/build../features/${pageId}/graph`
 
       );
 
@@ -34,7 +34,7 @@ class PageBuilderService {
 
     const response =
       await apiClient.post(
-        "/admin/builder/pages/graph",
+        "/admin/build../features/graph",
         payload
       );
 
@@ -49,7 +49,7 @@ class PageBuilderService {
     const response =
       await apiClient.post(
 
-        `/admin/builder/pages/${pageId}/deploy`
+        `/admin/build../features/${pageId}/deploy`
 
       );
 

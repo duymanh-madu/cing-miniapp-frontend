@@ -1,0 +1,1 @@
+import{c as a}from"./index-Bz_bm66t.js";const r={selectedCategory:"all",searchKeyword:""},s=a(e=>({...r,setCategory:t=>e({selectedCategory:t||"all"}),setSearchKeyword:t=>e({searchKeyword:t||""}),resetMenuStore:()=>e({...r})}));export{s as default};

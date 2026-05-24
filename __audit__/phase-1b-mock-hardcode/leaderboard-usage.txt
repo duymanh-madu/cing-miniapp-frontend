@@ -1,0 +1,215 @@
+src/game-system/config/gameRegistry.js:37:    leaderboardEnabled:
+src/infra/api/loyalty/loyaltyApi.js:17:  LEADERBOARD:
+src/infra/api/loyalty/loyaltyApi.js:18:    "/api/loyalty/leaderboard",
+src/infra/api/loyalty/loyaltyApi.js:368: * LOYALTY LEADERBOARD
+src/infra/api/loyalty/loyaltyApi.js:373:getLoyaltyLeaderboard({
+src/infra/api/loyalty/loyaltyApi.js:393:        LOYALTY_ENDPOINTS.LEADERBOARD,
+src/infra/api/loyalty/loyaltyApi.js:418:    const leaderboard =
+src/infra/api/loyalty/loyaltyApi.js:426:        : data?.leaderboard || [];
+src/infra/api/loyalty/loyaltyApi.js:435:      "🟢 LOYALTY LEADERBOARD FETCHED",
+src/infra/api/loyalty/loyaltyApi.js:439:          leaderboard.length,
+src/infra/api/loyalty/loyaltyApi.js:444:    return leaderboard.map(
+src/infra/api/loyalty/loyaltyApi.js:467:      "❌ LOYALTY LEADERBOARD ERROR",
+src/infra/api/loyalty/loyaltyService.js:7:  getLoyaltyLeaderboard,
+src/infra/api/loyalty/loyaltyService.js:459: * FETCH LEADERBOARD
+src/infra/api/loyalty/loyaltyService.js:464:fetchLeaderboard({
+src/infra/api/loyalty/loyaltyService.js:482:      await getLoyaltyLeaderboard({
+src/infra/api/loyalty/loyaltyService.js:496:    const leaderboard =
+src/infra/api/loyalty/loyaltyService.js:520:      "🟢 LEADERBOARD FETCHED",
+src/infra/api/loyalty/loyaltyService.js:524:          leaderboard.length,
+src/infra/api/loyalty/loyaltyService.js:529:    return leaderboard;
+src/infra/api/loyalty/loyaltyService.js:540:      "❌ FETCH LEADERBOARD ERROR",
+src/infra/api/loyalty/loyaltyQueryKeys.js:133:     * LEADERBOARD
+src/infra/api/loyalty/loyaltyQueryKeys.js:137:    LEADERBOARD:
+src/infra/api/loyalty/loyaltyQueryKeys.js:145:        "leaderboard",
+src/infra/api/realtime/realtimeEvents.js:149:    LOYALTY_LEADERBOARD_UPDATED:
+src/infra/api/realtime/realtimeEvents.js:150:      `${NAMESPACE.LOYALTY}:leaderboard_updated`,
+src/infra/api/realtime/realtimeEvents.js:218:    GAME_LEADERBOARD_UPDATED:
+src/infra/api/realtime/realtimeEvents.js:219:      `${NAMESPACE.GAME}:leaderboard_updated`,
+src/infra/api/realtime/realtimeEvents.js:273:      REALTIME_EVENTS.LOYALTY_LEADERBOARD_UPDATED,
+src/core/store/gameRuntimeStore.ts:5:  leaderboardRank:
+src/core/store/gameRuntimeStore.ts:17:      leaderboardRank:
+src/core/store/gameRuntimeStore.ts:38:      leaderboardRank:
+src/core/store/gameRuntimeStore.ts:51:        leaderboardRank:
+src/core/store/gameRuntimeStore.ts:52:          payload.leaderboardRank,
+src/features/leaderboard/index.js:2:  default as LeaderboardPage,
+src/features/leaderboard/index.js:3:} from "./pages/LeaderboardPage";
+src/features/leaderboard/leaderboardEngine.js:1:import leaderboardStore from "@/features/leaderboard/store/leaderboardStore";
+src/features/leaderboard/leaderboardEngine.js:3:class LeaderboardEngine {
+src/features/leaderboard/leaderboardEngine.js:7:    leaderboardStore
+src/features/leaderboard/leaderboardEngine.js:15:const leaderboardEngine =
+src/features/leaderboard/leaderboardEngine.js:16:  new LeaderboardEngine();
+src/features/leaderboard/leaderboardEngine.js:19:  leaderboardEngine;
+src/features/leaderboard/pages/LeaderboardPage.jsx:1:function LeaderboardPage() {
+src/features/leaderboard/pages/LeaderboardPage.jsx:17:      LEADERBOARD
+src/features/leaderboard/pages/LeaderboardPage.jsx:24:export default LeaderboardPage;
+src/features/leaderboard/store/leaderboardStore.js:5:const useLeaderboardStore =
+src/features/leaderboard/store/leaderboardStore.js:24:  useLeaderboardStore;
+src/features/system/systemNavigationRegistry.js:30:    id: "leaderboard",
+src/features/system/systemNavigationRegistry.js:33:    path: "/leaderboard",
+src/features/system/systemNavigationRegistry.js:34:    feature: "leaderboard",
+src/features/system/systemFeatureRegistry.js:45:      key: "leaderboard",
+src/features/system/systemFeatureRegistry.js:48:        "Realtime ranking system",
+src/runtime/realtime/runtimeRealtimeChannels.ts:19:    REALTIME_CHANNELS.LEADERBOARD,
+src/runtime/realtime/runtimeRealtimeEvents.ts:21:  LEADERBOARD_UPDATED:
+src/runtime/realtime/runtimeRealtimeEvents.ts:22:    "leaderboard.updated",
+src/runtime/realtime/runtimeRealtimeConstants.ts:18:  LEADERBOARD:
+src/runtime/realtime/runtimeRealtimeConstants.ts:19:    "leaderboard",
+src/runtime/realtime/runtimeChannels.ts:15:  LEADERBOARD: "leaderboard",
+src/admin/cms/README_ARCHITECTURE.md:48:- leaderboard
+src/dashboard/config/dashboardRealtimeConfig.js:5:  LEADERBOARD_LIMIT: 10,
+src/dashboard/stores/dashboardRealtimeStore.js:8:    leaderboard: [],
+src/dashboard/stores/dashboardRealtimeStore.js:32:    updateLeaderboard(data) {
+src/dashboard/stores/dashboardRealtimeStore.js:36:        leaderboard: data,
+src/dashboard/components/LiveLeaderboardWidget.jsx:7:function LiveLeaderboardWidget() {
+src/dashboard/components/LiveLeaderboardWidget.jsx:9:  const leaderboard =
+src/dashboard/components/LiveLeaderboardWidget.jsx:12:        state.leaderboard
+src/dashboard/components/LiveLeaderboardWidget.jsx:27:        {leaderboard.map((user) => (
+src/dashboard/components/LiveLeaderboardWidget.jsx:55:  LiveLeaderboardWidget
+src/dashboard/pages/RealtimeDashboardPage.jsx:5:import LiveLeaderboardWidget from "../components/LiveLeaderboardWidget";
+src/dashboard/pages/RealtimeDashboardPage.jsx:31:      <LiveLeaderboardWidget />
+src/dashboard/services/dashboardRealtimeBridge.js:21:    "dashboard.leaderboard",
+src/dashboard/services/dashboardRealtimeBridge.js:26:        .updateLeaderboard(payload);
+src/realtime/gamification/realtimeGamificationBinder.js:16:import { useLeaderboardStore }
+src/realtime/gamification/realtimeGamificationBinder.js:17:  from "@/stores/useLeaderboardStore";
+src/realtime/gamification/realtimeGamificationBinder.js:80:              leaderboardStore:
+src/realtime/gamification/realtimeGamificationBinder.js:81:                useLeaderboardStore,
+src/realtime/gamification/realtimeLeaderboardHandler.js:3: * REALTIME LEADERBOARD HANDLER
+src/realtime/gamification/realtimeLeaderboardHandler.js:7:export function realtimeLeaderboardHandler({
+src/realtime/gamification/realtimeLeaderboardHandler.js:11:  leaderboardStore,
+src/realtime/gamification/realtimeLeaderboardHandler.js:21:  leaderboardStore
+src/realtime/gamification/realtimeLeaderboardHandler.js:23:    .setLeaderboard(
+src/realtime/gamification/realtimeLeaderboardHandler.js:25:      payload.leaderboard
+src/realtime/gamification/realtimeLeaderboardHandler.js:29:    "📈 Leaderboard updated"
+src/realtime/gamification/realtimeGamificationEvents.js:15:  LEADERBOARD_UPDATED:
+src/realtime/gamification/realtimeGamificationEvents.js:16:    "leaderboard.updated",
+src/realtime/gamification/realtimeGamificationRegistry.js:21:  realtimeLeaderboardHandler,
+src/realtime/gamification/realtimeGamificationRegistry.js:23:} from "./realtimeLeaderboardHandler";
+src/realtime/gamification/realtimeGamificationRegistry.js:59:      .LEADERBOARD_UPDATED
+src/realtime/gamification/realtimeGamificationRegistry.js:61:    realtimeLeaderboardHandler,
+src/components/home/SystemDemoActions.jsx:44:    description: "Realtime leaderboard system",
+src/components/layout/AppHeader.jsx:22:  "/leaderboard":
+src/components/navigation/BottomNavigation.jsx:42:      "/leaderboard",
+src/cms/runtime/dynamicLeaderboardRuntime.js:3:class DynamicLeaderboardRuntime {
+src/cms/runtime/dynamicLeaderboardRuntime.js:5:  getLeaderboardConfig() {
+src/cms/runtime/dynamicLeaderboardRuntime.js:9:        "leaderboard",
+src/cms/runtime/dynamicLeaderboardRuntime.js:17:const dynamicLeaderboardRuntime =
+src/cms/runtime/dynamicLeaderboardRuntime.js:18:  new DynamicLeaderboardRuntime();
+src/cms/runtime/dynamicLeaderboardRuntime.js:21:  dynamicLeaderboardRuntime;
+src/cms/components/DynamicHomeSectionRenderer.jsx:5:import CustomerRankCard from "@/customer/components/CustomerRankCard";
+src/cms/components/DynamicHomeSectionRenderer.jsx:13:import TopSpendingLeaderboard from "@/customer/components/TopSpendingLeaderboard";
+src/cms/components/DynamicHomeSectionRenderer.jsx:23:  rank:
+src/cms/components/DynamicHomeSectionRenderer.jsx:24:    CustomerRankCard,
+src/cms/components/DynamicHomeSectionRenderer.jsx:35:  leaderboard:
+src/cms/components/DynamicHomeSectionRenderer.jsx:36:    TopSpendingLeaderboard,
+src/pages/home/HomePage.jsx:34:  const memberRank =
+src/pages/home/HomePage.jsx:79:      memberRank
+src/pages/home/HomePage.jsx:117:      to: "/leaderboard/black-pearl-rush",
+src/pages/LeaderboardPage.jsx:2:// FILE: src/pages/LeaderboardPage.jsx
+src/pages/LeaderboardPage.jsx:3:// CUSTOMER SPENDING LEADERBOARD
+src/pages/LeaderboardPage.jsx:19:function LeaderboardPage() {
+src/pages/LeaderboardPage.jsx:42:  const leaderboard = [
+src/pages/LeaderboardPage.jsx:45:      rank: 1,
+src/pages/LeaderboardPage.jsx:54:      rank: 2,
+src/pages/LeaderboardPage.jsx:63:      rank: 3,
+src/pages/LeaderboardPage.jsx:72:      rank: 4,
+src/pages/LeaderboardPage.jsx:81:      rank: 5,
+src/pages/LeaderboardPage.jsx:93:   * MY RANK
+src/pages/LeaderboardPage.jsx:97:  const myRank = {
+src/pages/LeaderboardPage.jsx:99:    rank: 38,
+src/pages/LeaderboardPage.jsx:182:                Realtime Ranking
+src/pages/LeaderboardPage.jsx:283:        {leaderboard
+src/pages/LeaderboardPage.jsx:291:                key={user.rank}
+src/pages/LeaderboardPage.jsx:386:        {leaderboard
+src/pages/LeaderboardPage.jsx:394:                key={user.rank}
+src/pages/LeaderboardPage.jsx:428:                    #{user.rank}
+src/pages/LeaderboardPage.jsx:490:      {/* MY RANK */}
+src/pages/LeaderboardPage.jsx:537:              #{myRank.rank}
+src/pages/LeaderboardPage.jsx:543:                myRank.avatar
+src/pages/LeaderboardPage.jsx:546:                myRank.name
+src/pages/LeaderboardPage.jsx:579:                {myRank.name}
+src/pages/LeaderboardPage.jsx:612:              {myRank.spend}
+src/pages/LeaderboardPage.jsx:628:export default LeaderboardPage;
+src/pages/game-center/GameCenterPage.jsx:314:        {/* LEADERBOARD */}
+src/pages/game-center/GameCenterPage.jsx:320:              "/leaderboard/black-pearl-rush"
+src/games/runtime/gameRealtimeRuntime.js:58:        "game:leaderboard:update",
+src/games/runtime/gameRealtimeRuntime.js:66:            "[GAME REALTIME] LEADERBOARD",
+src/games/runtime/gameLeaderboardRuntime.js:5:class GameLeaderboardRuntime {
+src/games/runtime/gameLeaderboardRuntime.js:7:  async loadTop100() {
+src/games/runtime/gameLeaderboardRuntime.js:14:          `${import.meta.env.VITE_API_BASE_URL}/game/leaderboard`
+src/games/runtime/gameLeaderboardRuntime.js:20:        .setLeaderboard(
+src/games/runtime/gameLeaderboardRuntime.js:27:        "load game leaderboard failed",
+src/games/runtime/gameLeaderboardRuntime.js:37:const gameLeaderboardRuntime =
+src/games/runtime/gameLeaderboardRuntime.js:38:  new GameLeaderboardRuntime();
+src/games/runtime/gameLeaderboardRuntime.js:41:  gameLeaderboardRuntime;
+src/games/black-pearl-rush/index.jsx:17:    showLeaderboard,
+src/games/black-pearl-rush/index.jsx:18:    setShowLeaderboard,
+src/games/black-pearl-rush/index.jsx:22:  leaderboardData,
+src/games/black-pearl-rush/index.jsx:23:  setLeaderboardData
+src/games/black-pearl-rush/index.jsx:259:      leaderboard: [
+src/games/black-pearl-rush/index.jsx:286:    setLeaderboardData(
+src/games/black-pearl-rush/index.jsx:287:  [...game.leaderboard]
+src/games/black-pearl-rush/index.jsx:553:  game.leaderboard[0].score =
+src/games/black-pearl-rush/index.jsx:556:  setLeaderboardData([
+src/games/black-pearl-rush/index.jsx:557:    ...game.leaderboard
+src/games/black-pearl-rush/index.jsx:1374:       * LEADERBOARD BUTTON
+src/games/black-pearl-rush/index.jsx:1387:        setShowLeaderboard(
+src/games/black-pearl-rush/index.jsx:1562:              setShowLeaderboard(
+src/games/black-pearl-rush/index.jsx:1625:      {/* LEADERBOARD OVERLAY */}
+src/games/black-pearl-rush/index.jsx:1629:        showLeaderboard && (
+src/games/black-pearl-rush/index.jsx:1683:                    setShowLeaderboard(
+src/games/black-pearl-rush/index.jsx:1715:  leaderboardData
+src/games/components/GameLeaderboard.jsx:7:import gameLeaderboardRuntime from "@/game/runtime/gameLeaderboardRuntime";
+src/games/components/GameLeaderboard.jsx:9:function GameLeaderboard() {
+src/games/components/GameLeaderboard.jsx:11:  const leaderboard =
+src/games/components/GameLeaderboard.jsx:14:        state.leaderboard
+src/games/components/GameLeaderboard.jsx:19:    gameLeaderboardRuntime
+src/games/components/GameLeaderboard.jsx:20:      .loadTop100();
+src/games/components/GameLeaderboard.jsx:53:          leaderboard.map(
+src/games/components/GameLeaderboard.jsx:128:  GameLeaderboard;
+src/games/components/MyGameRankCard.jsx:3:function MyGameRankCard() {
+src/games/components/MyGameRankCard.jsx:50:  MyGameRankCard;
+src/customer/runtime/customerRealtimeHydrationRuntime.js:23:              rank:
+src/customer/runtime/customerRealtimeHydrationRuntime.js:24:                state.rank,
+src/customer/runtime/customerLeaderboardRuntime.js:3:class CustomerLeaderboardRuntime {
+src/customer/runtime/customerLeaderboardRuntime.js:5:  leaderboard =
+src/customer/runtime/customerLeaderboardRuntime.js:8:  setLeaderboard(
+src/customer/runtime/customerLeaderboardRuntime.js:12:    this.leaderboard =
+src/customer/runtime/customerLeaderboardRuntime.js:17:  getLeaderboard() {
+src/customer/runtime/customerLeaderboardRuntime.js:19:    return this.leaderboard;
+src/customer/runtime/customerLeaderboardRuntime.js:23:  syncMyRank(
+src/customer/runtime/customerLeaderboardRuntime.js:24:    rank
+src/customer/runtime/customerLeaderboardRuntime.js:29:      .setRank(
+src/customer/runtime/customerLeaderboardRuntime.js:30:        rank
+src/customer/runtime/customerLeaderboardRuntime.js:37:const customerLeaderboardRuntime =
+src/customer/runtime/customerLeaderboardRuntime.js:38:  new CustomerLeaderboardRuntime();
+src/customer/runtime/customerLeaderboardRuntime.js:41:  customerLeaderboardRuntime;
+src/customer/runtime/customerHydrationRuntime.js:59:        rank:
+src/customer/runtime/customerHydrationRuntime.js:60:          state.rank,
+src/customer/runtime/customerRankRuntime.js:3:class CustomerRankRuntime {
+src/customer/runtime/customerRankRuntime.js:5:  syncRank(
+src/customer/runtime/customerRankRuntime.js:11:      .setRank(
+src/customer/runtime/customerRankRuntime.js:12:        payload.rank
+src/customer/runtime/customerRankRuntime.js:19:const customerRankRuntime =
+src/customer/runtime/customerRankRuntime.js:20:  new CustomerRankRuntime();
+src/customer/runtime/customerRankRuntime.js:23:  customerRankRuntime;
+src/customer/components/TopSpendingLeaderboard.jsx:8:function TopSpendingLeaderboard() {
+src/customer/components/TopSpendingLeaderboard.jsx:11:    leaderboard,
+src/customer/components/TopSpendingLeaderboard.jsx:12:    setLeaderboard,
+src/customer/components/TopSpendingLeaderboard.jsx:24:            `${import.meta.env.VITE_API_BASE_URL}/leaderboard/top-spending`
+src/customer/components/TopSpendingLeaderboard.jsx:28:        setLeaderboard(
+src/customer/components/TopSpendingLeaderboard.jsx:35:          "load leaderboard failed",
+src/customer/components/TopSpendingLeaderboard.jsx:76:          leaderboard.map(
+src/customer/components/TopSpendingLeaderboard.jsx:153:  TopSpendingLeaderboard;
+src/customer/components/CustomerRankCard.jsx:3:function CustomerRankCard() {
+src/customer/components/CustomerRankCard.jsx:5:  const rank =
+src/customer/components/CustomerRankCard.jsx:8:        state.rank
+src/customer/components/CustomerRankCard.jsx:31:        Your Rank
+src/customer/components/CustomerRankCard.jsx:42:          rank || "--"
+src/customer/components/CustomerRankCard.jsx:53:  CustomerRankCard;
+src/router/AppRouter.jsx:77:const LeaderboardPage =
+src/router/AppRouter.jsx:79:    import("@/features/leaderboard")
+src/router/AppRouter.jsx:86:            module.LeaderboardPage,
+src/router/AppRouter.jsx:167:             LEADERBOARD
+src/router/AppRouter.jsx:171:              path="/leaderboard"
+src/router/AppRouter.jsx:173:                <LeaderboardPage />

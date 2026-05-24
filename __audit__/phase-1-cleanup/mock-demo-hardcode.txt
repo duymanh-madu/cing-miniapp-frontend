@@ -1,0 +1,31 @@
+src/infra/api/apiClient.js:13:      "http://localhost:5050",
+src/core/runtime-metrics/runtimeMemoryMonitor.js:36:   * MEMORY SAMPLE
+src/core/runtime-metrics/runtimeMemoryMonitor.js:40:  sampleMemoryUsage() {
+src/core/runtime-metrics/runtimeMemoryMonitor.js:101:        sampledAt:
+src/core/runtime-metrics/runtimeMemoryMonitor.js:176:            this.sampleMemoryUsage();
+src/features/auth/authService.js:3: * MOCK AUTH SERVICE
+src/runtime/crm/runtimeCrmEvaluationCycleEngine.ts:5:   * TODO:
+src/runtime/admin/runtimeAdminCrmImportEngine.ts:7:   * TODO:
+src/runtime/runtimeBootstrap.ts:199:     * TEMPORARY FALLBACK DATA
+src/runtime/runtimeBootstrap.ts:208:        "crm-demo-001",
+src/runtime/runtimeBootstrap.ts:211:        "0900000000",
+src/runtime/runtimeBootstrap.ts:214:        "Cing Customer",
+src/runtime/runtimeBootstrap.ts:361:     * TODO:
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:10:      "crm-demo-001",
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:13:      "Cing Customer",
+src/runtime/session/runtimeAuthHydrator.ts:16:        "runtime-demo-user",
+src/admin/auth/pages/AdminLoginPage.jsx:41:     * TODO:
+src/admin/auth/pages/AdminLoginPage.jsx:54:        "temporary-admin-token",
+src/admin/providers/AdminRuntimeProvider.jsx:29: * - no hardcode
+src/admin/providers/AdminRuntimeProvider.jsx:30: * - no fake data
+src/admin/cms/README_ARCHITECTURE.md:5:- No hardcode UI
+src/components/home/SystemDemoActions.jsx:49:function SystemDemoActions() {
+src/components/home/SystemDemoActions.jsx:115:export default SystemDemoActions;
+src/api/config/apiConfig.js:4:    "http://localhost:5050",
+src/modules/loyalty/runtimeLoyaltyProgressEngine.ts:7:   * TODO:
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:10:      "crm-demo-001",
+src/pages/checkout/CheckoutPage.jsx:207:          "demo-user",
+src/pages/checkout/CheckoutPage.jsx:213:          "0900000000",
+src/pages/checkout/CheckoutPage.jsx:257:            "0900000000",
+src/pages/LeaderboardPage.jsx:38:   * MOCK DATA
+src/services/http/httpClient.js:16:      "http://localhost:3000",

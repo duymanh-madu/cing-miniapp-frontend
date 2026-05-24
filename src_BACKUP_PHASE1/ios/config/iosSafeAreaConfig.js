@@ -1,0 +1,18 @@
+export const IOS_SAFE_AREA_CONFIG = {
+
+  ENABLE_SAFE_TOP:
+    true,
+
+  ENABLE_SAFE_BOTTOM:
+    true,
+
+  ENABLE_DYNAMIC_ISLAND_OFFSET:
+    true,
+
+  ENABLE_IOS_MOMENTUM_SCROLL:
+    true,
+
+  SAFE_HEADER_PADDING:
+    12,
+
+};

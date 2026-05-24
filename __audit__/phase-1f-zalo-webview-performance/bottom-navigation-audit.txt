@@ -1,0 +1,40 @@
+src/infra/api/campaign/campaignApi.js:268:     * NAVIGATION
+src/core/app-shell/customerAppShell.jsx:5:import DynamicBottomNavigation from "@/cms/components/DynamicBottomNavigation";
+src/layout/components/BottomNavigation.jsx:9:function BottomNavigation() {
+src/layout/components/BottomNavigation.jsx:123:  BottomNavigation
+src/features/system/systemNavigationRegistry.js:1:const systemNavigationRegistry = [
+src/features/system/systemNavigationRegistry.js:48:export default systemNavigationRegistry;
+src/admin/layouts/AdminSidebar.jsx:7: * ADMIN SIDEBAR NAVIGATION
+src/admin/layouts/AdminSidebar.jsx:12: * - scalable admin navigation
+src/admin/layouts/AdminSidebar.jsx:330:       * NAVIGATION
+src/ios/components/IosBottomSafeNavigation.jsx:5:function IosBottomSafeNavigation({
+src/ios/components/IosBottomSafeNavigation.jsx:41:  IosBottomSafeNavigation
+src/components/ui/AppContainer.jsx:18:          "var(--bottom-nav-safe-height)",
+src/components/navigation/BottomNavigation.jsx:7: * NAVIGATION ITEMS
+src/components/navigation/BottomNavigation.jsx:57: * BOTTOM NAVIGATION
+src/components/navigation/BottomNavigation.jsx:61:function BottomNavigation() {
+src/components/navigation/BottomNavigation.jsx:162:  BottomNavigation;
+src/components/system/systemNavigationRegistry.js:3: * SYSTEM NAVIGATION REGISTRY
+src/components/system/systemNavigationRegistry.js:7:const systemNavigationRegistry =
+src/components/system/systemNavigationRegistry.js:75:export default systemNavigationRegistry;
+src/components/header/AppHeader.jsx:15: * NAVIGATION ITEMS
+src/components/header/AppHeader.jsx:81:function NavigationItem({
+src/components/header/AppHeader.jsx:193: * BOTTOM NAVIGATION
+src/components/header/AppHeader.jsx:197:function BottomNavigation() {
+src/components/header/AppHeader.jsx:244:          <NavigationItem
+src/components/header/AppHeader.jsx:254:export default BottomNavigation;
+src/cms/runtime/navigationRuntime.js:3:class NavigationRuntime {
+src/cms/runtime/navigationRuntime.js:5:  getNavigation() {
+src/cms/runtime/navigationRuntime.js:9:        "navigation",
+src/cms/runtime/navigationRuntime.js:17:const navigationRuntime =
+src/cms/runtime/navigationRuntime.js:18:  new NavigationRuntime();
+src/cms/runtime/navigationRuntime.js:21:  navigationRuntime;
+src/performance/services/routePrefetchService.js:8: * - instant navigation
+src/services/platform/mobileViewportService.js:8: * - bottom navigation safe padding
+src/services/platform/mobileViewportService.js:122:      "--bottom-nav-safe-height",
+src/services/monitoring/performanceMonitoringService.js:23:        const navigation =
+src/services/monitoring/performanceMonitoringService.js:25:            "navigation"
+src/services/monitoring/performanceMonitoringService.js:32:              navigation?.domComplete,
+src/services/monitoring/performanceMonitoringService.js:35:              navigation?.loadEventEnd,
+src/services/monitoring/performanceMonitor.js:11:    navigation:
+src/services/monitoring/performanceMonitor.js:13:        .navigation ||

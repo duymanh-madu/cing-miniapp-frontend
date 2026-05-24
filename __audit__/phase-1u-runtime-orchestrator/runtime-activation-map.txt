@@ -1,0 +1,70 @@
+src/admin/behavior/behaviorRealtimeSocket.js:54:  initialize() {
+src/admin/ecosystem/ecosystemRealtimeSocket.js:13:  initialize() {
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:31:      .initialize();
+src/admin/payments/paymentRealtimeSocket.js:13:  initialize() {
+src/admin/devops/devopsRealtimeSocket.js:13:  initialize() {
+src/admin/ipos/iposRealtimeSocket.js:13:  initialize() {
+src/admin/ipos/pages/IposOperationsPage.jsx:31:      .initialize();
+src/admin/bootstrap/adminBootstrap.js:5:import moduleRegistry from "@/admin/config/moduleRegistry";
+src/admin/bootstrap/adminBootstrap.js:21:        moduleRegistry.has(
+src/admin/bootstrap/adminBootstrap.js:28:      moduleRegistry.register(
+src/admin/bootstrap/adminBootstrap.js:37:export async function bootstrapAdminLayer() {
+src/admin/bootstrap/adminBootstrap.js:42:    moduleRegistry.getActive();
+src/admin/bootstrap/adminBootstrap.js:51:        moduleRegistry.getAll().length,
+src/admin/customer360/customer360RealtimeSocket.js:13:  initialize() {
+src/admin/customer360/pages/Customer360Page.jsx:45:      .initialize();
+src/admin/config/moduleRegistry.js:14:class ModuleRegistry {
+src/admin/config/moduleRegistry.js:167:const moduleRegistry =
+src/admin/config/moduleRegistry.js:168:  new ModuleRegistry();
+src/admin/config/moduleRegistry.js:170:export default moduleRegistry;
+src/admin/security/securityRealtimeSocket.js:13:  initialize() {
+src/admin/providers/AdminAnalyticsProvider.jsx:23:      .initialize();
+src/admin/providers/AdminAnalyticsProvider.jsx:26:      .initialize();
+src/admin/providers/AdminAnalyticsProvider.jsx:29:      .initialize();
+src/admin/ai-agents/aiAgentRealtimeSocket.js:13:  initialize() {
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:31:      .initialize();
+src/admin/runtime/runtimeEngineRealtimeSocket.js:13:  initialize() {
+src/admin/loyalty/loyaltyRealtimeSocket.js:13:  initialize() {
+src/admin/loyalty/pages/LoyaltyPage.jsx:30:      .initialize();
+src/admin/franchise/franchiseRealtimeSocket.js:13:  initialize() {
+src/admin/franchise/pages/FranchiseManagementPage.jsx:31:      .initialize();
+src/admin/observability/observabilityRealtimeSocket.js:86:  initialize() {
+src/admin/observability/pages/ObservabilityPage.jsx:35:      .initialize();
+src/admin/operations/operationsRealtimeSocket.js:13:  initialize() {
+src/admin/alerts/alertRealtimeSocket.js:13:  initialize() {
+src/admin/dashboard/pages/AdminDashboardPage.jsx:30:      .initialize();
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:29:  initialize() {
+src/admin/realtime/components/RealtimeConnectionBadge.jsx:1:import useAdminRealtime from "../shared/hooks/useAdminRealtime";
+src/admin/realtime/components/RealtimeConnectionBadge.jsx:6:    useAdminRealtime();
+src/admin/realtime/hooks/useAdminRealtime.js:22:function useAdminRealtime() {
+src/admin/realtime/hooks/useAdminRealtime.js:177:  useAdminRealtime;
+src/admin/integrations/integrationRealtimeSocket.js:13:  initialize() {
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:13:  initialize() {
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:31:      .initialize();
+src/admin/layouts/components/AdminRealtimeStatus.jsx:1:import useAdminRealtime from "@/admin/realtime/shared/hooks/useAdminRealtime";
+src/admin/layouts/components/AdminRealtimeStatus.jsx:5:  const realtime = useAdminRealtime();
+src/admin/hooks/useAdminRealtime.js:11:export function useAdminRealtime() {
+src/admin/vouchers/pages/VoucherPage.jsx:30:      .initialize();
+src/admin/vouchers/voucherRealtimeSocket.js:13:  initialize() {
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:13:  initialize() {
+src/admin/automation/automationRealtimeSocket.js:29:  initialize() {
+src/admin/automation/components/pages/AutomationPage.jsx:33:      .initialize();
+src/admin/campaigns/campaignRealtimeSocket.js:13:  initialize() {
+src/admin/campaigns/pages/CampaignsPage.jsx:30:      .initialize();
+src/admin/orders/orderRealtimeSocket.js:67:  initialize() {
+src/admin/orders/pages/OrdersPage.jsx:31:      .initialize();
+src/admin/monitoring/socketMonitoringSocket.js:13:  initialize() {
+src/admin/monitoring/pages/RealtimeMonitoringPage.jsx:24:      .initialize();
+src/admin/events/eventFeedSocket.js:13:  initialize() {
+src/admin/builder/pageBuilderRealtimeSocket.js:13:  initialize() {
+src/admin/builder/pages/PageBuilderPage.jsx:43:      .initialize();
+src/admin/pages/AdminOperationsPage.jsx:2:  useAdminRealtime,
+src/admin/pages/AdminOperationsPage.jsx:3:} from "../shared/hooks/useAdminRealtime";
+src/admin/pages/AdminOperationsPage.jsx:13:  useAdminRealtime();
+src/admin/messaging/messageTimelineRealtimeSocket.js:13:  initialize() {
+src/admin/notifications/notificationRealtimeSocket.js:73:  initialize() {
+src/admin/notifications/pages/NotificationPage.jsx:33:      .initialize();
+src/admin/services/adminRealtimeBridge.js:36:  initialize() {
+src/admin/services/adminRealtimeBridge.js:173:    .initialize();
+src/admin/branches-runtime/branchRuntimeRealtimeSocket.js:13:  initialize() {
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:111:  initialize() {

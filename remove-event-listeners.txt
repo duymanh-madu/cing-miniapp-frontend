@@ -1,0 +1,16 @@
+src/api/hooks/useNetworkStatus.js:      window.removeEventListener(
+src/api/hooks/useNetworkStatus.js:      window.removeEventListener(
+src/auth/hooks/useVisibilitySessionRecovery.js:      document.removeEventListener(
+src/device/hooks/useAndroidRecovery.js:      window.removeEventListener(
+src/device/hooks/useMobileViewport.js:      window.removeEventListener(
+src/games/black-pearl-rush/index.jsx:      canvas.removeEventListener(
+src/ios/hooks/useIosSafeArea.js:      window.removeEventListener(
+src/mobile/hooks/useScrollOptimization.js:      window.removeEventListener(
+src/performance/hooks/useVisibilityRenderPause.js:      document.removeEventListener(
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:    document.removeEventListener(
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:    window.removeEventListener(
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:    window.removeEventListener(
+src/shared/hooks/useNetworkStatus.js:      window.removeEventListener(
+src/shared/hooks/useNetworkStatus.js:      window.removeEventListener(
+src/shared/hooks/useResponsive.js:      window.removeEventListener(
+src/stability/hooks/useSafeRecovery.js:      window.removeEventListener(

@@ -1,0 +1,18 @@
+export const PAYMENT_CONFIG = {
+
+  MAX_PAYMENT_RETRIES:
+    3,
+
+  PAYMENT_POLLING_MS:
+    5000,
+
+  PENDING_TIMEOUT_MS:
+    120000,
+
+  ENABLE_REALTIME_PAYMENT:
+    true,
+
+  ENABLE_PAYMENT_RECOVERY:
+    true,
+
+};

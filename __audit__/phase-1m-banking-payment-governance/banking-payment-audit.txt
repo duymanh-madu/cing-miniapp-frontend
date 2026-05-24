@@ -1,0 +1,10 @@
+src/pages/checkout/CheckoutPage.jsx:6:// MOMO + BANKING + REALTIME
+src/pages/checkout/CheckoutPage.jsx:202:      id: "BANKING",
+src/pages/checkout/CheckoutPage.jsx:208:        "QR Banking realtime",
+src/pages/checkout/CheckoutPage.jsx:320:            : "banking",
+src/pages/checkout/CheckoutPage.jsx:417:            : "banking",
+src/pages/checkout/CheckoutPage.jsx:521:       * BANKING FLOW
+src/pages/checkout/CheckoutPage.jsx:527:        "BANKING"
+src/pages/checkout/CheckoutPage.jsx:534:          "/payment/banking",
+src/pages/checkout/CheckoutPage.jsx:544:                  ?.qrCodeUrl ||
+src/pages/checkout/CheckoutPage.jsx:551:                  ?.qrCodeUrl ||

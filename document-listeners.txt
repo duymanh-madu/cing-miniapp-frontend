@@ -1,0 +1,9 @@
+src/auth/hooks/useVisibilitySessionRecovery.js:    document.addEventListener(
+src/core/visibility/visibilityRuntime.js:    document.addEventListener(
+src/core/webview/webviewRuntime.js:    document.addEventListener(
+src/performance/hooks/useVisibilityRenderPause.js:    document.addEventListener(
+src/runtime/lifecycle/runtimeVisibilityLifecycle.ts:  document.addEventListener(
+src/runtime/socket/runtimeSocketClient.ts:  document.addEventListener(
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:    document.addEventListener(
+src/services/platform/touchInteractionService.js:    document.addEventListener(
+src/services/platform/webviewLifecycleService.js:    document.addEventListener(

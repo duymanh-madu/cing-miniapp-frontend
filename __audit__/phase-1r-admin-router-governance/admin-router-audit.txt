@@ -1,0 +1,957 @@
+src/admin/router/adminRouter.jsx:12:  lazy(() =>
+src/admin/router/adminRouter.jsx:13:    import(
+src/admin/router/adminRouter.jsx:19:  lazy(() =>
+src/admin/router/adminRouter.jsx:20:    import(
+src/admin/router/adminRouter.jsx:26:  lazy(() =>
+src/admin/router/adminRouter.jsx:27:    import(
+src/admin/router/adminRouter.jsx:33:  lazy(() =>
+src/admin/router/adminRouter.jsx:34:    import(
+src/admin/router/adminRouter.jsx:41: * CAMPAIGN OPERATING SYSTEM
+src/admin/router/adminRouter.jsx:45:const CampaignsPage =
+src/admin/router/adminRouter.jsx:46:  lazy(() =>
+src/admin/router/adminRouter.jsx:47:    import(
+src/admin/router/adminRouter.jsx:48:      "@/admin/campaigns/pages/CampaignsPage"
+src/admin/router/adminRouter.jsx:52:const CampaignSchedulerPage =
+src/admin/router/adminRouter.jsx:53:  lazy(() =>
+src/admin/router/adminRouter.jsx:54:    import(
+src/admin/router/adminRouter.jsx:55:      "@/admin/scheduler/pages/CampaignSchedulerPage"
+src/admin/router/adminRouter.jsx:66:  lazy(() =>
+src/admin/router/adminRouter.jsx:67:    import(
+src/admin/router/adminRouter.jsx:79:  lazy(() =>
+src/admin/router/adminRouter.jsx:80:    import(
+src/admin/router/adminRouter.jsx:85:const Customer360Page =
+src/admin/router/adminRouter.jsx:86:  lazy(() =>
+src/admin/router/adminRouter.jsx:87:    import(
+src/admin/router/adminRouter.jsx:88:      "@/admin/customer360/pages/Customer360Page"
+src/admin/router/adminRouter.jsx:93:  lazy(() =>
+src/admin/router/adminRouter.jsx:94:    import(
+src/admin/router/adminRouter.jsx:106:  lazy(() =>
+src/admin/router/adminRouter.jsx:107:    import(
+src/admin/router/adminRouter.jsx:113:  lazy(() =>
+src/admin/router/adminRouter.jsx:114:    import(
+src/admin/router/adminRouter.jsx:121: * AI + AUTOMATION
+src/admin/router/adminRouter.jsx:126:  lazy(() =>
+src/admin/router/adminRouter.jsx:127:    import(
+src/admin/router/adminRouter.jsx:132:const AiInsightsPage =
+src/admin/router/adminRouter.jsx:133:  lazy(() =>
+src/admin/router/adminRouter.jsx:134:    import(
+src/admin/router/adminRouter.jsx:135:      "@/admin/ai/pages/AiInsightsPage"
+src/admin/router/adminRouter.jsx:146:  lazy(() =>
+src/admin/router/adminRouter.jsx:147:    import(
+src/admin/router/adminRouter.jsx:153:  lazy(() =>
+src/admin/router/adminRouter.jsx:154:    import(
+src/admin/router/adminRouter.jsx:166:  lazy(() =>
+src/admin/router/adminRouter.jsx:167:    import(
+src/admin/router/adminRouter.jsx:172:  const EcosystemPlatformPage =
+src/admin/router/adminRouter.jsx:173:  lazy(() =>
+src/admin/router/adminRouter.jsx:174:    import(
+src/admin/router/adminRouter.jsx:175:      "@/admin/ecosystem/pages/EcosystemPlatformPage"
+src/admin/router/adminRouter.jsx:179:  const AiAutonomousPage =
+src/admin/router/adminRouter.jsx:180:  lazy(() =>
+src/admin/router/adminRouter.jsx:181:    import(
+src/admin/router/adminRouter.jsx:182:      "@/admin/ai-agents/pages/AiAutonomousPage"
+src/admin/router/adminRouter.jsx:186:const AiRuntimePage =
+src/admin/router/adminRouter.jsx:187:  lazy(() =>
+src/admin/router/adminRouter.jsx:188:    import(
+src/admin/router/adminRouter.jsx:189:      "@/admin/ai-runtime/pages/AiRuntimePage"
+src/admin/router/adminRouter.jsx:194:  lazy(() =>
+src/admin/router/adminRouter.jsx:195:    import(
+src/admin/router/adminRouter.jsx:201:  lazy(() =>
+src/admin/router/adminRouter.jsx:202:    import(
+src/admin/router/adminRouter.jsx:208:  lazy(() =>
+src/admin/router/adminRouter.jsx:209:    import(
+src/admin/router/adminRouter.jsx:215:  lazy(() =>
+src/admin/router/adminRouter.jsx:216:    import(
+src/admin/router/adminRouter.jsx:222:  lazy(() =>
+src/admin/router/adminRouter.jsx:223:    import(
+src/admin/router/adminRouter.jsx:230:  lazy(() =>
+src/admin/router/adminRouter.jsx:231:    import(
+src/admin/router/adminRouter.jsx:236:const OrdersPage =
+src/admin/router/adminRouter.jsx:237:  lazy(() =>
+src/admin/router/adminRouter.jsx:238:    import(
+src/admin/router/adminRouter.jsx:239:      "@/admin/orders/pages/OrdersPage"
+src/admin/router/adminRouter.jsx:244:const IposOperationsPage =
+src/admin/router/adminRouter.jsx:245:  lazy(() =>
+src/admin/router/adminRouter.jsx:246:    import(
+src/admin/router/adminRouter.jsx:247:      "@/admin/ipos/pages/IposOperationsPage"
+src/admin/router/adminRouter.jsx:261:    "/admin/ecosystem",
+src/admin/router/adminRouter.jsx:264:    "ecosystem.read",
+src/admin/router/adminRouter.jsx:267:    EcosystemPlatformPage,
+src/admin/router/adminRouter.jsx:272:    "/admin/ai-autonomous",
+src/admin/router/adminRouter.jsx:275:    "ai.autonomous.read",
+src/admin/router/adminRouter.jsx:278:    AiAutonomousPage,
+src/admin/router/adminRouter.jsx:283:    "/admin/ai-runtime",
+src/admin/router/adminRouter.jsx:286:    "ai.runtime.read",
+src/admin/router/adminRouter.jsx:289:    AiRuntimePage,
+src/admin/router/adminRouter.jsx:364:    OrdersPage,
+src/admin/router/adminRouter.jsx:369:    "/admin/ipos",
+src/admin/router/adminRouter.jsx:371:    "ipos.read",
+src/admin/router/adminRouter.jsx:373:    IposOperationsPage,
+src/admin/router/adminRouter.jsx:423:   * CAMPAIGNS
+src/admin/router/adminRouter.jsx:429:      "/admin/campaigns",
+src/admin/router/adminRouter.jsx:432:      "campaigns.read",
+src/admin/router/adminRouter.jsx:435:      CampaignsPage,
+src/admin/router/adminRouter.jsx:440:      "/admin/campaign-scheduler",
+src/admin/router/adminRouter.jsx:443:      "campaign.scheduler.read",
+src/admin/router/adminRouter.jsx:446:      CampaignSchedulerPage,
+src/admin/router/adminRouter.jsx:485:      "/admin/customer360",
+src/admin/router/adminRouter.jsx:488:      "customer360.read",
+src/admin/router/adminRouter.jsx:491:      Customer360Page,
+src/admin/router/adminRouter.jsx:541:   * AI + AUTOMATION
+src/admin/router/adminRouter.jsx:558:      "/admin/ai",
+src/admin/router/adminRouter.jsx:561:      "ai.read",
+src/admin/router/adminRouter.jsx:564:      AiInsightsPage,
+src/admin/ecosystem/ecosystemRealtimeSocket.js:6:import useEcosystemStore from "./ecosystemStore";
+src/admin/ecosystem/ecosystemRealtimeSocket.js:8:class EcosystemRealtimeSocket {
+src/admin/ecosystem/ecosystemRealtimeSocket.js:34:      "admin:ecosystem:update",
+src/admin/ecosystem/ecosystemRealtimeSocket.js:40:        useEcosystemStore
+src/admin/ecosystem/ecosystemRealtimeSocket.js:57:const ecosystemRealtimeSocket =
+src/admin/ecosystem/ecosystemRealtimeSocket.js:58:  new EcosystemRealtimeSocket();
+src/admin/ecosystem/ecosystemRealtimeSocket.js:61:  ecosystemRealtimeSocket;
+src/admin/ecosystem/ecosystemBootstrap.js:1:import ecosystemService from "./ecosystemService";
+src/admin/ecosystem/ecosystemBootstrap.js:3:import useEcosystemStore from "./ecosystemStore";
+src/admin/ecosystem/ecosystemBootstrap.js:5:class EcosystemBootstrap {
+src/admin/ecosystem/ecosystemBootstrap.js:21:      useEcosystemStore
+src/admin/ecosystem/ecosystemBootstrap.js:32:        ecosystemApps,
+src/admin/ecosystem/ecosystemBootstrap.js:36:        ecosystemMetrics,
+src/admin/ecosystem/ecosystemBootstrap.js:38:      ] = await Promise.all([
+src/admin/ecosystem/ecosystemBootstrap.js:40:        ecosystemService
+src/admin/ecosystem/ecosystemBootstrap.js:41:          .getEcosystemApps(),
+src/admin/ecosystem/ecosystemBootstrap.js:43:        ecosystemService
+src/admin/ecosystem/ecosystemBootstrap.js:46:        ecosystemService
+src/admin/ecosystem/ecosystemBootstrap.js:47:          .getEcosystemMetrics(),
+src/admin/ecosystem/ecosystemBootstrap.js:51:      store.setEcosystemApps(
+src/admin/ecosystem/ecosystemBootstrap.js:52:        ecosystemApps
+src/admin/ecosystem/ecosystemBootstrap.js:59:      store.setEcosystemMetrics(
+src/admin/ecosystem/ecosystemBootstrap.js:60:        ecosystemMetrics
+src/admin/ecosystem/ecosystemBootstrap.js:78:const ecosystemBootstrap =
+src/admin/ecosystem/ecosystemBootstrap.js:79:  new EcosystemBootstrap();
+src/admin/ecosystem/ecosystemBootstrap.js:82:  ecosystemBootstrap;
+src/admin/ecosystem/components/EcosystemAppsGrid.jsx:1:function EcosystemAppsGrid({
+src/admin/ecosystem/components/EcosystemAppsGrid.jsx:80:  EcosystemAppsGrid;
+src/admin/ecosystem/ecosystemStore.js:5:const useEcosystemStore =
+src/admin/ecosystem/ecosystemStore.js:11:      ecosystemApps:
+src/admin/ecosystem/ecosystemStore.js:17:      ecosystemMetrics:
+src/admin/ecosystem/ecosystemStore.js:29:      setEcosystemApps:
+src/admin/ecosystem/ecosystemStore.js:31:          ecosystemApps
+src/admin/ecosystem/ecosystemStore.js:35:            ecosystemApps,
+src/admin/ecosystem/ecosystemStore.js:51:      setEcosystemMetrics:
+src/admin/ecosystem/ecosystemStore.js:53:          ecosystemMetrics
+src/admin/ecosystem/ecosystemStore.js:57:            ecosystemMetrics,
+src/admin/ecosystem/ecosystemStore.js:88:  useEcosystemStore;
+src/admin/ecosystem/ecosystemService.js:3:class EcosystemService {
+src/admin/ecosystem/ecosystemService.js:5:  async getEcosystemApps() {
+src/admin/ecosystem/ecosystemService.js:8:      await apiClient.get(
+src/admin/ecosystem/ecosystemService.js:9:        "/admin/ecosystem/apps"
+src/admin/ecosystem/ecosystemService.js:19:      await apiClient.get(
+src/admin/ecosystem/ecosystemService.js:20:        "/admin/ecosystem/federation"
+src/admin/ecosystem/ecosystemService.js:27:  async getEcosystemMetrics() {
+src/admin/ecosystem/ecosystemService.js:30:      await apiClient.get(
+src/admin/ecosystem/ecosystemService.js:31:        "/admin/ecosystem/metrics"
+src/admin/ecosystem/ecosystemService.js:40:const ecosystemService =
+src/admin/ecosystem/ecosystemService.js:41:  new EcosystemService();
+src/admin/ecosystem/ecosystemService.js:44:  ecosystemService;
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:5:import ecosystemBootstrap from "../ecosystemBootstrap";
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:7:import ecosystemRealtimeSocket from "../ecosystemRealtimeSocket";
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:9:import useEcosystemStore from "../ecosystemStore";
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:11:import EcosystemAppsGrid from "../components/EcosystemAppsGrid";
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:15:function EcosystemPlatformPage() {
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:19:    ecosystemApps,
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:23:  } = useEcosystemStore();
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:27:    ecosystemBootstrap
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:30:    ecosystemRealtimeSocket
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:49:        Ecosystem Operating Platform
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:52:      <EcosystemAppsGrid
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:54:          ecosystemApps
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:71:  EcosystemPlatformPage;
+src/admin/releases/releaseBootstrap.js:26:    ] = await Promise.all([
+src/admin/releases/releaseService.js:8:      await apiClient.get(
+src/admin/releases/releaseService.js:19:      await apiClient.get(
+src/admin/payments/paymentStore.js:5:const usePaymentStore =
+src/admin/payments/paymentStore.js:14:      realtimePayments:
+src/admin/payments/paymentStore.js:38:              realtimePayments: [
+src/admin/payments/paymentStore.js:42:                ...state.realtimePayments,
+src/admin/payments/paymentStore.js:58:  usePaymentStore;
+src/admin/payments/paymentRealtimeSocket.js:6:import usePaymentStore from "./paymentStore";
+src/admin/payments/paymentRealtimeSocket.js:40:        usePaymentStore
+src/admin/ipos/iposRealtimeSocket.js:6:import useIposStore from "./iposStore";
+src/admin/ipos/iposRealtimeSocket.js:8:class IposRealtimeSocket {
+src/admin/ipos/iposRealtimeSocket.js:34:      "admin:ipos:sync",
+src/admin/ipos/iposRealtimeSocket.js:40:        useIposStore
+src/admin/ipos/iposRealtimeSocket.js:57:const iposRealtimeSocket =
+src/admin/ipos/iposRealtimeSocket.js:58:  new IposRealtimeSocket();
+src/admin/ipos/iposRealtimeSocket.js:61:  iposRealtimeSocket;
+src/admin/ipos/iposStore.js:5:const useIposStore =
+src/admin/ipos/iposStore.js:72:  useIposStore;
+src/admin/ipos/iposService.js:3:class IposService {
+src/admin/ipos/iposService.js:8:      await apiClient.get(
+src/admin/ipos/iposService.js:9:        "/admin/ipos/status"
+src/admin/ipos/iposService.js:19:      await apiClient.get(
+src/admin/ipos/iposService.js:20:        "/admin/ipos/metrics"
+src/admin/ipos/iposService.js:29:const iposService =
+src/admin/ipos/iposService.js:30:  new IposService();
+src/admin/ipos/iposService.js:33:  iposService;
+src/admin/ipos/components/IposRealtimeFeed.jsx:1:function IposRealtimeFeed({
+src/admin/ipos/components/IposRealtimeFeed.jsx:22:        Realtime iPOS Sync
+src/admin/ipos/components/IposRealtimeFeed.jsx:93:  IposRealtimeFeed;
+src/admin/ipos/components/IposStatusCard.jsx:1:function IposStatusCard({
+src/admin/ipos/components/IposStatusCard.jsx:21:        iPOS Connection
+src/admin/ipos/components/IposStatusCard.jsx:53:  IposStatusCard;
+src/admin/ipos/iposBootstrap.js:1:import iposService from "./iposService";
+src/admin/ipos/iposBootstrap.js:3:import useIposStore from "./iposStore";
+src/admin/ipos/iposBootstrap.js:5:class IposBootstrap {
+src/admin/ipos/iposBootstrap.js:26:    ] = await Promise.all([
+src/admin/ipos/iposBootstrap.js:28:      iposService
+src/admin/ipos/iposBootstrap.js:31:      iposService
+src/admin/ipos/iposBootstrap.js:37:      useIposStore
+src/admin/ipos/iposBootstrap.js:55:const iposBootstrap =
+src/admin/ipos/iposBootstrap.js:56:  new IposBootstrap();
+src/admin/ipos/iposBootstrap.js:59:  iposBootstrap;
+src/admin/ipos/pages/IposOperationsPage.jsx:5:import iposBootstrap from "../iposBootstrap";
+src/admin/ipos/pages/IposOperationsPage.jsx:7:import iposRealtimeSocket from "../iposRealtimeSocket";
+src/admin/ipos/pages/IposOperationsPage.jsx:9:import useIposStore from "../iposStore";
+src/admin/ipos/pages/IposOperationsPage.jsx:11:import IposStatusCard from "../components/IposStatusCard";
+src/admin/ipos/pages/IposOperationsPage.jsx:13:import IposRealtimeFeed from "../components/IposRealtimeFeed";
+src/admin/ipos/pages/IposOperationsPage.jsx:15:function IposOperationsPage() {
+src/admin/ipos/pages/IposOperationsPage.jsx:23:  } = useIposStore();
+src/admin/ipos/pages/IposOperationsPage.jsx:27:    iposBootstrap
+src/admin/ipos/pages/IposOperationsPage.jsx:30:    iposRealtimeSocket
+src/admin/ipos/pages/IposOperationsPage.jsx:49:        iPOS Realtime Operations
+src/admin/ipos/pages/IposOperationsPage.jsx:52:      <IposStatusCard
+src/admin/ipos/pages/IposOperationsPage.jsx:58:      <IposRealtimeFeed
+src/admin/ipos/pages/IposOperationsPage.jsx:71:  IposOperationsPage;
+src/admin/bootstrap/adminBootstrap.js:5:import moduleRegistry from "@/admin/config/moduleRegistry";
+src/admin/bootstrap/adminBootstrap.js:7:import adminModuleManifest from "@/admin/config/modules/adminModuleManifest";
+src/admin/bootstrap/adminBootstrap.js:66:    await moduleDefinition.bootstrap();
+src/admin/customer360/customer360Store.js:5:const useCustomer360Store =
+src/admin/customer360/customer360Store.js:88:  useCustomer360Store;
+src/admin/customer360/customer360RealtimeSocket.js:6:import useCustomer360Store from "./customer360Store";
+src/admin/customer360/customer360RealtimeSocket.js:8:class Customer360RealtimeSocket {
+src/admin/customer360/customer360RealtimeSocket.js:41:          useCustomer360Store
+src/admin/customer360/customer360RealtimeSocket.js:59:const customer360RealtimeSocket =
+src/admin/customer360/customer360RealtimeSocket.js:60:  new Customer360RealtimeSocket();
+src/admin/customer360/customer360RealtimeSocket.js:63:  customer360RealtimeSocket;
+src/admin/customer360/customer360Bootstrap.js:1:import customer360Service from "./customer360Service";
+src/admin/customer360/customer360Bootstrap.js:3:import useCustomer360Store from "./customer360Store";
+src/admin/customer360/customer360Bootstrap.js:5:class Customer360Bootstrap {
+src/admin/customer360/customer360Bootstrap.js:21:      useCustomer360Store
+src/admin/customer360/customer360Bootstrap.js:31:        await customer360Service
+src/admin/customer360/customer360Bootstrap.js:53:const customer360Bootstrap =
+src/admin/customer360/customer360Bootstrap.js:54:  new Customer360Bootstrap();
+src/admin/customer360/customer360Bootstrap.js:57:  customer360Bootstrap;
+src/admin/customer360/customer360Service.js:3:class Customer360Service {
+src/admin/customer360/customer360Service.js:8:      await apiClient.get(
+src/admin/customer360/customer360Service.js:9:        "/admin/customer360/profiles"
+src/admin/customer360/customer360Service.js:16:  async getProfileDetails(
+src/admin/customer360/customer360Service.js:21:      await apiClient.get(
+src/admin/customer360/customer360Service.js:23:        `/admin/customer360/profiles/${memberId}`
+src/admin/customer360/customer360Service.js:36:      await apiClient.get(
+src/admin/customer360/customer360Service.js:38:        `/admin/customer360/timeline/${memberId}`
+src/admin/customer360/customer360Service.js:51:      await apiClient.get(
+src/admin/customer360/customer360Service.js:53:        `/admin/customer360/insights/${memberId}`
+src/admin/customer360/customer360Service.js:63:const customer360Service =
+src/admin/customer360/customer360Service.js:64:  new Customer360Service();
+src/admin/customer360/customer360Service.js:67:  customer360Service;
+src/admin/customer360/pages/Customer360Page.jsx:5:import customer360Bootstrap from "../customer360Bootstrap";
+src/admin/customer360/pages/Customer360Page.jsx:7:import customer360RealtimeSocket from "../customer360RealtimeSocket";
+src/admin/customer360/pages/Customer360Page.jsx:9:import customer360Service from "../customer360Service";
+src/admin/customer360/pages/Customer360Page.jsx:11:import useCustomer360Store from "../customer360Store";
+src/admin/customer360/pages/Customer360Page.jsx:19:function Customer360Page() {
+src/admin/customer360/pages/Customer360Page.jsx:37:  } = useCustomer360Store();
+src/admin/customer360/pages/Customer360Page.jsx:41:    customer360Bootstrap
+src/admin/customer360/pages/Customer360Page.jsx:44:    customer360RealtimeSocket
+src/admin/customer360/pages/Customer360Page.jsx:63:    ] = await Promise.all([
+src/admin/customer360/pages/Customer360Page.jsx:65:      customer360Service
+src/admin/customer360/pages/Customer360Page.jsx:70:      customer360Service
+src/admin/customer360/pages/Customer360Page.jsx:169:  Customer360Page;
+src/admin/config/runtimeConfigService.js:3:class RuntimeConfigService {
+src/admin/config/runtimeConfigService.js:8:      await apiClient.get(
+src/admin/config/runtimeConfigService.js:9:        "/app/config"
+src/admin/config/runtimeConfigService.js:21:      await apiClient.put(
+src/admin/config/runtimeConfigService.js:22:        "/admin/config",
+src/admin/config/runtimeConfigService.js:32:const runtimeConfigService =
+src/admin/config/runtimeConfigService.js:33:  new RuntimeConfigService();
+src/admin/config/runtimeConfigService.js:36:  runtimeConfigService;
+src/admin/config/runtimeConfigBootstrap.js:1:import runtimeConfigService from "./runtimeConfigService";
+src/admin/config/runtimeConfigBootstrap.js:3:import useRuntimeConfigStore from "./runtimeConfigStore";
+src/admin/config/runtimeConfigBootstrap.js:5:class RuntimeConfigBootstrap {
+src/admin/config/runtimeConfigBootstrap.js:21:      useRuntimeConfigStore
+src/admin/config/runtimeConfigBootstrap.js:30:      const config =
+src/admin/config/runtimeConfigBootstrap.js:31:        await runtimeConfigService
+src/admin/config/runtimeConfigBootstrap.js:34:      store.setConfig(
+src/admin/config/runtimeConfigBootstrap.js:35:        config
+src/admin/config/runtimeConfigBootstrap.js:53:const runtimeConfigBootstrap =
+src/admin/config/runtimeConfigBootstrap.js:54:  new RuntimeConfigBootstrap();
+src/admin/config/runtimeConfigBootstrap.js:57:  runtimeConfigBootstrap;
+src/admin/config/adminConfig.js:1:export const ADMIN_CONFIG = {
+src/admin/config/adminConfig.js:9:  MAX_CAMPAIGNS:
+src/admin/config/runtimeConfigStore.js:5:const useRuntimeConfigStore =
+src/admin/config/runtimeConfigStore.js:11:      config:
+src/admin/config/runtimeConfigStore.js:20:      setConfig:
+src/admin/config/runtimeConfigStore.js:22:          config
+src/admin/config/runtimeConfigStore.js:27:            config,
+src/admin/config/runtimeConfigStore.js:51:  useRuntimeConfigStore;
+src/admin/config/remoteConfigClient.js:3:class RemoteConfigClient {
+src/admin/config/remoteConfigClient.js:10:      await apiClient.get(
+src/admin/config/remoteConfigClient.js:11:        "/app/config"
+src/admin/config/remoteConfigClient.js:29:const remoteConfigClient =
+src/admin/config/remoteConfigClient.js:30:  new RemoteConfigClient();
+src/admin/config/remoteConfigClient.js:32:export default remoteConfigClient;
+src/admin/config/modules/adminModuleManifest.js:20:    domain: "commerce",
+src/admin/config/modules/adminModuleManifest.js:26:    key: "payments",
+src/admin/config/modules/adminModuleManifest.js:27:    name: "Payments",
+src/admin/config/modules/adminModuleManifest.js:28:    domain: "commerce",
+src/admin/config/modules/adminModuleManifest.js:34:    key: "ipos",
+src/admin/config/modules/adminModuleManifest.js:35:    name: "iPOS Runtime",
+src/admin/config/modules/adminModuleManifest.js:36:    domain: "integration",
+src/admin/config/modules/adminModuleManifest.js:42:    key: "customer360",
+src/admin/config/modules/adminModuleManifest.js:44:    domain: "crm",
+src/admin/config/modules/adminModuleManifest.js:50:    key: "config",
+src/admin/config/modules/adminModuleManifest.js:51:    name: "Runtime Config",
+src/admin/config/modules/adminModuleManifest.js:52:    domain: "runtime",
+src/admin/config/modules/adminModuleManifest.js:64:    key: "ecosystem",
+src/admin/config/modules/adminModuleManifest.js:65:    name: "Ecosystem",
+src/admin/config/modules/adminModuleManifest.js:66:    domain: "enterprise",
+src/admin/config/modules/adminModuleManifest.js:72:    key: "ai-runtime",
+src/admin/config/modules/adminModuleManifest.js:73:    name: "AI Runtime",
+src/admin/config/modules/adminModuleManifest.js:74:    domain: "ai",
+src/admin/config/modules/adminModuleManifest.js:80:    key: "ai-agents",
+src/admin/config/modules/adminModuleManifest.js:81:    name: "AI Agents",
+src/admin/config/modules/adminModuleManifest.js:82:    domain: "ai",
+src/admin/config/modules/adminModuleManifest.js:90:    domain: "enterprise",
+src/admin/config/modules/adminModuleManifest.js:98:    domain: "enterprise",
+src/admin/config/pages/RemoteConfigPage.jsx:5:import runtimeConfigBootstrap from "../runtimeConfigBootstrap";
+src/admin/config/pages/RemoteConfigPage.jsx:7:import useRuntimeConfigStore from "../runtimeConfigStore";
+src/admin/config/pages/RemoteConfigPage.jsx:9:function RemoteConfigPage() {
+src/admin/config/pages/RemoteConfigPage.jsx:11:  const config =
+src/admin/config/pages/RemoteConfigPage.jsx:12:    useRuntimeConfigStore(
+src/admin/config/pages/RemoteConfigPage.jsx:15:      ) => state.config
+src/admin/config/pages/RemoteConfigPage.jsx:20:    runtimeConfigBootstrap
+src/admin/config/pages/RemoteConfigPage.jsx:39:          config,
+src/admin/config/pages/RemoteConfigPage.jsx:53:  RemoteConfigPage;
+src/admin/config/moduleRegistry.js:9: * - dormant: available but not loaded by default
+src/admin/config/moduleRegistry.js:22:    domain,
+src/admin/config/moduleRegistry.js:45:      domain:
+src/admin/config/moduleRegistry.js:46:        domain || "admin",
+src/admin/triggers/triggerEngineService.js:10:      await apiClient.post(
+src/admin/triggers/triggerEngineService.js:24:      await apiClient.post(
+src/admin/triggers/triggerEngineService.js:38:      await apiClient.post(
+src/admin/triggers/components/TriggerActionPanel.jsx:7:    await triggerEngineService
+src/admin/triggers/components/TriggerActionPanel.jsx:11:          "campaign-runtime",
+src/admin/triggers/components/TriggerActionPanel.jsx:19:    await triggerEngineService
+src/admin/triggers/components/TriggerActionPanel.jsx:23:          "campaign-runtime",
+src/admin/triggers/components/TriggerActionPanel.jsx:31:    await triggerEngineService
+src/admin/triggers/components/TriggerActionPanel.jsx:35:          "campaign-runtime",
+src/admin/ai-orchestration/aiOrchestrationStore.js:5:const useAiOrchestrationStore =
+src/admin/ai-orchestration/aiOrchestrationStore.js:57:  useAiOrchestrationStore;
+src/admin/providers/AdminProvider.jsx:30:          await adminAuthService.getSession();
+src/admin/providers/AdminRuntimeProvider.jsx:7:import runtimeConfigBootstrap from "../config/runtimeConfigBootstrap";
+src/admin/providers/AdminRuntimeProvider.jsx:20: * - bootstrap runtime config
+src/admin/providers/AdminRuntimeProvider.jsx:33: * - remote config driven
+src/admin/providers/AdminRuntimeProvider.jsx:47:     * REMOTE CONFIG
+src/admin/providers/AdminRuntimeProvider.jsx:51:    runtimeConfigBootstrap
+src/admin/ai-agents/aiAgentRealtimeSocket.js:6:import useAiAgentStore from "./aiAgentStore";
+src/admin/ai-agents/aiAgentRealtimeSocket.js:8:class AiAgentRealtimeSocket {
+src/admin/ai-agents/aiAgentRealtimeSocket.js:34:      "admin:ai:autonomous-action",
+src/admin/ai-agents/aiAgentRealtimeSocket.js:40:        useAiAgentStore
+src/admin/ai-agents/aiAgentRealtimeSocket.js:52:      "admin:ai:recommendation",
+src/admin/ai-agents/aiAgentRealtimeSocket.js:58:        useAiAgentStore
+src/admin/ai-agents/aiAgentRealtimeSocket.js:75:const aiAgentRealtimeSocket =
+src/admin/ai-agents/aiAgentRealtimeSocket.js:76:  new AiAgentRealtimeSocket();
+src/admin/ai-agents/aiAgentRealtimeSocket.js:79:  aiAgentRealtimeSocket;
+src/admin/ai-agents/aiAgentStore.js:5:const useAiAgentStore =
+src/admin/ai-agents/aiAgentStore.js:11:      aiAgents:
+src/admin/ai-agents/aiAgentStore.js:29:      setAiAgents:
+src/admin/ai-agents/aiAgentStore.js:31:          aiAgents
+src/admin/ai-agents/aiAgentStore.js:35:            aiAgents,
+src/admin/ai-agents/aiAgentStore.js:118:  useAiAgentStore;
+src/admin/ai-agents/components/AutonomousActionFeed.jsx:22:        Autonomous AI Actions
+src/admin/ai-agents/components/AiAgentGrid.jsx:1:function AiAgentGrid({
+src/admin/ai-agents/components/AiAgentGrid.jsx:80:  AiAgentGrid;
+src/admin/ai-agents/aiAgentService.js:3:class AiAgentService {
+src/admin/ai-agents/aiAgentService.js:8:      await apiClient.get(
+src/admin/ai-agents/aiAgentService.js:9:        "/admin/ai-agents"
+src/admin/ai-agents/aiAgentService.js:19:      await apiClient.get(
+src/admin/ai-agents/aiAgentService.js:20:        "/admin/ai-agents/active"
+src/admin/ai-agents/aiAgentService.js:32:      await apiClient.post(
+src/admin/ai-agents/aiAgentService.js:33:        "/admin/ai-agents/actions",
+src/admin/ai-agents/aiAgentService.js:43:const aiAgentService =
+src/admin/ai-agents/aiAgentService.js:44:  new AiAgentService();
+src/admin/ai-agents/aiAgentService.js:47:  aiAgentService;
+src/admin/ai-agents/aiAgentBootstrap.js:1:import aiAgentService from "./aiAgentService";
+src/admin/ai-agents/aiAgentBootstrap.js:3:import useAiAgentStore from "./aiAgentStore";
+src/admin/ai-agents/aiAgentBootstrap.js:5:class AiAgentBootstrap {
+src/admin/ai-agents/aiAgentBootstrap.js:21:      useAiAgentStore
+src/admin/ai-agents/aiAgentBootstrap.js:32:        aiAgents,
+src/admin/ai-agents/aiAgentBootstrap.js:36:      ] = await Promise.all([
+src/admin/ai-agents/aiAgentBootstrap.js:38:        aiAgentService
+src/admin/ai-agents/aiAgentBootstrap.js:41:        aiAgentService
+src/admin/ai-agents/aiAgentBootstrap.js:46:      store.setAiAgents(
+src/admin/ai-agents/aiAgentBootstrap.js:47:        aiAgents
+src/admin/ai-agents/aiAgentBootstrap.js:69:const aiAgentBootstrap =
+src/admin/ai-agents/aiAgentBootstrap.js:70:  new AiAgentBootstrap();
+src/admin/ai-agents/aiAgentBootstrap.js:73:  aiAgentBootstrap;
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:5:import aiAgentBootstrap from "../aiAgentBootstrap";
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:7:import aiAgentRealtimeSocket from "../aiAgentRealtimeSocket";
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:9:import useAiAgentStore from "../aiAgentStore";
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:11:import AiAgentGrid from "../components/AiAgentGrid";
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:15:function AiAutonomousPage() {
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:19:    aiAgents,
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:23:  } = useAiAgentStore();
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:27:    aiAgentBootstrap
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:30:    aiAgentRealtimeSocket
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:49:        Autonomous AI Operating Platform
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:52:      <AiAgentGrid
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:54:          aiAgents
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:71:  AiAutonomousPage;
+src/admin/distribution/distributionStore.js:11:      campaignDistributions:
+src/admin/distribution/distributionStore.js:20:      setCampaignDistributions:
+src/admin/distribution/distributionStore.js:22:          campaignDistributions
+src/admin/distribution/distributionStore.js:26:            campaignDistributions,
+src/admin/error-boundary/EnterpriseErrorBoundary.jsx:89:              Runtime Failure
+src/admin/workflows/workflowBuilderService.js:10:      await apiClient.get(
+src/admin/workflows/workflowBuilderService.js:25:      await apiClient.post(
+src/admin/scheduler/campaignSchedulerService.js:3:class CampaignSchedulerService {
+src/admin/scheduler/campaignSchedulerService.js:8:      await apiClient.get(
+src/admin/scheduler/campaignSchedulerService.js:9:        "/admin/campaign-schedules"
+src/admin/scheduler/campaignSchedulerService.js:21:      await apiClient.post(
+src/admin/scheduler/campaignSchedulerService.js:22:        "/admin/campaign-schedules",
+src/admin/scheduler/campaignSchedulerService.js:32:const campaignSchedulerService =
+src/admin/scheduler/campaignSchedulerService.js:33:  new CampaignSchedulerService();
+src/admin/scheduler/campaignSchedulerService.js:36:  campaignSchedulerService;
+src/admin/scheduler/campaignSchedulerBootstrap.js:1:import campaignSchedulerService from "./campaignSchedulerService";
+src/admin/scheduler/campaignSchedulerBootstrap.js:3:import useCampaignSchedulerStore from "./campaignSchedulerStore";
+src/admin/scheduler/campaignSchedulerBootstrap.js:5:class CampaignSchedulerBootstrap {
+src/admin/scheduler/campaignSchedulerBootstrap.js:21:      await campaignSchedulerService
+src/admin/scheduler/campaignSchedulerBootstrap.js:24:    useCampaignSchedulerStore
+src/admin/scheduler/campaignSchedulerBootstrap.js:37:const campaignSchedulerBootstrap =
+src/admin/scheduler/campaignSchedulerBootstrap.js:38:  new CampaignSchedulerBootstrap();
+src/admin/scheduler/campaignSchedulerBootstrap.js:41:  campaignSchedulerBootstrap;
+src/admin/scheduler/components/CampaignScheduleCard.jsx:1:function CampaignScheduleCard({
+src/admin/scheduler/components/CampaignScheduleCard.jsx:69:  CampaignScheduleCard;
+src/admin/scheduler/components/CampaignSchedulerForm.jsx:5:import campaignSchedulerService from "../campaignSchedulerService";
+src/admin/scheduler/components/CampaignSchedulerForm.jsx:7:function CampaignSchedulerForm() {
+src/admin/scheduler/components/CampaignSchedulerForm.jsx:25:    await campaignSchedulerService
+src/admin/scheduler/components/CampaignSchedulerForm.jsx:107:  CampaignSchedulerForm;
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:5:import campaignSchedulerBootstrap from "../campaignSchedulerBootstrap";
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:7:import useCampaignSchedulerStore from "../campaignSchedulerStore";
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:9:import CampaignSchedulerForm from "../components/CampaignSchedulerForm";
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:11:import CampaignScheduleCard from "../components/CampaignScheduleCard";
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:13:function CampaignSchedulerPage() {
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:16:    useCampaignSchedulerStore(
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:24:    campaignSchedulerBootstrap
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:43:        Campaign Scheduler
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:46:      <CampaignSchedulerForm />
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:61:              <CampaignScheduleCard
+src/admin/scheduler/pages/CampaignSchedulerPage.jsx:85:  CampaignSchedulerPage;
+src/admin/scheduler/campaignSchedulerStore.js:5:const useCampaignSchedulerStore =
+src/admin/scheduler/campaignSchedulerStore.js:29:  useCampaignSchedulerStore;
+src/admin/loyalty/loyaltyBootstrap.js:36:      ] = await Promise.all([
+src/admin/loyalty/components/RewardBuilderForm.jsx:25:    await loyaltyService
+src/admin/loyalty/loyaltyService.js:8:      await apiClient.get(
+src/admin/loyalty/loyaltyService.js:19:      await apiClient.get(
+src/admin/loyalty/loyaltyService.js:32:      await apiClient.post(
+src/admin/loyalty/loyaltyService.js:46:      await apiClient.post(
+src/admin/franchise/franchiseBootstrap.js:38:      ] = await Promise.all([
+src/admin/franchise/franchiseService.js:8:      await apiClient.get(
+src/admin/franchise/franchiseService.js:19:      await apiClient.get(
+src/admin/franchise/franchiseService.js:30:      await apiClient.get(
+src/admin/observability/observabilityService.js:8:      await apiClient.get(
+src/admin/observability/observabilityService.js:19:      await apiClient.get(
+src/admin/observability/observabilityService.js:30:      await apiClient.get(
+src/admin/observability/observabilityService.js:41:      await apiClient.get(
+src/admin/observability/observabilityService.js:52:      await apiClient.get(
+src/admin/observability/observabilityBootstrap.js:42:      ] = await Promise.all([
+src/admin/tenants/tenantStore.js:20:      distributedConfig:
+src/admin/tenants/tenantStore.js:56:      setDistributedConfig:
+src/admin/tenants/tenantStore.js:58:          distributedConfig
+src/admin/tenants/tenantStore.js:62:            distributedConfig,
+src/admin/tenants/tenantService.js:8:      await apiClient.get(
+src/admin/tenants/tenantService.js:19:      await apiClient.get(
+src/admin/tenants/tenantService.js:27:  async getDistributedConfig() {
+src/admin/tenants/tenantService.js:30:      await apiClient.get(
+src/admin/tenants/tenantService.js:31:        "/admin/tenants/config"
+src/admin/tenants/tenantBootstrap.js:26:      distributedConfig,
+src/admin/tenants/tenantBootstrap.js:28:    ] = await Promise.all([
+src/admin/tenants/tenantBootstrap.js:37:        .getDistributedConfig(),
+src/admin/tenants/tenantBootstrap.js:53:    store.setDistributedConfig(
+src/admin/tenants/tenantBootstrap.js:54:      distributedConfig
+src/admin/tenants/components/DistributedConfigViewer.jsx:1:function DistributedConfigViewer({
+src/admin/tenants/components/DistributedConfigViewer.jsx:2:  distributedConfig,
+src/admin/tenants/components/DistributedConfigViewer.jsx:22:        Distributed Runtime Config
+src/admin/tenants/components/DistributedConfigViewer.jsx:36:            distributedConfig,
+src/admin/tenants/components/DistributedConfigViewer.jsx:52:  DistributedConfigViewer;
+src/admin/tenants/pages/TenantManagementPage.jsx:11:import DistributedConfigViewer from "../components/DistributedConfigViewer";
+src/admin/tenants/pages/TenantManagementPage.jsx:19:    distributedConfig,
+src/admin/tenants/pages/TenantManagementPage.jsx:53:      <DistributedConfigViewer
+src/admin/tenants/pages/TenantManagementPage.jsx:54:        distributedConfig={
+src/admin/tenants/pages/TenantManagementPage.jsx:55:          distributedConfig
+src/admin/engagement/engagementService.js:8:      await apiClient.get(
+src/admin/engagement/engagementService.js:19:      await apiClient.get(
+src/admin/dashboard/pages/AdminDashboardPage.jsx:74:          label="Campaigns"
+src/admin/dashboard/pages/AdminDashboardPage.jsx:76:            metrics.activeCampaigns
+src/admin/schema/schemaDesignerService.js:8:      await apiClient.get(
+src/admin/schema/schemaDesignerService.js:21:      await apiClient.post(
+src/admin/schema/schemaDesignerBootstrap.js:21:      await schemaDesignerService
+src/admin/components/AdminCampaignList.jsx:9:function AdminCampaignList() {
+src/admin/components/AdminCampaignList.jsx:11:  const campaigns =
+src/admin/components/AdminCampaignList.jsx:14:        state.campaigns
+src/admin/components/AdminCampaignList.jsx:44:        Campaigns
+src/admin/components/AdminCampaignList.jsx:54:          campaigns.map(
+src/admin/components/AdminCampaignList.jsx:55:            (campaign) => (
+src/admin/components/AdminCampaignList.jsx:58:                key={campaign.id}
+src/admin/components/AdminCampaignList.jsx:86:                    {campaign.title}
+src/admin/components/AdminCampaignList.jsx:101:                    {campaign.status}
+src/admin/components/AdminCampaignList.jsx:123:  AdminCampaignList
+src/admin/ai-runtime/aiRuntimeService.js:3:class AiRuntimeService {
+src/admin/ai-runtime/aiRuntimeService.js:8:      await apiClient.get(
+src/admin/ai-runtime/aiRuntimeService.js:9:        "/admin/ai-runtime/models"
+src/admin/ai-runtime/aiRuntimeService.js:19:      await apiClient.get(
+src/admin/ai-runtime/aiRuntimeService.js:20:        "/admin/ai-runtime/metrics"
+src/admin/ai-runtime/aiRuntimeService.js:29:const aiRuntimeService =
+src/admin/ai-runtime/aiRuntimeService.js:30:  new AiRuntimeService();
+src/admin/ai-runtime/aiRuntimeService.js:33:  aiRuntimeService;
+src/admin/ai-runtime/aiRuntimeBootstrap.js:1:import aiRuntimeService from "./aiRuntimeService";
+src/admin/ai-runtime/aiRuntimeBootstrap.js:3:import useAiRuntimeStore from "./aiRuntimeStore";
+src/admin/ai-runtime/aiRuntimeBootstrap.js:5:class AiRuntimeBootstrap {
+src/admin/ai-runtime/aiRuntimeBootstrap.js:21:      useAiRuntimeStore
+src/admin/ai-runtime/aiRuntimeBootstrap.js:28:      aiRuntimeMetrics,
+src/admin/ai-runtime/aiRuntimeBootstrap.js:30:    ] = await Promise.all([
+src/admin/ai-runtime/aiRuntimeBootstrap.js:32:      aiRuntimeService
+src/admin/ai-runtime/aiRuntimeBootstrap.js:35:      aiRuntimeService
+src/admin/ai-runtime/aiRuntimeBootstrap.js:44:    store.setAiRuntimeMetrics(
+src/admin/ai-runtime/aiRuntimeBootstrap.js:45:      aiRuntimeMetrics
+src/admin/ai-runtime/aiRuntimeBootstrap.js:55:const aiRuntimeBootstrap =
+src/admin/ai-runtime/aiRuntimeBootstrap.js:56:  new AiRuntimeBootstrap();
+src/admin/ai-runtime/aiRuntimeBootstrap.js:59:  aiRuntimeBootstrap;
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:6:import useAiRuntimeStore from "./aiRuntimeStore";
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:8:class AiRuntimeRealtimeSocket {
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:34:      "admin:ai:inference",
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:40:        useAiRuntimeStore
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:57:const aiRuntimeRealtimeSocket =
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:58:  new AiRuntimeRealtimeSocket();
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:61:  aiRuntimeRealtimeSocket;
+src/admin/ai-runtime/aiRuntimeStore.js:5:const useAiRuntimeStore =
+src/admin/ai-runtime/aiRuntimeStore.js:17:      aiRuntimeMetrics:
+src/admin/ai-runtime/aiRuntimeStore.js:45:      setAiRuntimeMetrics:
+src/admin/ai-runtime/aiRuntimeStore.js:47:          aiRuntimeMetrics
+src/admin/ai-runtime/aiRuntimeStore.js:51:            aiRuntimeMetrics,
+src/admin/ai-runtime/aiRuntimeStore.js:86:  useAiRuntimeStore;
+src/admin/ai-runtime/components/AiRuntimeMetricsGrid.jsx:1:function AiRuntimeMetricsGrid({
+src/admin/ai-runtime/components/AiRuntimeMetricsGrid.jsx:110:          AI Accuracy
+src/admin/ai-runtime/components/AiRuntimeMetricsGrid.jsx:131:  AiRuntimeMetricsGrid;
+src/admin/ai-runtime/components/AiInferenceFeed.jsx:1:function AiInferenceFeed({
+src/admin/ai-runtime/components/AiInferenceFeed.jsx:22:        AI Inference Runtime
+src/admin/ai-runtime/components/AiInferenceFeed.jsx:93:  AiInferenceFeed;
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:5:import aiRuntimeBootstrap from "../aiRuntimeBootstrap";
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:7:import aiRuntimeRealtimeSocket from "../aiRuntimeRealtimeSocket";
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:9:import useAiRuntimeStore from "../aiRuntimeStore";
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:11:import AiRuntimeMetricsGrid from "../components/AiRuntimeMetricsGrid";
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:13:import AiInferenceFeed from "../components/AiInferenceFeed";
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:15:function AiRuntimePage() {
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:19:    aiRuntimeMetrics,
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:23:  } = useAiRuntimeStore();
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:27:    aiRuntimeBootstrap
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:30:    aiRuntimeRealtimeSocket
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:49:        AI Runtime Operating Platform
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:52:      <AiRuntimeMetricsGrid
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:54:          aiRuntimeMetrics
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:58:      <AiInferenceFeed
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:71:  AiRuntimePage;
+src/admin/AdminApp.jsx:17:  lazy(() =>
+src/admin/AdminApp.jsx:18:    import(
+src/admin/AdminApp.jsx:24:  lazy(() =>
+src/admin/AdminApp.jsx:25:    import(
+src/admin/AdminApp.jsx:43:            path="/login"
+src/admin/AdminApp.jsx:44:            element={
+src/admin/AdminApp.jsx:50:            path="/dashboard"
+src/admin/AdminApp.jsx:51:            element={
+src/admin/AdminApp.jsx:63:            path="*"
+src/admin/AdminApp.jsx:64:            element={
+src/admin/cms/cmsService.js:8:      await apiClient.get(
+src/admin/cms/cmsService.js:25:      await apiClient.put(
+src/admin/cms/README_ARCHITECTURE.md:50:- campaign-banner
+src/admin/cms/cmsBootstrap.js:31:        await cmsService
+src/admin/layouts/AdminLayout.jsx:22:        <main className="flex-1 overflow-y-auto p-4">
+src/admin/layouts/AdminLayout.jsx:24:        </main>
+src/admin/layouts/components/AdminHeader.jsx:17:          {session?.email}
+src/admin/layouts/components/AdminSidebar.jsx:17:    "AI Platform",
+src/admin/layouts/components/AdminSidebar.jsx:20:    "/admin/ai",
+src/admin/layouts/components/AdminSidebar.jsx:34:    label: "Campaigns",
+src/admin/layouts/components/AdminSidebar.jsx:35:    path: "/admin/campaigns",
+src/admin/layouts/AdminSidebar.jsx:15: * - campaign operating system
+src/admin/layouts/AdminSidebar.jsx:26:    "Ecosystem",
+src/admin/layouts/AdminSidebar.jsx:29:    "/admin/ecosystem",
+src/admin/layouts/AdminSidebar.jsx:34:    "AI Autonomous",
+src/admin/layouts/AdminSidebar.jsx:37:    "/admin/ai-autonomous",
+src/admin/layouts/AdminSidebar.jsx:42:    "AI Runtime",
+src/admin/layouts/AdminSidebar.jsx:45:    "/admin/ai-runtime",
+src/admin/layouts/AdminSidebar.jsx:105:    "iPOS Runtime",
+src/admin/layouts/AdminSidebar.jsx:107:    "/admin/ipos",
+src/admin/layouts/AdminSidebar.jsx:121:    "/admin/customer360",
+src/admin/layouts/AdminSidebar.jsx:146:   * CAMPAIGNS
+src/admin/layouts/AdminSidebar.jsx:152:      "Campaigns",
+src/admin/layouts/AdminSidebar.jsx:155:      "/admin/campaigns",
+src/admin/layouts/AdminSidebar.jsx:160:      "Campaign Scheduler",
+src/admin/layouts/AdminSidebar.jsx:163:      "/admin/campaign-scheduler",
+src/admin/ai/aiInsightsStore.js:5:const useAiInsightsStore =
+src/admin/ai/aiInsightsStore.js:14:      aiInsights:
+src/admin/ai/aiInsightsStore.js:17:      aiPredictions:
+src/admin/ai/aiInsightsStore.js:31:      setAiInsights:
+src/admin/ai/aiInsightsStore.js:33:          aiInsights
+src/admin/ai/aiInsightsStore.js:37:            aiInsights,
+src/admin/ai/aiInsightsStore.js:42:      setAiPredictions:
+src/admin/ai/aiInsightsStore.js:44:          aiPredictions
+src/admin/ai/aiInsightsStore.js:48:            aiPredictions,
+src/admin/ai/aiInsightsStore.js:57:  useAiInsightsStore;
+src/admin/ai/aiInsightsBootstrap.js:1:import aiInsightsService from "./aiInsightsService";
+src/admin/ai/aiInsightsBootstrap.js:3:import useAiInsightsStore from "./aiInsightsStore";
+src/admin/ai/aiInsightsBootstrap.js:5:class AiInsightsBootstrap {
+src/admin/ai/aiInsightsBootstrap.js:24:      aiInsights,
+src/admin/ai/aiInsightsBootstrap.js:26:      aiPredictions,
+src/admin/ai/aiInsightsBootstrap.js:28:    ] = await Promise.all([
+src/admin/ai/aiInsightsBootstrap.js:30:      aiInsightsService
+src/admin/ai/aiInsightsBootstrap.js:33:      aiInsightsService
+src/admin/ai/aiInsightsBootstrap.js:36:      aiInsightsService
+src/admin/ai/aiInsightsBootstrap.js:42:      useAiInsightsStore
+src/admin/ai/aiInsightsBootstrap.js:49:    store.setAiInsights(
+src/admin/ai/aiInsightsBootstrap.js:50:      aiInsights
+src/admin/ai/aiInsightsBootstrap.js:53:    store.setAiPredictions(
+src/admin/ai/aiInsightsBootstrap.js:54:      aiPredictions
+src/admin/ai/aiInsightsBootstrap.js:64:const aiInsightsBootstrap =
+src/admin/ai/aiInsightsBootstrap.js:65:  new AiInsightsBootstrap();
+src/admin/ai/aiInsightsBootstrap.js:68:  aiInsightsBootstrap;
+src/admin/ai/components/AiRecommendationPanel.jsx:1:function AiRecommendationPanel({
+src/admin/ai/components/AiRecommendationPanel.jsx:22:        AI Recommendations
+src/admin/ai/components/AiRecommendationPanel.jsx:83:  AiRecommendationPanel;
+src/admin/ai/components/AiPredictionPanel.jsx:1:function AiPredictionPanel({
+src/admin/ai/components/AiPredictionPanel.jsx:22:        AI Predictions
+src/admin/ai/components/AiPredictionPanel.jsx:85:  AiPredictionPanel;
+src/admin/ai/components/AiInsightFeed.jsx:1:function AiInsightFeed({
+src/admin/ai/components/AiInsightFeed.jsx:22:        AI Insight Feed
+src/admin/ai/components/AiInsightFeed.jsx:93:  AiInsightFeed;
+src/admin/ai/aiInsightsService.js:3:class AiInsightsService {
+src/admin/ai/aiInsightsService.js:8:      await apiClient.get(
+src/admin/ai/aiInsightsService.js:9:        "/admin/ai/recommendations"
+src/admin/ai/aiInsightsService.js:19:      await apiClient.get(
+src/admin/ai/aiInsightsService.js:20:        "/admin/ai/insights"
+src/admin/ai/aiInsightsService.js:30:      await apiClient.get(
+src/admin/ai/aiInsightsService.js:31:        "/admin/ai/predictions"
+src/admin/ai/aiInsightsService.js:40:const aiInsightsService =
+src/admin/ai/aiInsightsService.js:41:  new AiInsightsService();
+src/admin/ai/aiInsightsService.js:44:  aiInsightsService;
+src/admin/ai/pages/AiInsightsPage.jsx:5:import aiInsightsBootstrap from "../aiInsightsBootstrap";
+src/admin/ai/pages/AiInsightsPage.jsx:7:import useAiInsightsStore from "../aiInsightsStore";
+src/admin/ai/pages/AiInsightsPage.jsx:9:import AiRecommendationPanel from "../components/AiRecommendationPanel";
+src/admin/ai/pages/AiInsightsPage.jsx:11:import AiPredictionPanel from "../components/AiPredictionPanel";
+src/admin/ai/pages/AiInsightsPage.jsx:13:import AiInsightFeed from "../components/AiInsightFeed";
+src/admin/ai/pages/AiInsightsPage.jsx:15:function AiInsightsPage() {
+src/admin/ai/pages/AiInsightsPage.jsx:21:    aiInsights,
+src/admin/ai/pages/AiInsightsPage.jsx:23:    aiPredictions,
+src/admin/ai/pages/AiInsightsPage.jsx:25:  } = useAiInsightsStore();
+src/admin/ai/pages/AiInsightsPage.jsx:29:    aiInsightsBootstrap
+src/admin/ai/pages/AiInsightsPage.jsx:48:        AI Operating Platform
+src/admin/ai/pages/AiInsightsPage.jsx:51:      <AiRecommendationPanel
+src/admin/ai/pages/AiInsightsPage.jsx:57:      <AiPredictionPanel
+src/admin/ai/pages/AiInsightsPage.jsx:59:          aiPredictions
+src/admin/ai/pages/AiInsightsPage.jsx:63:      <AiInsightFeed
+src/admin/ai/pages/AiInsightsPage.jsx:65:          aiInsights
+src/admin/ai/pages/AiInsightsPage.jsx:76:  AiInsightsPage;
+src/admin/partners/partnerService.js:9:      await apiClient.get(
+src/admin/partners/partnerService.js:20:      await apiClient.get(
+src/admin/partners/partnerBootstrap.js:26:    ] = await Promise.all([
+src/admin/vouchers/voucherService.js:8:      await apiClient.get(
+src/admin/vouchers/voucherService.js:21:      await apiClient.post(
+src/admin/vouchers/voucherBootstrap.js:31:        await voucherService
+src/admin/vouchers/components/VoucherBuilderForm.jsx:25:    await voucherService
+src/admin/orchestration/campaignOrchestrationService.js:3:class CampaignOrchestrationService {
+src/admin/orchestration/campaignOrchestrationService.js:8:      await apiClient.get(
+src/admin/orchestration/campaignOrchestrationService.js:9:        "/admin/campaign-workflows"
+src/admin/orchestration/campaignOrchestrationService.js:21:      await apiClient.post(
+src/admin/orchestration/campaignOrchestrationService.js:22:        "/admin/campaign-workflows/execute",
+src/admin/orchestration/campaignOrchestrationService.js:32:const campaignOrchestrationService =
+src/admin/orchestration/campaignOrchestrationService.js:33:  new CampaignOrchestrationService();
+src/admin/orchestration/campaignOrchestrationService.js:36:  campaignOrchestrationService;
+src/admin/orchestration/campaignOrchestrationStore.js:5:const useCampaignOrchestrationStore =
+src/admin/orchestration/campaignOrchestrationStore.js:29:  useCampaignOrchestrationStore;
+src/admin/delivery/deliveryRetryStore.js:11:      failedDeliveries:
+src/admin/delivery/deliveryRetryStore.js:17:      setFailedDeliveries:
+src/admin/delivery/deliveryRetryStore.js:19:          failedDeliveries
+src/admin/delivery/deliveryRetryStore.js:23:            failedDeliveries,
+src/admin/members/memberService.js:8:      await apiClient.get(
+src/admin/members/memberService.js:19:      await apiClient.get(
+src/admin/members/memberBootstrap.js:26:    ] = await Promise.all([
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:6:import useAiDecisionStore from "./aiDecisionStore";
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:8:class AiDecisionRealtimeSocket {
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:34:      "admin:ai:anomaly",
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:40:        useAiDecisionStore
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:57:const aiDecisionRealtimeSocket =
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:58:  new AiDecisionRealtimeSocket();
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:61:  aiDecisionRealtimeSocket;
+src/admin/ai-decisions/aiDecisionStore.js:5:const useAiDecisionStore =
+src/admin/ai-decisions/aiDecisionStore.js:11:      aiDecisions:
+src/admin/ai-decisions/aiDecisionStore.js:14:      aiPredictions:
+src/admin/ai-decisions/aiDecisionStore.js:20:      setAiDecisions:
+src/admin/ai-decisions/aiDecisionStore.js:22:          aiDecisions
+src/admin/ai-decisions/aiDecisionStore.js:26:            aiDecisions,
+src/admin/ai-decisions/aiDecisionStore.js:31:      setAiPredictions:
+src/admin/ai-decisions/aiDecisionStore.js:33:          aiPredictions
+src/admin/ai-decisions/aiDecisionStore.js:37:            aiPredictions,
+src/admin/ai-decisions/aiDecisionStore.js:72:  useAiDecisionStore;
+src/admin/automation/automationService.js:8:      await apiClient.get(
+src/admin/automation/automationService.js:21:      await apiClient.post(
+src/admin/automation/automationService.js:35:      await apiClient.post(
+src/admin/automation/automationService.js:48:      await apiClient.get(
+src/admin/automation/automationBootstrap.js:36:      ] = await Promise.all([
+src/admin/automation/components/AutomationMetricsGrid.jsx:110:          AI Decisions
+src/admin/automation/components/AutomationMetricsGrid.jsx:120:          {metrics.aiDecisions}
+src/admin/automation/components/WorkflowBuilderForm.jsx:25:    await automationService
+src/admin/campaigns/components/CampaignCard.jsx:1:function CampaignCard({
+src/admin/campaigns/components/CampaignCard.jsx:2:  campaign,
+src/admin/campaigns/components/CampaignCard.jsx:33:            {campaign.name}
+src/admin/campaigns/components/CampaignCard.jsx:43:            {campaign.description}
+src/admin/campaigns/components/CampaignCard.jsx:57:          {campaign.status}
+src/admin/campaigns/components/CampaignCard.jsx:69:  CampaignCard;
+src/admin/campaigns/components/CampaignGrid.jsx:1:import CampaignCard from "./CampaignCard";
+src/admin/campaigns/components/CampaignGrid.jsx:3:function CampaignGrid({
+src/admin/campaigns/components/CampaignGrid.jsx:4:  campaigns = [],
+src/admin/campaigns/components/CampaignGrid.jsx:20:        campaigns.map(
+src/admin/campaigns/components/CampaignGrid.jsx:22:            campaign
+src/admin/campaigns/components/CampaignGrid.jsx:25:            <CampaignCard
+src/admin/campaigns/components/CampaignGrid.jsx:27:                campaign.id
+src/admin/campaigns/components/CampaignGrid.jsx:30:              campaign={
+src/admin/campaigns/components/CampaignGrid.jsx:31:                campaign
+src/admin/campaigns/components/CampaignGrid.jsx:47:  CampaignGrid;
+src/admin/campaigns/components/CampaignBuilderForm.jsx:5:import campaignService from "../campaignService";
+src/admin/campaigns/components/CampaignBuilderForm.jsx:7:function CampaignBuilderForm() {
+src/admin/campaigns/components/CampaignBuilderForm.jsx:25:    await campaignService
+src/admin/campaigns/components/CampaignBuilderForm.jsx:26:      .createCampaign({
+src/admin/campaigns/components/CampaignBuilderForm.jsx:60:        placeholder="Campaign Name"
+src/admin/campaigns/components/CampaignBuilderForm.jsx:98:        Create Campaign
+src/admin/campaigns/components/CampaignBuilderForm.jsx:108:  CampaignBuilderForm;
+src/admin/campaigns/campaignRealtimeSocket.js:6:import useCampaignStore from "./campaignStore";
+src/admin/campaigns/campaignRealtimeSocket.js:8:class CampaignRealtimeSocket {
+src/admin/campaigns/campaignRealtimeSocket.js:34:      "admin:campaign:update",
+src/admin/campaigns/campaignRealtimeSocket.js:41:          useCampaignStore
+src/admin/campaigns/campaignRealtimeSocket.js:44:        const nextCampaigns =
+src/admin/campaigns/campaignRealtimeSocket.js:46:          store.campaigns.map(
+src/admin/campaigns/campaignRealtimeSocket.js:59:        store.setCampaigns(
+src/admin/campaigns/campaignRealtimeSocket.js:60:          nextCampaigns
+src/admin/campaigns/campaignRealtimeSocket.js:74:const campaignRealtimeSocket =
+src/admin/campaigns/campaignRealtimeSocket.js:75:  new CampaignRealtimeSocket();
+src/admin/campaigns/campaignRealtimeSocket.js:78:  campaignRealtimeSocket;
+src/admin/campaigns/campaignBootstrap.js:1:import campaignService from "./campaignService";
+src/admin/campaigns/campaignBootstrap.js:3:import useCampaignStore from "./campaignStore";
+src/admin/campaigns/campaignBootstrap.js:5:class CampaignBootstrap {
+src/admin/campaigns/campaignBootstrap.js:21:      useCampaignStore
+src/admin/campaigns/campaignBootstrap.js:30:      const campaigns =
+src/admin/campaigns/campaignBootstrap.js:31:        await campaignService
+src/admin/campaigns/campaignBootstrap.js:32:          .getCampaigns();
+src/admin/campaigns/campaignBootstrap.js:34:      store.setCampaigns(
+src/admin/campaigns/campaignBootstrap.js:35:        campaigns
+src/admin/campaigns/campaignBootstrap.js:53:const campaignBootstrap =
+src/admin/campaigns/campaignBootstrap.js:54:  new CampaignBootstrap();
+src/admin/campaigns/campaignBootstrap.js:57:  campaignBootstrap;
+src/admin/campaigns/pages/CampaignsPage.jsx:5:import campaignBootstrap from "../campaignBootstrap";
+src/admin/campaigns/pages/CampaignsPage.jsx:7:import campaignRealtimeSocket from "../campaignRealtimeSocket";
+src/admin/campaigns/pages/CampaignsPage.jsx:9:import useCampaignStore from "../campaignStore";
+src/admin/campaigns/pages/CampaignsPage.jsx:11:import CampaignBuilderForm from "../components/CampaignBuilderForm";
+src/admin/campaigns/pages/CampaignsPage.jsx:13:import CampaignGrid from "../components/CampaignGrid";
+src/admin/campaigns/pages/CampaignsPage.jsx:15:function CampaignsPage() {
+src/admin/campaigns/pages/CampaignsPage.jsx:17:  const campaigns =
+src/admin/campaigns/pages/CampaignsPage.jsx:18:    useCampaignStore(
+src/admin/campaigns/pages/CampaignsPage.jsx:21:      ) => state.campaigns
+src/admin/campaigns/pages/CampaignsPage.jsx:26:    campaignBootstrap
+src/admin/campaigns/pages/CampaignsPage.jsx:29:    campaignRealtimeSocket
+src/admin/campaigns/pages/CampaignsPage.jsx:48:        Campaign Operating System
+src/admin/campaigns/pages/CampaignsPage.jsx:51:      <CampaignBuilderForm />
+src/admin/campaigns/pages/CampaignsPage.jsx:53:      <CampaignGrid
+src/admin/campaigns/pages/CampaignsPage.jsx:54:        campaigns={
+src/admin/campaigns/pages/CampaignsPage.jsx:55:          campaigns
+src/admin/campaigns/pages/CampaignsPage.jsx:66:  CampaignsPage;
+src/admin/campaigns/campaignStore.js:5:const useCampaignStore =
+src/admin/campaigns/campaignStore.js:11:      campaigns:
+src/admin/campaigns/campaignStore.js:14:      selectedCampaign:
+src/admin/campaigns/campaignStore.js:23:      setCampaigns:
+src/admin/campaigns/campaignStore.js:25:          campaigns
+src/admin/campaigns/campaignStore.js:30:            campaigns,
+src/admin/campaigns/campaignStore.js:39:      setSelectedCampaign:
+src/admin/campaigns/campaignStore.js:41:          campaign
+src/admin/campaigns/campaignStore.js:45:            selectedCampaign:
+src/admin/campaigns/campaignStore.js:46:              campaign,
+src/admin/campaigns/campaignStore.js:66:  useCampaignStore;
+src/admin/campaigns/campaignService.js:3:class CampaignService {
+src/admin/campaigns/campaignService.js:5:  async getCampaigns() {
+src/admin/campaigns/campaignService.js:8:      await apiClient.get(
+src/admin/campaigns/campaignService.js:9:        "/admin/campaigns"
+src/admin/campaigns/campaignService.js:16:  async createCampaign(
+src/admin/campaigns/campaignService.js:21:      await apiClient.post(
+src/admin/campaigns/campaignService.js:22:        "/admin/campaigns",
+src/admin/campaigns/campaignService.js:30:  async updateCampaign({
+src/admin/campaigns/campaignService.js:32:    campaignId,
+src/admin/campaigns/campaignService.js:39:      await apiClient.put(
+src/admin/campaigns/campaignService.js:41:        `/admin/campaigns/${campaignId}`,
+src/admin/campaigns/campaignService.js:51:  async triggerCampaign({
+src/admin/campaigns/campaignService.js:53:    campaignId,
+src/admin/campaigns/campaignService.js:58:      await apiClient.post(
+src/admin/campaigns/campaignService.js:60:        `/admin/campaigns/${campaignId}/trigger`
+src/admin/campaigns/campaignService.js:70:const campaignService =
+src/admin/campaigns/campaignService.js:71:  new CampaignService();
+src/admin/campaigns/campaignService.js:74:  campaignService;
+src/admin/communication/communicationAnalyticsService.js:8:      await apiClient.get(
+src/admin/communication/communicationAnalyticsService.js:19:      await apiClient.get(
+src/admin/orders/orderBootstrap.js:36:      ] = await Promise.all([
+src/admin/orders/orderService.js:8:      await apiClient.get(
+src/admin/orders/orderService.js:19:      await apiClient.get(
+src/admin/orders/orderService.js:27:  async getOrderDetails(
+src/admin/orders/orderService.js:32:      await apiClient.get(
+src/admin/orders/orderService.js:51:      await apiClient.patch(
+src/admin/orders/pages/OrdersPage.jsx:15:function OrdersPage() {
+src/admin/orders/pages/OrdersPage.jsx:71:  OrdersPage;
+src/admin/featureFlags/featureFlagBootstrap.js:21:      await featureFlagService
+src/admin/featureFlags/featureFlagService.js:8:      await apiClient.get(
+src/admin/featureFlags/featureFlagService.js:21:      await apiClient.put(
+src/admin/audience/audienceService.js:8:      await apiClient.get(
+src/admin/audience/audienceService.js:21:      await apiClient.post(
+src/admin/audience/components/AudienceBuilderForm.jsx:25:    await audienceService
+src/admin/audience/audienceBootstrap.js:21:      await audienceService
+src/admin/webhooks/webhookStore.js:17:      webhookFailures:
+src/admin/webhooks/webhookStore.js:45:      setWebhookFailures:
+src/admin/webhooks/webhookStore.js:47:          webhookFailures
+src/admin/webhooks/webhookStore.js:51:            webhookFailures,
+src/admin/builder/pageBuilderBootstrap.js:31:        await pageBuilderService
+src/admin/builder/pages/PageBuilderPage.jsx:56:      await pageBuilderService
+src/admin/builder/pageBuilderService.js:8:      await apiClient.get(
+src/admin/builder/pageBuilderService.js:21:      await apiClient.get(
+src/admin/builder/pageBuilderService.js:36:      await apiClient.post(
+src/admin/builder/pageBuilderService.js:50:      await apiClient.post(
+src/admin/pages/AdminOperationsPage.jsx:7:import AdminCampaignList from "../components/AdminCampaignList";
+src/admin/pages/AdminOperationsPage.jsx:29:      <AdminCampaignList />
+src/admin/pages/AdminAnalyticsPage.jsx:30:        cho campaign, khách hàng,
+src/admin/pages/AdminDashboardPage.jsx:116:          websocket, analytics, campaign,
+src/admin/notifications/notificationBootstrap.js:36:      ] = await Promise.all([
+src/admin/notifications/components/NotificationBuilderForm.jsx:32:    await notificationService
+src/admin/notifications/components/NotificationBuilderForm.jsx:120:        <option value="email">
+src/admin/notifications/components/NotificationBuilderForm.jsx:121:          Email
+src/admin/notifications/components/NotificationMetricsGrid.jsx:110:          Failed Deliveries
+src/admin/notifications/components/NotificationMetricsGrid.jsx:120:          {metrics.failedDeliveries}
+src/admin/notifications/notificationService.js:8:      await apiClient.get(
+src/admin/notifications/notificationService.js:19:      await apiClient.get(
+src/admin/notifications/notificationService.js:32:      await apiClient.post(
+src/admin/notifications/notificationService.js:46:      await apiClient.post(
+src/admin/services/adminAuthService.js:8:      await apiClient.get(
+src/admin/services/adminAuthService.js:19:      await apiClient.post(
+src/admin/ai-copilot/aiCopilotStore.js:5:const useAiCopilotStore =
+src/admin/ai-copilot/aiCopilotStore.js:72:  useAiCopilotStore;
+src/admin/analytics/analyticsBootstrap.js:31:        await analyticsService
+src/admin/analytics/analyticsService.js:8:      await apiClient.get(
+src/admin/analytics/analyticsService.js:19:      await apiClient.get(
+src/admin/store/adminStore.js:9:    campaigns: [],
+src/admin/store/adminStore.js:29:    setCampaigns(campaigns) {
+src/admin/store/adminStore.js:33:        campaigns,
+src/admin/channels/channelBootstrap.js:26:    ] = await Promise.all([
+src/admin/channels/channelService.js:8:      await apiClient.get(
+src/admin/channels/channelService.js:19:      await apiClient.get(
+src/admin/router/adminRouter.jsx:12:  lazy(() =>
+src/admin/router/adminRouter.jsx:13:    import(
+src/admin/router/adminRouter.jsx:19:  lazy(() =>
+src/admin/router/adminRouter.jsx:20:    import(
+src/admin/router/adminRouter.jsx:26:  lazy(() =>
+src/admin/router/adminRouter.jsx:27:    import(
+src/admin/router/adminRouter.jsx:33:  lazy(() =>
+src/admin/router/adminRouter.jsx:34:    import(
+src/admin/router/adminRouter.jsx:41: * CAMPAIGN OPERATING SYSTEM
+src/admin/router/adminRouter.jsx:45:const CampaignsPage =
+src/admin/router/adminRouter.jsx:46:  lazy(() =>
+src/admin/router/adminRouter.jsx:47:    import(
+src/admin/router/adminRouter.jsx:48:      "@/admin/campaigns/pages/CampaignsPage"
+src/admin/router/adminRouter.jsx:52:const CampaignSchedulerPage =
+src/admin/router/adminRouter.jsx:53:  lazy(() =>
+src/admin/router/adminRouter.jsx:54:    import(
+src/admin/router/adminRouter.jsx:55:      "@/admin/scheduler/pages/CampaignSchedulerPage"
+src/admin/router/adminRouter.jsx:66:  lazy(() =>
+src/admin/router/adminRouter.jsx:67:    import(
+src/admin/router/adminRouter.jsx:79:  lazy(() =>
+src/admin/router/adminRouter.jsx:80:    import(
+src/admin/router/adminRouter.jsx:85:const Customer360Page =
+src/admin/router/adminRouter.jsx:86:  lazy(() =>
+src/admin/router/adminRouter.jsx:87:    import(
+src/admin/router/adminRouter.jsx:88:      "@/admin/customer360/pages/Customer360Page"
+src/admin/router/adminRouter.jsx:93:  lazy(() =>
+src/admin/router/adminRouter.jsx:94:    import(
+src/admin/router/adminRouter.jsx:106:  lazy(() =>
+src/admin/router/adminRouter.jsx:107:    import(
+src/admin/router/adminRouter.jsx:113:  lazy(() =>
+src/admin/router/adminRouter.jsx:114:    import(
+src/admin/router/adminRouter.jsx:121: * AI + AUTOMATION
+src/admin/router/adminRouter.jsx:126:  lazy(() =>
+src/admin/router/adminRouter.jsx:127:    import(
+src/admin/router/adminRouter.jsx:132:const AiInsightsPage =
+src/admin/router/adminRouter.jsx:133:  lazy(() =>
+src/admin/router/adminRouter.jsx:134:    import(
+src/admin/router/adminRouter.jsx:135:      "@/admin/ai/pages/AiInsightsPage"
+src/admin/router/adminRouter.jsx:146:  lazy(() =>
+src/admin/router/adminRouter.jsx:147:    import(
+src/admin/router/adminRouter.jsx:153:  lazy(() =>
+src/admin/router/adminRouter.jsx:154:    import(
+src/admin/router/adminRouter.jsx:166:  lazy(() =>
+src/admin/router/adminRouter.jsx:167:    import(
+src/admin/router/adminRouter.jsx:172:  const EcosystemPlatformPage =
+src/admin/router/adminRouter.jsx:173:  lazy(() =>
+src/admin/router/adminRouter.jsx:174:    import(
+src/admin/router/adminRouter.jsx:175:      "@/admin/ecosystem/pages/EcosystemPlatformPage"
+src/admin/router/adminRouter.jsx:179:  const AiAutonomousPage =
+src/admin/router/adminRouter.jsx:180:  lazy(() =>
+src/admin/router/adminRouter.jsx:181:    import(
+src/admin/router/adminRouter.jsx:182:      "@/admin/ai-agents/pages/AiAutonomousPage"
+src/admin/router/adminRouter.jsx:186:const AiRuntimePage =
+src/admin/router/adminRouter.jsx:187:  lazy(() =>
+src/admin/router/adminRouter.jsx:188:    import(
+src/admin/router/adminRouter.jsx:189:      "@/admin/ai-runtime/pages/AiRuntimePage"
+src/admin/router/adminRouter.jsx:194:  lazy(() =>
+src/admin/router/adminRouter.jsx:195:    import(
+src/admin/router/adminRouter.jsx:201:  lazy(() =>
+src/admin/router/adminRouter.jsx:202:    import(
+src/admin/router/adminRouter.jsx:208:  lazy(() =>
+src/admin/router/adminRouter.jsx:209:    import(
+src/admin/router/adminRouter.jsx:215:  lazy(() =>
+src/admin/router/adminRouter.jsx:216:    import(
+src/admin/router/adminRouter.jsx:222:  lazy(() =>
+src/admin/router/adminRouter.jsx:223:    import(
+src/admin/router/adminRouter.jsx:230:  lazy(() =>
+src/admin/router/adminRouter.jsx:231:    import(
+src/admin/router/adminRouter.jsx:236:const OrdersPage =
+src/admin/router/adminRouter.jsx:237:  lazy(() =>
+src/admin/router/adminRouter.jsx:238:    import(
+src/admin/router/adminRouter.jsx:239:      "@/admin/orders/pages/OrdersPage"
+src/admin/router/adminRouter.jsx:244:const IposOperationsPage =
+src/admin/router/adminRouter.jsx:245:  lazy(() =>
+src/admin/router/adminRouter.jsx:246:    import(
+src/admin/router/adminRouter.jsx:247:      "@/admin/ipos/pages/IposOperationsPage"
+src/admin/router/adminRouter.jsx:261:    "/admin/ecosystem",
+src/admin/router/adminRouter.jsx:264:    "ecosystem.read",
+src/admin/router/adminRouter.jsx:267:    EcosystemPlatformPage,
+src/admin/router/adminRouter.jsx:272:    "/admin/ai-autonomous",
+src/admin/router/adminRouter.jsx:275:    "ai.autonomous.read",
+src/admin/router/adminRouter.jsx:278:    AiAutonomousPage,
+src/admin/router/adminRouter.jsx:283:    "/admin/ai-runtime",
+src/admin/router/adminRouter.jsx:286:    "ai.runtime.read",
+src/admin/router/adminRouter.jsx:289:    AiRuntimePage,
+src/admin/router/adminRouter.jsx:364:    OrdersPage,
+src/admin/router/adminRouter.jsx:369:    "/admin/ipos",
+src/admin/router/adminRouter.jsx:371:    "ipos.read",
+src/admin/router/adminRouter.jsx:373:    IposOperationsPage,
+src/admin/router/adminRouter.jsx:423:   * CAMPAIGNS
+src/admin/router/adminRouter.jsx:429:      "/admin/campaigns",
+src/admin/router/adminRouter.jsx:432:      "campaigns.read",
+src/admin/router/adminRouter.jsx:435:      CampaignsPage,
+src/admin/router/adminRouter.jsx:440:      "/admin/campaign-scheduler",
+src/admin/router/adminRouter.jsx:443:      "campaign.scheduler.read",
+src/admin/router/adminRouter.jsx:446:      CampaignSchedulerPage,
+src/admin/router/adminRouter.jsx:485:      "/admin/customer360",
+src/admin/router/adminRouter.jsx:488:      "customer360.read",
+src/admin/router/adminRouter.jsx:491:      Customer360Page,
+src/admin/router/adminRouter.jsx:541:   * AI + AUTOMATION
+src/admin/router/adminRouter.jsx:558:      "/admin/ai",
+src/admin/router/adminRouter.jsx:561:      "ai.read",
+src/admin/router/adminRouter.jsx:564:      AiInsightsPage,

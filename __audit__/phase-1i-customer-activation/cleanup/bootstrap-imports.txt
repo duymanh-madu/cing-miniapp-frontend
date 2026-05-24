@@ -1,0 +1,8 @@
+src/infra/auth/bootstrapAuth.js:8:export function bootstrapAuth() {
+src/infra/auth/index.js:2:  bootstrapAuth,
+src/infra/auth/index.js:4:from "./bootstrapAuth";
+src/auth/bootstrap/authBootstrap.js:5:export function bootstrapAuthLayer() {
+src/auth/bootstrapAuth.js:7:export function bootstrapAuth() {
+src/auth/useAuthBootstrap.js:6:  bootstrapAuth,
+src/auth/useAuthBootstrap.js:7:} from "./bootstrapAuth";
+src/auth/useAuthBootstrap.js:13:    bootstrapAuth();

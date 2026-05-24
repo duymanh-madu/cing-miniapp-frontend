@@ -1,4 +1,5 @@
-export {
-  default as LeaderboardPage,
-}
-from "./pages/LeaderboardPage";
+/**
+ * LEADERBOARD FEATURE ENTRY (CLEAN CONTRACT)
+ */
+
+export { default } from "./pages/LeaderboardPage";

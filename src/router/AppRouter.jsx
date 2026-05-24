@@ -1,102 +1,29 @@
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
-
+import { Suspense, lazy } from "react";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "@/layouts/AppLayout";
+import AppLoadingScreen from "@/app/AppLoadingScreen";
+import { routeManifest } from "@/app/routeManifest";
 
-import {
-  MenuPage,
-} from "@/features/menu";
-
-import {
-  AccountPage,
-} from "@/features/account";
-
-import {
-  GamePage,
-} from "@/features/game";
-
-import {
-  LeaderboardPage,
-} from "@/features/leaderboard";
-
-import HomePage from "@/pages/HomePage";
-
-/**
- * =========================================================
- * APP ROUTER
- * =========================================================
- */
-
-function AppRouter() {
-
-  return (
-
-    <BrowserRouter>
-
-      <AppLayout>
-
-        <Routes>
-
-          <Route
-            path="/"
-            element={
-              <HomePage />
-            }
-          />
-
-          <Route
-  path="/menu"
-  element={
-    <div className="min-h-screen bg-red-500 text-white text-6xl">
-      TEST MENU
-    </div>
-  }
-/>
-
-          <Route
-            path="/game"
-            element={
-              <GamePage />
-            }
-          />
-
-          <Route
-            path="/leaderboard"
-            element={
-              <LeaderboardPage />
-            }
-          />
-
-          <Route
-            path="/account"
-            element={
-              <AccountPage />
-            }
-          />
-
-          <Route
-            path="*"
-            element={
-              <Navigate
-                replace
-                to="/"
-              />
-            }
-          />
-
-        </Routes>
-
-      </AppLayout>
-
-    </BrowserRouter>
-
-  );
-
+const lazyCache = {};
+function getLazy(loader, key) {
+  if (!lazyCache[key]) lazyCache[key] = lazy(loader);
+  return lazyCache[key];
 }
 
-export default
-  AppRouter;
+export default function AppRouter() {
+  return (
+    <HashRouter>
+      <AppLayout>
+        <Suspense fallback={<AppLoadingScreen />}>
+          <Routes>
+            {routeManifest.map(route => {
+              const Component = getLazy(route.loader, route.key);
+              return <Route key={route.key} path={route.path} element={<Component />} />;
+            })}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </AppLayout>
+    </HashRouter>
+  );
+}

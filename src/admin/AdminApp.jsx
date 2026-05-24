@@ -16,14 +16,14 @@ import AdminProtectedRoute from "@/admin/auth/AdminProtectedRoute";
 const AdminLoginPage =
   lazy(() =>
     import(
-      "@/admin/auth/pages/AdminLoginPage"
+      "@/admin/au../features/AdminLoginPage"
     )
   );
 
 const AdminDashboardPage =
   lazy(() =>
     import(
-      "@/admin/dashboard/pages/AdminDashboardPage"
+      "@/admin/dashboa../features/AdminDashboardPage"
     )
   );
 

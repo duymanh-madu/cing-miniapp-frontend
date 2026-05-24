@@ -1,0 +1,12 @@
+src/auth/useAuthSession.js:8:      authenticated:
+src/auth/authState.js:8:    authenticated:
+src/auth/authState.js:17:    setAuthenticated:
+src/auth/authState.js:41:          authenticated:
+src/auth/bootstrapAuth.js:14:    .setAuthenticated(
+src/auth/services/authSessionService.js:22:    .setAuthenticated(
+src/auth/store/authStore.js:7:    authenticated:
+src/auth/store/authStore.js:13:    setAuthenticated(
+src/auth/store/authStore.js:19:        authenticated:
+src/infra/auth/useSession.js:10:      authenticated:
+src/stores/auth/authStore.js:8:    authenticated:
+src/stores/auth/authStore.js:39:            authenticated:

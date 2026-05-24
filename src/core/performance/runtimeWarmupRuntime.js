@@ -7,14 +7,14 @@ class RuntimeWarmupRuntime {
     runtimePreloader.preload(
       () =>
         import(
-          "@/pages/menu/MenuPage"
+          "@/features/menu"
         )
     );
 
     runtimePreloader.preload(
       () =>
         import(
-          "@/pages/game/GamePage"
+          "@/features/game"
         )
     );
 

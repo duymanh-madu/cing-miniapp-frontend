@@ -1,0 +1,18 @@
+export const NOTIFICATION_CONFIG = {
+
+  MAX_NOTIFICATIONS:
+    30,
+
+  DEDUPE_WINDOW_MS:
+    5000,
+
+  AUTO_DISMISS_MS:
+    4000,
+
+  MAX_PRIORITY_QUEUE:
+    10,
+
+  MAX_BACKGROUND_QUEUE:
+    20,
+
+};

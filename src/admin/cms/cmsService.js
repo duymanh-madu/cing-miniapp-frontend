@@ -24,7 +24,7 @@ class CmsService {
     const response =
       await apiClient.put(
 
-        `/admin/cms/pages/${pageId}`,
+        `/admin/c../features/${pageId}`,
 
         payload
 

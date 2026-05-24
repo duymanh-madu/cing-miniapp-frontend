@@ -1,0 +1,170 @@
+src/core/webview/webviewSafeAreaRuntime.js:8:        "--safe-area-top",
+src/core/webview/webviewSafeAreaRuntime.js:10:        "env(safe-area-inset-top)"
+src/core/webview/webviewSafeAreaRuntime.js:17:        "--safe-area-bottom",
+src/core/webview/webviewSafeAreaRuntime.js:19:        "env(safe-area-inset-bottom)"
+src/core/dynamic-layout/dynamicLayoutEngine.js:1:class DynamicLayoutEngine {
+src/core/dynamic-layout/dynamicLayoutEngine.js:32:const dynamicLayoutEngine =
+src/core/dynamic-layout/dynamicLayoutEngine.js:33:  new DynamicLayoutEngine();
+src/core/dynamic-layout/dynamicLayoutEngine.js:36:  dynamicLayoutEngine;
+src/core/app-shell/customerAppShell.jsx:5:import DynamicBottomNavigation from "@/cms/components/DynamicBottomNavigation";
+src/core/app-shell/customerAppShell.jsx:7:import dynamicThemeRuntime from "@/cms/runtime/dynamicThemeRuntime";
+src/core/app-shell/customerAppShell.jsx:15:    dynamicThemeRuntime
+src/app/admin/services/dynamicUiRenderer.js:1:class DynamicUiRenderer {
+src/app/admin/services/dynamicUiRenderer.js:45:const dynamicUiRenderer =
+src/app/admin/services/dynamicUiRenderer.js:46:  new DynamicUiRenderer();
+src/app/admin/services/dynamicUiRenderer.js:49:  dynamicUiRenderer;
+src/app/BottomTabbar.jsx:6:function BottomTabbar() {
+src/app/BottomTabbar.jsx:12:        bottom-0
+src/app/BottomTabbar.jsx:61:  BottomTabbar;
+src/layout/config/layoutConfig.js:3:  BOTTOM_NAV_HEIGHT:
+src/layout/components/FloatingActionButton.jsx:20:        bottom-24
+src/layout/components/BottomNavigation.jsx:9:function BottomNavigation() {
+src/layout/components/BottomNavigation.jsx:41:        bottom-0
+src/layout/components/BottomNavigation.jsx:123:  BottomNavigation
+src/layout/components/MobileViewportWrapper.jsx:5:function MobileViewportWrapper({
+src/layout/components/MobileViewportWrapper.jsx:36:  MobileViewportWrapper
+src/layout/hooks/useSafeAreaInsets.js:6:      "env(safe-area-inset-top)",
+src/layout/hooks/useSafeAreaInsets.js:8:    bottom:
+src/layout/hooks/useSafeAreaInsets.js:9:      "env(safe-area-inset-bottom)",
+src/providers/PlatformProvider.jsx:5:import mobileViewportService from "@/services/platform/mobileViewportService";
+src/providers/PlatformProvider.jsx:21:    mobileViewportService.init();
+src/admin/cms/dynamicRenderer.jsx:3:function DynamicRenderer({
+src/admin/cms/dynamicRenderer.jsx:60:  DynamicRenderer;
+src/admin/cms/README_ARCHITECTURE.md:6:- Dynamic block rendering
+src/admin/cms/README_ARCHITECTURE.md:22:Dynamic Renderer
+src/admin/cms/pages/CMSPage.jsx:5:import DynamicRenderer from "../dynamicRenderer";
+src/admin/cms/pages/CMSPage.jsx:45:            <DynamicRenderer
+src/admin/layouts/AdminSidebar.jsx:13: * - dynamic operating platform
+src/ios/bootstrap/iosBootstrap.js:6:  applyIosViewportFix,
+src/ios/bootstrap/iosBootstrap.js:7:} from "../services/iosViewportService";
+src/ios/bootstrap/iosBootstrap.js:13:  applyIosViewportFix();
+src/ios/bootstrap/iosBootstrap.js:16:    "🍎 iOS safe-area layer booted"
+src/ios/config/iosSafeAreaConfig.js:6:  ENABLE_SAFE_BOTTOM:
+src/ios/config/iosSafeAreaConfig.js:9:  ENABLE_DYNAMIC_ISLAND_OFFSET:
+src/ios/components/IosSafeAreaLayout.jsx:19:        paddingBottom:
+src/ios/components/IosSafeAreaLayout.jsx:20:          "max(16px, var(--safe-bottom))",
+src/ios/components/IosBottomSafeNavigation.jsx:5:function IosBottomSafeNavigation({
+src/ios/components/IosBottomSafeNavigation.jsx:17:        bottom-0
+src/ios/components/IosBottomSafeNavigation.jsx:26:        paddingBottom:
+src/ios/components/IosBottomSafeNavigation.jsx:27:          "max(10px, var(--safe-bottom))",
+src/ios/components/IosBottomSafeNavigation.jsx:41:  IosBottomSafeNavigation
+src/ios/components/DynamicIslandSafeHeader.jsx:5:function DynamicIslandSafeHeader({
+src/ios/components/DynamicIslandSafeHeader.jsx:43:  DynamicIslandSafeHeader
+src/ios/hooks/useIosSafeArea.js:6:  applyIosViewportFix,
+src/ios/hooks/useIosSafeArea.js:7:} from "../services/iosViewportService";
+src/ios/hooks/useIosSafeArea.js:21:    applyIosViewportFix();
+src/ios/hooks/useIosSafeArea.js:29:      applyIosViewportFix
+src/ios/hooks/useIosSafeArea.js:36:        applyIosViewportFix
+src/ios/services/iosSafeAreaService.js:9:      "env(safe-area-inset-top)"
+src/ios/services/iosSafeAreaService.js:17:      "--safe-bottom",
+src/ios/services/iosSafeAreaService.js:19:      "env(safe-area-inset-bottom)"
+src/ios/services/iosViewportService.js:1:export function applyIosViewportFix() {
+src/styles/index.css:191:    env(safe-area-inset-top);
+src/styles/index.css:195:.safe-bottom {
+src/styles/index.css:197:  padding-bottom:
+src/styles/index.css:198:    env(safe-area-inset-bottom);
+src/styles/responsive.css:20:  padding-bottom:
+src/styles/responsive.css:22:      safe-area-inset-bottom
+src/styles/responsive.css:31:      safe-area-inset-top
+src/components/home/HomeHero.jsx:46:          -bottom-10
+src/components/navigation/BottomNavigation.jsx:57: * BOTTOM NAVIGATION
+src/components/navigation/BottomNavigation.jsx:61:function BottomNavigation() {
+src/components/navigation/BottomNavigation.jsx:68:        bottom-0
+src/components/navigation/BottomNavigation.jsx:162:  BottomNavigation;
+src/components/system/RealtimeStatusBadge.jsx:19:        bottom-4
+src/components/header/AppHeader.jsx:193: * BOTTOM NAVIGATION
+src/components/header/AppHeader.jsx:197:function BottomNavigation() {
+src/components/header/AppHeader.jsx:202:        bottom-0
+src/components/header/AppHeader.jsx:254:export default BottomNavigation;
+src/cms/runtime/dynamicMenuRuntime.js:3:class DynamicMenuRuntime {
+src/cms/runtime/dynamicMenuRuntime.js:33:const dynamicMenuRuntime =
+src/cms/runtime/dynamicMenuRuntime.js:34:  new DynamicMenuRuntime();
+src/cms/runtime/dynamicMenuRuntime.js:37:  dynamicMenuRuntime;
+src/cms/runtime/dynamicLeaderboardRuntime.js:3:class DynamicLeaderboardRuntime {
+src/cms/runtime/dynamicLeaderboardRuntime.js:17:const dynamicLeaderboardRuntime =
+src/cms/runtime/dynamicLeaderboardRuntime.js:18:  new DynamicLeaderboardRuntime();
+src/cms/runtime/dynamicLeaderboardRuntime.js:21:  dynamicLeaderboardRuntime;
+src/cms/runtime/dynamicLocalizationRuntime.js:3:class DynamicLocalizationRuntime {
+src/cms/runtime/dynamicLocalizationRuntime.js:25:const dynamicLocalizationRuntime =
+src/cms/runtime/dynamicLocalizationRuntime.js:26:  new DynamicLocalizationRuntime();
+src/cms/runtime/dynamicLocalizationRuntime.js:29:  dynamicLocalizationRuntime;
+src/cms/runtime/dynamicHomeLayoutRuntime.js:3:class DynamicHomeLayoutRuntime {
+src/cms/runtime/dynamicHomeLayoutRuntime.js:17:const dynamicHomeLayoutRuntime =
+src/cms/runtime/dynamicHomeLayoutRuntime.js:18:  new DynamicHomeLayoutRuntime();
+src/cms/runtime/dynamicHomeLayoutRuntime.js:21:  dynamicHomeLayoutRuntime;
+src/cms/runtime/dynamicFeatureFlagRuntime.js:3:class DynamicFeatureFlagRuntime {
+src/cms/runtime/dynamicFeatureFlagRuntime.js:23:const dynamicFeatureFlagRuntime =
+src/cms/runtime/dynamicFeatureFlagRuntime.js:24:  new DynamicFeatureFlagRuntime();
+src/cms/runtime/dynamicFeatureFlagRuntime.js:27:  dynamicFeatureFlagRuntime;
+src/cms/runtime/dynamicStartupConfigRuntime.js:3:class DynamicStartupConfigRuntime {
+src/cms/runtime/dynamicStartupConfigRuntime.js:17:const dynamicStartupConfigRuntime =
+src/cms/runtime/dynamicStartupConfigRuntime.js:18:  new DynamicStartupConfigRuntime();
+src/cms/runtime/dynamicStartupConfigRuntime.js:21:  dynamicStartupConfigRuntime;
+src/cms/runtime/dynamicRewardConfigRuntime.js:3:class DynamicRewardConfigRuntime {
+src/cms/runtime/dynamicRewardConfigRuntime.js:17:const dynamicRewardConfigRuntime =
+src/cms/runtime/dynamicRewardConfigRuntime.js:18:  new DynamicRewardConfigRuntime();
+src/cms/runtime/dynamicRewardConfigRuntime.js:21:  dynamicRewardConfigRuntime;
+src/cms/runtime/dynamicGameConfigRuntime.js:3:class DynamicGameConfigRuntime {
+src/cms/runtime/dynamicGameConfigRuntime.js:17:const dynamicGameConfigRuntime =
+src/cms/runtime/dynamicGameConfigRuntime.js:18:  new DynamicGameConfigRuntime();
+src/cms/runtime/dynamicGameConfigRuntime.js:21:  dynamicGameConfigRuntime;
+src/cms/runtime/dynamicThemeRuntime.js:3:class DynamicThemeRuntime {
+src/cms/runtime/dynamicThemeRuntime.js:33:const dynamicThemeRuntime =
+src/cms/runtime/dynamicThemeRuntime.js:34:  new DynamicThemeRuntime();
+src/cms/runtime/dynamicThemeRuntime.js:37:  dynamicThemeRuntime;
+src/cms/runtime/dynamicVoucherRuntime.js:3:class DynamicVoucherRuntime {
+src/cms/runtime/dynamicVoucherRuntime.js:49:const dynamicVoucherRuntime =
+src/cms/runtime/dynamicVoucherRuntime.js:50:  new DynamicVoucherRuntime();
+src/cms/runtime/dynamicVoucherRuntime.js:53:  dynamicVoucherRuntime;
+src/cms/components/DynamicHomeSectionRenderer.jsx:40:function DynamicHomeSectionRenderer({
+src/cms/components/DynamicHomeSectionRenderer.jsx:93:  DynamicHomeSectionRenderer;
+src/cms/components/DynamicBottomNavigation.jsx:5:import dynamicThemeRuntime
+src/cms/components/DynamicBottomNavigation.jsx:6:  from "@/cms/runtime/dynamicThemeRuntime";
+src/cms/components/DynamicBottomNavigation.jsx:14:    dynamicThemeRuntime
+src/cms/components/DynamicCampaignBanner.jsx:3:function DynamicCampaignBanner() {
+src/cms/components/DynamicCampaignBanner.jsx:60:  DynamicCampaignBanner;
+src/cms/components/DynamicCmsRenderer.jsx:1:function DynamicCmsRenderer({
+src/cms/components/DynamicCmsRenderer.jsx:80:  DynamicCmsRenderer;
+src/campaign/config/campaignConfig.js:15:  ENABLE_DYNAMIC_WIDGETS:
+src/device/bootstrap/deviceBootstrap.js:2:  applySafeViewportHeight,
+src/device/bootstrap/deviceBootstrap.js:3:} from "../services/mobileViewportService";
+src/device/bootstrap/deviceBootstrap.js:7:  applySafeViewportHeight();
+src/device/config/deviceConfig.js:9:  SAFE_VIEWPORT_HEIGHT:
+src/device/hooks/useMobileViewport.js:6:  applySafeViewportHeight,
+src/device/hooks/useMobileViewport.js:7:} from "../services/mobileViewportService";
+src/device/hooks/useMobileViewport.js:9:export function useMobileViewport() {
+src/device/hooks/useMobileViewport.js:13:    applySafeViewportHeight();
+src/device/hooks/useMobileViewport.js:17:      applySafeViewportHeight
+src/device/hooks/useMobileViewport.js:24:        applySafeViewportHeight
+src/device/services/mobileViewportService.js:1:export function applySafeViewportHeight() {
+src/pages/home/HomePage.jsx:165:            bottom-[-100px]
+src/pages/home/HomePage.jsx:215:            bottom-[-50px]
+src/pages/home/HomePage.jsx:357:              bottom-[-20px]
+src/pages/home/index.jsx:458:      {/* BOTTOM NAV */}
+src/pages/home/index.jsx:464:          bottom-0
+src/pages/checkout/CheckoutPage.jsx:994:          bottom-0
+src/pages/game-center/GameCenterPage.jsx:259:          {/* BOTTOM */}
+src/pages/game-center/GameCenterPage.jsx:266:              bottom-5
+src/pages/game-center/GameCenterPage.jsx:345:              bottom-[-40px]
+src/pages/game-center/GameCenterPage.jsx:437:          {/* BOTTOM */}
+src/pages/game-center/GameCenterPage.jsx:444:              bottom-5
+src/games/runtime/gameCollisionRuntime.js:27:      const hitBottom =
+src/games/runtime/gameCollisionRuntime.js:33:        (hitTop || hitBottom)
+src/games/runtime/gamePhysicsRuntime.js:70:    // DYNAMIC DIFFICULTY
+src/games/runtime/gameObstacleRuntime.js:33:    // DYNAMIC GAP
+src/games/black-pearl-rush/index.jsx:460:        gapBottom:
+src/games/black-pearl-rush/index.jsx:505:      const hitBottom =
+src/games/black-pearl-rush/index.jsx:509:        obstacle.gapBottom;
+src/games/black-pearl-rush/index.jsx:513:        hitBottom
+src/games/black-pearl-rush/index.jsx:822:        obstacle.gapBottom,
+src/games/components/GameCanvas.jsx:295:        h-[100vh]
+src/games/components/GameObstacleLayer.jsx:62:                  bottom:
+src/services/platform/mobileViewportService.js:3: * MOBILE VIEWPORT SERVICE
+src/services/platform/mobileViewportService.js:7:class MobileViewportService {
+src/services/platform/mobileViewportService.js:46:const mobileViewportService =
+src/services/platform/mobileViewportService.js:47:  new MobileViewportService();
+src/services/platform/mobileViewportService.js:50:  mobileViewportService;
+src/customer/runtime/customerRewardRuntime.js:5:import dynamicRewardConfigRuntime from "@/cms/runtime/dynamicRewardConfigRuntime";
+src/customer/runtime/customerRewardRuntime.js:12:      dynamicRewardConfigRuntime
+src/router/index.jsx:21: * DYNAMIC GAME ROUTES
+src/router/index.jsx:80:        {/* DYNAMIC GAMES */}

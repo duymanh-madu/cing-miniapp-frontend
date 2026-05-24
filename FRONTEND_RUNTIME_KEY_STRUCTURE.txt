@@ -1,0 +1,899 @@
+src/core
+├── app-shell
+│   ├── adminAppShell.jsx
+│   └── customerAppShell.jsx
+├── background-sync
+│   ├── backgroundSyncRuntime.js
+│   └── backgroundTaskRegistry.js
+├── cache
+│   ├── hydrationCache.js
+│   └── runtimeWarmCache.js
+├── cache-persistence
+│   └── cachePersistenceRuntime.js
+├── component-registry
+│   └── componentRegistry.js
+├── conflict-resolution
+│   ├── conflictResolutionEngine.js
+│   └── runtimeConflictResolver.js
+├── delta-sync
+│   ├── deltaSyncEngine.js
+│   └── runtimeDeltaStateStore.js
+├── dynamic-layout
+│   └── dynamicLayoutEngine.js
+├── events
+│   ├── eventBus.js
+│   └── runtimeEvents.js
+├── frontend-analytics
+│   ├── frontendAnalyticsRuntime.js
+│   └── runtimeAnalyticsBridge.js
+├── indexeddb
+│   ├── indexedDbRuntime.js
+│   └── runtimePersistenceBridge.js
+├── interaction-tracking
+│   └── interactionTrackingRuntime.js
+├── lifecycle
+├── lowcode-compiler
+│   ├── lowcodeExecutionCompiler.js
+│   └── runtimeGraphCompiler.js
+├── network-runtime
+│   ├── networkLatencyMonitor.js
+│   ├── networkRuntime.js
+│   └── networkStateStore.js
+├── observability
+│   ├── runtimeHealthTelemetry.js
+│   ├── runtimeObservabilityDashboardStore.js
+│   └── runtimeObservabilityEngine.js
+├── offline
+│   └── offlineSnapshotRuntime.js
+├── offline-queue
+│   └── offlineQueueStore.js
+├── offline-sync
+│   ├── offlineRuntimeBootstrap.js
+│   ├── offlineSyncReplayer.js
+│   └── offlineSyncRuntime.js
+├── orchestration
+│   ├── orchestrationEngine.js
+│   └── orchestrationRuntimeStore.js
+├── performance
+│   ├── imageLazyRuntime.jsx
+│   ├── memoryPressureRuntime.js
+│   ├── renderScheduler.js
+│   ├── routeChunkLoader.js
+│   ├── runtimeCacheRuntime.js
+│   ├── runtimeIdleScheduler.js
+│   ├── runtimeLazyLoader.js
+│   ├── runtimePreloader.js
+│   ├── runtimeWarmupRuntime.js
+│   └── virtualListRuntime.jsx
+├── performance-tracing
+│   └── renderPerformanceTracer.js
+├── reconciliation
+│   └── reconciliationEngine.js
+├── replay-engine
+│   ├── runtimeReplayQueue.js
+│   └── runtimeReplayTimeline.js
+├── router
+│   └── routePreloader.js
+├── runtime
+│   ├── runtimeEventReplayBridge.js
+│   ├── runtimeExecutionEngine.js
+│   ├── runtimeLifecycleManager.js
+│   └── runtimeRegistry.js
+├── runtime-actions
+│   ├── runtimeActionEngine.js
+│   └── runtimeEventActionBridge.js
+├── runtime-bindings
+│   ├── runtimeBindingResolver.js
+│   └── runtimeExpressionResolver.js
+├── runtime-capabilities
+│   ├── runtimeCapabilityRegistry.js
+│   └── runtimeCapabilityResolver.js
+├── runtime-container
+│   ├── runtimeContainerRegistry.js
+│   └── runtimeContainerRuntime.js
+├── runtime-diagnostics
+│   ├── runtimeDiagnosticsStore.js
+│   └── runtimeErrorReporter.js
+├── runtime-discovery
+│   ├── runtimeDiscoveryEngine.js
+│   └── runtimeDiscoveryStore.js
+├── runtime-engine
+│   └── runtimeKernelBootstrap.js
+├── runtime-governance
+│   ├── runtimeGovernanceEngine.js
+│   └── runtimePolicyRegistry.js
+├── runtime-graph
+│   └── runtimeGraphEngine.js
+├── runtime-hooks
+│   ├── useRuntimeActions.js
+│   ├── useRuntimeBindings.js
+│   └── useRuntimeSchema.js
+├── runtime-isolation
+│   ├── runtimeIsolationEngine.js
+│   └── runtimeSandboxRuntime.js
+├── runtime-metrics
+│   ├── runtimeMemoryMonitor.js
+│   └── runtimeMetricsStore.js
+├── runtime-orchestrator
+│   ├── runtimeExecutionTopologyEngine.js
+│   └── runtimeFabricOrchestrator.js
+├── runtime-renderer
+│   ├── runtimeNodeFactory.jsx
+│   ├── runtimeRenderer.jsx
+│   └── runtimeTreeRenderer.jsx
+├── runtime-resolver
+│   ├── runtimeComponentResolver.js
+│   └── runtimeSchemaResolver.js
+├── runtime-schema
+│   ├── runtimeSchemaHydrator.js
+│   └── runtimeSchemaStore.js
+├── runtime-timeline
+│   ├── runtimeReplayEngine.js
+│   └── runtimeTimelineStore.js
+├── runtime-topology
+│   ├── runtimeTopologyEngine.js
+│   └── runtimeTopologyStore.js
+├── runtime-zones
+│   ├── runtimeZoneManager.js
+│   └── runtimeZoneRuntime.js
+├── schema-runtime
+│   ├── schemaRuntimeCompiler.js
+│   └── schemaVersionManager.js
+├── service-mesh
+│   ├── runtimeServiceMesh.js
+│   └── runtimeServiceResolver.js
+├── session
+│   └── sessionHydrator.js
+├── session-replay
+│   ├── sessionReplayRecorder.js
+│   └── sessionReplayStore.js
+├── socket
+├── socket-runtime
+├── startup
+│   ├── activationBootstrap.js
+│   ├── startupMetricsRuntime.js
+│   └── startupOrchestrator.js
+├── state-mesh
+│   ├── distributedStateRuntime.js
+│   └── stateMeshStore.js
+├── store
+│   ├── authRuntimeStore.ts
+│   ├── cmsRuntimeStore.ts
+│   ├── customerRuntimeStore.ts
+│   ├── gameRuntimeStore.ts
+│   ├── loyaltyRuntimeStore.ts
+│   ├── notificationRuntimeStore.ts
+│   ├── orderRuntimeStore.ts
+│   ├── paymentRuntimeStore.ts
+│   ├── runtimeStore.js
+│   ├── runtimeStoreOrchestrator.ts
+│   └── runtimeStoreRegistry.ts
+├── sync-orchestrator
+│   └── distributedSyncEngine.js
+├── telemetry
+│   ├── runtimeTelemetryBootstrap.js
+│   └── telemetryRuntime.js
+├── tracing
+│   ├── distributedTracingRuntime.js
+│   └── runtimeTraceBridge.js
+├── visibility
+├── websocket-tracing
+│   ├── websocketLatencyTracker.js
+│   └── websocketTracingRuntime.js
+└── webview
+    ├── webviewSafeAreaRuntime.js
+    └── zaloSdkRuntime.js
+src/runtime
+├── admin
+│   ├── runtimeAdminAuditStore.ts
+│   ├── runtimeAdminConstants.ts
+│   ├── runtimeAdminCrmImportEngine.ts
+│   ├── runtimeAdminGovernanceOrchestrator.ts
+│   ├── runtimeAdminGovernanceStore.ts
+│   ├── runtimeAdminMemberGovernanceEngine.ts
+│   ├── runtimeAdminPermissions.ts
+│   ├── runtimeAdminRealtimeActions.ts
+│   └── runtimeAdminSelectors.ts
+├── card
+│   ├── runtimeMembershipBarcodeEngine.ts
+│   ├── runtimeMembershipCardBrandLayer.ts
+│   ├── runtimeMembershipCardRenderer.ts
+│   ├── runtimeMembershipCardThemeEngine.ts
+│   └── runtimeMembershipTierProgressEngine.ts
+├── cms
+│   └── runtimeCmsRenderer.tsx
+├── communication
+│   └── runtimeCommunicationEngine.ts
+├── components
+│   ├── RuntimeHealthCard.jsx
+│   └── RuntimeSafeModeBanner.jsx
+├── config
+│   └── runtimeConfig.js
+├── crm
+│   ├── runtimeCrmConstants.ts
+│   ├── runtimeCrmEvaluationCycleEngine.ts
+│   ├── runtimeCrmGovernanceEngine.ts
+│   ├── runtimeCrmMappingEngine.ts
+│   ├── runtimeCrmSelectors.ts
+│   ├── runtimeCrmSpendAggregationEngine.ts
+│   ├── runtimeCrmSyncOrchestrator.ts
+│   ├── runtimeCrmSyncStore.ts
+│   └── runtimeCrmTypes.ts
+├── customer
+│   ├── runtimeCustomerActivationEngine.ts
+│   ├── runtimeCustomerEligibilityEngine.ts
+│   ├── runtimeCustomerFollowEngine.ts
+│   ├── runtimeCustomerIdentityConstants.ts
+│   ├── runtimeCustomerIdentityEngine.ts
+│   ├── runtimeCustomerIdentityOrchestrator.ts
+│   ├── runtimeCustomerIdentityTypes.ts
+│   ├── runtimeCustomerIdentityUtils.ts
+│   ├── runtimeCustomerPermissionEngine.ts
+│   └── runtimeCustomerProfileHydrator.ts
+├── hooks
+│   ├── useRuntimeAudit.js
+│   └── useRuntimeBootstrap.js
+├── lifecycle
+│   └── runtimeVisibilityLifecycle.ts
+├── logger
+│   └── runtimeLogger.ts
+├── membership
+│   ├── config
+│   │   └── runtimeMembershipThemeMap.ts
+│   ├── mock
+│   ├── types
+│   │   └── runtimeMembershipCard.types.ts
+│   └── utils
+│       ├── runtimeCurrency.ts
+│       └── runtimeTierProgress.ts
+├── notification
+│   ├── runtimeNotificationConstants.ts
+│   ├── runtimeNotificationOrchestrator.ts
+│   ├── runtimeNotificationPersistence.ts
+│   ├── runtimeNotificationSelectors.ts
+│   ├── runtimeNotificationStore.ts
+│   ├── runtimeNotificationToastManager.ts
+│   └── runtimeNotificationTypes.ts
+├── orchestration
+│   └── runtimeOrchestrator.ts
+├── personalization
+│   └── runtimePersonalizationEngine.ts
+├── realtime
+│   ├── runtimeChannels.ts
+│   ├── runtimeEventBus.ts
+│   ├── runtimeEventListeners.ts
+│   ├── runtimeRealtimeChannelRegistry.ts
+│   ├── runtimeRealtimeChannels.ts
+│   ├── runtimeRealtimeConstants.ts
+│   ├── runtimeRealtimeEventHandlers.ts
+│   ├── runtimeRealtimeEventRouter.ts
+│   ├── runtimeRealtimeEvents.ts
+│   ├── runtimeRealtimeOrchestrator.ts
+│   ├── runtimeRealtimeSubscriptionManager.ts
+│   └── runtimeSubscriptionRegistry.ts
+├── runtimeBootstrap.ts
+├── services
+│   ├── runtimeCleanupService.js
+│   ├── runtimeListenerAudit.js
+│   └── runtimeMemoryAudit.js
+├── session
+│   ├── runtimeAuthHydrator.ts
+│   ├── runtimeDeviceIdentity.ts
+│   ├── runtimeIdentityConstants.ts
+│   ├── runtimeIdentityStore.ts
+│   ├── runtimeSessionOrchestrator.ts
+│   ├── runtimeSessionPersistence.ts
+│   ├── runtimeSessionRecovery.ts
+│   └── runtimeSessionStore.ts
+├── socket
+│   └── runtimeSocketClient.ts
+├── system
+│   └── runtimeSystemStore.ts
+├── timer
+│   ├── runtimeSafeInterval.ts
+│   ├── runtimeSafeTimeout.ts
+│   ├── runtimeTimerRegistry.ts
+│   └── runtimeVisibilityTimerGovernor.ts
+└── utils
+    └── safeTimeout.js
+src/admin
+├── AdminApp.jsx
+├── ai
+│   ├── aiInsightsBootstrap.js
+│   ├── aiInsightsService.js
+│   ├── aiInsightsStore.js
+│   ├── components
+│   │   ├── AiInsightFeed.jsx
+│   │   ├── AiPredictionPanel.jsx
+│   │   └── AiRecommendationPanel.jsx
+│   └── pages
+│       └── AiInsightsPage.jsx
+├── ai-agents
+│   ├── aiAgentBootstrap.js
+│   ├── aiAgentRealtimeSocket.js
+│   ├── aiAgentService.js
+│   ├── aiAgentStore.js
+│   ├── components
+│   │   ├── AiAgentGrid.jsx
+│   │   └── AutonomousActionFeed.jsx
+│   └── pages
+│       └── AiAutonomousPage.jsx
+├── ai-copilot
+│   └── aiCopilotStore.js
+├── ai-decisions
+│   ├── aiDecisionRealtimeSocket.js
+│   └── aiDecisionStore.js
+├── ai-orchestration
+│   └── aiOrchestrationStore.js
+├── ai-runtime
+│   ├── aiRuntimeBootstrap.js
+│   ├── aiRuntimeRealtimeSocket.js
+│   ├── aiRuntimeService.js
+│   ├── aiRuntimeStore.js
+│   ├── components
+│   │   ├── AiInferenceFeed.jsx
+│   │   └── AiRuntimeMetricsGrid.jsx
+│   └── pages
+│       └── AiRuntimePage.jsx
+├── alerts
+│   ├── alertRealtimeSocket.js
+│   └── alertStore.js
+├── analytics
+│   ├── analyticsBootstrap.js
+│   ├── analyticsService.js
+│   ├── analyticsStore.js
+│   └── pages
+│       └── AnalyticsPage.jsx
+├── audience
+│   ├── audienceBootstrap.js
+│   ├── audienceService.js
+│   ├── audienceStore.js
+│   ├── components
+│   │   ├── AudienceBuilderForm.jsx
+│   │   └── AudienceCard.jsx
+│   └── pages
+│       └── AudiencePage.jsx
+├── auth
+│   ├── AdminProtectedRoute.jsx
+│   ├── adminAuthStore.js
+│   └── pages
+│       └── AdminLoginPage.jsx
+├── automation
+│   ├── automationBootstrap.js
+│   ├── automationRealtimeSocket.js
+│   ├── automationService.js
+│   ├── automationStore.js
+│   └── components
+│       ├── AutomationMetricsGrid.jsx
+│       ├── WorkflowBuilderForm.jsx
+│       ├── WorkflowExecutionFeed.jsx
+│       └── pages
+│           └── AutomationPage.jsx
+├── behavior
+│   ├── behaviorRealtimeSocket.js
+│   └── behaviorStore.js
+├── bootstrap
+│   └── adminBootstrap.js
+├── branches-runtime
+│   ├── branchRuntimeRealtimeSocket.js
+│   └── branchRuntimeStore.js
+├── builder
+│   ├── components
+│   │   ├── PageCard.jsx
+│   │   ├── RuntimePreviewPanel.jsx
+│   │   └── VisualNodeEditor.jsx
+│   ├── pageBuilderBootstrap.js
+│   ├── pageBuilderRealtimeSocket.js
+│   ├── pageBuilderService.js
+│   ├── pageBuilderStore.js
+│   └── pages
+│       └── PageBuilderPage.jsx
+├── cache-runtime
+│   └── cacheRuntimeStore.js
+├── campaigns
+│   ├── campaignBootstrap.js
+│   ├── campaignRealtimeSocket.js
+│   ├── campaignService.js
+│   ├── campaignStore.js
+│   ├── components
+│   │   ├── CampaignBuilderForm.jsx
+│   │   ├── CampaignCard.jsx
+│   │   └── CampaignGrid.jsx
+│   └── pages
+│       └── CampaignsPage.jsx
+├── channels
+│   ├── channelBootstrap.js
+│   ├── channelService.js
+│   ├── channelStore.js
+│   └── components
+│       ├── ChannelHealthGrid.jsx
+│       └── ChannelManagementPage.jsx
+├── cms
+│   ├── README_ARCHITECTURE.md
+│   ├── blocks
+│   │   └── HeroBannerBlock.jsx
+│   ├── cmsBootstrap.js
+│   ├── cmsService.js
+│   ├── cmsStore.js
+│   ├── componentRegistry.js
+│   ├── dynamicRenderer.jsx
+│   ├── pages
+│   │   └── CMSPage.jsx
+│   └── registerCmsBlocks.js
+├── communication
+│   ├── communicationAnalyticsService.js
+│   └── communicationAnalyticsStore.js
+├── components
+│   ├── AdminActivityFeed.jsx
+│   ├── AdminCampaignList.jsx
+│   └── AdminRealtimeAlertPanel.jsx
+├── config
+│   ├── adminConfig.js
+│   ├── moduleRegistry.js
+│   ├── pages
+│   │   └── RemoteConfigPage.jsx
+│   ├── remoteConfigClient.js
+│   ├── runtimeConfigBootstrap.js
+│   ├── runtimeConfigService.js
+│   └── runtimeConfigStore.js
+├── constants
+│   └── adminRealtimeEvents.js
+├── customer360
+│   ├── components
+│   │   ├── CustomerInsightsPanel.jsx
+│   │   ├── CustomerProfileCard.jsx
+│   │   └── CustomerTimeline.jsx
+│   ├── customer360Bootstrap.js
+│   ├── customer360RealtimeSocket.js
+│   ├── customer360Service.js
+│   ├── customer360Store.js
+│   └── pages
+│       └── Customer360Page.jsx
+├── dashboard
+│   ├── pages
+│   │   └── AdminDashboardPage.jsx
+│   └── widgets
+│       ├── RealtimeFeedWidget.jsx
+│       └── RealtimeMetricCard.jsx
+├── delivery
+│   └── deliveryRetryStore.js
+├── designer
+│   └── designerStore.js
+├── developers
+│   └── developerPlatformStore.js
+├── devops
+│   ├── devopsRealtimeSocket.js
+│   └── devopsStore.js
+├── distribution
+│   └── distributionStore.js
+├── ecosystem
+│   ├── components
+│   │   ├── EcosystemAppsGrid.jsx
+│   │   └── FederationRuntimeViewer.jsx
+│   ├── ecosystemBootstrap.js
+│   ├── ecosystemRealtimeSocket.js
+│   ├── ecosystemService.js
+│   ├── ecosystemStore.js
+│   └── pages
+│       └── EcosystemPlatformPage.jsx
+├── engagement
+│   ├── engagementService.js
+│   └── engagementStore.js
+├── error-boundary
+│   └── EnterpriseErrorBoundary.jsx
+├── events
+│   ├── EventFeedPanel.jsx
+│   ├── eventFeedSocket.js
+│   └── eventFeedStore.js
+├── featureFlags
+│   ├── featureFlagBootstrap.js
+│   ├── featureFlagService.js
+│   └── featureFlagStore.js
+├── federation
+│   └── federationStore.js
+├── franchise
+│   ├── components
+│   │   ├── FranchiseGrid.jsx
+│   │   └── RegionalAnalyticsPanel.jsx
+│   ├── franchiseBootstrap.js
+│   ├── franchiseRealtimeSocket.js
+│   ├── franchiseService.js
+│   ├── franchiseStore.js
+│   └── pages
+│       └── FranchiseManagementPage.jsx
+├── guards
+│   └── AdminAuthGuard.jsx
+├── hooks
+│   ├── useAdminRealtime.js
+│   ├── useAdminSession.js
+│   └── useFeatureFlag.js
+├── integrations
+│   ├── integrationRealtimeSocket.js
+│   └── integrationStore.js
+├── ipos
+│   ├── components
+│   │   ├── IposRealtimeFeed.jsx
+│   │   └── IposStatusCard.jsx
+│   ├── iposBootstrap.js
+│   ├── iposRealtimeSocket.js
+│   ├── iposService.js
+│   ├── iposStore.js
+│   └── pages
+│       └── IposOperationsPage.jsx
+├── layouts
+│   ├── AdminLayout.jsx
+│   ├── AdminSidebar.jsx
+│   └── components
+│       ├── AdminHeader.jsx
+│       ├── AdminRealtimeStatus.jsx
+│       └── AdminSidebar.jsx
+├── loyalty
+│   ├── components
+│   │   ├── LoyaltyMetricsGrid.jsx
+│   │   └── RewardBuilderForm.jsx
+│   ├── loyaltyBootstrap.js
+│   ├── loyaltyRealtimeSocket.js
+│   ├── loyaltyService.js
+│   ├── loyaltyStore.js
+│   └── pages
+│       └── LoyaltyPage.jsx
+├── members
+│   ├── memberBootstrap.js
+│   ├── memberService.js
+│   └── memberStore.js
+├── messaging
+│   ├── messageTimelineRealtimeSocket.js
+│   └── messageTimelineStore.js
+├── microfrontend
+│   └── microfrontendStore.js
+├── monitoring
+│   ├── pages
+│   │   └── RealtimeMonitoringPage.jsx
+│   ├── socketMonitoringSocket.js
+│   └── socketMonitoringStore.js
+├── multitenant
+│   └── multiTenantStore.js
+├── notifications
+│   ├── adminNotificationStore.js
+│   ├── components
+│   │   ├── NotificationBuilderForm.jsx
+│   │   ├── NotificationMetricsGrid.jsx
+│   │   └── RealtimeDeliveryFeed.jsx
+│   ├── notificationBootstrap.js
+│   ├── notificationRealtimeSocket.js
+│   ├── notificationService.js
+│   └── pages
+│       └── NotificationPage.jsx
+├── observability
+│   ├── components
+│   │   ├── IncidentCenter.jsx
+│   │   ├── RealtimeLogsFeed.jsx
+│   │   └── SystemHealthGrid.jsx
+│   ├── observabilityBootstrap.js
+│   ├── observabilityRealtimeSocket.js
+│   ├── observabilityService.js
+│   ├── observabilityStore.js
+│   └── pages
+│       └── ObservabilityPage.jsx
+├── offline-runtime
+│   └── offlineRuntimeStore.js
+├── operations
+│   ├── operationsRealtimeSocket.js
+│   └── operationsStore.js
+├── orchestration
+│   ├── campaignOrchestrationService.js
+│   └── campaignOrchestrationStore.js
+├── orders
+│   ├── components
+│   │   ├── OrderMetricsGrid.jsx
+│   │   └── RealtimeOrderFeed.jsx
+│   ├── orderBootstrap.js
+│   ├── orderRealtimeSocket.js
+│   ├── orderService.js
+│   ├── orderStore.js
+│   └── pages
+│       └── OrdersPage.jsx
+├── pages
+│   ├── AdminAnalyticsPage.jsx
+│   ├── AdminDashboardPage.jsx
+│   └── AdminOperationsPage.jsx
+├── partners
+│   ├── partnerBootstrap.js
+│   ├── partnerService.js
+│   └── partnerStore.js
+├── payments
+│   ├── paymentRealtimeSocket.js
+│   └── paymentStore.js
+├── performance
+│   └── performanceStore.js
+├── permissions
+│   └── permissionEngine.js
+├── plugins
+│   └── pluginStore.js
+├── providers
+│   ├── AdminAnalyticsProvider.jsx
+│   ├── AdminProvider.jsx
+│   └── AdminRuntimeProvider.jsx
+├── rbac
+│   └── permissionGraphStore.js
+├── realtime
+│   ├── adminRealtimeAnalyticsSocket.js
+│   ├── adminRealtimeClient.js
+│   ├── components
+│   │   └── RealtimeConnectionBadge.jsx
+│   └── hooks
+│       ├── useAdminRealtime.js
+│       └── useRealtimeMetrics.js
+├── realtime-cluster
+│   └── realtimeClusterStore.js
+├── recommendations
+│   └── recommendationStore.js
+├── regions
+│   └── regionStore.js
+├── releases
+│   ├── components
+│   │   ├── EnvironmentGrid.jsx
+│   │   └── ReleaseFeed.jsx
+│   ├── pages
+│   │   └── ReleaseManagementPage.jsx
+│   ├── releaseBootstrap.js
+│   ├── releaseService.js
+│   └── releaseStore.js
+├── router
+│   └── adminRouter.jsx
+├── runtime
+│   └── runtimeEngineRealtimeSocket.js
+├── runtime-profiler
+│   └── runtimeProfilerStore.js
+├── sandbox
+│   └── sandboxStore.js
+├── scheduler
+│   ├── campaignSchedulerBootstrap.js
+│   ├── campaignSchedulerService.js
+│   ├── campaignSchedulerStore.js
+│   ├── components
+│   │   ├── CampaignScheduleCard.jsx
+│   │   └── CampaignSchedulerForm.jsx
+│   └── pages
+│       └── CampaignSchedulerPage.jsx
+├── schema
+│   ├── components
+│   │   ├── SchemaCard.jsx
+│   │   └── SchemaRuntimeViewer.jsx
+│   ├── pages
+│   │   ├── SchemaDesignerPage.jsx
+│   │   └── runtimeEngineStore.js
+│   ├── schemaDesignerBootstrap.js
+│   ├── schemaDesignerService.js
+│   └── schemaDesignerStore.js
+├── sdk
+│   └── sdkStore.js
+├── security
+│   ├── securityRealtimeSocket.js
+│   └── securityRuntimeStore.js
+├── segmentation
+│   └── segmentStore.js
+├── services
+│   ├── adminAuthService.js
+│   └── adminRealtimeBridge.js
+├── store
+│   └── adminStore.js
+├── stores
+│   └── adminStore.js
+├── tenants
+│   ├── components
+│   │   ├── DistributedConfigViewer.jsx
+│   │   └── TenantGrid.jsx
+│   ├── pages
+│   │   └── TenantManagementPage.jsx
+│   ├── tenantBootstrap.js
+│   ├── tenantService.js
+│   └── tenantStore.js
+├── triggers
+│   ├── components
+│   │   └── TriggerActionPanel.jsx
+│   └── triggerEngineService.js
+├── visual-editor
+│   └── visualEditorStore.js
+├── vouchers
+│   ├── components
+│   │   ├── VoucherBuilderForm.jsx
+│   │   └── VoucherMetricsGrid.jsx
+│   ├── pages
+│   │   └── VoucherPage.jsx
+│   ├── voucherBootstrap.js
+│   ├── voucherRealtimeSocket.js
+│   ├── voucherService.js
+│   └── voucherStore.js
+├── webhooks
+│   └── webhookStore.js
+└── workflows
+    ├── workflowBuilderService.js
+    └── workflowBuilderStore.js
+src/features
+├── account
+│   ├── index.js
+│   └── pages
+│       └── AccountPage.jsx
+├── analytics
+│   └── services
+│       └── analyticsEngine.js
+├── auth
+│   ├── authService.js
+│   └── authStorage.js
+├── campaign
+│   ├── hooks
+│   │   └── useCampaignFeed.js
+│   ├── services
+│   │   └── campaignEngine.js
+│   └── store
+│       └── campaignStore.js
+├── game
+│   ├── index.js
+│   ├── pages
+│   │   └── GamePage.jsx
+│   ├── services
+│   │   └── gameEngine.js
+│   └── store
+│       └── gameStore.js
+├── ipos
+│   └── services
+├── leaderboard
+│   ├── index.js
+│   ├── leaderboardEngine.js
+│   ├── pages
+│   │   └── LeaderboardPage.jsx
+│   └── store
+│       └── leaderboardStore.js
+├── loyalty
+│   ├── hooks
+│   │   └── useMembershipProfile.js
+│   ├── services
+│   │   └── loyaltyEngine.js
+│   └── store
+│       └── loyaltyFeatureStore.js
+├── member
+│   ├── memberLevels.js
+│   └── memberService.js
+├── menu
+│   ├── components
+│   │   ├── MenuCard.jsx
+│   │   ├── MenuCategories.jsx
+│   │   ├── MenuCategoryTabs.jsx
+│   │   ├── MenuGrid.jsx
+│   │   ├── MenuProductCard.jsx
+│   │   ├── MenuProductGrid.jsx
+│   │   └── ProductCard.jsx
+│   ├── hooks
+│   │   ├── useFeaturedProducts.js
+│   │   ├── useFilteredMenuProducts.js
+│   │   ├── useMenu.js
+│   │   ├── useMenuBootstrap.js
+│   │   ├── useMenuCategories.js
+│   │   ├── useMenuFilters.js
+│   │   ├── useMenuProducts.js
+│   │   ├── useProducts.js
+│   │   └── useRegisterMenuRealtime.js
+│   ├── index.js
+│   ├── mock
+│   ├── pages
+│   ├── realtime
+│   │   ├── menuRealtimeEvents.js
+│   │   └── registerMenuRealtime.js
+│   ├── selectors
+│   │   └── menuSelectors.js
+│   └── store
+│       ├── cartStore.js
+│       └── menuStore.js
+├── notification
+│   ├── services
+│   │   └── notificationEngine.js
+│   └── store
+│       └── notificationFeatureStore.js
+├── system
+│   ├── hooks
+│   │   └── useSystemRuntime.js
+│   ├── systemFeatureRegistry.js
+│   ├── systemIconRegistry.js
+│   └── systemNavigationRegistry.js
+└── voucher
+    ├── hooks
+    │   └── useMemberVouchers.js
+    ├── services
+    │   └── voucherEngine.js
+    └── store
+        └── voucherStore.js
+src/modules
+├── loyalty
+│   ├── runtimeLoyaltyConstants.ts
+│   ├── runtimeLoyaltyExperienceEngine.ts
+│   ├── runtimeLoyaltyExperienceOrchestrator.ts
+│   ├── runtimeLoyaltyExperienceStore.ts
+│   ├── runtimeLoyaltyProgressEngine.ts
+│   ├── runtimeLoyaltyRealtimeEvents.ts
+│   ├── runtimeLoyaltyRealtimeSubscriptions.ts
+│   ├── runtimeLoyaltyRewardRuntime.ts
+│   ├── runtimeLoyaltySelectors.ts
+│   └── runtimeLoyaltyTierProgressionEngine.ts
+└── membership-card
+    ├── runtimeMembershipBenefitEngine.ts
+    ├── runtimeMembershipCardConstants.ts
+    ├── runtimeMembershipCardEngine.ts
+    ├── runtimeMembershipCardHydrator.ts
+    ├── runtimeMembershipCardOrchestrator.ts
+    ├── runtimeMembershipCardSubscriptions.ts
+    ├── runtimeMembershipCardTypes.ts
+    ├── runtimeMembershipCardUtils.ts
+    ├── runtimeMembershipProgressEngine.ts
+    └── runtimeMembershipTierPresenter.ts
+src/zalo
+├── activation
+│   ├── activationApi.js
+│   ├── activationRuntime.js
+│   ├── activationStore.js
+│   ├── components
+│   │   └── ActivationGate.jsx
+│   ├── hooks
+│   │   └── useActivation.js
+│   ├── runtime
+│   │   ├── activationAnalyticsRuntime.js
+│   │   └── activationConfigRuntime.js
+│   ├── services
+│   │   └── activationService.js
+│   └── store
+│       └── activationStore.js
+├── auth
+│   └── zaloAuthRuntime.js
+├── bootstrap
+│   └── zaloBootstrap.js
+├── components
+│   └── ZaloEnvironmentBadge.jsx
+├── config
+│   └── zaloConfig.js
+├── constants
+│   └── zaloEvents.js
+├── follow
+│   └── followOARuntime.js
+├── hooks
+├── phone
+│   ├── phonePermissionRuntime.js
+│   └── zaloPhoneRuntime.js
+├── services
+│   ├── zaloFollowOAService.js
+│   ├── zaloOpenChatService.js
+│   ├── zaloProfileService.js
+│   ├── zaloSdkLoader.js
+│   └── zaloShareService.js
+└── session
+    └── sessionRuntime.js
+src/games
+├── black-pearl-rush
+│   └── index.jsx
+├── components
+│   ├── GameBackground.jsx
+│   ├── GameCanvas.jsx
+│   ├── GameComboIndicator.jsx
+│   ├── GameHud.jsx
+│   ├── GameLeaderboard.jsx
+│   ├── GameObstacleLayer.jsx
+│   └── MyGameRankCard.jsx
+├── runtime
+│   ├── gameAudioRuntime.js
+│   ├── gameBackgroundRuntime.js
+│   ├── gameCollisionRuntime.js
+│   ├── gameComboRuntime.js
+│   ├── gameEngineRuntime.js
+│   ├── gameHapticRuntime.js
+│   ├── gameInputRuntime.js
+│   ├── gameLeaderboardRuntime.js
+│   ├── gameLoopRuntime.js
+│   ├── gameObstacleRuntime.js
+│   ├── gamePerformanceRuntime.js
+│   ├── gamePhysicsRuntime.js
+│   ├── gameRealtimeRuntime.js
+│   ├── gameRewardRuntime.js
+│   └── gameSessionRuntime.js
+└── store
+    └── gameRuntimeStore.js
+
+293 directories, 604 files

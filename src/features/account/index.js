@@ -1,4 +1,5 @@
-export {
-  default as AccountPage,
-}
-from "./pages/AccountPage";
+/**
+ * ACCOUNT FEATURE ENTRY (CLEAN CONTRACT)
+ */
+
+export { default } from "./pages/AccountPage";

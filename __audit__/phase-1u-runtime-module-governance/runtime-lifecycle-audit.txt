@@ -1,0 +1,193 @@
+src/admin/behavior/behaviorRuntimeModule.js:28:  initialize() {
+src/admin/behavior/behaviorRuntimeModule.js:31:      .initialize();
+src/admin/behavior/behaviorRuntimeModule.js:35:  destroy() {
+src/admin/behavior/behaviorRuntimeModule.js:38:      .destroy();
+src/admin/behavior/behaviorRealtimeSocket.js:23:  initialized =
+src/admin/behavior/behaviorRealtimeSocket.js:54:  initialize() {
+src/admin/behavior/behaviorRealtimeSocket.js:79:    this.initialized =
+src/admin/behavior/behaviorRealtimeSocket.js:94:  destroy() {
+src/admin/behavior/behaviorRealtimeSocket.js:125:    this.initialized =
+src/admin/ecosystem/ecosystemRealtimeSocket.js:10:  initialized =
+src/admin/ecosystem/ecosystemRealtimeSocket.js:13:  initialize() {
+src/admin/ecosystem/ecosystemRealtimeSocket.js:50:    this.initialized =
+src/admin/ecosystem/ecosystemBootstrap.js:7:  initialized =
+src/admin/ecosystem/ecosystemBootstrap.js:69:      this.initialized =
+src/admin/ecosystem/pages/EcosystemPlatformPage.jsx:31:      .initialize();
+src/admin/releases/releaseBootstrap.js:7:  initialized =
+src/admin/releases/releaseBootstrap.js:48:    this.initialized =
+src/admin/payments/paymentRealtimeSocket.js:10:  initialized =
+src/admin/payments/paymentRealtimeSocket.js:13:  initialize() {
+src/admin/payments/paymentRealtimeSocket.js:50:    this.initialized =
+src/admin/devops/devopsRealtimeSocket.js:10:  initialized =
+src/admin/devops/devopsRealtimeSocket.js:13:  initialize() {
+src/admin/devops/devopsRealtimeSocket.js:50:    this.initialized =
+src/admin/ipos/iposRealtimeSocket.js:10:  initialized =
+src/admin/ipos/iposRealtimeSocket.js:13:  initialize() {
+src/admin/ipos/iposRealtimeSocket.js:50:    this.initialized =
+src/admin/ipos/iposBootstrap.js:7:  initialized =
+src/admin/ipos/iposBootstrap.js:48:    this.initialized =
+src/admin/ipos/pages/IposOperationsPage.jsx:31:      .initialize();
+src/admin/customer360/customer360RealtimeSocket.js:10:  initialized =
+src/admin/customer360/customer360RealtimeSocket.js:13:  initialize() {
+src/admin/customer360/customer360RealtimeSocket.js:52:    this.initialized =
+src/admin/customer360/customer360Bootstrap.js:7:  initialized =
+src/admin/customer360/customer360Bootstrap.js:44:      this.initialized =
+src/admin/customer360/pages/Customer360Page.jsx:45:      .initialize();
+src/admin/config/runtimeConfigBootstrap.js:7:  initialized =
+src/admin/config/runtimeConfigBootstrap.js:44:      this.initialized =
+src/admin/security/securityRealtimeSocket.js:10:  initialized =
+src/admin/security/securityRealtimeSocket.js:13:  initialize() {
+src/admin/security/securityRealtimeSocket.js:68:    this.initialized =
+src/admin/providers/AdminAnalyticsProvider.jsx:23:      .initialize();
+src/admin/providers/AdminAnalyticsProvider.jsx:26:      .initialize();
+src/admin/providers/AdminAnalyticsProvider.jsx:29:      .initialize();
+src/admin/ai-agents/aiAgentRealtimeSocket.js:10:  initialized =
+src/admin/ai-agents/aiAgentRealtimeSocket.js:13:  initialize() {
+src/admin/ai-agents/aiAgentRealtimeSocket.js:68:    this.initialized =
+src/admin/ai-agents/aiAgentBootstrap.js:7:  initialized =
+src/admin/ai-agents/aiAgentBootstrap.js:60:      this.initialized =
+src/admin/ai-agents/pages/AiAutonomousPage.jsx:31:      .initialize();
+src/admin/runtime/runtimeEngineRealtimeSocket.js:10:  initialized =
+src/admin/runtime/runtimeEngineRealtimeSocket.js:13:  initialize() {
+src/admin/runtime/runtimeEngineRealtimeSocket.js:50:    this.initialized =
+src/admin/scheduler/campaignSchedulerBootstrap.js:7:  initialized =
+src/admin/scheduler/campaignSchedulerBootstrap.js:30:    this.initialized =
+src/admin/loyalty/loyaltyBootstrap.js:7:  initialized =
+src/admin/loyalty/loyaltyBootstrap.js:60:      this.initialized =
+src/admin/loyalty/loyaltyRealtimeSocket.js:10:  initialized =
+src/admin/loyalty/loyaltyRealtimeSocket.js:13:  initialize() {
+src/admin/loyalty/loyaltyRealtimeSocket.js:50:    this.initialized =
+src/admin/loyalty/pages/LoyaltyPage.jsx:30:      .initialize();
+src/admin/franchise/franchiseBootstrap.js:7:  initialized =
+src/admin/franchise/franchiseBootstrap.js:69:      this.initialized =
+src/admin/franchise/franchiseRealtimeSocket.js:10:  initialized =
+src/admin/franchise/franchiseRealtimeSocket.js:13:  initialize() {
+src/admin/franchise/franchiseRealtimeSocket.js:50:    this.initialized =
+src/admin/franchise/pages/FranchiseManagementPage.jsx:31:      .initialize();
+src/admin/observability/observabilityRealtimeSocket.js:23:  initialized =
+src/admin/observability/observabilityRealtimeSocket.js:86:  initialize() {
+src/admin/observability/observabilityRealtimeSocket.js:133:    this.initialized =
+src/admin/observability/observabilityRealtimeSocket.js:148:  destroy() {
+src/admin/observability/observabilityRealtimeSocket.js:179:    this.initialized =
+src/admin/observability/observabilityRuntimeModule.js:25:  async initialize() {
+src/admin/observability/observabilityRuntimeModule.js:31:      .initialize();
+src/admin/observability/observabilityRuntimeModule.js:35:  async destroy() {
+src/admin/observability/observabilityRuntimeModule.js:38:      .destroy();
+src/admin/observability/observabilityBootstrap.js:7:  initialized =
+src/admin/observability/observabilityBootstrap.js:87:      this.initialized =
+src/admin/tenants/tenantBootstrap.js:7:  initialized =
+src/admin/tenants/tenantBootstrap.js:57:    this.initialized =
+src/admin/operations/operationsRealtimeSocket.js:10:  initialized =
+src/admin/operations/operationsRealtimeSocket.js:13:  initialize() {
+src/admin/operations/operationsRealtimeSocket.js:50:    this.initialized =
+src/admin/alerts/alertRealtimeSocket.js:10:  initialized =
+src/admin/alerts/alertRealtimeSocket.js:13:  initialize() {
+src/admin/alerts/alertRealtimeSocket.js:50:    this.initialized =
+src/admin/dashboard/pages/AdminDashboardPage.jsx:30:      .initialize();
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:23:  initialized =
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:29:  initialize() {
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:103:    this.initialized =
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:118:  destroy() {
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:149:    this.initialized =
+src/admin/integrations/integrationRealtimeSocket.js:10:  initialized =
+src/admin/integrations/integrationRealtimeSocket.js:13:  initialize() {
+src/admin/integrations/integrationRealtimeSocket.js:50:    this.initialized =
+src/admin/schema/schemaDesignerBootstrap.js:7:  initialized =
+src/admin/schema/schemaDesignerBootstrap.js:30:    this.initialized =
+src/admin/ai-runtime/aiRuntimeBootstrap.js:7:  initialized =
+src/admin/ai-runtime/aiRuntimeBootstrap.js:48:    this.initialized =
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:10:  initialized =
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:13:  initialize() {
+src/admin/ai-runtime/aiRuntimeRealtimeSocket.js:50:    this.initialized =
+src/admin/ai-runtime/pages/AiRuntimePage.jsx:31:      .initialize();
+src/admin/cms/cmsBootstrap.js:7:  initialized =
+src/admin/cms/cmsBootstrap.js:44:      this.initialized =
+src/admin/ai/aiInsightsBootstrap.js:7:  initialized =
+src/admin/ai/aiInsightsBootstrap.js:57:    this.initialized =
+src/admin/partners/partnerBootstrap.js:7:  initialized =
+src/admin/partners/partnerBootstrap.js:48:    this.initialized =
+src/admin/vouchers/voucherBootstrap.js:7:  initialized =
+src/admin/vouchers/voucherBootstrap.js:44:      this.initialized =
+src/admin/vouchers/pages/VoucherPage.jsx:30:      .initialize();
+src/admin/vouchers/voucherRealtimeSocket.js:10:  initialized =
+src/admin/vouchers/voucherRealtimeSocket.js:13:  initialize() {
+src/admin/vouchers/voucherRealtimeSocket.js:50:    this.initialized =
+src/admin/members/memberBootstrap.js:7:  initialized =
+src/admin/members/memberBootstrap.js:48:    this.initialized =
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:10:  initialized =
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:13:  initialize() {
+src/admin/ai-decisions/aiDecisionRealtimeSocket.js:50:    this.initialized =
+src/admin/automation/automationRealtimeSocket.js:23:  initialized =
+src/admin/automation/automationRealtimeSocket.js:29:  initialize() {
+src/admin/automation/automationRealtimeSocket.js:103:    this.initialized =
+src/admin/automation/automationRealtimeSocket.js:118:  destroy() {
+src/admin/automation/automationRealtimeSocket.js:149:    this.initialized =
+src/admin/automation/automationBootstrap.js:7:  initialized =
+src/admin/automation/automationBootstrap.js:60:      this.initialized =
+src/admin/automation/automationRuntimeModule.js:23:  initialize() {
+src/admin/automation/automationRuntimeModule.js:26:      .initialize();
+src/admin/automation/automationRuntimeModule.js:30:  destroy() {
+src/admin/automation/automationRuntimeModule.js:33:      .destroy();
+src/admin/campaigns/campaignRealtimeSocket.js:10:  initialized =
+src/admin/campaigns/campaignRealtimeSocket.js:13:  initialize() {
+src/admin/campaigns/campaignRealtimeSocket.js:67:    this.initialized =
+src/admin/campaigns/campaignBootstrap.js:7:  initialized =
+src/admin/campaigns/campaignBootstrap.js:44:      this.initialized =
+src/admin/campaigns/pages/CampaignsPage.jsx:30:      .initialize();
+src/admin/orders/orderRuntimeModule.js:27:  async initialize() {
+src/admin/orders/orderRuntimeModule.js:33:      .initialize();
+src/admin/orders/orderRuntimeModule.js:37:  async destroy() {
+src/admin/orders/orderRuntimeModule.js:40:      .destroy();
+src/admin/orders/orderBootstrap.js:7:  initialized =
+src/admin/orders/orderBootstrap.js:60:      this.initialized =
+src/admin/orders/orderRealtimeSocket.js:23:  initialized =
+src/admin/orders/orderRealtimeSocket.js:67:  initialize() {
+src/admin/orders/orderRealtimeSocket.js:103:    this.initialized =
+src/admin/orders/orderRealtimeSocket.js:119:  destroy() {
+src/admin/orders/orderRealtimeSocket.js:152:    this.initialized =
+src/admin/featureFlags/featureFlagBootstrap.js:7:  initialized =
+src/admin/featureFlags/featureFlagBootstrap.js:30:    this.initialized =
+src/admin/monitoring/socketMonitoringSocket.js:10:  initialized =
+src/admin/monitoring/socketMonitoringSocket.js:13:  initialize() {
+src/admin/monitoring/socketMonitoringSocket.js:50:    this.initialized =
+src/admin/monitoring/pages/RealtimeMonitoringPage.jsx:24:      .initialize();
+src/admin/events/eventFeedSocket.js:10:  initialized =
+src/admin/events/eventFeedSocket.js:13:  initialize() {
+src/admin/events/eventFeedSocket.js:50:    this.initialized =
+src/admin/audience/audienceBootstrap.js:7:  initialized =
+src/admin/audience/audienceBootstrap.js:30:    this.initialized =
+src/admin/builder/pageBuilderRealtimeSocket.js:10:  initialized =
+src/admin/builder/pageBuilderRealtimeSocket.js:13:  initialize() {
+src/admin/builder/pageBuilderRealtimeSocket.js:50:    this.initialized =
+src/admin/builder/pageBuilderBootstrap.js:7:  initialized =
+src/admin/builder/pageBuilderBootstrap.js:44:      this.initialized =
+src/admin/builder/pages/PageBuilderPage.jsx:43:      .initialize();
+src/admin/messaging/messageTimelineRealtimeSocket.js:10:  initialized =
+src/admin/messaging/messageTimelineRealtimeSocket.js:13:  initialize() {
+src/admin/messaging/messageTimelineRealtimeSocket.js:50:    this.initialized =
+src/admin/notifications/notificationRealtimeSocket.js:20:  initialized =
+src/admin/notifications/notificationRealtimeSocket.js:73:  initialize() {
+src/admin/notifications/notificationRealtimeSocket.js:119:    this.initialized =
+src/admin/notifications/notificationRealtimeSocket.js:160:    this.initialized =
+src/admin/notifications/notificationRealtimeSocket.js:171:  destroy() {
+src/admin/notifications/notificationBootstrap.js:7:  initialized =
+src/admin/notifications/notificationBootstrap.js:60:      this.initialized =
+src/admin/notifications/pages/NotificationPage.jsx:33:      .initialize();
+src/admin/services/adminRealtimeBridge.js:24:  initialized =
+src/admin/services/adminRealtimeBridge.js:36:  initialize() {
+src/admin/services/adminRealtimeBridge.js:110:    this.initialized =
+src/admin/services/adminRealtimeBridge.js:125:  destroy() {
+src/admin/services/adminRealtimeBridge.js:156:    this.initialized =
+src/admin/services/adminRealtimeBridge.js:173:    .initialize();
+src/admin/services/adminRealtimeBridge.js:180:    .destroy();
+src/admin/branches-runtime/branchRuntimeRealtimeSocket.js:10:  initialized =
+src/admin/branches-runtime/branchRuntimeRealtimeSocket.js:13:  initialize() {
+src/admin/branches-runtime/branchRuntimeRealtimeSocket.js:50:    this.initialized =
+src/admin/analytics/analyticsBootstrap.js:7:  initialized =
+src/admin/analytics/analyticsBootstrap.js:44:      this.initialized =
+src/admin/analytics/analyticsRuntimeModule.js:23:  initialize() {
+src/admin/analytics/analyticsRuntimeModule.js:26:      .initialize();
+src/admin/analytics/analyticsRuntimeModule.js:30:  destroy() {
+src/admin/analytics/analyticsRuntimeModule.js:33:      .destroy();
+src/admin/channels/channelBootstrap.js:7:  initialized =
+src/admin/channels/channelBootstrap.js:48:    this.initialized =

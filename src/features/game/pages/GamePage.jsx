@@ -1,18 +1,8 @@
-function GamePage() {
+import GameLoader from "@/game-system/loaders/GameLoader";
+import { useSearchParams } from "react-router-dom";
 
-  return (
-
-    <div
-      className="
-        p-4
-      "
-    >
-      Game Page
-    </div>
-
-  );
-
+export default function GamePage() {
+  const [params] = useSearchParams();
+  const gameId = params.get("id") || "black-pearl-rush";
+  return <GameLoader gameId={gameId} />;
 }
-
-export default
-  GamePage;

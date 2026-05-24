@@ -1,0 +1,638 @@
+src/services/crm/customerAnalyticsEngine.js:3: * CUSTOMER ANALYTICS ENGINE
+src/services/crm/customerAnalyticsEngine.js:9:  totalCustomers:
+src/services/crm/customerAnalyticsEngine.js:12:  vipCustomers:
+src/services/crm/customerAnalyticsEngine.js:20:function trackCustomerCreated() {
+src/services/crm/customerAnalyticsEngine.js:22:  analytics.totalCustomers +=
+src/services/crm/customerAnalyticsEngine.js:27:function trackVIPCustomer() {
+src/services/crm/customerAnalyticsEngine.js:29:  analytics.vipCustomers +=
+src/services/crm/customerAnalyticsEngine.js:41:function getCustomerAnalytics() {
+src/services/crm/customerAnalyticsEngine.js:49:  trackCustomerCreated,
+src/services/crm/customerAnalyticsEngine.js:51:  trackVIPCustomer,
+src/services/crm/customerAnalyticsEngine.js:55:  getCustomerAnalytics,
+src/services/crm/customerLoyaltyEngine.js:3: * CUSTOMER LOYALTY ENGINE
+src/services/crm/customerLoyaltyEngine.js:7:const LOYALTY_TIERS = {
+src/services/crm/customerLoyaltyEngine.js:23:function calculateLoyaltyTier({
+src/services/crm/customerLoyaltyEngine.js:33:    return LOYALTY_TIERS.PLATINUM;
+src/services/crm/customerLoyaltyEngine.js:41:    return LOYALTY_TIERS.GOLD;
+src/services/crm/customerLoyaltyEngine.js:49:    return LOYALTY_TIERS.SILVER;
+src/services/crm/customerLoyaltyEngine.js:53:  return LOYALTY_TIERS.BRONZE;
+src/services/crm/customerLoyaltyEngine.js:59:  LOYALTY_TIERS,
+src/services/crm/customerLoyaltyEngine.js:61:  calculateLoyaltyTier,
+src/services/crm/customerSegmentationEngine.js:3: * CUSTOMER SEGMENTATION ENGINE
+src/services/crm/customerSegmentationEngine.js:7:const CUSTOMER_SEGMENTS = {
+src/services/crm/customerSegmentationEngine.js:23:function detectCustomerSegment({
+src/services/crm/customerSegmentationEngine.js:35:    return CUSTOMER_SEGMENTS.VIP;
+src/services/crm/customerSegmentationEngine.js:43:    return CUSTOMER_SEGMENTS.ACTIVE;
+src/services/crm/customerSegmentationEngine.js:51:    return CUSTOMER_SEGMENTS.CASUAL;
+src/services/crm/customerSegmentationEngine.js:55:  return CUSTOMER_SEGMENTS.NEW;
+src/services/crm/customerSegmentationEngine.js:61:  CUSTOMER_SEGMENTS,
+src/services/crm/customerSegmentationEngine.js:63:  detectCustomerSegment,
+src/services/crm/customerRewardPersonalization.js:3: * CUSTOMER REWARD PERSONALIZATION
+src/services/crm/customerBehaviorEngine.js:3: * CUSTOMER BEHAVIOR ENGINE
+src/services/crm/customerBehaviorEngine.js:7:function analyzeCustomerBehavior({
+src/services/crm/customerBehaviorEngine.js:34:  analyzeCustomerBehavior,
+src/services/crm/customerProfileEngine.js:3: * CUSTOMER PROFILE ENGINE
+src/services/crm/customerProfileEngine.js:7:function buildCustomerProfile({
+src/services/crm/customerProfileEngine.js:9:  customerId,
+src/services/crm/customerProfileEngine.js:25:    customerId,
+src/services/crm/customerProfileEngine.js:46:  buildCustomerProfile,
+src/services/crm/customerRetentionEngine.js:3: * CUSTOMER RETENTION ENGINE
+src/services/crm/customerCampaignTargeting.js:3: * CUSTOMER CAMPAIGN TARGETING
+src/services/crm/customerCampaignTargeting.js:11:  loyaltyTier,
+src/services/crm/customerCampaignTargeting.js:16:    loyaltyTier ===
+src/services/crm/customerChurnDetection.js:3: * CUSTOMER CHURN DETECTION
+src/services/crm/customerChurnDetection.js:7:function detectCustomerChurn({
+src/services/crm/customerChurnDetection.js:27:  detectCustomerChurn,
+src/services/crm/customerSpendingEngine.js:3: * CUSTOMER SPENDING ENGINE
+src/services/runtime/runtimeFeatureBootstrap.js:1:import iposRealtimeSync from "@/features/ipos/services/iposRealtimeSync";
+src/services/runtime/runtimeFeatureBootstrap.js:17:    iposRealtimeSync.register();
+src/services/query/queryInvalidationRegistry.js:14:  LOYALTY_QUERY_KEYS,
+src/services/query/queryInvalidationRegistry.js:15:} from "@/infra/api/loyalty/loyaltyQueryKeys";
+src/services/query/queryInvalidationRegistry.js:32:    loyalty: [
+src/services/query/queryInvalidationRegistry.js:33:      LOYALTY_QUERY_KEYS.ALL,
+src/services/query/queryKeys.js:29:    member: () => [
+src/services/query/queryKeys.js:31:      "member",
+src/services/query/queryKeys.js:35:  member: {
+src/services/query/queryKeys.js:36:    all: ["member"],
+src/services/query/queryKeys.js:38:    profile: () => [
+src/services/query/queryKeys.js:39:      ...queryKeys.member.all,
+src/services/query/queryKeys.js:40:      "profile",
+src/infra/auth/useSession.js:13:      profile:
+src/infra/auth/useSession.js:14:        state.profile,
+src/infra/auth/bootstrapAuth.js:33:      profile:
+src/infra/auth/authSession.js:12:  profile,
+src/infra/auth/authSession.js:31:      profile,
+src/infra/auth/authService.js:58: * NORMALIZE PROFILE
+src/infra/auth/authService.js:62:function normalizeProfile(
+src/infra/auth/authService.js:63:  profile = {}
+src/infra/auth/authService.js:70:      profile.id ||
+src/infra/auth/authService.js:72:      profile.user_id ||
+src/infra/auth/authService.js:78:      profile.name ||
+src/infra/auth/authService.js:80:      profile.full_name ||
+src/infra/auth/authService.js:86:      profile.phone ||
+src/infra/auth/authService.js:92:      profile.avatar ||
+src/infra/auth/authService.js:98:      profile.role ||
+src/infra/auth/authService.js:100:      "member",
+src/infra/auth/authService.js:103:      profile,
+src/infra/auth/authService.js:338: * GET PROFILE
+src/infra/auth/authService.js:343:getProfile() {
+src/infra/auth/authService.js:348:      "👤 FETCH PROFILE"
+src/infra/auth/authService.js:359:        "/auth/profile"
+src/infra/auth/authService.js:368:    const profile =
+src/infra/auth/authService.js:369:      normalizeProfile(
+src/infra/auth/authService.js:378:      "🟢 PROFILE READY",
+src/infra/auth/authService.js:381:          profile.id,
+src/infra/auth/authService.js:391:    return profile;
+src/infra/auth/authService.js:407:      "❌ FETCH PROFILE FAILED",
+src/infra/api/loyalty/loyaltyQueries.js:6:  LOYALTY_QUERY_KEYS,
+src/infra/api/loyalty/loyaltyQueries.js:7:} from "./loyaltyQueryKeys";
+src/infra/api/loyalty/loyaltyQueries.js:10:  fetchMembership,
+src/infra/api/loyalty/loyaltyQueries.js:12:} from "./loyaltyService";
+src/infra/api/loyalty/loyaltyQueries.js:18:export function useMembershipQuery(
+src/infra/api/loyalty/loyaltyQueries.js:24:        LOYALTY_QUERY_KEYS.MEMBERSHIP(
+src/infra/api/loyalty/loyaltyQueries.js:30:          fetchMembership(
+src/infra/api/loyalty/loyaltyQueries.js:49:        LOYALTY_QUERY_KEYS.TRANSACTIONS(
+src/infra/api/loyalty/loyaltyApi.js:5: * LOYALTY ENDPOINTS
+src/infra/api/loyalty/loyaltyApi.js:9:const LOYALTY_ENDPOINTS = {
+src/infra/api/loyalty/loyaltyApi.js:11:  MEMBERSHIP:
+src/infra/api/loyalty/loyaltyApi.js:12:    "/api/loyalty/membership",
+src/infra/api/loyalty/loyaltyApi.js:15:    "/api/loyalty/transactions",
+src/infra/api/loyalty/loyaltyApi.js:18:    "/api/loyalty/leaderboard",
+src/infra/api/loyalty/loyaltyApi.js:85: * MEMBERSHIP DETAIL
+src/infra/api/loyalty/loyaltyApi.js:90:getMembershipDetail({
+src/infra/api/loyalty/loyaltyApi.js:129:        `${LOYALTY_ENDPOINTS.MEMBERSHIP}/${normalizedUserId}`,
+src/infra/api/loyalty/loyaltyApi.js:155:      "🟢 MEMBERSHIP DETAIL FETCHED",
+src/infra/api/loyalty/loyaltyApi.js:183:      "❌ MEMBERSHIP DETAIL ERROR",
+src/infra/api/loyalty/loyaltyApi.js:202: * MEMBER TRANSACTIONS
+src/infra/api/loyalty/loyaltyApi.js:207:getMemberTransactions({
+src/infra/api/loyalty/loyaltyApi.js:253:        `${LOYALTY_ENDPOINTS.TRANSACTIONS}/${normalizedUserId}`,
+src/infra/api/loyalty/loyaltyApi.js:310:      "🟢 MEMBER TRANSACTIONS FETCHED",
+src/infra/api/loyalty/loyaltyApi.js:349:      "❌ MEMBER TRANSACTIONS ERROR",
+src/infra/api/loyalty/loyaltyApi.js:368: * LOYALTY LEADERBOARD
+src/infra/api/loyalty/loyaltyApi.js:373:getLoyaltyLeaderboard({
+src/infra/api/loyalty/loyaltyApi.js:393:        LOYALTY_ENDPOINTS.LEADERBOARD,
+src/infra/api/loyalty/loyaltyApi.js:435:      "🟢 LOYALTY LEADERBOARD FETCHED",
+src/infra/api/loyalty/loyaltyApi.js:445:      (member) => ({
+src/infra/api/loyalty/loyaltyApi.js:447:        ...member,
+src/infra/api/loyalty/loyaltyApi.js:467:      "❌ LOYALTY LEADERBOARD ERROR",
+src/infra/api/loyalty/loyaltyService.js:3:  getMembershipDetail,
+src/infra/api/loyalty/loyaltyService.js:5:  getMemberTransactions,
+src/infra/api/loyalty/loyaltyService.js:7:  getLoyaltyLeaderboard,
+src/infra/api/loyalty/loyaltyService.js:9:} from "./loyaltyApi";
+src/infra/api/loyalty/loyaltyService.js:13:  normalizeMembership,
+src/infra/api/loyalty/loyaltyService.js:19:} from "./loyaltyMapper";
+src/infra/api/loyalty/loyaltyService.js:104: * BUILD LOYALTY ANALYTICS
+src/infra/api/loyalty/loyaltyService.js:177: * FETCH MEMBERSHIP
+src/infra/api/loyalty/loyaltyService.js:182:fetchMembership({
+src/infra/api/loyalty/loyaltyService.js:199:      await getMembershipDetail({
+src/infra/api/loyalty/loyaltyService.js:213:    const membership =
+src/infra/api/loyalty/loyaltyService.js:215:      normalizeMembership(
+src/infra/api/loyalty/loyaltyService.js:226:      "🟢 MEMBERSHIP FETCHED",
+src/infra/api/loyalty/loyaltyService.js:230:          membership.id,
+src/infra/api/loyalty/loyaltyService.js:233:          membership.level,
+src/infra/api/loyalty/loyaltyService.js:238:    return membership;
+src/infra/api/loyalty/loyaltyService.js:249:      "❌ FETCH MEMBERSHIP ERROR",
+src/infra/api/loyalty/loyaltyService.js:297:      await getMemberTransactions({
+src/infra/api/loyalty/loyaltyService.js:482:      await getLoyaltyLeaderboard({
+src/infra/api/loyalty/loyaltyQueryKeys.js:3: * LOYALTY QUERY ROOT
+src/infra/api/loyalty/loyaltyQueryKeys.js:8:  "loyalty";
+src/infra/api/loyalty/loyaltyQueryKeys.js:12: * LOYALTY QUERY KEYS
+src/infra/api/loyalty/loyaltyQueryKeys.js:16:export const LOYALTY_QUERY_KEYS =
+src/infra/api/loyalty/loyaltyQueryKeys.js:30:     * PROFILE
+src/infra/api/loyalty/loyaltyQueryKeys.js:34:    PROFILE:
+src/infra/api/loyalty/loyaltyQueryKeys.js:38:        "profile",
+src/infra/api/loyalty/loyaltyQueryKeys.js:45:     * MEMBERSHIP
+src/infra/api/loyalty/loyaltyQueryKeys.js:49:    MEMBERSHIP:
+src/infra/api/loyalty/loyaltyQueryKeys.js:53:        "membership",
+src/infra/api/loyalty/loyaltyQueryKeys.js:60:     * MEMBERSHIP DETAIL
+src/infra/api/loyalty/loyaltyQueryKeys.js:64:    MEMBERSHIP_DETAIL:
+src/infra/api/loyalty/loyaltyQueryKeys.js:68:        "membership-detail",
+src/infra/api/loyalty/loyaltyQueryKeys.js:75:     * MEMBERSHIP TYPES
+src/infra/api/loyalty/loyaltyQueryKeys.js:79:    MEMBERSHIP_TYPES:
+src/infra/api/loyalty/loyaltyQueryKeys.js:83:        "membership-types",
+src/infra/api/loyalty/loyaltyQueryKeys.js:260:  LOYALTY_QUERY_KEYS;
+src/infra/api/loyalty/loyaltyMapper.js:3: * MEMBERSHIP LEVELS
+src/infra/api/loyalty/loyaltyMapper.js:7:export const MEMBERSHIP_LEVELS = {
+src/infra/api/loyalty/loyaltyMapper.js:159: * NORMALIZE MEMBERSHIP LEVEL
+src/infra/api/loyalty/loyaltyMapper.js:163:function normalizeMembershipLevel(
+src/infra/api/loyalty/loyaltyMapper.js:174:      MEMBERSHIP_LEVELS
+src/infra/api/loyalty/loyaltyMapper.js:184:  return MEMBERSHIP_LEVELS.BRONZE;
+src/infra/api/loyalty/loyaltyMapper.js:221: * MEMBERSHIP STATUS
+src/infra/api/loyalty/loyaltyMapper.js:225:function resolveMembershipStatus(
+src/infra/api/loyalty/loyaltyMapper.js:226:  membership
+src/infra/api/loyalty/loyaltyMapper.js:230:    membership?.blocked
+src/infra/api/loyalty/loyaltyMapper.js:238:    membership?.active === false
+src/infra/api/loyalty/loyaltyMapper.js:251: * NORMALIZE MEMBERSHIP
+src/infra/api/loyalty/loyaltyMapper.js:256:normalizeMembership(
+src/infra/api/loyalty/loyaltyMapper.js:257:  membership
+src/infra/api/loyalty/loyaltyMapper.js:260:  const safeMembership =
+src/infra/api/loyalty/loyaltyMapper.js:262:    membership &&
+src/infra/api/loyalty/loyaltyMapper.js:263:    typeof membership ===
+src/infra/api/loyalty/loyaltyMapper.js:266:      ? membership
+src/infra/api/loyalty/loyaltyMapper.js:277:    normalizeMembershipLevel(
+src/infra/api/loyalty/loyaltyMapper.js:279:      safeMembership.level ||
+src/infra/api/loyalty/loyaltyMapper.js:281:      safeMembership.membership_type ||
+src/infra/api/loyalty/loyaltyMapper.js:283:      safeMembership.tier
+src/infra/api/loyalty/loyaltyMapper.js:294:    resolveMembershipStatus(
+src/infra/api/loyalty/loyaltyMapper.js:295:      safeMembership
+src/infra/api/loyalty/loyaltyMapper.js:310:        safeMembership.id ||
+src/infra/api/loyalty/loyaltyMapper.js:312:        safeMembership.user_id ||
+src/infra/api/loyalty/loyaltyMapper.js:318:    memberCode:
+src/infra/api/loyalty/loyaltyMapper.js:322:        safeMembership.member_code ||
+src/infra/api/loyalty/loyaltyMapper.js:324:        safeMembership.code
+src/infra/api/loyalty/loyaltyMapper.js:330:     * PROFILE
+src/infra/api/loyalty/loyaltyMapper.js:338:        safeMembership.name ||
+src/infra/api/loyalty/loyaltyMapper.js:340:        safeMembership.user_name ||
+src/infra/api/loyalty/loyaltyMapper.js:349:        safeMembership.avatar
+src/infra/api/loyalty/loyaltyMapper.js:356:        safeMembership.phone ||
+src/infra/api/loyalty/loyaltyMapper.js:358:        safeMembership.phone_number
+src/infra/api/loyalty/loyaltyMapper.js:365:        safeMembership.email
+src/infra/api/loyalty/loyaltyMapper.js:370:     * LOYALTY
+src/infra/api/loyalty/loyaltyMapper.js:377:        safeMembership.points
+src/infra/api/loyalty/loyaltyMapper.js:384:        safeMembership.lifetime_points
+src/infra/api/loyalty/loyaltyMapper.js:392:        safeMembership.expiring_points
+src/infra/api/loyalty/loyaltyMapper.js:400:        safeMembership.total_spent ||
+src/infra/api/loyalty/loyaltyMapper.js:402:        safeMembership.spending
+src/infra/api/loyalty/loyaltyMapper.js:410:        safeMembership.total_orders
+src/infra/api/loyalty/loyaltyMapper.js:416:     * MEMBERSHIP
+src/infra/api/loyalty/loyaltyMapper.js:425:        safeMembership.next_level
+src/infra/api/loyalty/loyaltyMapper.js:440:        safeMembership.progression_percent
+src/infra/api/loyalty/loyaltyMapper.js:448:        safeMembership.points_to_next_level
+src/infra/api/loyalty/loyaltyMapper.js:462:        safeMembership.joined_at ||
+src/infra/api/loyalty/loyaltyMapper.js:464:        safeMembership.created_at
+src/infra/api/loyalty/loyaltyMapper.js:471:        safeMembership.updated_at
+src/infra/api/loyalty/loyaltyMapper.js:493:      safeMembership,
+src/infra/api/realtime/realtimeEvents.js:21:  LOYALTY:
+src/infra/api/realtime/realtimeEvents.js:22:    "loyalty",
+src/infra/api/realtime/realtimeEvents.js:133:     * LOYALTY
+src/infra/api/realtime/realtimeEvents.js:137:    LOYALTY_UPDATED:
+src/infra/api/realtime/realtimeEvents.js:138:      `${NAMESPACE.LOYALTY}:updated`,
+src/infra/api/realtime/realtimeEvents.js:140:    LOYALTY_POINTS_UPDATED:
+src/infra/api/realtime/realtimeEvents.js:141:      `${NAMESPACE.LOYALTY}:points_updated`,
+src/infra/api/realtime/realtimeEvents.js:143:    LOYALTY_TIER_UPDATED:
+src/infra/api/realtime/realtimeEvents.js:144:      `${NAMESPACE.LOYALTY}:tier_updated`,
+src/infra/api/realtime/realtimeEvents.js:146:    LOYALTY_TRANSACTION_CREATED:
+src/infra/api/realtime/realtimeEvents.js:147:      `${NAMESPACE.LOYALTY}:transaction_created`,
+src/infra/api/realtime/realtimeEvents.js:149:    LOYALTY_LEADERBOARD_UPDATED:
+src/infra/api/realtime/realtimeEvents.js:150:      `${NAMESPACE.LOYALTY}:leaderboard_updated`,
+src/infra/api/realtime/realtimeEvents.js:265:    LOYALTY: [
+src/infra/api/realtime/realtimeEvents.js:267:      REALTIME_EVENTS.LOYALTY_UPDATED,
+src/infra/api/realtime/realtimeEvents.js:269:      REALTIME_EVENTS.LOYALTY_POINTS_UPDATED,
+src/infra/api/realtime/realtimeEvents.js:271:      REALTIME_EVENTS.LOYALTY_TIER_UPDATED,
+src/infra/api/realtime/realtimeEvents.js:273:      REALTIME_EVENTS.LOYALTY_LEADERBOARD_UPDATED,
+src/infra/api/voucher/voucherApi.js:14: * - iPOS -> Backend -> Frontend
+src/infra/api/voucher/voucherApi.js:71:     * iPOS SYNC
+src/infra/api/voucher/voucherApi.js:134:      "ipos-sync",
+src/infra/api/voucher/voucherQueryKeys.js:66: * - Loyalty System Compatible
+src/infra/api/voucher/voucherQueryKeys.js:109:     * MEMBER
+src/infra/api/voucher/voucherQueryKeys.js:113:    MEMBER:
+src/infra/api/voucher/voucherQueryKeys.js:117:          "member",
+src/infra/api/voucher/voucherQueryKeys.js:123:    MEMBER_AVAILABLE:
+src/infra/api/voucher/voucherQueryKeys.js:127:          "member",
+src/infra/api/voucher/voucherQueryKeys.js:134:    MEMBER_ACTIVE:
+src/infra/api/voucher/voucherQueryKeys.js:138:          "member",
+src/infra/api/voucher/voucherQueryKeys.js:145:    MEMBER_USED:
+src/infra/api/voucher/voucherQueryKeys.js:149:          "member",
+src/infra/api/voucher/voucherQueryKeys.js:156:    MEMBER_EXPIRED:
+src/infra/api/voucher/voucherQueryKeys.js:160:          "member",
+src/infra/api/voucher/voucherQueryKeys.js:298:    GAME_REWARD_MEMBER:
+src/infra/api/voucher/voucherQueryKeys.js:330:    REALTIME_MEMBER:
+src/infra/api/voucher/voucherService.js:2:  getMemberVouchers,
+src/infra/api/voucher/voucherService.js:153: * FETCH MEMBER VOUCHERS
+src/infra/api/voucher/voucherService.js:158:fetchMemberVouchers({
+src/infra/api/voucher/voucherService.js:190:      "🎟️ FETCH MEMBER VOUCHERS",
+src/infra/api/voucher/voucherService.js:194:          "fetch-member-vouchers",
+src/infra/api/voucher/voucherService.js:218:      await getMemberVouchers({
+src/infra/api/voucher/voucherService.js:274:      "🟢 MEMBER VOUCHERS READY",
+src/infra/api/voucher/voucherService.js:278:          "member-vouchers-ready",
+src/infra/api/voucher/voucherService.js:311:        "fetch member vouchers",
+src/infra/api/voucher/voucherQueries.js:10:  fetchMemberVouchers,
+src/infra/api/voucher/voucherQueries.js:17:export function useMemberVouchersQuery(
+src/infra/api/voucher/voucherQueries.js:23:        VOUCHER_QUERY_KEYS.MEMBER(
+src/infra/api/voucher/voucherQueries.js:29:          fetchMemberVouchers(
+src/infra/api/menu/menuMapper.js:9:  IPOS:
+src/infra/api/menu/menuMapper.js:10:    "ipos",
+src/infra/api/menu/menuMapper.js:518:      MENU_SYNC_SOURCE.IPOS,
+src/infra/api/menu/menuQueryKeys.js:240:     * IPOS SYNC
+src/infra/api/menu/menuQueryKeys.js:244:    IPOS_SYNC:
+src/infra/api/menu/menuQueryKeys.js:248:        "ipos-sync",
+src/infra/api/menu/menuApi.js:24:  IPOS:
+src/infra/api/menu/menuApi.js:25:    "ipos",
+src/infra/api/menu/menuApi.js:99: * READ ONLY FROM iPOS
+src/infra/api/menu/menuApi.js:196:          MENU_SYNC_SOURCE.IPOS,
+src/infra/api/menu/menuApi.js:215:        MENU_SYNC_SOURCE.IPOS,
+src/infra/api/menu/menuApi.js:252:        MENU_SYNC_SOURCE.IPOS,
+src/infra/api/menu/menuService.js:406:        "ipos",
+src/infra/api/menu/menuService.js:455:        "ipos",
+src/infra/api/campaign/campaignQueryKeys.js:127:     * LOYALTY
+src/infra/api/campaign/campaignQueryKeys.js:131:    LOYALTY:
+src/infra/api/campaign/campaignQueryKeys.js:135:        "loyalty",
+src/infra/api/campaign/campaignMapper.js:21:  LOYALTY:
+src/infra/api/campaign/campaignMapper.js:22:    "loyalty",
+src/infra/api/campaign/campaignApi.js:23:  LOYALTY:
+src/infra/api/campaign/campaignApi.js:24:    "loyalty",
+src/runtime/personalization/runtimePersonalizationEngine.ts:10:    member_tier:
+src/runtime/card/runtimeMembershipCardBrandLayer.ts:1:export function buildMembershipBrandLayer() {
+src/runtime/card/runtimeMembershipBarcodeEngine.ts:1:export function buildMembershipBarcode(
+src/runtime/card/runtimeMembershipTierProgressEngine.ts:40:export function calculateMembershipTierProgress({
+src/runtime/card/runtimeMembershipCardRenderer.ts:2:  resolveMembershipCardTheme,
+src/runtime/card/runtimeMembershipCardRenderer.ts:3:} from "./runtimeMembershipCardThemeEngine";
+src/runtime/card/runtimeMembershipCardRenderer.ts:6:  calculateMembershipTierProgress,
+src/runtime/card/runtimeMembershipCardRenderer.ts:7:} from "./runtimeMembershipTierProgressEngine";
+src/runtime/card/runtimeMembershipCardRenderer.ts:10:  buildMembershipBarcode,
+src/runtime/card/runtimeMembershipCardRenderer.ts:11:} from "./runtimeMembershipBarcodeEngine";
+src/runtime/card/runtimeMembershipCardRenderer.ts:14:  buildMembershipBrandLayer,
+src/runtime/card/runtimeMembershipCardRenderer.ts:15:} from "./runtimeMembershipCardBrandLayer";
+src/runtime/card/runtimeMembershipCardRenderer.ts:17:export function buildMembershipCardRuntime({
+src/runtime/card/runtimeMembershipCardRenderer.ts:19:  customer,
+src/runtime/card/runtimeMembershipCardRenderer.ts:23:  customer: {
+src/runtime/card/runtimeMembershipCardRenderer.ts:33:    loyaltyPoints: number;
+src/runtime/card/runtimeMembershipCardRenderer.ts:40:    resolveMembershipCardTheme(
+src/runtime/card/runtimeMembershipCardRenderer.ts:41:      customer.tier,
+src/runtime/card/runtimeMembershipCardRenderer.ts:45:    calculateMembershipTierProgress({
+src/runtime/card/runtimeMembershipCardRenderer.ts:48:        customer.tier,
+src/runtime/card/runtimeMembershipCardRenderer.ts:51:        customer.totalSpent,
+src/runtime/card/runtimeMembershipCardRenderer.ts:56:    buildMembershipBarcode(
+src/runtime/card/runtimeMembershipCardRenderer.ts:57:      customer.phone,
+src/runtime/card/runtimeMembershipCardRenderer.ts:61:    buildMembershipBrandLayer();
+src/runtime/card/runtimeMembershipCardRenderer.ts:65:    customer,
+src/runtime/card/runtimeMembershipCardThemeEngine.ts:1:export const MEMBERSHIP_THEME_MAP = {
+src/runtime/card/runtimeMembershipCardThemeEngine.ts:138:export function resolveMembershipCardTheme(
+src/runtime/card/runtimeMembershipCardThemeEngine.ts:143:    MEMBERSHIP_THEME_MAP[
+src/runtime/card/runtimeMembershipCardThemeEngine.ts:144:      tier as keyof typeof MEMBERSHIP_THEME_MAP
+src/runtime/card/runtimeMembershipCardThemeEngine.ts:146:    MEMBERSHIP_THEME_MAP.hoi_vien
+src/runtime/crm/runtimeCrmSyncStore.ts:4:  RuntimeCrmCustomer,
+src/runtime/crm/runtimeCrmSyncStore.ts:5:} from "./runtimeCrmTypes";
+src/runtime/crm/runtimeCrmSyncStore.ts:7:interface RuntimeCrmSyncState {
+src/runtime/crm/runtimeCrmSyncStore.ts:9:  customer:
+src/runtime/crm/runtimeCrmSyncStore.ts:10:    RuntimeCrmCustomer | null;
+src/runtime/crm/runtimeCrmSyncStore.ts:12:  crmSynced:
+src/runtime/crm/runtimeCrmSyncStore.ts:18:  setCustomer: (
+src/runtime/crm/runtimeCrmSyncStore.ts:19:    customer: RuntimeCrmCustomer
+src/runtime/crm/runtimeCrmSyncStore.ts:22:  setCrmSynced: (
+src/runtime/crm/runtimeCrmSyncStore.ts:28:export const useRuntimeCrmSyncStore =
+src/runtime/crm/runtimeCrmSyncStore.ts:29:  create<RuntimeCrmSyncState>(
+src/runtime/crm/runtimeCrmSyncStore.ts:35:      customer:
+src/runtime/crm/runtimeCrmSyncStore.ts:38:      crmSynced:
+src/runtime/crm/runtimeCrmSyncStore.ts:44:      setCustomer: (
+src/runtime/crm/runtimeCrmSyncStore.ts:45:        customer
+src/runtime/crm/runtimeCrmSyncStore.ts:48:        customer,
+src/runtime/crm/runtimeCrmSyncStore.ts:56:      setCrmSynced: (
+src/runtime/crm/runtimeCrmSyncStore.ts:60:        crmSynced:
+src/runtime/crm/runtimeCrmMappingEngine.ts:2:  calculateLoyaltyPoints,
+src/runtime/crm/runtimeCrmMappingEngine.ts:3:} from "./runtimeCrmSpendAggregationEngine";
+src/runtime/crm/runtimeCrmMappingEngine.ts:6:  resolveCrmMemberTier,
+src/runtime/crm/runtimeCrmMappingEngine.ts:7:} from "./runtimeCrmGovernanceEngine";
+src/runtime/crm/runtimeCrmMappingEngine.ts:11: * CRM CANONICAL MAPPING ENGINE
+src/runtime/crm/runtimeCrmMappingEngine.ts:13: * iPOS CRM
+src/runtime/crm/runtimeCrmMappingEngine.ts:14: * → Runtime canonical customer
+src/runtime/crm/runtimeCrmMappingEngine.ts:18:export function mapCrmCustomer(
+src/runtime/crm/runtimeCrmMappingEngine.ts:33:      payload.membership_payment_amount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:35:      payload.membershipPaymentAmount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:42:   * LOYALTY
+src/runtime/crm/runtimeCrmMappingEngine.ts:46:  const loyaltyPoints =
+src/runtime/crm/runtimeCrmMappingEngine.ts:49:      payload.loyaltyPoints ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:51:      payload.membership_point ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:53:      payload.membershipPoint ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:55:      calculateLoyaltyPoints(
+src/runtime/crm/runtimeCrmMappingEngine.ts:62:   * MEMBER TIER
+src/runtime/crm/runtimeCrmMappingEngine.ts:66:  const memberTier =
+src/runtime/crm/runtimeCrmMappingEngine.ts:68:    payload.memberTier ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:70:    payload.membership_type ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:72:    payload.membershipType ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:74:    resolveCrmMemberTier(
+src/runtime/crm/runtimeCrmMappingEngine.ts:86:    customerId:
+src/runtime/crm/runtimeCrmMappingEngine.ts:88:      payload.customerId ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:90:      payload.customer_id ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:100:      payload.customer_phone ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:108:      payload.customer_name ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:114:     * MEMBERSHIP
+src/runtime/crm/runtimeCrmMappingEngine.ts:118:    memberTier,
+src/runtime/crm/runtimeCrmMappingEngine.ts:120:    membershipType:
+src/runtime/crm/runtimeCrmMappingEngine.ts:122:      payload.membership_type ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:124:      payload.membershipType ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:126:      memberTier,
+src/runtime/crm/runtimeCrmMappingEngine.ts:150:     * LOYALTY
+src/runtime/crm/runtimeCrmMappingEngine.ts:154:    loyaltyPoints,
+src/runtime/crm/runtimeCrmMappingEngine.ts:156:    loyaltyPointAmount:
+src/runtime/crm/runtimeCrmMappingEngine.ts:160:        payload.loyalty_point_amount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:162:        payload.membership_point_amount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:164:        payload.membershipPointAmount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:169:    membershipPoint:
+src/runtime/crm/runtimeCrmMappingEngine.ts:173:        payload.membership_point ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:175:        payload.membershipPoint ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:177:        loyaltyPoints
+src/runtime/crm/runtimeCrmMappingEngine.ts:180:    membershipPointAmount:
+src/runtime/crm/runtimeCrmMappingEngine.ts:184:        payload.membership_point_amount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:186:        payload.membershipPointAmount ||
+src/runtime/crm/runtimeCrmMappingEngine.ts:191:    membershipPaymentAmount:
+src/runtime/crm/runtimeCrmMappingEngine.ts:196:     * CUSTOMER LIFECYCLE
+src/runtime/crm/runtimeCrmMappingEngine.ts:260:    activated:
+src/runtime/crm/runtimeCrmMappingEngine.ts:262:      payload.activated ||
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:2:  mapCrmCustomer,
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:3:} from "./runtimeCrmMappingEngine";
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:11:  useRuntimeCrmSyncStore,
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:12:} from "./runtimeCrmSyncStore";
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:14:export function syncRuntimeCrmCustomer(
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:19:    "[CRM] Sync started"
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:22:  const customer =
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:23:    mapCrmCustomer(
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:27:  useRuntimeCrmSyncStore
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:29:    .setCustomer(
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:30:      customer
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:33:  useRuntimeCrmSyncStore
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:35:    .setCrmSynced(
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:40:    "[CRM] Sync completed",
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:41:    customer
+src/runtime/crm/runtimeCrmSelectors.ts:2:  useRuntimeCrmSyncStore,
+src/runtime/crm/runtimeCrmSelectors.ts:3:} from "./runtimeCrmSyncStore";
+src/runtime/crm/runtimeCrmSelectors.ts:5:export function getRuntimeCrmCustomer() {
+src/runtime/crm/runtimeCrmSelectors.ts:7:  return useRuntimeCrmSyncStore
+src/runtime/crm/runtimeCrmSelectors.ts:9:    .customer;
+src/runtime/crm/runtimeCrmConstants.ts:1:export const CRM_MEMBER_TIERS = {
+src/runtime/crm/runtimeCrmConstants.ts:3:  MEMBER:
+src/runtime/crm/runtimeCrmConstants.ts:6:  LOYAL_MEMBER:
+src/runtime/crm/runtimeCrmConstants.ts:20:export const CRM_PARTNER_TIERS = {
+src/runtime/crm/runtimeCrmConstants.ts:30:export const CRM_LOYALTY_CONFIG = {
+src/runtime/crm/runtimeCrmGovernanceEngine.ts:2:  CRM_MEMBER_TIERS,
+src/runtime/crm/runtimeCrmGovernanceEngine.ts:3:} from "./runtimeCrmConstants";
+src/runtime/crm/runtimeCrmGovernanceEngine.ts:5:export function resolveCrmMemberTier(
+src/runtime/crm/runtimeCrmGovernanceEngine.ts:14:    return CRM_MEMBER_TIERS
+src/runtime/crm/runtimeCrmGovernanceEngine.ts:24:    return CRM_MEMBER_TIERS
+src/runtime/crm/runtimeCrmGovernanceEngine.ts:34:    return CRM_MEMBER_TIERS
+src/runtime/crm/runtimeCrmGovernanceEngine.ts:44:    return CRM_MEMBER_TIERS
+src/runtime/crm/runtimeCrmGovernanceEngine.ts:45:      .LOYAL_MEMBER;
+src/runtime/crm/runtimeCrmGovernanceEngine.ts:49:  return CRM_MEMBER_TIERS
+src/runtime/crm/runtimeCrmGovernanceEngine.ts:50:    .MEMBER;
+src/runtime/crm/runtimeCrmSpendAggregationEngine.ts:1:export function calculateLoyaltyPoints(
+src/runtime/crm/runtimeCrmTypes.ts:1:export interface RuntimeCrmCustomer {
+src/runtime/crm/runtimeCrmTypes.ts:9:  customerId:
+src/runtime/crm/runtimeCrmTypes.ts:20:   * MEMBERSHIP
+src/runtime/crm/runtimeCrmTypes.ts:24:  memberTier:
+src/runtime/crm/runtimeCrmTypes.ts:27:  membershipType?:
+src/runtime/crm/runtimeCrmTypes.ts:47:   * LOYALTY
+src/runtime/crm/runtimeCrmTypes.ts:51:  loyaltyPoints:
+src/runtime/crm/runtimeCrmTypes.ts:54:  loyaltyPointAmount?:
+src/runtime/crm/runtimeCrmTypes.ts:57:  membershipPoint?:
+src/runtime/crm/runtimeCrmTypes.ts:60:  membershipPointAmount?:
+src/runtime/crm/runtimeCrmTypes.ts:63:  membershipPaymentAmount?:
+src/runtime/crm/runtimeCrmTypes.ts:68:   * CUSTOMER LIFECYCLE
+src/runtime/crm/runtimeCrmTypes.ts:108:  activated:
+src/runtime/admin/runtimeAdminConstants.ts:6:  CRM_MANAGER:
+src/runtime/admin/runtimeAdminConstants.ts:7:    "crm_manager",
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:2:  useRuntimeCrmSyncStore,
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:3:} from "../crm/runtimeCrmSyncStore";
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:14:export function overrideMemberTier(
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:15:  memberTier: string
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:18:  const customer =
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:19:    useRuntimeCrmSyncStore
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:21:      .customer;
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:23:  if (!customer) {
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:28:  useRuntimeCrmSyncStore
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:30:    .setCustomer({
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:32:      ...customer,
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:34:      memberTier,
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:46:        `Override member tier → ${memberTier}`,
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:58:    "[ADMIN] Member tier overridden",
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:59:    memberTier
+src/runtime/admin/runtimeAdminPermissions.ts:3:  EDIT_MEMBER_TIER:
+src/runtime/admin/runtimeAdminPermissions.ts:4:    "edit_member_tier",
+src/runtime/admin/runtimeAdminPermissions.ts:6:  EDIT_LOYALTY_POINTS:
+src/runtime/admin/runtimeAdminPermissions.ts:7:    "edit_loyalty_points",
+src/runtime/admin/runtimeAdminPermissions.ts:12:  IMPORT_CRM_DATA:
+src/runtime/admin/runtimeAdminPermissions.ts:13:    "import_crm_data",
+src/runtime/admin/runtimeAdminPermissions.ts:15:  FORCE_SYNC_CRM:
+src/runtime/admin/runtimeAdminPermissions.ts:16:    "force_sync_crm",
+src/runtime/admin/runtimeAdminCrmImportEngine.ts:5:export async function importCrmExcelFile(
+src/runtime/admin/runtimeAdminCrmImportEngine.ts:21:    "[ADMIN] CRM import started",
+src/runtime/admin/runtimeAdminRealtimeActions.ts:5:export function triggerRealtimeCrmSync() {
+src/runtime/admin/runtimeAdminRealtimeActions.ts:8:    "[ADMIN] Trigger realtime CRM sync"
+src/runtime/admin/runtimeAdminGovernanceStore.ts:5:  crmImportRunning:
+src/runtime/admin/runtimeAdminGovernanceStore.ts:8:  crmSyncRunning:
+src/runtime/admin/runtimeAdminGovernanceStore.ts:17:      crmImportRunning:
+src/runtime/admin/runtimeAdminGovernanceStore.ts:20:      crmSyncRunning:
+src/runtime/admin/runtimeAdminGovernanceStore.ts:38:      crmImportRunning:
+src/runtime/admin/runtimeAdminGovernanceStore.ts:41:      crmSyncRunning:
+src/runtime/admin/runtimeAdminGovernanceStore.ts:51:        crmImportRunning:
+src/runtime/admin/runtimeAdminGovernanceStore.ts:52:          payload.crmImportRunning,
+src/runtime/admin/runtimeAdminGovernanceStore.ts:54:        crmSyncRunning:
+src/runtime/admin/runtimeAdminGovernanceStore.ts:55:          payload.crmSyncRunning,
+src/runtime/runtimeBootstrap.ts:14:  initializeRealtimeLoyaltyRuntime,
+src/runtime/runtimeBootstrap.ts:15:} from "../modules/loyalty/runtimeLoyaltyExperienceOrchestrator";
+src/runtime/runtimeBootstrap.ts:18:  initializeMembershipCardRuntime,
+src/runtime/runtimeBootstrap.ts:19:} from "../modules/membership-card/runtimeMembershipCardOrchestrator";
+src/runtime/runtimeBootstrap.ts:22:  syncRuntimeCrmCustomer,
+src/runtime/runtimeBootstrap.ts:23:} from "./crm/runtimeCrmSyncOrchestrator";
+src/runtime/runtimeBootstrap.ts:30:  initializeCustomerIdentityRuntime,
+src/runtime/runtimeBootstrap.ts:31:} from "./customer/runtimeCustomerIdentityOrchestrator";
+src/runtime/runtimeBootstrap.ts:65:  CUSTOMER:
+src/runtime/runtimeBootstrap.ts:66:    "CUSTOMER_READY",
+src/runtime/runtimeBootstrap.ts:68:  CRM:
+src/runtime/runtimeBootstrap.ts:69:    "CRM_READY",
+src/runtime/runtimeBootstrap.ts:71:  LOYALTY:
+src/runtime/runtimeBootstrap.ts:72:    "LOYALTY_READY",
+src/runtime/runtimeBootstrap.ts:74:  MEMBERSHIP:
+src/runtime/runtimeBootstrap.ts:75:    "MEMBERSHIP_READY",
+src/runtime/runtimeBootstrap.ts:189:     * CUSTOMER IDENTITY
+src/runtime/runtimeBootstrap.ts:193:    await initializeCustomerIdentityRuntime();
+src/runtime/runtimeBootstrap.ts:196:      runtimePhases.CUSTOMER
+src/runtime/runtimeBootstrap.ts:201:     * CRM HYDRATION
+src/runtime/runtimeBootstrap.ts:204:     * - iPOS CRM is the source of truth.
+src/runtime/runtimeBootstrap.ts:205:     * - Runtime bootstrap must not seed fake customer data.
+src/runtime/runtimeBootstrap.ts:206:     * - Customer data is hydrated only after Zalo phone/OA activation
+src/runtime/runtimeBootstrap.ts:212:      runtimePhases.CRM
+src/runtime/runtimeBootstrap.ts:217:     * LOYALTY
+src/runtime/runtimeBootstrap.ts:221:    await initializeRealtimeLoyaltyRuntime();
+src/runtime/runtimeBootstrap.ts:224:      runtimePhases.LOYALTY
+src/runtime/runtimeBootstrap.ts:229:     * MEMBERSHIP
+src/runtime/runtimeBootstrap.ts:233:    await initializeMembershipCardRuntime();
+src/runtime/runtimeBootstrap.ts:236:      runtimePhases.MEMBERSHIP
+src/runtime/realtime/runtimeRealtimeChannels.ts:13:    REALTIME_CHANNELS.LOYALTY,
+src/runtime/realtime/runtimeRealtimeEventHandlers.ts:46:  "loyalty.updated":
+src/runtime/realtime/runtimeRealtimeEventHandlers.ts:52:        "[EVENT] loyalty.updated",
+src/runtime/realtime/runtimeRealtimeEventHandlers.ts:62:          "Điểm loyalty của bạn vừa thay đổi.",
+src/runtime/realtime/runtimeRealtimeEvents.ts:15:  LOYALTY_UPDATED:
+src/runtime/realtime/runtimeRealtimeEvents.ts:16:    "loyalty.updated",
+src/runtime/realtime/runtimeEventListeners.ts:64:   * LOYALTY
+src/runtime/realtime/runtimeEventListeners.ts:70:    RUNTIME_CHANNELS.LOYALTY,
+src/runtime/realtime/runtimeEventListeners.ts:77:        "[LOYALTY EVENT]",
+src/runtime/realtime/runtimeRealtimeConstants.ts:9:  LOYALTY:
+src/runtime/realtime/runtimeRealtimeConstants.ts:10:    "loyalty",
+src/runtime/realtime/runtimeChannels.ts:9:  LOYALTY: "loyalty",
+src/runtime/realtime/runtimeChannels.ts:11:  MEMBER: "member",
+src/runtime/membership/types/runtimeMembershipCard.types.ts:1:export type RuntimeMembershipTier =
+src/runtime/membership/types/runtimeMembershipCard.types.ts:12:export interface RuntimeMembershipCardData {
+src/runtime/membership/types/runtimeMembershipCard.types.ts:14:  customerId: string;
+src/runtime/membership/types/runtimeMembershipCard.types.ts:22:  memberTier?: RuntimeMembershipTier;
+src/runtime/membership/types/runtimeMembershipCard.types.ts:26:  loyaltyPoints: number;
+src/runtime/membership/config/runtimeMembershipThemeMap.ts:1:export const runtimeMembershipThemeMap = {
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:7:  initializeCustomerIdentityEngine,
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:8:} from "./runtimeCustomerIdentityEngine";
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:10:export async function initializeCustomerIdentityRuntime() {
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:13:    "[IDENTITY] Initializing customer identity runtime"
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:16:  await initializeCustomerIdentityEngine();
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:19:    "[IDENTITY] Customer identity runtime ready"
+src/runtime/customer/runtimeCustomerIdentityStore.ts:6:  RuntimeCustomerIdentity,
+src/runtime/customer/runtimeCustomerIdentityStore.ts:7:  RuntimeMembershipTier,
+src/runtime/customer/runtimeCustomerIdentityStore.ts:8:} from "./runtimeCustomerIdentityTypes";
+src/runtime/customer/runtimeCustomerIdentityStore.ts:14:  | "activated"
+src/runtime/customer/runtimeCustomerIdentityStore.ts:18:type RuntimeCustomerIdentityState = {
+src/runtime/customer/runtimeCustomerIdentityStore.ts:19:  identity: RuntimeCustomerIdentity | null;
+src/runtime/customer/runtimeCustomerIdentityStore.ts:23:  memberActivated: boolean;
+src/runtime/customer/runtimeCustomerIdentityStore.ts:24:  profileHydrated: boolean;
+src/runtime/customer/runtimeCustomerIdentityStore.ts:37:    identity: Partial<RuntimeCustomerIdentity>
+src/runtime/customer/runtimeCustomerIdentityStore.ts:40:  setProfileHydrated: (
+src/runtime/customer/runtimeCustomerIdentityStore.ts:47:const defaultIdentity: RuntimeCustomerIdentity = {
+src/runtime/customer/runtimeCustomerIdentityStore.ts:48:  customerId: "",
+src/runtime/customer/runtimeCustomerIdentityStore.ts:55:  memberActivated: false,
+src/runtime/customer/runtimeCustomerIdentityStore.ts:56:  tier: "hoi_vien" as RuntimeMembershipTier,
+src/runtime/customer/runtimeCustomerIdentityStore.ts:57:  loyaltyPoints: 0,
+src/runtime/customer/runtimeCustomerIdentityStore.ts:61:export const useRuntimeCustomerIdentityStore =
+src/runtime/customer/runtimeCustomerIdentityStore.ts:62:  create<RuntimeCustomerIdentityState>((set, get) => ({
+src/runtime/customer/runtimeCustomerIdentityStore.ts:76:    memberActivated:
+src/runtime/customer/runtimeCustomerIdentityStore.ts:79:    profileHydrated:
+src/runtime/customer/runtimeCustomerIdentityStore.ts:151:        memberActivated:
+src/runtime/customer/runtimeCustomerIdentityStore.ts:152:          merged.memberActivated,
+src/runtime/customer/runtimeCustomerIdentityStore.ts:160:    setProfileHydrated(value) {
+src/runtime/customer/runtimeCustomerIdentityStore.ts:163:        profileHydrated:
+src/runtime/customer/runtimeCustomerIdentityStore.ts:187:        memberActivated:
+src/runtime/customer/runtimeCustomerIdentityStore.ts:190:        profileHydrated:
+src/runtime/customer/runtimeCustomerFollowEngine.ts:8:  useRuntimeCustomerIdentityStore,
+src/runtime/customer/runtimeCustomerFollowEngine.ts:9:} from "./runtimeCustomerIdentityStore";
+src/runtime/customer/runtimeCustomerFollowEngine.ts:22:  useRuntimeCustomerIdentityStore
+src/runtime/customer/runtimeCustomerEligibilityEngine.ts:11:export function isEligibleForMembership(
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:3:} from "./runtimeCustomerPermissionEngine";
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:7:} from "./runtimeCustomerFollowEngine";
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:10:  activateCustomerMembership,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:11:} from "./runtimeCustomerActivationEngine";
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:18:  hydrateCustomerProfile,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:19:} from "./runtimeCustomerProfileHydrator";
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:22:  useRuntimeCustomerIdentityStore,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:23:} from "./runtimeCustomerIdentityStore";
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:25:export async function initializeCustomerIdentityEngine() {
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:28:    useRuntimeCustomerIdentityStore
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:33:    store.activationStatus === "activated"
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:74:  const activated =
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:75:    await activateCustomerMembership({
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:83:    memberActivated:
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:84:      activated,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:87:  if (!activated) {
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:97:  const profile =
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:98:    await hydrateCustomerProfile();
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:101:    customerId:
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:102:      profile.customerId || "",
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:104:      profile.fullName || "",
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:105:    memberActivated:
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:109:  store.setProfileHydrated(
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:114:    "activated"
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:6:  syncRuntimeCrmCustomer,
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:7:} from "@/runtime/crm/runtimeCrmSyncOrchestrator";
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:10:  useRuntimeCrmSyncStore,
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:11:} from "@/runtime/crm/runtimeCrmSyncStore";
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:14:  Promise<RuntimeCustomerProfile> |
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:17:export type RuntimeCustomerProfile = {
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:19:  customerId:
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:27:export async function hydrateCustomerProfile():
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:28:Promise<RuntimeCustomerProfile> {
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:30:  const existingCustomer =
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:31:    useRuntimeCrmSyncStore
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:33:      .customer;
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:36:    existingCustomer
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:41:      "[CUSTOMER] CRM already hydrated"
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:46:      customerId:
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:47:        existingCustomer.customerId,
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:50:        existingCustomer.fullName,
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:62:      "[CUSTOMER] Reusing CRM hydration promise"
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:74:        "[CUSTOMER] Hydrating live CRM customer"
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:80:       * Replace with live backend/iPOS CRM request
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:84:      const crmCustomer = {
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:86:        customerId:
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:87:          "pending-live-crm",
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:90:          "Pending CRM Sync",
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:95:        memberTier:
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:107:        loyaltyPoints:
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:113:        activated:
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:118:      syncRuntimeCrmCustomer(
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:119:        crmCustomer
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:124:        "[CUSTOMER] CRM hydration synced"
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:129:        customerId:
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:130:          crmCustomer.customerId,
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:133:          crmCustomer.fullName,
+src/runtime/customer/runtimeCustomerPermissionEngine.ts:8:  useRuntimeCustomerIdentityStore,
+src/runtime/customer/runtimeCustomerPermissionEngine.ts:9:} from "./runtimeCustomerIdentityStore";
+src/runtime/customer/runtimeCustomerPermissionEngine.ts:28:  useRuntimeCustomerIdentityStore
+src/runtime/customer/runtimeCustomerPermissionEngine.ts:38:    useRuntimeCustomerIdentityStore
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:1:export type RuntimeMembershipTier =
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:10:export interface RuntimeCustomerIdentity {
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:12:  customerId:
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:33:  memberActivated:
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:37:    RuntimeMembershipTier;
+src/runtime/customer/runtimeCustomerIdentityTypes.ts:39:  loyaltyPoints:
+src/runtime/customer/runtimeCustomerIdentityUtils.ts:2:  RuntimeMembershipTier,
+src/runtime/customer/runtimeCustomerIdentityUtils.ts:3:} from "./runtimeCustomerIdentityTypes";
+src/runtime/customer/runtimeCustomerIdentityUtils.ts:5:export function calculateMembershipTier(
+src/runtime/customer/runtimeCustomerIdentityUtils.ts:8:): RuntimeMembershipTier {
+src/runtime/customer/runtimeCustomerActivationEngine.ts:6:  isEligibleForMembership,
+src/runtime/customer/runtimeCustomerActivationEngine.ts:7:} from "./runtimeCustomerEligibilityEngine";
+src/runtime/customer/runtimeCustomerActivationEngine.ts:9:type ActivateCustomerMembershipInput = {
+src/runtime/customer/runtimeCustomerActivationEngine.ts:14:export async function activateCustomerMembership(
+src/runtime/customer/runtimeCustomerActivationEngine.ts:15:  input: ActivateCustomerMembershipInput
+src/runtime/customer/runtimeCustomerActivationEngine.ts:19:    isEligibleForMembership(
+src/runtime/customer/runtimeCustomerActivationEngine.ts:27:      "[ACTIVATION] Customer not eligible"
+src/runtime/customer/runtimeCustomerActivationEngine.ts:36:    "[ACTIVATION] Membership activated"
+src/runtime/customer/runtimeCustomerIdentityConstants.ts:1:export const MEMBER_ACTIVATION_REQUIREMENTS = {
+src/runtime/session/runtimeIdentityStore.ts:4:  MEMBER_TIERS,
+src/runtime/session/runtimeIdentityStore.ts:9:  customerId:
+src/runtime/session/runtimeIdentityStore.ts:18:  memberTier:
+src/runtime/session/runtimeIdentityStore.ts:30:      customerId:
+src/runtime/session/runtimeIdentityStore.ts:39:      memberTier:
+src/runtime/session/runtimeIdentityStore.ts:60:      customerId:
+src/runtime/session/runtimeIdentityStore.ts:69:      memberTier:
+src/runtime/session/runtimeIdentityStore.ts:70:        MEMBER_TIERS.MEMBER,
+src/runtime/session/runtimeIdentityStore.ts:82:        customerId:
+src/runtime/session/runtimeIdentityStore.ts:83:          payload.customerId,
+src/runtime/session/runtimeIdentityStore.ts:91:        memberTier:
+src/runtime/session/runtimeIdentityStore.ts:92:          payload.memberTier,
+src/runtime/session/runtimeIdentityConstants.ts:1:export const MEMBER_TIERS = {
+src/runtime/session/runtimeIdentityConstants.ts:3:  MEMBER:
+src/runtime/session/runtimeIdentityConstants.ts:6:  LOYAL_MEMBER:

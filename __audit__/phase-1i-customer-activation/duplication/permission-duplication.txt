@@ -1,0 +1,21 @@
+src/runtime/customer/runtimeCustomerFollowEngine.ts:5:export async function verifyOAFollowStatus() {
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:2:  requestPhonePermission,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:6:  verifyOAFollowStatus,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:29:    await requestPhonePermission();
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:32:    await verifyOAFollowStatus();
+src/runtime/customer/runtimeCustomerPermissionEngine.ts:5:export async function requestPhonePermission() {
+src/zalo/follow/followOARuntime.js:2:  followOA,
+src/zalo/follow/followOARuntime.js:5:class FollowOARuntime {
+src/zalo/follow/followOARuntime.js:7:  async requestFollow() {
+src/zalo/follow/followOARuntime.js:25:      await followOA({
+src/zalo/follow/followOARuntime.js:46:const followOARuntime =
+src/zalo/follow/followOARuntime.js:47:  new FollowOARuntime();
+src/zalo/follow/followOARuntime.js:50:  followOARuntime;
+src/zalo/activation/services/activationService.js:5:import followOARuntime from "@/zalo/follow/followOARuntime";
+src/zalo/activation/services/activationService.js:26:      await followOARuntime
+src/zalo/activation/services/activationService.js:27:        .requestFollow();
+src/zalo/phone/zaloPhoneRuntime.js:2:  getPhoneNumber,
+src/zalo/phone/zaloPhoneRuntime.js:12:        await getPhoneNumber({});
+src/zalo/phone/phonePermissionRuntime.js:1:import { getPhoneNumber } from "zmp-sdk/apis";
+src/zalo/phone/phonePermissionRuntime.js:7:        await getPhoneNumber({});
+src/zalo/services/zaloFollowOAService.js:14:  return zmp.followOA({

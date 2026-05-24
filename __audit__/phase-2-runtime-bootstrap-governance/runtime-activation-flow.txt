@@ -1,0 +1,320 @@
+src/order/services/orderRealtimeBridge.js:6:  runtimeLogger,
+src/order/services/orderRealtimeBridge.js:7:} from "@/runtime/logger/runtimeLogger";
+src/order/services/orderRealtimeBridge.js:26:    runtimeLogger.warn(
+src/order/services/orderRealtimeBridge.js:77:  runtimeLogger.info(
+src/infra/auth/bootstrapAuth.js:2:  runtimeLogger,
+src/infra/auth/bootstrapAuth.js:3:} from "@/runtime/logger/runtimeLogger";
+src/infra/auth/bootstrapAuth.js:42:  runtimeLogger.info("AUTH", 
+src/infra/auth/logout.js:2:  runtimeLogger,
+src/infra/auth/logout.js:3:} from "@/runtime/logger/runtimeLogger";
+src/infra/auth/logout.js:19:  runtimeLogger.info("AUTH", 
+src/infra/auth/authService.js:2:  runtimeLogger,
+src/infra/auth/authService.js:3:} from "@/runtime/logger/runtimeLogger";
+src/infra/auth/authService.js:152:    runtimeLogger.info("AUTH", 
+src/infra/auth/authService.js:192:    runtimeLogger.info("AUTH", 
+src/infra/auth/authService.js:221:    runtimeLogger.error("AUTH", 
+src/infra/auth/authService.js:267:    runtimeLogger.info("AUTH", 
+src/infra/auth/authService.js:304:    runtimeLogger.info("AUTH", 
+src/infra/auth/authService.js:329:    runtimeLogger.error("AUTH", 
+src/infra/auth/authService.js:351:    runtimeLogger.info("AUTH", 
+src/infra/auth/authService.js:381:    runtimeLogger.info("AUTH", 
+src/infra/auth/authService.js:410:    runtimeLogger.error("AUTH", 
+src/infra/api/apiClient.js:4:  runtimeLogger,
+src/infra/api/apiClient.js:5:} from "@/runtime/logger/runtimeLogger";
+src/infra/api/apiClient.js:42:    runtimeLogger.info(
+src/infra/api/apiClient.js:64:    runtimeLogger.info(
+src/infra/api/apiClient.js:81:    runtimeLogger.error(
+src/zalo/auth/zaloAuthRuntime.js:2:  runtimeLogger,
+src/zalo/auth/zaloAuthRuntime.js:3:} from "@/runtime/logger/runtimeLogger";
+src/zalo/auth/zaloAuthRuntime.js:23:      runtimeLogger.warn(
+src/zalo/auth/zaloAuthRuntime.js:41:      runtimeLogger.warn(
+src/zalo/auth/zaloAuthRuntime.js:60:      runtimeLogger.warn(
+src/zalo/auth/zaloAuthRuntime.js:81:      runtimeLogger.warn(
+src/zalo/follow/followOARuntime.js:2:  runtimeLogger,
+src/zalo/follow/followOARuntime.js:3:} from "@/runtime/logger/runtimeLogger";
+src/zalo/follow/followOARuntime.js:17:        runtimeLogger.warn(
+src/zalo/follow/followOARuntime.js:38:      runtimeLogger.warn(
+src/zalo/activation/activationRuntime.js:2:  runtimeLogger,
+src/zalo/activation/activationRuntime.js:3:} from "@/runtime/logger/runtimeLogger";
+src/zalo/activation/activationRuntime.js:29:    runtimeLogger.info(
+src/zalo/activation/activationApi.js:18:      "/activation/bootstrap",
+src/zalo/phone/zaloPhoneRuntime.js:2:  runtimeLogger,
+src/zalo/phone/zaloPhoneRuntime.js:3:} from "@/runtime/logger/runtimeLogger";
+src/zalo/phone/zaloPhoneRuntime.js:25:      runtimeLogger.warn(
+src/bootstrap/components/AppBootstrapGate.jsx:45:        label="Starting app"
+src/bootstrap/services/bootstrapLogger.js:2:  runtimeLogger,
+src/bootstrap/services/bootstrapLogger.js:3:} from "@/runtime/logger/runtimeLogger";
+src/bootstrap/services/bootstrapLogger.js:8:  runtimeLogger.info(
+src/bootstrap/services/appBootstrapOrchestrator.js:2:  runtimeLogger,
+src/bootstrap/services/appBootstrapOrchestrator.js:3:} from "@/runtime/logger/runtimeLogger";
+src/bootstrap/services/appBootstrapOrchestrator.js:39:  runtimeLogger.info("APP", 
+src/bootstrap/services/appBootstrapOrchestrator.js:60:  runtimeLogger.info("APP", 
+src/bootstrap/services/appBootstrapOrchestrator.js:61:    "[BOOTSTRAP] APPLICATION READY"
+src/bootstrap/services/bootstrapErrorRecovery.js:2:  runtimeLogger,
+src/bootstrap/services/bootstrapErrorRecovery.js:3:} from "@/runtime/logger/runtimeLogger";
+src/bootstrap/services/bootstrapErrorRecovery.js:19:    runtimeLogger.error("APP", 
+src/auth/bootstrap/authBootstrap.js:2:  runtimeLogger,
+src/auth/bootstrap/authBootstrap.js:3:} from "@/runtime/logger/runtimeLogger";
+src/auth/bootstrap/authBootstrap.js:13:  runtimeLogger.info("AUTH", 
+src/auth/bootstrapAuth.js:8:  runtimeLogger,
+src/auth/bootstrapAuth.js:9:} from "@/runtime/logger/runtimeLogger";
+src/auth/bootstrapAuth.js:22:  runtimeLogger.info(
+src/auth/services/authSessionService.js:8:  runtimeLogger,
+src/auth/services/authSessionService.js:9:} from "@/runtime/logger/runtimeLogger";
+src/auth/services/authSessionService.js:27:    runtimeLogger.info(
+src/auth/services/authSessionService.js:51:  runtimeLogger.info(
+src/payment/services/paymentRecoveryService.js:8:  runtimeLogger,
+src/payment/services/paymentRecoveryService.js:9:} from "@/runtime/logger/runtimeLogger";
+src/payment/services/paymentRecoveryService.js:32:    runtimeLogger.warn(
+src/payment/services/paymentRecoveryService.js:45:    runtimeLogger.info(
+src/payment/services/paymentRecoveryService.js:66:        runtimeLogger.info(
+src/payment/services/paymentRecoveryService.js:105:          runtimeLogger.info(
+src/payment/services/paymentRecoveryService.js:128:        runtimeLogger.error(
+src/payment/services/paymentRealtimeBridge.js:10:  runtimeLogger,
+src/payment/services/paymentRealtimeBridge.js:11:} from "@/runtime/logger/runtimeLogger";
+src/payment/services/paymentRealtimeBridge.js:34:    runtimeLogger.warn(
+src/payment/services/paymentRealtimeBridge.js:99:        runtimeLogger.info(
+src/payment/services/paymentRealtimeBridge.js:114:  runtimeLogger.info(
+src/features/menu/hooks/useMenu.js:8:  runtimeLogger,
+src/features/menu/hooks/useMenu.js:9:} from "@/runtime/logger/runtimeLogger";
+src/features/menu/hooks/useMenu.js:33:        runtimeLogger.info(
+src/runtime/logger/runtimeLogger.ts:20:export const runtimeLogger = {
+src/runtime/logger/runtimeLogger.ts:46:export default runtimeLogger;
+src/runtime/notification/runtimeNotificationToastManager.ts:2:  runtimeLogger,
+src/runtime/notification/runtimeNotificationToastManager.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/notification/runtimeNotificationToastManager.ts:15:  runtimeLogger.info("RUNTIME", 
+src/runtime/notification/runtimeNotificationOrchestrator.ts:10:  runtimeLogger,
+src/runtime/notification/runtimeNotificationOrchestrator.ts:11:} from "@/runtime/logger/runtimeLogger";
+src/runtime/notification/runtimeNotificationOrchestrator.ts:70:  runtimeLogger.info("RUNTIME", 
+src/runtime/timer/runtimeSafeTimeout.ts:14:  runtimeLogger,
+src/runtime/timer/runtimeSafeTimeout.ts:15:} from "@/runtime/logger/runtimeLogger";
+src/runtime/timer/runtimeSafeTimeout.ts:121:        runtimeLogger.error("RUNTIME", 
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:14:  runtimeLogger,
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:15:} from "@/runtime/logger/runtimeLogger";
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:55:        runtimeLogger.info("RUNTIME", 
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:69:      runtimeLogger.info("RUNTIME", 
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:84:      runtimeLogger.info("RUNTIME", 
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:99:      runtimeLogger.info("RUNTIME", 
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:178:    runtimeLogger.info("RUNTIME", 
+src/runtime/timer/runtimeVisibilityTimerGovernor.ts:255:    runtimeLogger.info("RUNTIME", 
+src/runtime/timer/runtimeSafeInterval.ts:14:  runtimeLogger,
+src/runtime/timer/runtimeSafeInterval.ts:15:} from "@/runtime/logger/runtimeLogger";
+src/runtime/timer/runtimeSafeInterval.ts:127:        runtimeLogger.error("RUNTIME", 
+src/runtime/timer/runtimeTimerRegistry.ts:2:  runtimeLogger,
+src/runtime/timer/runtimeTimerRegistry.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/timer/runtimeTimerRegistry.ts:105:      runtimeLogger.warn("RUNTIME", 
+src/runtime/timer/runtimeTimerRegistry.ts:179:      runtimeLogger.warn("RUNTIME", 
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:6:  runtimeLogger,
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:7:} from "@/runtime/logger/runtimeLogger";
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:18:  runtimeLogger.info("RUNTIME", 
+src/runtime/crm/runtimeCrmSyncOrchestrator.ts:39:  runtimeLogger.info("RUNTIME", 
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:6:  runtimeLogger,
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:7:} from "@/runtime/logger/runtimeLogger";
+src/runtime/admin/runtimeAdminMemberGovernanceEngine.ts:57:  runtimeLogger.info("RUNTIME", 
+src/runtime/admin/runtimeAdminCrmImportEngine.ts:2:  runtimeLogger,
+src/runtime/admin/runtimeAdminCrmImportEngine.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/admin/runtimeAdminCrmImportEngine.ts:20:  runtimeLogger.info("RUNTIME", 
+src/runtime/admin/runtimeAdminRealtimeActions.ts:2:  runtimeLogger,
+src/runtime/admin/runtimeAdminRealtimeActions.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/admin/runtimeAdminRealtimeActions.ts:7:  runtimeLogger.info("RUNTIME", 
+src/runtime/admin/runtimeAdminGovernanceOrchestrator.ts:2:  runtimeLogger,
+src/runtime/admin/runtimeAdminGovernanceOrchestrator.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/admin/runtimeAdminGovernanceOrchestrator.ts:7:  runtimeLogger.info("RUNTIME", 
+src/runtime/lifecycle/runtimeVisibilityLifecycle.ts:2:  runtimeLogger,
+src/runtime/lifecycle/runtimeVisibilityLifecycle.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/lifecycle/runtimeVisibilityLifecycle.ts:40:        runtimeLogger.info("RUNTIME", 
+src/runtime/lifecycle/runtimeVisibilityLifecycle.ts:52:      runtimeLogger.info("RUNTIME", 
+src/runtime/lifecycle/runtimeVisibilityLifecycle.ts:64:      runtimeLogger.info("RUNTIME", 
+src/runtime/runtimeBootstrap.ts:38:  runtimeLogger,
+src/runtime/runtimeBootstrap.ts:39:} from "@/runtime/logger/runtimeLogger";
+src/runtime/runtimeBootstrap.ts:113:  runtimeLogger.info("RUNTIME", 
+src/runtime/runtimeBootstrap.ts:137:    runtimeLogger.warn("RUNTIME", 
+src/runtime/runtimeBootstrap.ts:154:  runtimeLogger.info("RUNTIME", 
+src/runtime/runtimeBootstrap.ts:306:    runtimeLogger.info("RUNTIME", {
+src/runtime/runtimeBootstrap.ts:330:    runtimeLogger.error("RUNTIME", 
+src/runtime/realtime/runtimeRealtimeEventRouter.ts:2:  runtimeLogger,
+src/runtime/realtime/runtimeRealtimeEventRouter.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/realtime/runtimeRealtimeEventRouter.ts:22:    runtimeLogger.warn("RUNTIME", 
+src/runtime/realtime/runtimeRealtimeChannelRegistry.ts:2:  runtimeLogger,
+src/runtime/realtime/runtimeRealtimeChannelRegistry.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/realtime/runtimeRealtimeChannelRegistry.ts:15:  runtimeLogger.info("RUNTIME", 
+src/runtime/realtime/runtimeRealtimeSubscriptionManager.ts:2:  runtimeLogger,
+src/runtime/realtime/runtimeRealtimeSubscriptionManager.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/realtime/runtimeRealtimeSubscriptionManager.ts:7:  runtimeLogger.info("RUNTIME", 
+src/runtime/realtime/runtimeRealtimeEventHandlers.ts:2:  runtimeLogger,
+src/runtime/realtime/runtimeRealtimeEventHandlers.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/realtime/runtimeRealtimeEventHandlers.ts:17:      runtimeLogger.info("RUNTIME", 
+src/runtime/realtime/runtimeRealtimeEventHandlers.ts:39:      runtimeLogger.info("RUNTIME", 
+src/runtime/realtime/runtimeRealtimeEventHandlers.ts:51:      runtimeLogger.info("RUNTIME", 
+src/runtime/realtime/runtimeRealtimeEventHandlers.ts:73:      runtimeLogger.info("RUNTIME", 
+src/runtime/realtime/runtimeRealtimeOrchestrator.ts:2:  runtimeLogger,
+src/runtime/realtime/runtimeRealtimeOrchestrator.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/realtime/runtimeRealtimeOrchestrator.ts:12:  runtimeLogger.info("RUNTIME", 
+src/runtime/realtime/runtimeRealtimeOrchestrator.ts:18:  runtimeLogger.info("RUNTIME", 
+src/runtime/realtime/runtimeEventListeners.ts:6:  runtimeLogger,
+src/runtime/realtime/runtimeEventListeners.ts:7:} from "@/runtime/logger/runtimeLogger";
+src/runtime/realtime/runtimeEventListeners.ts:30:      runtimeLogger.info("RUNTIME", 
+src/runtime/realtime/runtimeEventListeners.ts:53:      runtimeLogger.info("RUNTIME", 
+src/runtime/realtime/runtimeEventListeners.ts:76:      runtimeLogger.info("RUNTIME", 
+src/runtime/orchestration/runtimeOrchestrator.ts:16:  runtimeLogger,
+src/runtime/orchestration/runtimeOrchestrator.ts:17:} from "@/runtime/logger/runtimeLogger";
+src/runtime/orchestration/runtimeOrchestrator.ts:108:        runtimeLogger.info("RUNTIME", 
+src/runtime/orchestration/runtimeOrchestrator.ts:122:  runtimeLogger.info("RUNTIME", 
+src/runtime/services/runtimeListenerAudit.js:2:  runtimeLogger,
+src/runtime/services/runtimeListenerAudit.js:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/services/runtimeListenerAudit.js:28:    runtimeLogger.warn("RUNTIME", 
+src/runtime/orchestrator/runtimeOrchestrator.ts:2:  runtimeLogger,
+src/runtime/orchestrator/runtimeOrchestrator.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/orchestrator/runtimeOrchestrator.ts:48:      runtimeLogger.warn(
+src/runtime/orchestrator/runtimeOrchestrator.ts:79:    runtimeLogger.info(
+src/runtime/orchestrator/runtimeOrchestrator.ts:114:      runtimeLogger.info(
+src/runtime/orchestrator/runtimeOrchestrator.ts:128:      runtimeLogger.error(
+src/runtime/orchestrator/runtimeOrchestrator.ts:170:    runtimeLogger.info(
+src/runtime/orchestrator/runtimeOrchestrator.ts:188:      runtimeLogger.info(
+src/runtime/orchestrator/runtimeOrchestrator.ts:202:      runtimeLogger.error(
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:2:  runtimeLogger,
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:12:  runtimeLogger.info("RUNTIME", 
+src/runtime/customer/runtimeCustomerIdentityOrchestrator.ts:18:  runtimeLogger.info("RUNTIME", 
+src/runtime/customer/runtimeCustomerFollowEngine.ts:2:  runtimeLogger,
+src/runtime/customer/runtimeCustomerFollowEngine.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/customer/runtimeCustomerFollowEngine.ts:13:  runtimeLogger.info(
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:14:  runtimeLogger,
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:15:} from "@/runtime/logger/runtimeLogger";
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:44:  runtimeLogger.info(
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:65:  runtimeLogger.info(
+src/runtime/customer/runtimeCustomerIdentityEngine.ts:117:  runtimeLogger.info(
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:2:  runtimeLogger,
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:50:    runtimeLogger.info(
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:66:    runtimeLogger.info(
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:83:      runtimeLogger.info(
+src/runtime/customer/runtimeCustomerProfileHydrator.ts:124:      runtimeLogger.info(
+src/runtime/customer/runtimeCustomerPermissionEngine.ts:2:  runtimeLogger,
+src/runtime/customer/runtimeCustomerPermissionEngine.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/customer/runtimeCustomerPermissionEngine.ts:13:  runtimeLogger.info(
+src/runtime/customer/runtimeCustomerActivationEngine.ts:2:  runtimeLogger,
+src/runtime/customer/runtimeCustomerActivationEngine.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/customer/runtimeCustomerActivationEngine.ts:25:    runtimeLogger.info(
+src/runtime/customer/runtimeCustomerActivationEngine.ts:34:  runtimeLogger.info(
+src/runtime/socket/runtimeSocketClient.ts:7:  runtimeLogger,
+src/runtime/socket/runtimeSocketClient.ts:8:} from "@/runtime/logger/runtimeLogger";
+src/runtime/socket/runtimeSocketClient.ts:183:      runtimeLogger.info("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:257:    runtimeLogger.warn("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:336:  runtimeLogger.info("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:434:      runtimeLogger.info("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:453:      runtimeLogger.warn("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:473:      runtimeLogger.error("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:487:      runtimeLogger.info("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:501:      runtimeLogger.info("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:517:      runtimeLogger.error("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:530:      runtimeLogger.error("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:552:  runtimeLogger.info("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:627:  runtimeLogger.info("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:649:  runtimeLogger.info("RUNTIME", 
+src/runtime/socket/runtimeSocketClient.ts:716:    runtimeLogger.warn(
+src/runtime/session/runtimeAuthHydrator.ts:2:  runtimeLogger,
+src/runtime/session/runtimeAuthHydrator.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/runtime/session/runtimeAuthHydrator.ts:24:  runtimeLogger.info(
+src/runtime/session/runtimeSessionRecovery.ts:6:  runtimeLogger,
+src/runtime/session/runtimeSessionRecovery.ts:7:} from "@/runtime/logger/runtimeLogger";
+src/runtime/session/runtimeSessionRecovery.ts:21:    runtimeLogger.info("RUNTIME", 
+src/runtime/session/runtimeSessionRecovery.ts:46:  runtimeLogger.info("RUNTIME", 
+src/runtime/session/runtimeSessionOrchestrator.ts:6:  runtimeLogger,
+src/runtime/session/runtimeSessionOrchestrator.ts:7:} from "@/runtime/logger/runtimeLogger";
+src/runtime/session/runtimeSessionOrchestrator.ts:16:  runtimeLogger.info("RUNTIME", 
+src/runtime/session/runtimeSessionOrchestrator.ts:24:  runtimeLogger.info("RUNTIME", 
+src/admin/behavior/behaviorRealtimeSocket.js:2:  runtimeLogger,
+src/admin/behavior/behaviorRealtimeSocket.js:3:} from "@/runtime/logger/runtimeLogger";
+src/admin/behavior/behaviorRealtimeSocket.js:82:    runtimeLogger.info("ADMIN_REALTIME", 
+src/admin/behavior/behaviorRealtimeSocket.js:109:          runtimeLogger.error("ADMIN_REALTIME", 
+src/admin/behavior/behaviorRealtimeSocket.js:128:    runtimeLogger.info("ADMIN_REALTIME", 
+src/admin/bootstrap/adminBootstrap.js:2:  runtimeLogger,
+src/admin/bootstrap/adminBootstrap.js:3:} from "@/runtime/logger/runtimeLogger";
+src/admin/bootstrap/adminBootstrap.js:44:  runtimeLogger.info(
+src/admin/bootstrap/adminBootstrap.js:70:  runtimeLogger.info(
+src/admin/observability/observabilityRealtimeSocket.js:2:  runtimeLogger,
+src/admin/observability/observabilityRealtimeSocket.js:3:} from "@/runtime/logger/runtimeLogger";
+src/admin/observability/observabilityRealtimeSocket.js:136:    runtimeLogger.info("ADMIN_REALTIME", 
+src/admin/observability/observabilityRealtimeSocket.js:163:          runtimeLogger.error("ADMIN_REALTIME", 
+src/admin/observability/observabilityRealtimeSocket.js:182:    runtimeLogger.info("ADMIN_REALTIME", 
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:2:  runtimeLogger,
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:3:} from "@/runtime/logger/runtimeLogger";
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:106:    runtimeLogger.info("ADMIN_REALTIME", 
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:133:          runtimeLogger.error("ADMIN_REALTIME", 
+src/admin/realtime/adminRealtimeAnalyticsSocket.js:152:    runtimeLogger.info("ADMIN_REALTIME", 
+src/admin/automation/automationRealtimeSocket.js:2:  runtimeLogger,
+src/admin/automation/automationRealtimeSocket.js:3:} from "@/runtime/logger/runtimeLogger";
+src/admin/automation/automationRealtimeSocket.js:106:    runtimeLogger.info("ADMIN_REALTIME", 
+src/admin/automation/automationRealtimeSocket.js:133:          runtimeLogger.error("ADMIN_REALTIME", 
+src/admin/automation/automationRealtimeSocket.js:152:    runtimeLogger.info("ADMIN_REALTIME", 
+src/admin/orders/orderRealtimeSocket.js:6:  runtimeLogger,
+src/admin/orders/orderRealtimeSocket.js:7:} from "@/runtime/logger/runtimeLogger";
+src/admin/orders/orderRealtimeSocket.js:106:    runtimeLogger.info(
+src/admin/orders/orderRealtimeSocket.js:134:          runtimeLogger.error(
+src/admin/orders/orderRealtimeSocket.js:155:    runtimeLogger.info(
+src/admin/services/adminRealtimeBridge.js:2:  runtimeLogger,
+src/admin/services/adminRealtimeBridge.js:3:} from "@/runtime/logger/runtimeLogger";
+src/admin/services/adminRealtimeBridge.js:113:    runtimeLogger.info("ADMIN_REALTIME", 
+src/admin/services/adminRealtimeBridge.js:140:          runtimeLogger.error("ADMIN_REALTIME", 
+src/admin/services/adminRealtimeBridge.js:159:    runtimeLogger.info("ADMIN_REALTIME", 
+src/shared/hooks/useAppReady.js:2:  runtimeLogger,
+src/shared/hooks/useAppReady.js:3:} from "@/runtime/logger/runtimeLogger";
+src/shared/hooks/useAppReady.js:20:    runtimeLogger.info("APP", 
+src/api/config/apiConfig.js:2:  runtimeLogger,
+src/api/config/apiConfig.js:3:} from "@/runtime/logger/runtimeLogger";
+src/api/config/apiConfig.js:16:runtimeLogger.info(
+src/modules/loyalty/runtimeLoyaltyExperienceOrchestrator.ts:2:  runtimeLogger,
+src/modules/loyalty/runtimeLoyaltyExperienceOrchestrator.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/modules/loyalty/runtimeLoyaltyExperienceOrchestrator.ts:20:  runtimeLogger.info("APP", 
+src/modules/loyalty/runtimeLoyaltyExperienceOrchestrator.ts:30:  runtimeLogger.info("APP", 
+src/modules/loyalty/runtimeLoyaltyRealtimeSubscriptions.ts:2:  runtimeLogger,
+src/modules/loyalty/runtimeLoyaltyRealtimeSubscriptions.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/modules/loyalty/runtimeLoyaltyRealtimeSubscriptions.ts:7:  runtimeLogger.info("APP", 
+src/modules/loyalty/runtimeLoyaltyExperienceEngine.ts:2:  runtimeLogger,
+src/modules/loyalty/runtimeLoyaltyExperienceEngine.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/modules/loyalty/runtimeLoyaltyExperienceEngine.ts:24:  runtimeLogger.info("APP", 
+src/modules/loyalty/runtimeLoyaltyExperienceEngine.ts:63:  runtimeLogger.info("APP", 
+src/modules/loyalty/runtimeLoyaltyRewardRuntime.ts:2:  runtimeLogger,
+src/modules/loyalty/runtimeLoyaltyRewardRuntime.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/modules/loyalty/runtimeLoyaltyRewardRuntime.ts:7:  runtimeLogger.info("APP", 
+src/modules/membership-card/runtimeMembershipCardEngine.ts:2:  runtimeLogger,
+src/modules/membership-card/runtimeMembershipCardEngine.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/modules/membership-card/runtimeMembershipCardEngine.ts:24:  runtimeLogger.info("APP", 
+src/modules/membership-card/runtimeMembershipCardEngine.ts:58:  runtimeLogger.info("APP", 
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:2:  runtimeLogger,
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/modules/membership-card/runtimeMembershipCardHydrator.ts:23:  runtimeLogger.info("APP", 
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:2:  runtimeLogger,
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:16:  runtimeLogger.info("APP", 
+src/modules/membership-card/runtimeMembershipCardOrchestrator.ts:24:  runtimeLogger.info("APP", 
+src/modules/membership-card/runtimeMembershipCardSubscriptions.ts:2:  runtimeLogger,
+src/modules/membership-card/runtimeMembershipCardSubscriptions.ts:3:} from "@/runtime/logger/runtimeLogger";
+src/modules/membership-card/runtimeMembershipCardSubscriptions.ts:7:  runtimeLogger.info("APP", 
+src/pages/checkout/CheckoutPage.jsx:38:  runtimeLogger,
+src/pages/checkout/CheckoutPage.jsx:39:} from "@/runtime/logger/runtimeLogger";
+src/pages/checkout/CheckoutPage.jsx:373:      runtimeLogger.info(
+src/pages/checkout/CheckoutPage.jsx:394:      runtimeLogger.info("CHECKOUT", 
+src/pages/checkout/CheckoutPage.jsx:471:        runtimeLogger.info("CHECKOUT", 
+src/pages/checkout/CheckoutPage.jsx:484:          runtimeLogger.error("CHECKOUT", 
+src/pages/checkout/CheckoutPage.jsx:587:      runtimeLogger.error("CHECKOUT", 
+src/services/order/orderRecoveryEngine.js:2:  runtimeLogger,
+src/services/order/orderRecoveryEngine.js:3:} from "@/runtime/logger/runtimeLogger";
+src/services/order/orderRecoveryEngine.js:23:    runtimeLogger.info("ORDER", 
+src/services/order/orderRecoveryEngine.js:29:    runtimeLogger.error("ORDER", 
+src/services/logger/loggerService.js:2:  runtimeLogger,
+src/services/logger/loggerService.js:3:} from "@/runtime/logger/runtimeLogger";
+src/services/logger/loggerService.js:7:    runtimeLogger.info("APP", message, payload);
+src/services/logger/loggerService.js:11:    runtimeLogger.warn("APP", message, payload);
+src/services/logger/loggerService.js:15:    runtimeLogger.error("APP", message, payload);
+src/services/logger/loggerService.js:19:    runtimeLogger.info("DEBUG", message, payload);
+src/services/query/queryRealtimeSync.js:2:  runtimeLogger,
+src/services/query/queryRealtimeSync.js:3:} from "@/runtime/logger/runtimeLogger";
+src/services/query/queryRealtimeSync.js:28:    runtimeLogger.info("APP", 
+src/services/offline/offlineSyncManager.js:2:  runtimeLogger,
+src/services/offline/offlineSyncManager.js:3:} from "@/runtime/logger/runtimeLogger";
+src/services/offline/offlineSyncManager.js:31:      runtimeLogger.error("APP", 
+src/services/offline/offlineMutationQueue.js:2:  runtimeLogger,
+src/services/offline/offlineMutationQueue.js:3:} from "@/runtime/logger/runtimeLogger";
+src/services/offline/offlineMutationQueue.js:36:        runtimeLogger.error("APP", 
