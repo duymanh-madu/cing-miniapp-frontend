@@ -1,33 +1,14 @@
-import {
-  AppContainer,
-} from "@/components/ui";
-
+import { AppContainer } from "@/components/ui";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
+import FloatingCart from "@/features/cart/FloatingCart";
 
-/**
- * =========================================================
- * APP LAYOUT
- * =========================================================
- * Zalo WebView mobile-first layout.
- * Bottom navigation is safe-area governed.
- * =========================================================
- */
-
-function AppLayout({
-  children,
-}) {
+function AppLayout({ children }) {
   return (
-
     <AppContainer>
-
       {children}
-
+      <FloatingCart />
       <BottomNavigation />
-
     </AppContainer>
-
   );
 }
-
-export default
-  AppLayout;
+export default AppLayout;

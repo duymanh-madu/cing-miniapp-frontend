@@ -1,3 +1,4 @@
+import useCartStore from "../store/cartStore";
 import { useMenuProducts } from "../hooks/useMenuProducts";
 
 const HERMES = "linear-gradient(145deg,#C8401A 0%,#D4531C 50%,#B83815 100%)";
@@ -54,7 +55,7 @@ function Card({ item }) {
             color:"white", border:"none", fontSize:16,
             display:"flex", alignItems:"center", justifyContent:"center",
             cursor: ok ? "pointer" : "not-allowed", flexShrink:0, padding:0,
-          }}>+</button>
+          }} onClick={e=>{e.stopPropagation();if(ok)addItem(item);}}>+</button>
         </div>
       </div>
     </div>
@@ -62,6 +63,7 @@ function Card({ item }) {
 }
 
 export default function MenuGrid({ search="" }) {
+  const addItem = useCartStore(s => s.addItem);
   const { data=[], isLoading } = useMenuProducts();
   const items = search.trim()
     ? data.filter(p => p.name?.toLowerCase().includes(search.toLowerCase()))

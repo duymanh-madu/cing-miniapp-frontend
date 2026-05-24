@@ -1,119 +1,40 @@
 import { create } from "zustand";
 
-/**
- * =====================================================
- * TYPES
- * =====================================================
- */
-
-const initialState = {
-
+const useCartStore = create((set, get) => ({
   items: [],
 
-};
+  addItem: (product) => {
+    const items = get().items;
+    const existing = items.find(i => i.id === product.id);
+    if (existing) {
+      set({ items: items.map(i => i.id === product.id ? {...i, qty: i.qty + 1} : i) });
+    } else {
+      set({ items: [...items, { ...product, qty: 1, cartId: crypto.randomUUID() }] });
+    }
+  },
 
-/**
- * =====================================================
- * STORE
- * =====================================================
- */
+  increment: (id) => set({ items: get().items.map(i => i.id === id ? {...i, qty: i.qty + 1} : i) }),
 
-const useCartStore =
-  create(
+  decrement: (id) => {
+    const items = get().items;
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    if (item.qty <= 1) {
+      set({ items: items.filter(i => i.id !== id) });
+    } else {
+      set({ items: items.map(i => i.id === id ? {...i, qty: i.qty - 1} : i) });
+    }
+  },
 
-    (
-      set,
-      get
-    ) => ({
+  removeItem: (id) => set({ items: get().items.filter(i => i.id !== id) }),
+  clearCart: () => set({ items: [] }),
 
-      ...initialState,
+  get total() {
+    return get().items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
+  },
+  get count() {
+    return get().items.reduce((s, i) => s + i.qty, 0);
+  },
+}));
 
-      /**
-       * =====================================================
-       * ADD ITEM
-       * =====================================================
-       */
-
-      addItem:
-        (
-          item
-        ) => {
-
-          const currentItems =
-            get().items;
-
-          set({
-
-            items: [
-
-              ...currentItems,
-
-              {
-
-                ...item,
-
-                cartId:
-                  crypto.randomUUID(),
-
-              },
-
-            ],
-
-          });
-
-        },
-
-      /**
-       * =====================================================
-       * REMOVE ITEM
-       * =====================================================
-       */
-
-      removeItem:
-        (
-          cartId
-        ) => {
-
-          set({
-
-            items:
-              get()
-                .items
-                .filter(
-
-                  (
-                    item
-                  ) =>
-
-                    item.cartId !==
-                    cartId
-
-                ),
-
-          });
-
-        },
-
-      /**
-       * =====================================================
-       * CLEAR CART
-       * =====================================================
-       */
-
-      clearCart:
-        () => {
-
-          set({
-
-            items: [],
-
-          });
-
-        },
-
-    })
-
-  );
-
-export default
-  useCartStore;
+export default useCartStore;
