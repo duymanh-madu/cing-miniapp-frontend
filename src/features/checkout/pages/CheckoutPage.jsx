@@ -6,8 +6,8 @@ import apiClient from "@/infra/api/apiClient";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "d";
 
-const STORE_LAT = 21.1861;
-const STORE_LNG = 106.0763;
+const STORE_LAT = 21.112148;
+const STORE_LNG = 105.948725;
 
 function calcDistKm(lat1,lng1,lat2,lng2){
   const R=6371,dL=(lat2-lat1)*Math.PI/180,dl=(lng2-lng1)*Math.PI/180;
@@ -111,11 +111,10 @@ export default function CheckoutPage(){
       const payload={
         user_id:userId,
         customer_name:name.trim(),
-        customer_phone:phone.trim(),
-        delivery_address:address.trim(),
-        order_type:orderType,
+        customer_name_extra:phone.trim(),
+        shipping_address:address.trim(),
         payment_method:"momo",
-        note:note.trim(),
+        payment_status:"pending",
         items:items.map(i=>({
           item_id:i.id,
           item_code:i.code||i.id,
@@ -126,8 +125,8 @@ export default function CheckoutPage(){
         })),
         subtotal,
         shipping_fee:shipFee,
+        shipping_distance:distKm?Math.round(distKm*10)/10:null,
         total_amount:total,
-        distance_km:distKm,
         status_code:"pending_payment",
       };
       await apiClient.post("/orders/create",payload);
