@@ -4,7 +4,7 @@ import { useMenuProducts } from "../hooks/useMenuProducts";
 const HERMES = "linear-gradient(145deg,#C8401A 0%,#D4531C 50%,#B83815 100%)";
 const fmt = p => p ? new Intl.NumberFormat("vi-VN").format(p) + "d" : "";
 
-function Card({ item }) {
+function Card({ item, onAdd }) {
   const ok = item.available !== false;
   return (
     <div style={{
@@ -55,7 +55,7 @@ function Card({ item }) {
             color:"white", border:"none", fontSize:16,
             display:"flex", alignItems:"center", justifyContent:"center",
             cursor: ok ? "pointer" : "not-allowed", flexShrink:0, padding:0,
-          }} onClick={e=>{e.stopPropagation();if(ok)addItem(item);}}>+</button>
+          }} onClick={e=>{e.stopPropagation();if(ok && onAdd) onAdd(item);}}>+</button>
         </div>
       </div>
     </div>
@@ -84,7 +84,7 @@ export default function MenuGrid({ search="" }) {
 
   return (
     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, padding:"12px 12px 0" }}>
-      {items.map(item => <Card key={item.id} item={item} />)}
+      {items.map(item => <Card key={item.id} item={item} onAdd={addItem} />)}
     </div>
   );
 }
