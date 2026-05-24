@@ -227,16 +227,21 @@ export default function BlackPearlRush() {
         ctx.fillRect(o.x, o.bot, o.w, H);
       }
 
-      /* Particles — single fillStyle set, batch loop */
-      ctx.fillStyle = "#ffd166";
+      /* Particles — 1 Path2D duy nhất cho tất cả particles */
+      const particlePath = new Path2D();
+      let hasParticles = false;
       for (let i = 0; i < PMAX; i++) {
         if (palpha[i] <= 0) continue;
-        ctx.globalAlpha = palpha[i];
-        ctx.beginPath();
-        ctx.arc(px[i], py[i], psize[i], 0, 6.2832);
-        ctx.fill();
+        particlePath.moveTo(px[i] + psize[i], py[i]);
+        particlePath.arc(px[i], py[i], psize[i], 0, 6.2832);
+        hasParticles = true;
       }
-      ctx.globalAlpha = 1;
+      if (hasParticles) {
+        ctx.fillStyle = "#ffd166";
+        ctx.globalAlpha = 0.85;
+        ctx.fill(particlePath);
+        ctx.globalAlpha = 1;
+      }
 
       /* Pearl */
       const p = game.pearl;
@@ -246,15 +251,18 @@ export default function BlackPearlRush() {
       ctx.scale(p.squash, 1/p.squash);
 
       const wf = Math.sin(game.frameTime * 0.02) * 0.12;
-      function wing(ox, flip) {
-        ctx.save(); ctx.translate(ox, -2); ctx.scale(flip, 1); ctx.rotate(wf*flip);
-        ctx.fillStyle = "rgba(255,255,255,0.95)";
-        ctx.beginPath(); ctx.moveTo(0,0);
-        ctx.quadraticCurveTo(-30,-20,-10,-58);
-        ctx.quadraticCurveTo(18,-32,12,0);
-        ctx.closePath(); ctx.fill(); ctx.restore();
-      }
-      wing(-28, 1); wing(28, -1);
+      /* Wing shape cache — tạo Path2D 1 lần */
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.save(); ctx.translate(-28,-2); ctx.rotate(wf);
+      ctx.beginPath(); ctx.moveTo(0,0);
+      ctx.quadraticCurveTo(-30,-20,-10,-58);
+      ctx.quadraticCurveTo(18,-32,12,0);
+      ctx.closePath(); ctx.fill(); ctx.restore();
+      ctx.save(); ctx.translate(28,-2); ctx.scale(-1,1); ctx.rotate(-wf);
+      ctx.beginPath(); ctx.moveTo(0,0);
+      ctx.quadraticCurveTo(-30,-20,-10,-58);
+      ctx.quadraticCurveTo(18,-32,12,0);
+      ctx.closePath(); ctx.fill(); ctx.restore();
 
       /* Dùng ImageBitmap nếu đã load, fallback về canvas paths */
       if (pearlBitmap && !game.dead) {
@@ -277,12 +285,14 @@ export default function BlackPearlRush() {
       ctx.restore();
       ctx.restore();
 
-      /* HUD — font set 1 lần mỗi style group */
-      ctx.textAlign = "center";
-      ctx.font = "900 24px Arial"; ctx.fillStyle = "#dca63a";
-      ctx.fillText("COMBO x" + game.combo, W/2, 145);
-      ctx.font = "900 54px Arial"; ctx.fillStyle = "#2b160b";
-      ctx.fillText(game.score, W/2, 200);
+      /* HUD — skip text render khi không started (idle state) */
+      if (game.started || game.dead) {
+        ctx.textAlign = "center";
+        ctx.font = "900 24px Arial"; ctx.fillStyle = "#dca63a";
+        ctx.fillText("COMBO x" + game.combo, W/2, 145);
+        ctx.font = "900 54px Arial"; ctx.fillStyle = "#2b160b";
+        ctx.fillText(game.score, W/2, 200);
+      }
 
       if (!game.started && !game.dead) {
         ctx.font = "900 34px Arial"; ctx.fillStyle = "#2b160b";

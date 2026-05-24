@@ -23,10 +23,16 @@
       content="black-translucent"
     />
 
-    <meta
-      name="format-detection"
-      content="telephone=no"
-    />
+    <meta name="format-detection" content="telephone=no" />
+    <!-- GPU acceleration hints cho Zalo WebView / WKWebView -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="renderer" content="webkit" />
+    <!-- Tắt touch callout và user-select toàn app -->
+    <style>
+      * { -webkit-tap-highlight-color: transparent; }
+      canvas { -webkit-transform: translateZ(0); transform: translateZ(0); image-rendering: auto; }
+      body { overscroll-behavior: none; overflow: hidden; }
+    </style>
 
     <meta
       name="description"
