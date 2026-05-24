@@ -1,4 +1,4 @@
-import useMenuCategories from "../hooks/useMenuFilters";
+import useMenuCategories from "../hooks/useMenuCategories";
 
 /**
  * =========================================================
@@ -8,8 +8,8 @@ import useMenuCategories from "../hooks/useMenuFilters";
 
 function MenuCategories() {
 
-  const categories =
-    useMenuCategories();
+  const categoriesRaw = useMenuCategories();
+  const categories = Array.isArray(categoriesRaw) ? categoriesRaw : [];
 
   return (
 

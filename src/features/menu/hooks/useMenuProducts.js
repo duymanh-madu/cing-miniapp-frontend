@@ -1,48 +1,20 @@
 import { useMemo } from "react";
-
-import {
-  useMenuQuery,
-} from "@/infra/api/menu/menuQueries";
-
+import useMenu from "./useMenu";
 import useMenuStore from "@/features/menu/store/menuStore";
 
 export function useMenuProducts() {
-  const {
-    data = [],
-    isLoading,
-    error,
-  } = useMenuQuery();
+  const { data = [], isLoading, error } = useMenu();
+  const selectedCategory = useMenuStore((s) => s.selectedCategory);
 
-  const selectedCategory =
-    useMenuStore(
-      (state) =>
-        state.selectedCategory
+  const products = useMemo(() => {
+    if (!selectedCategory || selectedCategory === "all") return data;
+    return data.filter((p) =>
+      p.category === selectedCategory ||
+      p.category?.toLowerCase() === selectedCategory.toLowerCase()
     );
+  }, [data, selectedCategory]);
 
-  const products =
-    useMemo(() => {
-      if (
-        selectedCategory ===
-        "all"
-      ) {
-        return data;
-      }
-
-      return data.filter(
-        (product) =>
-          product.category ===
-          selectedCategory
-      );
-    }, [
-      data,
-      selectedCategory,
-    ]);
-
-  return {
-    products,
-
-    isLoading,
-
-    error,
-  };
+  return { data: products, isLoading, error };
 }
+
+export default useMenuProducts;

@@ -1,52 +1,19 @@
-import {
-  useMemo,
-} from "react";
-
+import { useMemo } from "react";
 import useMenu from "./useMenu";
-
-/**
- * =========================================================
- * USE MENU CATEGORIES
- * =========================================================
- */
+import useMenuStore from "@/features/menu/store/menuStore";
 
 function useMenuCategories() {
+  const { data = [] } = useMenu();
+  const setCategory = useMenuStore((s) => s.setCategory);
+  const selectedCategory = useMenuStore((s) => s.selectedCategory);
 
-  const {
-    data = [],
-  } = useMenu();
-
-  return useMemo(() => {
-
-    const categories =
-      new Set();
-
-    data.forEach(
-      (
-        product
-      ) => {
-
-        if (
-          product.category
-        ) {
-
-          categories.add(
-            product.category
-          );
-
-        }
-
-      }
-    );
-
-    return [
-      "All",
-      ...categories,
-    ];
-
+  const categories = useMemo(() => {
+    const cats = new Set();
+    data.forEach((p) => { if (p.category) cats.add(p.category); });
+    return ["all", ...cats];
   }, [data]);
 
+  return { categories, selectedCategory, setCategory };
 }
 
-export default
-  useMenuCategories;
+export default useMenuCategories;
