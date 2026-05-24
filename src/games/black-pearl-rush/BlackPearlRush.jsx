@@ -352,7 +352,7 @@ export default function BlackPearlRush() {
         className="relative w-full max-w-[390px]"
         style={{ contain: "layout style paint" }}
       >
-        <div className="absolute top-3 left-3 right-3 z-40 flex items-start justify-between pointer-events-none">
+        <div className="absolute top-3 left-3 right-3 flex items-start justify-between pointer-events-none" style={{ zIndex:50 }}>
           <div className="flex items-center gap-2 bg-[#efe7dc] border border-[#d8c8ae] rounded-2xl px-3 py-2 shadow-lg max-w-[220px]">
             <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
               <img src="/logo-cing.png" alt="logo" className="w-full h-full object-contain" />
@@ -378,7 +378,7 @@ export default function BlackPearlRush() {
         <canvas
           ref={canvasRef}
           className="w-full rounded-[32px] shadow-2xl touch-none select-none"
-          style={{ willChange: "transform" }}
+          style={{ willChange: "transform", position:"relative", zIndex:1 }}
         />
 
         {showLeaderboard && (

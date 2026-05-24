@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import GameLeaderboard from "../components/GameLeaderboard";
 
 export default function GameCenterPage() {
   const games = getAllGames();
+  const navigate = useNavigate();
   const [activeGame, setActiveGame] = useState(null); // null = show hub
   const [showBoard, setShowBoard] = useState(null);
 
