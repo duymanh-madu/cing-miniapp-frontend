@@ -7,9 +7,7 @@ import apiClient from "@/infra/api/apiClient";
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p) + "d";
 
 const PAYMENT_METHODS = [
-  { id:"momo",    label:"MoMo",         icon:"💜", desc:"Vi dien tu MoMo" },
-  { id:"banking", label:"Chuyen khoan", icon:"🏦", desc:"QR / Internet Banking" },
-  { id:"cash",    label:"Tien mat",     icon:"💵", desc:"Thanh toan tai quan" },
+  { id:"momo", label:"MoMo", icon:"💜", desc:"Vi dien tu MoMo" },
 ];
 
 const ORDER_TYPES = [
@@ -29,7 +27,7 @@ export default function CheckoutPage() {
   const total = items.reduce((s,i) => s+(i.price||0)*i.qty, 0);
   const count = items.reduce((s,i) => s+i.qty, 0);
 
-  const [payMethod, setPayMethod] = useState("momo");
+  const payMethod = "momo";
   const [orderType, setOrderType] = useState("dine_in");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);

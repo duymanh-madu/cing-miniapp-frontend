@@ -1,4 +1,6 @@
+import { useState } from "react";
 import useCartStore from "../store/cartStore";
+import ProductOptionsModal from "@/features/cart/ProductOptionsModal";
 import { useMenuProducts } from "../hooks/useMenuProducts";
 
 const HERMES = "linear-gradient(145deg,#C8401A 0%,#D4531C 50%,#B83815 100%)";
@@ -59,11 +61,13 @@ function Card({ item, onAdd }) {
         </div>
       </div>
     </div>
+    {selectedItem && <ProductOptionsModal item={selectedItem} onClose={() => setSelectedItem(null)} />}
   );
 }
 
 export default function MenuGrid({ search="" }) {
   const addItem = useCartStore(s => s.addItem);
+  const [selectedItem, setSelectedItem] = useState(null);
   const { data=[], isLoading } = useMenuProducts();
   const items = search.trim()
     ? data.filter(p => p.name?.toLowerCase().includes(search.toLowerCase()))
@@ -84,7 +88,7 @@ export default function MenuGrid({ search="" }) {
 
   return (
     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, padding:"12px 12px 0" }}>
-      {items.map(item => <Card key={item.id} item={item} onAdd={addItem} />)}
+      {items.map(item => <Card key={item.id} item={item} onAdd={setSelectedItem} />)}
     </div>
   );
 }
