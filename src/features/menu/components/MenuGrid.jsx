@@ -1,37 +1,100 @@
 import { useMenuProducts } from "../hooks/useMenuProducts";
 
+/* Hermes orange chinh xac: #D4531C */
+const HERMES = "linear-gradient(145deg, #D4531C 0%, #E8622A 50%, #C04418 100%)";
+
 function formatPrice(price) {
   if (!price && price !== 0) return "";
   return new Intl.NumberFormat("vi-VN").format(price) + "d";
 }
 
-function ProductImage({ src, name }) {
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt={name}
-        className="w-full h-full object-cover"
-        onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
-        loading="lazy"
-      />
-    );
-  }
-  return null;
-}
-
-function PlaceholderImage() {
+function ProductCard({ item }) {
   return (
-    <div
-      className="w-full h-full flex items-center justify-center"
-      style={{ background: "linear-gradient(135deg, #D4521A 0%, #E8703A 40%, #C94010 100%)" }}
-    >
-      <img
-        src="/logo-cing.png"
-        alt="Cing Hu Tang"
-        className="w-16 h-16 object-contain opacity-90"
-        style={{ filter: "brightness(0) invert(1)" }}
-      />
+    <div style={{
+      background: "white",
+      borderRadius: 20,
+      overflow: "hidden",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    }}>
+      {/* IMAGE */}
+      <div style={{ height: 150, position: "relative", overflow: "hidden" }}>
+        {item.image ? (
+          <img
+            src={item.image}
+            alt={item.name}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            onError={(e) => {
+              e.target.style.display = "none";
+              e.target.nextSibling.style.display = "flex";
+            }}
+            loading="lazy"
+          />
+        ) : null}
+        {/* Placeholder: Hermes orange + logo */}
+        <div style={{
+          display: item.image ? "none" : "flex",
+          position: item.image ? "absolute" : "relative",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          background: HERMES,
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
+          <img
+            src="/logo-cing.png"
+            alt=""
+            style={{
+              width: 56, height: 56,
+              objectFit: "contain",
+              filter: "brightness(0) invert(1)",
+              opacity: 0.85,
+            }}
+          />
+        </div>
+        {item.featured && (
+          <span style={{
+            position: "absolute", top: 8, left: 8,
+            background: "#E8622A", color: "white",
+            fontSize: 10, fontWeight: 800,
+            padding: "2px 8px", borderRadius: 20,
+          }}>
+            Hot
+          </span>
+        )}
+      </div>
+
+      {/* INFO */}
+      <div style={{ padding: "10px 12px" }}>
+        <p style={{
+          fontSize: 12, fontWeight: 700,
+          color: "#1a1a1a", lineHeight: 1.4,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+          minHeight: 34, margin: 0,
+        }}>
+          {item.name}
+        </p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 8 }}>
+          <p style={{ fontSize: 14, fontWeight: 900, color: "#E8622A", margin: 0 }}>
+            {formatPrice(item.price)}
+          </p>
+          <button
+            style={{
+              width: 28, height: 28, borderRadius: "50%",
+              background: "#E8622A", color: "white",
+              border: "none", fontSize: 20, fontWeight: 700,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", lineHeight: 1,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            +
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -41,9 +104,9 @@ function MenuGrid() {
 
   if (isLoading) {
     return (
-      <div className="mt-4 px-4 grid grid-cols-2 gap-3">
+      <div style={{ padding: "16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         {[1,2,3,4,5,6].map(i => (
-          <div key={i} className="rounded-2xl bg-gray-100 animate-pulse h-52" />
+          <div key={i} style={{ height: 220, borderRadius: 20, background: "#f0f0f0" }} />
         ))}
       </div>
     );
@@ -51,77 +114,16 @@ function MenuGrid() {
 
   if (!data.length) {
     return (
-      <div className="mt-8 flex flex-col items-center justify-center py-12 text-gray-400">
-        <span className="text-4xl mb-3">🧋</span>
-        <p className="text-sm font-medium">Dang tai menu...</p>
+      <div style={{ padding: "40px 16px", textAlign: "center", color: "#999" }}>
+        <div style={{ fontSize: 40, marginBottom: 8 }}>🧋</div>
+        <p>Dang tai menu...</p>
       </div>
     );
   }
 
   return (
-    <div className="mt-4 px-4 grid grid-cols-2 gap-3">
-      {data.map((item) => (
-        <div
-          key={item.id}
-          className="bg-white rounded-2xl shadow-sm overflow-hidden active:scale-[0.97] transition-transform"
-        >
-          <div className="relative h-[150px] overflow-hidden bg-gray-50">
-            {item.image ? (
-              <>
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                    e.target.parentNode.querySelector(".placeholder").style.display = "flex";
-                  }}
-                  loading="lazy"
-                />
-                <div className="placeholder hidden w-full h-full absolute inset-0 items-center justify-center"
-                  style={{ background: "linear-gradient(135deg, #D4521A 0%, #E8703A 40%, #C94010 100%)" }}>
-                  <img src="/logo-cing.png" alt="" className="w-14 h-14 object-contain"
-                    style={{ filter: "brightness(0) invert(1)" }} />
-                </div>
-              </>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, #D4521A 0%, #E8703A 40%, #C94010 100%)" }}>
-                <img src="/logo-cing.png" alt="" className="w-14 h-14 object-contain"
-                  style={{ filter: "brightness(0) invert(1)" }} />
-              </div>
-            )}
-            {item.featured && (
-              <span className="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-                Hot
-              </span>
-            )}
-            {!item.available && (
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                <span className="text-white text-xs font-bold bg-black/70 px-3 py-1 rounded-full">
-                  Het hang
-                </span>
-              </div>
-            )}
-          </div>
-          <div className="p-3">
-            <h3 className="text-xs font-bold text-gray-800 line-clamp-2 leading-tight min-h-[32px]">
-              {item.name}
-            </h3>
-            <div className="mt-2 flex items-center justify-between">
-              <p className="text-sm font-black text-orange-500">
-                {formatPrice(item.price)}
-              </p>
-              <button
-                className="w-7 h-7 rounded-full bg-orange-500 text-white text-lg font-bold flex items-center justify-center active:scale-90 transition-transform shadow-sm"
-                onClick={(e) => e.stopPropagation()}
-              >
-                +
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
+    <div style={{ padding: "16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      {data.map(item => <ProductCard key={item.id} item={item} />)}
     </div>
   );
 }
