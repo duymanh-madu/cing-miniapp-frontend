@@ -111,10 +111,8 @@ export default function CheckoutPage(){
       const payload={
         user_id:userId,
         customer_name:name.trim(),
-        customer_name_extra:phone.trim(),
         shipping_address:address.trim(),
         payment_method:"momo",
-        payment_status:"pending",
         items:items.map(i=>({
           item_id:i.id,
           item_code:i.code||i.id,
