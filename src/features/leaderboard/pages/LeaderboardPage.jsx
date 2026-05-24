@@ -3,21 +3,18 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 
-const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "\u0111";
+const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
 const TABS = [
-  { id:"weekly",  label:"Tu\u1ea7n n\u00e0y" },
-  { id:"monthly", label:"Th\u00e1ng n\u00e0y" },
-  { id:"yearly",  label:"N\u0103m n\u00e0y" },
+  { id:"weekly",  label:"Tuần này" },
+  { id:"monthly", label:"Tháng này" },
+  { id:"yearly",  label:"Năm này" },
   { id:"alltime", label:"All Time" },
+  { id:"custom",  label:"⚙️ Tùy chỉnh" },
 ];
 
-function RankNotification({ msg, onDone }) {
-  useEffect(() => {
-    const t = setTimeout(onDone, 4000);
-    return () => clearTimeout(t);
-  }, []);
-  const up = msg.includes("th\u0103ng");
+function RankNotification({ msg, up, onDone }) {
+  useEffect(() => { const t = setTimeout(onDone, 4000); return () => clearTimeout(t); }, []);
   return (
     <div style={{
       position:"fixed", top:24, left:16, right:16, zIndex:999,
@@ -25,61 +22,47 @@ function RankNotification({ msg, onDone }) {
       borderRadius:16, padding:"14px 18px",
       boxShadow:"0 8px 32px rgba(0,0,0,0.5)",
       display:"flex", alignItems:"center", gap:12,
-      animation:"slideDown 0.4s ease-out",
     }}>
       <span style={{ fontSize:28 }}>{up ? "📈" : "📉"}</span>
       <div>
         <p style={{ color:"white", fontSize:13, fontWeight:900, margin:0 }}>{msg}</p>
         <p style={{ color:"rgba(255,255,255,0.75)", fontSize:11, margin:"3px 0 0" }}>
-          {up ? "Tuy\u1ec7t v\u1eddi! H\u00e3y ti\u1ebfp t\u1ee5c ph\u00e1t huy!" : "H\u00e3y c\u1ed1 g\u1eafng \u0111\u1ec3 leo h\u1ea1ng!"}
+          {up ? "Tuyệt vời! Hãy tiếp tục phát huy!" : "Hãy cố gắng để leo hạng!"}
         </p>
       </div>
     </div>
   );
 }
 
+function Avatar({ name, size=64, bg="linear-gradient(135deg,#1a0a2e,#2d1254)", color="rgba(255,255,255,0.5)", fontSize=24 }) {
+  return (
+    <div style={{ width:size, height:size, borderRadius:size/2, background:bg,
+      display:"flex", alignItems:"center", justifyContent:"center",
+      fontSize, fontWeight:900, color, flexShrink:0 }}>
+      {(name||"?")[0]?.toUpperCase()}
+    </div>
+  );
+}
+
 function Top1Card({ entry }) {
   return (
-    <div style={{
-      margin:"0 auto 8px", maxWidth:220,
-      display:"flex", flexDirection:"column", alignItems:"center",
-    }}>
-      {/* Crown glow */}
-      <div style={{ fontSize:48, marginBottom:4,
-        filter:"drop-shadow(0 0 20px rgba(255,215,0,0.9))",
-        animation:"pulse 2s ease-in-out infinite",
-      }}>👑</div>
-
-      {/* Avatar */}
-      <div style={{
-        width:90, height:90, borderRadius:45, marginBottom:10,
-        background:"linear-gradient(135deg,#FFD700,#FFA500)",
-        display:"flex", alignItems:"center", justifyContent:"center",
-        fontSize:36, fontWeight:900, color:"#1a0a2e",
-        boxShadow:"0 0 0 4px rgba(255,215,0,0.3), 0 0 40px rgba(255,215,0,0.6)",
-        border:"3px solid #FFD700",
-        position:"relative",
-      }}>
-        {(entry.player_name||entry.name||"?")[0]?.toUpperCase()}
-        <div style={{
-          position:"absolute", bottom:-4, right:-4,
-          background:"#FFD700", borderRadius:12,
-          width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:14, fontWeight:900, color:"#1a0a2e",
-          boxShadow:"0 2px 8px rgba(0,0,0,0.5)",
-        }}>1</div>
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:8 }}>
+      <div style={{ fontSize:52, marginBottom:6, filter:"drop-shadow(0 0 24px rgba(255,215,0,0.9))" }}>👑</div>
+      <div style={{ position:"relative", marginBottom:10 }}>
+        <Avatar name={entry.player_name||entry.name} size={96}
+          bg="linear-gradient(135deg,#FFD700,#FFA500)" color="#1a0a2e" fontSize={38} />
+        <div style={{ position:"absolute", bottom:-4, right:-4, background:"#FFD700",
+          borderRadius:14, width:28, height:28, display:"flex", alignItems:"center",
+          justifyContent:"center", fontSize:14, fontWeight:900, color:"#1a0a2e",
+          boxShadow:"0 2px 8px rgba(0,0,0,0.5)" }}>1</div>
       </div>
-
-      <p style={{ color:"white", fontSize:16, fontWeight:900, margin:"0 0 4px",
-        textAlign:"center", textShadow:"0 0 20px rgba(255,215,0,0.5)" }}>
-        {entry.player_name || entry.name || entry.user_id || "\u1ea8n danh"}
+      <p style={{ color:"white", fontSize:17, fontWeight:900, margin:"0 0 6px",
+        textAlign:"center", textShadow:"0 0 20px rgba(255,215,0,0.4)" }}>
+        {entry.player_name || entry.name || entry.user_id || "Ẩn danh"}
       </p>
-      <div style={{
-        background:"linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,140,0,0.1))",
-        border:"1px solid rgba(255,215,0,0.4)",
-        borderRadius:12, padding:"6px 16px",
-      }}>
-        <p style={{ color:"#FFD700", fontSize:18, fontWeight:900, margin:0 }}>
+      <div style={{ background:"linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,140,0,0.1))",
+        border:"1px solid rgba(255,215,0,0.4)", borderRadius:14, padding:"7px 20px" }}>
+        <p style={{ color:"#FFD700", fontSize:20, fontWeight:900, margin:0 }}>
           {fmt(entry.total_spent || entry.score || 0)}
         </p>
       </div>
@@ -87,39 +70,26 @@ function Top1Card({ entry }) {
   );
 }
 
-function Top2Card({ entry, rank }) {
-  const colors = {
-    2: { bg:"linear-gradient(135deg,#C0C0C0,#E8E8E8)", text:"#1a1a2e", glow:"rgba(192,192,192,0.5)", medal:"🥈" },
-    3: { bg:"linear-gradient(135deg,#CD7F32,#E8A857)", text:"#1a0a00", glow:"rgba(205,127,50,0.5)", medal:"🥉" },
-  };
-  const c = colors[rank];
+function Top23Card({ entry, rank }) {
+  const c = rank===2
+    ? { bg:"linear-gradient(135deg,#C0C0C0,#E8E8E8)", text:"#1a1a2e", glow:"rgba(192,192,192,0.4)", medal:"🥈" }
+    : { bg:"linear-gradient(135deg,#CD7F32,#E8A857)", text:"#1a0a00", glow:"rgba(205,127,50,0.4)", medal:"🥉" };
   return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", flex:1 }}>
-      <span style={{ fontSize:28, marginBottom:6,
-        filter:`drop-shadow(0 0 8px ${c.glow})` }}>{c.medal}</span>
-      <div style={{
-        width:64, height:64, borderRadius:32,
-        background:c.bg,
-        display:"flex", alignItems:"center", justifyContent:"center",
-        fontSize:24, fontWeight:900, color:c.text,
-        boxShadow:`0 0 20px ${c.glow}`,
-        marginBottom:8, position:"relative",
-      }}>
-        {(entry.player_name||entry.name||"?")[0]?.toUpperCase()}
-        <div style={{
-          position:"absolute", bottom:-4, right:-4,
-          background:c.bg, borderRadius:10,
-          width:22, height:22, display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:11, fontWeight:900, color:c.text,
-          boxShadow:"0 2px 6px rgba(0,0,0,0.4)",
-        }}>{rank}</div>
+      <span style={{ fontSize:28, marginBottom:6, filter:`drop-shadow(0 0 8px ${c.glow})` }}>{c.medal}</span>
+      <div style={{ position:"relative", marginBottom:8 }}>
+        <Avatar name={entry.player_name||entry.name} size={64} bg={c.bg} color={c.text} fontSize={24} />
+        <div style={{ position:"absolute", bottom:-4, right:-4, background:c.bg,
+          borderRadius:10, width:20, height:20, display:"flex", alignItems:"center",
+          justifyContent:"center", fontSize:10, fontWeight:900, color:c.text,
+          boxShadow:"0 2px 6px rgba(0,0,0,0.4)" }}>{rank}</div>
       </div>
       <p style={{ color:"rgba(255,255,255,0.9)", fontSize:12, fontWeight:700,
-        margin:"0 0 4px", textAlign:"center", maxWidth:80,
+        margin:"0 0 3px", textAlign:"center", maxWidth:90,
         overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
-        {entry.player_name || entry.name || "\u1ea8n danh"}
+        {entry.player_name || entry.name || "Ẩn danh"}
       </p>
-      <p style={{ color:"rgba(255,215,0,0.8)", fontSize:11, fontWeight:800, margin:0 }}>
+      <p style={{ color:"rgba(255,215,0,0.75)", fontSize:11, fontWeight:800, margin:0 }}>
         {fmt(entry.total_spent || entry.score || 0)}
       </p>
     </div>
@@ -134,213 +104,197 @@ export default function LeaderboardPage() {
   const [myRank, setMyRank] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
+  const [customRange, setCustomRange] = useState({ from:"", to:"" });
+  const [showCustom, setShowCustom] = useState(false);
   const prevRankRef = useRef(null);
 
-  useEffect(() => {
+  const fetchData = (period, from="", to="") => {
     setLoading(true);
-    apiClient.get(`/leaderboard/top-spenders?period=${tab}&limit=100`)
-      .then(r => {
-        const list = r.data?.data || [];
-        setData(list);
-      })
+    let url = `/leaderboard/top-spenders?period=${period}&limit=100`;
+    if (period === "custom" && from && to) url += `&from=${from}&to=${to}`;
+    apiClient.get(url)
+      .then(r => setData(r.data?.data || []))
       .catch(() => setData([]))
       .finally(() => setLoading(false));
 
     if (profile?.id) {
-      apiClient.get(`/leaderboard/user-rank/${profile.id}?period=${tab}`)
+      apiClient.get(`/leaderboard/user-rank/${profile.id}?period=${period}`)
         .then(r => {
-          const rankData = r.data?.data;
-          if (rankData?.rank && prevRankRef.current !== null) {
+          const rd = r.data?.data;
+          if (rd?.rank && prevRankRef.current !== null) {
             const prev = prevRankRef.current;
-            const curr = rankData.rank;
-            if (curr < prev) {
-              setNotification(`B\u1ea1n v\u1eeba th\u0103ng t\u1eeb h\u1ea1ng #${prev} l\u00ean h\u1ea1ng #${curr}! 🔥`);
-            } else if (curr > prev) {
-              setNotification(`B\u1ea1n v\u1eeba t\u1ee5t t\u1eeb h\u1ea1ng #${prev} xu\u1ed1ng h\u1ea1ng #${curr}`);
-            }
+            const curr = rd.rank;
+            if (curr < prev) setNotification({ msg:`Bạn vừa thăng từ hạng #${prev} lên hạng #${curr}! 🔥`, up:true });
+            else if (curr > prev) setNotification({ msg:`Bạn vừa tụt từ hạng #${prev} xuống hạng #${curr}`, up:false });
           }
-          if (rankData?.rank) prevRankRef.current = rankData.rank;
-          setMyRank(rankData);
-        })
-        .catch(() => {});
+          if (rd?.rank) prevRankRef.current = rd.rank;
+          setMyRank(rd);
+        }).catch(() => {});
     }
+  };
+
+  useEffect(() => {
+    if (tab === "custom") { setShowCustom(true); return; }
+    setShowCustom(false);
+    fetchData(tab);
   }, [tab]);
 
-  const top1 = data[0];
-  const top2 = data[1];
-  const top3 = data[2];
-  const rest = data.slice(3);
+  const top1 = data[0], top2 = data[1], top3 = data[2], rest = data.slice(3);
 
   return (
-    <div style={{
-      minHeight:"100vh",
+    <div style={{ minHeight:"100vh",
       background:"linear-gradient(180deg,#050310 0%,#0d0820 35%,#080514 70%,#050310 100%)",
-      paddingBottom:100,
-    }}>
-      <style>{`
-        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
-        @keyframes slideDown { from{transform:translateY(-100%);opacity:0} to{transform:translateY(0);opacity:1} }
-        @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
-      `}</style>
+      paddingBottom:100 }}>
 
       {notification && (
-        <RankNotification msg={notification} onDone={() => setNotification(null)} />
+        <RankNotification msg={notification.msg} up={notification.up}
+          onDone={() => setNotification(null)} />
       )}
 
       {/* HEADER */}
-      <div style={{
-        background:"linear-gradient(180deg,rgba(255,215,0,0.08) 0%,transparent 100%)",
-        padding:"20px 16px 0",
-        borderBottom:"1px solid rgba(255,215,0,0.08)",
-      }}>
+      <div style={{ background:"linear-gradient(180deg,rgba(255,215,0,0.07),transparent)",
+        padding:"20px 16px 0", borderBottom:"1px solid rgba(255,215,0,0.08)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
-          <button onClick={() => navigate(-1)} style={{
-            background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)",
-            color:"white", borderRadius:12, width:38, height:38,
-            cursor:"pointer", fontSize:18, display:"flex", alignItems:"center", justifyContent:"center",
-          }}>&#8592;</button>
+          <button onClick={() => navigate(-1)} style={{ background:"rgba(255,255,255,0.06)",
+            border:"1px solid rgba(255,255,255,0.1)", color:"white", borderRadius:12,
+            width:38, height:38, cursor:"pointer", fontSize:18,
+            display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
           <div style={{ flex:1, textAlign:"center" }}>
             <p style={{ color:"rgba(255,215,0,0.6)", fontSize:10, fontWeight:800,
-              letterSpacing:4, margin:"0 0 3px", textTransform:"uppercase" }}>Hall of Fame</p>
+              letterSpacing:4, margin:"0 0 4px", textTransform:"uppercase" }}>Hall of Fame</p>
             <h1 style={{ color:"white", fontSize:22, fontWeight:900, margin:0, letterSpacing:1 }}>
-              \u0110\u1ea1i L\u1ed9 Danh V\u1ecd ng
+              Đại Lộ Danh Vọng
             </h1>
           </div>
           <div style={{ width:38 }}/>
         </div>
 
         {/* TABS */}
-        <div style={{ display:"flex", gap:6, overflowX:"auto",
-          scrollbarWidth:"none", paddingBottom:16 }}>
+        <div style={{ display:"flex", gap:6, overflowX:"auto", scrollbarWidth:"none", paddingBottom:16 }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
-              whiteSpace:"nowrap", padding:"8px 18px", borderRadius:20, flexShrink:0,
+              whiteSpace:"nowrap", padding:"8px 16px", borderRadius:20, flexShrink:0,
               border: tab===t.id ? "none" : "1px solid rgba(255,255,255,0.1)",
-              background: tab===t.id
-                ? "linear-gradient(135deg,#FFD700,#FFA500)"
-                : "rgba(255,255,255,0.04)",
+              background: tab===t.id ? "linear-gradient(135deg,#FFD700,#FFA500)" : "rgba(255,255,255,0.04)",
               color: tab===t.id ? "#1a0a2e" : "rgba(255,255,255,0.45)",
               fontSize:12, fontWeight: tab===t.id ? 900 : 500, cursor:"pointer",
               boxShadow: tab===t.id ? "0 4px 15px rgba(255,180,0,0.35)" : "none",
             }}>{t.label}</button>
           ))}
         </div>
+
+        {/* CUSTOM DATE RANGE */}
+        {showCustom && (
+          <div style={{ padding:"0 0 16px", display:"flex", gap:8, alignItems:"flex-end" }}>
+            <div style={{ flex:1 }}>
+              <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 4px" }}>Từ ngày</p>
+              <input type="date" value={customRange.from}
+                onChange={e => setCustomRange(p => ({...p, from:e.target.value}))}
+                style={{ width:"100%", padding:"8px 10px", borderRadius:10, border:"1px solid rgba(255,215,0,0.3)",
+                  background:"rgba(255,255,255,0.06)", color:"white", fontSize:12, outline:"none", boxSizing:"border-box" }}/>
+            </div>
+            <div style={{ flex:1 }}>
+              <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 4px" }}>Đến ngày</p>
+              <input type="date" value={customRange.to}
+                onChange={e => setCustomRange(p => ({...p, to:e.target.value}))}
+                style={{ width:"100%", padding:"8px 10px", borderRadius:10, border:"1px solid rgba(255,215,0,0.3)",
+                  background:"rgba(255,255,255,0.06)", color:"white", fontSize:12, outline:"none", boxSizing:"border-box" }}/>
+            </div>
+            <button onClick={() => fetchData("custom", customRange.from, customRange.to)}
+              disabled={!customRange.from || !customRange.to}
+              style={{ padding:"8px 14px", borderRadius:10, flexShrink:0,
+                background: customRange.from && customRange.to ? "linear-gradient(135deg,#FFD700,#FFA500)" : "rgba(255,255,255,0.1)",
+                border:"none", color: customRange.from && customRange.to ? "#1a0a2e" : "rgba(255,255,255,0.3)",
+                fontSize:12, fontWeight:800, cursor:"pointer" }}>Xem</button>
+          </div>
+        )}
       </div>
 
+      {/* CONTENT */}
       {loading ? (
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center",
           justifyContent:"center", padding:"80px 24px", color:"rgba(255,255,255,0.3)" }}>
           <div style={{ fontSize:40, marginBottom:12 }}>⏳</div>
-          <p style={{ fontSize:14 }}>&#272;ang t\u1ea3i b\u1ea3ng x\u1ebfp h\u1ea1ng...</p>
+          <p>Đang tải bảng xếp hạng...</p>
         </div>
       ) : data.length === 0 ? (
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center",
-          justifyContent:"center", padding:"80px 24px", color:"rgba(255,255,255,0.3)" }}>
-          <div style={{ fontSize:40, marginBottom:12 }}>&#128202;</div>
-          <p style={{ fontSize:14, fontWeight:600 }}>Ch\u01b0a c\u00f3 d\u1eef li\u1ec7u cho k\u1ef3 n\u00e0y</p>
-          <p style={{ fontSize:12, marginTop:4, textAlign:"center", lineHeight:1.6 }}>
-            H\u00e3y \u0111\u1eb7t h\u00e0ng \u0111\u1ec3 xu\u1ea5t hi\u1ec7n tr\u00ean b\u1ea3ng x\u1ebfp h\u1ea1ng!
+          justifyContent:"center", padding:"80px 24px", color:"rgba(255,255,255,0.3)", textAlign:"center" }}>
+          <div style={{ fontSize:44, marginBottom:12 }}>📊</div>
+          <p style={{ fontSize:14, fontWeight:600 }}>Chưa có dữ liệu cho kỳ này</p>
+          <p style={{ fontSize:12, marginTop:6, lineHeight:1.7 }}>
+            Hãy đặt hàng để xuất hiện<br/>trên bảng xếp hạng!
           </p>
         </div>
       ) : (
         <>
           {/* PODIUM */}
-          <div style={{ padding:"32px 24px 24px" }}>
-            {/* TOP 1 */}
+          <div style={{ padding:"32px 24px 20px" }}>
             {top1 && <Top1Card entry={top1} />}
-
-            {/* TOP 2 & 3 */}
             {(top2 || top3) && (
-              <div style={{ display:"flex", gap:16, justifyContent:"center",
-                marginTop:24, padding:"0 16px" }}>
-                {top2 && <Top2Card entry={top2} rank={2} />}
-                {top3 && <Top2Card entry={top3} rank={3} />}
+              <div style={{ display:"flex", gap:20, justifyContent:"center", marginTop:28, padding:"0 8px" }}>
+                {top2 && <Top23Card entry={top2} rank={2} />}
+                {top3 && <Top23Card entry={top3} rank={3} />}
               </div>
             )}
           </div>
 
           {/* DIVIDER */}
-          <div style={{ margin:"0 24px 20px", display:"flex", alignItems:"center", gap:12 }}>
+          <div style={{ margin:"0 24px 16px", display:"flex", alignItems:"center", gap:12 }}>
             <div style={{ flex:1, height:1, background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.2),transparent)" }}/>
-            <span style={{ color:"rgba(255,215,0,0.4)", fontSize:11, fontWeight:700, letterSpacing:2 }}>
-              TOP 4-100
-            </span>
+            <span style={{ color:"rgba(255,215,0,0.4)", fontSize:11, fontWeight:700, letterSpacing:2 }}>TOP 4–100</span>
             <div style={{ flex:1, height:1, background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.2),transparent)" }}/>
           </div>
 
           {/* MY RANK */}
           {myRank?.rank && (
-            <div style={{ margin:"0 16px 16px",
+            <div style={{ margin:"0 16px 14px",
               background:"linear-gradient(135deg,rgba(255,215,0,0.1),rgba(255,140,0,0.06))",
-              border:"1px solid rgba(255,215,0,0.25)",
-              borderRadius:16, padding:"14px 18px",
+              border:"1px solid rgba(255,215,0,0.25)", borderRadius:16, padding:"14px 18px",
               display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                <div style={{ width:36, height:36, borderRadius:18,
-                  background:"linear-gradient(135deg,#D4531C,#FF6B35)",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  fontSize:14, fontWeight:900, color:"white" }}>
-                  {(profile?.name||"B")[0]?.toUpperCase()}
-                </div>
+                <Avatar name={profile?.name} size={36}
+                  bg="linear-gradient(135deg,#D4531C,#FF6B35)" color="white" fontSize={14} />
                 <div>
-                  <p style={{ color:"rgba(255,255,255,0.5)", fontSize:10, margin:"0 0 2px" }}>
-                    H\u1ea1ng c\u1ee7a b\u1ea1n
-                  </p>
-                  <p style={{ color:"white", fontSize:13, fontWeight:800, margin:0 }}>
-                    {profile?.name || "B\u1ea1n"}
-                  </p>
+                  <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 2px" }}>Hạng của bạn</p>
+                  <p style={{ color:"white", fontSize:13, fontWeight:800, margin:0 }}>{profile?.name || "Bạn"}</p>
                 </div>
               </div>
               <div style={{ textAlign:"right" }}>
-                <p style={{ color:"#FFD700", fontSize:22, fontWeight:900, margin:"0 0 2px" }}>
-                  #{myRank.rank}
-                </p>
-                <p style={{ color:"rgba(255,255,255,0.35)", fontSize:10, margin:0 }}>
+                <p style={{ color:"#FFD700", fontSize:22, fontWeight:900, margin:0 }}>#{myRank.rank}</p>
+                <p style={{ color:"rgba(255,255,255,0.3)", fontSize:10, margin:"2px 0 0" }}>
                   {fmt(myRank.total_spent || 0)}
                 </p>
               </div>
             </div>
           )}
 
-          {/* RANK LIST */}
+          {/* REST */}
           <div style={{ margin:"0 16px" }}>
             {rest.map((entry, i) => {
               const rank = i + 4;
               const isMe = entry.user_id === profile?.id;
               return (
                 <div key={i} style={{
-                  display:"flex", alignItems:"center", gap:12,
-                  padding:"12px 16px",
+                  display:"flex", alignItems:"center", gap:12, padding:"11px 14px",
                   borderRadius:12, marginBottom:4,
-                  background: isMe
-                    ? "rgba(255,215,0,0.08)"
-                    : "rgba(255,255,255,0.02)",
-                  border: isMe
-                    ? "1px solid rgba(255,215,0,0.2)"
-                    : "1px solid rgba(255,255,255,0.03)",
+                  background: isMe ? "rgba(255,215,0,0.08)" : "rgba(255,255,255,0.02)",
+                  border: isMe ? "1px solid rgba(255,215,0,0.2)" : "1px solid rgba(255,255,255,0.03)",
                 }}>
-                  <span style={{ color:"rgba(255,255,255,0.25)", fontSize:12,
-                    fontWeight:700, width:28, textAlign:"center", flexShrink:0 }}>
-                    {rank}
-                  </span>
-                  <div style={{ width:36, height:36, borderRadius:18, flexShrink:0,
-                    background: isMe
-                      ? "linear-gradient(135deg,#D4531C,#FF6B35)"
-                      : "linear-gradient(135deg,#1a0a2e,#2d1254)",
-                    display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:14, fontWeight:800,
-                    color: isMe ? "white" : "rgba(255,255,255,0.4)" }}>
-                    {(entry.player_name||entry.name||"?")[0]?.toUpperCase()}
-                  </div>
+                  <span style={{ color:"rgba(255,255,255,0.2)", fontSize:12, fontWeight:700,
+                    width:26, textAlign:"center", flexShrink:0 }}>{rank}</span>
+                  <Avatar name={entry.player_name||entry.name} size={36}
+                    bg={isMe ? "linear-gradient(135deg,#D4531C,#FF6B35)" : "linear-gradient(135deg,#1a0a2e,#2d1254)"}
+                    color={isMe ? "white" : "rgba(255,255,255,0.35)"} fontSize={13} />
                   <div style={{ flex:1, minWidth:0 }}>
-                    <p style={{ color: isMe ? "#FFD700" : "white",
-                      fontSize:13, fontWeight: isMe ? 800 : 600, margin:0,
+                    <p style={{ color: isMe ? "#FFD700" : "white", fontSize:13,
+                      fontWeight: isMe ? 800 : 600, margin:0,
                       overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
-                      {entry.player_name || entry.name || entry.user_id || "\u1ea8n danh"}
-                      {isMe && " (b\u1ea1n)"}
+                      {entry.player_name || entry.name || entry.user_id || "Ẩn danh"}
+                      {isMe && " (bạn)"}
                     </p>
                   </div>
-                  <p style={{ color: isMe ? "#FFD700" : "rgba(255,215,0,0.6)",
+                  <p style={{ color: isMe ? "#FFD700" : "rgba(255,215,0,0.55)",
                     fontSize:13, fontWeight:800, margin:0, flexShrink:0 }}>
                     {fmt(entry.total_spent || entry.score || 0)}
                   </p>
