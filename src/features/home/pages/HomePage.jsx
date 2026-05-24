@@ -3,6 +3,7 @@ import HomeMenuPreview from "@/components/home/HomeMenuPreview";
 import HomeCampaignBanner from "@/features/home/components/HomeCampaignBanner";
 import HomeQuickActions from "@/features/home/components/HomeQuickActions";
 import HomeMembershipCard from "@/features/home/components/HomeMembershipCard";
+import DaiLoDanhVong from "@/features/home/components/DaiLoDanhVong";
 import HomeGameTeaser from "@/features/home/components/HomeGameTeaser";
 import { PageContainer } from "@/components/ui";
 

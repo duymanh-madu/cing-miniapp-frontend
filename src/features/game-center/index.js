@@ -1,1 +1,1 @@
-export { default } from "@/games/GameCenterPage";
+export { default } from "./pages/GameCenterPage";
