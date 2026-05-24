@@ -1,41 +1,44 @@
 import { useMemo } from "react";
 import useMenu from "./useMenu";
 
-// 4 san pham Best Seller chinh xac theo ten
-const BEST_SELLER_NAMES = [
-  "sua tuoi nuong tcdd l",
+const BEST_SELLERS = [
+  "sua tuoi nuong tcdd m",
   "tra chanh vang gia tay",
   "hong thanh",
-  "kem trung nuong tcdd l",
+  "kem trung nuong tcdd m",
 ];
 
 function normalize(str) {
   return (str || "")
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"")
-    .replace(/d/g,"d")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\u0111/g, "d")
     .trim();
+}
+
+function matchProduct(product, target) {
+  const name = normalize(product.name);
+  const t = normalize(target);
+  // Phai match chinh xac - tranh nham "yen mach kem trung" vs "kem trung"
+  if (t === "kem trung nuong tcdd m") {
+    return name.includes("kem trung nuong") && 
+           name.includes("tcdd m") && 
+           !name.includes("yen mach");
+  }
+  return name.includes(t);
 }
 
 function useFeaturedProducts() {
   const { data = [] } = useMenu();
   return useMemo(() => {
     if (!data.length) return [];
-
-    // Tim san pham theo ten normalize
     const result = [];
-    for (const targetName of BEST_SELLER_NAMES) {
-      const normalTarget = normalize(targetName);
-      const found = data.find(p => normalize(p.name).includes(normalTarget));
+    for (const target of BEST_SELLERS) {
+      const found = data.find(p => matchProduct(p, target));
       if (found) result.push(found);
     }
-
-    // Neu tim duoc it nhat 1 san pham, tra ve ket qua
-    if (result.length > 0) return result;
-
-    // Fallback: lay 4 san pham dau co gia cao nhat
-    return [...data].sort((a,b) => (b.price||0)-(a.price||0)).slice(0,4);
+    return result.length > 0 ? result : [...data].sort((a,b)=>(b.price||0)-(a.price||0)).slice(0,4);
   }, [data]);
 }
 
