@@ -27,7 +27,7 @@ function RankNotification({ msg, onDone }) {
       display:"flex", alignItems:"center", gap:12,
       animation:"slideDown 0.4s ease-out",
     }}>
-      <span style={{ fontSize:28 }}>{up ? "\u{1F4C8}" : "\u{1F4C9}"}</span>
+      <span style={{ fontSize:28 }}>{up ? "📈" : "📉"}</span>
       <div>
         <p style={{ color:"white", fontSize:13, fontWeight:900, margin:0 }}>{msg}</p>
         <p style={{ color:"rgba(255,255,255,0.75)", fontSize:11, margin:"3px 0 0" }}>
@@ -48,7 +48,7 @@ function Top1Card({ entry }) {
       <div style={{ fontSize:48, marginBottom:4,
         filter:"drop-shadow(0 0 20px rgba(255,215,0,0.9))",
         animation:"pulse 2s ease-in-out infinite",
-      }}>\u{1F451}</div>
+      }}>👑</div>
 
       {/* Avatar */}
       <div style={{
@@ -89,8 +89,8 @@ function Top1Card({ entry }) {
 
 function Top2Card({ entry, rank }) {
   const colors = {
-    2: { bg:"linear-gradient(135deg,#C0C0C0,#E8E8E8)", text:"#1a1a2e", glow:"rgba(192,192,192,0.5)", medal:"\u{1F948}" },
-    3: { bg:"linear-gradient(135deg,#CD7F32,#E8A857)", text:"#1a0a00", glow:"rgba(205,127,50,0.5)", medal:"\u{1F949}" },
+    2: { bg:"linear-gradient(135deg,#C0C0C0,#E8E8E8)", text:"#1a1a2e", glow:"rgba(192,192,192,0.5)", medal:"🥈" },
+    3: { bg:"linear-gradient(135deg,#CD7F32,#E8A857)", text:"#1a0a00", glow:"rgba(205,127,50,0.5)", medal:"🥉" },
   };
   const c = colors[rank];
   return (
@@ -154,7 +154,7 @@ export default function LeaderboardPage() {
             const prev = prevRankRef.current;
             const curr = rankData.rank;
             if (curr < prev) {
-              setNotification(`B\u1ea1n v\u1eeba th\u0103ng t\u1eeb h\u1ea1ng #${prev} l\u00ean h\u1ea1ng #${curr}! \u{1F525}`);
+              setNotification(`B\u1ea1n v\u1eeba th\u0103ng t\u1eeb h\u1ea1ng #${prev} l\u00ean h\u1ea1ng #${curr}! 🔥`);
             } else if (curr > prev) {
               setNotification(`B\u1ea1n v\u1eeba t\u1ee5t t\u1eeb h\u1ea1ng #${prev} xu\u1ed1ng h\u1ea1ng #${curr}`);
             }
@@ -230,7 +230,7 @@ export default function LeaderboardPage() {
       {loading ? (
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center",
           justifyContent:"center", padding:"80px 24px", color:"rgba(255,255,255,0.3)" }}>
-          <div style={{ fontSize:40, marginBottom:12 }}>\u23F3</div>
+          <div style={{ fontSize:40, marginBottom:12 }}>⏳</div>
           <p style={{ fontSize:14 }}>&#272;ang t\u1ea3i b\u1ea3ng x\u1ebfp h\u1ea1ng...</p>
         </div>
       ) : data.length === 0 ? (
