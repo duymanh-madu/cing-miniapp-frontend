@@ -1,25 +1,51 @@
 import { NavLink, useLocation } from "react-router-dom";
+
 const NAV = [
-  { key:"home",        path:"/",            icon:"🏠", label:"Trang chu" },
-  { key:"menu",        path:"/menu",        icon:"🧋", label:"Thuc don"  },
+  { key:"home",        path:"/",            icon:"🏠", label:"Trang chủ" },
+  { key:"menu",        path:"/menu",        icon:"🧋", label:"Thực đơn"  },
   { key:"game-center", path:"/game-center", icon:"🎮", label:"Game"      },
-  { key:"leaderboard", path:"/leaderboard", icon:"👑", label:"Danh Vong" },
-  { key:"account",     path:"/account",     icon:"👤", label:"Tai khoan" },
+  { key:"leaderboard", path:"/leaderboard", icon:"👑", label:"Đại lộ"    },
+  { key:"account",     path:"/account",     icon:"👤", label:"Tài khoản" },
 ];
+
 export default function BottomNavigation() {
   const location = useLocation();
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+    <nav style={{
+      position:"fixed", bottom:0, left:0, right:0, zIndex:50,
+      display:"flex", background:"white",
+      borderTop:"1px solid #f0f0f0",
+      boxShadow:"0 -4px 20px rgba(0,0,0,0.06)",
+    }}>
       {NAV.map(item => {
-        const active = item.path==="/" ? location.pathname==="/" : location.pathname.startsWith(item.path);
+        const active = item.path==="/"
+          ? location.pathname==="/"
+          : location.pathname.startsWith(item.path);
         return (
-          <NavLink key={item.key} to={item.path}
-            className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 relative">
-            <span className={["text-xl transition-transform duration-150",
-              active?"scale-110":"scale-100 opacity-50"].join(" ")}>{item.icon}</span>
-            <span className={["text-[10px] font-semibold",
-              active?"text-orange-500":"text-gray-400"].join(" ")}>{item.label}</span>
-            {active && <span className="absolute bottom-0 w-8 h-0.5 rounded-full bg-orange-400"/>}
+          <NavLink key={item.key} to={item.path} style={{
+            flex:1, display:"flex", flexDirection:"column",
+            alignItems:"center", justifyContent:"center",
+            padding:"8px 2px 6px", textDecoration:"none",
+            position:"relative",
+          }}>
+            <span style={{
+              fontSize:22,
+              transform: active ? "scale(1.15)" : "scale(1)",
+              opacity: active ? 1 : 0.45,
+              transition:"all 0.15s",
+            }}>{item.icon}</span>
+            <span style={{
+              fontSize:9, fontWeight:700, marginTop:3,
+              color: active ? "#D4531C" : "#9ca3af",
+              textAlign:"center", lineHeight:1.2,
+            }}>{item.label}</span>
+            {active && (
+              <span style={{
+                position:"absolute", bottom:0,
+                width:28, height:2.5, borderRadius:2,
+                background:"#D4531C",
+              }}/>
+            )}
           </NavLink>
         );
       })}
