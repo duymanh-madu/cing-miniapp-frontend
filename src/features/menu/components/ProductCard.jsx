@@ -1,11 +1,9 @@
-import useCartStore from "@/features/menu/store/cartStore";
-
 const HERMES = "linear-gradient(145deg,#C8401A 0%,#D4531C 50%,#B83815 100%)";
 const fmt = p => p ? new Intl.NumberFormat("vi-VN").format(p) + "d" : "";
 
-function ProductCard({ product }) {
-  const addItem = useCartStore(s => s.addItem);
+function ProductCard({ product, onAdd }) {
   if (!product) return null;
+  const available = product.available !== false;
 
   return (
     <article style={{
@@ -14,8 +12,9 @@ function ProductCard({ product }) {
       background:"white", boxShadow:"0 1px 5px rgba(0,0,0,0.08)",
       height:80,
     }}>
-      {/* IMAGE - 80x80 ben trai */}
-      <div style={{ width:80, height:80, flexShrink:0, position:"relative", overflow:"hidden", background:"#f5f5f5" }}>
+      {/* IMAGE */}
+      <div style={{ width:80, height:80, flexShrink:0, position:"relative",
+        overflow:"hidden", background:"#f5f5f5" }}>
         {product.image ? (
           <>
             <img src={product.image} alt={product.name}
@@ -35,16 +34,12 @@ function ProductCard({ product }) {
               objectFit:"contain", filter:"brightness(0) invert(1)", opacity:0.85 }} />
           </div>
         )}
-        {product.featured && (
-          <span style={{ position:"absolute", top:4, left:4,
-            background:"#D4531C", color:"white", fontSize:8, fontWeight:800,
-            padding:"1px 6px", borderRadius:8 }}>HOT</span>
-        )}
       </div>
 
-      {/* INFO - ben phai */}
+      {/* INFO */}
       <div style={{ flex:1, padding:"8px 10px", display:"flex",
-        flexDirection:"column", justifyContent:"space-between", minWidth:0, height:80 }}>
+        flexDirection:"column", justifyContent:"space-between",
+        minWidth:0, height:80 }}>
         <p style={{ fontSize:11, fontWeight:700, color:"#1a1a1a", margin:0,
           lineHeight:1.35, display:"-webkit-box", WebkitLineClamp:2,
           WebkitBoxOrient:"vertical", overflow:"hidden" }}>
@@ -54,11 +49,15 @@ function ProductCard({ product }) {
           <p style={{ fontSize:13, fontWeight:900, color:"#D4531C", margin:0 }}>
             {fmt(product.price)}
           </p>
-          <button onClick={e => { e.stopPropagation(); addItem(product); }}
+          <button
+            disabled={!available}
+            onClick={e => { e.stopPropagation(); if (available && onAdd) onAdd(product); }}
             style={{ width:26, height:26, borderRadius:"50%",
-              background:"#D4531C", color:"white", border:"none",
-              fontSize:18, display:"flex", alignItems:"center", justifyContent:"center",
-              cursor:"pointer", flexShrink:0 }}>+</button>
+              background: available ? "#D4531C" : "#ddd",
+              color:"white", border:"none", fontSize:18,
+              display:"flex", alignItems:"center", justifyContent:"center",
+              cursor: available ? "pointer" : "not-allowed", flexShrink:0 }}>+
+          </button>
         </div>
       </div>
     </article>
