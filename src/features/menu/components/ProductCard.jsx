@@ -9,48 +9,56 @@ function ProductCard({ product }) {
 
   return (
     <article style={{
-      overflow:"hidden", borderRadius:20,
-      background:"white", boxShadow:"0 2px 8px rgba(0,0,0,0.07)",
+      display:"flex", flexDirection:"row", alignItems:"center",
+      overflow:"hidden", borderRadius:14,
+      background:"white", boxShadow:"0 1px 5px rgba(0,0,0,0.08)",
+      height:80,
     }}>
-      <div style={{ position:"relative", width:"100%", height:140, overflow:"hidden", background:"#f5f5f5", flexShrink:0 }}>
+      {/* IMAGE - 80x80 ben trai */}
+      <div style={{ width:80, height:80, flexShrink:0, position:"relative", overflow:"hidden", background:"#f5f5f5" }}>
         {product.image ? (
-          <img src={product.image} alt={product.name}
-            style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
-            onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }}
-            loading="lazy" />
-        ) : null}
-        <div style={{
-          display: product.image ? "none" : "flex",
-          position: product.image ? "absolute" : "relative",
-          inset:0, width:"100%", height:"100%",
-          background:HERMES, alignItems:"center", justifyContent:"center",
-        }}>
-          <img src="/logo-cing.png" alt=""
-            style={{ width:48, height:48, objectFit:"contain", filter:"brightness(0) invert(1)", opacity:0.85 }} />
-        </div>
+          <>
+            <img src={product.image} alt={product.name}
+              style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
+              onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }}
+              loading="lazy" />
+            <div style={{ display:"none", position:"absolute", inset:0,
+              background:HERMES, alignItems:"center", justifyContent:"center" }}>
+              <img src="/logo-cing.png" alt="" style={{ width:36, height:36,
+                objectFit:"contain", filter:"brightness(0) invert(1)", opacity:0.85 }} />
+            </div>
+          </>
+        ) : (
+          <div style={{ width:"100%", height:"100%", background:HERMES,
+            display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <img src="/logo-cing.png" alt="" style={{ width:36, height:36,
+              objectFit:"contain", filter:"brightness(0) invert(1)", opacity:0.85 }} />
+          </div>
+        )}
         {product.featured && (
-          <span style={{ position:"absolute", top:8, left:8,
-            background:"#D4531C", color:"white", fontSize:9, fontWeight:800,
-            padding:"2px 8px", borderRadius:20 }}>HOT</span>
+          <span style={{ position:"absolute", top:4, left:4,
+            background:"#D4531C", color:"white", fontSize:8, fontWeight:800,
+            padding:"1px 6px", borderRadius:8 }}>HOT</span>
         )}
       </div>
-      <div style={{ padding:"10px 12px 12px" }}>
-        <h3 style={{ fontSize:12, fontWeight:700, color:"#1a1a1a",
-          margin:"0 0 6px", lineHeight:1.4,
-          display:"-webkit-box", WebkitLineClamp:2,
-          WebkitBoxOrient:"vertical", overflow:"hidden", minHeight:34 }}>
+
+      {/* INFO - ben phai */}
+      <div style={{ flex:1, padding:"8px 10px", display:"flex",
+        flexDirection:"column", justifyContent:"space-between", minWidth:0, height:80 }}>
+        <p style={{ fontSize:11, fontWeight:700, color:"#1a1a1a", margin:0,
+          lineHeight:1.35, display:"-webkit-box", WebkitLineClamp:2,
+          WebkitBoxOrient:"vertical", overflow:"hidden" }}>
           {product.name}
-        </h3>
+        </p>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <p style={{ fontSize:14, fontWeight:900, color:"#D4531C", margin:0 }}>
+          <p style={{ fontSize:13, fontWeight:900, color:"#D4531C", margin:0 }}>
             {fmt(product.price)}
           </p>
-          <button
-            onClick={e => { e.stopPropagation(); addItem(product); }}
-            style={{ width:28, height:28, borderRadius:"50%",
+          <button onClick={e => { e.stopPropagation(); addItem(product); }}
+            style={{ width:26, height:26, borderRadius:"50%",
               background:"#D4531C", color:"white", border:"none",
               fontSize:18, display:"flex", alignItems:"center", justifyContent:"center",
-              cursor:"pointer" }}>+</button>
+              cursor:"pointer", flexShrink:0 }}>+</button>
         </div>
       </div>
     </article>
