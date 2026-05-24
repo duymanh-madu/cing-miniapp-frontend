@@ -5,12 +5,11 @@ import useAuthStore from "@/stores/auth/authStore";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
-const TABS = [
+const DEFAULT_TABS = [
   { id:"weekly",  label:"Tuần này" },
   { id:"monthly", label:"Tháng này" },
   { id:"yearly",  label:"Năm này" },
   { id:"alltime", label:"All Time" },
-  { id:"custom",  label:"⚙️ Tùy chỉnh" },
 ];
 
 function RankNotification({ msg, up, onDone }) {
@@ -106,7 +105,28 @@ export default function LeaderboardPage() {
   const [notification, setNotification] = useState(null);
   const [customRange, setCustomRange] = useState({ from:"", to:"" });
   const [showCustom, setShowCustom] = useState(false);
+  const [customTabName, setCustomTabName] = useState("Tùy chỉnh");
   const prevRankRef = useRef(null);
+
+  // Fetch custom leaderboard config tu admin
+  useEffect(() => {
+    apiClient.get("/app-config/public")
+      .then(r => {
+        const cfg = r.data?.data;
+        if (cfg?.custom_leaderboard_name) {
+          setCustomTabName(cfg.custom_leaderboard_name);
+        }
+        if (cfg?.custom_leaderboard_from) {
+          setCustomRange({ from: cfg.custom_leaderboard_from, to: cfg.custom_leaderboard_to || "" });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const TABS = [
+    ...DEFAULT_TABS,
+    { id:"custom", label: customTabName },
+  ];
 
   const fetchData = (period, from="", to="") => {
     setLoading(true);
