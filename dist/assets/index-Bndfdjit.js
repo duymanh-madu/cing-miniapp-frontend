@@ -1,2 +1,0 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index-rvl0uB5n.js","assets/BlackPearlRush-h9vKHjbX.js","assets/index-ChSRhKv_.js","assets/index-CwdEBQAu.css"])))=>i.map(i=>d[i]);
-import{j as r,r as t,_ as s,q as o}from"./index-ChSRhKv_.js";const n={"black-pearl-rush":t.lazy(()=>s(()=>import("./index-rvl0uB5n.js"),__vite__mapDeps([0,1,2,3])))};function u({gameId:e}){const a=n[e];return a?r.jsx(a,{}):r.jsx("div",{children:"Game Not Found"})}function c(){const[e]=o(),a=e.get("id")||"black-pearl-rush";return r.jsx(u,{gameId:a})}export{c as default};
