@@ -12,7 +12,7 @@ function ProductCard({ product }) {
       overflow:"hidden", borderRadius:20,
       background:"white", boxShadow:"0 2px 8px rgba(0,0,0,0.07)",
     }}>
-      <div style={{ position:"relative", width:"100%", aspectRatio:"1/1", overflow:"hidden", background:"#f5f5f5" }}>
+      <div style={{ position:"relative", width:"100%", height:140, overflow:"hidden", background:"#f5f5f5", flexShrink:0 }}>
         {product.image ? (
           <img src={product.image} alt={product.name}
             style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
