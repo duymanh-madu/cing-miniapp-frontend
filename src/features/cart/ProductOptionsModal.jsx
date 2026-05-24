@@ -14,15 +14,22 @@ const ICE = [
   { id:"70",  label:"70% đá" },
   { id:"50",  label:"50% đá" },
   { id:"0",   label:"Không đá" },
+  { id:"hot",   label:"Nóng" },
 ];
 
 const TOPPINGS = [
-  { id:"tran_chau_den",   label:"Trân châu đen",   price:5000 },
-  { id:"tran_chau_trang", label:"Trân châu trắng", price:5000 },
-  { id:"soi_dua",         label:"Sợi dừa",         price:5000 },
-  { id:"thach_cafe",      label:"Thạch cà phê",    price:5000 },
-  { id:"kem_cheese",      label:"Kem cheese",      price:8000 },
-  { id:"pudding",         label:"Pudding trứng",   price:8000 },
+  { id:"tran_chau_den",        label:"Trân châu đen",        price:10000 },
+  { id:"tran_chau_trang_tròn", label:"Trân châu trắng tròn", price:10000 },
+  { id:"tran_chau_soi_dua",    label:"Trân châu sợi dừa",    price:10000 },
+  { id:"dua_nuong",            label:"Dừa nướng",            price:10000 },
+  { id:"hat_nang_no",          label:"Hạt năng nổ",          price:10000 },
+  { id:"thach_o_long",         label:"Thạch ô long",         price:10000 },
+   { id:"thach_nho",           label:"Thạch nho",            price:10000 },
+  { id:"hat_sen",              label:"Hạt sen",              price:10000 },
+  { id:"kem_cheese",           label:"Kem cheese",           price:10000 },
+  { id:"kem_trung",            label:"Kem trứng",            price:10000 },
+  { id:"kem_man",              label:"Kem mặn",              price:10000 },
+  { id:"pudding",              label:"Pudding trứng",        price:10000 },
 ];
 
 const fmt = p => p ? new Intl.NumberFormat("vi-VN").format(p) + "đ" : "";
