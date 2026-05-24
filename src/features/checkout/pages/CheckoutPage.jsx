@@ -88,7 +88,7 @@ export default function CheckoutPage() {
   );
 
   return(
-    <div style={{background:"#f5f5f5",minHeight:"100vh",paddingBottom:160}}>
+    <div style={{background:"#f5f5f5",minHeight:"100vh",paddingBottom:200}}>
       <div style={{background:"white",padding:"14px 16px",display:"flex",alignItems:"center",gap:12,borderBottom:"1px solid #f0f0f0",position:"sticky",top:0,zIndex:10}}>
         <button onClick={()=>navigate(-1)} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",padding:0,color:"#333"}}>←</button>
         <h1 style={{fontSize:17,fontWeight:900,margin:0}}>Gio hang ({count} mon)</h1>
@@ -165,7 +165,7 @@ export default function CheckoutPage() {
           style={{width:"100%",border:"1.5px solid #f0f0f0",borderRadius:10,padding:"8px 10px",fontSize:12,color:"#333",resize:"none",outline:"none",boxSizing:"border-box",fontFamily:"inherit"}}/>
       </div>
 
-      <div style={{position:"fixed",bottom:0,left:0,right:0,background:"white",borderTop:"1px solid #f0f0f0",padding:"10px 16px 28px"}}>
+      <div style={{position:"fixed",bottom:0,left:0,right:0,background:"white",borderTop:"1px solid #f0f0f0",padding:"10px 16px 32px"}}>
         <div style={{marginBottom:8}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,color:"#666"}}>Tam tinh</span><span style={{fontSize:12,fontWeight:600}}>{fmt(subtotal)}</span></div>
           {orderType==="delivery"&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,color:"#666"}}>Phi ship</span><span style={{fontSize:12,fontWeight:600,color:shipFee===0?"#2e7d32":"#1a1a1a"}}>{shipLoading?"Dang tinh...":shipFee===0?"Mien phi":fmt(shipFee)}</span></div>}
