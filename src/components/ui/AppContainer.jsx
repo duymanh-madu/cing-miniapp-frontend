@@ -1,42 +1,21 @@
-function AppContainer({
-  children,
-}) {
+function AppContainer({ children }) {
   return (
-
     <div
-      className="
-        app-container
-      "
       style={{
-        minHeight:
-          "var(--app-height, 100dvh)",
-
-        paddingTop:
-          "var(--app-safe-top)",
-
-        paddingBottom:
-          "var(--bottom-nav-safe-height)",
-
-        paddingLeft:
-          "var(--safe-left)",
-
-        paddingRight:
-          "var(--safe-right)",
-
-        overflowX:
-          "hidden",
-
-        background:
-          "var(--app-background, #f6f1e7)",
+        height: "var(--app-height, 100dvh)",
+        paddingTop: "var(--app-safe-top, 0px)",
+        paddingLeft: "var(--safe-left, 0px)",
+        paddingRight: "var(--safe-right, 0px)",
+        overflowX: "hidden",
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
+        overscrollBehaviorY: "contain",
+        background: "var(--app-background, #f6f1e7)",
+        position: "relative",
       }}
     >
-
       {children}
-
     </div>
-
   );
 }
-
-export default
-  AppContainer;
+export default AppContainer;
