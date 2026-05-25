@@ -127,6 +127,8 @@ export default function HomeMembershipCard() {
 
   const realtimePoints = useRealtimeCustomerStore(s => s.profile?.points ?? null);
   const realtimeTier   = useRealtimeCustomerStore(s => s.profile?.tier?.toLowerCase?.() ?? null);
+  const [inputPhone, setInputPhone] = useState("");
+  const [submittedPhone, setSubmittedPhone] = useState("");
   const { data: membership, isLoading } = useMembership(submittedPhone || phone);
 
   const tierRaw     = realtimeTier || membership?.level || "member";
@@ -147,8 +149,6 @@ export default function HomeMembershipCard() {
   const remaining = nextThreshold ? Math.max(nextThreshold - paymentAmount, 0) : 0;
   const barcodeValue = phone || "000000000000";
 
-  const [inputPhone, setInputPhone] = useState("");
-  const [submittedPhone, setSubmittedPhone] = useState("");
   const isWeb = typeof window !== "undefined" && !window.__ZALO_MINI_APP__ && !navigator.userAgent.includes("ZaloApp");
 
   // Neu tren web va chua co phone, hien thi input
