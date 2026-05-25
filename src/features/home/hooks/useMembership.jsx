@@ -23,10 +23,10 @@ export function useMembership(overridePhone = "") {
       }
     };
 
-    runtimeSocketOn("membership:updated", handler);
-    runtimeSocketOn("user.points.updated", handler);
-    return () => runtimeSocketOff("membership:updated", handler);
-    runtimeSocketOff("user.points.updated", handler);
+    runtimeSocketOn("user.updated", handler);
+    
+    return () => runtimeSocketOff("user.updated", handler);
+    
   }, [phone, queryClient]);
 
   return useQuery({
