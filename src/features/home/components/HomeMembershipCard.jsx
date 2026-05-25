@@ -83,8 +83,9 @@ const TIERS = {
     label:"Kim Cương", group:"Hội viên",
     next:null, nextSpend:null,
     stars:5, icon:"💎",
-    bg:["#1e1b4b","#4338ca","#818cf8"],
-    glow:"rgba(129,140,248,0.6)",
+    bg:["#0a0a1a","#1a1040","#0d0d2e"],
+    glow:"rgba(180,160,255,0.8)",
+    supreme:true,
     desc:"Tiêu dùng từ 10.000.000đ / chu kỳ",
   },
   /* === ĐỐI TÁC === */
@@ -94,6 +95,7 @@ const TIERS = {
     stars:1, icon:"🤝",
     bg:["#7c3aed","#a855f7","#c084fc"],
     glow:"rgba(168,85,247,0.5)",
+    supreme:false,
     desc:"Được admin xét duyệt và kích hoạt",
   },
   loyal_partner:   {
@@ -102,6 +104,7 @@ const TIERS = {
     stars:2, icon:"👑",
     bg:["#581c87","#7e22ce","#9333ea"],
     glow:"rgba(147,51,234,0.6)",
+    supreme:true,
     desc:"Giữ hạng: tiêu ≥ 2.000.000đ mỗi tháng",
   },
 };
@@ -196,9 +199,58 @@ export default function HomeMembershipCard() {
       <div style={{
         position:"relative", borderRadius:24, overflow:"hidden",
         boxShadow:`0 8px 32px ${cfg.glow}, 0 2px 8px rgba(0,0,0,0.2)`,
-        background:`linear-gradient(135deg, ${cfg.bg[0]} 0%, ${cfg.bg[1]} 50%, ${cfg.bg[2]} 100%)`,
+        background: tier === 'diamond' ? 'linear-gradient(135deg, #060614 0%, #0f0728 30%, #1a0f3d 60%, #0a0520 100%)' : `linear-gradient(135deg, ${cfg.bg[0]} 0%, ${cfg.bg[1]} 50%, ${cfg.bg[2]} 100%)`,
+        border: tier === 'diamond' ? '1px solid rgba(167,139,250,0.4)' : 'none',
         minHeight:200,
       }}>
+
+      {/* Diamond shimmer effect */}
+      {tier === "diamond" && (<>
+        <style>{`
+          @keyframes diamondShimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(400%) rotate(45deg); }
+          }
+          @keyframes prismatic {
+            0%   { opacity:0.6; filter: hue-rotate(0deg) brightness(1.5); }
+            25%  { opacity:1;   filter: hue-rotate(60deg) brightness(2); }
+            50%  { opacity:0.8; filter: hue-rotate(180deg) brightness(1.8); }
+            75%  { opacity:1;   filter: hue-rotate(270deg) brightness(2); }
+            100% { opacity:0.6; filter: hue-rotate(360deg) brightness(1.5); }
+          }
+          @keyframes facetGlow {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.4; }
+          }
+        `}</style>
+        {/* Shimmer sweep */}
+        <div style={{ position:"absolute", inset:0, overflow:"hidden", borderRadius:24, zIndex:0 }}>
+          <div style={{ position:"absolute", top:"-50%", left:"-20%", width:"40%", height:"200%",
+            background:"linear-gradient(to right, transparent, rgba(255,255,255,0.15), rgba(200,180,255,0.2), rgba(255,255,255,0.15), transparent)",
+            animation:"diamondShimmer 3s ease-in-out infinite", transform:"rotate(45deg)" }}/>
+        </div>
+        {/* Prismatic facets */}
+        <div style={{ position:"absolute", top:0, left:0, right:0, bottom:0, zIndex:0, borderRadius:24, overflow:"hidden" }}>
+          <div style={{ position:"absolute", top:"10%", right:"15%", width:80, height:80,
+            background:"linear-gradient(135deg, rgba(180,160,255,0.3), rgba(100,200,255,0.2), rgba(255,180,255,0.2))",
+            clipPath:"polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)",
+            animation:"facetGlow 2s ease-in-out infinite" }}/>
+          <div style={{ position:"absolute", bottom:"20%", left:"10%", width:50, height:50,
+            background:"linear-gradient(45deg, rgba(100,180,255,0.25), rgba(200,150,255,0.2))",
+            clipPath:"polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+            animation:"facetGlow 2.5s ease-in-out infinite 0.5s" }}/>
+          <div style={{ position:"absolute", top:"40%", left:"5%", width:30, height:30,
+            background:"rgba(180,220,255,0.2)",
+            clipPath:"polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+            animation:"facetGlow 3s ease-in-out infinite 1s" }}/>
+        </div>
+        {/* Prismatic border glow */}
+        <div style={{ position:"absolute", inset:-1, borderRadius:25, zIndex:0,
+          background:"linear-gradient(135deg, #a78bfa, #60a5fa, #f0abfc, #818cf8, #a78bfa)",
+          animation:"prismatic 4s linear infinite",
+          WebkitMask:"linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          WebkitMaskComposite:"xor", maskComposite:"exclude", padding:2 }}/>
+      </>)}
         {/* Decorative circles */}
         <div style={{ position:"absolute", top:-40, right:-40, width:160, height:160,
           borderRadius:"50%", background:"rgba(255,255,255,0.06)" }}/>
@@ -256,7 +308,7 @@ export default function HomeMembershipCard() {
                 </div>
               </div>
             )}
-            {!cfg.next && (
+            {!cfg.next && cfg.supreme && (
               <div style={{
                 background:"rgba(255,255,255,0.2)", borderRadius:12,
                 padding:"4px 10px",
