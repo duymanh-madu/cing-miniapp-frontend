@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import { runtimeSocketOn, runtimeSocketOff } from "@/runtime/socket/runtimeSocketClient";
 
 export function useMembership(overridePhone = "") {
   const profile = useAuthStore(s => s.profile);
@@ -10,22 +11,22 @@ export function useMembership(overridePhone = "") {
   const phone = (overridePhone || storePhone || "").replace(/\D/g, "");
   const queryClient = useQueryClient();
 
-  // Socket.IO realtime listener - invalidate khi iPOS push event
+  // Socket.IO realtime - lang nghe membership:updated tu backend
   useEffect(() => {
     if (!phone) return;
-    // Lay socket tu window (da khoi tao o bootstrap)
-    const socket = window.__socket;
-    if (!socket) return;
 
     const handler = (data) => {
-      if (data?.phone?.replace(/\D/g,"") === phone) {
-        console.log("[MEMBERSHIP] Realtime update received - refreshing");
+      const eventPhone = String(data?.phone || data?.payload?.phone || "").replace(/\D/g,"");
+      if (eventPhone === phone || eventPhone === "0" + phone.slice(2)) {
+        console.log("[MEMBERSHIP] Realtime update - invalidating query for", phone);
         queryClient.invalidateQueries({ queryKey: ["membership", phone] });
       }
     };
 
-    socket.on("membership:updated", handler);
-    return () => socket.off("membership:updated", handler);
+    runtimeSocketOn("membership:updated", handler);
+    runtimeSocketOn("user.points.updated", handler);
+    return () => runtimeSocketOff("membership:updated", handler);
+    runtimeSocketOff("user.points.updated", handler);
   }, [phone, queryClient]);
 
   return useQuery({
@@ -36,7 +37,7 @@ export function useMembership(overridePhone = "") {
       return res.data?.data || null;
     },
     enabled: !!phone,
-    staleTime: 5 * 60 * 1000,  // 5 phut - backend cache 5p, webhook reset cache khi co change
+    staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     retry: 2,
   });
