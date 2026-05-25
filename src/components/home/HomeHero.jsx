@@ -1,4 +1,4 @@
-import { FaBell } from "react-icons/fa6";
+import NotificationBell from "@/features/notification/components/NotificationBell";
 import RealtimeStatusBadge from "../header/RealtimeStatusBadge";
 import useAuthStore from "@/stores/auth/authStore";
 import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
@@ -20,7 +20,7 @@ function HomeHero() {
             <h1 className="mt-1 text-[30px] font-black leading-tight">{displayName}</h1>
           </div>
           <button className="h-[52px] w-[52px] rounded-2xl bg-white/15 backdrop-blur-xl flex items-center justify-center border border-white/20 active:scale-95 transition-transform">
-            <FaBell className="text-xl" />
+            <NotificationBell />
           </button>
         </div>
         <div className="mt-4"><RealtimeStatusBadge /></div>
