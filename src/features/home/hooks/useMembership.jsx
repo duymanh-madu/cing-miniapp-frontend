@@ -11,7 +11,7 @@ export function useMembership() {
     queryKey: ["membership", phone],
     queryFn: async () => {
       if (!phone) return null;
-      const res = await apiClient.get(\`/membership/\${phone}\`);
+      const res = await apiClient.get(`/membership/${phone}`);
       return res.data?.data || null;
     },
     enabled: !!phone,
