@@ -27,7 +27,7 @@ export default function AdminAppConfig({ token }) {
 
   const save = async () => {
     try {
-      await apiClient.put("/app-config/admin/update", config, { headers: h });
+      await apiClient.put("/app-config/1", config, { headers: h });
       setMsg("✅ Đã lưu cấu hình realtime!");
     } catch(e) { setMsg("❌ " + e.message); }
     setTimeout(()=>setMsg(""),3000);
