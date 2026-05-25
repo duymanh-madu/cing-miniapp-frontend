@@ -123,7 +123,7 @@ export default function HomeMembershipCard() {
   const navigate = useNavigate();
   const profile = useAuthStore(s => s.profile);
   const phone = profile?.phone || profile?.phoneNumber || profile?.mobile || "";
-  const displayName = profile?.name || profile?.displayName || "Hội viên";
+  const displayName = membership?.name || profile?.name || profile?.displayName || "Hội viên";
 
   const realtimePoints = useRealtimeCustomerStore(s => s.profile?.points ?? null);
   const realtimeTier   = useRealtimeCustomerStore(s => s.profile?.tier?.toLowerCase?.() ?? null);
@@ -147,7 +147,8 @@ export default function HomeMembershipCard() {
     ? Math.min(Math.round(((paymentAmount - currentThreshold) / (nextThreshold - currentThreshold)) * 100), 99)
     : 100;
   const remaining = nextThreshold ? Math.max(nextThreshold - paymentAmount, 0) : 0;
-  const barcodeValue = phone || "000000000000";
+  const activePhone = submittedPhone || phone || membership?.phone || "";
+  const barcodeValue = activePhone.replace(/\D/g,"") || "000000000000";
 
   const isWeb = typeof window !== "undefined" && !window.__ZALO_MINI_APP__ && !navigator.userAgent.includes("ZaloApp");
 
