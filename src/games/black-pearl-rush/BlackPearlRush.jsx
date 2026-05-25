@@ -252,17 +252,43 @@ export default function BlackPearlRush({ onExit }) {
 
       const wf = Math.sin(game.frameTime * 0.02) * 0.12;
       /* Wing shape cache — tạo Path2D 1 lần */
-      ctx.fillStyle = "rgba(255,255,255,0.95)";
-      ctx.save(); ctx.translate(-28,-2); ctx.rotate(wf);
-      ctx.beginPath(); ctx.moveTo(0,0);
-      ctx.quadraticCurveTo(-30,-20,-10,-58);
-      ctx.quadraticCurveTo(18,-32,12,0);
-      ctx.closePath(); ctx.fill(); ctx.restore();
-      ctx.save(); ctx.translate(28,-2); ctx.scale(-1,1); ctx.rotate(-wf);
-      ctx.beginPath(); ctx.moveTo(0,0);
-      ctx.quadraticCurveTo(-30,-20,-10,-58);
-      ctx.quadraticCurveTo(18,-32,12,0);
-      ctx.closePath(); ctx.fill(); ctx.restore();
+      /* Cupid wings - feathered, layered */
+      function drawCupidWing(ctx, flip) {
+        ctx.save();
+        if (flip) ctx.scale(-1,1);
+        ctx.translate(-32, -4);
+        ctx.rotate(wf * 0.8);
+        /* Wing shadow */
+        ctx.fillStyle = "rgba(180,210,255,0.5)";
+        ctx.beginPath(); ctx.moveTo(0,0);
+        ctx.bezierCurveTo(-40,-15,-50,-50,-20,-70);
+        ctx.bezierCurveTo(0,-55,20,-30,10,0);
+        ctx.closePath(); ctx.fill();
+        /* Wing body */
+        ctx.fillStyle = "rgba(230,240,255,0.92)";
+        ctx.beginPath(); ctx.moveTo(0,0);
+        ctx.bezierCurveTo(-35,-12,-45,-45,-18,-65);
+        ctx.bezierCurveTo(2,-50,18,-28,8,0);
+        ctx.closePath(); ctx.fill();
+        /* Feathers top */
+        ctx.fillStyle = "rgba(255,255,255,0.95)";
+        [[-18,-65,-32,-72,-8,-60],[-10,-55,-25,-62,-2,-50],[0,-42,-15,-50,8,-38]].forEach(([x1,y1,x2,y2,x3,y3])=>{
+          ctx.beginPath(); ctx.moveTo(x3,y3);
+          ctx.quadraticCurveTo(x2,y2,x1,y1);
+          ctx.quadraticCurveTo(x2-5,y2+8,x3,y3);
+          ctx.closePath(); ctx.fill();
+        });
+        /* Wing outline */
+        ctx.strokeStyle = "rgba(150,190,255,0.4)";
+        ctx.lineWidth = 0.8;
+        ctx.beginPath(); ctx.moveTo(0,0);
+        ctx.bezierCurveTo(-35,-12,-45,-45,-18,-65);
+        ctx.bezierCurveTo(2,-50,18,-28,8,0);
+        ctx.stroke();
+        ctx.restore();
+      }
+      drawCupidWing(ctx, false);
+      drawCupidWing(ctx, true);
 
       /* Dùng ImageBitmap nếu đã load, fallback về canvas paths */
       if (pearlBitmap && !game.dead) {
@@ -296,7 +322,7 @@ export default function BlackPearlRush({ onExit }) {
 
       if (!game.started && !game.dead) {
         ctx.font = "900 34px Arial"; ctx.fillStyle = "#2b160b";
-        ctx.fillText("TAP TO START", W/2, H/2);
+        ctx.textAlign = "center"; ctx.fillText("TAP TO START", W/2, H/2);
       }
       if (game.dead) {
         ctx.fillStyle = "rgba(0,0,0,0.55)"; ctx.fillRect(0,0,W,H);
