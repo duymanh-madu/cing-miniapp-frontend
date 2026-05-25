@@ -296,7 +296,7 @@ export default function BlackPearlRush({ onExit }) {
 
       if (!game.started && !game.dead) {
         ctx.font = "900 34px Arial"; ctx.fillStyle = "#2b160b";
-        ctx.fillText("TAP TO START", W/2, H/2 - 80);
+        ctx.fillText("TAP TO START", W/2, H/2);
       }
       if (game.dead) {
         ctx.fillStyle = "rgba(0,0,0,0.55)"; ctx.fillRect(0,0,W,H);
@@ -359,7 +359,7 @@ export default function BlackPearlRush({ onExit }) {
             </div>
             <div className="leading-none overflow-hidden">
               <div className="text-[10px] font-black tracking-[2px] text-[#c19b61] mb-1">MINI GAME</div>
-              <div className="text-[15px] font-black text-[#2b160b] whitespace-nowrap">Bay cung tran chau</div>
+              <div className="text-[15px] font-black text-[#2b160b] whitespace-nowrap">Bay cùng trân châu</div>
             </div>
           </div>
           <div className="flex flex-col gap-2 pointer-events-auto">
