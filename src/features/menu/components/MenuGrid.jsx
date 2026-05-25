@@ -80,7 +80,7 @@ export default function MenuGrid({ search="" }) {
     <div style={{ padding:"60px 16px", textAlign:"center", color:"#bbb" }}>
       <div style={{ fontSize:36, marginBottom:10 }}>🔍</div>
       <p style={{ fontSize:13, fontWeight:600, margin:0 }}>
-        {search ? "Khong co mon nay" : "Chua co mon an"}
+        {search ? "Khong co mon nay" : "Chưa có món ăn"}
       </p>
     </div>
   );

@@ -76,7 +76,7 @@ export default function CheckoutPage(){
     setShipStatus("loading");setLocMsg("");
     if(!navigator.geolocation){
       setShipFee(25000);setShipStatus("error");
-      setLocMsg("Trinh duyet khong ho tro GPS. Phi ship mac dinh 25.000d");
+      setLocMsg("Trinh duyet khong ho tro GPS. Phí ship mac dinh 25.000d");
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -171,10 +171,10 @@ export default function CheckoutPage(){
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
       minHeight:"60vh",color:"#bbb",gap:12,padding:"0 24px",textAlign:"center"}}>
       <div style={{fontSize:48}}>🛒</div>
-      <p style={{fontSize:14,fontWeight:600,margin:0}}>Gio hang trong</p>
+      <p style={{fontSize:14,fontWeight:600,margin:0}}>Giỏ hàng trống</p>
       <button onClick={()=>navigate("/menu")} style={{marginTop:8,padding:"10px 28px",
         background:"#D4531C",color:"white",border:"none",borderRadius:12,fontSize:13,fontWeight:700,cursor:"pointer"}}>
-        Xem thuc don
+        Xem thực đơn
       </button>
     </div>
   );
@@ -253,7 +253,7 @@ export default function CheckoutPage(){
                 <div>
                   <p style={{fontSize:11,color:"#555",margin:0,fontWeight:600}}>{locMsg}</p>
                   <p style={{fontSize:12,color:shipFee===0?"#2e7d32":"#D4531C",fontWeight:700,margin:"3px 0 0"}}>
-                    {shipFee===0?"Mien phi van chuyen!":"Phi ship: "+fmt(shipFee)}
+                    {shipFee===0?"Miễn phí van chuyen!":"Phí ship: "+fmt(shipFee)}
                   </p>
                 </div>
                 {shipFee===0&&<span style={{fontSize:10,background:"#e8f5e9",color:"#2e7d32",
@@ -267,10 +267,10 @@ export default function CheckoutPage(){
       {/* THONG TIN */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
         <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 12px",letterSpacing:.5}}>THONG TIN NHAN HANG</p>
-        <Field label="Ho va ten *" value={name} onChange={setName} placeholder="Nguyen Van A"/>
-        <Field label="So dien thoai" value={phone} onChange={setPhone} placeholder="0901234567" type="tel"/>
+        <Field label="Họ và tên *" value={name} onChange={setName} placeholder="Nguyen Van A"/>
+        <Field label="Số điện thoại" value={phone} onChange={setPhone} placeholder="0901234567" type="tel"/>
         {orderType==="delivery"&&
-          <Field label="Dia chi giao hang *" value={address} onChange={setAddress} placeholder="So nha, duong, phuong/xa..."/>}
+          <Field label="Địa chỉ giao hàng *" value={address} onChange={setAddress} placeholder="So nha, duong, phuong/xa..."/>}
       </div>
 
       {/* THANH TOAN */}
@@ -310,16 +310,16 @@ export default function CheckoutPage(){
           </div>
           {orderType==="delivery"&&(
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-              <span style={{fontSize:12,color:"#666"}}>Phi ship</span>
+              <span style={{fontSize:12,color:"#666"}}>Phí ship</span>
               <span style={{fontSize:12,fontWeight:700,
                 color:shipStatus==="loading"?"#999":shipFee===0?"#2e7d32":"#1a1a1a"}}>
-                {shipStatus==="loading"?"Dang tinh...":shipFee===0?"Mien phi":fmt(shipFee)}
+                {shipStatus==="loading"?"Dang tinh...":shipFee===0?"Miễn phí":fmt(shipFee)}
               </span>
             </div>
           )}
           <div style={{height:1,background:"#f0f0f0",margin:"6px 0"}}/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <span style={{fontSize:13,fontWeight:700,color:"#1a1a1a"}}>Tong cong</span>
+            <span style={{fontSize:13,fontWeight:700,color:"#1a1a1a"}}>Tổng cộng</span>
             <span style={{fontSize:17,fontWeight:900,color:"#D4531C"}}>{fmt(total)}</span>
           </div>
         </div>

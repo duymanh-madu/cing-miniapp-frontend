@@ -26,7 +26,7 @@ export default function FloatingCart() {
           width:32, height:32, display:"flex", alignItems:"center", justifyContent:"center",
           fontSize:13, fontWeight:900, color:"white",
         }}>{count}</div>
-        <span style={{ color:"white", fontSize:13, fontWeight:700 }}>Thanh toan</span>
+        <span style={{ color:"white", fontSize:13, fontWeight:700 }}>Thanh toán</span>
       </div>
       <span style={{ color:"white", fontSize:14, fontWeight:900 }}>{fmt(total)}</span>
     </div>
