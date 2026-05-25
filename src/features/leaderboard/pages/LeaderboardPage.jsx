@@ -183,7 +183,7 @@ export default function LeaderboardPage() {
             <p style={{ color:"rgba(255,215,0,0.6)", fontSize:10, fontWeight:800,
               letterSpacing:4, margin:"0 0 4px", textTransform:"uppercase" }}>Hall of Fame</p>
             <h1 style={{ color:"white", fontSize:22, fontWeight:900, margin:0, letterSpacing:1 }}>
-              Đại Lộ Danh Vọng
+              Đại Sảnh Đại sảnh
             </h1>
           </div>
           <div style={{ width:38 }}/>

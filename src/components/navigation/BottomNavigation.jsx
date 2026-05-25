@@ -4,7 +4,7 @@ const NAV = [
   { key:"home",        path:"/",            icon:"🏠", label:"Trang chủ" },
   { key:"menu",        path:"/menu",        icon:"🧋", label:"Thực đơn"  },
   { key:"game-center", path:"/game-center", icon:"🎮", label:"Game"      },
-  { key:"leaderboard", path:"/leaderboard", icon:"👑", label:"Đại lộ"    },
+  { key:"leaderboard", path:"/leaderboard", icon:"👑", label:"Đại sảnh danh vọng"    },
   { key:"account",     path:"/account",     icon:"👤", label:"Tài khoản" },
 ];
 

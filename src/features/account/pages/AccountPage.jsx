@@ -8,7 +8,7 @@ const MENU_ITEMS = [
   { icon:"📦", label:"Lịch sử đơn hàng",   path:"/orders",      desc:"Xem các đơn đã đặt" },
   { icon:"🎟", label:"Voucher của tôi",     path:"/voucher",     desc:"Ưu đãi và mã giảm giá" },
   { icon:"⭐", label:"Điểm tích lũy",       path:"/loyalty",     desc:"Xem điểm và đổi quà" },
-  { icon:"👑", label:"Đại Lộ Danh Vọng",   path:"/leaderboard", desc:"Bảng xếp hạng khách hàng" },
+  { icon:"👑", label:"Đại Sảnh Danh Vọng",   path:"/leaderboard", desc:"Bảng xếp hạng khách hàng" },
   { icon:"🎮", label:"Game Center",         path:"/game-center", desc:"Chơi game nhận thưởng" },
   { icon:"📞", label:"Liên hệ hỗ trợ",     path:null,           desc:"Hotline: 1900 xxxx" },
 ];
