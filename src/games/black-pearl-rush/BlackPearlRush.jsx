@@ -277,16 +277,7 @@ export default function BlackPearlRush({ onExit }) {
       ctx.ellipse(14, -16, 18, 28, -0.5, 0, Math.PI * 2);
       ctx.fill(); ctx.stroke();
       ctx.restore();
-      ctx.restore();        /* Fallback don gian */
-        const wf2 = Math.sin(game.frameTime * 0.02) * 0.15;
-        ctx.fillStyle = "rgba(220,235,255,0.85)";
-        ctx.save(); ctx.translate(-28,-10); ctx.rotate(wf2);
-        ctx.beginPath(); ctx.ellipse(-15,-25,22,32,0.5,0,Math.PI*2); ctx.fill();
-        ctx.restore();
-        ctx.save(); ctx.translate(28,-10); ctx.rotate(-wf2);
-        ctx.beginPath(); ctx.ellipse(15,-25,22,32,-0.5,0,Math.PI*2); ctx.fill();
-        ctx.restore();
-      }
+      ctx.restore();
 
       /* Dùng ImageBitmap nếu đã load, fallback về canvas paths */
       if (pearlBitmap && !game.dead) {
