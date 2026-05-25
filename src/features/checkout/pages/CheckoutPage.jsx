@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useCartStore from "@/features/menu/store/cartStore";
+import { useMembership } from "@/features/home/hooks/useMembership";
 import useAuthStore from "@/stores/auth/authStore";
 import apiClient from "@/infra/api/apiClient";
 
@@ -67,6 +68,11 @@ export default function CheckoutPage(){
   const [locMsg,setLocMsg]=useState("");
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
+  const [pointsToUse, setPointsToUse] = useState(0);
+  const memberPhone = (profile?.phone||profile?.phoneNumber||sessionStorage.getItem("dev_membership_phone")||"").replace(/\D/g,"");
+  const { data: membership } = useMembership(memberPhone);
+  const availablePoints = membership?.points || 0;
+  const pointsDiscount = pointsToUse * 1000; // 1 diem = 1000 VND
 
   useEffect(()=>{
     if(orderType!=="delivery"){
@@ -100,7 +106,7 @@ export default function CheckoutPage(){
     );
   },[orderType]);
 
-  const total=subtotal+shipFee;
+  const total=Math.max(0, subtotal+shipFee-pointsDiscount);
 
   async function handleOrder(){
     if(!name.trim()){setError("Vui lòng nhập họ tên");return;}
@@ -130,6 +136,7 @@ export default function CheckoutPage(){
         shipping_fee:shipFee,
         shipping_distance:distKm?Math.round(distKm*10)/10:null,
         total_amount:total,
+        points_used: pointsToUse,
       };
       const orderRes = await apiClient.post("/orders/create", orderPayload);
       const orderId = orderRes.data?.data?.id || orderRes.data?.order?.id;
