@@ -50,14 +50,80 @@ function Barcode({ value, width = 160, height = 36 }) {
   return <canvas ref={canvasRef} style={{ display:"block", borderRadius:4 }} />;
 }
 
-/* ── Tier config ── */
+/* ── Tier config — 5 hạng hội viên + 2 hạng đối tác ── */
 const TIERS = {
-  bronze:   { label:"Đồng",     next:"Bạc",      stars:1, bg:["#8B4513","#CD853F","#A0522D"], glow:"rgba(205,133,63,0.5)"  },
-  silver:   { label:"Bạc",      next:"Vàng",     stars:2, bg:["#708090","#C0C0C0","#A8A8B8"], glow:"rgba(192,192,192,0.5)" },
-  gold:     { label:"Vàng",     next:"Bạch Kim",  stars:3, bg:["#B8860B","#FFD700","#DAA520"], glow:"rgba(255,215,0,0.6)"   },
-  platinum: { label:"Bạch Kim", next:"Kim Cương", stars:4, bg:["#2F8A8A","#40E0D0","#20B2AA"], glow:"rgba(64,224,208,0.5)"  },
-  diamond:  { label:"Kim Cương",next:null,        stars:5, bg:["#1a1a6e","#4169E1","#6495ED"], glow:"rgba(100,149,237,0.6)" },
+  /* === HỘI VIÊN === */
+  member:          {
+    label:"Hội viên", group:"Hội viên",
+    next:"Hội viên thân thiết", nextSpend:"1.000.000đ",
+    stars:1, icon:"🌱",
+    bg:["#5a7a5a","#7ab87a","#5a9a5a"],
+    glow:"rgba(122,184,122,0.45)",
+    desc:"Kích hoạt tài khoản thành công",
+  },
+  loyal:           {
+    label:"Thân thiết", group:"Hội viên",
+    next:"Hội viên Bạc", nextSpend:"3.000.000đ",
+    stars:2, icon:"💚",
+    bg:["#2d6a4f","#52b788","#40916c"],
+    glow:"rgba(82,183,136,0.5)",
+    desc:"Tiêu dùng 1.000.000đ – 2.999.999đ / chu kỳ",
+  },
+  silver:          {
+    label:"Bạc", group:"Hội viên",
+    next:"Hội viên Vàng", nextSpend:"5.000.000đ",
+    stars:3, icon:"🥈",
+    bg:["#6b7280","#9ca3af","#d1d5db"],
+    glow:"rgba(156,163,175,0.5)",
+    desc:"Tiêu dùng 3.000.000đ – 4.999.999đ / chu kỳ",
+  },
+  gold:            {
+    label:"Vàng", group:"Hội viên",
+    next:"Hội viên Kim Cương", nextSpend:"10.000.000đ",
+    stars:4, icon:"🥇",
+    bg:["#92400e","#f59e0b","#fbbf24"],
+    glow:"rgba(251,191,36,0.55)",
+    desc:"Tiêu dùng 5.000.000đ – 9.999.999đ / chu kỳ",
+  },
+  diamond:         {
+    label:"Kim Cương", group:"Hội viên",
+    next:null, nextSpend:null,
+    stars:5, icon:"💎",
+    bg:["#1e1b4b","#4338ca","#818cf8"],
+    glow:"rgba(129,140,248,0.6)",
+    desc:"Tiêu dùng từ 10.000.000đ / chu kỳ",
+  },
+  /* === ĐỐI TÁC === */
+  partner:         {
+    label:"Đối tác", group:"Đối tác",
+    next:"Đối tác thân thiết", nextSpend:"2.000.000đ/tháng × 2",
+    stars:1, icon:"🤝",
+    bg:["#7c3aed","#a855f7","#c084fc"],
+    glow:"rgba(168,85,247,0.5)",
+    desc:"Được admin xét duyệt và kích hoạt",
+  },
+  loyal_partner:   {
+    label:"Đối tác thân thiết", group:"Đối tác",
+    next:null, nextSpend:null,
+    stars:2, icon:"👑",
+    bg:["#581c87","#7e22ce","#9333ea"],
+    glow:"rgba(147,51,234,0.6)",
+    desc:"Giữ hạng: tiêu ≥ 2.000.000đ mỗi tháng",
+  },
 };
+
+/* Map tên hạng từ iPOS CRM → key nội bộ */
+function mapTierKey(raw) {
+  if (!raw) return "member";
+  const r = raw.toLowerCase().trim();
+  if (r.includes("kim") && r.includes("cuong") || r.includes("diamond")) return "diamond";
+  if (r.includes("vang") || r.includes("gold") || r.includes("vàng")) return "gold";
+  if (r.includes("bac") || r.includes("silver") || r.includes("bạc")) return "silver";
+  if (r.includes("than thiet") || r.includes("thân thiết") && r.includes("doi tac") || r.includes("đối tác")) return "loyal_partner";
+  if (r.includes("doi tac") || r.includes("đối tác") || r.includes("partner")) return "partner";
+  if (r.includes("than thiet") || r.includes("thân thiết") || r.includes("loyal")) return "loyal";
+  return "member";
+}
 
 export default function HomeMembershipCard() {
   const navigate = useNavigate();
@@ -70,7 +136,8 @@ export default function HomeMembershipCard() {
   const realtimeTier   = useRealtimeCustomerStore(s => s.profile?.tier?.toLowerCase?.() ?? null);
   const { membership, isLoading } = useMembershipProfile(userId);
 
-  const tier        = realtimeTier || membership?.level || "bronze";
+  const tierRaw     = realtimeTier || membership?.level || "member";
+  const tier        = mapTierKey(tierRaw);
   const points      = realtimePoints ?? membership?.points ?? 0;
   const pointsToNext = membership?.pointsToNextLevel ?? 500;
   const progress    = pointsToNext > 0
@@ -118,10 +185,11 @@ export default function HomeMembershipCard() {
               borderRadius:20, padding:"5px 12px",
               display:"flex", alignItems:"center", gap:5,
             }}>
-              <span style={{ fontSize:13 }}>
-                {"⭐".repeat(cfg.stars)}
-              </span>
-              <span style={{ color:"white", fontSize:12, fontWeight:900 }}>{cfg.label}</span>
+              <span style={{ fontSize:15 }}>{cfg.icon}</span>
+              <div>
+                <p style={{ color:"rgba(255,255,255,0.6)", fontSize:8, margin:0, fontWeight:700 }}>{cfg.group}</p>
+                <p style={{ color:"white", fontSize:11, fontWeight:900, margin:0 }}>{cfg.label}</p>
+              </div>
             </div>
           </div>
 
@@ -129,7 +197,7 @@ export default function HomeMembershipCard() {
           <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginBottom:12 }}>
             <div>
               <p style={{ color:"rgba(255,255,255,0.55)", fontSize:10, margin:"0 0 3px" }}>
-                Điểm tích lũy
+                Điểm tích lũy · 1đ = 1.000đ
               </p>
               <p style={{ color:"white", fontSize:28, fontWeight:900, margin:0, lineHeight:1 }}>
                 {points.toLocaleString("vi-VN")}
@@ -140,7 +208,7 @@ export default function HomeMembershipCard() {
             {cfg.next && (
               <div style={{ textAlign:"right" }}>
                 <p style={{ color:"rgba(255,255,255,0.55)", fontSize:10, margin:"0 0 3px" }}>
-                  Còn {pointsToNext.toLocaleString("vi-VN")}đ → {cfg.next}
+                  {cfg.next ? `→ ${cfg.next}: ${cfg.nextSpend}` : ""}
                 </p>
                 <div style={{ width:100, height:6, background:"rgba(255,255,255,0.2)", borderRadius:4 }}>
                   <div style={{ width:progress+"%", height:"100%", borderRadius:4,
