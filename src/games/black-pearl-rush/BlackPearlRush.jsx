@@ -256,9 +256,6 @@ export default function BlackPearlRush({ onExit }) {
       ctx.rotate(p.rot);
       ctx.scale(p.squash, 1/p.squash);
 
-      const wf = Math.sin(game.frameTime * 0.02) * 0.12;
-      /* Wing shape cache — tạo Path2D 1 lần */
-                  /* Wings - simple clean */
       const wf = Math.sin(game.frameTime * 0.02) * 0.18;
       ctx.save();
       ctx.fillStyle = "rgba(255,255,255,0.92)";
