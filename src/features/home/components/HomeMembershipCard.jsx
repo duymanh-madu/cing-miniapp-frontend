@@ -152,6 +152,18 @@ export default function HomeMembershipCard() {
   const paymentAmount = membership?.paymentAmount ?? 0;
 
   const TIER_THRESHOLDS = { member:0, loyal:1000000, silver:3000000, gold:5000000, diamond:10000000 };
+  const [partnerProgress, setPartnerProgress] = useState(null);
+  const isPartner = tier === "partner";
+  const userId = profile?.id || profile?.userId || profile?.zalo_id || phone;
+
+  useEffect(() => {
+    if (!isPartner || !userId) return;
+    import("@/infra/api/apiClient").then(m =>
+      m.default.get("/membership/" + userId + "/partner-progress")
+        .then(r => setPartnerProgress(r.data?.data))
+        .catch(() => {})
+    );
+  }, [isPartner, userId]);
   const TIER_ORDER = ["member","loyal","silver","gold","diamond"];
   const currentIdx = TIER_ORDER.indexOf(tier);
   const nextTier = TIER_ORDER[currentIdx + 1];
@@ -301,7 +313,7 @@ export default function HomeMembershipCard() {
               </p>
             </div>
             {/* Next tier progress */}
-            {cfg.next && (
+            {cfg.next && !isPartner && (
               <div style={{ textAlign:"right" }}>
                 <p style={{ color:"rgba(255,255,255,0.55)", fontSize:10, margin:"0 0 3px" }}>
                   {cfg.next && remaining > 0 ? `→ ${cfg.next}: còn ${remaining.toLocaleString("vi-VN")}đ` : cfg.next ? `Sắp lên ${cfg.next}!` : ""}
@@ -310,6 +322,34 @@ export default function HomeMembershipCard() {
                   <div style={{ width:progress+"%", height:"100%", borderRadius:4,
                     background:"rgba(255,255,255,0.9)", transition:"width 0.8s ease" }}/>
                 </div>
+              </div>
+            )}
+            {cfg.next && isPartner && (
+              <div style={{ textAlign:"right", minWidth:120 }}>
+                <p style={{ color:"rgba(255,255,255,0.55)", fontSize:10, margin:"0 0 5px" }}>
+                  → Đối tác thân thiết
+                </p>
+                <div style={{ position:"relative", width:120, height:8, background:"rgba(255,255,255,0.15)", borderRadius:4, overflow:"hidden" }}>
+                  {/* Gap giua 2 nua */}
+                  <div style={{ position:"absolute", left:"50%", top:0, bottom:0, width:2, background:"rgba(0,0,0,0.4)", zIndex:2 }}/>
+                  {/* Nua thang truoc */}
+                  <div style={{
+                    position:"absolute", left:0, top:0, bottom:0,
+                    width: partnerProgress?.prev_qualified ? "50%" : Math.min(50, (partnerProgress?.prev_spent||0)/2000000*50) + "%",
+                    background: partnerProgress?.prev_qualified ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.6)",
+                    borderRadius:"4px 0 0 4px", transition:"width 0.8s ease"
+                  }}/>
+                  {/* Nua thang hien tai */}
+                  <div style={{
+                    position:"absolute", left:"50%", top:0, bottom:0,
+                    width: partnerProgress?.current_qualified ? "50%" : Math.min(50, (partnerProgress?.current_spent||0)/2000000*50) + "%",
+                    background: partnerProgress?.current_qualified ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.6)",
+                    borderRadius:"0 4px 4px 0", transition:"width 0.8s ease"
+                  }}/>
+                </div>
+                <p style={{ color:"rgba(255,255,255,0.4)", fontSize:9, margin:"3px 0 0" }}>
+                  {partnerProgress?.prev_qualified ? "✓" : "○"} T.trước · {partnerProgress?.current_qualified ? "✓" : "○"} T.này
+                </p>
               </div>
             )}
             {!cfg.next && cfg.supreme && (
