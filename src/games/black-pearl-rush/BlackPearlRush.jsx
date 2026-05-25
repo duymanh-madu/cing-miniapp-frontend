@@ -256,30 +256,21 @@ export default function BlackPearlRush({ onExit }) {
       ctx.rotate(p.rot);
       ctx.scale(p.squash, 1/p.squash);
 
-      const wf = Math.sin(game.frameTime * 0.02) * 0.18;
-      ctx.save();
-      ctx.fillStyle = "rgba(255,255,255,0.92)";
-      ctx.strokeStyle = "rgba(180,200,240,0.8)";
-      ctx.lineWidth = 1.5;
-      // Canh trai
-      ctx.save();
-      ctx.translate(-28, -12);
-      ctx.rotate(-0.3 + wf);
-      ctx.beginPath();
-      ctx.ellipse(-14, -16, 18, 28, 0.5, 0, Math.PI * 2);
-      ctx.fill(); ctx.stroke();
-      ctx.restore();
-      // Canh phai
-      ctx.save();
-      ctx.translate(28, -12);
-      ctx.rotate(0.3 - wf);
-      ctx.beginPath();
-      ctx.ellipse(14, -16, 18, 28, -0.5, 0, Math.PI * 2);
-      ctx.fill(); ctx.stroke();
-      ctx.restore();
-      ctx.restore();
+      const wf = Math.sin(game.frameTime * 0.02) * 0.12;
+      /* Canh goc - quadratic curve huong len */
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.save(); ctx.translate(-28,-2); ctx.rotate(wf);
+      ctx.beginPath(); ctx.moveTo(0,0);
+      ctx.quadraticCurveTo(-30,-20,-10,-58);
+      ctx.quadraticCurveTo(18,-32,12,0);
+      ctx.closePath(); ctx.fill(); ctx.restore();
+      ctx.save(); ctx.translate(28,-2); ctx.scale(-1,1); ctx.rotate(-wf);
+      ctx.beginPath(); ctx.moveTo(0,0);
+      ctx.quadraticCurveTo(-30,-20,-10,-58);
+      ctx.quadraticCurveTo(18,-32,12,0);
+      ctx.closePath(); ctx.fill(); ctx.restore();
 
-      /* Dùng ImageBitmap nếu đã load, fallback về canvas paths */
+            /* Dùng ImageBitmap nếu đã load, fallback về canvas paths */
       if (pearlBitmap && !game.dead) {
         ctx.drawImage(pearlBitmap, -40, -40, 80, 80);
       } else {
