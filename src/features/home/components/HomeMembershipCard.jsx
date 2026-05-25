@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMembership } from "../hooks/useMembership";
+import { setPhoneForMembership } from "@/features/auth/authService";
 import { useEffect, useRef } from "react";
 import useAuthStore from "@/stores/auth/authStore";
 import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
@@ -145,6 +147,36 @@ export default function HomeMembershipCard() {
     : 100;
   const remaining = nextThreshold ? Math.max(nextThreshold - paymentAmount, 0) : 0;
   const barcodeValue = phone || "000000000000";
+
+  const [devPhone, setDevPhone] = useState("");
+  const isWeb = typeof window !== "undefined" && !window.__ZALO_MINI_APP__ && !navigator.userAgent.includes("ZaloApp");
+
+  // Dev mode: hien thi input SĐT khi khong co phone va dang tren web
+  if (!phone && isWeb && !isLoading) {
+    return (
+      <div style={{ background:"white", borderRadius:20, padding:"16px 18px",
+        boxShadow:"0 2px 10px rgba(0,0,0,0.08)" }}>
+        <p style={{ fontSize:12, color:"#888", margin:"0 0 4px", fontWeight:600 }}>
+          🔍 Test card hội viên
+        </p>
+        <p style={{ fontSize:11, color:"#bbb", margin:"0 0 10px" }}>
+          Nhập SĐT đã có trong iPOS để xem dữ liệu thật
+        </p>
+        <div style={{ display:"flex", gap:8 }}>
+          <input type="tel" placeholder="VD: 0984966336"
+            value={devPhone}
+            onChange={e => setDevPhone(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && setPhoneForMembership(devPhone)}
+            style={{ flex:1, border:"1.5px solid #e8e0d0", borderRadius:10,
+              padding:"9px 12px", fontSize:13, outline:"none" }}/>
+          <button onClick={() => setPhoneForMembership(devPhone)}
+            style={{ background:"#D4531C", color:"white", border:"none",
+              borderRadius:10, padding:"9px 16px", fontSize:12,
+              fontWeight:700, cursor:"pointer" }}>Xem</button>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading && !membership) {
     return <div style={{ height:220, borderRadius:24, background:"#e8e0d0", margin:"0 0 4px" }} className="animate-pulse"/>;
