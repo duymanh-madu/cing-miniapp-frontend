@@ -103,16 +103,21 @@ export default function CheckoutPage(){
   const total=subtotal+shipFee;
 
   async function handleOrder(){
-    if(!name.trim()){setError("Vui long nhap ho ten");return;}
-    if(orderType==="delivery"&&!address.trim()){setError("Vui long nhap dia chi giao hang");return;}
+    if(!name.trim()){setError("Vui lòng nhập họ tên");return;}
+    if(orderType==="delivery"&&!address.trim()){setError("Vui lòng nhập địa chỉ giao hàng");return;}
     setLoading(true);setError("");
     try{
       const userId=profile?.id||profile?.userId||profile?.zalo_id||"guest-"+Date.now();
-      const payload={
+      const phone=(profile?.phone||profile?.phoneNumber||"").replace(/\D/g,"");
+
+      // 1. Tao don hang
+      const orderPayload={
         user_id:userId,
         customer_name:name.trim(),
         shipping_address:address.trim(),
         payment_method:"momo",
+        payment_status:"pending",
+        status_code:"pending_payment",
         items:items.map(i=>({
           item_id:i.id,
           item_code:i.code||i.id,
@@ -125,13 +130,37 @@ export default function CheckoutPage(){
         shipping_fee:shipFee,
         shipping_distance:distKm?Math.round(distKm*10)/10:null,
         total_amount:total,
-        status_code:"pending_payment",
       };
-      await apiClient.post("/orders/create",payload);
-      clearCart();
-      navigate("/order-success");
+      const orderRes = await apiClient.post("/orders/create", orderPayload);
+      const orderId = orderRes.data?.data?.id || orderRes.data?.order?.id;
+
+      // 2. Tao MoMo payment session
+      const paymentRes = await apiClient.post("/payments/create-session", {
+        user_id: userId,
+        customer_name: name.trim(),
+        customer_phone: phone,
+        payment_provider: "momo",
+        payment_method: "momo",
+        total_amount: total,
+        subtotal,
+        shipping_fee: shipFee,
+        shipping_distance: distKm?Math.round(distKm*10)/10:0,
+        cart_snapshot: items,
+        shipping_address: address.trim(),
+        order_id: orderId,
+      });
+
+      const payUrl = paymentRes.data?.paymentUrl;
+
+      if(payUrl){
+        // 3. Redirect den MoMo
+        clearCart();
+        window.location.href = payUrl;
+      } else {
+        throw new Error("Không lấy được link thanh toán MoMo");
+      }
     }catch(e){
-      const msg=e?.response?.data?.error||e?.response?.data?.message||"Dat hang that bai. Vui long thu lai.";
+      const msg=e?.response?.data?.error||e?.response?.data?.message||"Đặt hàng thất bại. Vui lòng thử lại.";
       setError(msg);
     }finally{
       setLoading(false);
@@ -300,7 +329,7 @@ export default function CheckoutPage(){
             background:(loading||shipStatus==="loading")?"#ddd":"#D4531C",
             color:"white",border:"none",fontSize:14,fontWeight:900,
             cursor:(loading||shipStatus==="loading")?"not-allowed":"pointer"}}>
-          {loading?"Dang dat hang...":"Dat hang — "+fmt(total)}
+          {loading?"Đang xử lý...":"Thanh toán MoMo — "+fmt(total)}
         </button>
       </div>
     </div>
