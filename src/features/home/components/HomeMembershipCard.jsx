@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMembership } from "../hooks/useMembership";
-import { setDevPhone } from "../hooks/useMembership";
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import useAuthStore from "@/stores/auth/authStore";
 import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
@@ -123,14 +121,13 @@ function mapTierKey(raw) {
 
 export default function HomeMembershipCard() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const profile = useAuthStore(s => s.profile);
   const phone = profile?.phone || profile?.phoneNumber || profile?.mobile || "";
   const displayName = profile?.name || profile?.displayName || "Hội viên";
 
   const realtimePoints = useRealtimeCustomerStore(s => s.profile?.points ?? null);
   const realtimeTier   = useRealtimeCustomerStore(s => s.profile?.tier?.toLowerCase?.() ?? null);
-  const { data: membership, isLoading } = useMembership();
+  const { data: membership, isLoading } = useMembership(submittedPhone || phone);
 
   const tierRaw     = realtimeTier || membership?.level || "member";
   const tier   = mapTierKey(membership?.tierName || tierRaw || "");
@@ -150,11 +147,12 @@ export default function HomeMembershipCard() {
   const remaining = nextThreshold ? Math.max(nextThreshold - paymentAmount, 0) : 0;
   const barcodeValue = phone || "000000000000";
 
-  const [devPhone2, setDevPhone2] = useState("");
+  const [inputPhone, setInputPhone] = useState("");
+  const [submittedPhone, setSubmittedPhone] = useState("");
   const isWeb = typeof window !== "undefined" && !window.__ZALO_MINI_APP__ && !navigator.userAgent.includes("ZaloApp");
 
-  // Dev mode: hien thi input SĐT khi khong co phone va dang tren web
-  if (!phone && isWeb && !isLoading) {
+  // Neu tren web va chua co phone, hien thi input
+  if (!phone && isWeb && !submittedPhone) {
     return (
       <div style={{ background:"white", borderRadius:20, padding:"16px 18px",
         boxShadow:"0 2px 10px rgba(0,0,0,0.08)" }}>
@@ -166,12 +164,12 @@ export default function HomeMembershipCard() {
         </p>
         <div style={{ display:"flex", gap:8 }}>
           <input type="tel" placeholder="VD: 0984966336" autoFocus
-            value={devPhone2}
-            onChange={e => setDevPhone2(e.target.value)}
-            onKeyDown={e => { if(e.key==="Enter") { setDevPhone(devPhone2); queryClient.invalidateQueries({queryKey:["membership"]}); }}}
+            value={inputPhone}
+            onChange={e => setInputPhone(e.target.value)}
+            onKeyDown={e => e.key==="Enter" && setSubmittedPhone(inputPhone.replace(/\D/g,""))}
             style={{ flex:1, border:"1.5px solid #e8e0d0", borderRadius:10,
               padding:"9px 12px", fontSize:13, outline:"none" }}/>
-          <button onClick={() => { setDevPhone(devPhone2); queryClient.invalidateQueries({queryKey:["membership"]}); }}
+          <button onClick={() => setSubmittedPhone(inputPhone.replace(/\D/g,""))}
             style={{ background:"#D4531C", color:"white", border:"none",
               borderRadius:10, padding:"9px 16px", fontSize:12,
               fontWeight:700, cursor:"pointer" }}>Xem</button>
