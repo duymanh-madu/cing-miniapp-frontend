@@ -51,7 +51,7 @@ export async function initializeCustomerIdentityEngine() {
     oaFollowed,
   ] = await Promise.all([
 
-    requestPhonePermission(),
+    requestPhonePermission().catch(() => null),
 
     verifyOAFollowStatus(),
 

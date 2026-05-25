@@ -1,53 +1,18 @@
-import {
-  runtimeLogger,
-} from "@/runtime/logger/runtimeLogger";
+export async function requestPhonePermission(): Promise<string | null> {
+  try {
+    // Chi chay trong Zalo Mini App
+    const isZalo = typeof window !== "undefined" &&
+      (window.__ZALO_MINI_APP__ || navigator.userAgent.includes("ZaloApp"));
+    if (!isZalo) return null;
 
-import zaloPhoneRuntime from "@/zalo/phone/zaloPhoneRuntime";
-
-import {
-  useRuntimeCustomerIdentityStore,
-} from "./runtimeCustomerIdentityStore";
-
-export async function requestPhonePermission() {
-
-  runtimeLogger.info(
-    "RUNTIME",
-    "[IDENTITY] Requesting Zalo phone permission"
-  );
-
-  const result =
-    await zaloPhoneRuntime
-      .requestPhoneNumber();
-
-  const phoneGranted =
-    Boolean(
-      result?.success &&
-      result?.phone
-    );
-
-  useRuntimeCustomerIdentityStore
-    .getState()
-    .setPermissionState({
-      phoneGranted,
-    });
-
-  if (
-    phoneGranted
-  ) {
-
-    useRuntimeCustomerIdentityStore
-      .getState()
-      .setIdentity({
-        phone:
-          typeof result.phone === "string"
-            ? result.phone
-            : result.phone?.number ||
-              result.phone?.phoneNumber ||
-              "",
-      });
-
+    const zmpSdk = await import("zmp-sdk");
+    if (typeof zmpSdk?.requestPhoneNumber === "function") {
+      const result = await zmpSdk.requestPhoneNumber();
+      return result?.number || null;
+    }
+    return null;
+  } catch (e) {
+    console.warn("[PHONE] requestPhonePermission failed:", e);
+    return null;
   }
-
-  return phoneGranted;
-
 }
