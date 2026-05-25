@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
+import { useMembership } from "../hooks/useMembership";
 import { useEffect, useRef } from "react";
 import useAuthStore from "@/stores/auth/authStore";
 import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
-import { useMembershipProfile } from "@/features/loyalty/hooks/useMembershipProfile";
 
 /* ── Barcode 1D dung JsBarcode (Code128 chuan ISO) ── */
 function Barcode({ value, width = 120, height = 40 }) {
@@ -139,7 +139,7 @@ export default function HomeMembershipCard() {
   const cfg = TIERS[tier] || TIERS.bronze;
   const barcodeValue = phone.replace(/\D/g,"") || userId?.slice(0,12) || "000000000000";
 
-  if (isLoading && realtimePoints === null) {
+  if (isLoading && !membership) {
     return <div style={{ height:220, borderRadius:24, background:"#e8e0d0", margin:"0 0 4px" }} className="animate-pulse"/>;
   }
 
@@ -201,7 +201,7 @@ export default function HomeMembershipCard() {
             {cfg.next && (
               <div style={{ textAlign:"right" }}>
                 <p style={{ color:"rgba(255,255,255,0.55)", fontSize:10, margin:"0 0 3px" }}>
-                  {cfg.next ? `→ ${cfg.next}: ${cfg.nextSpend}` : ""}
+                  {cfg.next && remaining > 0 ? `→ ${cfg.next}: còn ${remaining.toLocaleString("vi-VN")}đ` : cfg.next ? `Sắp lên ${cfg.next}!` : ""}
                 </p>
                 <div style={{ width:100, height:6, background:"rgba(255,255,255,0.2)", borderRadius:4 }}>
                   <div style={{ width:progress+"%", height:"100%", borderRadius:4,
