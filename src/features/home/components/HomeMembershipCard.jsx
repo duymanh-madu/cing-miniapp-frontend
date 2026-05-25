@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMembership } from "../hooks/useMembership";
-import { setPhoneForMembership } from "@/features/auth/authService";
+import { setDevPhone } from "../hooks/useMembership";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import useAuthStore from "@/stores/auth/authStore";
 import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
@@ -122,6 +123,7 @@ function mapTierKey(raw) {
 
 export default function HomeMembershipCard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const profile = useAuthStore(s => s.profile);
   const phone = profile?.phone || profile?.phoneNumber || profile?.mobile || "";
   const displayName = profile?.name || profile?.displayName || "Hội viên";
@@ -148,7 +150,7 @@ export default function HomeMembershipCard() {
   const remaining = nextThreshold ? Math.max(nextThreshold - paymentAmount, 0) : 0;
   const barcodeValue = phone || "000000000000";
 
-  const [devPhone, setDevPhone] = useState("");
+  const [devPhone2, setDevPhone2] = useState("");
   const isWeb = typeof window !== "undefined" && !window.__ZALO_MINI_APP__ && !navigator.userAgent.includes("ZaloApp");
 
   // Dev mode: hien thi input SĐT khi khong co phone va dang tren web
@@ -163,13 +165,13 @@ export default function HomeMembershipCard() {
           Nhập SĐT đã có trong iPOS để xem dữ liệu thật
         </p>
         <div style={{ display:"flex", gap:8 }}>
-          <input type="tel" placeholder="VD: 0984966336"
-            value={devPhone}
-            onChange={e => setDevPhone(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && setPhoneForMembership(devPhone)}
+          <input type="tel" placeholder="VD: 0984966336" autoFocus
+            value={devPhone2}
+            onChange={e => setDevPhone2(e.target.value)}
+            onKeyDown={e => { if(e.key==="Enter") { setDevPhone(devPhone2); queryClient.invalidateQueries({queryKey:["membership"]}); }}}
             style={{ flex:1, border:"1.5px solid #e8e0d0", borderRadius:10,
               padding:"9px 12px", fontSize:13, outline:"none" }}/>
-          <button onClick={() => setPhoneForMembership(devPhone)}
+          <button onClick={() => { setDevPhone(devPhone2); queryClient.invalidateQueries({queryKey:["membership"]}); }}
             style={{ background:"#D4531C", color:"white", border:"none",
               borderRadius:10, padding:"9px 16px", fontSize:12,
               fontWeight:700, cursor:"pointer" }}>Xem</button>
