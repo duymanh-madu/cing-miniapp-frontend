@@ -4,50 +4,43 @@ import useAuthStore from "@/stores/auth/authStore";
 import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
 import { useMembershipProfile } from "@/features/loyalty/hooks/useMembershipProfile";
 
-/* ── Barcode 1D renderer (Code 128 simplified) ── */
-function Barcode({ value, width = 160, height = 36 }) {
-  const canvasRef = useRef(null);
+/* ── Barcode 1D dung JsBarcode (Code128 chuan ISO) ── */
+function Barcode({ value, width = 120, height = 40 }) {
+  const svgRef = useRef(null);
   useEffect(() => {
-    if (!value || !canvasRef.current) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const dpr = window.devicePixelRatio || 2;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = width + "px";
-    canvas.style.height = height + "px";
-    ctx.scale(dpr, dpr);
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, width, height);
-    /* Generate bars from character codes */
-    const str = String(value).replace(/\D/g, "").slice(0, 12);
-    const bits = [];
-    /* Start quiet zone */
-    bits.push(0,0,0,0,0,0,0,0,0,0);
-    /* Start pattern */
-    bits.push(1,1,0,1,0,0,1,0,1,1);
-    /* Encode each digit as 4-bit pattern */
-    const patterns = [
-      [1,1,0,1,1,0,1,0,0],[1,0,0,1,1,0,1,1,0],[1,0,0,1,1,0,0,1,1],
-      [1,0,1,1,0,0,1,1,0],[1,0,0,0,1,1,0,1,1],[1,1,0,0,1,0,0,1,1],
-      [1,1,0,0,1,0,1,1,0],[1,0,1,0,0,1,1,0,1],[1,1,0,1,0,0,1,1,0],
-      [1,1,0,0,0,1,0,1,1],
-    ];
-    for (const ch of str) {
-      bits.push(...(patterns[parseInt(ch)] || patterns[0]));
+    if (!value || !svgRef.current) return;
+    const script = document.getElementById("jsbarcode-script");
+    function render() {
+      if (!window.JsBarcode) return;
+      try {
+        window.JsBarcode(svgRef.current, String(value), {
+          format: "CODE128",
+          width: 2,
+          height: height,
+          displayValue: false,
+          margin: 4,
+          background: "#ffffff",
+          lineColor: "#000000",
+        });
+      } catch(e) { console.warn("Barcode error:", e); }
     }
-    /* Stop pattern */
-    bits.push(1,1,0,0,0,1,0,0,1,1,1);
-    bits.push(0,0,0,0,0,0,0,0,0,0);
-    const barW = width / bits.length;
-    bits.forEach((b, i) => {
-      if (b) {
-        ctx.fillStyle = "#1a1a1a";
-        ctx.fillRect(i * barW, 2, Math.max(barW - 0.3, 0.8), height - 6);
-      }
-    });
-  }, [value, width, height]);
-  return <canvas ref={canvasRef} style={{ display:"block", borderRadius:4 }} />;
+    if (window.JsBarcode) {
+      render();
+    } else if (!script) {
+      const s = document.createElement("script");
+      s.id = "jsbarcode-script";
+      s.src = "https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js";
+      s.onload = render;
+      document.head.appendChild(s);
+    } else {
+      script.addEventListener("load", render);
+    }
+  }, [value, height]);
+  return (
+    <svg ref={svgRef}
+      style={{ display:"block", width:width, height:height+8, borderRadius:4 }}
+    />
+  );
 }
 
 /* ── Tier config — 5 hạng hội viên + 2 hạng đối tác ── */
