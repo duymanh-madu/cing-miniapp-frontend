@@ -16,8 +16,10 @@ export function useMembership(overridePhone = "") {
     if (!phone) return;
 
     const handler = (data) => {
+      console.log("[MEMBERSHIP] user.updated received:", JSON.stringify(data));
       const eventPhone = String(data?.payload?.phone || data?.phone || "").replace(/\D/g,"");
       const normalizedEvent = eventPhone.startsWith("84") ? "0" + eventPhone.slice(2) : eventPhone;
+      console.log("[MEMBERSHIP] eventPhone:", eventPhone, "localPhone:", phone);
       if (normalizedEvent === phone || eventPhone === phone) {
         console.log("[MEMBERSHIP] Realtime update received for", phone);
         queryClient.invalidateQueries({ queryKey: ["membership", phone] });
