@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import apiClient from "@/infra/api/apiClient";
 
 export default function AdminAppConfig({ token }) {
@@ -57,7 +57,9 @@ export default function AdminAppConfig({ token }) {
     setTimeout(() => setMsg(""), 3000);
   };
 
-  const upd = (k, v) => setConfig(c => ({ ...c, [k]: v }));
+  const upd = useCallback((k, v) => {
+    setConfig(c => ({ ...c, [k]: v }));
+  }, []);
 
   if (!config) return <div style={{ color:"#666", padding:20 }}>Đang tải...</div>;
 
@@ -70,16 +72,21 @@ export default function AdminAppConfig({ token }) {
     </div>
   );
 
-  const Field = ({ k, label, type="text" }) => (
-    <div style={{ marginBottom:12 }}>
-      <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>{label}</p>
-      <input type={type} value={config[k] || ""}
-        onChange={e => upd(k, type==="number" ? Number(e.target.value) : e.target.value)}
-        style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
-          borderRadius:8, padding:"9px 12px", color:"white",
-          fontSize:13, boxSizing:"border-box" }}/>
-    </div>
-  );
+  const Field = ({ k, label, type="text" }) => {
+    return (
+      <div style={{ marginBottom:12 }}>
+        <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>{label}</p>
+        <input
+          type={type}
+          defaultValue={config[k] || ""}
+          onBlur={e => upd(k, type==="number" ? Number(e.target.value) : e.target.value)}
+          key={k + "_" + (config[k] || "")}
+          style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
+            borderRadius:8, padding:"9px 12px", color:"white",
+            fontSize:13, boxSizing:"border-box" }}/>
+      </div>
+    );
+  };
 
   const Toggle = ({ k, label }) => (
     <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
