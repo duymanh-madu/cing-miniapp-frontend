@@ -49,7 +49,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
                 TOP 100
               </p>
               <p style={{ color:"white", fontSize:16, fontWeight:900, margin:0 }}>
-                {gameKey === "black-pearl-rush" ? "Black Pearl Rush" : gameKey}
+                {gameKey === "black-pearl-rush" ? "Bay cùng trân châu" : gameKey}
               </p>
             </div>
             <button onClick={onClose} style={{
@@ -64,7 +64,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
               background:"rgba(255,215,0,0.08)", borderRadius:10,
               display:"flex", justifyContent:"space-between", alignItems:"center",
               border:"1px solid rgba(255,215,0,0.15)" }}>
-              <span style={{ color:"rgba(255,255,255,0.6)", fontSize:12 }}>Hang cua ban</span>
+              <span style={{ color:"rgba(255,255,255,0.6)", fontSize:12 }}>Hạng của bạn</span>
               <span style={{ color:"#FFD700", fontSize:14, fontWeight:900 }}>
                 #{myRank.rank || "—"}
               </span>
@@ -76,12 +76,12 @@ export default function GameLeaderboard({ gameKey, onClose }) {
         <div style={{ overflowY:"auto", flex:1, WebkitOverflowScrolling:"touch" }}>
           {loading ? (
             <div style={{ padding:"40px", textAlign:"center", color:"rgba(255,255,255,0.3)" }}>
-              Dang tai...
+              Đang tải...
             </div>
           ) : data.length === 0 ? (
             <div style={{ padding:"40px", textAlign:"center", color:"rgba(255,255,255,0.3)" }}>
               <div style={{ fontSize:36, marginBottom:8 }}>🎮</div>
-              <p style={{ fontSize:13 }}>Chua co du lieu. Hay choi de xep hang!</p>
+              <p style={{ fontSize:13 }}>Chưa có dữ liệu. Hãy chơi để xếp hạng!!</p>
             </div>
           ) : data.map((entry, idx) => (
             <div key={idx} style={{
@@ -107,7 +107,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
                 <p style={{ color:"#FFD700", fontSize:14, fontWeight:900, margin:0 }}>
                   {(entry.score || entry.high_score || 0).toLocaleString()}
                 </p>
-                <p style={{ color:"rgba(255,255,255,0.25)", fontSize:10, margin:0 }}>diem</p>
+                <p style={{ color:"rgba(255,255,255,0.25)", fontSize:10, margin:0 }}>điểm</p>
               </div>
             </div>
           ))}
