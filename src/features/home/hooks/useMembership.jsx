@@ -31,13 +31,14 @@ export function useMembership(overridePhone = "") {
     let attempts = 0;
     const attach = () => {
       const socket = getRuntimeSocket();
+      console.log(`[MEMBERSHIP] attach attempt ${attempts} - socket:`, !!socket, "connected:", socket?.connected, "id:", socket?.id);
       if (socket && socket.connected) {
         socket.on("user.updated", handler);
-        console.log("[MEMBERSHIP] Socket listener attached for user.updated");
+        console.log("[MEMBERSHIP] Socket listener attached for user.updated - id:", socket.id);
         return true;
       }
-      if (attempts++ < 20) {
-        setTimeout(attach, 500);
+      if (attempts++ < 30) {
+        setTimeout(attach, 1000);
       }
       return false;
     };
