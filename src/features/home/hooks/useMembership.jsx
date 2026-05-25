@@ -20,7 +20,9 @@ export function useMembership(overridePhone = "") {
       const eventPhone = String(data?.payload?.phone || data?.phone || "").replace(/\D/g,"");
       const normalizedEvent = eventPhone.startsWith("84") ? "0" + eventPhone.slice(2) : eventPhone;
       console.log("[MEMBERSHIP] eventPhone:", eventPhone, "localPhone:", phone);
-      if (normalizedEvent === phone || eventPhone === phone) {
+      // Refetch neu dung dien thoai hoac neu points_changed (sau khi cong/tru diem)
+      const isPointsChanged = data?.payload?.points_changed === true;
+      if (normalizedEvent === phone || eventPhone === phone || isPointsChanged) {
         console.log("[MEMBERSHIP] Realtime update received for", phone);
         queryClient.invalidateQueries({ queryKey: ["membership", phone] });
       }
