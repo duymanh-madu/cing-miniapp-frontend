@@ -144,9 +144,17 @@ export default function HomeMembershipCard() {
   const tierRaw = membership?.tierName || membership?.tierKey || realtimeTier || "member";
   // Uu tien tierKey neu da biet (chinh xac hon)
   const tierKeyDirect = membership?.tierKey?.toLowerCase?.() || "";
-  const tier = tierKeyDirect && ["member","loyal","silver","gold","diamond","partner","loyal_partner"].includes(tierKeyDirect)
-    ? tierKeyDirect
-    : mapTierKey(membership?.tierName || tierRaw || "");
+  const tierNameRaw = membership?.tierName || "";
+  // iPOS dung "loyal" cho ca "Hoi vien than thiet" va "Doi tac than thiet"
+  // Phan biet bang tierName
+  let tier;
+  if (tierKeyDirect === "loyal" && (tierNameRaw.includes("Đối tác") || tierNameRaw.includes("doi tac") || tierNameRaw.toLowerCase().includes("partner"))) {
+    tier = "loyal_partner";
+  } else if (tierKeyDirect && ["member","loyal","silver","gold","diamond","partner","loyal_partner"].includes(tierKeyDirect)) {
+    tier = tierKeyDirect;
+  } else {
+    tier = mapTierKey(tierNameRaw || tierRaw || "");
+  }
   const cfg    = TIERS[tier] || TIERS.member;
   const points = membership?.points ?? (realtimePoints || 0);
   const paymentAmount = membership?.paymentAmount ?? 0;
