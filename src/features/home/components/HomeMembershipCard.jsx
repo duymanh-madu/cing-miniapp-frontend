@@ -130,6 +130,7 @@ export default function HomeMembershipCard() {
   const [inputPhone, setInputPhone] = useState("");
   const [submittedPhone, setSubmittedPhone] = useState("");
   const { data: membership, isLoading } = useMembership(submittedPhone || phone);
+  const displayName = membership?.name || profile?.name || profile?.displayName || "Hội viên";
 
   const tierRaw     = realtimeTier || membership?.level || "member";
   const tier   = mapTierKey(membership?.tierName || tierRaw || "");
