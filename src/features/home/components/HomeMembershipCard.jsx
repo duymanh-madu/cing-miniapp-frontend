@@ -226,11 +226,10 @@ export default function HomeMembershipCard() {
           <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between" }}>
             <div>
               <p style={{ color:"rgba(255,255,255,0.5)", fontSize:9, margin:"0 0 3px", letterSpacing:1 }}>
-                MÃ HỘI VIÊN
+                HỘI VIÊN
               </p>
-              <p style={{ color:"rgba(255,255,255,0.8)", fontSize:12, fontWeight:700,
-                letterSpacing:2, margin:0, fontFamily:"monospace" }}>
-                {barcodeValue.replace(/(\d{4})(?=\d)/g,"$1 ")}
+              <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0, lineHeight:1.3 }}>
+                {displayName}
               </p>
             </div>
             {/* Barcode */}
