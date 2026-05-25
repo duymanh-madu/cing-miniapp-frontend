@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import apiClient from "@/infra/api/apiClient";
 
 export default function AdminAppConfig({ token }) {
@@ -173,6 +173,48 @@ export default function AdminAppConfig({ token }) {
           <Field k="bank_account_name" label="Chủ tài khoản" />
         </div>
       </Section>
+
+      <Section title="📢 Gửi thông báo Flash Sales">
+        <FlashSalesBroadcast token={token} h={h} />
+      </Section>
+    </div>
+  );
+}
+
+function FlashSalesBroadcast({ token, h }) {
+  const [title, setTitle] = React.useState("");
+  const [message, setMessage] = React.useState("");
+  const [sending, setSending] = React.useState(false);
+  const [msg, setMsg] = React.useState("");
+  const send = async () => {
+    if (!title) return;
+    setSending(true);
+    try {
+      const api = (await import("@/infra/api/apiClient")).default;
+      await api.post("/admin/broadcast", { title, message }, { headers: h });
+      setMsg("✅ Đã gửi đến tất cả người dùng!");
+      setTitle(""); setMessage("");
+    } catch(e) { setMsg("❌ " + (e.response?.data?.message || e.message)); }
+    setSending(false);
+    setTimeout(() => setMsg(""), 4000);
+  };
+  return (
+    <div>
+      {msg && <div style={{ color: msg.includes("✅") ? "#4CAF50" : "#ff6b6b", fontSize:13, marginBottom:10 }}>{msg}</div>}
+      <div style={{ marginBottom:10 }}>
+        <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Tiêu đề *</p>
+        <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="🔥 Flash Sale - Giảm 30% hôm nay!"
+          style={{ width:"100%", background:"#2a2a38", border:"1px solid #333", borderRadius:8, padding:"9px 12px", color:"white", fontSize:13, boxSizing:"border-box" }}/>
+      </div>
+      <div style={{ marginBottom:14 }}>
+        <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Nội dung</p>
+        <input value={message} onChange={e=>setMessage(e.target.value)} placeholder="Mô tả chi tiết ưu đãi..."
+          style={{ width:"100%", background:"#2a2a38", border:"1px solid #333", borderRadius:8, padding:"9px 12px", color:"white", fontSize:13, boxSizing:"border-box" }}/>
+      </div>
+      <button onClick={send} disabled={sending || !title}
+        style={{ background: title ? "#D4531C" : "#333", border:"none", color:"white", borderRadius:10, padding:"10px 24px", fontWeight:800, cursor: title ? "pointer" : "not-allowed" }}>
+        {sending ? "Đang gửi..." : "📢 Gửi ngay cho tất cả"}
+      </button>
     </div>
   );
 }
