@@ -1,59 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 100" width="220" height="100">
   <defs>
-    <radialGradient id="wg1" cx="30%" cy="40%" r="70%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
-      <stop offset="60%" stop-color="#dae8ff" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#b8d0f0" stop-opacity="0.6"/>
-    </radialGradient>
-    <radialGradient id="wg2" cx="70%" cy="40%" r="70%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
-      <stop offset="60%" stop-color="#dae8ff" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#b8d0f0" stop-opacity="0.6"/>
-    </radialGradient>
+    <linearGradient id="wL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#e8f0ff"/>
+      <stop offset="100%" stop-color="#c8d8f5"/>
+    </linearGradient>
+    <linearGradient id="wR" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#e8f0ff"/>
+      <stop offset="100%" stop-color="#c8d8f5"/>
+    </linearGradient>
   </defs>
 
-  <!-- CANH TRAI -->
-  <g transform="translate(100,80)">
-    <!-- Nen canh lon -->
-    <path d="M-8,0 C-20,-8 -55,-15 -75,-45 C-85,-65 -70,-90 -50,-82 C-35,-76 -20,-55 -12,-35 C-6,-20 -5,-8 -8,0 Z"
-      fill="url(#wg1)" stroke="#c5d8f0" stroke-width="0.8"/>
-    <!-- Long vu lon 1 -->
-    <path d="M-50,-82 C-58,-95 -68,-102 -60,-88 C-55,-80 -48,-76 -50,-82 Z"
-      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
-    <!-- Long vu lon 2 -->
-    <path d="M-60,-70 C-72,-82 -80,-88 -70,-74 C-65,-66 -58,-62 -60,-70 Z"
-      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
-    <!-- Long vu lon 3 -->
-    <path d="M-68,-52 C-80,-62 -86,-66 -76,-54 C-71,-46 -64,-44 -68,-52 Z"
-      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
-    <!-- Long vu giua -->
-    <path d="M-42,-62 C-50,-72 -56,-76 -48,-64 C-44,-58 -40,-56 -42,-62 Z"
-      fill="white" stroke="#b8cee8" stroke-width="0.5"/>
-    <path d="M-30,-45 C-38,-55 -42,-58 -34,-48 C-30,-42 -27,-41 -30,-45 Z"
-      fill="white" stroke="#b8cee8" stroke-width="0.5"/>
-    <!-- Lop canh thu 2 nho hon phia truoc -->
-    <path d="M-6,-2 C-15,-6 -40,-10 -55,-32 C-60,-42 -50,-56 -36,-50 C-24,-44 -14,-30 -8,-16 C-4,-8 -3,-2 -6,-2 Z"
-      fill="white" fill-opacity="0.7" stroke="#ccddf0" stroke-width="0.5"/>
-    <!-- Anh sang -->
-    <path d="M-10,-5 C-22,-20 -38,-50 -32,-72" fill="none" stroke="white" stroke-width="1.5" stroke-opacity="0.6" stroke-linecap="round"/>
-  </g>
+  <!-- CANH TRAI - chibi style, bo tron, outline dam -->
+  <!-- Canh lon phia sau -->
+  <path d="M108,58 C95,50 60,35 45,15 C35,2 42,-10 58,-5 C70,0 88,20 100,40 C105,48 108,55 108,58 Z"
+    fill="url(#wL)" stroke="#b0c0e0" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Canh nho phia truoc -->
+  <path d="M106,60 C98,54 78,42 68,28 C62,18 66,8 76,12 C85,16 98,35 106,52 C107,56 107,59 106,60 Z"
+    fill="white" fill-opacity="0.9" stroke="#b0c0e0" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Shadow ben trong canh lon -->
+  <path d="M100,40 C88,22 70,8 60,2" fill="none" stroke="#c8d4ee" stroke-width="3" stroke-linecap="round"/>
+  <path d="M95,50 C82,35 66,20 56,12" fill="none" stroke="#d5dff5" stroke-width="2" stroke-linecap="round"/>
+  <!-- Highlight canh -->
+  <path d="M90,35 C82,24 72,14 65,8" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
 
-  <!-- CANH PHAI (mirror) -->
-  <g transform="translate(100,80) scale(-1,1)">
-    <path d="M-8,0 C-20,-8 -55,-15 -75,-45 C-85,-65 -70,-90 -50,-82 C-35,-76 -20,-55 -12,-35 C-6,-20 -5,-8 -8,0 Z"
-      fill="url(#wg2)" stroke="#c5d8f0" stroke-width="0.8"/>
-    <path d="M-50,-82 C-58,-95 -68,-102 -60,-88 C-55,-80 -48,-76 -50,-82 Z"
-      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
-    <path d="M-60,-70 C-72,-82 -80,-88 -70,-74 C-65,-66 -58,-62 -60,-70 Z"
-      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
-    <path d="M-68,-52 C-80,-62 -86,-66 -76,-54 C-71,-46 -64,-44 -68,-52 Z"
-      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
-    <path d="M-42,-62 C-50,-72 -56,-76 -48,-64 C-44,-58 -40,-56 -42,-62 Z"
-      fill="white" stroke="#b8cee8" stroke-width="0.5"/>
-    <path d="M-30,-45 C-38,-55 -42,-58 -34,-48 C-30,-42 -27,-41 -30,-45 Z"
-      fill="white" stroke="#b8cee8" stroke-width="0.5"/>
-    <path d="M-6,-2 C-15,-6 -40,-10 -55,-32 C-60,-42 -50,-56 -36,-50 C-24,-44 -14,-30 -8,-16 C-4,-8 -3,-2 -6,-2 Z"
-      fill="white" fill-opacity="0.7" stroke="#ccddf0" stroke-width="0.5"/>
-    <path d="M-10,-5 C-22,-20 -38,-50 -32,-72" fill="none" stroke="white" stroke-width="1.5" stroke-opacity="0.6" stroke-linecap="round"/>
-  </g>
+  <!-- CANH PHAI - mirror -->
+  <!-- Canh lon phia sau -->
+  <path d="M112,58 C125,50 160,35 175,15 C185,2 178,-10 162,-5 C150,0 132,20 120,40 C115,48 112,55 112,58 Z"
+    fill="url(#wR)" stroke="#b0c0e0" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Canh nho phia truoc -->
+  <path d="M114,60 C122,54 142,42 152,28 C158,18 154,8 144,12 C135,16 122,35 114,52 C113,56 113,59 114,60 Z"
+    fill="white" fill-opacity="0.9" stroke="#b0c0e0" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Shadow ben trong canh phai -->
+  <path d="M120,40 C132,22 150,8 160,2" fill="none" stroke="#c8d4ee" stroke-width="3" stroke-linecap="round"/>
+  <path d="M125,50 C138,35 154,20 164,12" fill="none" stroke="#d5dff5" stroke-width="2" stroke-linecap="round"/>
+  <!-- Highlight canh phai -->
+  <path d="M130,35 C138,24 148,14 155,8" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
 </svg>
