@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import apiClient from "@/infra/api/apiClient";
+import useAuthStore from "@/stores/auth/authStore";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useNavigate } from "react-router-dom";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
@@ -8,6 +11,33 @@ import GamePlaysCard from "../components/GamePlaysCard";
 export default function GameCenterPage() {
   const games = getAllGames();
   const [activeGame, setActiveGame] = useState(null);
+  const profile = useAuthStore(s => s.profile);
+  const [challenge, setChallenge] = useState(null);
+  const [challengeWinner, setChallengeWinner] = useState(null);
+
+  useEffect(() => {
+    apiClient.get("/game/daily-challenge")
+      .then(r => setChallenge(r.data?.data))
+      .catch(() => {});
+  }, []);
+
+  // Socket listener cho challenge winner
+  useEffect(() => {
+    let attempts = 0;
+    const attach = () => {
+      const socket = getRuntimeSocket();
+      if (socket && socket.connected) {
+        socket.on("challenge.won", (data) => {
+          setChallengeWinner(data?.payload);
+          setChallenge(prev => prev ? { ...prev, completed: true, winner_name: data?.payload?.winner_name } : prev);
+        });
+        return;
+      }
+      if (attempts++ < 20) setTimeout(attach, 1000);
+    };
+    attach();
+    return () => { getRuntimeSocket()?.off("challenge.won"); };
+  }, []);
   const [showBoard, setShowBoard] = useState(null);
   const [gamePlays, setGamePlays] = useState(null);
   const navigate = useNavigate();
@@ -59,21 +89,32 @@ export default function GameCenterPage() {
 
       {/* DAILY CHALLENGE */}
       <div style={{ margin:"0 16px 20px",
-        background:"linear-gradient(135deg,rgba(255,215,0,0.12),rgba(255,140,0,0.08))",
-        border:"1px solid rgba(255,215,0,0.2)", borderRadius:20, padding:"16px 20px",
-        display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <div>
-          <p style={{ color:"#FFD700", fontSize:11, fontWeight:800, margin:"0 0 4px", letterSpacing:2 }}>
-            THÁCH THỨC HÔM NAY
-          </p>
-          <p style={{ color:"white", fontSize:15, fontWeight:800, margin:"0 0 3px" }}>
-            Ghi 500 điểm Bay cùng trân châu
-          </p>
-          <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, margin:0 }}>
-            Phần thưởng: +50 điểm tích luỹ
-          </p>
+        background: challenge?.completed ? "linear-gradient(135deg,rgba(76,175,80,0.15),rgba(76,175,80,0.05))" : "linear-gradient(135deg,rgba(255,215,0,0.12),rgba(255,140,0,0.08))",
+        border: challenge?.completed ? "1px solid rgba(76,175,80,0.3)" : "1px solid rgba(255,215,0,0.2)",
+        borderRadius:20, padding:"16px 20px" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom: challenge?.completed ? 10 : 0 }}>
+          <div>
+            <p style={{ color: challenge?.completed ? "#4CAF50" : "#FFD700", fontSize:11, fontWeight:800, margin:"0 0 4px", letterSpacing:2 }}>
+              {challenge?.completed ? "✅ ĐÃ CÓ NGƯỜI NHẬN THƯỞNG" : "🎯 THÁCH THỨC HÔM NAY"}
+            </p>
+            <p style={{ color:"white", fontSize:15, fontWeight:800, margin:"0 0 3px" }}>
+              Đạt combo {challenge?.target_value || 100} trong game "Bay cùng trân châu"
+            </p>
+            <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, margin:0 }}>
+              Phần thưởng: +{challenge?.reward_points || 50} điểm tích luỹ • Chỉ 1 người đầu tiên
+            </p>
+          </div>
+          <div style={{ fontSize:36 }}>{challenge?.completed ? "🏆" : "🎯"}</div>
         </div>
-        <div style={{ fontSize:36 }}>🎯</div>
+        {challenge?.completed && challenge?.winner_name && (
+          <div style={{ background:"rgba(76,175,80,0.1)", borderRadius:10, padding:"8px 12px",
+            display:"flex", alignItems:"center", gap:8 }}>
+            <span style={{ fontSize:18 }}>👑</span>
+            <p style={{ color:"#4CAF50", fontSize:12, fontWeight:700, margin:0 }}>
+              Chúc mừng <strong>{challenge.winner_name}</strong> đã xuất sắc nhận được phần thưởng thử thách ngày!
+            </p>
+          </div>
+        )}
       </div>
 
       <GamePlaysCard onPlaysUpdate={setGamePlays} />
