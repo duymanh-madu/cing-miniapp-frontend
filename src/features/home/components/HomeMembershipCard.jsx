@@ -4,10 +4,10 @@ import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
 import { useMembershipProfile } from "@/features/loyalty/hooks/useMembershipProfile";
 
 const TIER_CONFIG = {
-  bronze:   { label: "Dong",      color: "from-amber-700 to-yellow-600", icon: "Bronze", next: "Bac"      },
-  silver:   { label: "Bac",       color: "from-slate-400 to-gray-300",   icon: "Silver", next: "Vang"     },
-  gold:     { label: "Vang",      color: "from-yellow-500 to-amber-400", icon: "Gold",   next: "Bach Kim" },
-  platinum: { label: "Bach Kim",  color: "from-cyan-500 to-teal-400",    icon: "Plat",   next: "Kim Cuong"},
+  bronze:   { label: "Đồng",      color: "from-amber-700 to-yellow-600", icon: "Bronze", next: "Bạc"      },
+  silver:   { label: "Bạc",       color: "from-slate-400 to-gray-300",   icon: "Silver", next: "Vàng"     },
+  gold:     { label: "Vàng",      color: "from-yellow-500 to-amber-400", icon: "Gold",   next: "Bạch Kim" },
+  platinum: { label: "Bạch Kim",  color: "from-cyan-500 to-teal-400",    icon: "Plat",   next: "Kim Cuong"},
   diamond:  { label: "Kim Cuong", color: "from-blue-500 to-indigo-600",  icon: "Diam",   next: null       },
 };
 
@@ -39,21 +39,21 @@ export default function HomeMembershipCard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div>
-                <p className="text-xs text-white/75 font-medium">Thanh vien</p>
+                <p className="text-xs text-white/75 font-medium">Thành viên</p>
                 <p className="text-base font-black">{cfg.label}</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-xs text-white/75">Diem tich luy</p>
+              <p className="text-xs text-white/75">Điểm tích lũy</p>
               <p className="text-xl font-black">{points.toLocaleString("vi-VN")}</p>
             </div>
           </div>
           <div className="mt-4">
             <div className="flex justify-between text-xs text-white/70 mb-1.5">
-              <span>{points.toLocaleString("vi-VN")} diem</span>
+              <span>{points.toLocaleString("vi-VN")} điểm</span>
               {cfg.next && pointsToNext > 0
-                ? <span>Con {pointsToNext.toLocaleString("vi-VN")} diem len {cfg.next}</span>
-                : <span>Hang cao nhat</span>}
+                ? <span>Con {pointsToNext.toLocaleString("vi-VN")} điểm len {cfg.next}</span>
+                : <span>Hạng cao nhất</span>}
             </div>
             <div className="h-2 rounded-full bg-white/25">
               <div className="h-full rounded-full bg-white transition-all duration-700" style={{width: progressPct + "%"}} />

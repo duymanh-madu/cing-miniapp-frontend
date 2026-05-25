@@ -8,7 +8,7 @@ function HomeHero() {
   const customerProfile = useRealtimeCustomerStore((s) => s.profile);
   const displayName = authProfile?.name || authProfile?.displayName || customerProfile?.name || "Ban oi";
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Chao buoi sang" : hour < 18 ? "Chao buoi chieu" : "Chao buoi toi";
+  const greeting = hour < 12 ? "Chào buổi sáng" : hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
   return (
     <section className="relative overflow-hidden rounded-[34px] bg-gradient-to-br from-[#f28c28] via-orange-400 to-orange-500 p-6 text-white shadow-[0_25px_60px_rgba(242,140,40,0.35)]">
       <div className="absolute -right-10 -top-10 h-[180px] w-[180px] rounded-full bg-white/10" />
@@ -25,7 +25,7 @@ function HomeHero() {
         </div>
         <div className="mt-4"><RealtimeStatusBadge /></div>
         <p className="mt-4 max-w-[280px] text-sm leading-relaxed text-white/85">
-          Thuong thuc tra sua premium, nhan voucher realtime va tham gia mini game moi ngay.
+          Thưởng thức trà sữa premium, nhận voucher realtime và tham gia mini game mỗi ngày.
         </p>
       </div>
     </section>
