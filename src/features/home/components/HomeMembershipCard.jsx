@@ -121,13 +121,12 @@ function mapTierKey(raw) {
 export default function HomeMembershipCard() {
   const navigate = useNavigate();
   const profile = useAuthStore(s => s.profile);
-  const userId = profile?.id || profile?.userId;
   const phone = profile?.phone || profile?.phoneNumber || profile?.mobile || "";
   const displayName = profile?.name || profile?.displayName || "Hội viên";
 
   const realtimePoints = useRealtimeCustomerStore(s => s.profile?.points ?? null);
   const realtimeTier   = useRealtimeCustomerStore(s => s.profile?.tier?.toLowerCase?.() ?? null);
-  const { membership, isLoading } = useMembershipProfile(userId);
+  const { data: membership, isLoading } = useMembership();
 
   const tierRaw     = realtimeTier || membership?.level || "member";
   const tier        = mapTierKey(tierRaw);
@@ -137,7 +136,7 @@ export default function HomeMembershipCard() {
     ? Math.min(Math.round((points / (points + pointsToNext)) * 100), 99)
     : 100;
   const cfg = TIERS[tier] || TIERS.bronze;
-  const barcodeValue = phone.replace(/\D/g,"") || userId?.slice(0,12) || "000000000000";
+  const barcodeValue = phone || "000000000000";
 
   if (isLoading && !membership) {
     return <div style={{ height:220, borderRadius:24, background:"#e8e0d0", margin:"0 0 4px" }} className="animate-pulse"/>;
