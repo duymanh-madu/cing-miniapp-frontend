@@ -113,10 +113,10 @@ const TIERS = {
 function mapTierKey(raw) {
   if (!raw) return "member";
   const r = raw.toLowerCase().trim();
-  if (r.includes("kim") && r.includes("cuong") || r.includes("diamond")) return "diamond";
+  if (r === "diamond" || r.includes("diamond") || (r.includes("kim") && (r.includes("cuong") || r.includes("cương")))) return "diamond";
   if (r.includes("vang") || r.includes("gold") || r.includes("vàng")) return "gold";
   if (r.includes("bac") || r.includes("silver") || r.includes("bạc")) return "silver";
-  if (r.includes("than thiet") || r.includes("thân thiết") && r.includes("doi tac") || r.includes("đối tác")) return "loyal_partner";
+  if ((r.includes("than thiet") || r.includes("thân thiết")) && (r.includes("doi tac") || r.includes("đối tác") || r.includes("partner"))) return "loyal_partner";
   if (r.includes("doi tac") || r.includes("đối tác") || r.includes("partner")) return "partner";
   if (r.includes("than thiet") || r.includes("thân thiết") || r.includes("loyal")) return "loyal";
   return "member";
@@ -141,8 +141,12 @@ export default function HomeMembershipCard() {
   const { data: membership, isLoading } = useMembership(submittedPhone || phone);
   const displayName = membership?.name || profile?.name || profile?.displayName || "Hội viên";
 
-  const tierRaw     = membership?.tierName || membership?.tierKey || realtimeTier || "member";
-  const tier   = mapTierKey(membership?.tierName || tierRaw || "");
+  const tierRaw = membership?.tierName || membership?.tierKey || realtimeTier || "member";
+  // Uu tien tierKey neu da biet (chinh xac hon)
+  const tierKeyDirect = membership?.tierKey?.toLowerCase?.() || "";
+  const tier = tierKeyDirect && ["member","loyal","silver","gold","diamond","partner","loyal_partner"].includes(tierKeyDirect)
+    ? tierKeyDirect
+    : mapTierKey(membership?.tierName || tierRaw || "");
   const cfg    = TIERS[tier] || TIERS.member;
   const points = membership?.points ?? (realtimePoints || 0);
   const paymentAmount = membership?.paymentAmount ?? 0;
