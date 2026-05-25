@@ -252,43 +252,102 @@ export default function BlackPearlRush({ onExit }) {
 
       const wf = Math.sin(game.frameTime * 0.02) * 0.12;
       /* Wing shape cache — tạo Path2D 1 lần */
-      /* Cupid wings - feathered, layered */
-      function drawCupidWing(ctx, flip) {
+      /* Cupid angel wings - layered feathers like reference image */
+      const flap = Math.sin(game.frameTime * 0.018) * 0.15;
+      
+      function drawCupidWing(ctx, side) {
+        const flip = side === 'right';
         ctx.save();
-        if (flip) ctx.scale(-1,1);
-        ctx.translate(-32, -4);
-        ctx.rotate(wf * 0.8);
-        /* Wing shadow */
-        ctx.fillStyle = "rgba(180,210,255,0.5)";
-        ctx.beginPath(); ctx.moveTo(0,0);
-        ctx.bezierCurveTo(-40,-15,-50,-50,-20,-70);
-        ctx.bezierCurveTo(0,-55,20,-30,10,0);
-        ctx.closePath(); ctx.fill();
-        /* Wing body */
-        ctx.fillStyle = "rgba(230,240,255,0.92)";
-        ctx.beginPath(); ctx.moveTo(0,0);
-        ctx.bezierCurveTo(-35,-12,-45,-45,-18,-65);
-        ctx.bezierCurveTo(2,-50,18,-28,8,0);
-        ctx.closePath(); ctx.fill();
-        /* Feathers top */
-        ctx.fillStyle = "rgba(255,255,255,0.95)";
-        [[-18,-65,-32,-72,-8,-60],[-10,-55,-25,-62,-2,-50],[0,-42,-15,-50,8,-38]].forEach(([x1,y1,x2,y2,x3,y3])=>{
-          ctx.beginPath(); ctx.moveTo(x3,y3);
-          ctx.quadraticCurveTo(x2,y2,x1,y1);
-          ctx.quadraticCurveTo(x2-5,y2+8,x3,y3);
-          ctx.closePath(); ctx.fill();
+        if (flip) ctx.scale(-1, 1);
+        ctx.rotate(flap);
+        
+        /* === LAYER 1: Back large wing (light blue-grey base) === */
+        ctx.fillStyle = "rgba(190,210,235,0.85)";
+        ctx.beginPath();
+        ctx.moveTo(-5, 5);
+        ctx.bezierCurveTo(-45, -5, -65, -40, -45, -75);
+        ctx.bezierCurveTo(-30, -90, -5, -70, 0, -50);
+        ctx.bezierCurveTo(5, -30, 5, -10, -5, 5);
+        ctx.closePath();
+        ctx.fill();
+        
+        /* === LAYER 2: Main wing white feathers === */
+        ctx.fillStyle = "rgba(235,242,255,0.95)";
+        ctx.beginPath();
+        ctx.moveTo(-2, 3);
+        ctx.bezierCurveTo(-35, -2, -55, -35, -38, -68);
+        ctx.bezierCurveTo(-25, -82, -3, -63, 2, -44);
+        ctx.bezierCurveTo(6, -25, 4, -8, -2, 3);
+        ctx.closePath();
+        ctx.fill();
+        
+        /* === FEATHER ROW 1 (bottom) === */
+        const feathersBot = [
+          [-8,2, -22,-8, -32,-5, -20,8],
+          [-20,-4, -34,-14, -42,-10, -28,5],
+          [-30,-12, -44,-22, -50,-18, -36,-4],
+        ];
+        feathersBot.forEach(([ax,ay,bx,by,cx,cy,dx,dy]) => {
+          ctx.fillStyle = "rgba(255,255,255,0.9)";
+          ctx.beginPath();
+          ctx.moveTo(ax,ay);
+          ctx.bezierCurveTo(ax-4,ay-12, bx-4,by-8, bx,by);
+          ctx.bezierCurveTo(bx+4,by+6, cx+4,cy+6, cx,cy);
+          ctx.bezierCurveTo(cx-2,cy-4, dx-2,dy-4, dx,dy);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle="rgba(180,200,230,0.5)"; ctx.lineWidth=0.5; ctx.stroke();
         });
-        /* Wing outline */
-        ctx.strokeStyle = "rgba(150,190,255,0.4)";
-        ctx.lineWidth = 0.8;
-        ctx.beginPath(); ctx.moveTo(0,0);
-        ctx.bezierCurveTo(-35,-12,-45,-45,-18,-65);
-        ctx.bezierCurveTo(2,-50,18,-28,8,0);
+        
+        /* === FEATHER ROW 2 (middle) === */
+        const feathersMid = [
+          [-5,-15, -18,-30, -28,-26, -15,-10],
+          [-16,-24, -30,-40, -40,-35, -25,-20],
+          [-28,-38, -40,-54, -48,-48, -34,-33],
+        ];
+        feathersMid.forEach(([ax,ay,bx,by,cx,cy,dx,dy]) => {
+          ctx.fillStyle = "rgba(248,252,255,0.95)";
+          ctx.beginPath();
+          ctx.moveTo(ax,ay);
+          ctx.bezierCurveTo(ax-3,ay-12, bx-3,by-8, bx,by);
+          ctx.bezierCurveTo(bx+3,by+5, cx+3,cy+5, cx,cy);
+          ctx.bezierCurveTo(cx-2,cy-4, dx-2,dy-4, dx,dy);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle="rgba(180,200,230,0.4)"; ctx.lineWidth=0.4; ctx.stroke();
+        });
+        
+        /* === FEATHER ROW 3 (top tips) === */
+        const feathersTop = [
+          [-12,-48, -22,-65, -30,-60, -18,-44],
+          [-24,-56, -32,-72, -38,-66, -28,-52],
+          [-34,-62, -40,-78, -44,-72, -36,-58],
+        ];
+        feathersTop.forEach(([ax,ay,bx,by,cx,cy,dx,dy]) => {
+          ctx.fillStyle = "rgba(255,255,255,1)";
+          ctx.beginPath();
+          ctx.moveTo(ax,ay);
+          ctx.bezierCurveTo(ax-2,ay-10, bx-2,by-6, bx,by);
+          ctx.bezierCurveTo(bx+2,by+5, cx+2,cy+5, cx,cy);
+          ctx.bezierCurveTo(cx-1,cy-3, dx-1,dy-3, dx,dy);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle="rgba(160,190,220,0.5)"; ctx.lineWidth=0.4; ctx.stroke();
+        });
+        
+        /* Sheen highlight */
+        ctx.strokeStyle = "rgba(220,235,255,0.7)";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(-3, 0);
+        ctx.bezierCurveTo(-20, -20, -35, -50, -30, -72);
         ctx.stroke();
+        
         ctx.restore();
       }
-      drawCupidWing(ctx, false);
-      drawCupidWing(ctx, true);
+      
+      drawCupidWing(ctx, 'left');
+      drawCupidWing(ctx, 'right');
 
       /* Dùng ImageBitmap nếu đã load, fallback về canvas paths */
       if (pearlBitmap && !game.dead) {
@@ -322,7 +381,7 @@ export default function BlackPearlRush({ onExit }) {
 
       if (!game.started && !game.dead) {
         ctx.font = "900 34px Arial"; ctx.fillStyle = "#2b160b";
-        ctx.textAlign = "center"; ctx.fillText("TAP TO START", W/2, H/2);
+        ctx.textAlign = "center"; ctx.fillText("TAP TO START", W/2, H/2 - 120);
       }
       if (game.dead) {
         ctx.fillStyle = "rgba(0,0,0,0.55)"; ctx.fillRect(0,0,W,H);
