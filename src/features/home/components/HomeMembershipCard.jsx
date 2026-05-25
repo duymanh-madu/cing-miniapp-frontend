@@ -129,13 +129,21 @@ export default function HomeMembershipCard() {
   const { data: membership, isLoading } = useMembership();
 
   const tierRaw     = realtimeTier || membership?.level || "member";
-  const tier        = mapTierKey(tierRaw);
-  const points      = realtimePoints ?? membership?.points ?? 0;
-  const pointsToNext = membership?.pointsToNextLevel ?? 500;
-  const progress    = pointsToNext > 0
-    ? Math.min(Math.round((points / (points + pointsToNext)) * 100), 99)
+  const tier   = mapTierKey(membership?.tierName || tierRaw || "");
+  const cfg    = TIERS[tier] || TIERS.member;
+  const points = realtimePoints ?? membership?.points ?? 0;
+  const paymentAmount = membership?.paymentAmount ?? 0;
+
+  const TIER_THRESHOLDS = { member:0, loyal:1000000, silver:3000000, gold:5000000, diamond:10000000 };
+  const TIER_ORDER = ["member","loyal","silver","gold","diamond"];
+  const currentIdx = TIER_ORDER.indexOf(tier);
+  const nextTier = TIER_ORDER[currentIdx + 1];
+  const nextThreshold = nextTier ? TIER_THRESHOLDS[nextTier] : null;
+  const currentThreshold = TIER_THRESHOLDS[tier] || 0;
+  const progress = nextThreshold
+    ? Math.min(Math.round(((paymentAmount - currentThreshold) / (nextThreshold - currentThreshold)) * 100), 99)
     : 100;
-  const cfg = TIERS[tier] || TIERS.bronze;
+  const remaining = nextThreshold ? Math.max(nextThreshold - paymentAmount, 0) : 0;
   const barcodeValue = phone || "000000000000";
 
   if (isLoading && !membership) {
