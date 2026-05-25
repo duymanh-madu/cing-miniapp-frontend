@@ -430,6 +430,7 @@ export function initializeRuntimeSocket() {
   runtimeSocket.on(
     "connect",
     () => {
+      (window as any).__runtimeSocket = runtimeSocket;
 
       runtimeLogger.info("RUNTIME", 
         "[SOCKET] CONNECTED"
