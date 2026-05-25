@@ -138,10 +138,10 @@ export default function HomeMembershipCard() {
   const { data: membership, isLoading } = useMembership(submittedPhone || phone);
   const displayName = membership?.name || profile?.name || profile?.displayName || "Hội viên";
 
-  const tierRaw     = realtimeTier || membership?.level || "member";
+  const tierRaw     = membership?.tierName || membership?.tierKey || realtimeTier || "member";
   const tier   = mapTierKey(membership?.tierName || tierRaw || "");
   const cfg    = TIERS[tier] || TIERS.member;
-  const points = realtimePoints ?? membership?.points ?? 0;
+  const points = membership?.points ?? (realtimePoints || 0);
   const paymentAmount = membership?.paymentAmount ?? 0;
 
   const TIER_THRESHOLDS = { member:0, loyal:1000000, silver:3000000, gold:5000000, diamond:10000000 };
