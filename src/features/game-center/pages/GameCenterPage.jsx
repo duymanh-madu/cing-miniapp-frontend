@@ -21,6 +21,24 @@ export default function GameCenterPage() {
       .catch(() => {});
   }, []);
 
+  const handleGameOver = async ({ bestCombo, score }) => {
+    const userId = profile?.id || profile?.userId || profile?.zalo_id;
+    const playerName = profile?.name || profile?.displayName || "Cing iu";
+    if (!userId || !bestCombo) return;
+    try {
+      const res = await apiClient.post("/game/daily-challenge/claim", {
+        user_id: userId,
+        player_name: playerName,
+        avatar: profile?.avatar || "",
+        combo: bestCombo,
+        game_key: "black-pearl-rush",
+      });
+      if (res.data?.success) {
+        alert("🏆 " + res.data.message);
+      }
+    } catch(e) {}
+  };
+
   // Socket listener cho challenge winner
   useEffect(() => {
     let attempts = 0;
@@ -61,7 +79,7 @@ export default function GameCenterPage() {
             🏆 BXH
           </button>
         </div>
-        <div style={{ flex:1 }}><GameComp onExit={() => setActiveGame(null)} /></div>
+        <div style={{ flex:1 }}><GameComp onExit={() => setActiveGame(null)} onGameOver={handleGameOver} /></div>
         {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
       </div>
     );

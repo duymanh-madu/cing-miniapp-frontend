@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function BlackPearlRush({ onExit }) {
+export default function BlackPearlRush({ onExit, onGameOver }) {
   const navigate = useNavigate();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -131,7 +131,7 @@ export default function BlackPearlRush({ onExit }) {
 
     function resetGame() {
       game.started = false; game.dead = false;
-      game.score = 0; game.combo = 0;
+      game.score = 0; game.combo = 0; game._challengeClaimed = false; game._deadNotified = false;
       game.shake = 0; game.obstacleTimer = 0;
       game.obstacles = [];
       palpha.fill(0);
@@ -140,6 +140,10 @@ export default function BlackPearlRush({ onExit }) {
     }
 
     function jump() {
+      if (game.dead && !game._deadNotified) {
+        game._deadNotified = true;
+        if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
+      }
       if (game.dead) { resetGame(); return; }
       game.started = true;
       game.pearl.vy = -8.2;
@@ -188,6 +192,11 @@ export default function BlackPearlRush({ onExit }) {
           o.passed = true;
           game.score++; game.combo++;
           game.bestCombo = Math.max(game.bestCombo, game.combo);
+          // Trigger challenge claim khi dat combo 100
+          if (game.combo >= 100 && !game._challengeClaimed) {
+            game._challengeClaimed = true;
+            if (onGameOver) onGameOver({ bestCombo: game.combo, score: game.score });
+          }
           playSound("score");
           burst(p.x, p.y, 8);
           /* Throttle React setState — chỉ update DOM score mỗi 300ms */
