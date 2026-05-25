@@ -6,6 +6,9 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
   const profile = useAuthStore(s => s.profile);
   const [plays, setPlays] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [points, setPoints] = useState(0);
+  const [buying, setBuying] = useState(false);
+  const [buyMsg, setBuyMsg] = useState("");
 
   useEffect(() => {
     if (!profile?.id) { setLoading(false); return; }
@@ -14,13 +17,35 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
         const p = r.data?.data;
         const gamePlays = p?.game_plays ?? 3;
         setPlays(gamePlays);
+        setPoints(p?.total_points || 0);
         onPlaysUpdate?.(gamePlays);
       })
       .catch(() => { setPlays(3); onPlaysUpdate?.(3); })
       .finally(() => setLoading(false));
   }, [profile?.id]);
 
-  const bars = [1,2,3,4,5];
+  const buyPlay = async (qty) => {
+    if (!profile?.id) return;
+    setBuying(true); setBuyMsg("");
+    try {
+      const res = await apiClient.post("/points/buy-plays", { user_id: profile.id, quantity: qty });
+      if (res.data?.success) {
+        const newPlays = res.data.data.new_plays;
+        setPlays(newPlays);
+        setPoints(res.data.data.remaining_points);
+        onPlaysUpdate?.(newPlays);
+        setBuyMsg("✅ " + res.data.message);
+      } else {
+        setBuyMsg("❌ " + res.data.message);
+      }
+    } catch(e) {
+      setBuyMsg("❌ " + (e.response?.data?.message || "Lỗi mua lượt chơi"));
+    }
+    setBuying(false);
+    setTimeout(() => setBuyMsg(""), 3000);
+  };
+
+    const bars = [1,2,3,4,5];
 
   return (
     <div style={{
@@ -110,6 +135,27 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
           </button>
         </div>
       )}
+      {/* MUA LUOT CHOI */}
+      <div style={{ padding:"12px 16px", borderTop:"1px solid rgba(255,215,0,0.1)" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+          <p style={{ color:"rgba(255,255,255,0.5)", fontSize:11, margin:0 }}>
+            💎 Điểm tích lũy: <strong style={{ color:"#FFD700" }}>{points}</strong> điểm
+          </p>
+          <p style={{ color:"rgba(255,255,255,0.3)", fontSize:10, margin:0 }}>5 điểm = 1 lượt</p>
+        </div>
+        {buyMsg && <p style={{ color: buyMsg.includes("✅") ? "#4CAF50" : "#ff6b6b", fontSize:11, margin:"0 0 8px" }}>{buyMsg}</p>}
+        <div style={{ display:"flex", gap:6 }}>
+          {[1,3,5].map(qty => (
+            <button key={qty} onClick={() => buyPlay(qty)} disabled={buying || points < qty * 5}
+              style={{ flex:1, padding:"7px 0", borderRadius:10, fontSize:11, fontWeight:700, cursor:"pointer", border:"none",
+                background: points >= qty * 5 ? "rgba(255,215,0,0.15)" : "rgba(255,255,255,0.05)",
+                color: points >= qty * 5 ? "#FFD700" : "rgba(255,255,255,0.2)" }}>
+              +{qty} lượt<br/>
+              <span style={{ fontSize:9, fontWeight:400 }}>({qty*5} điểm)</span>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
