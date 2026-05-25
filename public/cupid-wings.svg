@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+  <defs>
+    <radialGradient id="wg1" cx="30%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#dae8ff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#b8d0f0" stop-opacity="0.6"/>
+    </radialGradient>
+    <radialGradient id="wg2" cx="70%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#dae8ff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#b8d0f0" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+
+  <!-- CANH TRAI -->
+  <g transform="translate(100,80)">
+    <!-- Nen canh lon -->
+    <path d="M-8,0 C-20,-8 -55,-15 -75,-45 C-85,-65 -70,-90 -50,-82 C-35,-76 -20,-55 -12,-35 C-6,-20 -5,-8 -8,0 Z"
+      fill="url(#wg1)" stroke="#c5d8f0" stroke-width="0.8"/>
+    <!-- Long vu lon 1 -->
+    <path d="M-50,-82 C-58,-95 -68,-102 -60,-88 C-55,-80 -48,-76 -50,-82 Z"
+      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
+    <!-- Long vu lon 2 -->
+    <path d="M-60,-70 C-72,-82 -80,-88 -70,-74 C-65,-66 -58,-62 -60,-70 Z"
+      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
+    <!-- Long vu lon 3 -->
+    <path d="M-68,-52 C-80,-62 -86,-66 -76,-54 C-71,-46 -64,-44 -68,-52 Z"
+      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
+    <!-- Long vu giua -->
+    <path d="M-42,-62 C-50,-72 -56,-76 -48,-64 C-44,-58 -40,-56 -42,-62 Z"
+      fill="white" stroke="#b8cee8" stroke-width="0.5"/>
+    <path d="M-30,-45 C-38,-55 -42,-58 -34,-48 C-30,-42 -27,-41 -30,-45 Z"
+      fill="white" stroke="#b8cee8" stroke-width="0.5"/>
+    <!-- Lop canh thu 2 nho hon phia truoc -->
+    <path d="M-6,-2 C-15,-6 -40,-10 -55,-32 C-60,-42 -50,-56 -36,-50 C-24,-44 -14,-30 -8,-16 C-4,-8 -3,-2 -6,-2 Z"
+      fill="white" fill-opacity="0.7" stroke="#ccddf0" stroke-width="0.5"/>
+    <!-- Anh sang -->
+    <path d="M-10,-5 C-22,-20 -38,-50 -32,-72" fill="none" stroke="white" stroke-width="1.5" stroke-opacity="0.6" stroke-linecap="round"/>
+  </g>
+
+  <!-- CANH PHAI (mirror) -->
+  <g transform="translate(100,80) scale(-1,1)">
+    <path d="M-8,0 C-20,-8 -55,-15 -75,-45 C-85,-65 -70,-90 -50,-82 C-35,-76 -20,-55 -12,-35 C-6,-20 -5,-8 -8,0 Z"
+      fill="url(#wg2)" stroke="#c5d8f0" stroke-width="0.8"/>
+    <path d="M-50,-82 C-58,-95 -68,-102 -60,-88 C-55,-80 -48,-76 -50,-82 Z"
+      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
+    <path d="M-60,-70 C-72,-82 -80,-88 -70,-74 C-65,-66 -58,-62 -60,-70 Z"
+      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
+    <path d="M-68,-52 C-80,-62 -86,-66 -76,-54 C-71,-46 -64,-44 -68,-52 Z"
+      fill="white" stroke="#b8cee8" stroke-width="0.6"/>
+    <path d="M-42,-62 C-50,-72 -56,-76 -48,-64 C-44,-58 -40,-56 -42,-62 Z"
+      fill="white" stroke="#b8cee8" stroke-width="0.5"/>
+    <path d="M-30,-45 C-38,-55 -42,-58 -34,-48 C-30,-42 -27,-41 -30,-45 Z"
+      fill="white" stroke="#b8cee8" stroke-width="0.5"/>
+    <path d="M-6,-2 C-15,-6 -40,-10 -55,-32 C-60,-42 -50,-56 -36,-50 C-24,-44 -14,-30 -8,-16 C-4,-8 -3,-2 -6,-2 Z"
+      fill="white" fill-opacity="0.7" stroke="#ccddf0" stroke-width="0.5"/>
+    <path d="M-10,-5 C-22,-20 -38,-50 -32,-72" fill="none" stroke="white" stroke-width="1.5" stroke-opacity="0.6" stroke-linecap="round"/>
+  </g>
+</svg>

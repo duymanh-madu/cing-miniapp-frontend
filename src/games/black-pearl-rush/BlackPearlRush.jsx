@@ -53,6 +53,12 @@ export default function BlackPearlRush({ onExit }) {
     offCtx.fillStyle = "black";
     offCtx.beginPath(); offCtx.arc(-8, 0, 3, 0, 6.2832); offCtx.arc(12, 0, 3, 0, 6.2832); offCtx.fill();
     let pearlBitmap = null;
+    let wingBitmap = null;
+    const wingImg = new Image();
+    wingImg.onload = () => {
+      createImageBitmap(wingImg).then(bm => { wingBitmap = bm; });
+    };
+    wingImg.src = "/cupid-wings.svg";
     offPearl.convertToBlob().then(blob => {
       createImageBitmap(blob).then(bm => { pearlBitmap = bm; });
     });
@@ -252,89 +258,25 @@ export default function BlackPearlRush({ onExit }) {
 
       const wf = Math.sin(game.frameTime * 0.02) * 0.12;
       /* Wing shape cache — tạo Path2D 1 lần */
-            /* Compact Cupid wings - small, delicate, feathered */
-      const flap = Math.sin(game.frameTime * 0.02) * 0.2;
-      
-      // Ve 1 canh, flip=true cho canh phai
-      const drawWing = (flip) => {
+                  /* SVG Cupid wings */
+      if (wingBitmap) {
+        const wScale = 1 + Math.sin(game.frameTime * 0.02) * 0.06;
         ctx.save();
-        if (flip) ctx.scale(-1, 1);
-        ctx.translate(-20, -8);
-        ctx.rotate(flap);
-        
-        // Nen canh (xanh nhat)
-        const g1 = ctx.createLinearGradient(-30,-50,5,0);
-        g1.addColorStop(0,"rgba(220,235,255,0.95)");
-        g1.addColorStop(0.6,"rgba(200,220,248,0.8)");
-        g1.addColorStop(1,"rgba(180,205,240,0.4)");
-        ctx.fillStyle = g1;
-        ctx.beginPath();
-        ctx.moveTo(0, 2);
-        ctx.bezierCurveTo(-8,-5,-25,-10,-32,-30);
-        ctx.bezierCurveTo(-36,-45,-25,-58,-12,-52);
-        ctx.bezierCurveTo(-2,-47,4,-30,4,-15);
-        ctx.bezierCurveTo(4,-8,2,-2,0,2);
-        ctx.closePath();
-        ctx.fill();
-        
-        // Vien canh
-        ctx.strokeStyle = "rgba(160,190,230,0.6)";
-        ctx.lineWidth = 0.8;
-        ctx.stroke();
-        
-        // Long vu tren cung (3 chiec)
-        const tips = [[-12,-52,-20,-62,-8,-48],[-20,-46,-28,-56,-16,-42],[-26,-36,-34,-46,-22,-32]];
-        tips.forEach(([ax,ay,tx,ty,bx,by]) => {
-          ctx.fillStyle = "rgba(255,255,255,0.97)";
-          ctx.beginPath();
-          ctx.moveTo(ax,ay);
-          ctx.quadraticCurveTo(tx-6,ty, tx,ty);
-          ctx.quadraticCurveTo(tx+4,ty+6, bx,by);
-          ctx.quadraticCurveTo(ax+2,ay+2, ax,ay);
-          ctx.closePath();
-          ctx.fill();
-          ctx.strokeStyle="rgba(150,185,225,0.5)";ctx.lineWidth=0.5;ctx.stroke();
-        });
-        
-        // Long vu giua (3 chiec)
-        const mid = [[-6,-18,-14,-30,-4,-14],[-13,-26,-22,-38,-11,-22],[-20,-34,-28,-44,-18,-30]];
-        mid.forEach(([ax,ay,tx,ty,bx,by]) => {
-          ctx.fillStyle = "rgba(248,252,255,0.95)";
-          ctx.beginPath();
-          ctx.moveTo(ax,ay);
-          ctx.quadraticCurveTo(tx-4,ty, tx,ty);
-          ctx.quadraticCurveTo(tx+3,ty+5, bx,by);
-          ctx.quadraticCurveTo(ax+2,ay+2, ax,ay);
-          ctx.closePath();
-          ctx.fill();
-        });
-        
-        // Long vu day (2 chiec)
-        const bot = [[-3,-4,-10,-14,-1,-2],[-9,-10,-18,-20,-8,-8]];
-        bot.forEach(([ax,ay,tx,ty,bx,by]) => {
-          ctx.fillStyle = "rgba(255,255,255,0.9)";
-          ctx.beginPath();
-          ctx.moveTo(ax,ay);
-          ctx.quadraticCurveTo(tx-3,ty, tx,ty);
-          ctx.quadraticCurveTo(tx+3,ty+4, bx,by);
-          ctx.quadraticCurveTo(ax+1,ay+2, ax,ay);
-          ctx.closePath();
-          ctx.fill();
-        });
-        
-        // Anh sang tren canh
-        ctx.strokeStyle = "rgba(255,255,255,0.7)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(-2,0);
-        ctx.bezierCurveTo(-10,-15,-20,-38,-15,-52);
-        ctx.stroke();
-        
+        ctx.globalAlpha = 0.92;
+        ctx.drawImage(wingBitmap, -100 * wScale, -90 * wScale, 200 * wScale, 120 * wScale);
+        ctx.globalAlpha = 1;
         ctx.restore();
-      };
-      
-      drawWing(false);
-      drawWing(true);
+      } else {
+        /* Fallback don gian */
+        const wf2 = Math.sin(game.frameTime * 0.02) * 0.15;
+        ctx.fillStyle = "rgba(220,235,255,0.85)";
+        ctx.save(); ctx.translate(-28,-10); ctx.rotate(wf2);
+        ctx.beginPath(); ctx.ellipse(-15,-25,22,32,0.5,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+        ctx.save(); ctx.translate(28,-10); ctx.rotate(-wf2);
+        ctx.beginPath(); ctx.ellipse(15,-25,22,32,-0.5,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+      }
 
       /* Dùng ImageBitmap nếu đã load, fallback về canvas paths */
       if (pearlBitmap && !game.dead) {
