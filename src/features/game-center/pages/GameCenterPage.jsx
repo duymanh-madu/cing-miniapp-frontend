@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import GameLeaderboard from "../components/GameLeaderboard";
+import GamePlaysCard from "../components/GamePlaysCard";
 
 export default function GameCenterPage() {
   const games = getAllGames();
   const [activeGame, setActiveGame] = useState(null);
   const [showBoard, setShowBoard] = useState(null);
+  const [gamePlays, setGamePlays] = useState(null);
   const navigate = useNavigate();
 
   if (activeGame) {
@@ -74,6 +76,8 @@ export default function GameCenterPage() {
         <div style={{ fontSize:36 }}>🎯</div>
       </div>
 
+      <GamePlaysCard onPlaysUpdate={setGamePlays} />
+
       {/* GAME LIST */}
       <div style={{ padding:"0 16px" }}>
         <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, fontWeight:700,
@@ -106,7 +110,13 @@ export default function GameCenterPage() {
                 Thử thách phản xạ — ghi điểm cao nhất
               </p>
               <div style={{ display:"flex", gap:8 }}>
-                <button onClick={() => setActiveGame(game.id)} style={{
+                <button onClick={() => {
+                  if (gamePlays !== null && gamePlays <= 0) {
+                    alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
+                    return;
+                  }
+                  setActiveGame(game.id);
+                }} style={{
                   background:"linear-gradient(135deg,#D4531C,#ff6b35)",
                   color:"white", border:"none", borderRadius:10,
                   padding:"8px 18px", fontSize:12, fontWeight:800, cursor:"pointer",
