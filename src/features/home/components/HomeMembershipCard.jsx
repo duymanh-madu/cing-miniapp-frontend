@@ -123,13 +123,13 @@ export default function HomeMembershipCard() {
   const navigate = useNavigate();
   const profile = useAuthStore(s => s.profile);
   const phone = profile?.phone || profile?.phoneNumber || profile?.mobile || "";
-  const displayName = membership?.name || profile?.name || profile?.displayName || "Hội viên";
 
   const realtimePoints = useRealtimeCustomerStore(s => s.profile?.points ?? null);
   const realtimeTier   = useRealtimeCustomerStore(s => s.profile?.tier?.toLowerCase?.() ?? null);
   const [inputPhone, setInputPhone] = useState("");
   const [submittedPhone, setSubmittedPhone] = useState("");
   const { data: membership, isLoading } = useMembership(submittedPhone || phone);
+  const displayName = membership?.name || profile?.name || profile?.displayName || "Hội viên";
 
   const tierRaw     = realtimeTier || membership?.level || "member";
   const tier   = mapTierKey(membership?.tierName || tierRaw || "");
