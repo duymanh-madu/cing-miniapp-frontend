@@ -154,10 +154,14 @@ export default function LeaderboardPage() {
   };
 
   useEffect(() => {
-    if (tab === "custom") { setShowCustom(true); return; }
+    if (tab === "custom") {
+      setShowCustom(true);
+      if (customRange.from && customRange.to) fetchData("custom", customRange.from, customRange.to);
+      return;
+    }
     setShowCustom(false);
     fetchData(tab);
-  }, [tab]);
+  }, [tab, customRange.from]);
 
   const top1 = data[0], top2 = data[1], top3 = data[2], rest = data.slice(3);
 
@@ -183,7 +187,7 @@ export default function LeaderboardPage() {
             <p style={{ color:"rgba(255,215,0,0.6)", fontSize:10, fontWeight:800,
               letterSpacing:4, margin:"0 0 4px", textTransform:"uppercase" }}>Hall of Fame</p>
             <h1 style={{ color:"white", fontSize:22, fontWeight:900, margin:0, letterSpacing:1 }}>
-              Đại Sảnh Đại sảnh
+              Đại sảnh danh vọng
             </h1>
           </div>
           <div style={{ width:38 }}/>
@@ -203,29 +207,17 @@ export default function LeaderboardPage() {
           ))}
         </div>
 
-        {/* CUSTOM DATE RANGE */}
-        {showCustom && (
-          <div style={{ padding:"0 0 16px", display:"flex", gap:8, alignItems:"flex-end" }}>
-            <div style={{ flex:1 }}>
-              <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 4px" }}>Từ ngày</p>
-              <input type="date" value={customRange.from}
-                onChange={e => setCustomRange(p => ({...p, from:e.target.value}))}
-                style={{ width:"100%", padding:"8px 10px", borderRadius:10, border:"1px solid rgba(255,215,0,0.3)",
-                  background:"rgba(255,255,255,0.06)", color:"white", fontSize:12, outline:"none", boxSizing:"border-box" }}/>
+        {/* CUSTOM DATE RANGE - chi hien thi, khong cho user chinh sua */}
+        {showCustom && customRange.from && (
+          <div style={{ padding:"0 0 16px", display:"flex", gap:8, alignItems:"center",
+            background:"rgba(255,215,0,0.08)", borderRadius:12, padding:"10px 14px", marginBottom:8 }}>
+            <span style={{ fontSize:16 }}>📅</span>
+            <div>
+              <p style={{ color:"rgba(255,255,255,0.5)", fontSize:10, margin:"0 0 2px" }}>Thời gian bình chọn</p>
+              <p style={{ color:"#FFD700", fontSize:13, fontWeight:700, margin:0 }}>
+                {new Date(customRange.from).toLocaleDateString("vi-VN")} — {customRange.to ? new Date(customRange.to).toLocaleDateString("vi-VN") : "nay"}
+              </p>
             </div>
-            <div style={{ flex:1 }}>
-              <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 4px" }}>Đến ngày</p>
-              <input type="date" value={customRange.to}
-                onChange={e => setCustomRange(p => ({...p, to:e.target.value}))}
-                style={{ width:"100%", padding:"8px 10px", borderRadius:10, border:"1px solid rgba(255,215,0,0.3)",
-                  background:"rgba(255,255,255,0.06)", color:"white", fontSize:12, outline:"none", boxSizing:"border-box" }}/>
-            </div>
-            <button onClick={() => fetchData("custom", customRange.from, customRange.to)}
-              disabled={!customRange.from || !customRange.to}
-              style={{ padding:"8px 14px", borderRadius:10, flexShrink:0,
-                background: customRange.from && customRange.to ? "linear-gradient(135deg,#FFD700,#FFA500)" : "rgba(255,255,255,0.1)",
-                border:"none", color: customRange.from && customRange.to ? "#1a0a2e" : "rgba(255,255,255,0.3)",
-                fontSize:12, fontWeight:800, cursor:"pointer" }}>Xem</button>
           </div>
         )}
       </div>
