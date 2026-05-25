@@ -127,7 +127,14 @@ export default function HomeMembershipCard() {
   const realtimePoints = useRealtimeCustomerStore(s => s.profile?.points ?? null);
   const realtimeTier   = useRealtimeCustomerStore(s => s.profile?.tier?.toLowerCase?.() ?? null);
   const [inputPhone, setInputPhone] = useState("");
-  const [submittedPhone, setSubmittedPhone] = useState("");
+  const [submittedPhone, setSubmittedPhone] = useState(
+    () => sessionStorage.getItem("dev_membership_phone") || ""
+  );
+  const handleSubmitPhone = (p) => {
+    const clean = p.replace(/\D/g,"");
+    sessionStorage.setItem("dev_membership_phone", clean);
+    setSubmittedPhone(clean);
+  };
   const { data: membership, isLoading } = useMembership(submittedPhone || phone);
   const displayName = membership?.name || profile?.name || profile?.displayName || "Hội viên";
 
@@ -167,10 +174,10 @@ export default function HomeMembershipCard() {
           <input type="tel" placeholder="VD: 0984966336" autoFocus
             value={inputPhone}
             onChange={e => setInputPhone(e.target.value)}
-            onKeyDown={e => e.key==="Enter" && setSubmittedPhone(inputPhone.replace(/\D/g,""))}
+            onKeyDown={e => e.key==="Enter" && handleSubmitPhone(inputPhone)}
             style={{ flex:1, border:"1.5px solid #e8e0d0", borderRadius:10,
               padding:"9px 12px", fontSize:13, outline:"none" }}/>
-          <button onClick={() => setSubmittedPhone(inputPhone.replace(/\D/g,""))}
+          <button onClick={() => handleSubmitPhone(inputPhone)}
             style={{ background:"#D4531C", color:"white", border:"none",
               borderRadius:10, padding:"9px 16px", fontSize:12,
               fontWeight:700, cursor:"pointer" }}>Xem</button>
