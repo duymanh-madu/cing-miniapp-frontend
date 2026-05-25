@@ -1,8 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
-import { runtimeSocketOn, runtimeSocketOff } from "@/runtime/socket/runtimeSocketClient";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 
 export function useMembership(overridePhone = "") {
   const profile = useAuthStore(s => s.profile);
@@ -10,23 +10,43 @@ export function useMembership(overridePhone = "") {
     .replace(/\D/g, "");
   const phone = (overridePhone || storePhone || "").replace(/\D/g, "");
   const queryClient = useQueryClient();
+  const handlerRef = useRef(null);
 
-  // Socket.IO realtime - lang nghe membership:updated tu backend
   useEffect(() => {
     if (!phone) return;
 
     const handler = (data) => {
-      const eventPhone = String(data?.phone || data?.payload?.phone || "").replace(/\D/g,"");
-      if (eventPhone === phone || eventPhone === "0" + phone.slice(2)) {
-        console.log("[MEMBERSHIP] Realtime update - invalidating query for", phone);
+      const eventPhone = String(data?.payload?.phone || data?.phone || "").replace(/\D/g,"");
+      const normalizedEvent = eventPhone.startsWith("84") ? "0" + eventPhone.slice(2) : eventPhone;
+      if (normalizedEvent === phone || eventPhone === phone) {
+        console.log("[MEMBERSHIP] Realtime update received for", phone);
         queryClient.invalidateQueries({ queryKey: ["membership", phone] });
       }
     };
+    handlerRef.current = handler;
 
-    runtimeSocketOn("user.updated", handler);
-    
-    return () => runtimeSocketOff("user.updated", handler);
-    
+    // Retry attach listener cho den khi socket ready
+    let attempts = 0;
+    const attach = () => {
+      const socket = getRuntimeSocket();
+      if (socket && socket.connected) {
+        socket.on("user.updated", handler);
+        console.log("[MEMBERSHIP] Socket listener attached for user.updated");
+        return true;
+      }
+      if (attempts++ < 20) {
+        setTimeout(attach, 500);
+      }
+      return false;
+    };
+    attach();
+
+    return () => {
+      const socket = getRuntimeSocket();
+      if (socket && handlerRef.current) {
+        socket.off("user.updated", handlerRef.current);
+      }
+    };
   }, [phone, queryClient]);
 
   return useQuery({
