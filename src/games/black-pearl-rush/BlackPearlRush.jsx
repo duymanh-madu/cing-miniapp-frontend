@@ -252,102 +252,89 @@ export default function BlackPearlRush({ onExit }) {
 
       const wf = Math.sin(game.frameTime * 0.02) * 0.12;
       /* Wing shape cache — tạo Path2D 1 lần */
-      /* Cupid angel wings - layered feathers like reference image */
-      const flap = Math.sin(game.frameTime * 0.018) * 0.15;
+            /* Compact Cupid wings - small, delicate, feathered */
+      const flap = Math.sin(game.frameTime * 0.02) * 0.2;
       
-      function drawCupidWing(ctx, side) {
-        const flip = side === 'right';
+      // Ve 1 canh, flip=true cho canh phai
+      const drawWing = (flip) => {
         ctx.save();
         if (flip) ctx.scale(-1, 1);
+        ctx.translate(-20, -8);
         ctx.rotate(flap);
         
-        /* === LAYER 1: Back large wing (light blue-grey base) === */
-        ctx.fillStyle = "rgba(190,210,235,0.85)";
+        // Nen canh (xanh nhat)
+        const g1 = ctx.createLinearGradient(-30,-50,5,0);
+        g1.addColorStop(0,"rgba(220,235,255,0.95)");
+        g1.addColorStop(0.6,"rgba(200,220,248,0.8)");
+        g1.addColorStop(1,"rgba(180,205,240,0.4)");
+        ctx.fillStyle = g1;
         ctx.beginPath();
-        ctx.moveTo(-5, 5);
-        ctx.bezierCurveTo(-45, -5, -65, -40, -45, -75);
-        ctx.bezierCurveTo(-30, -90, -5, -70, 0, -50);
-        ctx.bezierCurveTo(5, -30, 5, -10, -5, 5);
+        ctx.moveTo(0, 2);
+        ctx.bezierCurveTo(-8,-5,-25,-10,-32,-30);
+        ctx.bezierCurveTo(-36,-45,-25,-58,-12,-52);
+        ctx.bezierCurveTo(-2,-47,4,-30,4,-15);
+        ctx.bezierCurveTo(4,-8,2,-2,0,2);
         ctx.closePath();
         ctx.fill();
         
-        /* === LAYER 2: Main wing white feathers === */
-        ctx.fillStyle = "rgba(235,242,255,0.95)";
-        ctx.beginPath();
-        ctx.moveTo(-2, 3);
-        ctx.bezierCurveTo(-35, -2, -55, -35, -38, -68);
-        ctx.bezierCurveTo(-25, -82, -3, -63, 2, -44);
-        ctx.bezierCurveTo(6, -25, 4, -8, -2, 3);
-        ctx.closePath();
-        ctx.fill();
+        // Vien canh
+        ctx.strokeStyle = "rgba(160,190,230,0.6)";
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
         
-        /* === FEATHER ROW 1 (bottom) === */
-        const feathersBot = [
-          [-8,2, -22,-8, -32,-5, -20,8],
-          [-20,-4, -34,-14, -42,-10, -28,5],
-          [-30,-12, -44,-22, -50,-18, -36,-4],
-        ];
-        feathersBot.forEach(([ax,ay,bx,by,cx,cy,dx,dy]) => {
-          ctx.fillStyle = "rgba(255,255,255,0.9)";
+        // Long vu tren cung (3 chiec)
+        const tips = [[-12,-52,-20,-62,-8,-48],[-20,-46,-28,-56,-16,-42],[-26,-36,-34,-46,-22,-32]];
+        tips.forEach(([ax,ay,tx,ty,bx,by]) => {
+          ctx.fillStyle = "rgba(255,255,255,0.97)";
           ctx.beginPath();
           ctx.moveTo(ax,ay);
-          ctx.bezierCurveTo(ax-4,ay-12, bx-4,by-8, bx,by);
-          ctx.bezierCurveTo(bx+4,by+6, cx+4,cy+6, cx,cy);
-          ctx.bezierCurveTo(cx-2,cy-4, dx-2,dy-4, dx,dy);
+          ctx.quadraticCurveTo(tx-6,ty, tx,ty);
+          ctx.quadraticCurveTo(tx+4,ty+6, bx,by);
+          ctx.quadraticCurveTo(ax+2,ay+2, ax,ay);
           ctx.closePath();
           ctx.fill();
-          ctx.strokeStyle="rgba(180,200,230,0.5)"; ctx.lineWidth=0.5; ctx.stroke();
+          ctx.strokeStyle="rgba(150,185,225,0.5)";ctx.lineWidth=0.5;ctx.stroke();
         });
         
-        /* === FEATHER ROW 2 (middle) === */
-        const feathersMid = [
-          [-5,-15, -18,-30, -28,-26, -15,-10],
-          [-16,-24, -30,-40, -40,-35, -25,-20],
-          [-28,-38, -40,-54, -48,-48, -34,-33],
-        ];
-        feathersMid.forEach(([ax,ay,bx,by,cx,cy,dx,dy]) => {
+        // Long vu giua (3 chiec)
+        const mid = [[-6,-18,-14,-30,-4,-14],[-13,-26,-22,-38,-11,-22],[-20,-34,-28,-44,-18,-30]];
+        mid.forEach(([ax,ay,tx,ty,bx,by]) => {
           ctx.fillStyle = "rgba(248,252,255,0.95)";
           ctx.beginPath();
           ctx.moveTo(ax,ay);
-          ctx.bezierCurveTo(ax-3,ay-12, bx-3,by-8, bx,by);
-          ctx.bezierCurveTo(bx+3,by+5, cx+3,cy+5, cx,cy);
-          ctx.bezierCurveTo(cx-2,cy-4, dx-2,dy-4, dx,dy);
+          ctx.quadraticCurveTo(tx-4,ty, tx,ty);
+          ctx.quadraticCurveTo(tx+3,ty+5, bx,by);
+          ctx.quadraticCurveTo(ax+2,ay+2, ax,ay);
           ctx.closePath();
           ctx.fill();
-          ctx.strokeStyle="rgba(180,200,230,0.4)"; ctx.lineWidth=0.4; ctx.stroke();
         });
         
-        /* === FEATHER ROW 3 (top tips) === */
-        const feathersTop = [
-          [-12,-48, -22,-65, -30,-60, -18,-44],
-          [-24,-56, -32,-72, -38,-66, -28,-52],
-          [-34,-62, -40,-78, -44,-72, -36,-58],
-        ];
-        feathersTop.forEach(([ax,ay,bx,by,cx,cy,dx,dy]) => {
-          ctx.fillStyle = "rgba(255,255,255,1)";
+        // Long vu day (2 chiec)
+        const bot = [[-3,-4,-10,-14,-1,-2],[-9,-10,-18,-20,-8,-8]];
+        bot.forEach(([ax,ay,tx,ty,bx,by]) => {
+          ctx.fillStyle = "rgba(255,255,255,0.9)";
           ctx.beginPath();
           ctx.moveTo(ax,ay);
-          ctx.bezierCurveTo(ax-2,ay-10, bx-2,by-6, bx,by);
-          ctx.bezierCurveTo(bx+2,by+5, cx+2,cy+5, cx,cy);
-          ctx.bezierCurveTo(cx-1,cy-3, dx-1,dy-3, dx,dy);
+          ctx.quadraticCurveTo(tx-3,ty, tx,ty);
+          ctx.quadraticCurveTo(tx+3,ty+4, bx,by);
+          ctx.quadraticCurveTo(ax+1,ay+2, ax,ay);
           ctx.closePath();
           ctx.fill();
-          ctx.strokeStyle="rgba(160,190,220,0.5)"; ctx.lineWidth=0.4; ctx.stroke();
         });
         
-        /* Sheen highlight */
-        ctx.strokeStyle = "rgba(220,235,255,0.7)";
-        ctx.lineWidth = 1.2;
+        // Anh sang tren canh
+        ctx.strokeStyle = "rgba(255,255,255,0.7)";
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(-3, 0);
-        ctx.bezierCurveTo(-20, -20, -35, -50, -30, -72);
+        ctx.moveTo(-2,0);
+        ctx.bezierCurveTo(-10,-15,-20,-38,-15,-52);
         ctx.stroke();
         
         ctx.restore();
-      }
+      };
       
-      drawCupidWing(ctx, 'left');
-      drawCupidWing(ctx, 'right');
+      drawWing(false);
+      drawWing(true);
 
       /* Dùng ImageBitmap nếu đã load, fallback về canvas paths */
       if (pearlBitmap && !game.dead) {
