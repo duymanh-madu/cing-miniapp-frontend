@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
@@ -107,6 +108,23 @@ export default function LeaderboardPage() {
   const [showCustom, setShowCustom] = useState(false);
   const [customTabName, setCustomTabName] = useState("Tùy chỉnh");
   const prevRankRef = useRef(null);
+  const currentTabRef = useRef(tab);
+  currentTabRef.current = tab;
+  useEffect(() => {
+    let attempts = 0;
+    const attach = () => {
+      const socket = getRuntimeSocket();
+      if (socket && socket.connected) {
+        socket.on("leaderboard.updated", () => {
+          fetchData(currentTabRef.current);
+        });
+        return;
+      }
+      if (attempts++ < 20) setTimeout(attach, 1000);
+    };
+    attach();
+    return () => { getRuntimeSocket()?.off("leaderboard.updated"); };
+  }, []);
 
   // Fetch custom leaderboard config tu admin
   useEffect(() => {
