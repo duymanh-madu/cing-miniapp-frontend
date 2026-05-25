@@ -258,16 +258,29 @@ export default function BlackPearlRush({ onExit }) {
 
       const wf = Math.sin(game.frameTime * 0.02) * 0.12;
       /* Wing shape cache — tạo Path2D 1 lần */
-                  /* SVG Cupid wings */
-      if (wingBitmap) {
-        const wScale = 1 + Math.sin(game.frameTime * 0.02) * 0.06;
-        ctx.save();
-        ctx.globalAlpha = 0.92;
-        ctx.drawImage(wingBitmap, -100 * wScale, -90 * wScale, 200 * wScale, 120 * wScale);
-        ctx.globalAlpha = 1;
-        ctx.restore();
-      } else {
-        /* Fallback don gian */
+                  /* Wings - simple clean */
+      const wf = Math.sin(game.frameTime * 0.02) * 0.18;
+      ctx.save();
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.strokeStyle = "rgba(180,200,240,0.8)";
+      ctx.lineWidth = 1.5;
+      // Canh trai
+      ctx.save();
+      ctx.translate(-28, -12);
+      ctx.rotate(-0.3 + wf);
+      ctx.beginPath();
+      ctx.ellipse(-14, -16, 18, 28, 0.5, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
+      // Canh phai
+      ctx.save();
+      ctx.translate(28, -12);
+      ctx.rotate(0.3 - wf);
+      ctx.beginPath();
+      ctx.ellipse(14, -16, 18, 28, -0.5, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
+      ctx.restore();        /* Fallback don gian */
         const wf2 = Math.sin(game.frameTime * 0.02) * 0.15;
         ctx.fillStyle = "rgba(220,235,255,0.85)";
         ctx.save(); ctx.translate(-28,-10); ctx.rotate(wf2);
