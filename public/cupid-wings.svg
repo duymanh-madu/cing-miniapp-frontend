@@ -1,40 +1,77 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 100" width="220" height="100">
-  <defs>
-    <linearGradient id="wL" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="50%" stop-color="#e8f0ff"/>
-      <stop offset="100%" stop-color="#c8d8f5"/>
-    </linearGradient>
-    <linearGradient id="wR" x1="100%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="50%" stop-color="#e8f0ff"/>
-      <stop offset="100%" stop-color="#c8d8f5"/>
-    </linearGradient>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 110" width="200" height="110">
+<defs>
+  <linearGradient id="fg" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#ffffff"/>
+    <stop offset="100%" stop-color="#e8eef8"/>
+  </linearGradient>
+  <linearGradient id="sg" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#dde5f5"/>
+    <stop offset="100%" stop-color="#c8d4ea"/>
+  </linearGradient>
+</defs>
 
-  <!-- CANH TRAI - chibi style, bo tron, outline dam -->
-  <!-- Canh lon phia sau -->
-  <path d="M108,58 C95,50 60,35 45,15 C35,2 42,-10 58,-5 C70,0 88,20 100,40 C105,48 108,55 108,58 Z"
-    fill="url(#wL)" stroke="#b0c0e0" stroke-width="2" stroke-linejoin="round"/>
-  <!-- Canh nho phia truoc -->
-  <path d="M106,60 C98,54 78,42 68,28 C62,18 66,8 76,12 C85,16 98,35 106,52 C107,56 107,59 106,60 Z"
-    fill="white" fill-opacity="0.9" stroke="#b0c0e0" stroke-width="1.5" stroke-linejoin="round"/>
-  <!-- Shadow ben trong canh lon -->
-  <path d="M100,40 C88,22 70,8 60,2" fill="none" stroke="#c8d4ee" stroke-width="3" stroke-linecap="round"/>
-  <path d="M95,50 C82,35 66,20 56,12" fill="none" stroke="#d5dff5" stroke-width="2" stroke-linecap="round"/>
-  <!-- Highlight canh -->
-  <path d="M90,35 C82,24 72,14 65,8" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+<!-- CANH TRAI -->
+<!-- Nen canh (wing base shape) -->
+<path d="M98,58 C90,52 70,42 52,30 C38,20 28,14 24,20 C20,26 26,36 38,44 C52,53 72,60 90,64 C94,65 97,63 98,58 Z"
+  fill="url(#sg)" stroke="#c0cce0" stroke-width="1"/>
 
-  <!-- CANH PHAI - mirror -->
-  <!-- Canh lon phia sau -->
-  <path d="M112,58 C125,50 160,35 175,15 C185,2 178,-10 162,-5 C150,0 132,20 120,40 C115,48 112,55 112,58 Z"
-    fill="url(#wR)" stroke="#b0c0e0" stroke-width="2" stroke-linejoin="round"/>
-  <!-- Canh nho phia truoc -->
-  <path d="M114,60 C122,54 142,42 152,28 C158,18 154,8 144,12 C135,16 122,35 114,52 C113,56 113,59 114,60 Z"
-    fill="white" fill-opacity="0.9" stroke="#b0c0e0" stroke-width="1.5" stroke-linejoin="round"/>
-  <!-- Shadow ben trong canh phai -->
-  <path d="M120,40 C132,22 150,8 160,2" fill="none" stroke="#c8d4ee" stroke-width="3" stroke-linecap="round"/>
-  <path d="M125,50 C138,35 154,20 164,12" fill="none" stroke="#d5dff5" stroke-width="2" stroke-linecap="round"/>
-  <!-- Highlight canh phai -->
-  <path d="M130,35 C138,24 148,14 155,8" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+<!-- Hang long vu 1 (day nhat, lon nhat) -->
+<path d="M94,62 C86,58 76,50 68,40 C62,32 60,24 66,22 C70,21 76,26 80,34 C84,42 88,52 94,62 Z"
+  fill="url(#fg)" stroke="#d0d8ec" stroke-width="1.2"/>
+<path d="M82,65 C72,60 60,50 50,38 C42,28 40,20 46,18 C50,17 56,22 62,32 C68,42 74,54 82,65 Z"
+  fill="url(#fg)" stroke="#d0d8ec" stroke-width="1.2"/>
+<path d="M68,66 C58,60 46,48 36,36 C28,26 28,16 34,16 C38,16 44,22 50,32 C56,42 62,54 68,66 Z"
+  fill="url(#fg)" stroke="#d0d8ec" stroke-width="1.2"/>
+<path d="M54,63 C44,56 32,44 24,30 C18,20 20,10 26,12 C30,13 36,20 42,30 C48,40 52,52 54,63 Z"
+  fill="url(#fg)" stroke="#d0d8ec" stroke-width="1.2"/>
+
+<!-- Hang long vu 2 (giua) -->
+<path d="M90,60 C84,55 76,46 70,36 C65,28 65,20 70,20 C74,20 78,26 82,34 C86,42 88,52 90,60 Z"
+  fill="white" stroke="#c8d2e8" stroke-width="1"/>
+<path d="M78,63 C70,57 62,47 56,36 C50,26 51,18 56,18 C60,18 65,24 69,34 C73,44 76,54 78,63 Z"
+  fill="white" stroke="#c8d2e8" stroke-width="1"/>
+<path d="M64,64 C56,57 48,46 42,34 C36,24 38,16 44,16 C48,16 52,22 56,34 C60,44 63,54 64,64 Z"
+  fill="white" stroke="#c8d2e8" stroke-width="1"/>
+
+<!-- Hang long vu 3 (tren cung, nho nhat) -->
+<path d="M88,56 C84,50 80,42 78,34 C76,27 78,20 82,22 C86,24 88,32 88,42 C88,48 88,53 88,56 Z"
+  fill="white" stroke="#d5ddf0" stroke-width="0.8"/>
+<path d="M76,58 C72,52 68,43 66,34 C64,26 67,19 72,22 C76,25 77,33 77,42 C77,49 77,55 76,58 Z"
+  fill="white" stroke="#d5ddf0" stroke-width="0.8"/>
+<path d="M63,58 C59,51 56,42 55,32 C54,24 57,17 62,20 C66,23 67,32 67,42 C67,49 65,55 63,58 Z"
+  fill="white" stroke="#d5ddf0" stroke-width="0.8"/>
+
+<!-- Outline canh trai -->
+<path d="M98,58 C90,52 70,42 52,30 C38,20 28,14 24,20 C20,26 26,36 38,44 C52,53 72,60 90,64 C94,65 97,63 98,58 Z"
+  fill="none" stroke="#b8c8de" stroke-width="1.5"/>
+
+<!-- CANH PHAI (doi xung) -->
+<path d="M102,58 C110,52 130,42 148,30 C162,20 172,14 176,20 C180,26 174,36 162,44 C148,53 128,60 110,64 C106,65 103,63 102,58 Z"
+  fill="url(#sg)" stroke="#c0cce0" stroke-width="1"/>
+
+<path d="M106,62 C114,58 124,50 132,40 C138,32 140,24 134,22 C130,21 124,26 120,34 C116,42 112,52 106,62 Z"
+  fill="url(#fg)" stroke="#d0d8ec" stroke-width="1.2"/>
+<path d="M118,65 C128,60 140,50 150,38 C158,28 160,20 154,18 C150,17 144,22 138,32 C132,42 126,54 118,65 Z"
+  fill="url(#fg)" stroke="#d0d8ec" stroke-width="1.2"/>
+<path d="M132,66 C142,60 154,48 164,36 C172,26 172,16 166,16 C162,16 156,22 150,32 C144,42 138,54 132,66 Z"
+  fill="url(#fg)" stroke="#d0d8ec" stroke-width="1.2"/>
+<path d="M146,63 C156,56 168,44 176,30 C182,20 180,10 174,12 C170,13 164,20 158,30 C152,40 148,52 146,63 Z"
+  fill="url(#fg)" stroke="#d0d8ec" stroke-width="1.2"/>
+
+<path d="M110,60 C116,55 124,46 130,36 C135,28 135,20 130,20 C126,20 122,26 118,34 C114,42 112,52 110,60 Z"
+  fill="white" stroke="#c8d2e8" stroke-width="1"/>
+<path d="M122,63 C130,57 138,47 144,36 C150,26 149,18 144,18 C140,18 135,24 131,34 C127,44 124,54 122,63 Z"
+  fill="white" stroke="#c8d2e8" stroke-width="1"/>
+<path d="M136,64 C144,57 152,46 158,34 C164,24 162,16 156,16 C152,16 148,22 144,34 C140,44 137,54 136,64 Z"
+  fill="white" stroke="#c8d2e8" stroke-width="1"/>
+
+<path d="M112,56 C116,50 120,42 122,34 C124,27 122,20 118,22 C114,24 112,32 112,42 C112,48 112,53 112,56 Z"
+  fill="white" stroke="#d5ddf0" stroke-width="0.8"/>
+<path d="M124,58 C128,52 132,43 134,34 C136,26 133,19 128,22 C124,25 123,33 123,42 C123,49 123,55 124,58 Z"
+  fill="white" stroke="#d5ddf0" stroke-width="0.8"/>
+<path d="M137,58 C141,51 144,42 145,32 C146,24 143,17 138,20 C134,23 133,32 133,42 C133,49 135,55 137,58 Z"
+  fill="white" stroke="#d5ddf0" stroke-width="0.8"/>
+
+<path d="M102,58 C110,52 130,42 148,30 C162,20 172,14 176,20 C180,26 174,36 162,44 C148,53 128,60 110,64 C106,65 103,63 102,58 Z"
+  fill="none" stroke="#b8c8de" stroke-width="1.5"/>
 </svg>
