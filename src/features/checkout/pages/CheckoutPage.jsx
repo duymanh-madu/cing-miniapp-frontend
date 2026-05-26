@@ -86,16 +86,41 @@ export default function CheckoutPage(){
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      pos=>{
+      async pos=>{
         const km=calcDistKm(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG);
         setDistKm(km);
-        const fee=calcShipFee(subtotal,km);
-        if(fee===-1){
-          setShipFee(0);setShipStatus("contact");
-          setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
-        } else {
-          setShipFee(fee);setShipStatus("done");
-          setLocMsg(`Khoảng cách: ${km.toFixed(1)} km`);
+        try {
+          const r = await apiClient.get(`/shipping/estimate?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&amount=${subtotal}`);
+          if(r.data?.success && r.data?.ship_fee !== null){
+            const fee = r.data.ship_fee;
+            if(fee===-1){
+              setShipFee(0);setShipStatus("contact");
+              setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
+            } else {
+              setShipFee(fee);setShipStatus("done");
+              setLocMsg(`Khoảng cách: ${km.toFixed(1)} km`);
+            }
+          } else {
+            // Fallback tính thủ công
+            const fee=calcShipFee(subtotal,km);
+            if(fee===-1){
+              setShipFee(0);setShipStatus("contact");
+              setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
+            } else {
+              setShipFee(fee);setShipStatus("done");
+              setLocMsg(`Khoảng cách: ${km.toFixed(1)} km`);
+            }
+          }
+        } catch(e){
+          // Fallback tính thủ công nếu iPos lỗi
+          const fee=calcShipFee(subtotal,km);
+          if(fee===-1){
+            setShipFee(0);setShipStatus("contact");
+            setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
+          } else {
+            setShipFee(fee);setShipStatus("done");
+            setLocMsg(`Khoảng cách: ${km.toFixed(1)} km (ước tính)`);
+          }
         }
       },
       err=>{
