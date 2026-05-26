@@ -198,7 +198,7 @@ export default function HomeMembershipCard() {
           Nhập SĐT đã có trong iPOS để xem dữ liệu thật
         </p>
         <div style={{ display:"flex", gap:8 }}>
-          <input type="tel" placeholder="VD: 0984966336" autoFocus
+          <input type="tel" placeholder="VD: 0989585355" autoFocus
             value={inputPhone}
             onChange={e => setInputPhone(e.target.value)}
             onKeyDown={e => e.key==="Enter" && handleSubmitPhone(inputPhone)}
