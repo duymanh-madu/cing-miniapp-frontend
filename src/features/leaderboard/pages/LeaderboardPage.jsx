@@ -63,7 +63,7 @@ function Top1Card({ entry }) {
       <div style={{ background:"linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,140,0,0.1))",
         border:"1px solid rgba(255,215,0,0.4)", borderRadius:14, padding:"7px 20px" }}>
         <p style={{ color:"#FFD700", fontSize:20, fontWeight:900, margin:0 }}>
-          {fmt(entry.total_spent_all_time || entry.total_spent || entry.score || 0)}
+          {fmt(entry.total_spent || entry.total_spent_all_time || entry.score || 0)}
         </p>
       </div>
     </div>
@@ -90,7 +90,7 @@ function Top23Card({ entry, rank }) {
         {entry.player_name || entry.name || "Ẩn danh"}
       </p>
       <p style={{ color:"rgba(255,215,0,0.75)", fontSize:11, fontWeight:800, margin:0 }}>
-        {fmt(entry.total_spent_all_time || entry.total_spent || entry.score || 0)}
+        {fmt(entry.total_spent || entry.total_spent_all_time || entry.score || 0)}
       </p>
     </div>
   );
@@ -293,7 +293,7 @@ export default function LeaderboardPage() {
               <div style={{ textAlign:"right" }}>
                 <p style={{ color:"#FFD700", fontSize:22, fontWeight:900, margin:0 }}>#{myRank.rank}</p>
                 <p style={{ color:"rgba(255,255,255,0.3)", fontSize:10, margin:"2px 0 0" }}>
-                  {fmt(myRank.total_spent_all_time || myRank.total_spent || 0)}
+                  {fmt(myRank.total_spent || myRank.total_spent_all_time || 0)}
                 </p>
               </div>
             </div>
@@ -326,7 +326,7 @@ export default function LeaderboardPage() {
                   </div>
                   <p style={{ color: isMe ? "#FFD700" : "rgba(255,215,0,0.55)",
                     fontSize:13, fontWeight:800, margin:0, flexShrink:0 }}>
-                    {fmt(entry.total_spent_all_time || entry.total_spent || entry.score || 0)}
+                    {fmt(entry.total_spent || entry.total_spent_all_time || entry.score || 0)}
                   </p>
                 </div>
               );
