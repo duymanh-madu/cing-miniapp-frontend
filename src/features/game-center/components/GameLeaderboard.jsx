@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 
 const MEDAL = ["🥇","🥈","🥉"];
 
@@ -10,7 +11,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
   const [loading, setLoading] = useState(true);
   const profile = useAuthStore(s => s.profile);
 
-  useEffect(() => {
+  const fetchData = () => {
     setLoading(true);
     apiClient.get(`/leaderboard/top-games/${gameKey}`)
       .then(r => {
@@ -23,6 +24,24 @@ export default function GameLeaderboard({ gameKey, onClose }) {
       })
       .catch(() => setData([]))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchData();
+
+    // Socket realtime — tự update khi có score mới
+    let attempts = 0;
+    const attach = () => {
+      const socket = getRuntimeSocket();
+      if (socket && socket.connected) {
+        socket.on("leaderboard.updated", fetchData);
+        return;
+      }
+      if (attempts++ < 20) setTimeout(attach, 1000);
+    };
+    attach();
+
+    return () => { getRuntimeSocket()?.off("leaderboard.updated", fetchData); };
   }, [gameKey]);
 
   return (
