@@ -208,7 +208,6 @@ export default function LeaderboardPage() {
               Đại sảnh danh vọng
             </h1>
             <p style={{ color:"rgba(255,215,0,0.55)", fontSize:13, fontWeight:500, margin:"6px 0 0", letterSpacing:0.3 }}>Nơi vinh danh những Cing iu chịu chi nhất</p>
-            </h1>
           </div>
           <div style={{ width:38 }}/>
         </div>
