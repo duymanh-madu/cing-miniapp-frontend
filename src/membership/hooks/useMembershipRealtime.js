@@ -2,7 +2,7 @@ import {
   useEffect,
 } from "react";
 
-import realtimeSocket from "@/realtime/socket";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 
 import {
   connectMembershipRealtime,
