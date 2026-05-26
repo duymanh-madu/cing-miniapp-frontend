@@ -16,13 +16,13 @@ function HomeHero() {
       <div className="absolute -bottom-10 -left-10 h-[120px] w-[120px] rounded-full bg-white/10" />
       <div className="relative z-10">
         {/* Top row: logo + bell */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
           <img src="/logo-cing.png" alt="Cing Hu Tang Kinh Bac"
-            style={{ height:44, objectFit:"contain", filter:"drop-shadow(0 2px 8px rgba(0,0,0,0.25))" }} />
+            style={{ height:54, objectFit:"contain", filter:"drop-shadow(0 2px 8px rgba(0,0,0,0.25))" }} />
           <NotificationBell />
         </div>
         {/* Greeting centered */}
-        <div style={{ textAlign:"center", marginBottom:16 }}>
+        <div style={{ textAlign:"center", marginBottom:8 }}>
           <p className="text-sm font-medium text-white/80">{greeting}</p>
           <h1 className="mt-1 text-[28px] font-black leading-tight">{displayName}</h1>
         </div>
