@@ -100,7 +100,6 @@ export default function LeaderboardPage() {
   const navigate = useNavigate();
   const profile = useAuthStore(s => s.profile);
   const [tab, setTab] = useState("weekly");
-  const [lbType, setLbType] = useState("spending"); // spending | game
   const [data, setData] = useState([]);
   const [myRank, setMyRank] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -151,17 +150,10 @@ export default function LeaderboardPage() {
     setLoading(true);
     let url = `/leaderboard/top-spenders?period=${period}&limit=100`;
     if (period === "custom" && from && to) url += `&from=${from}&to=${to}`;
-    if (lbType === "game") {
-      apiClient.get("/leaderboard/top-games/black-pearl-rush?limit=100")
-        .then(r => setData(r.data?.data || []))
-        .catch(() => setData([]))
-        .finally(() => setLoading(false));
-    } else {
-      apiClient.get(url)
-        .then(r => setData(r.data?.data || []))
-        .catch(() => setData([]))
-        .finally(() => setLoading(false));
-    }
+    apiClient.get(url)
+      .then(r => setData(r.data?.data || []))
+      .catch(() => setData([]))
+      .finally(() => setLoading(false));
 
     if (profile?.id) {
       apiClient.get(`/leaderboard/user-rank/${profile.id}?period=${period}`)
@@ -187,7 +179,7 @@ export default function LeaderboardPage() {
     }
     setShowCustom(false);
     fetchData(tab);
-  }, [tab, customRange.from, lbType]);
+  }, [tab, customRange.from]);
 
   const top1 = data[0], top2 = data[1], top3 = data[2], rest = data.slice(3);
 
@@ -219,20 +211,7 @@ export default function LeaderboardPage() {
           <div style={{ width:38 }}/>
         </div>
 
-  
-      {/* TYPE SWITCHER */}
-      <div style={{ display:"flex", gap:8, margin:"0 16px 12px", background:"rgba(255,255,255,0.05)", borderRadius:16, padding:4 }}>
-        {[{id:"spending",label:"💰 Chi tiêu"},{id:"game",label:"🎮 Mini Game"}].map(t => (
-          <button key={t.id} onClick={() => setLbType(t.id)}
-            style={{ flex:1, padding:"8px 0", borderRadius:12, border:"none", fontSize:13, fontWeight:800, cursor:"pointer",
-              background: lbType===t.id ? "linear-gradient(135deg,#FFD700,#FFA500)" : "transparent",
-              color: lbType===t.id ? "#1a0a2e" : "rgba(255,255,255,0.45)" }}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-      {/* TABS - chi hien khi spending */}
-      {lbType === "spending" &&
+        {/* TABS */}
         <div style={{ display:"flex", gap:6, overflowX:"auto", scrollbarWidth:"none", paddingBottom:16 }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
