@@ -228,8 +228,7 @@ export default function LeaderboardPage() {
 
         {/* CUSTOM DATE RANGE - chi hien thi, khong cho user chinh sua */}
         {showCustom && customRange.from && (
-          <div style={{ padding:"0 0 16px", display:"flex", gap:8, alignItems:"center",
-            background:"rgba(255,215,0,0.08)", borderRadius:12, padding:"10px 14px", marginBottom:8 }}>
+          <div style={{ padding:"10px 14px", display:"flex", gap:8, alignItems:"center", background:"rgba(255,215,0,0.08)", borderRadius:12, marginBottom:8 }}>
             <span style={{ fontSize:16 }}>📅</span>
             <div>
               <p style={{ color:"rgba(255,255,255,0.5)", fontSize:10, margin:"0 0 2px" }}>Thời gian bình chọn</p>
