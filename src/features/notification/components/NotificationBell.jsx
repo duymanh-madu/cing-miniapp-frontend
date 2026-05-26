@@ -57,8 +57,8 @@ export default function NotificationBell() {
         )}
       </button>
       {open && (
-        <div style={{ position:"fixed", top:80, left:"50%", transform:"translateX(-50%)", width:"85vw", maxWidth:340,
-          background:"rgba(255,255,255,0.85)", backdropFilter:"blur(16px)",
+        <div style={{ position:"fixed", top:100, left:"50%", transform:"translateX(-50%)", width:"85vw", maxWidth:340,
+          background:"rgba(255,255,255,0.2)", backdropFilter:"blur(16px)",
           WebkitBackdropFilter:"blur(16px)",
           borderRadius:20, boxShadow:"0 8px 40px rgba(0,0,0,0.18)",
           zIndex:9999, maxHeight:400, overflowY:"auto",
