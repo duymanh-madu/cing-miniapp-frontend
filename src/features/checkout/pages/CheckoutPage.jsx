@@ -5,7 +5,7 @@ import { useMembership } from "@/features/home/hooks/useMembership";
 import useAuthStore from "@/stores/auth/authStore";
 import apiClient from "@/infra/api/apiClient";
 
-const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "d";
+const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
 const STORE_LAT = 21.112148;
 const STORE_LNG = 105.948725;
@@ -26,9 +26,9 @@ function calcShipFee(sub,km){
 }
 
 const ORDER_TYPES=[
-  {id:"dine_in",label:"An tai quan",icon:"🪑"},
-  {id:"takeaway",label:"Mang ve",icon:"🛍"},
-  {id:"delivery",label:"Giao hang",icon:"🛵"},
+  {id:"dine_in",label:"Ăn tại quán",icon:"🪑"},
+  {id:"takeaway",label:"Mang về",icon:"🛍"},
+  {id:"delivery",label:"Giao hàng",icon:"🛵"},
 ];
 
 function Field({label,value,onChange,placeholder,type="text"}){
@@ -82,7 +82,7 @@ export default function CheckoutPage(){
     setShipStatus("loading");setLocMsg("");
     if(!navigator.geolocation){
       setShipFee(25000);setShipStatus("error");
-      setLocMsg("Trinh duyet khong ho tro GPS. Phí ship mac dinh 25.000d");
+      setLocMsg("Trình duyệt không hỗ trợ GPS. Phí ship mặc định 25.000đ");
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -100,7 +100,7 @@ export default function CheckoutPage(){
       },
       err=>{
         setShipFee(25000);setShipStatus("error");
-        setLocMsg("Khong lay duoc vi tri. Ap dung phi ship mac dinh 25.000d");
+        setLocMsg("Không lấy được vị trí. Áp dụng phí ship mặc định 25.000đ");
       },
       {timeout:10000,enableHighAccuracy:false}
     );
@@ -214,7 +214,7 @@ export default function CheckoutPage(){
         gap:12,borderBottom:"1px solid #f0f0f0",position:"sticky",top:0,zIndex:10}}>
         <button onClick={()=>navigate(-1)}
           style={{background:"none",border:"none",fontSize:22,cursor:"pointer",padding:0,color:"#333",lineHeight:1}}>←</button>
-        <h1 style={{fontSize:17,fontWeight:900,margin:0,color:"#1a1a1a"}}>Gio hang ({count} mon)</h1>
+        <h1 style={{fontSize:17,fontWeight:900,margin:0,color:"#1a1a1a"}}>Giỏ hàng ({count} mon)</h1>
       </div>
 
       {/* ITEMS */}
@@ -280,7 +280,7 @@ export default function CheckoutPage(){
                 <div>
                   <p style={{fontSize:11,color:"#555",margin:0,fontWeight:600}}>{locMsg}</p>
                   <p style={{fontSize:12,color:shipFee===0?"#2e7d32":"#D4531C",fontWeight:700,margin:"3px 0 0"}}>
-                    {shipFee===0?"Miễn phí van chuyen!":"Phí ship: "+fmt(shipFee)}
+                    {shipFee===0?"Miễn phí vận chuyển!":"Phí ship: "+fmt(shipFee)}
                   </p>
                 </div>
                 {shipFee===0&&<span style={{fontSize:10,background:"#e8f5e9",color:"#2e7d32",
@@ -294,10 +294,10 @@ export default function CheckoutPage(){
       {/* THONG TIN */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
         <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 12px",letterSpacing:.5}}>THONG TIN NHAN HANG</p>
-        <Field label="Họ và tên *" value={name} onChange={setName} placeholder="Nguyen Van A"/>
+        <Field label="Họ và tên *" value={name} onChange={setName} placeholder="Nguyễn Văn A"/>
         <Field label="Số điện thoại" value={phone} onChange={setPhone} placeholder="0901234567" type="tel"/>
         {orderType==="delivery"&&
-          <Field label="Địa chỉ giao hàng *" value={address} onChange={setAddress} placeholder="So nha, duong, phuong/xa..."/>}
+          <Field label="Địa chỉ giao hàng *" value={address} onChange={setAddress} placeholder="Số nhà, đường, phường/xã..."/>}
       </div>
 
       {/* THANH TOAN */}
@@ -319,7 +319,7 @@ export default function CheckoutPage(){
       {/* GHI CHU */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
         <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 8px",letterSpacing:.5}}>GHI CHU</p>
-        <textarea placeholder="Vi du: it da, nhieu toan..." value={note}
+        <textarea placeholder="Ví dụ: ít đá, nhiều topping..." value={note}
           onChange={e=>setNote(e.target.value)} rows={2}
           style={{width:"100%",border:"1.5px solid #f0f0f0",borderRadius:10,
             padding:"8px 10px",fontSize:12,color:"#333",resize:"none",
@@ -340,7 +340,7 @@ export default function CheckoutPage(){
               <span style={{fontSize:12,color:"#666"}}>Phí ship</span>
               <span style={{fontSize:12,fontWeight:700,
                 color:shipStatus==="loading"?"#999":shipFee===0?"#2e7d32":"#1a1a1a"}}>
-                {shipStatus==="loading"?"Dang tinh...":shipFee===0?"Miễn phí":fmt(shipFee)}
+                {shipStatus==="loading"?"Đang tính...":shipFee===0?"Miễn phí":fmt(shipFee)}
               </span>
             </div>
           )}
