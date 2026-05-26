@@ -42,7 +42,7 @@ export default function NotificationBell() {
   }, []);
 
   return (
-    <div ref={ref} style={{ position:"relative" }}>
+    <div ref={ref} style={{ position:"relative", zIndex:999 }}>
       <button onClick={() => { setOpen(o => !o); setUnread(0); }}
         style={{ background:"rgba(255,255,255,0.15)", border:"none", borderRadius:"50%",
           width:44, height:44, cursor:"pointer", position:"relative",
@@ -57,9 +57,9 @@ export default function NotificationBell() {
         )}
       </button>
       {open && (
-        <div style={{ position:"absolute", top:50, right:0, width:300,
+        <div style={{ position:"fixed", top:70, right:16, width:300,
           background:"white", borderRadius:16, boxShadow:"0 8px 32px rgba(0,0,0,0.15)",
-          zIndex:1000, maxHeight:400, overflowY:"auto" }}>
+          zIndex:9999, maxHeight:400, overflowY:"auto" }}>
           <div style={{ padding:"12px 16px", borderBottom:"1px solid #f0f0f0",
             display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <p style={{ fontWeight:800, fontSize:14, margin:0 }}>Thông báo</p>
