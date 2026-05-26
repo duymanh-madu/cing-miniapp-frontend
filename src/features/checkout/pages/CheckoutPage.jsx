@@ -165,7 +165,14 @@ export default function CheckoutPage(){
         subtotal,
         shipping_fee: shipFee,
         shipping_distance: distKm?Math.round(distKm*10)/10:0,
-        cart_snapshot: items,
+        cart_snapshot: {
+          items,
+          customer_name: name.trim(),
+          customer_phone: phone,
+          shipping_address: address.trim(),
+          shipping_fee: shipFee,
+          points_used: pointsToUse,
+        },
         shipping_address: address.trim(),
         order_id: orderId,
       });
