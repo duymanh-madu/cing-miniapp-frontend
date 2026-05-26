@@ -92,10 +92,10 @@ export default function CheckoutPage(){
         const fee=calcShipFee(subtotal,km);
         if(fee===-1){
           setShipFee(0);setShipStatus("contact");
-          setLocMsg(`Khoang cach ${km.toFixed(1)}km > 10km. Nha hang se lien he bao phi ship.`);
+          setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
         } else {
           setShipFee(fee);setShipStatus("done");
-          setLocMsg(`Khoang cach: ${km.toFixed(1)} km`);
+          setLocMsg(`Khoảng cách: ${km.toFixed(1)} km`);
         }
       },
       err=>{
