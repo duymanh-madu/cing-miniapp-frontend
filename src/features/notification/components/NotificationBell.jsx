@@ -57,9 +57,12 @@ export default function NotificationBell() {
         )}
       </button>
       {open && (
-        <div style={{ position:"fixed", top:70, right:16, width:300,
-          background:"white", borderRadius:16, boxShadow:"0 8px 32px rgba(0,0,0,0.15)",
-          zIndex:9999, maxHeight:400, overflowY:"auto" }}>
+        <div style={{ position:"fixed", top:80, left:"50%", transform:"translateX(-50%)", width:"85vw", maxWidth:340,
+          background:"rgba(255,255,255,0.85)", backdropFilter:"blur(16px)",
+          WebkitBackdropFilter:"blur(16px)",
+          borderRadius:20, boxShadow:"0 8px 40px rgba(0,0,0,0.18)",
+          zIndex:9999, maxHeight:400, overflowY:"auto",
+          border:"1px solid rgba(255,255,255,0.6)" }}>
           <div style={{ padding:"12px 16px", borderBottom:"1px solid #f0f0f0",
             display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <p style={{ fontWeight:800, fontSize:14, margin:0 }}>Thông báo</p>
