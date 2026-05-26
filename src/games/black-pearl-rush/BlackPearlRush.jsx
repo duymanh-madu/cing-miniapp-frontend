@@ -18,14 +18,13 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
     const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
 
     /* ── DPR cap 2 — iPhone 14 Pro = DPR3, cap tại 2 giảm 44% pixels ── */
-    const DPR = Math.min(window.devicePixelRatio || 1, window.devicePixelRatio > 2 ? 1.5 : window.devicePixelRatio || 1);
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
     const W = 390, H = 780;
     canvas.width  = W * DPR;
     canvas.height = H * DPR;
     canvas.style.width  = W + "px";
     canvas.style.height = H + "px";
     ctx.scale(DPR, DPR);
-    ctx.imageSmoothingEnabled = false;
 
     /* ── Cached gradients — tạo 1 lần, không bao giờ tạo lại ── */
     const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
@@ -110,11 +109,6 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
       obstacleTimer: 0,
       pearl: { x: 110, y: H/2, radius: 26, vy: 0, rot: 0, squash: 1 },
     };
-
-    /* ── Pre-computed shake table — tranh random() trong draw loop ── */
-    const SHAKE_TABLE = new Float32Array(64);
-    for (let i = 0; i < 64; i++) SHAKE_TABLE[i] = (Math.random() - 0.5) * 2;
-    let shakeIdx = 0;
 
     /* ── Particle pool — fixed size array, zero allocation ── */
     const PMAX = 80;
@@ -237,11 +231,7 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
       ctx.save();
       if (game.shake > 0.5) {
         const s = game.shake | 0;
-        shakeIdx = (shakeIdx + 1) & 63;
-        ctx.translate(
-          (SHAKE_TABLE[shakeIdx] * s) | 0,
-          (SHAKE_TABLE[(shakeIdx + 32) & 63] * s) | 0
-        );
+        ctx.translate(((Math.random()*s)|0)-(s>>1), ((Math.random()*s)|0)-(s>>1));
       }
 
       /* Obstacles — dùng fillRect thay roundRect (3-5x nhanh hơn mobile) */
@@ -252,8 +242,8 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
         ctx.fillRect(o.x, o.bot, o.w, H);
       }
 
-      /* Particles — re-use path object, clear bang beginPath */
-      particlePath._ = particlePath._ || new Path2D(); const pp = new Path2D();
+      /* Particles — 1 Path2D duy nhất cho tất cả particles */
+      const particlePath = new Path2D();
       let hasParticles = false;
       for (let i = 0; i < PMAX; i++) {
         if (palpha[i] <= 0) continue;
