@@ -18,7 +18,7 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
     const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
 
     /* ── DPR cap 2 — iPhone 14 Pro = DPR3, cap tại 2 giảm 44% pixels ── */
-    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
     const W = 390, H = 780;
     canvas.width  = W * DPR;
     canvas.height = H * DPR;
@@ -109,6 +109,11 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
       obstacleTimer: 0,
       pearl: { x: 110, y: H/2, radius: 26, vy: 0, rot: 0, squash: 1 },
     };
+
+    /* ── Pre-computed shake table 64 entries ── */
+    const SHAKE_TABLE = new Float32Array(64);
+    for (let i = 0; i < 64; i++) SHAKE_TABLE[i] = (Math.random() - 0.5) * 2;
+    let shakeIdx = 0;
 
     /* ── Particle pool — fixed size array, zero allocation ── */
     const PMAX = 80;
@@ -231,7 +236,11 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
       ctx.save();
       if (game.shake > 0.5) {
         const s = game.shake | 0;
-        ctx.translate(((Math.random()*s)|0)-(s>>1), ((Math.random()*s)|0)-(s>>1));
+        shakeIdx = (shakeIdx + 1) & 63;
+        ctx.translate(
+          (SHAKE_TABLE[shakeIdx] * s) | 0,
+          (SHAKE_TABLE[(shakeIdx + 32) & 63] * s) | 0
+        );
       }
 
       /* Obstacles — dùng fillRect thay roundRect (3-5x nhanh hơn mobile) */
