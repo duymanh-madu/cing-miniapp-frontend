@@ -325,6 +325,26 @@ export default function CheckoutPage(){
             </div>
           )}
           <div style={{height:1,background:"#f0f0f0",margin:"6px 0"}}/>
+          {/* DUNG DIEM GIAM GIA */}
+          {availablePoints > 0 && (
+            <div style={{marginBottom:8,padding:"10px 12px",background:"#fff8f0",borderRadius:10,border:"1px solid #fde8d5"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+                <p style={{fontSize:12,fontWeight:700,color:"#D4531C",margin:0}}>Dung diem tich luy</p>
+                <p style={{fontSize:11,color:"#888",margin:0}}>Co {availablePoints} diem</p>
+              </div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                {[0,10,50,100].filter(v => v===0 || v<=availablePoints).map(pts => (
+                  <button key={pts} onClick={() => setPointsToUse(pts)}
+                    style={{padding:"4px 10px",borderRadius:20,fontSize:11,fontWeight:700,cursor:"pointer",border:"none",
+                      background:pointsToUse===pts?"#D4531C":"#f0f0f0",
+                      color:pointsToUse===pts?"white":"#666"}}>
+                    {pts===0?"Khong dung":pts+" diem (-"+fmt(pts*1000)+")"}
+                  </button>
+                ))}
+              </div>
+              {pointsToUse>0&&<p style={{fontSize:11,color:"#4CAF50",margin:"6px 0 0",fontWeight:600}}>Giam {fmt(pointsDiscount)}</p>}
+            </div>
+          )}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <span style={{fontSize:13,fontWeight:700,color:"#1a1a1a"}}>Tổng cộng</span>
             <span style={{fontSize:17,fontWeight:900,color:"#D4531C"}}>{fmt(total)}</span>
