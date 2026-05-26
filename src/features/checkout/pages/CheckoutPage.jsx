@@ -124,8 +124,14 @@ export default function CheckoutPage(){
         }
       },
       err=>{
-        setShipFee(25000);setShipStatus("error");
-        setLocMsg("Không lấy được vị trí. Áp dụng phí ship mặc định 25.000đ");
+        if(err.code===1){
+          // User từ chối GPS
+          setShipFee(0);setShipStatus("denied");
+          setLocMsg("Vui lòng cho phép truy cập vị trí để tính phí ship chính xác");
+        } else {
+          setShipFee(25000);setShipStatus("error");
+          setLocMsg("Không lấy được vị trí. Áp dụng phí ship mặc định 25.000đ");
+        }
       },
       {timeout:10000,enableHighAccuracy:false}
     );
@@ -244,7 +250,7 @@ export default function CheckoutPage(){
 
       {/* ITEMS */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,overflow:"hidden"}}>
-        <div style={{padding:"10px 16px 4px",fontSize:11,fontWeight:700,color:"#999",letterSpacing:.5}}>MON DA CHON</div>
+        <div style={{padding:"10px 16px 4px",fontSize:11,fontWeight:700,color:"#999",letterSpacing:.5}}>MÓN ĐÃ CHỌN</div>
         {items.map((item,idx)=>(
           <div key={item.cartId} style={{display:"flex",alignItems:"center",gap:10,
             padding:"10px 16px",borderTop:idx>0?"1px solid #f8f8f8":"none"}}>
@@ -281,7 +287,7 @@ export default function CheckoutPage(){
 
       {/* ORDER TYPE */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
-        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 10px",letterSpacing:.5}}>HINH THUC</p>
+        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 10px",letterSpacing:.5}}>HÌNH THỨC</p>
         <div style={{display:"flex",gap:8}}>
           {ORDER_TYPES.map(t=>(
             <button key={t.id} onClick={()=>setOrderType(t.id)} style={{
@@ -297,7 +303,36 @@ export default function CheckoutPage(){
 
         {orderType==="delivery"&&(
           <div style={{marginTop:10,padding:"10px 12px",background:"#f9f9f9",borderRadius:10}}>
-            {shipStatus==="loading"&&<p style={{fontSize:12,color:"#999",margin:0}}>Dang lay vi tri va tinh phi ship...</p>}
+            {shipStatus==="loading"&&<p style={{fontSize:12,color:"#999",margin:0}}>Đang lấy vị trí và tính phí ship...</p>}
+
+{shipStatus==="denied"&&(
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                <p style={{fontSize:11,color:"#f57c00",margin:0}}>{locMsg}</p>
+                <button onClick={()=>{
+                  setShipStatus("loading");
+                  navigator.geolocation.getCurrentPosition(
+                    async pos=>{
+                      const km=calcDistKm(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG);
+                      setDistKm(km);
+                      try {
+                        const r = await apiClient.get('/shipping/estimate?lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&amount='+subtotal);
+                        const fee = r.data?.ship_fee ?? calcShipFee(subtotal,km);
+                        if(fee===-1){ setShipFee(0);setShipStatus("contact");setLocMsg('Khoảng cách '+km.toFixed(1)+'km > 10km. Nhà hàng sẽ liên hệ báo phí ship.'); }
+                        else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
+                      } catch(e){
+                        const fee=calcShipFee(subtotal,km);
+                        if(fee===-1){ setShipFee(0);setShipStatus("contact");setLocMsg('Khoảng cách '+km.toFixed(1)+'km > 10km.'); }
+                        else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
+                      }
+                    },
+                    ()=>{ setShipFee(25000);setShipStatus("error");setLocMsg("Không lấy được vị trí. Phí ship mặc định 25.000đ"); },
+                    {timeout:10000}
+                  );
+                }} style={{fontSize:11,color:"#D4531C",fontWeight:700,background:"none",border:"1px solid #D4531C",borderRadius:6,padding:"4px 10px",cursor:"pointer",alignSelf:"flex-start"}}>
+                  📍 Cho phép vị trí
+                </button>
+              </div>
+            )}
             {shipStatus==="error"&&<p style={{fontSize:11,color:"#e57373",margin:0}}>{locMsg}</p>}
             {shipStatus==="contact"&&<p style={{fontSize:11,color:"#f57c00",margin:0}}>{locMsg}</p>}
             {shipStatus==="done"&&(
@@ -318,7 +353,7 @@ export default function CheckoutPage(){
 
       {/* THONG TIN */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
-        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 12px",letterSpacing:.5}}>THONG TIN NHAN HANG</p>
+        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 12px",letterSpacing:.5}}>THÔNG TIN NHẬN HÀNG</p>
         <Field label="Họ và tên *" value={name} onChange={setName} placeholder="Nguyễn Văn A"/>
         <Field label="Số điện thoại" value={phone} onChange={setPhone} placeholder="0901234567" type="tel"/>
         {orderType==="delivery"&&
