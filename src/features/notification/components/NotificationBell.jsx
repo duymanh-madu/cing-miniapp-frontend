@@ -74,7 +74,7 @@ export default function NotificationBell() {
             )}
           </div>
           {notifications.length === 0 ? (
-            <div style={{ padding:"24px 16px", textAlign:"center", color:"#bbb" }}>
+            <div style={{ padding:"24px 16px", textAlign:"center", color:"#333" }}>
               <p style={{ fontSize:32, margin:"0 0 8px" }}>🔔</p>
               <p style={{ fontSize:13, margin:0 }}>Chưa có thông báo nào</p>
             </div>
