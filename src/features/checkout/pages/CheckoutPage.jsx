@@ -142,6 +142,19 @@ export default function CheckoutPage(){
       const orderId = orderRes.data?.data?.id || orderRes.data?.order?.id;
 
       // 2. Tao MoMo payment session
+      // Neu tong tien = 0 (chi dung diem) -> khong can MoMo
+      if (total === 0 && pointsToUse > 0) {
+        await apiClient.post("/points/deduct", {
+          user_id: userId,
+          phone: memberPhone || phone,
+          points: pointsToUse,
+          reason: "Thanh toan don hang bang diem",
+        });
+        clearCart();
+        navigate("/order-success");
+        return;
+      }
+
       const paymentRes = await apiClient.post("/payments/create-session", {
         user_id: userId,
         customer_name: name.trim(),
