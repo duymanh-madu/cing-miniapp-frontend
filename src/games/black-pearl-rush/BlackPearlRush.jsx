@@ -325,11 +325,11 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
       if (game.dead) {
         ctx.fillStyle = "rgba(0,0,0,0.55)"; ctx.fillRect(0,0,W,H);
         ctx.font = "900 52px Arial"; ctx.fillStyle = "white";
-        ctx.fillText("THANH TICH", W/2, H/2 - 40);
+        ctx.fillText("THÀNH TÍCH", W/2, H/2 - 40);
         ctx.font = "900 26px Arial"; ctx.fillStyle = "#ffd166";
         ctx.fillText("BEST COMBO x" + game.bestCombo, W/2, H/2 + 10);
         ctx.font = "700 20px Arial"; ctx.fillStyle = "white";
-        ctx.fillText("TAP DE CHOI LAI", W/2, H/2 + 70);
+        ctx.fillText("TAP ĐỂ CHƠI LẠI", W/2, H/2 + 70);
       }
     }
 
