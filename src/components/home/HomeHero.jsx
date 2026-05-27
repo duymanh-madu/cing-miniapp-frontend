@@ -1,9 +1,11 @@
+import { useState } from "react";
 import NotificationBell from "@/features/notification/components/NotificationBell";
 import RealtimeStatusBadge from "../header/RealtimeStatusBadge";
 import useAuthStore from "@/stores/auth/authStore";
 import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
 
 const IS_ZALO = typeof window !== "undefined" && (window.__ZALO_MINI_APP__ || navigator.userAgent.includes("ZaloApp"));
+const DEV_PASSWORD = "cing2026dev";
 const TEST_PROFILE = {
   id: "0984966336",
   phone: "0984966336",
@@ -18,12 +20,23 @@ function HomeHero() {
   const displayName = authProfile?.name || authProfile?.displayName || customerProfile?.name || "Khách";
   const setSession = useAuthStore(s => s.setSession);
   const authenticated = useAuthStore(s => s.authenticated);
+  const [showDevModal, setShowDevModal] = useState(false);
+  const [devInput, setDevInput] = useState("");
+  const [devError, setDevError] = useState("");
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Chào buổi sáng" : hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
 
-  const handleTestLogin = () => {
-    setSession({ accessToken: "test-token", refreshToken: null, profile: TEST_PROFILE });
-    sessionStorage.setItem("dev_membership_phone", TEST_PROFILE.phone);
+  const handleTestLogin = () => setShowDevModal(true);
+  const handleDevSubmit = () => {
+    if (devInput === DEV_PASSWORD) {
+      setSession({ accessToken: "test-token", refreshToken: null, profile: TEST_PROFILE });
+      sessionStorage.setItem("dev_membership_phone", TEST_PROFILE.phone);
+      setShowDevModal(false);
+      setDevInput("");
+      setDevError("");
+    } else {
+      setDevError("Sai mật khẩu!");
+    }
   };
   const handleTestLogout = () => {
     useAuthStore.getState().clearSession();
@@ -70,6 +83,34 @@ function HomeHero() {
         )}
       </div>
     </section>
+    {showDevModal && (
+      <>
+        <div onClick={() => { setShowDevModal(false); setDevError(""); }} style={{
+          position:"fixed", inset:0, background:"rgba(0,0,0,0.6)", zIndex:9999 }}/>
+        <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)",
+          background:"white", borderRadius:20, padding:"24px", width:280, zIndex:10000 }}>
+          <p style={{ fontSize:16, fontWeight:800, color:"#1a1a1a", margin:"0 0 4px" }}>Dev Login</p>
+          <p style={{ fontSize:12, color:"#999", margin:"0 0 16px" }}>Nhập mật khẩu dev để test</p>
+          <input
+            type="password"
+            placeholder="Mật khẩu..."
+            value={devInput}
+            onChange={e => setDevInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleDevSubmit()}
+            autoFocus
+            style={{ width:"100%", padding:"10px 12px", borderRadius:10,
+              border:"1.5px solid #e0e0e0", fontSize:14, outline:"none",
+              boxSizing:"border-box", marginBottom:8 }}
+          />
+          {devError && <p style={{ fontSize:12, color:"#e53935", margin:"0 0 8px" }}>{devError}</p>}
+          <button onClick={handleDevSubmit} style={{
+            width:"100%", padding:"11px", borderRadius:10, border:"none",
+            background:"#D4531C", color:"white", fontSize:14, fontWeight:800, cursor:"pointer" }}>
+            Đăng nhập
+          </button>
+        </div>
+      </>
+    )}
   );
 }
 export default HomeHero;
