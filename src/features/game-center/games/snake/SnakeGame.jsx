@@ -5,6 +5,13 @@ const BACKEND_URL = import.meta.env.VITE_API_BASE_URL?.replace("/api","") || "ht
 
 export default function SnakeGame({ profile, onExit }) {
   const canvasRef  = useRef(null);
+  const [canvasSize, setCanvasSize] = useState({ w: window.innerWidth, h: window.innerHeight });
+
+  useEffect(() => {
+    const resize = () => setCanvasSize({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
   const socketRef  = useRef(null);
   const stateRef   = useRef({ self:null, players:[], food:[], special:[] });
   const inputRef   = useRef({ angle:0, boosting:false });
@@ -77,7 +84,8 @@ export default function SnakeGame({ profile, onExit }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
+    const W = canvas.width || window.innerWidth;
+    const H = canvas.height || window.innerHeight;
     let t = 0;
 
     // Touch/mouse controls
@@ -267,8 +275,7 @@ export default function SnakeGame({ profile, onExit }) {
 
       ctx.fillStyle = "#080504";
       ctx.fillRect(0,0,W,H);
-      // debug
-      ctx.fillStyle="red"; ctx.fillRect(10,10,50,50);
+
 
       let camX=0, camY=0;
       if (self?.segments?.[0]) { camX=self.segments[0].x; camY=self.segments[0].y; }
@@ -418,7 +425,7 @@ export default function SnakeGame({ profile, onExit }) {
   // PLAYING
   return (
     <div style={{ position:"relative", width:"100vw", height:"100vh", overflow:"hidden", background:"#080504" }}>
-      <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight}
+      <canvas ref={canvasRef} width={canvasSize.w} height={canvasSize.h}
         style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)",
           width:"100%", height:"100%", touchAction:"none" }}/>
 
