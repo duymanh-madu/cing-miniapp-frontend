@@ -9,6 +9,7 @@ export const routeManifest = [
   { key:"checkout",      path:"/checkout",       feature:"checkout",      loader:() => import("@/features/checkout") },
   { key:"admin", path:"/admin", loader:() => import("@/features/admin") },
   { key:"order-success", path:"/order-success",  feature:"order-success", loader:() => import("@/features/order-success") },
+  { key:"orders", path:"/orders", loader:() => import("@/features/order-history/OrderHistoryPage") },
   { key:"loyalty",       path:"/loyalty",        loader:() => import("@/membership/pages/MembershipPage") },
 ];
 export const routeMap = Object.fromEntries(routeManifest.map(r => [r.key, r]));
