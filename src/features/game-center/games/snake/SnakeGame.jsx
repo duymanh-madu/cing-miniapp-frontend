@@ -69,7 +69,6 @@ export default function SnakeGame({ profile, onExit }) {
 
   // Join room
   const joinRoom = useCallback(() => {
-    console.log("[SNAKE] joinRoom called, profile:", JSON.stringify(profile));
     if (!socketRef.current || !profile) return;
     setError("");
     socketRef.current.emit("game:join", {
@@ -84,9 +83,12 @@ export default function SnakeGame({ profile, onExit }) {
     if (phase !== "playing") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
+    // Force set canvas size
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    canvas.width  = W;
+    canvas.height = H;
     const ctx = canvas.getContext("2d");
-    const W = canvas.width || window.innerWidth;
-    const H = canvas.height || window.innerHeight;
     let t = 0;
 
     // Touch/mouse controls
@@ -315,7 +317,6 @@ export default function SnakeGame({ profile, onExit }) {
   const EFFECT_ICONS  = { x2:"✖2", x5:"✖5", x10:"✖10", magnet:"🧲", shield:"🛡" };
 
   // LOBBY
-  console.log("[SNAKE] Current phase:", phase);
   if (phase === "lobby") return (
     <div style={{ background:"#080504", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:20 }}>
       <div style={{ textAlign:"center", marginBottom:28 }}>
