@@ -100,7 +100,7 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <span style={{ fontSize:14 }}>🧋</span>
             <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>
-              Đặt hàng <b style={{color:"#FFD700"}}>+20.000đ</b> → nhận thêm <b style={{color:"#FFD700"}}>1 lượt chơi</b>
+              Mỗi <b style={{color:"#FFD700"}}>20.000đ</b> chi tiêu đặt hàng → nhận thêm <b style={{color:"#FFD700"}}>1 lượt chơi</b>
             </span>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
