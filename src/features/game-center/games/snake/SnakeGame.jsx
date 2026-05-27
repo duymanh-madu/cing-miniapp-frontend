@@ -80,7 +80,7 @@ export default function SnakeGame({ profile, onExit }) {
       const handleMove = (cx, cy) => {
         const rect = canvas.getBoundingClientRect();
         const angle = Math.atan2(cy - rect.top - H/2, cx - rect.left - W/2);
-        localAngle = angle;
+        targetAngle = angle;
         socketRef.current?.emit("game:direction", { angle });
       };
       const onTouch = (e) => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); };
@@ -164,7 +164,10 @@ export default function SnakeGame({ profile, onExit }) {
         if (segs.length>0) {
           const hx = segs[0].x-camX+W/2;
           const hy = segs[0].y-camY+H/2;
-          const ang = segs.length>1 ? Math.atan2(segs[0].y-segs[1].y, segs[0].x-segs[1].x) - Math.PI/2 : -Math.PI/2;
+          // Dùng localAngle cho self, tính từ segments cho others
+        const ang = isSelf 
+          ? localAngle - Math.PI/2
+          : (segs.length>1 ? Math.atan2(segs[0].y-segs[1].y, segs[0].x-segs[1].x) - Math.PI/2 : -Math.PI/2);
           drawHead(hx, hy, maxR*1.6, ang, isSelf, glow, player);
         }
       };
@@ -200,6 +203,7 @@ export default function SnakeGame({ profile, onExit }) {
 
       let localGlow=0, lastKills=0;
       let localAngle = 0;
+      let targetAngle = 0;
       let lastFrameTime = Date.now();
 
       // Client-side prediction: tự di chuyển rắn locally
@@ -212,7 +216,13 @@ export default function SnakeGame({ profile, onExit }) {
         const segs = state.self.segments;
         if (segs.length === 0) return state;
         
-        const spd = 3.5 * dt;
+        // Smooth turn - lerp localAngle toward targetAngle
+        let da = targetAngle - localAngle;
+        while (da > Math.PI) da -= Math.PI*2;
+        while (da < -Math.PI) da += Math.PI*2;
+        localAngle += da * Math.min(0.15 * dt * 3, 1);
+
+        const spd = 5 * dt;
         const newHead = {
           x: ((segs[0].x + Math.cos(localAngle) * spd) % 8000 + 8000) % 8000,
           y: ((segs[0].y + Math.sin(localAngle) * spd) % 8000 + 8000) % 8000,
@@ -236,8 +246,9 @@ export default function SnakeGame({ profile, onExit }) {
 
         // Grid
         ctx.strokeStyle="rgba(255,100,20,0.05)"; ctx.lineWidth=0.5;
-        const camX = self?.segments?.[0]?.x || 0;
-        const camY = self?.segments?.[0]?.y || 0;
+        // Camera luôn center theo head
+        const camX = self?.segments?.[0]?.x ?? W/2;
+        const camY = self?.segments?.[0]?.y ?? H/2;
         const gs=80;
         const ox=((-camX%gs)+W/2+gs*10)%gs, oy=((-camY%gs)+H/2+gs*10)%gs;
         for(let x=ox-gs;x<W+gs;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
