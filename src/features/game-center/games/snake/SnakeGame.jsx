@@ -195,6 +195,14 @@ export default function SnakeGame({ profile, onExit }) {
 
       let localGlow=0, lastKills=0;
 
+      // Test vẽ ngay
+      ctx.fillStyle = "red";
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "white";
+      ctx.font = "bold 24px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("W:" + W + " H:" + H, W/2, H/2);
+
       const frame = () => {
         if (deadRef.current) return;
         const state = stateRef.current;
