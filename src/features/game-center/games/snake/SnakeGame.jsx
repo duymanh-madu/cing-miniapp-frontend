@@ -305,6 +305,7 @@ export default function SnakeGame({ profile, onExit }) {
   const EFFECT_ICONS  = { x2:"✖2", x5:"✖5", x10:"✖10", magnet:"🧲", shield:"🛡" };
 
   // LOBBY
+  console.log("[SNAKE] Current phase:", phase);
   if (phase === "lobby") return (
     <div style={{ background:"#080504", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:20 }}>
       <div style={{ textAlign:"center", marginBottom:28 }}>
