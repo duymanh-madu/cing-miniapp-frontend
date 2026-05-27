@@ -3,6 +3,7 @@ import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useNavigate } from "react-router-dom";
+import useAuthStore from "@/stores/auth/authStore";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import GameLeaderboard from "../components/GameLeaderboard";
@@ -57,6 +58,8 @@ export default function GameCenterPage() {
     return () => { getRuntimeSocket()?.off("challenge.won"); };
   }, []);
   const [showBoard, setShowBoard] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const authenticated = useAuthStore(s => s.authenticated);
   const [gamePlays, setGamePlays] = useState(null);
   const navigate = useNavigate();
 
@@ -170,6 +173,7 @@ export default function GameCenterPage() {
               </p>
               <div style={{ display:"flex", gap:8 }}>
                 <button onClick={() => {
+                  if (!authenticated) { setShowAuthModal(true); return; }
                   if (gamePlays !== null && gamePlays <= 0) {
                     alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
                     return;
@@ -194,6 +198,29 @@ export default function GameCenterPage() {
       </div>
 
       {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
+
+      {showAuthModal && (
+        <>
+          <div onClick={() => setShowAuthModal(false)} style={{
+            position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", zIndex:100 }}/>
+          <div style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:101,
+            background:"white", borderRadius:"24px 24px 0 0", padding:"32px 24px 48px",
+            textAlign:"center" }}>
+            <div style={{ fontSize:56, marginBottom:16 }}>🎮</div>
+            <h2 style={{ fontSize:20, fontWeight:900, color:"#1a1a1a", margin:"0 0 8px" }}>
+              Đăng nhập để chơi game
+            </h2>
+            <p style={{ fontSize:14, color:"#666", margin:"0 0 24px", lineHeight:1.6 }}>
+              Bạn cần đăng nhập qua Zalo để chơi game và lưu điểm số của mình
+            </p>
+            <button onClick={() => setShowAuthModal(false)} style={{
+              width:"100%", padding:"14px", borderRadius:14, border:"none",
+              background:"#D4531C", color:"white", fontSize:15, fontWeight:900, cursor:"pointer" }}>
+              Đã hiểu
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
