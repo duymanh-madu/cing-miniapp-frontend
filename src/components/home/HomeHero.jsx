@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import NotificationBell from '@/features/notification/components/NotificationBell';
-import RealtimeStatusBadge from '../header/RealtimeStatusBadge';
+import RealtimeStatusBadge from '../system/RealtimeStatusBadge';
 import useAuthStore from '@/stores/auth/authStore';
 import useRealtimeCustomerStore from '@/stores/customer/customerRuntimeStore';
 
