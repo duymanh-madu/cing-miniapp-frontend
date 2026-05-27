@@ -87,38 +87,52 @@ export default function SnakeGame({ profile, onExit }) {
 
       // ── JOYSTICK INPUT ──
       const joy = joyRef.current;
+      // Joystick - track finger index riêng cho steer và boost
+      let joyFingerId = -1;
+
       const onTS = (e) => {
         e.preventDefault();
-        const t0 = e.touches[0];
-        if (!t0) return;
-        if (e.touches.length >= 2) {
-          loc.current.boosting = true;
-          sockRef.current?.emit("game:boost",{active:true});
-          return;
+        for (const t of e.changedTouches) {
+          if (joyFingerId === -1) {
+            // Ngón đầu tiên = joystick
+            joyFingerId = t.identifier;
+            joy.active = true;
+            joy.ox = t.clientX; joy.oy = t.clientY;
+            joy.dx = 0; joy.dy = 0;
+          } else {
+            // Ngón thứ 2 = boost
+            loc.current.boosting = true;
+            sockRef.current?.emit("game:boost",{active:true});
+          }
         }
-        // Xuất hiện joystick tại điểm chạm
-        joy.active = true;
-        joy.ox = t0.clientX; joy.oy = t0.clientY;
-        joy.dx = 0; joy.dy = 0;
       };
       const onTM = (e) => {
         e.preventDefault();
-        const t0 = e.touches[0];
-        if (!t0 || !joy.active) return;
-        const dx = t0.clientX - joy.ox;
-        const dy = t0.clientY - joy.oy;
-        const dist = Math.sqrt(dx*dx+dy*dy);
-        if (dist > 8) { // dead zone
-          joy.dx = dx; joy.dy = dy;
-          const a = Math.atan2(dy, dx);
-          loc.current.target = a;
-          sockRef.current?.emit("game:direction",{angle:a});
+        for (const t of e.changedTouches) {
+          if (t.identifier === joyFingerId && joy.active) {
+            const dx = t.clientX - joy.ox;
+            const dy = t.clientY - joy.oy;
+            joy.dx = dx; joy.dy = dy;
+            const dist = Math.sqrt(dx*dx+dy*dy);
+            if (dist > 6) {
+              const a = Math.atan2(dy, dx);
+              loc.current.target = a;
+              sockRef.current?.emit("game:direction",{angle:a});
+            }
+          }
         }
       };
-      const onTE = () => {
-        joy.active = false; joy.dx=0; joy.dy=0;
-        loc.current.boosting = false;
-        sockRef.current?.emit("game:boost",{active:false});
+      const onTE = (e) => {
+        e.preventDefault();
+        for (const t of e.changedTouches) {
+          if (t.identifier === joyFingerId) {
+            joyFingerId = -1;
+            joy.active = false; joy.dx=0; joy.dy=0;
+          } else {
+            loc.current.boosting = false;
+            sockRef.current?.emit("game:boost",{active:false});
+          }
+        }
       };
       // Desktop mouse joystick
       let md = false;
