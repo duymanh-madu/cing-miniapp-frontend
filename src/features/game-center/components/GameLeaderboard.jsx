@@ -17,7 +17,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
       .then(r => {
         setData(r.data?.data || []);
         if (profile?.id) {
-          apiClient.get(`/leaderboard/user-rank/${profile.id}`)
+          apiClient.get(`/leaderboard/user-game-rank/${profile.id}/${gameKey}`)
             .then(r2 => setMyRank(r2.data?.data))
             .catch(() => {});
         }
