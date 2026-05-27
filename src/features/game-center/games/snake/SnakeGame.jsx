@@ -17,6 +17,7 @@ export default function SnakeGame({ profile, onExit }) {
   const deadRef  = useRef(false);
   const glowRef  = useRef(0);
   const loc      = useRef({ angle:0, target:0, boosting:false, touching:false });
+  const joyRef   = useRef({ active:false, ox:0, oy:0, dx:0, dy:0 }); // joystick
 
   const [phase, setPhase]     = useState("lobby");
   const [rooms, setRooms]     = useState([]);
@@ -84,23 +85,51 @@ export default function SnakeGame({ profile, onExit }) {
       const ctx = cv.getContext("2d");
       ctx.scale(dpr,dpr);
 
-      // ── INPUT ──
-      const setAngle = (cx,cy) => {
-        const r = cv.getBoundingClientRect();
-        const a = Math.atan2(cy-r.top-H/2, cx-r.left-W/2);
-        loc.current.target = a;
-        sockRef.current?.emit("game:direction",{angle:a});
+      // ── JOYSTICK INPUT ──
+      const joy = joyRef.current;
+      const onTS = (e) => {
+        e.preventDefault();
+        const t0 = e.touches[0];
+        if (!t0) return;
+        if (e.touches.length >= 2) {
+          loc.current.boosting = true;
+          sockRef.current?.emit("game:boost",{active:true});
+          return;
+        }
+        // Xuất hiện joystick tại điểm chạm
+        joy.active = true;
+        joy.ox = t0.clientX; joy.oy = t0.clientY;
+        joy.dx = 0; joy.dy = 0;
       };
-      const onTM = (e)=>{ e.preventDefault(); if(e.touches[0]) setAngle(e.touches[0].clientX,e.touches[0].clientY); };
-      const onTS = (e)=>{ e.preventDefault(); loc.current.touching=true;
-        if(e.touches[0]) setAngle(e.touches[0].clientX,e.touches[0].clientY);
-        if(e.touches.length>=2){ loc.current.boosting=true; sockRef.current?.emit("game:boost",{active:true}); }
+      const onTM = (e) => {
+        e.preventDefault();
+        const t0 = e.touches[0];
+        if (!t0 || !joy.active) return;
+        const dx = t0.clientX - joy.ox;
+        const dy = t0.clientY - joy.oy;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if (dist > 8) { // dead zone
+          joy.dx = dx; joy.dy = dy;
+          const a = Math.atan2(dy, dx);
+          loc.current.target = a;
+          sockRef.current?.emit("game:direction",{angle:a});
+        }
       };
-      const onTE = ()=>{ loc.current.touching=false; loc.current.boosting=false; sockRef.current?.emit("game:boost",{active:false}); };
-      let md=false;
-      const onMD=(e)=>{ md=true; setAngle(e.clientX,e.clientY); };
-      const onMM=(e)=>{ if(md) setAngle(e.clientX,e.clientY); };
-      const onMU=()=>{ md=false; };
+      const onTE = () => {
+        joy.active = false; joy.dx=0; joy.dy=0;
+        loc.current.boosting = false;
+        sockRef.current?.emit("game:boost",{active:false});
+      };
+      // Desktop mouse joystick
+      let md = false;
+      const onMD = (e) => { md=true; joy.active=true; joy.ox=e.clientX; joy.oy=e.clientY; };
+      const onMM = (e) => {
+        if (!md || !joy.active) return;
+        const dx=e.clientX-joy.ox, dy=e.clientY-joy.oy;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist>8){ joy.dx=dx; joy.dy=dy; const a=Math.atan2(dy,dx); loc.current.target=a; sockRef.current?.emit("game:direction",{angle:a}); }
+      };
+      const onMU = () => { md=false; joy.active=false; joy.dx=0; joy.dy=0; };
       cv.addEventListener("touchmove",  onTM, {passive:false});
       cv.addEventListener("touchstart", onTS, {passive:false});
       cv.addEventListener("touchend",   onTE);
@@ -202,33 +231,53 @@ export default function SnakeGame({ profile, onExit }) {
       };
 
       const drawMinimap=(self,players)=>{
-        const ms=58, mx=W-ms-10, my=H-ms-10;
+        const ms=70, mx=10, my=H-ms-10; // góc dưới trái
+        const cx2=mx+ms/2, cy2=my+ms/2, mr=ms/2-2;
+        const sc=mr/MAP_R;
         ctx.save();
+        // Shadow
+        ctx.shadowColor="rgba(0,0,0,0.5)"; ctx.shadowBlur=8;
+        ctx.beginPath(); ctx.arc(cx2,cy2,mr+2,0,Math.PI*2);
+        ctx.fillStyle="rgba(0,0,0,0.75)"; ctx.fill();
+        ctx.shadowBlur=0;
         // Clip tròn
-        ctx.beginPath(); ctx.arc(mx+ms/2,my+ms/2,ms/2,0,Math.PI*2); ctx.clip();
-        ctx.fillStyle="rgba(0,0,0,.6)"; ctx.fillRect(mx,my,ms,ms);
-        const sc=ms/MAP_R/2;
-        const ox=mx+ms/2, oy=my+ms/2;
-        // Map circle
-        ctx.strokeStyle="rgba(212,83,28,.6)"; ctx.lineWidth=1.5;
-        ctx.beginPath(); ctx.arc(ox,oy,ms/2-1,0,Math.PI*2); ctx.stroke();
-        // Food
-        ctx.fillStyle="rgba(200,80,16,.5)";
-        stRef.current.food?.slice(0,100).forEach(f=>{
-          ctx.beginPath();
-          ctx.arc(ox+(f.x-MAP_CX)*sc, oy+(f.y-MAP_CY)*sc, 0.8,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx2,cy2,mr,0,Math.PI*2); ctx.clip();
+        // Background
+        ctx.fillStyle="#0a0604"; ctx.fillRect(mx,my,ms,ms);
+        // Map border trong minimap
+        ctx.beginPath(); ctx.arc(cx2,cy2,mr,0,Math.PI*2);
+        ctx.strokeStyle="rgba(212,83,28,0.5)"; ctx.lineWidth=1; ctx.stroke();
+        // Food dots
+        ctx.fillStyle="rgba(200,80,16,0.6)";
+        stRef.current.food?.forEach(f=>{
+          const fx2=cx2+(f.x-MAP_CX)*sc, fy2=cy2+(f.y-MAP_CY)*sc;
+          ctx.beginPath(); ctx.arc(fx2,fy2,0.7,0,Math.PI*2); ctx.fill();
         });
-        // Others
+        // Special items
+        stRef.current.special?.forEach(s=>{
+          const sx2=cx2+(s.x-MAP_CX)*sc, sy2=cy2+(s.y-MAP_CY)*sc;
+          ctx.beginPath(); ctx.arc(sx2,sy2,2,0,Math.PI*2);
+          ctx.fillStyle="#FFD700"; ctx.fill();
+        });
+        // Other players
         players.forEach(p=>{
-          ctx.fillStyle="#8040FF";
+          if(!p.segments?.[0]) return;
           ctx.beginPath();
-          ctx.arc(ox+(p.segments[0].x-MAP_CX)*sc,oy+(p.segments[0].y-MAP_CY)*sc,2.5,0,Math.PI*2); ctx.fill();
+          ctx.arc(cx2+(p.segments[0].x-MAP_CX)*sc, cy2+(p.segments[0].y-MAP_CY)*sc, 2.5,0,Math.PI*2);
+          ctx.fillStyle="#8040FF"; ctx.fill();
         });
-        // Self
-        ctx.fillStyle="#D4531C";
-        ctx.beginPath();
-        ctx.arc(ox+(self.segments[0].x-MAP_CX)*sc,oy+(self.segments[0].y-MAP_CY)*sc,3.5,0,Math.PI*2); ctx.fill();
+        // Self - tam giác chỉ hướng
+        const sx3=cx2+(self.segments[0].x-MAP_CX)*sc;
+        const sy3=cy2+(self.segments[0].y-MAP_CY)*sc;
+        const sa3=loc.current.angle;
+        ctx.save(); ctx.translate(sx3,sy3); ctx.rotate(sa3);
+        ctx.beginPath(); ctx.moveTo(5,0); ctx.lineTo(-3,-3); ctx.lineTo(-3,3); ctx.closePath();
+        ctx.fillStyle="#D4531C"; ctx.fill();
         ctx.restore();
+        ctx.restore();
+        // Viền ngoài minimap
+        ctx.beginPath(); ctx.arc(cx2,cy2,mr+2,0,Math.PI*2);
+        ctx.strokeStyle="rgba(212,83,28,0.4)"; ctx.lineWidth=1.5; ctx.stroke();
       };
 
       // ── CLIENT PREDICTION ──
@@ -237,7 +286,9 @@ export default function SnakeGame({ profile, onExit }) {
         let da=loc.current.target-loc.current.angle;
         while(da>Math.PI) da-=Math.PI*2;
         while(da<-Math.PI) da+=Math.PI*2;
-        loc.current.angle += Math.max(-0.2,Math.min(0.2,da));
+        // Smooth turn - không snap đột ngột
+        const maxTurn = 0.14;
+        loc.current.angle += Math.max(-maxTurn, Math.min(maxTurn, da * 0.8));
         const spd=loc.current.boosting?CLI_BOOST:CLI_SPD;
         const nx=segs[0].x+Math.cos(loc.current.angle)*spd;
         const ny=segs[0].y+Math.sin(loc.current.angle)*spd;
@@ -320,6 +371,23 @@ export default function SnakeGame({ profile, onExit }) {
           const pred=predict(self.segments);
           if(pred?.length){ camX=pred[0].x; camY=pred[0].y; }
           drawSnake({...self,segments:pred},true,camX,camY,glowRef.current);
+        }
+
+        // Vẽ joystick
+        const joy2 = joyRef.current;
+        if (joy2.active) {
+          const jx=joy2.ox, jy=joy2.oy;
+          const maxR2=50;
+          const dx2=Math.max(-maxR2,Math.min(maxR2,joy2.dx));
+          const dy2=Math.max(-maxR2,Math.min(maxR2,joy2.dy));
+          // Base
+          ctx.beginPath(); ctx.arc(jx,jy,maxR2,0,Math.PI*2);
+          ctx.fillStyle="rgba(255,255,255,0.08)"; ctx.fill();
+          ctx.strokeStyle="rgba(255,255,255,0.25)"; ctx.lineWidth=2; ctx.stroke();
+          // Knob
+          ctx.beginPath(); ctx.arc(jx+dx2,jy+dy2,20,0,Math.PI*2);
+          ctx.fillStyle="rgba(212,83,28,0.7)"; ctx.fill();
+          ctx.strokeStyle="rgba(255,120,50,0.9)"; ctx.lineWidth=2.5; ctx.stroke();
         }
 
         if(self) drawMinimap(self,st.players||[]);
