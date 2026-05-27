@@ -28,7 +28,8 @@
     "react-router-dom": "^6.30.3",
     "socket.io-client": "^4.8.3",
     "zmp-sdk": "^2.51.1",
-    "zustand": "^5.0.13"
+    "zustand": "^5.0.13",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
