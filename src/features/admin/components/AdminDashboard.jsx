@@ -5,6 +5,7 @@ import AdminGames from "./AdminGames";
 import AdminVouchers from "./AdminVouchers";
 import AdminPlayers from "./AdminPlayers";
 import AdminAppConfig from "./AdminAppConfig";
+import AdminLogs from "./AdminLogs";
 
 const TABS = [
   { key:"stats",     icon:"📊", label:"Tổng quan" },
@@ -13,6 +14,7 @@ const TABS = [
   { key:"vouchers",  icon:"🎟", label:"Voucher" },
   { key:"players",   icon:"👥", label:"Người chơi" },
   { key:"appconfig", icon:"⚙️", label:"Cấu hình App" },
+  { key:"logs",      icon:"📋", label:"Activity Logs" },
 ];
 
 export default function AdminDashboard({ auth }) {
@@ -61,6 +63,7 @@ export default function AdminDashboard({ auth }) {
         {tab==="vouchers"  && <AdminVouchers token={auth.token} />}
         {tab==="players"   && <AdminPlayers token={auth.token} />}
         {tab==="appconfig" && <AdminAppConfig token={auth.token} />}
+        {tab==="logs"      && <AdminLogs token={auth.token} />}
       </div>
     </div>
   );
