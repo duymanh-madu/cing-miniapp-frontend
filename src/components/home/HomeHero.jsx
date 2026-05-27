@@ -47,6 +47,27 @@ function HomeHero() {
           <h1 className="mt-1 text-[28px] font-black leading-tight">{displayName}</h1>
         </div>
         <div><RealtimeStatusBadge /></div>
+        {!IS_ZALO && (
+          <div style={{ marginTop:10, textAlign:"center" }}>
+            {!authenticated ? (
+              <button onClick={handleTestLogin} style={{
+                background:"rgba(255,255,255,0.25)", border:"1px solid rgba(255,255,255,0.4)",
+                color:"white", borderRadius:10, padding:"6px 16px",
+                fontSize:11, fontWeight:700, cursor:"pointer",
+              }}>
+                🔑 Test Login (Dev)
+              </button>
+            ) : (
+              <button onClick={handleTestLogout} style={{
+                background:"rgba(0,0,0,0.2)", border:"1px solid rgba(255,255,255,0.2)",
+                color:"rgba(255,255,255,0.7)", borderRadius:10, padding:"6px 16px",
+                fontSize:11, fontWeight:700, cursor:"pointer",
+              }}>
+                Đăng xuất test
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );
