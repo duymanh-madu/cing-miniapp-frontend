@@ -231,7 +231,7 @@ export default function SnakeGame({ profile, onExit }) {
       };
 
       const drawMinimap=(self,players)=>{
-        const ms=70, mx=10, my=H-ms-10; // góc dưới trái
+        const ms=64, mx=12, my=H-ms-90; // góc dưới trái, tránh navbar
         const cx2=mx+ms/2, cy2=my+ms/2, mr=ms/2-2;
         const sc=mr/MAP_R;
         ctx.save();
@@ -286,9 +286,11 @@ export default function SnakeGame({ profile, onExit }) {
         let da=loc.current.target-loc.current.angle;
         while(da>Math.PI) da-=Math.PI*2;
         while(da<-Math.PI) da+=Math.PI*2;
-        // Smooth turn - không snap đột ngột
-        const maxTurn = 0.14;
-        loc.current.angle += Math.max(-maxTurn, Math.min(maxTurn, da * 0.8));
+        // Smooth turn với exponential - không giật
+        let da2 = loc.current.target - loc.current.angle;
+        while(da2>Math.PI) da2-=Math.PI*2;
+        while(da2<-Math.PI) da2+=Math.PI*2;
+        loc.current.angle += da2 * 0.18; // exponential smooth, không hard limit
         const spd=loc.current.boosting?CLI_BOOST:CLI_SPD;
         const nx=segs[0].x+Math.cos(loc.current.angle)*spd;
         const ny=segs[0].y+Math.sin(loc.current.angle)*spd;
