@@ -6,7 +6,7 @@ import useRealtimeCustomerStore from '@/stores/customer/customerRuntimeStore';
 
 const IS_ZALO = typeof window !== 'undefined' && (window.__ZALO_MINI_APP__ || navigator.userAgent.includes('ZaloApp'));
 const DEV_PASSWORD = 'manh90';
-const TEST_PROFILE = { id:'0984966336', phone:'0984966336', name:'Duy Manh', displayName:'Duy Manh', avatar:null };
+const TEST_PROFILE = { id:'0984966336', phone:'0984966336', name:'Duy Mạnh', displayName:'Duy Mạnh', avatar:null };
 
 function HomeHero() {
   const authProfile     = useAuthStore(s => s.profile);
@@ -25,7 +25,7 @@ function HomeHero() {
       setSession({ accessToken: 'test-token', refreshToken: null, profile: TEST_PROFILE });
       sessionStorage.setItem('dev_membership_phone', TEST_PROFILE.phone);
       setShowDevModal(false); setDevInput(''); setDevError('');
-    } else { setDevError('Sai mat khau!'); }
+    } else { setDevError('Sai mật khẩu!'); }
   };
 
   const handleTestLogout = () => {
@@ -53,7 +53,7 @@ function HomeHero() {
             <div style={{ marginTop:10, textAlign:'center' }}>
               {authenticated ? (
                 <button onClick={handleTestLogout} style={{ background:'rgba(0,0,0,0.2)', border:'1px solid rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.7)', borderRadius:10, padding:'6px 16px', fontSize:11, fontWeight:700, cursor:'pointer' }}>
-                  Dang xuat test
+                  Đăng xuất test
                 </button>
               ) : (
                 <button onClick={() => setShowDevModal(true)} style={{ background:'rgba(255,255,255,0.25)', border:'1px solid rgba(255,255,255,0.4)', color:'white', borderRadius:10, padding:'6px 16px', fontSize:11, fontWeight:700, cursor:'pointer' }}>
@@ -68,12 +68,12 @@ function HomeHero() {
         <>
           <div onClick={() => { setShowDevModal(false); setDevError(''); }} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:9999 }}/>
           <div style={{ position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)', background:'white', borderRadius:20, padding:24, width:280, zIndex:10000, boxSizing:'border-box' }}>
-            <p style={{ fontSize:16, fontWeight:800, color:'#1a1a1a', margin:'0 0 4px' }}>Dev Login</p>
-            <p style={{ fontSize:12, color:'#999', margin:'0 0 16px' }}>Nhap mat khau de test</p>
-            <input type='password' placeholder='Mat khau...' value={devInput} onChange={e => setDevInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleDevSubmit()} autoFocus
+            <p style={{ fontSize:16, fontWeight:800, color:'#1a1a1a', margin:'0 0 4px' }}>Đăng nhập Dev</p>
+            <p style={{ fontSize:12, color:'#999', margin:'0 0 16px' }}>Nhập mật khẩu để test</p>
+            <input type='password' placeholder='Mật khẩu...' value={devInput} onChange={e => setDevInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleDevSubmit()} autoFocus
               style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'1.5px solid #e0e0e0', fontSize:14, outline:'none', boxSizing:'border-box', marginBottom:8 }}/>
             {devError ? <p style={{ fontSize:12, color:'#e53935', margin:'0 0 8px' }}>{devError}</p> : null}
-            <button onClick={handleDevSubmit} style={{ width:'100%', padding:11, borderRadius:10, border:'none', background:'#D4531C', color:'white', fontSize:14, fontWeight:800, cursor:'pointer' }}>Dang nhap</button>
+            <button onClick={handleDevSubmit} style={{ width:'100%', padding:11, borderRadius:10, border:'none', background:'#D4531C', color:'white', fontSize:14, fontWeight:800, cursor:'pointer' }}>Đăng nhập</button>
           </div>
         </>
       ) : null}
