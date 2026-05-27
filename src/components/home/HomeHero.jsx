@@ -13,9 +13,9 @@ function HomeHero() {
   const customerProfile = useRealtimeCustomerStore(s => s.profile);
   const setSession      = useAuthStore(s => s.setSession);
   const authenticated   = useAuthStore(s => s.authenticated);
-  const displayName     = authProfile?.name || authProfile?.displayName || customerProfile?.name || 'Khach';
+  const displayName     = authProfile?.name || authProfile?.displayName || customerProfile?.name || 'Khách';
   const hour            = new Date().getHours();
-  const greeting        = hour < 12 ? 'Chao buoi sang' : hour < 18 ? 'Chao buoi chieu' : 'Chao buoi toi';
+  const greeting        = hour < 12 ? 'Chào buổi sáng' : hour < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
   const [showDevModal, setShowDevModal] = useState(false);
   const [devInput, setDevInput]         = useState('');
   const [devError, setDevError]         = useState('');
@@ -44,7 +44,7 @@ function HomeHero() {
               style={{ height:54, objectFit:'contain', filter:'drop-shadow(0 2px 8px rgba(0,0,0,0.25))' }} />
             <NotificationBell />
           </div>
-          <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center' }}>
+          <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-end', textAlign:'center', paddingBottom:4 }}>
             <p className='text-sm font-medium text-white/80'>{greeting}</p>
             <h1 className='mt-1 text-[28px] font-black leading-tight'>{displayName}</h1>
           </div>
