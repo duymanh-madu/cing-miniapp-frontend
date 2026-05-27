@@ -166,6 +166,10 @@ export default function AdminAppConfig({ token }) {
         </div>
       </Section>
 
+      <Section title="Bảng giá ship theo giá trị đơn hàng">
+        <ShippingTiersConfig config={config} upd={upd} />
+      </Section>
+
       <Section title="Ngân hàng / Chuyển khoản">
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
           <Field k="bank_name" label="Tên ngân hàng" />
@@ -177,6 +181,75 @@ export default function AdminAppConfig({ token }) {
       <Section title="📢 Gửi thông báo Flash Sales">
         <FlashSalesBroadcast token={token} h={h} />
       </Section>
+    </div>
+  );
+}
+
+
+function ShippingTiersConfig({ config, upd }) {
+  const tiers = config.shipping_tiers || [
+    { min_order: 0,      max_order: 99999,   fee_per_km: 5000,  base_fee: 15000, label: 'Dưới 100k' },
+    { min_order: 100000, max_order: 199999,   fee_per_km: 4000,  base_fee: 10000, label: '100k - 199k' },
+    { min_order: 200000, max_order: 499999,   fee_per_km: 3000,  base_fee: 5000,  label: '200k - 499k' },
+    { min_order: 500000, max_order: 999999999, fee_per_km: 0,    base_fee: 0,     label: 'Từ 500k' },
+  ];
+
+  const updateTier = (i, field, val) => {
+    const updated = [...tiers];
+    updated[i] = { ...updated[i], [field]: Number(val) };
+    upd('shipping_tiers', updated);
+  };
+
+  const addTier = () => {
+    upd('shipping_tiers', [...tiers, { min_order:0, max_order:999999999, fee_per_km:3000, base_fee:10000, label:'Mức mới' }]);
+  };
+
+  const removeTier = (i) => {
+    upd('shipping_tiers', tiers.filter((_,idx) => idx !== i));
+  };
+
+  return (
+    <div>
+      <p style={{ color:'#666', fontSize:12, margin:'0 0 14px', lineHeight:1.5 }}>
+        Cấu hình phí ship theo giá trị đơn hàng. Hệ thống sẽ tự chọn mức phù hợp khi tính ship.
+      </p>
+      {tiers.map((tier, i) => (
+        <div key={i} style={{ background:'#12121a', borderRadius:10, padding:'14px',
+          marginBottom:10, border:'1px solid #333' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+            <input value={tier.label} onChange={e => {
+              const updated = [...tiers]; updated[i] = { ...updated[i], label: e.target.value };
+              upd('shipping_tiers', updated);
+            }} placeholder='Tên mức' style={{ flex:1, background:'#2a2a38', border:'1px solid #444',
+              borderRadius:8, padding:'7px 10px', color:'white', fontSize:12 }}/>
+            <button onClick={() => removeTier(i)} style={{ background:'rgba(255,80,80,0.15)',
+              border:'1px solid #ff6b6b', color:'#ff6b6b', borderRadius:6,
+              padding:'6px 10px', fontSize:11, cursor:'pointer' }}>🗑</button>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:8 }}>
+            {[
+              ['min_order',  'Đơn từ (đ)'],
+              ['max_order',  'Đơn đến (đ)'],
+              ['base_fee',   'Phí cơ bản (đ)'],
+              ['fee_per_km', 'Phí / km (đ)'],
+            ].map(([field, label]) => (
+              <div key={field}>
+                <p style={{ color:'#666', fontSize:10, margin:'0 0 3px' }}>{label}</p>
+                <input type='number' defaultValue={tier[field]}
+                  onBlur={e => updateTier(i, field, e.target.value)}
+                  style={{ width:'100%', background:'#2a2a38', border:'1px solid #444',
+                    borderRadius:8, padding:'7px 10px', color:'white',
+                    fontSize:12, boxSizing:'border-box' }}/>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <button onClick={addTier} style={{ background:'rgba(255,255,255,0.06)',
+        border:'1px solid #333', color:'#888', borderRadius:8,
+        padding:'8px 16px', fontSize:12, cursor:'pointer', width:'100%', marginTop:4 }}>
+        + Thêm mức giá
+      </button>
     </div>
   );
 }
