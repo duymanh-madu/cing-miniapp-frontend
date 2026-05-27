@@ -3,7 +3,6 @@ import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useNavigate } from "react-router-dom";
-import useAuthStore from "@/stores/auth/authStore";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import GameLeaderboard from "../components/GameLeaderboard";
