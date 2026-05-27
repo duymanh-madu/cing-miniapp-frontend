@@ -77,7 +77,7 @@ export default function CheckoutPage(){
   // Giảm giá theo hạng thành viên
   const TIER_DISCOUNTS = {
     member: 0, loyal: 0.01, silver: 0.02, gold: 0.03, diamond: 0.05,
-    partner: 0.03, loyal_partner: 0.15,
+    partner: 0.03, loyal_partner: 0.05,
   };
   const tierKey = membership?.tierKey || "member";
   const tierDiscountRate = TIER_DISCOUNTS[tierKey] || 0;
