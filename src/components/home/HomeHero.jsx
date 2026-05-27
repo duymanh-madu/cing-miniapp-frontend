@@ -3,12 +3,32 @@ import RealtimeStatusBadge from "../header/RealtimeStatusBadge";
 import useAuthStore from "@/stores/auth/authStore";
 import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
 
+const IS_ZALO = typeof window !== "undefined" && (window.__ZALO_MINI_APP__ || navigator.userAgent.includes("ZaloApp"));
+const TEST_PROFILE = {
+  id: "0984966336",
+  phone: "0984966336",
+  name: "Duy Mạnh",
+  displayName: "Duy Mạnh",
+  avatar: null,
+};
+
 function HomeHero() {
   const authProfile = useAuthStore((s) => s.profile);
   const customerProfile = useRealtimeCustomerStore((s) => s.profile);
   const displayName = authProfile?.name || authProfile?.displayName || customerProfile?.name || "Khách";
+  const setSession = useAuthStore(s => s.setSession);
+  const authenticated = useAuthStore(s => s.authenticated);
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Chào buổi sáng" : hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
+
+  const handleTestLogin = () => {
+    setSession({ accessToken: "test-token", refreshToken: null, profile: TEST_PROFILE });
+    sessionStorage.setItem("dev_membership_phone", TEST_PROFILE.phone);
+  };
+  const handleTestLogout = () => {
+    useAuthStore.getState().clearSession();
+    sessionStorage.removeItem("dev_membership_phone");
+  };
 
   return (
     <section className="relative overflow-hidden rounded-[34px] bg-gradient-to-br from-[#f28c28] via-orange-400 to-orange-500 p-6 text-white shadow-[0_25px_60px_rgba(242,140,40,0.35)]">
