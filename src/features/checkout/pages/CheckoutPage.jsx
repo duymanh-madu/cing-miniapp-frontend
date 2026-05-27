@@ -74,6 +74,15 @@ export default function CheckoutPage(){
   const availablePoints = membership?.points || 0;
   const pointsDiscount = pointsToUse * 1000; // 1 diem = 1000 VND
 
+  // Giảm giá theo hạng thành viên
+  const TIER_DISCOUNTS = {
+    member: 0, loyal: 0.01, silver: 0.02, gold: 0.03, diamond: 0.05,
+    partner: 0.03, loyal_partner: 0.15,
+  };
+  const tierKey = membership?.tierKey || "member";
+  const tierDiscountRate = TIER_DISCOUNTS[tierKey] || 0;
+  const tierDiscount = Math.floor(subtotal * tierDiscountRate);
+
   useEffect(()=>{
     if(orderType!=="delivery"){
       setShipFee(0);setDistKm(null);setShipStatus("idle");setLocMsg("");
@@ -137,7 +146,7 @@ export default function CheckoutPage(){
     );
   },[orderType]);
 
-  const total=Math.max(0, subtotal+shipFee-pointsDiscount);
+  const total=Math.max(0, subtotal+shipFee-pointsDiscount-tierDiscount);
 
   async function handleOrder(){
     if(!name.trim()){setError("Vui lòng nhập họ tên");return;}
@@ -394,6 +403,14 @@ export default function CheckoutPage(){
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
             <span style={{fontSize:12,color:"#666"}}>Tam tinh</span>
             <span style={{fontSize:12,fontWeight:600,color:"#1a1a1a"}}>{fmt(subtotal)}</span>
+            </div>
+            {tierDiscount > 0 && (
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                <span style={{fontSize:12,color:"#2e7d32"}}>Ưu đãi {membership?.tierName || tierKey} ({Math.round(tierDiscountRate*100)}%)</span>
+                <span style={{fontSize:12,fontWeight:600,color:"#2e7d32"}}>-{fmt(tierDiscount)}</span>
+              </div>
+            )}
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{display:"none"}}>
           </div>
           {orderType==="delivery"&&(
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
