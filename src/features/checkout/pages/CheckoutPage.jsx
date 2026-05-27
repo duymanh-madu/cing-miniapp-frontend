@@ -403,15 +403,13 @@ export default function CheckoutPage(){
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
             <span style={{fontSize:12,color:"#666"}}>Tam tinh</span>
             <span style={{fontSize:12,fontWeight:600,color:"#1a1a1a"}}>{fmt(subtotal)}</span>
-            </div>
-            {tierDiscount > 0 && (
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
-                <span style={{fontSize:12,color:"#2e7d32"}}>Ưu đãi {membership?.tierName || tierKey} ({Math.round(tierDiscountRate*100)}%)</span>
-                <span style={{fontSize:12,fontWeight:600,color:"#2e7d32"}}>-{fmt(tierDiscount)}</span>
-              </div>
-            )}
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{display:"none"}}>
           </div>
+          {tierDiscount > 0 && (
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+              <span style={{fontSize:12,color:"#2e7d32"}}>Ưu đãi {membership?.tierName || tierKey} ({Math.round(tierDiscountRate*100)}%)</span>
+              <span style={{fontSize:12,fontWeight:600,color:"#2e7d32"}}>-{fmt(tierDiscount)}</span>
+            </div>
+          )}
           {orderType==="delivery"&&(
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
               <span style={{fontSize:12,color:"#666"}}>Phí ship</span>
