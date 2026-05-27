@@ -267,6 +267,8 @@ export default function SnakeGame({ profile, onExit }) {
 
       ctx.fillStyle = "#080504";
       ctx.fillRect(0,0,W,H);
+      // debug
+      ctx.fillStyle="red"; ctx.fillRect(10,10,50,50);
 
       let camX=0, camY=0;
       if (self?.segments?.[0]) { camX=self.segments[0].x; camY=self.segments[0].y; }
@@ -416,7 +418,7 @@ export default function SnakeGame({ profile, onExit }) {
   // PLAYING
   return (
     <div style={{ position:"relative", width:"100vw", height:"100vh", overflow:"hidden", background:"#080504" }}>
-      <canvas ref={canvasRef} width={380} height={680}
+      <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight}
         style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)",
           width:"100%", height:"100%", touchAction:"none" }}/>
 
