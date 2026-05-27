@@ -55,10 +55,9 @@ export default function SnakeGame({ profile, onExit }) {
     if (phase !== "playing") return;
 
     // Đợi canvas mount
-    let raf;
     const startLoop = () => {
       const canvas = canvasRef.current;
-      if (!canvas) { raf = requestAnimationFrame(startLoop); return; }
+      if (!canvas) { setTimeout(startLoop, 50); return; }
 
       // Set canvas size = actual pixel size
       const dpr = window.devicePixelRatio || 1;
@@ -195,14 +194,6 @@ export default function SnakeGame({ profile, onExit }) {
 
       let localGlow=0, lastKills=0;
 
-      // Test vẽ ngay
-      ctx.fillStyle = "red";
-      ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = "white";
-      ctx.font = "bold 24px sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("W:" + W + " H:" + H, W/2, H/2);
-
       const frame = () => {
         if (deadRef.current) return;
         const state = stateRef.current;
@@ -244,8 +235,7 @@ export default function SnakeGame({ profile, onExit }) {
       };
     };
 
-    raf = requestAnimationFrame(startLoop);
-    return () => cancelAnimationFrame(raf);
+    startLoop();
   }, [phase]);
 
   const EC = { x2:"#4080FF", x5:"#C040FF", x10:"#FFD700", magnet:"#40FFB0", shield:"#FFB830" };
