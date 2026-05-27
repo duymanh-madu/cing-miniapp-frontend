@@ -21,7 +21,7 @@ export default function AdminGames({ token }) {
   const adjustPlays = async () => {
     if (!adjustUser) return;
     try {
-      await apiClient.post("/game/admin/adjust-plays",
+      await apiClient.post("/admin/players/adjust-plays",
         { user_id: adjustUser, amount: Number(adjustAmount) }, { headers: h });
       setMsg(`✅ Đã cộng ${adjustAmount} lượt cho ${adjustUser}`);
     } catch(e) {

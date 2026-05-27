@@ -24,8 +24,7 @@ export default function AdminPlayers({ token }) {
     if (!phone) return;
     try {
       // Lay player theo phone tu players table
-      const res = await apiClient.post("/game/admin-adjust",
-        { phone, amount: Number(amount) }, { headers: h });
+      const res = await apiClient.post("/admin/players/adjust-plays", { user_id: phone, amount: Number(amount) }, { headers: h });
       setMsg(`✅ Đã ${amount > 0 ? "cộng" : "trừ"} ${Math.abs(amount)} lượt`);
     } catch(e) {
       setMsg("⚠️ " + (e.response?.data?.message || "Chức năng đang phát triển"));
