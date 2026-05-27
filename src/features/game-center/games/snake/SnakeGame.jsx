@@ -21,7 +21,9 @@ export default function SnakeGame({ profile, onExit }) {
 
   // Socket
   useEffect(() => {
-    const sock = io(`${BACKEND_URL}/snake`, { transports:["websocket"] });
+    // Tránh double connect trong React StrictMode
+    if (socketRef.current?.connected) return;
+    const sock = io(`${BACKEND_URL}/snake`, { transports:["websocket"], forceNew:true });
     socketRef.current = sock;
     sock.on("connect", () => sock.emit("game:rooms"));
     sock.on("game:rooms",    (data) => setRooms(data));
@@ -55,9 +57,12 @@ export default function SnakeGame({ profile, onExit }) {
     if (phase !== "playing") return;
 
     // Đợi canvas mount
+    let started = false;
     const startLoop = () => {
+      if (started) return;
       const canvas = canvasRef.current;
       if (!canvas) { setTimeout(startLoop, 50); return; }
+      started = true;
 
       // Set canvas size = actual pixel size
       const dpr = window.devicePixelRatio || 1;
@@ -75,6 +80,7 @@ export default function SnakeGame({ profile, onExit }) {
       const handleMove = (cx, cy) => {
         const rect = canvas.getBoundingClientRect();
         const angle = Math.atan2(cy - rect.top - H/2, cx - rect.left - W/2);
+        localAngle = angle;
         socketRef.current?.emit("game:direction", { angle });
       };
       const onTouch = (e) => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); };
@@ -158,7 +164,7 @@ export default function SnakeGame({ profile, onExit }) {
         if (segs.length>0) {
           const hx = segs[0].x-camX+W/2;
           const hy = segs[0].y-camY+H/2;
-          const ang = segs.length>1 ? Math.atan2(segs[0].y-segs[1].y, segs[0].x-segs[1].x) : 0;
+          const ang = segs.length>1 ? Math.atan2(segs[0].y-segs[1].y, segs[0].x-segs[1].x) - Math.PI/2 : -Math.PI/2;
           drawHead(hx, hy, maxR*1.6, ang, isSelf, glow, player);
         }
       };
@@ -193,10 +199,37 @@ export default function SnakeGame({ profile, onExit }) {
       };
 
       let localGlow=0, lastKills=0;
+      let localAngle = 0;
+      let lastFrameTime = Date.now();
+
+      // Client-side prediction: tự di chuyển rắn locally
+      const predictMove = (state) => {
+        if (!state?.self?.segments) return state;
+        const now = Date.now();
+        const dt = Math.min(now - lastFrameTime, 100) / 50; // normalize to tick rate
+        lastFrameTime = now;
+        
+        const segs = state.self.segments;
+        if (segs.length === 0) return state;
+        
+        const spd = 3.5 * dt;
+        const newHead = {
+          x: ((segs[0].x + Math.cos(localAngle) * spd) % 8000 + 8000) % 8000,
+          y: ((segs[0].y + Math.sin(localAngle) * spd) % 8000 + 8000) % 8000,
+        };
+        return {
+          ...state,
+          self: {
+            ...state.self,
+            segments: [newHead, ...segs.slice(0, state.self.length * 3)],
+          }
+        };
+      };
 
       const frame = () => {
         if (deadRef.current) return;
-        const state = stateRef.current;
+        const rawState = stateRef.current;
+        const state = predictMove(rawState);
         const self  = state.self;
 
         ctx.fillStyle="#080504"; ctx.fillRect(0,0,W,H);
