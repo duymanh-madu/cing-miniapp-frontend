@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import * as XLSX from "xlsx";
 import apiClient from "@/infra/api/apiClient";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
@@ -13,6 +14,9 @@ export default function AdminCDP({ token }) {
   const [sending, setSending]       = useState(false);
   const [msg, setMsg]               = useState("");
   const [preview, setPreview]       = useState(false);
+  const [customPhones, setCustomPhones] = useState([]);
+  const [customInput, setCustomInput]   = useState("");
+  const fileRef = useRef();
   const h = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
@@ -24,7 +28,7 @@ export default function AdminCDP({ token }) {
   const selectSegment = async (seg) => {
     setSelected(seg);
     setUsers([]);
-    if (seg.key === "birthday") return;
+    if (seg.key === "birthday" || seg.key === "custom") return;
     setLoadingUsers(true);
     try {
       const r = await apiClient.get(`/admin/cdp/segment-users/${seg.key}?limit=10`, { headers: h });
@@ -110,6 +114,97 @@ export default function AdminCDP({ token }) {
             </div>
           ) : (
             <>
+              {/* Custom segment UI */}
+              {selected.key === "custom" && (
+                <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px",
+                  marginBottom:16, border:"1px solid #2a2a38" }}>
+                  <p style={{ color:"white", fontSize:14, fontWeight:800, margin:"0 0 14px" }}>
+                    📋 Danh sách khách hàng tuỳ chỉnh
+                  </p>
+
+                  {/* Nhập SĐT */}
+                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                    <input
+                      value={customInput}
+                      onChange={e => setCustomInput(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter" && customInput.trim()) {
+                          const phone = customInput.trim().replace(/D/g,"");
+                          if (phone && !customPhones.includes(phone)) {
+                            setCustomPhones(p => [...p, phone]);
+                          }
+                          setCustomInput("");
+                        }
+                      }}
+                      placeholder="Nhập SĐT rồi Enter..."
+                      style={{ flex:1, background:"#2a2a38", border:"1px solid #333",
+                        borderRadius:8, padding:"9px 12px", color:"white", fontSize:13 }}
+                    />
+                    <button onClick={() => {
+                      const phone = customInput.trim().replace(/D/g,"");
+                      if (phone && !customPhones.includes(phone)) {
+                        setCustomPhones(p => [...p, phone]);
+                      }
+                      setCustomInput("");
+                    }} style={{ background:"#D4531C", border:"none", color:"white",
+                      borderRadius:8, padding:"9px 16px", fontWeight:700, cursor:"pointer" }}>
+                      Thêm
+                    </button>
+                    <button onClick={() => fileRef.current?.click()}
+                      style={{ background:"rgba(255,255,255,0.1)", border:"1px solid #333",
+                        color:"white", borderRadius:8, padding:"9px 16px", fontSize:12,
+                        fontWeight:700, cursor:"pointer" }}>
+                      📊 Excel
+                    </button>
+                    <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv"
+                      style={{ display:"none" }}
+                      onChange={async e => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const buf = await file.arrayBuffer();
+                        const wb  = XLSX.read(buf);
+                        const ws  = wb.Sheets[wb.SheetNames[0]];
+                        const rows = XLSX.utils.sheet_to_json(ws, { header:1 });
+                        const phones = rows.flat()
+                          .map(v => String(v || "").replace(/D/g,""))
+                          .filter(v => v.length >= 9);
+                        setCustomPhones(prev => [...new Set([...prev, ...phones])]);
+                        e.target.value = "";
+                      }}
+                    />
+                  </div>
+
+                  {/* Danh sách SĐT */}
+                  {customPhones.length > 0 && (
+                    <div>
+                      <div style={{ display:"flex", justifyContent:"space-between",
+                        alignItems:"center", marginBottom:8 }}>
+                        <p style={{ color:"#888", fontSize:11, margin:0 }}>
+                          {customPhones.length} khách hàng
+                        </p>
+                        <button onClick={() => setCustomPhones([])}
+                          style={{ background:"none", border:"none", color:"#ff6b6b",
+                            fontSize:11, cursor:"pointer" }}>
+                          Xóa tất cả
+                        </button>
+                      </div>
+                      <div style={{ maxHeight:150, overflowY:"auto",
+                        display:"flex", flexWrap:"wrap", gap:6 }}>
+                        {customPhones.map((p, i) => (
+                          <div key={i} style={{ background:"#2a2a38", borderRadius:6,
+                            padding:"4px 10px", display:"flex", alignItems:"center", gap:6 }}>
+                            <span style={{ color:"white", fontSize:12 }}>{p}</span>
+                            <button onClick={() => setCustomPhones(prev => prev.filter((_,idx) => idx !== i))}
+                              style={{ background:"none", border:"none", color:"#ff6b6b",
+                                fontSize:12, cursor:"pointer", padding:0 }}>×</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Segment info */}
               <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px",
                 marginBottom:16, border:"1px solid #2a2a38" }}>
