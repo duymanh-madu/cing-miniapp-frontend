@@ -7,6 +7,7 @@ import AdminPlayers from "./AdminPlayers";
 import AdminAppConfig from "./AdminAppConfig";
 import AdminLogs from "./AdminLogs";
 import AdminCDP from "./AdminCDP";
+import AdminLeaderboard from "./AdminLeaderboard";
 
 const TABS = [
   { key:"stats",     icon:"📊", label:"Tổng quan" },
@@ -16,6 +17,7 @@ const TABS = [
   { key:"players",   icon:"👥", label:"Người chơi" },
   { key:"appconfig", icon:"⚙️", label:"Cấu hình App" },
   { key:"cdp",       icon:"📡", label:"CDP" },
+  { key:"leaderboard_admin", icon:"🏆", label:"BXH & Thưởng" },
   { key:"logs",      icon:"📋", label:"Activity Logs" },
 ];
 
@@ -66,6 +68,7 @@ export default function AdminDashboard({ auth }) {
         {tab==="players"   && <AdminPlayers token={auth.token} />}
         {tab==="appconfig" && <AdminAppConfig token={auth.token} />}
         {tab==="cdp"       && <AdminCDP token={auth.token} />}
+        {tab==="leaderboard_admin" && <AdminLeaderboard token={auth.token} />}
         {tab==="logs"      && <AdminLogs token={auth.token} />}
       </div>
     </div>
