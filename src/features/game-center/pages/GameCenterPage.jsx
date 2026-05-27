@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import GameLeaderboard from "../components/GameLeaderboard";
+import SnakeGame from "../games/snake/SnakeGame";
 import GamePlaysCard from "../components/GamePlaysCard";
 
 export default function GameCenterPage() {
@@ -13,6 +14,7 @@ export default function GameCenterPage() {
   const [activeGame, setActiveGame] = useState(null);
   const profile = useAuthStore(s => s.profile);
   const [challenge, setChallenge] = useState(null);
+  const [playingSnake, setPlayingSnake] = useState(false);
   const [challengeWinner, setChallengeWinner] = useState(null);
 
   useEffect(() => {
@@ -62,6 +64,10 @@ export default function GameCenterPage() {
   const [gamePlays, setGamePlays] = useState(null);
   const navigate = useNavigate();
 
+  if (playingSnake) {
+    return <SnakeGame profile={profile} onExit={() => setPlayingSnake(false)} />;
+  }
+
   if (activeGame) {
     const game = games.find(g => g.id === activeGame);
     const GameComp = game?.component || BlackPearlRush;
@@ -82,7 +88,62 @@ export default function GameCenterPage() {
           </button>
         </div>
         <div style={{ flex:1 }}><GameComp onExit={() => setActiveGame(null)} onGameOver={handleGameOver} /></div>
-        {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
+        {/* SNAKE GAME CARD */}
+      <div style={{ margin:"0 16px 16px", background:"linear-gradient(135deg,#1a0805,#2a1008)",
+        borderRadius:20, padding:"20px", border:"1px solid rgba(212,83,28,0.3)",
+        position:"relative", overflow:"hidden" }}>
+        {/* Glow bg */}
+        <div style={{ position:"absolute", top:-20, right:-20, width:120, height:120,
+          borderRadius:"50%", background:"rgba(212,83,28,0.15)", filter:"blur(30px)" }}/>
+        <div style={{ display:"flex", gap:14, alignItems:"flex-start" }}>
+          <div style={{ width:52, height:52, borderRadius:14, flexShrink:0,
+            background:"rgba(212,83,28,0.2)", display:"flex", alignItems:"center",
+            justifyContent:"center", fontSize:26, border:"1px solid rgba(212,83,28,0.4)" }}>
+            🧋
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+              <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>
+                Trân Châu Đại Chiến
+              </p>
+              <span style={{ background:"rgba(255,80,0,0.2)", color:"#FF6030",
+                fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8, letterSpacing:1 }}>
+                MULTIPLAYER
+              </span>
+              <span style={{ background:"rgba(0,255,100,0.15)", color:"#00ff64",
+                fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8, letterSpacing:1 }}>
+                NEW
+              </span>
+            </div>
+            <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>
+              PvP realtime · Tiêu diệt đối thủ · Leo bảng tuần
+            </p>
+            <div style={{ display:"flex", gap:8 }}>
+              <button onClick={() => {
+                if (!authenticated) { setShowAuthModal(true); return; }
+                if (gamePlays !== null && gamePlays <= 0) {
+                  alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
+                  return;
+                }
+                setPlayingSnake(true);
+              }} style={{
+                background:"linear-gradient(135deg,#D4531C,#ff6b35)",
+                color:"white", border:"none", borderRadius:10,
+                padding:"8px 18px", fontSize:12, fontWeight:800, cursor:"pointer",
+                boxShadow:"0 4px 15px rgba(212,83,28,0.4)",
+              }}>⚔️ Vào chiến</button>
+              <button onClick={() => setShowBoard("tran-chau-dai-chien")} style={{
+                background:"rgba(255,215,0,0.1)",
+                border:"1px solid rgba(255,215,0,0.3)",
+                color:"#FFD700", borderRadius:10,
+                padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer",
+              }}>🏆 BXH</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
       </div>
     );
   }
