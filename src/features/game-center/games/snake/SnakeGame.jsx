@@ -69,6 +69,7 @@ export default function SnakeGame({ profile, onExit }) {
 
   // Join room
   const joinRoom = useCallback(() => {
+    console.log("[SNAKE] joinRoom called, profile:", JSON.stringify(profile));
     if (!socketRef.current || !profile) return;
     setError("");
     socketRef.current.emit("game:join", {
