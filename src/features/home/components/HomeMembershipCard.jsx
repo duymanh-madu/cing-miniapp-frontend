@@ -223,8 +223,11 @@ export default function HomeMembershipCard() {
       <div style={{
         position:"relative", borderRadius:24, overflow:"hidden",
         boxShadow:`0 8px 32px ${cfg.glow}, 0 2px 8px rgba(0,0,0,0.2)`,
-        background: tier === 'diamond' ? 'linear-gradient(135deg, #060614 0%, #0f0728 30%, #1a0f3d 60%, #0a0520 100%)' : `linear-gradient(135deg, ${cfg.bg[0]} 0%, ${cfg.bg[1]} 50%, ${cfg.bg[2]} 100%)`,
-        border: tier === 'diamond' ? '1px solid rgba(167,139,250,0.4)' : 'none',
+        background: tier === 'diamond' ? 'linear-gradient(135deg, #060614 0%, #0f0728 30%, #1a0f3d 60%, #0a0520 100%)'
+          : tier === 'loyal_partner' ? 'linear-gradient(135deg, #2d0a4e 0%, #4a1082 35%, #6b21a8 65%, #3b0764 100%)'
+          : `linear-gradient(135deg, ${cfg.bg[0]} 0%, ${cfg.bg[1]} 50%, ${cfg.bg[2]} 100%)`,
+        border: tier === 'diamond' ? '1px solid rgba(167,139,250,0.4)'
+          : tier === 'loyal_partner' ? '1px solid rgba(192,132,252,0.4)' : 'none',
         minHeight:200,
       }}>
 
@@ -245,6 +248,16 @@ export default function HomeMembershipCard() {
           @keyframes facetGlow {
             0%, 100% { opacity: 0.15; }
             50% { opacity: 0.4; }
+          }
+          @keyframes royalShimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(400%) rotate(45deg); }
+          }
+          @keyframes royalPrismatic {
+            0%   { opacity:0.7; filter: hue-rotate(0deg) brightness(1.4); }
+            33%  { opacity:1;   filter: hue-rotate(90deg) brightness(1.8); }
+            66%  { opacity:0.8; filter: hue-rotate(200deg) brightness(1.6); }
+            100% { opacity:0.7; filter: hue-rotate(360deg) brightness(1.4); }
           }
         `}</style>
         {/* Shimmer sweep */}
@@ -275,7 +288,31 @@ export default function HomeMembershipCard() {
           WebkitMask:"linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
           WebkitMaskComposite:"xor", maskComposite:"exclude", padding:2 }}/>
       </>)}
-        {/* Decorative circles */}
+        {/* Loyal Partner royal effects */}
+      {tier === "loyal_partner" && (<>
+        <div style={{ position:"absolute", inset:0, overflow:"hidden", borderRadius:24, zIndex:0 }}>
+          <div style={{ position:"absolute", top:"-50%", left:"-20%", width:"40%", height:"200%",
+            background:"linear-gradient(to right, transparent, rgba(220,180,255,0.2), rgba(255,200,255,0.25), rgba(220,180,255,0.2), transparent)",
+            animation:"royalShimmer 2.5s ease-in-out infinite", transform:"rotate(45deg)" }}/>
+        </div>
+        <div style={{ position:"absolute", top:0, left:0, right:0, bottom:0, zIndex:0, borderRadius:24, overflow:"hidden" }}>
+          <div style={{ position:"absolute", top:"15%", right:"10%", width:60, height:60,
+            background:"linear-gradient(135deg, rgba(220,160,255,0.35), rgba(180,100,255,0.25))",
+            clipPath:"polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)",
+            animation:"facetGlow 2s ease-in-out infinite" }}/>
+          <div style={{ position:"absolute", bottom:"25%", left:"8%", width:40, height:40,
+            background:"linear-gradient(45deg, rgba(180,100,255,0.3), rgba(255,150,255,0.2))",
+            clipPath:"polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+            animation:"facetGlow 2.8s ease-in-out infinite 0.6s" }}/>
+        </div>
+        <div style={{ position:"absolute", inset:-1, borderRadius:25, zIndex:0,
+          background:"linear-gradient(135deg, #c084fc, #e879f9, #a855f7, #7e22ce, #c084fc)",
+          animation:"royalPrismatic 3.5s linear infinite",
+          WebkitMask:"linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          WebkitMaskComposite:"xor", maskComposite:"exclude", padding:2 }}/>
+      </>)}
+
+      {/* Decorative circles */}
         <div style={{ position:"absolute", top:-40, right:-40, width:160, height:160,
           borderRadius:"50%", background:"rgba(255,255,255,0.06)" }}/>
         <div style={{ position:"absolute", bottom:-60, left:-30, width:180, height:180,
