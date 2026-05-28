@@ -185,7 +185,7 @@ export default function MembershipBenefitsPage() {
             display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
           <div style={{ flex:1, textAlign:"center" }}>
             <p style={{ color:"rgba(255,215,0,0.6)", fontSize:10, fontWeight:800,
-              letterSpacing:4, margin:"0 0 3px", textTransform:"uppercase" }}>Cing Hu Tang</p>
+              letterSpacing:4, margin:"0 0 3px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
             <h1 style={{ color:"white", fontSize:20, fontWeight:900, margin:0 }}>Quyền Lợi Thành Viên</h1>
           </div>
           <div style={{ width:38 }}/>

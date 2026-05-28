@@ -214,7 +214,7 @@ export default function AccountPage() {
               <p style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 4px" }}>{name}</p>
               <span style={{ fontSize:12, color:"rgba(255,255,255,0.7)" }}>✏️</span>
             </div>
-            <p style={{ color:"rgba(255,255,255,0.6)", fontSize:12, margin:0 }}>{profile?.phone || "Thành viên Cing Hu Tang"}</p>
+            <p style={{ color:"rgba(255,255,255,0.6)", fontSize:12, margin:0 }}>{profile?.phone || "Thành viên Cing Hu Tang Kinh Bắc"}</p>
           </div>
         </div>
 

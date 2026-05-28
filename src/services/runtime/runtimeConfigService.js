@@ -17,7 +17,7 @@ class RuntimeConfigService {
     const config = {
       appName:
         import.meta.env.VITE_APP_NAME ||
-        "Cing Hu Tang",
+        "Cing Hu Tang Kinh Bắc",
 
       apiBaseUrl:
         import.meta.env.VITE_API_BASE_URL ||

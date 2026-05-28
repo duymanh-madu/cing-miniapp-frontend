@@ -17,7 +17,7 @@ export default function MenuPage() {
       }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
           <h1 style={{ fontSize:20, fontWeight:900, color:"#1a1a1a", margin:0 }}>Thực đơn</h1>
-          <span style={{ fontSize:11, color:"#bbb" }}>Cing Hu Tang</span>
+          <span style={{ fontSize:11, color:"#bbb" }}>Cing Hu Tang Kinh Bắc</span>
         </div>
         <div style={{
           display:"flex", alignItems:"center",

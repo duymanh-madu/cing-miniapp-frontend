@@ -31,7 +31,7 @@ function AppHeader() {
             font-black
           "
         >
-          Cing Hu Tang
+          Cing Hu Tang Kinh Bắc
         </h1>
       </div>
     </header>

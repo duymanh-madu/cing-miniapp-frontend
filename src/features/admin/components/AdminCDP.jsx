@@ -384,7 +384,7 @@ export default function AdminCDP({ token }) {
                 <div style={{ marginBottom:16 }}>
                   <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Nội dung *</p>
                   <textarea value={message} onChange={e => setMessage(e.target.value)}
-                    placeholder="VD: Chúng tôi nhớ bạn! Ghé Cing Hu Tang hôm nay và nhận ngay ưu đãi đặc biệt..."
+                    placeholder="VD: Chúng tôi nhớ bạn! Ghé Cing Hu Tang Kinh Bắc hôm nay và nhận ngay ưu đãi đặc biệt..."
                     rows={3}
                     style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
                       borderRadius:8, padding:"10px 12px", color:"white", fontSize:13,

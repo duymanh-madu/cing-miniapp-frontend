@@ -40,7 +40,7 @@ function HomeHero() {
         <div className='absolute -bottom-10 -left-10 h-[120px] w-[120px] rounded-full bg-white/10' />
         <div className='relative z-10' style={{ display:'flex', flexDirection:'column', minHeight:160 }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <img src='/logo-cing.png' alt='Cing Hu Tang'
+            <img src='/logo-cing.png' alt='Cing Hu Tang Kinh Bắc'
               style={{ height:54, objectFit:'contain', filter:'drop-shadow(0 2px 8px rgba(0,0,0,0.25))' }} />
             <NotificationBell />
           </div>
