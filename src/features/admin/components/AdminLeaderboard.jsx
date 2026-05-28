@@ -4,7 +4,7 @@ import apiClient from "@/infra/api/apiClient";
 const PERIODS = [
   { key:"weekly",    label:"Tuần",       icon:"📅", resetInfo:"Thứ Hai hàng tuần" },
   { key:"monthly",   label:"Tháng",      icon:"🗓", resetInfo:"Ngày 1 hàng tháng" },
-  { key:"quarterly", label:"Quý",        icon:"📆", resetInfo:"Đầu mỗi quý" },
+  { key:"yearly",    label:"Năm",         icon:"📆", resetInfo:"Ngày 1 tháng 1 hàng năm" },
   { key:"custom",    label:"Tuỳ chỉnh",  icon:"🎯", resetInfo:"Theo cấu hình admin" },
   { key:"alltime",   label:"Tất cả",     icon:"🏆", resetInfo:"Không reset" },
 ];
@@ -312,7 +312,7 @@ function defaultConfig() {
     spending: {
       weekly:    { enabled:true,  rewards:[{rank:1,points:100,label:"🥇 Top 1 tuần"},{rank:2,points:50,label:"🥈 Top 2 tuần"},{rank:3,points:30,label:"🥉 Top 3 tuần"}] },
       monthly:   { enabled:true,  rewards:[{rank:1,points:200,label:"🥇 Top 1 tháng"},{rank:2,points:100,label:"🥈 Top 2 tháng"},{rank:3,points:60,label:"🥉 Top 3 tháng"}] },
-      quarterly: { enabled:false, rewards:[{rank:1,points:500,label:"🥇 Top 1 quý"},{rank:2,points:300,label:"🥈 Top 2 quý"},{rank:3,points:200,label:"🥉 Top 3 quý"}] },
+      yearly:    { enabled:false, rewards:[{rank:1,points:500,label:"🥇 Top 1 năm"},{rank:2,points:300,label:"🥈 Top 2 năm"},{rank:3,points:200,label:"🥉 Top 3 năm"}] },
       custom:    { enabled:false, rewards:[{rank:1,points:300,label:"🥇 Vua tiêu dùng"},{rank:2,points:200,label:"🥈 Á quân"},{rank:3,points:100,label:"🥉 Hạng ba"}] },
       alltime:   { enabled:true,  rewards:[] },
     },
