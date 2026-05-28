@@ -7,6 +7,7 @@ import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import GameLeaderboard from "../components/GameLeaderboard";
 import ChessGame from "../games/chess/ChessGame";
+import ChessLeaderboard from "../games/chess/ChessLeaderboard";
 import GamePlaysCard from "../components/GamePlaysCard";
 
 export default function GameCenterPage() {
@@ -59,6 +60,7 @@ export default function GameCenterPage() {
   }, []);
   const [showBoard, setShowBoard] = useState(null);
   const [playingChess, setPlayingChess] = useState(false);
+  const [showChessLB, setShowChessLB] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const authenticated = useAuthStore(s => s.authenticated);
   const [gamePlays, setGamePlays] = useState(null);
@@ -89,6 +91,7 @@ export default function GameCenterPage() {
         </div>
         <div style={{ flex:1 }}><GameComp onExit={() => setActiveGame(null)} onGameOver={handleGameOver} /></div>
         {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
+      {showChessLB && <ChessLeaderboard onClose={() => setShowChessLB(false)} />}
       </div>
     );
   }
@@ -237,7 +240,7 @@ export default function GameCenterPage() {
               }} style={{ background:"linear-gradient(135deg,#8B6914,#FFD700)", color:"#1a0a00",
                 border:"none", borderRadius:10, padding:"8px 18px", fontSize:12,
                 fontWeight:800, cursor:"pointer" }}>♟ Tìm đối thủ</button>
-              <button onClick={() => setShowBoard("chess")} style={{
+              <button onClick={() => setShowChessLB(true)} style={{
                 background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)",
                 color:"#FFD700", borderRadius:10, padding:"8px 14px",
                 fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
