@@ -80,7 +80,9 @@ function Top23Card({ entry, rank }) {
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", flex:1 }}>
       <span style={{ fontSize:28, marginBottom:6, filter:`drop-shadow(0 0 8px ${c.glow})` }}>{c.medal}</span>
       <div style={{ position:"relative", marginBottom:8 }}>
-        <Avatar name={entry.player_name||entry.name} size={64} bg={c.bg} color={c.text} fontSize={24} />
+        {entry.avatar
+          ? <img src={entry.avatar} alt="" style={{width:64,height:64,borderRadius:32,objectFit:"cover",border:`3px solid ${c.bg}`}}/>
+          : <Avatar name={entry.player_name||entry.name} size={64} bg={c.bg} color={c.text} fontSize={24} />}
         <div style={{ position:"absolute", bottom:-4, right:-4, background:c.bg,
           borderRadius:10, width:20, height:20, display:"flex", alignItems:"center",
           justifyContent:"center", fontSize:10, fontWeight:900, color:c.text,
