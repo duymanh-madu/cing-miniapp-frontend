@@ -159,8 +159,16 @@ export default function AccountPage() {
   const avatarUrl = profile?.avatar || null;
   const userId    = profile?.phone || profile?.id || null;
 
+  const authenticated = useAuthStore(s => s.authenticated);
+
   const openEdit = async () => {
     if (!userId) return;
+    // Chỉ cho phép Zalo authenticated user đổi thông tin
+    if (!authenticated) {
+      setToast("⚠️ Vui lòng đăng nhập qua Zalo để thay đổi thông tin!");
+      setTimeout(() => setToast(""), 3000);
+      return;
+    }
     try {
       const res = await apiClient.get(`/profile-update/status/${userId}`);
       setCooldown(res.data?.data);
