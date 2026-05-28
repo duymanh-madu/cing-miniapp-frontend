@@ -131,11 +131,12 @@ export default function LeaderboardPage() {
 
   // Fetch custom leaderboard config tu admin
   useEffect(() => {
-    // Fetch leaderboard rewards config
-    apiClient.get("/admin/leaderboard/config")
+    // Fetch leaderboard rewards config từ public endpoint
+    apiClient.get("/app-config/public")
       .then(r => {
         const cfg = r.data?.data || {};
-        setRewardsConfig(cfg.spending || {});
+        const lbCfg = cfg.leaderboard_config || {};
+        setRewardsConfig(lbCfg.spending || {});
       }).catch(() => {});
   }, []);
 

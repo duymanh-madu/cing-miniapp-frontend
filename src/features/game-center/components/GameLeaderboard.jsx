@@ -13,11 +13,12 @@ export default function GameLeaderboard({ gameKey, onClose }) {
   const profile = useAuthStore(s => s.profile);
 
   useEffect(() => {
+    // Lấy rewards config từ alltime games
     apiClient.get("/game/snake/leaderboard/alltime-games")
       .then(r => {
         const games = r.data?.data || [];
         const game = games.find(g => g.game_key === gameKey);
-        if (game?.rewards) setRewards(game.rewards);
+        if (game?.rewards?.length) setRewards(game.rewards);
       }).catch(() => {});
   }, [gameKey]);
 
