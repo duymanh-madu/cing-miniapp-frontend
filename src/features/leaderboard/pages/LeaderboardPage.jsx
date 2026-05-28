@@ -106,6 +106,7 @@ export default function LeaderboardPage() {
   const [myRank, setMyRank] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
+  const [resetNotif, setResetNotif] = useState(null);
   const [rewardsConfig, setRewardsConfig] = useState({});
   const [customRange, setCustomRange] = useState({ from:"", to:"" });
   const [showCustom, setShowCustom] = useState(false);
@@ -200,6 +201,18 @@ export default function LeaderboardPage() {
     <div style={{ minHeight:"100vh",
       background:"linear-gradient(180deg,#050310 0%,#0d0820 35%,#080514 70%,#050310 100%)",
       paddingBottom:100 }}>
+
+      {resetNotif && (
+        <div style={{
+          position:"fixed", top:24, left:16, right:16, zIndex:999,
+          background:"linear-gradient(135deg,#D4531C,#ff6b35)",
+          borderRadius:16, padding:"14px 18px",
+          boxShadow:"0 8px 32px rgba(0,0,0,0.5)",
+        }}>
+          <p style={{color:"white",fontSize:13,fontWeight:900,margin:"0 0 4px"}}>🔄 BXH tuần mới!</p>
+          <p style={{color:"rgba(255,255,255,0.85)",fontSize:11,margin:0,whiteSpace:"pre-line"}}>{resetNotif}</p>
+        </div>
+      )}
 
       {notification && (
         <RankNotification msg={notification.msg} up={notification.up}

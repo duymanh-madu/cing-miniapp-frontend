@@ -51,6 +51,15 @@ export default function AdminLeaderboard({ token }) {
     setTimeout(() => setMsg(""), 6000);
   };
 
+  const manualReset = async () => {
+    if (!window.confirm("Reset BXH tuần ngay và phát thưởng?")) return;
+    try {
+      await apiClient.post("/admin/leaderboard/manual-weekly-reset", {}, { headers:h });
+      setMsg("✅ Đang reset BXH tuần...");
+    } catch(e) { setMsg("❌ " + e.message); }
+    setTimeout(() => setMsg(""), 5000);
+  };
+
   const resetGame = async (game_key) => {
     if (!window.confirm(`Reset bảng xếp hạng ${game_key}? Top 100 sẽ được lưu archive.`)) return;
     setResetting(game_key);
