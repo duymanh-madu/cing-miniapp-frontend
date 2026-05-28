@@ -3,6 +3,23 @@ import { io } from "socket.io-client";
 
 const BACKEND     = import.meta.env.VITE_API_BASE_URL?.replace("/api","") || "https://cing-backend-production.up.railway.app";
 const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || BACKEND; // Fallback về Railway nếu chưa có
+// Linear interpolation helper
+const lerp = (a, b, t) => a + (b - a) * t;
+const lerpSeg = (s1, s2, t) => {
+  if (!s1 || !s2) return s2 || s1;
+  return { x: lerp(s1.x, s2.x, t), y: lerp(s1.y, s2.y, t) };
+};
+const lerpSnake = (prev, curr, t) => {
+  if (!prev?.segments || !curr?.segments) return curr;
+  const len = Math.min(prev.segments.length, curr.segments.length);
+  return {
+    ...curr,
+    segments: curr.segments.map((s, i) =>
+      i < len && prev.segments[i] ? lerpSeg(prev.segments[i], s, t) : s
+    )
+  };
+};
+
 const MAP_SIZE  = 4000;
 const MAP_R     = 1800;
 const MAP_CX    = MAP_SIZE / 2;
@@ -14,6 +31,9 @@ export default function SnakeGame({ profile, onExit }) {
   const cvRef    = useRef(null);
   const sockRef  = useRef(null);
   const stRef    = useRef({ self:null, players:[], food:[], special:[], mapSize:MAP_SIZE });
+  const prevRef  = useRef(null);  // state trước
+  const lerpRef  = useRef(0);     // interpolation progress 0-1
+  const lastTickRef = useRef(Date.now()); // thời điểm nhận state mới nhất
   const animRef  = useRef(null);
   const deadRef  = useRef(false);
   const glowRef  = useRef(0);
@@ -39,7 +59,10 @@ export default function SnakeGame({ profile, onExit }) {
     s.on("game:rooms",        (d) => setRooms(d));
     s.on("game:joined",       ()  => { setPhase("playing"); deadRef.current=false; });
     s.on("game:state",        (d) => {
+      prevRef.current = stRef.current;
       stRef.current = d;
+      lerpRef.current = 0;
+      lastTickRef.current = Date.now();
       if (d.self) {
         setKills(d.self.kills);
         setLen(d.self.length);
@@ -264,12 +287,12 @@ export default function SnakeGame({ profile, onExit }) {
         ctx.strokeStyle="rgba(212,83,28,0.5)"; ctx.lineWidth=1; ctx.stroke();
         // Food dots
         ctx.fillStyle="rgba(200,80,16,0.6)";
-        stRef.current.food?.forEach(f=>{
+        interpSt.food?.forEach(f=>{
           const fx2=cx2+(f.x-MAP_CX)*sc, fy2=cy2+(f.y-MAP_CY)*sc;
           ctx.beginPath(); ctx.arc(fx2,fy2,0.7,0,Math.PI*2); ctx.fill();
         });
         // Special items
-        stRef.current.special?.forEach(s=>{
+        interpSt.special?.forEach(s=>{
           const sx2=cx2+(s.x-MAP_CX)*sc, sy2=cy2+(s.y-MAP_CY)*sc;
           ctx.beginPath(); ctx.arc(sx2,sy2,2,0,Math.PI*2);
           ctx.fillStyle="#FFD700"; ctx.fill();
@@ -313,11 +336,32 @@ export default function SnakeGame({ profile, onExit }) {
       };
 
       let t=0;
+      const TICK_MS = 33; // server tick rate
       const frame=()=>{
         if(deadRef.current) return;
         t+=0.016;
+        
+        // Tính interpolation progress giữa 2 server tick
+        const elapsed = Date.now() - lastTickRef.current;
+        const alpha = Math.min(elapsed / TICK_MS, 1);
+        lerpRef.current = alpha;
+
         const st=stRef.current;
-        const self=st.self;
+        const prev=prevRef.current;
+        
+        // Interpolate self snake
+        const interpSelf = prev?.self && st.self
+          ? lerpSnake(prev.self, st.self, alpha)
+          : st.self;
+        
+        // Interpolate other players
+        const interpPlayers = (st.players||[]).map(p => {
+          const prevP = prev?.players?.find(pp => pp.id === p.id);
+          return prevP ? lerpSnake(prevP, p, alpha) : p;
+        });
+
+        const interpSt = { ...st, self: interpSelf, players: interpPlayers };
+        const self = interpSelf;
 
         ctx.fillStyle="#080504"; ctx.fillRect(0,0,W,H);
 
