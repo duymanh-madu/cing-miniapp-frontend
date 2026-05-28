@@ -54,6 +54,7 @@ export default function SnakeGame({ profile, onExit }) {
   const [len,     setLen]     = useState(20);
   const [efx,     setEfx]     = useState([]);
   const [err,     setErr]     = useState("");
+  const [music,   setMusic]   = useState(true);
   const [quality, setQuality] = useState(() => {
     try { return localStorage.getItem("snake_q") || detectQuality(); } catch { return "medium"; }
   });
@@ -64,13 +65,13 @@ export default function SnakeGame({ profile, onExit }) {
   }, [quality]);
 
   useEffect(() => {
-    if (phase === "playing") {
+    if (phase === "playing" && music) {
       try {
         if (!audioRef.current) {
-          // Nhạc nền game - upbeat electronic/lofi free track
-          audioRef.current = new Audio("https://cdn.freesound.org/previews/612/612095_5674468-lq.mp3");
+          // Nhạc nền lofi/electronic giống Slither.io
+          audioRef.current = new Audio("https://cdn.freesound.org/previews/618/618431_4404552-lq.mp3");
           audioRef.current.loop = true;
-          audioRef.current.volume = 0.18;
+          audioRef.current.volume = 0.2;
         }
         audioRef.current.play().catch(()=>{});
       } catch {}
@@ -78,7 +79,7 @@ export default function SnakeGame({ profile, onExit }) {
       try { audioRef.current?.pause(); } catch {}
     }
     return () => { try { audioRef.current?.pause(); } catch {} };
-  }, [phase]);
+  }, [phase, music]);
 
   useEffect(() => {
     if (sockRef.current) return;
@@ -205,12 +206,17 @@ export default function SnakeGame({ profile, onExit }) {
         items.forEach(s=>{
           const sx=s.x-camX+W/2, sy=s.y-camY+H/2;
           if(sx<-60||sx>W+60||sy<-60||sy>H+60) return;
+          ctx.save(); // IMPORTANT: save trước mỗi item
           const r=20+Math.sin(t*3)*2, col=SCOL[s.type]||"#fff";
-          const g=ctx.createRadialGradient(sx,sy,0,sx,sy,r*2.8); g.addColorStop(0,col+"66"); g.addColorStop(1,"rgba(0,0,0,0)");
+          const g=ctx.createRadialGradient(sx,sy,0,sx,sy,r*2.8);
+          g.addColorStop(0,col+"66"); g.addColorStop(1,"rgba(0,0,0,0)");
           ctx.beginPath(); ctx.arc(sx,sy,r*2.8,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
           ctx.beginPath(); ctx.arc(sx,sy,r,0,Math.PI*2); ctx.fillStyle="#1a0d05"; ctx.fill();
           ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.stroke();
-          ctx.font=`bold ${r*.85}px sans-serif`; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillStyle=col; ctx.fillText(SICO[s.type]||"?",sx,sy);
+          ctx.font=`bold ${Math.round(r*.85)}px sans-serif`;
+          ctx.textAlign="center"; ctx.textBaseline="middle";
+          ctx.fillStyle=col; ctx.fillText(SICO[s.type]||"?",sx,sy);
+          ctx.restore(); // restore sau mỗi item
         });
       };
 
@@ -353,7 +359,16 @@ export default function SnakeGame({ profile, onExit }) {
           </div>
         ))}
       </div>
-      <button onClick={()=>{sockRef.current?.disconnect();sockRef.current=null;onExit();}} style={{position:"absolute",bottom:20,right:14,background:"rgba(0,0,0,.6)",border:"1px solid #333",color:"#888",borderRadius:8,padding:"7px 13px",fontSize:12,cursor:"pointer"}}>✕ Thoát</button>
+      <div style={{position:"absolute",bottom:20,right:14,display:"flex",gap:8}}>
+        <button onClick={()=>setMusic(m=>!m)} style={{background:"rgba(0,0,0,.6)",
+          border:`1px solid ${music?"#D4531C":"#333"}`,
+          color:music?"#D4531C":"#555",borderRadius:8,padding:"7px 11px",fontSize:16,cursor:"pointer"}}>
+          {music?"🔊":"🔇"}
+        </button>
+        <button onClick={()=>{sockRef.current?.disconnect();sockRef.current=null;onExit();}}
+          style={{background:"rgba(0,0,0,.6)",border:"1px solid #333",color:"#888",
+            borderRadius:8,padding:"7px 13px",fontSize:12,cursor:"pointer"}}>✕ Thoát</button>
+      </div>
     </div>
   );
 }
