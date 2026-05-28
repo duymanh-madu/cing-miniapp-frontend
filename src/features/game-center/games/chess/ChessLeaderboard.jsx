@@ -9,11 +9,21 @@ export default function ChessLeaderboard({ onClose }) {
   const profile = useAuthStore(s => s.profile);
   const userId  = profile?.id || profile?.phone;
 
-  useEffect(() => {
+  const fetchData = () => {
     apiClient.get("/game/chess/leaderboard")
       .then(r => setData(r.data?.data))
       .catch(() => {})
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchData();
+    // Realtime refresh khi có ván kết thúc
+    const { io } = require("socket.io-client");
+    const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
+    const s = io(`${GAME_SERVER}/chess`, { transports:["websocket"] });
+    s.on("chess:leaderboard_updated", () => fetchData());
+    return () => s.disconnect();
   }, []);
 
   const list = tab === "wins" ? data?.topWins : data?.topStreak;
