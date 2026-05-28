@@ -1,3 +1,4 @@
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useState } from "react";
 import MenuCategories from "@/features/menu/components/MenuCategories";
 import MenuGrid from "@/features/menu/components/MenuGrid";
@@ -6,6 +7,43 @@ import useMenu from "@/features/menu/hooks/useMenu";
 export default function MenuPage() {
   const [search, setSearch] = useState("");
   const { isError, error, isLoading } = useMenu();
+
+  
+  // Realtime menu update từ Foodbook webhook
+  useEffect(() => {
+    let attempts = 0;
+    const attach = () => {
+      const socket = getRuntimeSocket();
+      if (socket && socket.connected) {
+        socket.on("menu.updated", () => {
+          console.log('[MENU] Realtime update received');
+          fetchMenu();
+        });
+        // Event 26: OUT_OF_STOCK realtime - update item status ngay lập tức
+        socket.on("menu.item_out_of_stock", (data) => {
+          console.log('[MENU] Item out of stock:', data.item_id, data.status);
+          // Update state trực tiếp không cần fetch lại
+          setMenuData(prev => {
+            if (!prev) return prev;
+            return prev.map(category => ({
+              ...category,
+              items: (category.items || []).map(item => {
+                if (item.store_item_id === data.item_id || item.id === data.item_id) {
+                  return { ...item, status: data.status };
+                }
+                return item;
+              })
+            }));
+          });
+        });
+        return;
+      }
+      if (attempts++ < 20) setTimeout(attach, 1000);
+    };
+    attach();
+    return () => getRuntimeSocket()?.off("menu.updated");
+  }, []);
+
 
   return (
     <div style={{ background:"#fafafa" }}>
