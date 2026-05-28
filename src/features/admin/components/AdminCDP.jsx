@@ -14,6 +14,7 @@ export default function AdminCDP({ token }) {
   const [msg, setMsg]               = useState("");
   const [preview, setPreview]       = useState(false);
   const [customPhones, setCustomPhones] = useState([]);
+  const [customDays, setCustomDays] = useState(30);
   const [customInput, setCustomInput]   = useState("");
   const fileRef = useRef();
   const h = { Authorization: `Bearer ${token}` };
@@ -28,6 +29,16 @@ export default function AdminCDP({ token }) {
     setSelected(seg);
     setUsers([]);
     if (seg.key === "birthday" || seg.key === "custom") return;
+    if (seg.key === "inactive_custom") {
+      setLoadingUsers(true);
+      try {
+        const r = await apiClient.get(`/admin/cdp/segment-users/inactive_custom?limit=10&days=${customDays}`, { headers: h });
+        setUsers(r.data?.data || []);
+        setSelected({...seg, count: r.data?.count || 0});
+      } catch(e) { console.error(e); }
+      finally { setLoadingUsers(false); }
+      return;
+    }
     setLoadingUsers(true);
     try {
       const r = await apiClient.get(`/admin/cdp/segment-users/${seg.key}?limit=10`, { headers: h });
@@ -43,6 +54,7 @@ export default function AdminCDP({ token }) {
       const res = await apiClient.post("/admin/cdp/send-notification", {
         segment_key: selected.key, title, message,
         custom_phones: selected.key === "custom" ? customPhones : undefined,
+        custom_days: selected.key === "inactive_custom" ? customDays : undefined,
       }, { headers: h });
       setMsg(`✅ ${res.data?.message}`);
       setTitle(""); setMessage(""); setPreview(false);
@@ -115,6 +127,51 @@ export default function AdminCDP({ token }) {
           ) : (
             <>
               {/* Custom segment UI */}
+              {selected.key === "inactive_custom" && (
+                <div style={{ background:"#1a1a24", borderRadius:14, padding:"16px", marginBottom:12, border:"1px solid #FF572244" }}>
+                  <p style={{ color:"white", fontSize:13, fontWeight:800, margin:"0 0 12px" }}>
+                    📅 Chưa quay lại trong bao nhiêu ngày?
+                  </p>
+                  <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                    <input type="number" value={customDays} min={1} max={365}
+                      onChange={e => {
+                        setCustomDays(Number(e.target.value));
+                        // Fetch count mới
+                        apiClient.get(`/admin/cdp/segment-users/inactive_custom?limit=10&days=${e.target.value}`, { headers:h })
+                          .then(r => {
+                            setUsers(r.data?.data || []);
+                            setSelected(prev => ({...prev, count: r.data?.count || 0}));
+                          }).catch(()=>{});
+                      }}
+                      style={{ width:80, background:"#2a2a38", border:"1px solid #FF5722",
+                        borderRadius:8, padding:"8px 12px", color:"white",
+                        fontSize:18, fontWeight:900, textAlign:"center" }}/>
+                    <span style={{ color:"#aaa", fontSize:14 }}>ngày</span>
+                    <span style={{ color:"#FF5722", fontSize:12, fontWeight:700 }}>
+                      → {selected.count > 0 ? `${selected.count} khách` : "Đang đếm..."}
+                    </span>
+                  </div>
+                  <div style={{ display:"flex", gap:6, marginTop:10, flexWrap:"wrap" }}>
+                    {[7,14,30,60,90,180].map(d => (
+                      <button key={d} onClick={() => {
+                        setCustomDays(d);
+                        apiClient.get(`/admin/cdp/segment-users/inactive_custom?limit=10&days=${d}`, { headers:h })
+                          .then(r => {
+                            setUsers(r.data?.data || []);
+                            setSelected(prev => ({...prev, count: r.data?.count || 0}));
+                          }).catch(()=>{});
+                      }} style={{
+                        background: customDays===d ? "#FF5722" : "rgba(255,87,34,0.15)",
+                        border: `1px solid ${customDays===d ? "#FF5722" : "#FF572244"}`,
+                        color: customDays===d ? "white" : "#FF5722",
+                        borderRadius:8, padding:"4px 10px", fontSize:11,
+                        fontWeight:700, cursor:"pointer"
+                      }}>{d} ngày</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {selected.key === "custom" && (
                 <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px",
                   marginBottom:16, border:"1px solid #2a2a38" }}>
