@@ -590,6 +590,20 @@ export default function SnakeGame({ profile, onExit }) {
   return(
     <div style={{position:"fixed",inset:0,background:"#080504",overflow:"hidden"}}>
       <canvas ref={cvRef} style={{display:"block",touchAction:"none"}}/>
+      {/* Quality selector */}
+      <div style={{position:"absolute",top:10,right:10,zIndex:30,display:"flex",alignItems:"center",gap:6}}>
+        {['high','medium','low'].map(q => (
+          <button key={q} onClick={()=>setQuality(q)} style={{
+            background: quality===q ? "rgba(212,83,28,0.9)" : "rgba(0,0,0,0.6)",
+            border: `1px solid ${quality===q?"#D4531C":"rgba(255,255,255,0.2)"}`,
+            color:"white", borderRadius:8, padding:"4px 8px",
+            fontSize:10, fontWeight:700, cursor:"pointer"
+          }}>
+            {q==='high'?'🔥':q==='medium'?'⚡':'🔋'}
+          </button>
+        ))}
+      </div>
+
       <div style={{position:"absolute",top:10,left:10,right:10,display:"flex",
         justifyContent:"space-between",pointerEvents:"none"}}>
         <div style={{background:"rgba(0,0,0,.65)",borderRadius:10,padding:"8px 13px"}}>
