@@ -42,6 +42,7 @@ export default function AdminCDP({ token }) {
     try {
       const res = await apiClient.post("/admin/cdp/send-notification", {
         segment_key: selected.key, title, message,
+        custom_phones: selected.key === "custom" ? customPhones : undefined,
       }, { headers: h });
       setMsg(`✅ ${res.data?.message}`);
       setTitle(""); setMessage(""); setPreview(false);
@@ -214,7 +215,7 @@ export default function AdminCDP({ token }) {
                       {selected.label}
                     </p>
                     <p style={{ color:"#666", fontSize:12, margin:"2px 0 0" }}>
-                      {selected.count.toLocaleString()} khách hàng trong phân khúc này
+                      {selected.key === "custom" ? customPhones.length : selected.count} khách hàng trong phân khúc này
                     </p>
                   </div>
                 </div>
@@ -306,7 +307,7 @@ export default function AdminCDP({ token }) {
                     </div>
                     <p style={{ color:"#666", fontSize:11, margin:"8px 0 0" }}>
                       Sẽ gửi đến: <strong style={{ color:"#D4531C" }}>
-                        {selected.count.toLocaleString()} khách
+                        {selected.key === "custom" ? customPhones.length : selected.count} khách
                       </strong> trong phân khúc "{selected.label}"
                     </p>
                   </div>
@@ -322,12 +323,12 @@ export default function AdminCDP({ token }) {
                     {preview ? "Ẩn xem trước" : "👁 Xem trước"}
                   </button>
                   <button onClick={sendNotif}
-                    disabled={sending || !title || !message}
+                    disabled={sending || !title || !message || (selected?.key === "custom" && customPhones.length === 0)}
                     style={{ flex:2, background: (sending || !title || !message) ? "#333" : "#D4531C",
                       border:"none", color:"white", borderRadius:8, padding:"10px",
                       fontSize:13, fontWeight:800,
                       cursor: (sending || !title || !message) ? "default" : "pointer" }}>
-                    {sending ? "Đang gửi..." : `📡 Gửi đến ${selected.count.toLocaleString()} khách`}
+                    {sending ? "Đang gửi..." : `📡 Gửi đến ${selected.key === "custom" ? customPhones.length : selected.count} khách`}
                   </button>
                 </div>
               </div>
