@@ -11,7 +11,6 @@ const PERIODS = [
 
 const GAMES = [
   { key:"black-pearl-rush",    label:"Bay cùng trân châu",    icon:"🫧" },
-  { key:"tran-chau-dai-chien", label:"Trân Châu Đại Chiến",   icon:"⚔️" },
 ];
 
 export default function AdminLeaderboard({ token }) {
@@ -321,10 +320,6 @@ function defaultConfig() {
         enabled:true, weekly_reset:true, display_name:"Bay cùng trân châu", icon:"🫧",
         rewards:[{rank:1,points:50,label:"🥇 Top 1 tuần"},{rank:2,points:30,label:"🥈 Top 2 tuần"},{rank:3,points:20,label:"🥉 Top 3 tuần"}],
       },
-      "tran-chau-dai-chien": {
-        enabled:true, weekly_reset:true, display_name:"Trân Châu Đại Chiến", icon:"⚔️",
-        rewards:[{rank:1,points:50,label:"🥇 Top 1 tuần"},{rank:2,points:30,label:"🥈 Top 2 tuần"},{rank:3,points:20,label:"🥉 Top 3 tuần"}],
-      },
-    },
+          },
   };
 }

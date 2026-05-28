@@ -6,8 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import GameLeaderboard from "../components/GameLeaderboard";
-import SnakeGame from "../games/snake/SnakeGame";
-import AlltimeLeaderboard from "../components/AlltimeLeaderboard";
+import ChessGame from "../games/chess/ChessGame";
 import GamePlaysCard from "../components/GamePlaysCard";
 
 export default function GameCenterPage() {
@@ -15,8 +14,6 @@ export default function GameCenterPage() {
   const [activeGame, setActiveGame] = useState(null);
   const profile = useAuthStore(s => s.profile);
   const [challenge, setChallenge] = useState(null);
-  const [playingSnake, setPlayingSnake] = useState(false);
-  const [showAlltimeLB, setShowAlltimeLB] = useState(false);
   const [challengeWinner, setChallengeWinner] = useState(null);
 
   useEffect(() => {
@@ -61,13 +58,14 @@ export default function GameCenterPage() {
     return () => { getRuntimeSocket()?.off("challenge.won"); };
   }, []);
   const [showBoard, setShowBoard] = useState(null);
+  const [playingChess, setPlayingChess] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const authenticated = useAuthStore(s => s.authenticated);
   const [gamePlays, setGamePlays] = useState(null);
   const navigate = useNavigate();
 
-  if (playingSnake) {
-    return <SnakeGame profile={profile} onExit={() => setPlayingSnake(false)} />;
+  if (playingChess) {
+    return <ChessGame onExit={() => setPlayingChess(false)} />;
   }
 
   if (activeGame) {
@@ -235,7 +233,6 @@ export default function GameCenterPage() {
               <button onClick={() => {
                 if (!authenticated) { setShowAuthModal(true); return; }
                 if (gamePlays !== null && gamePlays <= 0) { alert("Hết lượt chơi!"); return; }
-                setPlayingSnake(true);
               }} style={{ background:"linear-gradient(135deg,#D4531C,#ff6b35)", color:"white",
                 border:"none", borderRadius:10, padding:"8px 18px", fontSize:12,
                 fontWeight:800, cursor:"pointer" }}>⚔️ Vào chiến</button>
@@ -249,9 +246,6 @@ export default function GameCenterPage() {
       </div>
 
       {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
-
-      {showAlltimeLB && <AlltimeLeaderboard onClose={() => setShowAlltimeLB(false)} />}
-
       {showAuthModal && (
         <>
           <div onClick={() => setShowAuthModal(false)} style={{

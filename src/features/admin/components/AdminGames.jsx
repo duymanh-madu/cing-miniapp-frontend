@@ -13,7 +13,7 @@ export default function AdminGames({ token }) {
 
   useEffect(() => {
     // Lấy alltime games config để biết có bao nhiêu game
-    apiClient.get("/game/snake/leaderboard/alltime-games")
+    apiClient.get("/game/leaderboard/alltime-games")
       .then(r => {
         const data = r.data?.data || [];
         setGames(data);

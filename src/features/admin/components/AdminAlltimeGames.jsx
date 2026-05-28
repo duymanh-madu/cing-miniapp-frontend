@@ -3,7 +3,6 @@ import apiClient from "@/infra/api/apiClient";
 
 const DEFAULT_GAMES = {
   "black-pearl-rush":      { enabled:true, display_name:"Bay cùng trân châu", icon:"🫧" },
-  "tran-chau-dai-chien":   { enabled:true, display_name:"Trân Châu Đại Chiến", icon:"⚔️" },
 };
 
 export default function AdminAlltimeGames({ token }) {

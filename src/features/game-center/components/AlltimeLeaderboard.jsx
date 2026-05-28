@@ -11,7 +11,7 @@ export default function AlltimeLeaderboard({ onClose }) {
   const profile = useAuthStore(s => s.profile);
 
   useEffect(() => {
-    apiClient.get("/game/snake/leaderboard/alltime-games")
+    apiClient.get("/game/leaderboard/alltime-games")
       .then(r => {
         const data = r.data?.data || [];
         setGames(data);
