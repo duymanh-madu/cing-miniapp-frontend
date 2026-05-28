@@ -28,7 +28,8 @@ export default function SnakeGame({profile,onExit}){
     if(phase==="playing"&&music){
       try{
         if(!audioRef.current){
-          audioRef.current=new Audio("https://cdn.freesound.org/previews/618/618431_4404552-lq.mp3");
+          // Nhạc lofi upbeat cho game
+          audioRef.current=new Audio("https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3");
           audioRef.current.loop=true; audioRef.current.volume=0.2;
         }
         audioRef.current.play().catch(()=>{});
@@ -127,11 +128,15 @@ export default function SnakeGame({profile,onExit}){
         }
         const hx=segs[0].x-camX+W/2,hy=segs[0].y-camY+H/2;
         let headAng;
-        if(isSelf){ headAng=loc.current.angle-Math.PI/2; }
-        else{
-          const pid=player.id,rawAng=segs.length>1?Math.atan2(segs[0].y-segs[1].y,segs[0].x-segs[1].x):0;
+        if(isSelf){
+          // Self: dùng loc.current.angle đã được smooth → khớp với prediction
+          headAng=loc.current.angle-Math.PI/2;
+        } else {
+          // Others: tính từ segment direction + smooth
+          const pid=player.id;
+          const rawAng=segs.length>1?Math.atan2(segs[0].y-segs[1].y,segs[0].x-segs[1].x):0;
           if(smoothA.current[pid]===undefined)smoothA.current[pid]=rawAng;
-          else smoothA.current[pid]=lerpA(smoothA.current[pid],rawAng,0.3);
+          else smoothA.current[pid]=lerpA(smoothA.current[pid],rawAng,0.25);
           headAng=smoothA.current[pid]-Math.PI/2;
         }
         drawHead(hx,hy,maxR*1.55,headAng,isSelf,glow);
@@ -188,14 +193,15 @@ export default function SnakeGame({profile,onExit}){
         ctx.beginPath();ctx.arc(cx2,cy2,mr,0,Math.PI*2);ctx.strokeStyle="rgba(212,83,28,.45)";ctx.lineWidth=1.5;ctx.stroke();
       };
 
-      // FIX: predict không lò xo - shift segments đúng cách
+      // predict: đầu smooth, thân fixed length
       const predict=(segs)=>{
         if(!segs?.length)return segs;
+        // Smooth turn
         loc.current.angle=lerpA(loc.current.angle,loc.current.target,0.18);
         const nx=segs[0].x+Math.cos(loc.current.angle)*CLI_SPD;
         const ny=segs[0].y+Math.sin(loc.current.angle)*CLI_SPD;
-        // Shift: đầu mới, bỏ đuôi cũ → độ dài luôn ổn định
-        return [{x:nx,y:ny},...segs.slice(0,-1)];
+        // QUAN TRỌNG: slice(0,-1) bỏ đuôi → độ dài KHÔNG ĐỔI dù boost hay không
+        return [{x:nx,y:ny},...segs.slice(0,segs.length-1)];
       };
 
       let t=0;
@@ -291,10 +297,11 @@ export default function SnakeGame({profile,onExit}){
   return(
     <div style={{position:"fixed",inset:0,background:"#080504",overflow:"hidden"}}>
       <canvas ref={cvRef} style={{display:"block",touchAction:"none"}}/>
-      {/* Logo trên cùng */}
-      <div style={{position:"absolute",top:8,left:"50%",transform:"translateX(-50%)",pointerEvents:"none",zIndex:10,display:"flex",alignItems:"center",gap:5}}>
-        <img src="/logo-cing.png" alt="" style={{width:20,height:20,objectFit:"contain",filter:"drop-shadow(0 0 4px rgba(255,215,0,0.8))"}}/>
-        <span style={{color:"#FFD700",fontSize:11,fontWeight:900,letterSpacing:1.5,textShadow:"0 0 8px rgba(255,215,0,0.8)",whiteSpace:"nowrap"}}>CING HU TANG KINH BẮC</span>
+      {/* Logo text only */}
+      <div style={{position:"absolute",top:8,left:"50%",transform:"translateX(-50%)",pointerEvents:"none",zIndex:10}}>
+        <span style={{color:"#FFD700",fontSize:12,fontWeight:900,letterSpacing:2,
+          textShadow:"0 0 12px rgba(255,215,0,0.9), 0 1px 3px rgba(0,0,0,0.8)",
+          whiteSpace:"nowrap"}}>CING HU TANG KINH BẮC</span>
       </div>
       {/* HUD */}
       <div style={{position:"absolute",top:32,left:10,right:10,display:"flex",justifyContent:"space-between",pointerEvents:"none"}}>
