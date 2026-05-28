@@ -91,7 +91,6 @@ export default function GameCenterPage() {
         </div>
         <div style={{ flex:1 }}><GameComp onExit={() => setActiveGame(null)} onGameOver={handleGameOver} /></div>
         {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
-      {showChessLB && <ChessLeaderboard onClose={() => setShowChessLB(false)} />}
       </div>
     );
   }
@@ -250,6 +249,7 @@ export default function GameCenterPage() {
       </div>
 
       {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
+      {showChessLB && <ChessLeaderboard onClose={() => setShowChessLB(false)} />}
       {showAuthModal && (
         <>
           <div onClick={() => setShowAuthModal(false)} style={{
