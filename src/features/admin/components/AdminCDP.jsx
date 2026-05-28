@@ -15,6 +15,7 @@ export default function AdminCDP({ token }) {
   const [preview, setPreview]       = useState(false);
   const [customPhones, setCustomPhones] = useState([]);
   const [customDays, setCustomDays] = useState(30);
+  const [channels, setChannels] = useState(['socket']);
   const [customInput, setCustomInput]   = useState("");
   const fileRef = useRef();
   const h = { Authorization: `Bearer ${token}` };
@@ -53,6 +54,7 @@ export default function AdminCDP({ token }) {
     try {
       const res = await apiClient.post("/admin/cdp/send-notification", {
         segment_key: selected.key, title, message,
+        channels,
         custom_phones: selected.key === "custom" ? customPhones : undefined,
         custom_days: selected.key === "inactive_custom" ? customDays : undefined,
       }, { headers: h });
@@ -369,6 +371,36 @@ export default function AdminCDP({ token }) {
                     </p>
                   </div>
                 )}
+
+                {/* Channel selector */}
+                <div style={{ marginBottom:12 }}>
+                  <p style={{ color:"#666", fontSize:11, fontWeight:700, margin:"0 0 8px", letterSpacing:1 }}>
+                    📡 KÊNH GỬI TIN
+                  </p>
+                  <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                    {[
+                      { key:"socket",   label:"🔔 Bell (In-app)", desc:"Chỉ khi mở app" },
+                      { key:"zalo_oa",  label:"💬 Zalo OA",       desc:"Cần zalo_user_id" },
+                      { key:"zbs",      label:"📢 ZBS Broadcast",  desc:"Tất cả followers OA" },
+                    ].map(ch => {
+                      const active = channels.includes(ch.key);
+                      return (
+                        <button key={ch.key} onClick={() => setChannels(prev =>
+                          prev.includes(ch.key) ? prev.filter(c=>c!==ch.key) : [...prev, ch.key]
+                        )} style={{
+                          background: active ? "rgba(212,83,28,0.2)" : "rgba(255,255,255,0.05)",
+                          border: `1px solid ${active ? "#D4531C" : "#333"}`,
+                          color: active ? "#D4531C" : "#666",
+                          borderRadius:8, padding:"6px 12px", fontSize:11,
+                          fontWeight:700, cursor:"pointer", textAlign:"left"
+                        }}>
+                          <div>{ch.label}</div>
+                          <div style={{ fontSize:9, opacity:0.7, marginTop:1 }}>{ch.desc}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
                 <div style={{ display:"flex", gap:8 }}>
                   <button onClick={() => setPreview(p => !p)}
