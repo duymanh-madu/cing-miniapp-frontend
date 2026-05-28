@@ -104,7 +104,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
                       {i===0?"🥇":i===1?"🥈":"🥉"}
                     </p>
                     <p style={{ color:"#FFD700", fontSize:12, fontWeight:900, margin:"0 0 1px" }}>
-                      {r.points}đ
+                      {r.points} điểm
                     </p>
                     <p style={{ color:"rgba(255,255,255,0.4)", fontSize:9, margin:0 }}>{r.label}</p>
                   </div>

@@ -280,7 +280,7 @@ export default function LeaderboardPage() {
                 padding:"8px 6px", textAlign:"center", border:"1px solid rgba(255,215,0,0.1)" }}>
                 <p style={{ fontSize:18, margin:"0 0 2px" }}>{i===0?"🥇":i===1?"🥈":"🥉"}</p>
                 <p style={{ color:"#FFD700", fontSize:13, fontWeight:900, margin:"0 0 1px" }}>
-                  {(r.points||0).toLocaleString()}đ
+                  {(r.points||0).toLocaleString()} điểm
                 </p>
                 <p style={{ color:"rgba(255,255,255,0.4)", fontSize:9, margin:0 }}>
                   {r.label||"Phần thưởng"}

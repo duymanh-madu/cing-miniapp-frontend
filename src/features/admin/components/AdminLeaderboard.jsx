@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 
 const PERIODS = [
-  { key:"weekly",    label:"Tuần",    icon:"📅" },
-  { key:"monthly",   label:"Tháng",   icon:"🗓" },
-  { key:"quarterly", label:"Quý",     icon:"📆" },
-  { key:"alltime",   label:"Tất cả",  icon:"🏆" },
+  { key:"weekly",    label:"Tuần",       icon:"📅", resetInfo:"Thứ Hai hàng tuần" },
+  { key:"monthly",   label:"Tháng",      icon:"🗓", resetInfo:"Ngày 1 hàng tháng" },
+  { key:"quarterly", label:"Quý",        icon:"📆", resetInfo:"Đầu mỗi quý" },
+  { key:"custom",    label:"Tuỳ chỉnh",  icon:"🎯", resetInfo:"Theo cấu hình admin" },
+  { key:"alltime",   label:"Tất cả",     icon:"🏆", resetInfo:"Không reset" },
 ];
 
 const GAMES = [
-  { key:"black-pearl-rush", label:"Bay cùng trân châu", icon:"🎮" },
+  { key:"black-pearl-rush",    label:"Bay cùng trân châu",    icon:"🫧" },
+  { key:"tran-chau-dai-chien", label:"Trân Châu Đại Chiến",   icon:"⚔️" },
 ];
 
 export default function AdminLeaderboard({ token }) {
@@ -45,7 +47,7 @@ export default function AdminLeaderboard({ token }) {
       const res = await apiClient.post("/admin/leaderboard/distribute-rewards",
         { type, period, game_key }, { headers: h });
       const results = res.data?.data || [];
-      setMsg(`✅ Đã phát thưởng: ${results.map(r => `Top${r.rank} ${r.name} +${r.points}đ`).join(", ")}`);
+      setMsg(`✅ Đã phát thưởng: ${results.map(r => `Top${r.rank} ${r.name} +${r.points} điểm`).join(", ")}`);
     } catch(e) { setMsg("❌ " + (e.response?.data?.error || e.message)); }
     setDistributing("");
     setTimeout(() => setMsg(""), 6000);
@@ -109,11 +111,19 @@ export default function AdminLeaderboard({ token }) {
             Cấu hình phần thưởng và reset bảng xếp hạng
           </p>
         </div>
-        <button onClick={save} disabled={saving}
-          style={{ background:"#D4531C", border:"none", color:"white",
-            borderRadius:10, padding:"10px 24px", fontWeight:800, cursor:"pointer" }}>
-          {saving ? "Đang lưu..." : "💾 Lưu"}
-        </button>
+        <div style={{ display:"flex", gap:8 }}>
+          <button onClick={manualReset}
+            style={{ background:"rgba(255,152,0,0.15)", border:"1px solid #FF9800",
+              color:"#FF9800", borderRadius:10, padding:"10px 16px",
+              fontWeight:800, cursor:"pointer", fontSize:12 }}>
+            🔄 Reset tuần ngay
+          </button>
+          <button onClick={save} disabled={saving}
+            style={{ background:"#D4531C", border:"none", color:"white",
+              borderRadius:10, padding:"10px 24px", fontWeight:800, cursor:"pointer" }}>
+            {saving ? "Đang lưu..." : "💾 Lưu"}
+          </button>
+        </div>
       </div>
 
       {msg && (
@@ -147,9 +157,7 @@ export default function AdminLeaderboard({ token }) {
                       Bảng xếp hạng {p.label}
                     </p>
                     <p style={{ color:"#666", fontSize:11, margin:"2px 0 0" }}>
-                      Reset mỗi {p.key === "weekly" ? "thứ Hai hàng tuần" :
-                        p.key === "monthly" ? "ngày 1 hàng tháng" :
-                        p.key === "quarterly" ? "đầu mỗi quý" : "Không reset"}
+                      {p.resetInfo}
                     </p>
                   </div>
                 </div>
@@ -302,15 +310,20 @@ export default function AdminLeaderboard({ token }) {
 function defaultConfig() {
   return {
     spending: {
-      weekly:    { enabled:true,  rewards:[{rank:1,points:100},{rank:2,points:60},{rank:3,points:40}] },
-      monthly:   { enabled:true,  rewards:[{rank:1,points:300},{rank:2,points:200},{rank:3,points:100}] },
-      quarterly: { enabled:false, rewards:[{rank:1,points:500},{rank:2,points:300},{rank:3,points:200}] },
+      weekly:    { enabled:true,  rewards:[{rank:1,points:100,label:"🥇 Top 1 tuần"},{rank:2,points:50,label:"🥈 Top 2 tuần"},{rank:3,points:30,label:"🥉 Top 3 tuần"}] },
+      monthly:   { enabled:true,  rewards:[{rank:1,points:200,label:"🥇 Top 1 tháng"},{rank:2,points:100,label:"🥈 Top 2 tháng"},{rank:3,points:60,label:"🥉 Top 3 tháng"}] },
+      quarterly: { enabled:false, rewards:[{rank:1,points:500,label:"🥇 Top 1 quý"},{rank:2,points:300,label:"🥈 Top 2 quý"},{rank:3,points:200,label:"🥉 Top 3 quý"}] },
+      custom:    { enabled:false, rewards:[{rank:1,points:300,label:"🥇 Vua tiêu dùng"},{rank:2,points:200,label:"🥈 Á quân"},{rank:3,points:100,label:"🥉 Hạng ba"}] },
       alltime:   { enabled:true,  rewards:[] },
     },
     games: {
       "black-pearl-rush": {
-        enabled:true, weekly_reset:true,
-        rewards:[{rank:1,points:50},{rank:2,points:30},{rank:3,points:20}],
+        enabled:true, weekly_reset:true, display_name:"Bay cùng trân châu", icon:"🫧",
+        rewards:[{rank:1,points:50,label:"🥇 Top 1 tuần"},{rank:2,points:30,label:"🥈 Top 2 tuần"},{rank:3,points:20,label:"🥉 Top 3 tuần"}],
+      },
+      "tran-chau-dai-chien": {
+        enabled:true, weekly_reset:true, display_name:"Trân Châu Đại Chiến", icon:"⚔️",
+        rewards:[{rank:1,points:50,label:"🥇 Top 1 tuần"},{rank:2,points:30,label:"🥈 Top 2 tuần"},{rank:3,points:20,label:"🥉 Top 3 tuần"}],
       },
     },
   };
