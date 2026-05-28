@@ -1,5 +1,5 @@
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenuCategories from "@/features/menu/components/MenuCategories";
 import MenuGrid from "@/features/menu/components/MenuGrid";
 import useMenu from "@/features/menu/hooks/useMenu";
