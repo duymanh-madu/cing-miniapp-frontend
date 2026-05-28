@@ -18,8 +18,9 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
     const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
 
     /* ── DPR cap 2 — iPhone 14 Pro = DPR3, cap tại 2 giảm 44% pixels ── */
-    const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
-    const W = 390, H = 780;
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const W = Math.min(window.innerWidth, 390);
+    const H = Math.min(window.innerHeight, 780);
     canvas.width  = W * DPR;
     canvas.height = H * DPR;
     canvas.style.width  = W + "px";
@@ -251,7 +252,7 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
         ctx.fillRect(o.x, o.bot, o.w, H);
       }
 
-      /* Particles — 1 Path2D duy nhất cho tất cả particles */
+      /* Particles — reuse path object */
       const particlePath = new Path2D();
       let hasParticles = false;
       for (let i = 0; i < PMAX; i++) {
