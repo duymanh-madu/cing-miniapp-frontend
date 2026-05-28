@@ -29,7 +29,7 @@ export default function SnakeGame({profile,onExit}){
       try{
         if(!audioRef.current){
           // Nhạc lofi upbeat cho game
-          audioRef.current=new Audio("https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3");
+          audioRef.current=new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
           audioRef.current.loop=true; audioRef.current.volume=0.2;
         }
         audioRef.current.play().catch(()=>{});
@@ -129,8 +129,10 @@ export default function SnakeGame({profile,onExit}){
         const hx=segs[0].x-camX+W/2,hy=segs[0].y-camY+H/2;
         let headAng;
         if(isSelf){
-          // Self: dùng loc.current.angle đã được smooth → khớp với prediction
-          headAng=loc.current.angle-Math.PI/2;
+          // Self: dùng direction từ seg[0]→seg[1] để khớp với thân
+          headAng = segs.length>1
+            ? Math.atan2(segs[0].y-segs[1].y, segs[0].x-segs[1].x) - Math.PI/2
+            : loc.current.angle - Math.PI/2;
         } else {
           // Others: tính từ segment direction + smooth
           const pid=player.id;
