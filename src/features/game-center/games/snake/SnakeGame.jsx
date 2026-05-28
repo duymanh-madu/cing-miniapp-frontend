@@ -24,18 +24,49 @@ export default function SnakeGame({profile,onExit}){
 
   useEffect(()=>{ qRef.current=QUALITY[quality]||QUALITY.medium; try{localStorage.setItem("snake_q",quality);}catch{} },[quality]);
 
+  // Web Audio API - nhẹ, không lag
+  const audioCtxRef = useRef(null);
+  const musicNodesRef = useRef(null);
+
+  const startMusic = () => {
+    try {
+      if (!audioCtxRef.current) audioCtxRef.current = new (window.AudioContext||window.webkitAudioContext)();
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+      if (musicNodesRef.current) return;
+      // Tạo nhạc nền đơn giản bằng oscillator
+      const master = ctx.createGain(); master.gain.value = 0.06; master.connect(ctx.destination);
+      const notes = [261,329,392,523,392,329]; let noteIdx=0;
+      const playNote = () => {
+        if (!music) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(master);
+        osc.frequency.value = notes[noteIdx%notes.length]; noteIdx++;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.4);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime+0.4);
+      };
+      const interval = setInterval(playNote, 500);
+      musicNodesRef.current = { interval, master };
+    } catch(e) {}
+  };
+
+  const stopMusic = () => {
+    try {
+      if (musicNodesRef.current) {
+        clearInterval(musicNodesRef.current.interval);
+        musicNodesRef.current.master.disconnect();
+        musicNodesRef.current = null;
+      }
+    } catch(e) {}
+  };
+
   useEffect(()=>{
-    if(phase==="playing"&&music){
-      try{
-        if(!audioRef.current){
-          // Nhạc lofi upbeat cho game
-          audioRef.current=new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
-          audioRef.current.loop=true; audioRef.current.volume=0.2;
-        }
-        audioRef.current.play().catch(()=>{});
-      }catch{}
-    } else { try{audioRef.current?.pause();}catch{} }
-    return()=>{ try{audioRef.current?.pause();}catch{} };
+    if(phase==="playing"&&music) startMusic();
+    else stopMusic();
+    return ()=>stopMusic();
   },[phase,music]);
 
   useEffect(()=>{
