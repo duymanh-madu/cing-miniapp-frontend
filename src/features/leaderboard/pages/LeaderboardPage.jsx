@@ -336,8 +336,8 @@ export default function LeaderboardPage() {
               border:"1px solid rgba(255,215,0,0.25)", borderRadius:16, padding:"14px 18px",
               display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                {profile?.avatar
-                  ? <img src={profile.avatar} alt="" style={{width:36,height:36,borderRadius:18,objectFit:"cover",flexShrink:0}}/>
+                {(myRank?.avatar || profile?.avatar)
+                  ? <img src={myRank?.avatar || profile?.avatar} alt="" style={{width:36,height:36,borderRadius:18,objectFit:"cover",flexShrink:0}}/>
                   : <Avatar name={profile?.name} size={36}
                       bg="linear-gradient(135deg,#D4531C,#FF6B35)" color="white" fontSize={14} />}
                 <div>
