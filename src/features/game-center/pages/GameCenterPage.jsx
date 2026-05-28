@@ -206,37 +206,38 @@ export default function GameCenterPage() {
         ))}
       </div>
 
-      {/* SNAKE GAME CARD */}
-      <div style={{ margin:"0 16px 16px", background:"linear-gradient(135deg,#1a0805,#2a1008)",
-        borderRadius:20, padding:"20px", border:"1px solid rgba(212,83,28,0.3)",
+      {/* CHESS GAME CARD */}
+      <div style={{ margin:"0 16px 16px", background:"linear-gradient(135deg,#0a0a1a,#1a1508)",
+        borderRadius:20, padding:"20px", border:"1px solid rgba(255,215,0,0.25)",
         position:"relative", overflow:"hidden" }}>
         <div style={{ position:"absolute", top:-20, right:-20, width:120, height:120,
-          borderRadius:"50%", background:"rgba(212,83,28,0.15)", filter:"blur(30px)" }}/>
+          borderRadius:"50%", background:"rgba(255,215,0,0.08)", filter:"blur(30px)" }}/>
         <div style={{ display:"flex", gap:14, alignItems:"flex-start" }}>
           <div style={{ width:52, height:52, borderRadius:14, flexShrink:0,
-            background:"rgba(212,83,28,0.2)", display:"flex", alignItems:"center",
-            justifyContent:"center", fontSize:26, border:"1px solid rgba(212,83,28,0.4)" }}>
-            🧋
+            background:"rgba(255,215,0,0.15)", display:"flex", alignItems:"center",
+            justifyContent:"center", fontSize:28, border:"1px solid rgba(255,215,0,0.3)" }}>
+            ♟️
           </div>
           <div style={{ flex:1 }}>
             <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
-              <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>Trân Châu Đại Chiến</p>
+              <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>Kỳ thủ cờ vua</p>
               <span style={{ background:"rgba(255,80,0,0.2)", color:"#FF6030",
                 fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8 }}>MULTIPLAYER</span>
               <span style={{ background:"rgba(0,255,100,0.15)", color:"#00ff64",
                 fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8 }}>NEW</span>
             </div>
             <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>
-              PvP realtime · Tiêu diệt đối thủ · Leo bảng tuần
+              PvP 1v1 · Chiếu hết đối thủ · Leo bảng danh vọng
             </p>
             <div style={{ display:"flex", gap:8 }}>
               <button onClick={() => {
                 if (!authenticated) { setShowAuthModal(true); return; }
                 if (gamePlays !== null && gamePlays <= 0) { alert("Hết lượt chơi!"); return; }
-              }} style={{ background:"linear-gradient(135deg,#D4531C,#ff6b35)", color:"white",
+                setPlayingChess(true);
+              }} style={{ background:"linear-gradient(135deg,#8B6914,#FFD700)", color:"#1a0a00",
                 border:"none", borderRadius:10, padding:"8px 18px", fontSize:12,
-                fontWeight:800, cursor:"pointer" }}>⚔️ Vào chiến</button>
-              <button onClick={() => setShowBoard("tran-chau-dai-chien")} style={{
+                fontWeight:800, cursor:"pointer" }}>♟ Tìm đối thủ</button>
+              <button onClick={() => setShowBoard("chess")} style={{
                 background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)",
                 color:"#FFD700", borderRadius:10, padding:"8px 14px",
                 fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
