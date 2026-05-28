@@ -44,6 +44,7 @@ export default function SnakeGame({ profile, onExit }) {
   const joyRef  = useRef({ active:false, ox:0, oy:0, dx:0, dy:0 });
   const qRef    = useRef(QUALITY.medium);
   const smoothAnglesRef = useRef({});
+  const audioRef = useRef(null);
 
   const [phase,   setPhase]   = useState("lobby");
   const [rooms,   setRooms]   = useState([]);
@@ -61,6 +62,23 @@ export default function SnakeGame({ profile, onExit }) {
     qRef.current = QUALITY[quality] || QUALITY.medium;
     try { localStorage.setItem("snake_q", quality); } catch {}
   }, [quality]);
+
+  useEffect(() => {
+    if (phase === "playing") {
+      try {
+        if (!audioRef.current) {
+          // Nhạc nền game - upbeat electronic/lofi free track
+          audioRef.current = new Audio("https://cdn.freesound.org/previews/612/612095_5674468-lq.mp3");
+          audioRef.current.loop = true;
+          audioRef.current.volume = 0.18;
+        }
+        audioRef.current.play().catch(()=>{});
+      } catch {}
+    } else {
+      try { audioRef.current?.pause(); } catch {}
+    }
+    return () => { try { audioRef.current?.pause(); } catch {} };
+  }, [phase]);
 
   useEffect(() => {
     if (sockRef.current) return;
