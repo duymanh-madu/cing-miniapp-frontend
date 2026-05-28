@@ -112,7 +112,7 @@ const TIERS = [
     border: "rgba(139,92,246,0.5)",
     glow: "rgba(139,92,246,0.35)",
     condition: "Được admin xét duyệt và kích hoạt",
-    spend: "Hội viên đăng kí trực tiếp với admin",
+    spend: "Là Hội viên và đăng kí trực tiếp với admin",
     benefits: [
       { icon:"⭐", text:"Tích 10% tổng tiêu dùng tháng thành điểm hoa hồng" },
       { icon:"💰", text:"Hoa hồng nhận ngay mỗi tháng - tiêu dùng càng nhiều, hoa hồng càng cao" },
@@ -136,10 +136,10 @@ const TIERS = [
     supreme: true,
     royalShimmer: true,
     benefits: [
-      { icon:"⭐", text:"Tích 10% tổng tiêu dùng tháng thành điểm hoa hồng" },
+      { icon:"⭐", text:"Tích 15% tổng tiêu dùng tháng thành điểm hoa hồng" },
       { icon:"💰", text:"Hoa hồng nhận ngay mỗi tháng - tiêu dùng càng nhiều, hoa hồng càng cao" },
       { icon:"💰", text:"Giảm 5% trên tổng hóa đơn" },
-      { icon:"👑", text:"Hạng đối tác cao nhất — đặc quyền tuyệt đối" },
+      { icon:"👑", text:"Hạng tối thượng — đặc quyền tuyệt đối" },
       { icon:"🎁", text:"Quà tặng sinh nhật đặc biệt" },
       { icon:"🏆", text:"Ưu tiên tham gia sự kiện độc quyền" },
     ],
