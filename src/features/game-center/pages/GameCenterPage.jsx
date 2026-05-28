@@ -7,6 +7,7 @@ import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import GameLeaderboard from "../components/GameLeaderboard";
 import SnakeGame from "../games/snake/SnakeGame";
+import AlltimeLeaderboard from "../components/AlltimeLeaderboard";
 import GamePlaysCard from "../components/GamePlaysCard";
 
 export default function GameCenterPage() {
@@ -15,6 +16,7 @@ export default function GameCenterPage() {
   const profile = useAuthStore(s => s.profile);
   const [challenge, setChallenge] = useState(null);
   const [playingSnake, setPlayingSnake] = useState(false);
+  const [showAlltimeLB, setShowAlltimeLB] = useState(false);
   const [challengeWinner, setChallengeWinner] = useState(null);
 
   useEffect(() => {
@@ -106,6 +108,12 @@ export default function GameCenterPage() {
           letterSpacing:2, textShadow:"0 0 40px rgba(255,215,0,0.3)" }}>
           GAME CENTER
         </h1>
+        <button onClick={() => setShowAlltimeLB(true)} style={{
+          background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)",
+          color:"#FFD700", borderRadius:10, padding:"7px 14px",
+          fontSize:12, fontWeight:800, cursor:"pointer", marginTop:8 }}>
+          🏆 Kỷ lục alltime
+        </button>
         <p style={{ color:"rgba(255,255,255,0.3)", fontSize:12, margin:"6px 0 0" }}>
           Nơi các Cing iu thoả sức so tài
         </p>
@@ -241,6 +249,8 @@ export default function GameCenterPage() {
       </div>
 
       {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
+
+      {showAlltimeLB && <AlltimeLeaderboard onClose={() => setShowAlltimeLB(false)} />}
 
       {showAuthModal && (
         <>

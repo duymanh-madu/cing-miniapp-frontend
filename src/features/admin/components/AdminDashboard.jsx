@@ -7,6 +7,7 @@ import AdminPlayers from "./AdminPlayers";
 import AdminAppConfig from "./AdminAppConfig";
 import AdminLogs from "./AdminLogs";
 import AdminCDP from "./AdminCDP";
+import AdminAlltimeGames from './AdminAlltimeGames';
 import AdminLeaderboard from "./AdminLeaderboard";
 
 const TABS = [
