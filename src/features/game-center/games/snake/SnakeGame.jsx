@@ -231,21 +231,32 @@ export default function SnakeGame({ profile, onExit }) {
           drawPearl(sx,sy,r,isSelf?glow:0);
         }
         const hx=segs[0].x-camX+W/2, hy=segs[0].y-camY+H/2;
-        const ang=isSelf
-          ? loc.current.angle-Math.PI/2
-          : (segs.length>1?Math.atan2(segs[0].y-segs[1].y,segs[0].x-segs[1].x)-Math.PI/2:0);
+        // Dùng segment direction cho cả self để đầu đồng bộ với thân
+        const ang = segs.length>1
+          ? Math.atan2(segs[0].y-segs[1].y, segs[0].x-segs[1].x) - Math.PI/2
+          : loc.current.angle - Math.PI/2;
         drawHead(hx,hy,maxR*1.55,ang,isSelf,glow);
-        if(!isSelf){
-          ctx.save();
-          ctx.fillStyle="rgba(0,0,0,.65)";
-          const nm=player.name?.slice(0,12)||"";
-          const tw=nm.length*6.5+12;
-          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(hx-tw/2,hy-maxR*2.3-14,tw,14,3);ctx.fill();}
-          ctx.fillStyle="white"; ctx.font=`bold ${Math.max(maxR*.5,9)}px sans-serif`;
-          ctx.textAlign="center"; ctx.textBaseline="middle";
-          ctx.fillText(nm,hx,hy-maxR*2.3-7);
-          ctx.restore();
+        // Hiển thị tên cho tất cả (self và others)
+        ctx.save();
+        const nm = player.name?.slice(0,12) || "";
+        if (nm) {
+          const fontSize = Math.max(maxR*.55, 9);
+          ctx.font = `bold ${fontSize}px sans-serif`;
+          const tw = ctx.measureText(nm).width + 12;
+          // Background
+          ctx.fillStyle = isSelf ? "rgba(212,83,28,0.75)" : "rgba(0,0,0,0.65)";
+          if (ctx.roundRect) {
+            ctx.beginPath();
+            ctx.roundRect(hx-tw/2, hy-maxR*2.5-fontSize-2, tw, fontSize+6, 3);
+            ctx.fill();
+          }
+          // Text
+          ctx.fillStyle = "white";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(nm, hx, hy-maxR*2.5-fontSize/2+1);
         }
+        ctx.restore();
       };
 
       const SCOL={x2:"#4080FF",x5:"#C040FF",x10:"#FFD700",magnet:"#40FFB0",shield:"#FFB830"};
