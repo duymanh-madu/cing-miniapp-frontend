@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { io } from "socket.io-client";
 import { Chess } from "chess.js";
 import useAuthStore from "@/stores/auth/authStore";
+import ChessLeaderboard from "./ChessLeaderboard";
 
 const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
 
@@ -41,6 +42,7 @@ export default function ChessGame({ onExit }) {
   const [gameOver,setGameOver]=useState(null);
   const [searchTime,setSearchTime]=useState(0);
   const [msg,setMsg]=useState("");
+  const [showLB,setShowLB]=useState(false);
   const timerRef = useRef(null);
 
   // Socket connection
@@ -277,9 +279,9 @@ export default function ChessGame({ onExit }) {
           margin:"0 0 12px", textTransform:"uppercase" }}>Luật chơi</p>
         {[
           "♟ Tìm đối thủ tối đa 60 giây",
+          "🎯 Bạn chỉ mất lượt chơi khi vào ván",
           "⚔️ Trận đấu bắt đầu khi 2 người vào",
           "♔ Chiếu hết đối thủ để thắng",
-          "🏆 Thắng +20 điểm tích lũy",
           "📊 BXH theo số trận thắng & chuỗi thắng",
         ].map((r,i) => <p key={i} style={{ color:"#aaa", fontSize:12, margin:"0 0 6px" }}>{r}</p>)}
       </div>
@@ -290,8 +292,15 @@ export default function ChessGame({ onExit }) {
         boxShadow:"0 4px 20px rgba(212,83,28,0.4)" }}>
         ♟ Tìm đối thủ
       </button>
+      <button onClick={() => setShowLB(true)} style={{ background:"rgba(255,215,0,0.08)",
+        border:"1px solid rgba(255,215,0,0.2)", color:"#FFD700",
+        borderRadius:12, padding:"12px", fontSize:13, fontWeight:700,
+        cursor:"pointer", width:"100%", maxWidth:320, marginTop:10 }}>
+        🏆 Bảng xếp hạng Kỳ thủ
+      </button>
       <button onClick={onExit} style={{ background:"none", border:"none",
         color:"#666", marginTop:14, fontSize:13, cursor:"pointer" }}>← Quay lại</button>
+      {showLB && <ChessLeaderboard onClose={() => setShowLB(false)} />}
     </div>
   );
 
