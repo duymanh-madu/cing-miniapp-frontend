@@ -123,7 +123,9 @@ export default function AlltimeLeaderboard({ onClose }) {
                       background:"linear-gradient(135deg,#1a0a2e,#2d1254)",
                       display:"flex",alignItems:"center",justifyContent:"center",
                       fontSize:16,fontWeight:900,color:"rgba(255,255,255,0.5)"}}>
-                      {(e.player_name||"?")[0]?.toUpperCase()}
+                      {e.avatar
+                        ? <img src={e.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                        : (e.player_name||"?")[0]?.toUpperCase()}
                     </div>
                     <div style={{flex:1,minWidth:0}}>
                       <p style={{color:"white",fontSize:13,fontWeight:700,margin:0,
@@ -168,7 +170,9 @@ export default function AlltimeLeaderboard({ onClose }) {
                         background:isMe?"linear-gradient(135deg,#D4531C,#ff6b35)":"linear-gradient(135deg,#1a0a2e,#2d1254)",
                         display:"flex",alignItems:"center",justifyContent:"center",
                         fontSize:12,fontWeight:900,color:isMe?"white":"rgba(255,255,255,0.3)"}}>
-                        {(e.player_name||"?")[0]?.toUpperCase()}
+                        {e.avatar
+                          ? <img src={e.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"inherit"}}/>
+                          : (e.player_name||"?")[0]?.toUpperCase()}
                       </div>
                       <p style={{flex:1,color:isMe?"#FFD700":"white",fontSize:12,
                         fontWeight:isMe?800:500,margin:0,
