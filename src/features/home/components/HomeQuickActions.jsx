@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 const ACTIONS = [
   { key:"order",   label:"Đặt món",        icon:"🧋", path:"/menu",        bg:"#fff7ed", border:"#fed7aa", text:"#ea580c" },
-  { key:"benefits", label:"Quyền lợi TV", icon:"🎁", path:"/membership-benefits", bg:"#f0fdf4", border:"#bbf7d0", text:"#15803d" },
+  { key:"benefits", label:"Quyền lợi thành viên", icon:"🎁", path:"/membership-benefits", bg:"#f0fdf4", border:"#bbf7d0", text:"#15803d" },
   { key:"game",    label:"Game Center",    icon:"🎮", path:"/game-center", bg:"#f5f3ff", border:"#ddd6fe", text:"#7c3aed" },
   { key:"loyalty", label:"Đại sảnh danh vọng",     icon:"👑", path:"/leaderboard", bg:"#fffbeb", border:"#fde68a", text:"#d97706" },
 ];
