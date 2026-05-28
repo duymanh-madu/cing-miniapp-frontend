@@ -12,17 +12,14 @@ export default function NotificationBell() {
     const attach = () => {
       const socket = getRuntimeSocket();
       if (socket && socket.connected) {
-        console.log("[NOTIF] Socket attached, id:", socket.id);
-        socket.on("notification.new", (data) => {
-          console.log("[NOTIF] notification.new received:", data);
-          const notif = data?.payload?.notification || data?.notification || data;
+socket.on("notification.new", (data) => {
+const notif = data?.payload?.notification || data?.notification || data;
           if (!notif) return;
           setNotifications(prev => [notif, ...prev].slice(0, 20));
           setUnread(u => u + 1);
         });
         socket.on("notification.broadcast", (data) => {
-          console.log("[NOTIF] notification.broadcast received:", data);
-          const notif = data?.payload?.notification || data?.notification || data;
+const notif = data?.payload?.notification || data?.notification || data;
           if (!notif) return;
           setNotifications(prev => [notif, ...prev].slice(0, 20));
           setUnread(u => u + 1);
