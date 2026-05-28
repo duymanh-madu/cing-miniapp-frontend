@@ -336,8 +336,10 @@ export default function LeaderboardPage() {
               border:"1px solid rgba(255,215,0,0.25)", borderRadius:16, padding:"14px 18px",
               display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                <Avatar name={profile?.name} size={36}
-                  bg="linear-gradient(135deg,#D4531C,#FF6B35)" color="white" fontSize={14} />
+                {profile?.avatar
+                  ? <img src={profile.avatar} alt="" style={{width:36,height:36,borderRadius:18,objectFit:"cover",flexShrink:0}}/>
+                  : <Avatar name={profile?.name} size={36}
+                      bg="linear-gradient(135deg,#D4531C,#FF6B35)" color="white" fontSize={14} />}
                 <div>
                   <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 2px" }}>Hạng của bạn</p>
                   <p style={{ color:"white", fontSize:13, fontWeight:800, margin:0 }}>{profile?.name || "Bạn"}</p>
