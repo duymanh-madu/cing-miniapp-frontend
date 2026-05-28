@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { io } from "socket.io-client";
 
-const BACKEND   = import.meta.env.VITE_API_BASE_URL?.replace("/api","") || "https://cing-backend-production.up.railway.app";
+const BACKEND     = import.meta.env.VITE_API_BASE_URL?.replace("/api","") || "https://cing-backend-production.up.railway.app";
+const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || BACKEND; // Fallback về Railway nếu chưa có
 const MAP_SIZE  = 4000;
 const MAP_R     = 1800;
 const MAP_CX    = MAP_SIZE / 2;
@@ -31,7 +32,7 @@ export default function SnakeGame({ profile, onExit }) {
   // ── SOCKET ──────────────────────────────────────
   useEffect(() => {
     if (sockRef.current) return;
-    const s = io(`${BACKEND}/snake`, { transports:["websocket"],
+    const s = io(`${GAME_SERVER}/snake`, { transports:["websocket"],
       reconnection:true, reconnectionDelay:1500, reconnectionAttempts:10 });
     sockRef.current = s;
     s.on("connect",           ()  => s.emit("game:rooms"));
