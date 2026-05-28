@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 
@@ -6,6 +7,7 @@ export default function ChessLeaderboard({ onClose }) {
   const [tab, setTab]     = useState("wins");
   const [data, setData]   = useState(null);
   const [loading, setLoading] = useState(true);
+  const [myRank, setMyRank] = useState(null);
   const profile = useAuthStore(s => s.profile);
   const userId  = profile?.id || profile?.phone;
 
@@ -19,7 +21,6 @@ export default function ChessLeaderboard({ onClose }) {
   useEffect(() => {
     fetchData();
     // Realtime refresh khi có ván kết thúc
-    const { io } = require("socket.io-client");
     const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
     const s = io(`${GAME_SERVER}/chess`, { transports:["websocket"] });
     s.on("chess:leaderboard_updated", () => fetchData());
