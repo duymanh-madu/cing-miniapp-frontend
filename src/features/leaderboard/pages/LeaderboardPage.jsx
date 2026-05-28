@@ -49,8 +49,10 @@ function Top1Card({ entry }) {
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:8 }}>
       <div style={{ fontSize:52, marginBottom:6, filter:"drop-shadow(0 0 24px rgba(255,215,0,0.9))" }}>👑</div>
       <div style={{ position:"relative", marginBottom:10 }}>
-        <Avatar name={entry.player_name||entry.name} size={96}
-          bg="linear-gradient(135deg,#FFD700,#FFA500)" color="#1a0a2e" fontSize={38} />
+        {entry.avatar
+          ? <img src={entry.avatar} alt="" style={{ width:96,height:96,borderRadius:48,objectFit:"cover",border:"3px solid #FFD700" }}/>
+          : <Avatar name={entry.player_name||entry.name} size={96}
+              bg="linear-gradient(135deg,#FFD700,#FFA500)" color="#1a0a2e" fontSize={38} />}
         <div style={{ position:"absolute", bottom:-4, right:-4, background:"#FFD700",
           borderRadius:14, width:28, height:28, display:"flex", alignItems:"center",
           justifyContent:"center", fontSize:14, fontWeight:900, color:"#1a0a2e",
@@ -104,6 +106,7 @@ export default function LeaderboardPage() {
   const [myRank, setMyRank] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
+  const [rewardsConfig, setRewardsConfig] = useState({});
   const [customRange, setCustomRange] = useState({ from:"", to:"" });
   const [showCustom, setShowCustom] = useState(false);
   const [customTabName, setCustomTabName] = useState("Tùy chỉnh");
@@ -127,6 +130,15 @@ export default function LeaderboardPage() {
   }, []);
 
   // Fetch custom leaderboard config tu admin
+  useEffect(() => {
+    // Fetch leaderboard rewards config
+    apiClient.get("/admin/leaderboard/config")
+      .then(r => {
+        const cfg = r.data?.data || {};
+        setRewardsConfig(cfg.spending || {});
+      }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     apiClient.get("/app-config/public")
       .then(r => {
@@ -240,6 +252,31 @@ export default function LeaderboardPage() {
         )}
       </div>
 
+      {/* REWARDS BANNER */}
+      {rewardsConfig[tab]?.enabled && rewardsConfig[tab]?.rewards?.length > 0 && (
+        <div style={{ margin:"12px 16px 0", padding:"12px 14px",
+          background:"linear-gradient(135deg,rgba(255,215,0,0.1),rgba(255,140,0,0.05))",
+          border:"1px solid rgba(255,215,0,0.2)", borderRadius:14 }}>
+          <p style={{ color:"#FFD700", fontSize:10, fontWeight:800, margin:"0 0 8px", letterSpacing:2 }}>
+            🎁 PHẦN THƯỞNG KỲ NÀY
+          </p>
+          <div style={{ display:"flex", gap:8 }}>
+            {rewardsConfig[tab].rewards.map((r,i) => (
+              <div key={i} style={{ flex:1, background:"rgba(0,0,0,0.2)", borderRadius:10,
+                padding:"8px 6px", textAlign:"center", border:"1px solid rgba(255,215,0,0.1)" }}>
+                <p style={{ fontSize:18, margin:"0 0 2px" }}>{i===0?"🥇":i===1?"🥈":"🥉"}</p>
+                <p style={{ color:"#FFD700", fontSize:13, fontWeight:900, margin:"0 0 1px" }}>
+                  {(r.points||0).toLocaleString()}đ
+                </p>
+                <p style={{ color:"rgba(255,255,255,0.4)", fontSize:9, margin:0 }}>
+                  {r.label||"Phần thưởng"}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* CONTENT */}
       {loading ? (
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center",
@@ -313,9 +350,11 @@ export default function LeaderboardPage() {
                 }}>
                   <span style={{ color:"rgba(255,255,255,0.2)", fontSize:12, fontWeight:700,
                     width:26, textAlign:"center", flexShrink:0 }}>{rank}</span>
-                  <Avatar name={entry.player_name||entry.name} size={36}
-                    bg={isMe ? "linear-gradient(135deg,#D4531C,#FF6B35)" : "linear-gradient(135deg,#1a0a2e,#2d1254)"}
-                    color={isMe ? "white" : "rgba(255,255,255,0.35)"} fontSize={13} />
+                  {entry.avatar
+                    ? <img src={entry.avatar} alt="" style={{width:36,height:36,borderRadius:18,objectFit:"cover",flexShrink:0}}/>
+                    : <Avatar name={entry.player_name||entry.name} size={36}
+                        bg={isMe?"linear-gradient(135deg,#D4531C,#FF6B35)":"linear-gradient(135deg,#1a0a2e,#2d1254)"}
+                        color={isMe?"white":"rgba(255,255,255,0.35)"} fontSize={13} />}
                   <div style={{ flex:1, minWidth:0 }}>
                     <p style={{ color: isMe ? "#FFD700" : "white", fontSize:13,
                       fontWeight: isMe ? 800 : 600, margin:0,

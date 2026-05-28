@@ -9,7 +9,17 @@ export default function GameLeaderboard({ gameKey, onClose }) {
   const [data, setData] = useState([]);
   const [myRank, setMyRank] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [rewards, setRewards] = useState([]);
   const profile = useAuthStore(s => s.profile);
+
+  useEffect(() => {
+    apiClient.get("/game/snake/leaderboard/alltime-games")
+      .then(r => {
+        const games = r.data?.data || [];
+        const game = games.find(g => g.game_key === gameKey);
+        if (game?.rewards) setRewards(game.rewards);
+      }).catch(() => {});
+  }, [gameKey]);
 
   const fetchData = () => {
     setLoading(true);
@@ -77,6 +87,31 @@ export default function GameLeaderboard({ gameKey, onClose }) {
             }}>✕</button>
           </div>
 
+          {/* Rewards */}
+          {rewards.length > 0 && (
+            <div style={{ marginTop:10, padding:"10px 12px",
+              background:"linear-gradient(135deg,rgba(212,83,28,0.12),rgba(255,100,20,0.06))",
+              borderRadius:12, border:"1px solid rgba(212,83,28,0.2)" }}>
+              <p style={{ color:"#D4531C", fontSize:10, fontWeight:800, margin:"0 0 8px", letterSpacing:2 }}>
+                🎁 PHẦN THƯỞNG DANH HIỆU
+              </p>
+              <div style={{ display:"flex", gap:6 }}>
+                {rewards.map((r,i) => (
+                  <div key={i} style={{ flex:1, background:"rgba(0,0,0,0.3)", borderRadius:8,
+                    padding:"6px 4px", textAlign:"center", border:"1px solid rgba(255,215,0,0.1)" }}>
+                    <p style={{ fontSize:16, margin:"0 0 1px" }}>
+                      {i===0?"🥇":i===1?"🥈":"🥉"}
+                    </p>
+                    <p style={{ color:"#FFD700", fontSize:12, fontWeight:900, margin:"0 0 1px" }}>
+                      {r.points}đ
+                    </p>
+                    <p style={{ color:"rgba(255,255,255,0.4)", fontSize:9, margin:0 }}>{r.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* My rank */}
           {myRank && (
             <div style={{ marginTop:10, padding:"8px 12px",
@@ -116,10 +151,18 @@ export default function GameLeaderboard({ gameKey, onClose }) {
                       {idx+1}
                     </span>}
               </div>
+              <div style={{ width:34,height:34,borderRadius:17,flexShrink:0,overflow:"hidden",
+                background:"linear-gradient(135deg,#1a0a2e,#2d1254)",
+                display:"flex",alignItems:"center",justifyContent:"center",
+                fontSize:14,fontWeight:900,color:"rgba(255,255,255,0.5)" }}>
+                {entry.avatar
+                  ? <img src={entry.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                  : (entry.player_name||"?")[0]?.toUpperCase()}
+              </div>
               <div style={{ flex:1, minWidth:0 }}>
                 <p style={{ color:"white", fontSize:13, fontWeight:700, margin:0,
                   overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
-                  {entry.player_name || entry.name || entry.user_id || "An danh"}
+                  {entry.player_name || entry.name || entry.user_id || "Ẩn danh"}
                 </p>
               </div>
               <div style={{ textAlign:"right", flexShrink:0 }}>
