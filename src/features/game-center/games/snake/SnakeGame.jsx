@@ -27,6 +27,60 @@ const MAP_CY    = MAP_SIZE / 2;
 const CLI_SPD   = 4;
 const CLI_BOOST = 8;
 
+
+// ── ADAPTIVE QUALITY SYSTEM ──
+const detectQuality = () => {
+  const mem = navigator.deviceMemory || 4; // GB RAM
+  const cores = navigator.hardwareConcurrency || 4;
+  const ua = navigator.userAgent.toLowerCase();
+  const isIOS = /iphone|ipad/.test(ua);
+  
+  // High-end: RAM >= 4GB hoặc cores >= 6
+  if (mem >= 4 || cores >= 6) return 'high';
+  // Mid: RAM >= 2GB
+  if (mem >= 2 || cores >= 4) return 'medium';
+  return 'low';
+};
+
+const QUALITY_PRESETS = {
+  high: {
+    label: '🔥 Cao',
+    targetFPS: 60,
+    glowEffect: true,
+    pearlShine: true,
+    gridDots: true,
+    shadowBlur: true,
+    otherPlayersDetail: true,
+    foodGlow: true,
+    particleEffects: true,
+    renderDistance: 1.0,
+  },
+  medium: {
+    label: '⚡ Trung bình',
+    targetFPS: 45,
+    glowEffect: true,
+    pearlShine: false,
+    gridDots: true,
+    shadowBlur: false,
+    otherPlayersDetail: true,
+    foodGlow: false,
+    particleEffects: false,
+    renderDistance: 0.85,
+  },
+  low: {
+    label: '🔋 Tiết kiệm',
+    targetFPS: 30,
+    glowEffect: false,
+    pearlShine: false,
+    gridDots: false,
+    shadowBlur: false,
+    otherPlayersDetail: false,
+    foodGlow: false,
+    particleEffects: false,
+    renderDistance: 0.7,
+  },
+};
+
 export default function SnakeGame({ profile, onExit }) {
   const cvRef    = useRef(null);
   const sockRef  = useRef(null);
@@ -193,7 +247,7 @@ export default function SnakeGame({ profile, onExit }) {
 
       const drawHead = (x,y,r,ang,isSelf,glow) => {
         ctx.save(); ctx.translate(x,y); ctx.rotate(ang);
-        if(glow>0.05){
+        if(glow>0.05 && qualityRef.current.glowEffect){
           const g=ctx.createRadialGradient(0,0,0,0,0,r*2.5);
           g.addColorStop(0,`rgba(255,110,20,${glow*.85})`); g.addColorStop(1,"rgba(0,0,0,0)");
           ctx.beginPath(); ctx.arc(0,0,r*2.5,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
@@ -365,7 +419,9 @@ export default function SnakeGame({ profile, onExit }) {
         ctx.fillStyle="rgba(0,0,0,.55)"; ctx.fill();
         ctx.restore();
 
-        // Grid dots bên trong map
+        // Grid dots - chỉ render khi quality cho phép
+        if (qualityRef.current.gridDots) ctx.fillStyle="rgba(255,100,20,.07)";
+        if (!qualityRef.current.gridDots) { /* skip grid */ } else
         ctx.fillStyle="rgba(255,100,20,.07)";
         const gs=80;
         const ox2=((-camX%gs+W/2+MAP_CX)%gs+gs)%gs;
