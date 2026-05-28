@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import apiClient from "@/infra/api/apiClient";
+import ZbsTemplateManager from "./ZbsTemplateManager";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
@@ -16,6 +17,10 @@ export default function AdminCDP({ token }) {
   const [customPhones, setCustomPhones] = useState([]);
   const [customDays, setCustomDays] = useState(30);
   const [channels, setChannels] = useState(['socket']);
+  const [zbsTemplates, setZbsTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [extraVars, setExtraVars] = useState({});
+  const [showZbsConfig, setShowZbsConfig] = useState(false);
   const [customInput, setCustomInput]   = useState("");
   const fileRef = useRef();
   const h = { Authorization: `Bearer ${token}` };
@@ -23,6 +28,9 @@ export default function AdminCDP({ token }) {
   useEffect(() => {
     apiClient.get("/admin/cdp/segments", { headers: h })
       .then(r => setSegments(r.data?.data || []))
+      .catch(console.error);
+    apiClient.get("/admin/cdp/zbs-templates", { headers: h })
+      .then(r => setZbsTemplates(r.data?.data || []))
       .catch(console.error);
   }, []);
 
@@ -49,7 +57,40 @@ export default function AdminCDP({ token }) {
   };
 
   const sendNotif = async () => {
-    if (!selected || !title || !message) return;
+    if (!selected) return;
+    // ZBS Template channel
+    if (channels.includes('zbs') && selectedTemplate) {
+      setSending(true); setMsg("");
+      try {
+        const customIds = selected.key === "custom" ? customPhones : [];
+        const res = await apiClient.post("/admin/cdp/send-zbs-template", {
+          segment_key: selected.key,
+          custom_phones: customIds,
+          template_id: selectedTemplate.id,
+          extra_vars: extraVars,
+        }, { headers: h });
+        setMsg(`✅ ZBS: ${res.data?.message}`);
+      } catch(e) { setMsg("❌ ZBS: " + e.message); }
+      finally { setSending(false); }
+      return;
+    }
+    // UID channel
+    if (channels.includes('uid')) {
+      if (!title || !message) return;
+      setSending(true); setMsg("");
+      try {
+        const customIds = selected.key === "custom" ? customPhones : [];
+        const res = await apiClient.post("/admin/cdp/send-uid", {
+          segment_key: selected.key,
+          custom_phones: customIds,
+          title, message,
+        }, { headers: h });
+        setMsg(`✅ UID: ${res.data?.message}`);
+      } catch(e) { setMsg("❌ UID: " + e.message); }
+      finally { setSending(false); }
+      return;
+    }
+    if (!title || !message) return;
     setSending(true); setMsg("");
     try {
       const res = await apiClient.post("/admin/cdp/send-notification", {
@@ -380,8 +421,8 @@ export default function AdminCDP({ token }) {
                   <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
                     {[
                       { key:"socket",   label:"🔔 Bell (In-app)", desc:"Chỉ khi mở app" },
-                      { key:"zalo_oa",  label:"💬 Zalo OA",       desc:"Cần zalo_user_id" },
-                      { key:"zbs",      label:"📢 ZBS Broadcast",  desc:"Tất cả followers OA" },
+                      { key:"uid",      label:"👤 UID",            desc:"Zalo OA cá nhân" },
+                      { key:"zbs",      label:"📢 ZBS Template",   desc:"Gửi theo mẫu Zalo" },
                     ].map(ch => {
                       const active = channels.includes(ch.key);
                       return (
@@ -401,6 +442,56 @@ export default function AdminCDP({ token }) {
                     })}
                   </div>
                 </div>
+
+                {/* ZBS Template picker */}
+                {channels.includes('zbs') && (
+                  <div style={{ background:"#12121a", borderRadius:12, padding:"14px", marginBottom:12, border:"1px solid #7c3aed44" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                      <p style={{ color:"#a78bfa", fontSize:12, fontWeight:800, margin:0 }}>📋 CHỌN MẪU TIN ZBS</p>
+                      <button onClick={() => setShowZbsConfig(v=>!v)}
+                        style={{ background:"none", border:"1px solid #7c3aed", color:"#a78bfa",
+                          borderRadius:6, padding:"3px 8px", fontSize:10, cursor:"pointer" }}>
+                        ⚙️ Quản lý mẫu
+                      </button>
+                    </div>
+
+                    {showZbsConfig && (
+                      <ZbsTemplateManager token={token} templates={zbsTemplates} 
+                        onSaved={t => setZbsTemplates(t)} headers={h} />
+                    )}
+
+                    <div style={{ display:"flex", flexDirection:"column", gap:6, marginBottom:10 }}>
+                      {zbsTemplates.length === 0 ? (
+                        <p style={{ color:"#555", fontSize:12 }}>Chưa có mẫu. Click "Quản lý mẫu" để thêm.</p>
+                      ) : zbsTemplates.map(t => (
+                        <div key={t.id} onClick={() => setSelectedTemplate(t)}
+                          style={{ background: selectedTemplate?.id===t.id ? "rgba(124,58,237,0.2)" : "#1a1a24",
+                            border: `1px solid ${selectedTemplate?.id===t.id ? "#7c3aed" : "#2a2a38"}`,
+                            borderRadius:8, padding:"10px 12px", cursor:"pointer" }}>
+                          <p style={{ color:"white", fontSize:12, fontWeight:700, margin:"0 0 2px" }}>{t.name}</p>
+                          <p style={{ color:"#666", fontSize:10, margin:0 }}>ID: {t.id} · {t.description||""}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Extra vars */}
+                    {selectedTemplate?.vars?.length > 0 && (
+                      <div>
+                        <p style={{ color:"#888", fontSize:10, fontWeight:700, margin:"0 0 6px" }}>ĐIỀN BIẾN TEMPLATE</p>
+                        {selectedTemplate.vars.map(v => (
+                          <div key={v} style={{ marginBottom:6 }}>
+                            <p style={{ color:"#666", fontSize:10, margin:"0 0 2px" }}>{v}</p>
+                            <input value={extraVars[v]||""} onChange={e => setExtraVars(p=>({...p,[v]:e.target.value}))}
+                              placeholder={`Nhập ${v}...`}
+                              style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
+                                borderRadius:6, padding:"6px 8px", color:"white",
+                                fontSize:12, boxSizing:"border-box" }}/>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div style={{ display:"flex", gap:8 }}>
                   <button onClick={() => setPreview(p => !p)}
