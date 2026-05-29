@@ -53,7 +53,7 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
       profile: {
         id:     data.customer?.id     || data.customer?.zalo_id || "",
         name:   (data.customer?.name && data.customer?.name !== 'Khách hàng' ? data.customer?.name : input.name) || data.customer?.name || "",
-        phone:  data.customer?.phone  || input.phone            || "",
+        phone:  data.customer?.phone  || (input.phone !== "pending" ? input.phone : "") || "",
         avatar: data.customer?.avatar || input.avatar           || "",
       },
     });

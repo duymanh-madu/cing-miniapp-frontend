@@ -53,7 +53,7 @@ export async function initializeCustomerIdentityEngine() {
         store.setIdentity({
           customerId:    result.customerId    || "",
           fullName:      (result.fullName && result.fullName !== 'Khách hàng' ? result.fullName : identity?.fullName) || result.fullName || "",
-          phone:         result.phone         || identity?.phone    || "",
+          phone:         (result.phone && result.phone !== "pending" ? result.phone : null) || (identity?.phone && identity.phone !== "pending" ? identity.phone : null) || "",
           memberActivated: true,
           phoneGranted:  true,
           oaFollowed:    true,
