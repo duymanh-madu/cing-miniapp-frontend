@@ -46,7 +46,12 @@ export async function initializeApplication() {
    * ===================================================
    */
 
-  await bootstrapRuntime();
+  await Promise.race([
+    bootstrapRuntime(),
+    new Promise((_, reject) => setTimeout(() => reject(new Error("Bootstrap timeout after 10s")), 10000))
+  ]).catch((err) => {
+    console.error("[BOOTSTRAP] Failed or timed out:", err.message);
+  });
 
   /**
    * ===================================================
