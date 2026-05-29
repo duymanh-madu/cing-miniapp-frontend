@@ -11,13 +11,25 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
   const [buyMsg, setBuyMsg] = useState("");
 
   useEffect(() => {
-    if (!profile?.id) { setLoading(false); return; }
-    apiClient.get(`/leaderboard/user-rank/${profile.id}`)
-      .then(r => {
-        const p = r.data?.data;
-        const gamePlays = p?.game_plays ?? 3;
+    const phone = profile?.phone?.replace(/\D/g,"").replace(/^84/, "0");
+    if (!phone && !profile?.id) { setLoading(false); return; }
+    
+    // Lấy game_plays từ players table (theo phone)
+    const playsPromise = phone 
+      ? apiClient.get(`/membership/${phone}`).then(r => r.data?.data)
+      : Promise.resolve(null);
+    
+    // Lấy rank/points từ leaderboard  
+    const rankPromise = profile?.id
+      ? apiClient.get(`/leaderboard/user-rank/${profile.id}`).then(r => r.data?.data)
+      : Promise.resolve(null);
+
+    Promise.all([playsPromise, rankPromise])
+      .then(([member, rank]) => {
+        const gamePlays = member?.game_plays ?? rank?.game_plays ?? 3;
+        const pts = member?.points || rank?.total_points || 0;
         setPlays(gamePlays);
-        setPoints(p?.total_points || 0);
+        setPoints(pts);
         onPlaysUpdate?.(gamePlays);
       })
       .catch(() => { setPlays(3); onPlaysUpdate?.(3); })

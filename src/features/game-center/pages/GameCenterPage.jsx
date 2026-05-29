@@ -25,8 +25,10 @@ export default function GameCenterPage() {
 
   const handleGameOver = async ({ bestCombo, score }) => {
     const currentProfile = useAuthStore.getState().profile;
-    // players table dùng phone làm user_id
-    const userId = currentProfile?.phone || currentProfile?.id || currentProfile?.zalo_id || profile?.phone || profile?.id || profile?.zalo_id;
+    // players table dùng phone dạng 09xx làm user_id
+    const rawPhone = currentProfile?.phone || profile?.phone || "";
+    const normalPhone = rawPhone.replace(/\D/g,"").replace(/^84/, "0");
+    const userId = normalPhone || currentProfile?.id || profile?.id;
     const playerName = currentProfile?.name || currentProfile?.displayName || profile?.name || "Cing iu";
     const gameKey = activeGame || "black-pearl-rush";
     if (!userId) return;
