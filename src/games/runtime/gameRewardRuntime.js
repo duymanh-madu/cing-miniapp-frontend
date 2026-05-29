@@ -15,7 +15,7 @@ class GameRewardRuntime {
 
       await axios.post(
 
-        `${import.meta.env.VITE_API_BASE_URL}/game/submit-score`,
+        `${import.meta.env.VITE_API_BASE_URL}/game/score`,
 
         {
           score,
