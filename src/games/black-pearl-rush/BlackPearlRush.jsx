@@ -384,7 +384,7 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
   }, []);
 
   return (
-    <div style={{ position:"fixed", inset:0, background:"#efe7dc", overflow:"hidden" }}>
+    <div style={{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"#efe7dc", overflow:"hidden", zIndex:200 }}>
       <div style={{ position:"relative", width:"100%", height:"100%", contain:"layout style paint" }}>
         <div style={{ position:"absolute", top:"var(--app-safe-top, 0px)", left:12, right:12, display:"flex", alignItems:"flex-start", justifyContent:"space-between", pointerEvents:"none", zIndex:50 }}>
           <div style={{ display:"flex", alignItems:"center", gap:8, background:"#efe7dc", border:"1px solid #d8c8ae", borderRadius:18, padding:"8px 12px", boxShadow:"0 2px 8px rgba(0,0,0,0.1)", maxWidth:220 }}>
@@ -431,7 +431,7 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
             </div>
           </div>
         )}
-      </div>
+        </div>
     </div>
   );
 }
