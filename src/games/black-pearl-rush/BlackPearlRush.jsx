@@ -148,6 +148,7 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
     function jump() {
       if (game.dead && !game._deadNotified) {
         game._deadNotified = true;
+        console.log('[GAME] onGameOver fired, bestCombo:', game.bestCombo, 'score:', game.score, 'has callback:', !!onGameOver);
         if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
       }
       if (game.dead) { resetGame(); return; }
