@@ -52,7 +52,7 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
       refreshToken: data.refreshToken || data.refresh_token || null,
       profile: {
         id:     data.customer?.id     || data.customer?.zalo_id || "",
-        name:   data.customer?.name   || input.name             || "",
+        name:   (data.customer?.name && data.customer?.name !== 'Khách hàng' ? data.customer?.name : input.name) || data.customer?.name || "",
         phone:  data.customer?.phone  || input.phone            || "",
         avatar: data.customer?.avatar || input.avatar           || "",
       },
