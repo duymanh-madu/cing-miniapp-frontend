@@ -24,6 +24,24 @@ export async function initializeCustomerIdentityEngine() {
     if (zaloUserId) {
       runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: zaloUserId found", { zaloUserId });
       try {
+        // Check OA follow status
+        const oaFollowed = await verifyOAFollowStatus().catch(() => false);
+        store.setPermissionState({ phoneGranted: true, oaFollowed });
+
+        if (!oaFollowed) {
+          runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: need OA follow");
+          store.setActivationStatus("blocked");
+          return;
+        }
+
+        // Check birthday - nếu chưa có thì blocked để hiện birthday gate
+        const hasBirthday = !!(identity as any)?.birthday;
+        if (!hasBirthday) {
+          runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: need birthday");
+          store.setActivationStatus("blocked");
+          return;
+        }
+
         const result = await activateMiniAppUser({
           zaloUserId,
           name:         identity?.fullName  || "",
@@ -31,8 +49,8 @@ export async function initializeCustomerIdentityEngine() {
           phone:        identity?.phone     || "",
           phoneToken:       (identity as any)?.phoneToken       || "",
           miniAccessToken:  (identity as any)?.miniAccessToken  || "",
-          phoneGranted: !!(identity?.phone || (identity as any)?.phoneToken),
-          oaFollowed:   false,
+          phoneGranted: true,
+          oaFollowed:   true,
           activated:    true,
           source:       "zalo-miniapp",
         });
@@ -42,7 +60,8 @@ export async function initializeCustomerIdentityEngine() {
           fullName:      (result.fullName && result.fullName !== 'Khách hàng' ? result.fullName : identity?.fullName) || result.fullName || "",
           phone:         result.phone         || identity?.phone    || "",
           memberActivated: true,
-          phoneGranted:  !!identity?.phone,
+          phoneGranted:  true,
+          oaFollowed:    true,
         });
         store.setProfileHydrated(true);
         store.setActivationStatus("activated");

@@ -22,6 +22,7 @@ function hydrateIdentityFromUrlParams() {
     const source   = params.get("source")     || "";
 
     if (source !== "zalo-miniapp" || !zaloId) return;
+    try { sessionStorage.setItem("zalo_source", "zalo-miniapp"); } catch(e) {}
 
     console.log("[RUNTIME] Shell params:", { zaloId, name, phone });
 
