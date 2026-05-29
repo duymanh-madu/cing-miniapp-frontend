@@ -170,8 +170,13 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
       game.dead = true; game.started = false; game.shake = 14;
       playSound("die");
       burst(game.pearl.x, game.pearl.y, 30);
-      /* setState throttled — chỉ update UI khi cần */
       setLeaderboardData([{ id: 1, name: "Player", score: game.bestCombo, isPlayer: true }]);
+      // Gọi onGameOver ngay khi chết
+      if (!game._deadNotified) {
+        game._deadNotified = true;
+        console.log('[GAME] onGameOver fired in die(), bestCombo:', game.bestCombo, 'score:', game.score);
+        if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
+      }
     }
 
     /* ── Fixed timestep: update logic tách hoàn toàn khỏi render ── */
