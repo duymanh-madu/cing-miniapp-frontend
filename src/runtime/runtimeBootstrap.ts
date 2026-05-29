@@ -20,6 +20,14 @@ function hydrateIdentityFromUrlParams() {
     const phoneToken = params.get("phone_token") || "";
     const miniAccessToken = params.get("mini_access_token") || "";
     const birthday = params.get("birthday") || "";
+    const safeTop = params.get("safe_top") || "0";
+    // Set CSS variable cho safe area
+    try {
+      const topPx = parseInt(safeTop) || 0;
+      if (topPx > 0) {
+        document.documentElement.style.setProperty("--app-safe-top", topPx + "px");
+      }
+    } catch(e) {}
     const oaFollowed = params.get("oa_followed") === "1";
     const source   = params.get("source")     || "";
 
