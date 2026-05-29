@@ -203,7 +203,7 @@ export default function LeaderboardPage() {
 
       {/* HEADER */}
       <div style={{ background:"linear-gradient(180deg,rgba(255,215,0,0.07),transparent)", padding:"20px 16px 0", borderBottom:"1px solid rgba(255,215,0,0.08)" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20, paddingTop:"var(--app-safe-top, 0px)" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20, paddingTop:"calc(var(--app-safe-top, 0px) + 8px)" }}>
           <button onClick={() => navigate(-1)} style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", color:"white", borderRadius:12, width:38, height:38, cursor:"pointer", fontSize:18, display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
           <div style={{ flex:1, textAlign:"center" }}>
             <p style={{ color:"rgba(255,215,0,0.6)", fontSize:10, fontWeight:800, letterSpacing:4, margin:"0 0 4px", textTransform:"uppercase" }}>Hall of Fame</p>
