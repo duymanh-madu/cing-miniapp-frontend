@@ -4,6 +4,7 @@ import { activateCustomerMembership } from "./runtimeCustomerActivationEngine";
 import { runtimeLogger } from "@/runtime/logger/runtimeLogger";
 import { hydrateCustomerProfile } from "./runtimeCustomerProfileHydrator";
 import { useRuntimeCustomerIdentityStore } from "./runtimeCustomerIdentityStore";
+import { activateMiniAppUser } from "@/zalo/activation/activationApi";
 
 export async function initializeCustomerIdentityEngine() {
   try {
@@ -16,7 +17,41 @@ export async function initializeCustomerIdentityEngine() {
     store.setActivationStatus("checking");
     runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity initializing");
 
-    // Guard: toan bo Zalo SDK calls deu catch de khong crash tren Safari/web
+    // FAST PATH: nếu shell đã inject zaloUserId → gọi thẳng backend
+    const identity = store.identity;
+    const zaloUserId = identity?.zaloUserId || "";
+
+    if (zaloUserId) {
+      runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: zaloUserId found", { zaloUserId });
+      try {
+        const result = await activateMiniAppUser({
+          zaloUserId,
+          name:         identity?.fullName || "",
+          avatar:       identity?.avatar   || "",
+          phone:        identity?.phone    || "",
+          phoneGranted: !!identity?.phone,
+          oaFollowed:   false,
+          activated:    true,
+          source:       "zalo-miniapp",
+        });
+
+        store.setIdentity({
+          customerId:    result.customerId    || "",
+          fullName:      result.fullName      || identity?.fullName || "",
+          phone:         result.phone         || identity?.phone    || "",
+          memberActivated: true,
+          phoneGranted:  !!identity?.phone,
+        });
+        store.setProfileHydrated(true);
+        store.setActivationStatus("activated");
+        runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path activated");
+        return;
+      } catch (e) {
+        console.warn("[IDENTITY] Shell fast-path failed, falling through:", e);
+      }
+    }
+
+    // NORMAL PATH: SDK flow
     const [phoneGranted, oaFollowed] = await Promise.all([
       requestPhonePermission().catch(() => null),
       verifyOAFollowStatus().catch(() => false),
@@ -40,8 +75,8 @@ export async function initializeCustomerIdentityEngine() {
     }));
 
     store.setIdentity({
-      customerId: profile.customerId || "",
-      fullName: profile.fullName || "",
+      customerId:      profile.customerId || "",
+      fullName:        profile.fullName   || "",
       memberActivated: true,
     });
 
@@ -50,7 +85,6 @@ export async function initializeCustomerIdentityEngine() {
     runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity ready");
 
   } catch(err) {
-    // Khong bao gio de crash app vi Zalo SDK
     console.warn("[IDENTITY] initializeCustomerIdentityEngine failed gracefully:", err);
     try {
       useRuntimeCustomerIdentityStore.getState().setActivationStatus("blocked");
