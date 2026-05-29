@@ -13,7 +13,8 @@ export interface ActivateMiniAppUserInput {
   name?:        string;
   avatar?:      string;
   birthday?:    string;
-  phoneToken?:  string;
+  phoneToken?:       string;
+  miniAccessToken?:  string;
 }
 
 export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Promise<any> {
@@ -27,7 +28,8 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
     activated:     input.activated,
     source:        input.source       || "zalo-miniapp",
     birthday:      input.birthday     || null,
-    phone_token:   input.phoneToken   || "",
+    phone_token:        input.phoneToken       || "",
+    mini_access_token:  input.miniAccessToken  || "",
   };
 
   const res = await fetch(`${BACKEND_URL}/auth/zalo/login`, {
