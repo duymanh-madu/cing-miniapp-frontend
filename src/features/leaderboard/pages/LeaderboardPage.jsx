@@ -102,7 +102,19 @@ function Top23Card({ entry, rank }) {
 
 export default function LeaderboardPage() {
   const navigate = useNavigate();
-  const profile = useAuthStore(s => s.profile);
+  const profile      = useAuthStore(s => s.profile);
+  const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+
+  // Phone hợp lệ — reactive, tự update khi store thay đổi
+  const validPhone = (() => {
+    const sources = [runtimePhone, profile?.phone];
+    for (const src of sources) {
+      if (!src || src === "pending") continue;
+      const n = src.replace(/\D/g, "").replace(/^84/, "0");
+      if (n.length >= 9) return n;
+    }
+    return "";
+  })();
   const [tab, setTab] = useState("weekly");
   const [data, setData] = useState([]);
   const [myRank, setMyRank] = useState(null);
@@ -172,7 +184,7 @@ export default function LeaderboardPage() {
       .finally(() => setLoading(false));
 
     if (profile?.id) {
-      const rankId = getPhone() || profile?.id;
+      const rankId = validPhone || profile?.id;
       apiClient.get(`/leaderboard/user-rank/${rankId}?period=${period}`)
         .then(r => {
           const rd = r.data?.data;
@@ -187,6 +199,11 @@ export default function LeaderboardPage() {
         }).catch(() => {});
     }
   };
+
+  // Re-fetch khi phone được resolve (sau activation)
+  useEffect(() => {
+    if (validPhone) fetchData(tab);
+  }, [validPhone]);
 
   useEffect(() => {
     if (tab === "custom") {
