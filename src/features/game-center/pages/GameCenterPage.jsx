@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useNavigate } from "react-router-dom";
 import { getAllGames } from "@/games/registry/gameRegistry";
@@ -14,6 +15,9 @@ export default function GameCenterPage() {
   const games = getAllGames();
   const [activeGame, setActiveGame] = useState(null);
   const profile = useAuthStore(s => s.profile);
+  const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
+  // Lấy phone từ runtime identity (đã decode từ Zalo) hoặc auth profile
+  const activePhone = (runtimeIdentity?.phone || profile?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
   const [challenge, setChallenge] = useState(null);
   const [challengeWinner, setChallengeWinner] = useState(null);
 
@@ -26,7 +30,8 @@ export default function GameCenterPage() {
   const handleGameOver = async ({ bestCombo, score }) => {
     const currentProfile = useAuthStore.getState().profile;
     // players table dùng phone dạng 09xx làm user_id
-    const rawPhone = currentProfile?.phone || profile?.phone || "";
+    const identity = useRuntimeCustomerIdentityStore.getState().identity;
+    const rawPhone = identity?.phone || currentProfile?.phone || profile?.phone || "";
     const normalPhone = rawPhone.replace(/\D/g,"").replace(/^84/, "0");
     const userId = normalPhone || currentProfile?.id || profile?.id;
     const playerName = currentProfile?.name || currentProfile?.displayName || profile?.name || "Cing iu";
