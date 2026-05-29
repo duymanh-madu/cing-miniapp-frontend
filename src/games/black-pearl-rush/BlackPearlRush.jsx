@@ -170,7 +170,7 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
       game.dead = true; game.started = false; game.shake = 14;
       playSound("die");
       burst(game.pearl.x, game.pearl.y, 30);
-      setLeaderboardData([{ id: 1, name: "Player", score: game.bestCombo, isPlayer: true }]);
+      setLeaderboardData([]);
       // Gọi onGameOver ngay khi chết
       if (!game._deadNotified) {
         game._deadNotified = true;
@@ -433,7 +433,7 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
                       (player.isPlayer ? "bg-[#2b160b] text-white" : "bg-white/70")}>
                     <div className="flex items-center gap-3">
                       <div className="font-black w-[42px] text-[#c19b61]">#{index+1}</div>
-                      <div className="font-bold">{player.name}</div>
+                      <div className="font-bold">{player.player_name || player.name || "Ẩn danh"}</div>
                     </div>
                     <div className="font-black">{player.score}</div>
                   </div>
