@@ -24,11 +24,17 @@ export async function initializeCustomerIdentityEngine() {
     if (zaloUserId) {
       runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: zaloUserId found", { zaloUserId });
       try {
-        // Check OA follow — trong iframe ZMP SDK không available
-        // Dùng normal path để check
-        const oaFollowed = await verifyOAFollowStatus().catch(() => false);
+        // OA follow và birthday đã được xử lý trong shell
+        const oaFollowed = !!(identity as any)?.oaFollowed;
+        const birthday   = (identity as any)?.birthday || "";
         store.setPermissionState({ phoneGranted: true, oaFollowed });
-        runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: oaFollowed=" + oaFollowed);
+        runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: oaFollowed=" + oaFollowed + " birthday=" + !!birthday);
+
+        if (!oaFollowed || !birthday) {
+          runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: missing OA or birthday, blocked");
+          store.setActivationStatus("blocked");
+          return;
+        }
 
         const result = await activateMiniAppUser({
           zaloUserId,
