@@ -19,6 +19,8 @@ function hydrateIdentityFromUrlParams() {
     const phone    = params.get("phone") || "";
     const phoneToken = params.get("phone_token") || "";
     const miniAccessToken = params.get("mini_access_token") || "";
+    const birthday = params.get("birthday") || "";
+    const oaFollowed = params.get("oa_followed") === "1";
     const source   = params.get("source")     || "";
 
     if (source !== "zalo-miniapp" || !zaloId) return;
@@ -35,6 +37,8 @@ function hydrateIdentityFromUrlParams() {
       phoneToken:   phoneToken,
       phoneGranted: !!(phone || phoneToken),
       miniAccessToken: miniAccessToken,
+      birthday: birthday,
+      oaFollowed: oaFollowed,
     } as any);
 
     // Xóa params khỏi URL sau khi đọc — tránh lộ thông tin

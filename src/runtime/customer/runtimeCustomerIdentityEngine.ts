@@ -47,6 +47,7 @@ export async function initializeCustomerIdentityEngine() {
           oaFollowed:   true,
           activated:    true,
           source:       "zalo-miniapp",
+          birthday:     birthday,
         });
 
         store.setIdentity({
