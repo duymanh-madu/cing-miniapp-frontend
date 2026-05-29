@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/stores/auth/authStore";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
@@ -11,7 +12,7 @@ const MENU_ITEMS = [
   { icon:"⭐", label:"Điểm tích lũy",      path:"/loyalty",     desc:"Xem điểm và đổi quà" },
   { icon:"👑", label:"Đại Sảnh Danh Vọng", path:"/leaderboard", desc:"Bảng xếp hạng khách hàng" },
   { icon:"🎮", label:"Game Center",        path:"/game-center", desc:"Chơi game nhận thưởng" },
-  { icon:"📞", label:"Liên hệ hỗ trợ",    path:null,           desc:"Hotline: 1900 xxxx" },
+  { icon:"📞", label:"Liên hệ hỗ trợ",    path:null,           desc:"Hotline: 0989.585.355" },
 ];
 
 function resizeToBase64(file) {
@@ -151,15 +152,33 @@ export default function AccountPage() {
   const navigate      = useNavigate();
   const profile       = useAuthStore(s => s.profile);
   const updateProfile = useAuthStore(s => s.updateProfile);
-  const [showEdit, setShowEdit] = useState(false);
-  const [cooldown, setCooldown] = useState(null);
-  const [toast, setToast]       = useState("");
+  const runtimePhone  = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const [showEdit, setShowEdit]   = useState(false);
+  const [cooldown, setCooldown]   = useState(null);
+  const [toast, setToast]         = useState("");
+  const [membership, setMembership] = useState(null);
 
   const name      = profile?.name || profile?.displayName || "Khách";
   const avatarUrl = profile?.avatar || null;
-  const userId    = profile?.phone || profile?.id || null;
+  const phone     = (() => {
+    for (const src of [runtimePhone, profile?.phone]) {
+      if (!src || src === "pending") continue;
+      const n = src.replace(/\D/g,"").replace(/^84/,"0");
+      if (n.length >= 9) return n;
+    }
+    return "";
+  })();
+  const userId = phone || profile?.id || null;
 
   const authenticated = useAuthStore(s => s.authenticated);
+
+  // Fetch membership data thật từ iPOS
+  useState(() => {
+    if (!phone) return;
+    apiClient.get(`/membership/${phone}`)
+      .then(r => setMembership(r.data?.data))
+      .catch(() => {});
+  });
 
   const openEdit = async () => {
     if (!userId) return;
@@ -196,7 +215,7 @@ export default function AccountPage() {
         <EditProfileSheet userId={userId} currentName={name} currentAvatar={avatarUrl} cooldown={cooldown} onClose={() => setShowEdit(false)} onSaved={handleSaved}/>
       )}
 
-      <div style={{ background:"linear-gradient(135deg,#D4531C,#E8622A)", padding:"32px 20px 24px" }}>
+      <div style={{ background:"linear-gradient(135deg,#D4531C,#E8622A)", padding:"32px 20px 24px", paddingTop:"calc(var(--app-safe-top, 0px) + 32px)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:16 }}>
           <div onClick={openEdit} style={{ position:"relative", cursor:"pointer", flexShrink:0 }}>
             {avatarUrl ? (
@@ -220,9 +239,9 @@ export default function AccountPage() {
 
         <div style={{ display:"flex", gap:10, marginTop:20 }}>
           {[
-            { label:"Điểm tích lũy",   value: fmt(profile?.points || 0) },
-            { label:"Hạng thành viên", value: profile?.tier || "Đồng" },
-            { label:"Đơn hàng",        value: profile?.totalOrders || 0 },
+            { label:"Điểm tích lũy",   value: fmt(membership?.points || 0) },
+            { label:"Hạng thành viên", value: membership?.tierName || profile?.tier || "Đồng" },
+            { label:"Đơn hàng",        value: membership?.eatTimes || 0 },
           ].map((s,i) => (
             <div key={i} style={{ flex:1, background:"rgba(255,255,255,0.15)", borderRadius:14, padding:"10px 8px", textAlign:"center", border:"1px solid rgba(255,255,255,0.2)" }}>
               <p style={{ color:"white", fontSize:15, fontWeight:900, margin:"0 0 2px" }}>{s.value}</p>
