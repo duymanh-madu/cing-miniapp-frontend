@@ -17,9 +17,11 @@ import {
 
 export function hydrateRuntimeIdentity() {
 
-  useRuntimeCustomerIdentityStore
-    .getState()
-    .resetIdentity();
+  // Chỉ reset nếu chưa có zaloUserId từ shell
+  const store = useRuntimeCustomerIdentityStore.getState();
+  if (!store.identity?.zaloUserId) {
+    store.resetIdentity();
+  }
 
   runtimeLogger.info(
     "RUNTIME",
