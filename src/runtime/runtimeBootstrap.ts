@@ -26,12 +26,13 @@ function hydrateIdentityFromUrlParams() {
 
     const store = useRuntimeCustomerIdentityStore.getState();
     store.setIdentity({
-      zaloUserId: zaloId,
-      fullName:   name,
-      avatar:     avatar,
-      phone:      phone,
+      zaloUserId:   zaloId,
+      fullName:     name,
+      avatar:       avatar,
+      phone:        phone,
+      phoneToken:   phoneToken,
       phoneGranted: !!(phone || phoneToken),
-    });
+    } as any);
 
     // Xóa params khỏi URL sau khi đọc — tránh lộ thông tin
     const cleanUrl = window.location.pathname + window.location.hash;

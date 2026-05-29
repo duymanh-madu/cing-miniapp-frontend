@@ -26,10 +26,11 @@ export async function initializeCustomerIdentityEngine() {
       try {
         const result = await activateMiniAppUser({
           zaloUserId,
-          name:         identity?.fullName || "",
-          avatar:       identity?.avatar   || "",
-          phone:        identity?.phone    || "",
-          phoneGranted: !!identity?.phone,
+          name:         identity?.fullName  || "",
+          avatar:       identity?.avatar    || "",
+          phone:        identity?.phone     || "",
+          phoneToken:   (identity as any)?.phoneToken || "",
+          phoneGranted: !!(identity?.phone || (identity as any)?.phoneToken),
           oaFollowed:   false,
           activated:    true,
           source:       "zalo-miniapp",
