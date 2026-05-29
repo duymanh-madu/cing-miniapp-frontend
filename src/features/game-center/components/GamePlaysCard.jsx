@@ -1,51 +1,59 @@
 import { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
+
+function getPhone() {
+  const sources = [
+    useRuntimeCustomerIdentityStore.getState().identity?.phone,
+    useAuthStore.getState().profile?.phone,
+  ];
+  for (const src of sources) {
+    if (!src || src === "pending") continue;
+    const n = src.replace(/\D/g, "").replace(/^84/, "0");
+    if (n.length >= 9) return n;
+  }
+  return "";
+}
 
 export default function GamePlaysCard({ onPlaysUpdate }) {
-  const profile = useAuthStore(s => s.profile);
-  const [plays, setPlays] = useState(null);
+  const [plays,   setPlays]   = useState(null);
+  const [points,  setPoints]  = useState(0);
   const [loading, setLoading] = useState(true);
-  const [points, setPoints] = useState(0);
-  const [buying, setBuying] = useState(false);
-  const [buyMsg, setBuyMsg] = useState("");
+  const [buying,  setBuying]  = useState(false);
+  const [buyMsg,  setBuyMsg]  = useState("");
+
+  const profileId = useAuthStore(s => s.profile?.id);
+  const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
 
   useEffect(() => {
-    const phone = profile?.phone?.replace(/\D/g,"").replace(/^84/, "0");
-    if (!phone && !profile?.id) { setLoading(false); return; }
-    
-    // Lấy game_plays từ players table (theo phone)
-    const playsPromise = phone 
-      ? apiClient.get(`/membership/${phone}`).then(r => r.data?.data)
-      : Promise.resolve(null);
-    
-    // Lấy rank/points từ leaderboard  
-    const rankPromise = profile?.id
-      ? apiClient.get(`/leaderboard/user-rank/${profile.id}`).then(r => r.data?.data)
-      : Promise.resolve(null);
+    const phone = getPhone();
+    if (!phone) { setLoading(false); return; }
 
-    Promise.all([playsPromise, rankPromise])
-      .then(([member, rank]) => {
-        const gamePlays = member?.game_plays ?? rank?.game_plays ?? 3;
-        const pts = member?.points || rank?.total_points || 0;
-        setPlays(gamePlays);
-        setPoints(pts);
-        onPlaysUpdate?.(gamePlays);
-      })
-      .catch(() => { setPlays(3); onPlaysUpdate?.(3); })
-      .finally(() => setLoading(false));
-  }, [profile?.id]);
+    Promise.all([
+      apiClient.get(`/membership/${phone}`).then(r => r.data?.data).catch(() => null),
+    ]).then(([member]) => {
+      const gamePlays = member?.game_plays ?? 3;
+      const pts       = member?.points     ?? 0;
+      setPlays(gamePlays);
+      setPoints(pts);
+      onPlaysUpdate?.(gamePlays);
+    }).catch(() => {
+      setPlays(3);
+      onPlaysUpdate?.(3);
+    }).finally(() => setLoading(false));
+  }, [profileId, runtimePhone]);
 
   const buyPlay = async (qty) => {
-    if (!profile?.id) return;
+    const phone = getPhone();
+    if (!phone) return;
     setBuying(true); setBuyMsg("");
     try {
-      const res = await apiClient.post("/points/buy-plays", { user_id: profile.id, quantity: qty });
+      const res = await apiClient.post("/points/buy-plays", { user_id: phone, quantity: qty });
       if (res.data?.success) {
-        const newPlays = res.data.data.new_plays;
-        setPlays(newPlays);
+        setPlays(res.data.data.new_plays);
         setPoints(res.data.data.remaining_points);
-        onPlaysUpdate?.(newPlays);
+        onPlaysUpdate?.(res.data.data.new_plays);
         setBuyMsg("✅ " + res.data.message);
       } else {
         setBuyMsg("❌ " + res.data.message);
@@ -57,102 +65,52 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
     setTimeout(() => setBuyMsg(""), 3000);
   };
 
-    const bars = [1,2,3,4,5];
+  const bars = [1,2,3,4,5];
 
   return (
-    <div style={{
-      margin:"0 16px 16px",
-      background:"linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,140,0,0.05))",
-      border:"1px solid rgba(255,215,0,0.2)",
-      borderRadius:18, overflow:"hidden",
-    }}>
-      {/* Header */}
-      <div style={{
-        padding:"14px 16px 10px",
-        borderBottom:"1px solid rgba(255,255,255,0.06)",
-        display:"flex", alignItems:"center", justifyContent:"space-between",
-      }}>
+    <div style={{ margin:"0 16px 16px", background:"linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,140,0,0.05))", border:"1px solid rgba(255,215,0,0.2)", borderRadius:18, overflow:"hidden" }}>
+      <div style={{ padding:"14px 16px 10px", borderBottom:"1px solid rgba(255,255,255,0.06)", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <div style={{ display:"flex", alignItems:"center", gap:8 }}>
           <span style={{ fontSize:20 }}>🎮</span>
           <span style={{ color:"white", fontSize:14, fontWeight:800 }}>Lượt chơi</span>
         </div>
-        <div style={{
-          background: plays > 0 ? "rgba(0,255,100,0.15)" : "rgba(255,80,80,0.15)",
-          border: `1px solid ${plays > 0 ? "rgba(0,255,100,0.3)" : "rgba(255,80,80,0.3)"}`,
-          borderRadius:20, padding:"3px 12px",
-          color: plays > 0 ? "#00ff64" : "#ff6464",
-          fontSize:12, fontWeight:800,
-        }}>
+        <div style={{ background: plays > 0 ? "rgba(0,255,100,0.15)" : "rgba(255,80,80,0.15)", border:`1px solid ${plays > 0 ? "rgba(0,255,100,0.3)" : "rgba(255,80,80,0.3)"}`, borderRadius:20, padding:"3px 12px", color: plays > 0 ? "#00ff64" : "#ff6464", fontSize:12, fontWeight:800 }}>
           {loading ? "..." : plays > 0 ? `${plays} lượt còn lại` : "Hết lượt"}
         </div>
       </div>
 
-      {/* Plays bar */}
       <div style={{ padding:"12px 16px 8px" }}>
         <div style={{ display:"flex", gap:5, marginBottom:12 }}>
           {bars.map(i => (
-            <div key={i} style={{
-              flex:1, height:8, borderRadius:4,
-              background: i <= (plays||0)
-                ? "linear-gradient(90deg,#FFD700,#FFA500)"
-                : "rgba(255,255,255,0.1)",
-              transition:"background 0.3s",
-            }}/>
+            <div key={i} style={{ flex:1, height:8, borderRadius:4, background: i <= (plays||0) ? "linear-gradient(90deg,#FFD700,#FFA500)" : "rgba(255,255,255,0.1)", transition:"background 0.3s" }}/>
           ))}
         </div>
-
-        {/* How to earn */}
         <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <span style={{ fontSize:14 }}>🎁</span>
-            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>
-              Tặng <b style={{color:"#FFD700"}}>3 lượt miễn phí</b> khi kích hoạt tài khoản lần đầu
-            </span>
+            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>Tặng <b style={{color:"#FFD700"}}>3 lượt miễn phí</b> khi kích hoạt tài khoản lần đầu</span>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <span style={{ fontSize:14 }}>🧋</span>
-            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>
-              Mỗi <b style={{color:"#FFD700"}}>20.000đ</b> chi tiêu đặt hàng → nhận thêm <b style={{color:"#FFD700"}}>1 lượt chơi</b>
-            </span>
+            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>Mỗi <b style={{color:"#FFD700"}}>20.000đ</b> chi tiêu → nhận thêm <b style={{color:"#FFD700"}}>1 lượt chơi</b></span>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <span style={{ fontSize:14 }}>⚡</span>
-            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>
-              1 lượt = 1 ván game bất kỳ trong Game Center
-            </span>
+            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>1 lượt = 1 ván game bất kỳ trong Game Center</span>
           </div>
         </div>
       </div>
 
-      {/* CTA if out of plays */}
       {plays === 0 && !loading && (
-        <div style={{
-          margin:"0 12px 12px",
-          background:"rgba(212,83,28,0.15)",
-          border:"1px solid rgba(212,83,28,0.3)",
-          borderRadius:12, padding:"10px 14px",
-          display:"flex", alignItems:"center", justifyContent:"space-between",
-        }}>
-          <span style={{ color:"rgba(255,255,255,0.7)", fontSize:12 }}>
-            Đặt hàng để nhận thêm lượt chơi
-          </span>
-          <button
-            onClick={() => window.location.hash = "/menu"}
-            style={{
-              background:"#D4531C", color:"white", border:"none",
-              borderRadius:8, padding:"5px 12px", fontSize:11,
-              fontWeight:700, cursor:"pointer",
-            }}>
-            Đặt ngay
-          </button>
+        <div style={{ margin:"0 12px 12px", background:"rgba(212,83,28,0.15)", border:"1px solid rgba(212,83,28,0.3)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <span style={{ color:"rgba(255,255,255,0.7)", fontSize:12 }}>Đặt hàng để nhận thêm lượt chơi</span>
+          <button onClick={() => window.location.hash = "/menu"} style={{ background:"#D4531C", color:"white", border:"none", borderRadius:8, padding:"5px 12px", fontSize:11, fontWeight:700, cursor:"pointer" }}>Đặt ngay</button>
         </div>
       )}
-      {/* MUA LUOT CHOI */}
+
       <div style={{ padding:"12px 16px", borderTop:"1px solid rgba(255,215,0,0.1)" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
-          <p style={{ color:"rgba(255,255,255,0.5)", fontSize:11, margin:0 }}>
-            💎 Điểm tích lũy: <strong style={{ color:"#FFD700" }}>{points}</strong> điểm
-          </p>
+          <p style={{ color:"rgba(255,255,255,0.5)", fontSize:11, margin:0 }}>💎 Điểm tích lũy: <strong style={{ color:"#FFD700" }}>{points}</strong> điểm</p>
           <p style={{ color:"rgba(255,255,255,0.3)", fontSize:10, margin:0 }}>5 điểm = 1 lượt</p>
         </div>
         {buyMsg && <p style={{ color: buyMsg.includes("✅") ? "#4CAF50" : "#ff6b6b", fontSize:11, margin:"0 0 8px" }}>{buyMsg}</p>}
