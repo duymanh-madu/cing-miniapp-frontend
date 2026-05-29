@@ -1,5 +1,6 @@
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import MenuCategories from "@/features/menu/components/MenuCategories";
 import MenuGrid from "@/features/menu/components/MenuGrid";
 import useMenu from "@/features/menu/hooks/useMenu";
@@ -7,6 +8,7 @@ import useMenu from "@/features/menu/hooks/useMenu";
 export default function MenuPage() {
   const [search, setSearch] = useState("");
   const { isError, error, isLoading } = useMenu();
+  const queryClient = useQueryClient();
 
   
   // Realtime menu update từ Foodbook webhook
@@ -17,7 +19,7 @@ export default function MenuPage() {
       if (socket && socket.connected) {
         socket.on("menu.updated", () => {
           console.log('[MENU] Realtime update received');
-          fetchMenu();
+          queryClient.invalidateQueries({ queryKey: ["menu"] });
         });
         // Event 26: OUT_OF_STOCK realtime - update item status ngay lập tức
         socket.on("menu.item_out_of_stock", (data) => {
@@ -41,7 +43,11 @@ export default function MenuPage() {
       if (attempts++ < 20) setTimeout(attach, 1000);
     };
     attach();
-    return () => getRuntimeSocket()?.off("menu.updated");
+    return () => {
+      const s = getRuntimeSocket();
+      s?.off("menu.updated");
+      s?.off("menu.item_out_of_stock");
+    };
   }, []);
 
 
