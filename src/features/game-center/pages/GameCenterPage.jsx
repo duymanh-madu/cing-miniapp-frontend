@@ -210,6 +210,11 @@ export default function GameCenterPage() {
                     alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
                     return;
                   }
+                  // Trừ lượt chơi
+                  const uid = useAuthStore.getState().profile?.id || useAuthStore.getState().profile?.zalo_id;
+                  if (uid) {
+                    apiClient.post("/game/use-play", { user_id: uid }).catch(() => {});
+                  }
                   setActiveGame(game.id);
                 }} style={{
                   background:"linear-gradient(135deg,#D4531C,#ff6b35)",

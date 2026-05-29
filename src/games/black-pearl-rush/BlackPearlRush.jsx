@@ -176,6 +176,12 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
         game._deadNotified = true;
         console.log('[GAME] onGameOver fired in die(), bestCombo:', game.bestCombo, 'score:', game.score);
         if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
+        // Fetch leaderboard thật sau khi die
+        fetch((import.meta.env.VITE_API_BASE_URL || '') + '/api/game/leaderboard/top-games/black-pearl-rush?limit=10')
+          .then(r => r.json())
+          .then(d => {
+            if (d?.data?.length > 0) setLeaderboardData(d.data);
+          }).catch(() => {});
       }
     }
 
