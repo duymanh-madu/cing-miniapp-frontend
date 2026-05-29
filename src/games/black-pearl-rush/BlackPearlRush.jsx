@@ -384,11 +384,8 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#efe7dc] flex items-center justify-center overflow-hidden">
-      <div
-        className="relative w-full max-w-[390px]"
-        style={{ contain: "layout style paint" }}
-      >
+    <div style={{ position:"fixed", inset:0, background:"#efe7dc", overflow:"hidden" }}>
+      <div style={{ position:"relative", width:"100%", height:"100%", contain:"layout style paint" }}>
         <div style={{ position:"absolute", top:"var(--app-safe-top, 0px)", left:12, right:12, display:"flex", alignItems:"flex-start", justifyContent:"space-between", pointerEvents:"none", zIndex:50 }}>
           <div style={{ display:"flex", alignItems:"center", gap:8, background:"#efe7dc", border:"1px solid #d8c8ae", borderRadius:18, padding:"8px 12px", boxShadow:"0 2px 8px rgba(0,0,0,0.1)", maxWidth:220 }}>
             <img src="/logo-cing.png" alt="logo" style={{ width:36, height:36, borderRadius:10, objectFit:"contain", flexShrink:0 }} />

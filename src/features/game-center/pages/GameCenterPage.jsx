@@ -123,23 +123,23 @@ export default function GameCenterPage() {
   if (playingChess) return <ChessGame onExit={() => setPlayingChess(false)} />;
 
   if (activeGame) {
-    const game    = games.find(g => g.id === activeGame);
+    const game     = games.find(g => g.id === activeGame);
     const GameComp = game?.component || BlackPearlRush;
     return (
-      <div style={{ background:"#000", minHeight:"100vh", display:"flex", flexDirection:"column" }}>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 16px", background:"rgba(255,255,255,0.05)" }}>
-          <button onClick={() => setActiveGame(null)} style={{ background:"rgba(255,255,255,0.1)", border:"none", color:"white", borderRadius:10, padding:"6px 14px", fontSize:13, cursor:"pointer" }}>← Hub</button>
-          <span style={{ color:"white", fontWeight:800, fontSize:14 }}>{game?.displayName || game?.name}</span>
-          <button onClick={() => setShowBoard(activeGame)} style={{ background:"rgba(255,215,0,0.15)", border:"1px solid rgba(255,215,0,0.4)", color:"#FFD700", borderRadius:10, padding:"6px 14px", fontSize:12, cursor:"pointer", fontWeight:700 }}>🏆 BXH</button>
-        </div>
-        <div style={{ flex:1 }}><GameComp onExit={() => setActiveGame(null)} onGameOver={handleGameOver} /></div>
+      <>
+        <GameComp
+          onExit={() => setActiveGame(null)}
+          onGameOver={handleGameOver}
+          onShowLeaderboard={() => setShowBoard(activeGame)}
+        />
         {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
-      </div>
+      </>
     );
   }
 
   return (
     <div style={{ minHeight:"100vh", background:"linear-gradient(180deg,#0a0a0f 0%,#12071a 50%,#0d0d1a 100%)", paddingBottom:100 }}>
+      <div style={{ position:"fixed", top:0, left:0, right:0, height:"var(--app-safe-top, 0px)", background:"#0a0a0f", zIndex:99 }} />
       {/* HEADER */}
       <div style={{ padding:"24px 20px 16px", textAlign:"center" }}>
         <p style={{ color:"rgba(255,215,0,0.6)", fontSize:11, letterSpacing:4, fontWeight:700, margin:"0 0 6px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
