@@ -200,11 +200,6 @@ export default function LeaderboardPage() {
     }
   };
 
-  // Re-fetch khi phone được resolve (sau activation)
-  useEffect(() => {
-    if (validPhone) fetchData(tab);
-  }, [validPhone]);
-
   useEffect(() => {
     if (tab === "custom") {
       setShowCustom(true);
@@ -213,7 +208,7 @@ export default function LeaderboardPage() {
     }
     setShowCustom(false);
     fetchData(tab);
-  }, [tab, customRange.from]);
+  }, [tab, customRange.from, validPhone]);
 
   const top1 = data[0], top2 = data[1], top3 = data[2], rest = data.slice(3);
 
