@@ -16,7 +16,8 @@ function hydrateIdentityFromUrlParams() {
     const zaloId   = params.get("zalo_id")    || "";
     const name     = params.get("zalo_name")  ? decodeURIComponent(params.get("zalo_name")!) : "";
     const avatar   = params.get("zalo_avatar") ? decodeURIComponent(params.get("zalo_avatar")!) : "";
-    const phone    = params.get("phone")      || "";
+    const phone    = params.get("phone") || "";
+    const phoneToken = params.get("phone_token") || "";
     const source   = params.get("source")     || "";
 
     if (source !== "zalo-miniapp" || !zaloId) return;
@@ -29,7 +30,7 @@ function hydrateIdentityFromUrlParams() {
       fullName:   name,
       avatar:     avatar,
       phone:      phone,
-      phoneGranted: !!phone,
+      phoneGranted: !!(phone || phoneToken),
     });
 
     // Xóa params khỏi URL sau khi đọc — tránh lộ thông tin
