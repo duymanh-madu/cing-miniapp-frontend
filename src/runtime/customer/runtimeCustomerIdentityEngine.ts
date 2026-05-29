@@ -30,8 +30,8 @@ export async function initializeCustomerIdentityEngine() {
         store.setPermissionState({ phoneGranted: true, oaFollowed });
         runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: oaFollowed=" + oaFollowed + " birthday=" + !!birthday);
 
-        if (!oaFollowed || !birthday) {
-          runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: missing OA or birthday, blocked");
+        if (!oaFollowed) {
+          runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: missing OA follow, blocked");
           store.setActivationStatus("blocked");
           return;
         }
