@@ -9,8 +9,14 @@ export default function GamePage() {
   const profile = useAuthStore(s => s.profile);
 
   const handleGameOver = async ({ bestCombo, score }) => {
-    const userId = profile?.id || profile?.zalo_id;
-    if (!userId) return;
+    // Lấy profile mới nhất từ store
+    const currentProfile = useAuthStore.getState().profile;
+    const userId = currentProfile?.id || currentProfile?.zalo_id || profile?.id || profile?.zalo_id;
+    console.log("[GAME] handleGameOver called, userId:", userId, "score:", score, "combo:", bestCombo);
+    if (!userId) {
+      console.warn("[GAME] No userId found, skip submit");
+      return;
+    }
 
     const finalScore = score || bestCombo || 0;
     if (!finalScore) return;
@@ -21,8 +27,8 @@ export default function GamePage() {
         game_key: gameId,
         user_id: userId,
         score: finalScore,
-        player_name: profile?.name || profile?.displayName || "Cing iu",
-        avatar: profile?.avatar || "",
+        player_name: currentProfile?.name || currentProfile?.displayName || "Cing iu",
+        avatar: currentProfile?.avatar || "",
         combo: bestCombo || 0,
       });
     } catch(e) {
@@ -33,8 +39,8 @@ export default function GamePage() {
     try {
       await apiClient.post("/game/daily-challenge/claim", {
         user_id: userId,
-        player_name: profile?.name || profile?.displayName || "Cing iu",
-        avatar: profile?.avatar || "",
+        player_name: currentProfile?.name || currentProfile?.displayName || "Cing iu",
+        avatar: currentProfile?.avatar || "",
         combo: bestCombo || 0,
         game_key: gameId,
       });
