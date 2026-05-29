@@ -31,7 +31,7 @@ const notif = data?.payload?.notification || data?.notification || data;
     attach();
     return () => {
       const s = getRuntimeSocket();
-      if (s) { s.off("notification.new"); s.off("notification.broadcast"); }
+      if (s) { s.off("notification.new"); s.off("notification.broadcast"); s.off("menu.updated"); s.off("menu.item_out_of_stock"); }
     };
   }, []);
 

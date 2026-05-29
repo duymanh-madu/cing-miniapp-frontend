@@ -1,4 +1,3 @@
-import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import MenuCategories from "@/features/menu/components/MenuCategories";
@@ -11,44 +10,15 @@ export default function MenuPage() {
   const queryClient = useQueryClient();
 
   
-  // Realtime menu update từ Foodbook webhook
+  // Realtime menu update từ window events (set bởi NotificationBell)
   useEffect(() => {
-    let attempts = 0;
-    const attach = () => {
-      const socket = getRuntimeSocket();
-      if (socket && socket.connected) {
-        socket.on("menu.updated", () => {
-          console.log('[MENU] Realtime update received');
-          queryClient.invalidateQueries({ queryKey: ["menu"] });
-        });
-        // Event 26: OUT_OF_STOCK realtime - update item status ngay lập tức
-        socket.on("menu.item_out_of_stock", (data) => {
-          console.log('[MENU] Item out of stock:', data.item_id, data.status);
-          // Update state trực tiếp không cần fetch lại
-          setMenuData(prev => {
-            if (!prev) return prev;
-            return prev.map(category => ({
-              ...category,
-              items: (category.items || []).map(item => {
-                if (item.store_item_id === data.item_id || item.id === data.item_id) {
-                  return { ...item, status: data.status };
-                }
-                return item;
-              })
-            }));
-          });
-        });
-        return;
-      }
-      if (attempts++ < 20) setTimeout(attach, 1000);
+    const onRefresh = () => {
+      console.log("[MENU] Window event: refresh");
+      queryClient.invalidateQueries({ queryKey: ["menu"] });
     };
-    attach();
-    return () => {
-      const s = getRuntimeSocket();
-      s?.off("menu.updated");
-      s?.off("menu.item_out_of_stock");
-    };
-  }, []);
+    window.addEventListener("menu:refresh", onRefresh);
+    return () => window.removeEventListener("menu:refresh", onRefresh);
+  }, [queryClient]);
 
 
   return (
