@@ -23,26 +23,32 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
   const [buying,  setBuying]  = useState(false);
   const [buyMsg,  setBuyMsg]  = useState("");
 
-  const profileId = useAuthStore(s => s.profile?.id);
+  const profileId    = useAuthStore(s => s.profile?.id);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
 
-  useEffect(() => {
+  const fetchPlays = async () => {
     const phone = getPhone();
     if (!phone) { setLoading(false); return; }
-
-    Promise.all([
-      apiClient.get(`/membership/${phone}`).then(r => r.data?.data).catch(() => null),
-    ]).then(([member]) => {
-      const gamePlays = member?.game_plays ?? 3;
-      const pts       = member?.points     ?? 0;
+    try {
+      // Lấy game_plays từ players table
+      const [playsRes, memberRes] = await Promise.all([
+        apiClient.get(`/game/plays/${phone}`),
+        apiClient.get(`/membership/${phone}`).catch(() => ({ data: { data: null } })),
+      ]);
+      const gamePlays = playsRes.data?.data?.game_plays ?? 0;
+      const pts       = memberRes.data?.data?.points    ?? playsRes.data?.data?.total_points ?? 0;
       setPlays(gamePlays);
       setPoints(pts);
       onPlaysUpdate?.(gamePlays);
-    }).catch(() => {
-      setPlays(3);
-      onPlaysUpdate?.(3);
-    }).finally(() => setLoading(false));
-  }, [profileId, runtimePhone]);
+    } catch(e) {
+      setPlays(0);
+      onPlaysUpdate?.(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchPlays(); }, [profileId, runtimePhone]);
 
   const buyPlay = async (qty) => {
     const phone = getPhone();
@@ -87,15 +93,15 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
         </div>
         <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <span style={{ fontSize:14 }}>🎁</span>
+            <span>🎁</span>
             <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>Tặng <b style={{color:"#FFD700"}}>3 lượt miễn phí</b> khi kích hoạt tài khoản lần đầu</span>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <span style={{ fontSize:14 }}>🧋</span>
+            <span>🧋</span>
             <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>Mỗi <b style={{color:"#FFD700"}}>20.000đ</b> chi tiêu → nhận thêm <b style={{color:"#FFD700"}}>1 lượt chơi</b></span>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <span style={{ fontSize:14 }}>⚡</span>
+            <span>⚡</span>
             <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>1 lượt = 1 ván game bất kỳ trong Game Center</span>
           </div>
         </div>
