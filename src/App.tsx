@@ -5,6 +5,7 @@ import RuntimeProvider from "@/providers/RuntimeProvider";
 import AppBootstrapGate from "@/bootstrap/components/AppBootstrapGate";
 
 import AppRouter from "@/router/AppRouter";
+import ZaloBirthdayGate from "@/app/ZaloBirthdayGate";
 
 /**
  * =====================================================
@@ -28,6 +29,7 @@ export default function App() {
         <AppBootstrapGate>
 
           <AppRouter />
+          <ZaloBirthdayGate />
 
         </AppBootstrapGate>
 
