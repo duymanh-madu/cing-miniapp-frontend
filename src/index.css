@@ -11,6 +11,14 @@
  * =====================================================
  */
 
+:root {
+  --app-safe-top:    env(safe-area-inset-top,    0px);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:       env(safe-area-inset-left,   0px);
+  --safe-right:      env(safe-area-inset-right,  0px);
+  --app-height:      100dvh;
+}
+
 html,
 body,
 #root {
