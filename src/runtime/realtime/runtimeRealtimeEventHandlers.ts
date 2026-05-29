@@ -65,6 +65,32 @@ export const realtimeEventHandlers = {
 
     },
 
+  "notification.broadcast":
+    (
+      payload: any
+    ) => {
+
+      runtimeLogger.info("RUNTIME",
+        "[EVENT] notification.broadcast",
+        payload
+      );
+
+      dispatchRuntimeNotification({
+
+        title:
+          payload?.notification?.title ||
+          payload?.title ||
+          "🏆 Thông báo",
+
+        message:
+          payload?.notification?.message ||
+          payload?.message ||
+          "",
+
+      });
+
+    },
+
   "notification.created":
     (
       payload: any
