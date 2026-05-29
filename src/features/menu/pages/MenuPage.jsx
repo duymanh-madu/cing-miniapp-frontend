@@ -23,6 +23,7 @@ export default function MenuPage() {
 
   return (
     <div style={{ background:"#fafafa" }}>
+      <div style={{ position:"fixed", top:0, left:0, right:0, height:"var(--app-safe-top, 0px)", background:"#fafafa", zIndex:99 }} />
       <div style={{
         background:"white",
         borderBottom:"1px solid #f0f0f0",

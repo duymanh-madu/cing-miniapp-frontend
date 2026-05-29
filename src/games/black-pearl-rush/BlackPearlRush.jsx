@@ -389,25 +389,17 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
         className="relative w-full max-w-[390px]"
         style={{ contain: "layout style paint" }}
       >
-        <div className="absolute top-3 left-3 right-3 flex items-start justify-between pointer-events-none" style={{ zIndex:50 }}>
-          <div className="flex items-center gap-2 bg-[#efe7dc] border border-[#d8c8ae] rounded-2xl px-3 py-2 shadow-lg max-w-[220px]">
-            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
-              <img src="/logo-cing.png" alt="logo" className="w-full h-full object-contain" />
-            </div>
-            <div className="leading-none overflow-hidden">
-              <div className="text-[10px] font-black tracking-[2px] text-[#c19b61] mb-1">MINI GAME</div>
-              <div className="text-[15px] font-black text-[#2b160b] whitespace-nowrap">Bay cùng trân châu</div>
+        <div style={{ position:"absolute", top:"var(--app-safe-top, 0px)", left:12, right:12, display:"flex", alignItems:"flex-start", justifyContent:"space-between", pointerEvents:"none", zIndex:50 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, background:"#efe7dc", border:"1px solid #d8c8ae", borderRadius:18, padding:"8px 12px", boxShadow:"0 2px 8px rgba(0,0,0,0.1)", maxWidth:220 }}>
+            <img src="/logo-cing.png" alt="logo" style={{ width:36, height:36, borderRadius:10, objectFit:"contain", flexShrink:0 }} />
+            <div>
+              <div style={{ fontSize:9, fontWeight:900, letterSpacing:2, color:"#c19b61", marginBottom:2 }}>MINI GAME</div>
+              <div style={{ fontSize:14, fontWeight:900, color:"#2b160b", whiteSpace:"nowrap" }}>Bay cùng trân châu</div>
             </div>
           </div>
-          <div className="flex flex-col gap-2 pointer-events-auto">
-            <button onClick={() => setShowLeaderboard(true)}
-              className="bg-[rgba(0,0,0,0.55)] text-white font-black text-sm rounded-2xl px-4 h-[42px] shadow-lg">
-              🏆 BXH
-            </button>
-            <button onClick={() => { if(onExit) onExit(); else navigate("/game-center"); }}
-              className="bg-[#2b160b] text-white font-black text-[12px] rounded-2xl px-4 h-[42px] shadow-lg">
-              🎮 Game Center
-            </button>
+          <div style={{ display:"flex", flexDirection:"column", gap:8, pointerEvents:"auto" }}>
+            <button onClick={() => setShowLeaderboard(true)} style={{ background:"rgba(0,0,0,0.55)", color:"white", fontWeight:900, fontSize:13, borderRadius:18, padding:"0 16px", height:42, border:"none", cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>🏆 BXH</button>
+            <button onClick={() => { if(onExit) onExit(); else navigate("/game-center"); }} style={{ background:"#2b160b", color:"white", fontWeight:900, fontSize:11, borderRadius:18, padding:"0 16px", height:42, border:"none", cursor:"pointer" }}>🎮 Game Center</button>
           </div>
         </div>
 
