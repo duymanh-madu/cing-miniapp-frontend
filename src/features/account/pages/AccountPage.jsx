@@ -157,6 +157,9 @@ export default function AccountPage() {
   const [cooldown, setCooldown]   = useState(null);
   const [toast, setToast]         = useState("");
   const [membership, setMembership] = useState(null);
+  const [birthday,   setBirthday]   = useState("");
+  const [bdSaving,   setBdSaving]   = useState(false);
+  const [bdMsg,      setBdMsg]      = useState("");
 
   const name      = profile?.name || profile?.displayName || "Khách";
   const avatarUrl = profile?.avatar || null;
@@ -171,6 +174,19 @@ export default function AccountPage() {
   const userId = phone || profile?.id || null;
 
   const authenticated = useAuthStore(s => s.authenticated);
+
+  const saveBirthday = async () => {
+    if (!birthday || !userId) return;
+    setBdSaving(true); setBdMsg("");
+    try {
+      await apiClient.post(`/profile-update/birthday`, { user_id: userId, birthday });
+      setBdMsg("✅ Đã lưu ngày sinh!");
+    } catch(e) {
+      setBdMsg("❌ " + (e.response?.data?.message || "Lỗi lưu ngày sinh"));
+    }
+    setBdSaving(false);
+    setTimeout(() => setBdMsg(""), 3000);
+  };
 
   // Fetch membership data thật từ iPOS
   useState(() => {
@@ -249,6 +265,24 @@ export default function AccountPage() {
               <p style={{ color:"rgba(255,255,255,0.65)", fontSize:10, margin:0, fontWeight:600 }}>{s.label}</p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* BIRTHDAY CARD */}
+      <div style={{ padding:"12px 16px 0" }}>
+        <div style={{ background:"white", borderRadius:20, padding:"16px", boxShadow:"0 1px 4px rgba(0,0,0,0.06)" }}>
+          <p style={{ fontSize:13, fontWeight:800, color:"#1a1a1a", margin:"0 0 10px", display:"flex", alignItems:"center", gap:6 }}>🎂 Ngày sinh nhật</p>
+          <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+            <input type="date" value={birthday} onChange={e => setBirthday(e.target.value)}
+              max={new Date().toISOString().split("T")[0]}
+              style={{ flex:1, padding:"10px 12px", border:"1.5px solid #e0e0e0", borderRadius:10, fontSize:14, outline:"none", boxSizing:"border-box" }}/>
+            <button onClick={saveBirthday} disabled={bdSaving || !birthday}
+              style={{ padding:"10px 16px", background: bdSaving||!birthday ? "#ccc" : "#D4531C", color:"white", border:"none", borderRadius:10, fontSize:13, fontWeight:700, cursor: bdSaving||!birthday ? "default":"pointer", flexShrink:0 }}>
+              {bdSaving ? "..." : "Lưu"}
+            </button>
+          </div>
+          {bdMsg && <p style={{ fontSize:12, color: bdMsg.includes("✅") ? "#4CAF50" : "#e53935", margin:"8px 0 0" }}>{bdMsg}</p>}
+          <p style={{ fontSize:11, color:"#aaa", margin:"8px 0 0" }}>Dùng để nhận ưu đãi sinh nhật đặc biệt từ Cing 🎁</p>
         </div>
       </div>
 
