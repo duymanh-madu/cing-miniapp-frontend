@@ -24,21 +24,42 @@ export default function GameCenterPage() {
   }, []);
 
   const handleGameOver = async ({ bestCombo, score }) => {
-    const userId = profile?.id || profile?.userId || profile?.zalo_id;
-    const playerName = profile?.name || profile?.displayName || "Cing iu";
-    if (!userId || !bestCombo) return;
-    try {
-      const res = await apiClient.post("/game/daily-challenge/claim", {
-        user_id: userId,
-        player_name: playerName,
-        avatar: profile?.avatar || "",
-        combo: bestCombo,
-        game_key: "black-pearl-rush",
-      });
-      if (res.data?.success) {
-        alert("🏆 " + res.data.message);
-      }
-    } catch(e) {}
+    const currentProfile = useAuthStore.getState().profile;
+    const userId = currentProfile?.id || currentProfile?.zalo_id || profile?.id || profile?.zalo_id;
+    const playerName = currentProfile?.name || currentProfile?.displayName || profile?.name || "Cing iu";
+    const gameKey = activeGame || "black-pearl-rush";
+    if (!userId) return;
+
+    // Save score vào leaderboard
+    const finalScore = score || bestCombo || 0;
+    if (finalScore > 0) {
+      try {
+        await apiClient.post("/game/score", {
+          game_key: gameKey,
+          user_id: userId,
+          score: finalScore,
+          player_name: playerName,
+          avatar: currentProfile?.avatar || profile?.avatar || "",
+          combo: bestCombo || 0,
+        });
+      } catch(e) { console.warn("[GAME] submit score failed:", e.message); }
+    }
+
+    // Claim daily challenge nếu đủ combo
+    if (bestCombo > 0) {
+      try {
+        const res = await apiClient.post("/game/daily-challenge/claim", {
+          user_id: userId,
+          player_name: playerName,
+          avatar: currentProfile?.avatar || profile?.avatar || "",
+          combo: bestCombo,
+          game_key: gameKey,
+        });
+        if (res.data?.success) {
+          alert("🏆 " + res.data.message);
+        }
+      } catch(e) {}
+    }
   };
 
   // Socket listener cho challenge winner
