@@ -19,8 +19,8 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
 
     /* ── DPR cap 2 — iPhone 14 Pro = DPR3, cap tại 2 giảm 44% pixels ── */
     const DPR = Math.min(window.devicePixelRatio || 1, 2);
-    const W = Math.min(window.innerWidth, 390);
-    const H = Math.min(window.innerHeight, 780);
+    const W = window.innerWidth;
+    const H = window.innerHeight;
     canvas.width  = W * DPR;
     canvas.height = H * DPR;
     canvas.style.width  = W + "px";
@@ -403,8 +403,8 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
         {/* CSS will-change tạo GPU layer riêng cho canvas */}
         <canvas
           ref={canvasRef}
-          className="w-full rounded-[32px] shadow-2xl touch-none select-none"
-          style={{ willChange: "transform", position:"relative", zIndex:1 }}
+          className="touch-none select-none"
+          style={{ willChange:"transform", position:"absolute", top:0, left:0, width:"100%", height:"100%", zIndex:1 }}
         />
 
         {showLeaderboard && (
