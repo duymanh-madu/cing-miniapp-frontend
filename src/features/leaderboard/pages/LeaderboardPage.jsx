@@ -172,7 +172,8 @@ export default function LeaderboardPage() {
       .finally(() => setLoading(false));
 
     if (profile?.id) {
-      apiClient.get(`/leaderboard/user-rank/${profile.id}?period=${period}`)
+      const rankId = getPhone() || profile?.id;
+      apiClient.get(`/leaderboard/user-rank/${rankId}?period=${period}`)
         .then(r => {
           const rd = r.data?.data;
           if (rd?.rank && prevRankRef.current !== null) {
