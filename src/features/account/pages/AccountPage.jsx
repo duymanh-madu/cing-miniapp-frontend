@@ -189,12 +189,16 @@ export default function AccountPage() {
   };
 
   // Fetch membership data thật từ iPOS
-  useState(() => {
+  useEffect(() => {
     if (!phone) return;
     apiClient.get(`/membership/${phone}`)
-      .then(r => setMembership(r.data?.data))
+      .then(r => {
+        setMembership(r.data?.data);
+        const raw = r.data?.data?.birthday || "";
+        if (raw) setBirthday(raw.split("T")[0].split(" ")[0]);
+      })
       .catch(() => {});
-  });
+  }, [phone]);
 
   const openEdit = async () => {
     if (!userId) return;
