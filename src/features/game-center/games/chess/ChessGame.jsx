@@ -6,6 +6,94 @@ import ChessLeaderboard from "./ChessLeaderboard";
 
 const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
 
+// SVG quân cờ Staunton style — đẹp, có chiều sâu
+function ChessPiece({ type, color }) {
+  const w = color === "w";
+  const fill   = w ? "#FFFDE7" : "#1a1208";
+  const stroke = w ? "#555"    : "#000";
+  const hi     = w ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.08)";
+
+  const pieces = {
+    p: ( // Tốt
+      <svg viewBox="0 0 45 45" width="100%" height="100%">
+        <g fill={fill} stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22.5 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+          <path d="M22.5 19c-3.5 0-6 2-6 4.5v1c0 1.5 1 3 3 3h6c2 0 3-1.5 3-3v-1c0-2.5-2.5-4.5-6-4.5z"/>
+          <path d="M15 36h15M16 32.5h13" strokeWidth="2"/>
+          <path d="M16.5 32.5c0-1.5 1.5-2.5 6-2.5s6 1 6 2.5" fill={fill}/>
+        </g>
+        <path d="M22.5 11a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" fill={hi}/>
+      </svg>
+    ),
+    r: ( // Xe
+      <svg viewBox="0 0 45 45" width="100%" height="100%">
+        <g fill={fill} stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 39h27v-3H9v3zM12 36v-4h21v4H12z" strokeLinecap="butt"/>
+          <path d="M11 14V9h4v2h5V9h5v2h5V9h4v5" strokeLinecap="butt"/>
+          <path d="M34 14l-3 3H14l-3-3"/>
+          <path d="M31 17v12.5H14V17" strokeLinecap="butt"/>
+          <path d="M31 29.5l1.5 2.5h-20l1.5-2.5"/>
+          <path d="M11 14h23" strokeLinejoin="miter"/>
+        </g>
+        <rect x="13" y="10" width="2" height="3" fill={hi} rx="0.5"/>
+        <rect x="21.5" y="10" width="2" height="3" fill={hi} rx="0.5"/>
+        <rect x="30" y="10" width="2" height="3" fill={hi} rx="0.5"/>
+      </svg>
+    ),
+    n: ( // Mã
+      <svg viewBox="0 0 45 45" width="100%" height="100%">
+        <g fill={fill} stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+          <path d="M24 18c.38 5.12-5 9.5-9.5 9.5-4.67 0-9.44-4.33-9.5-9.5.13-2.38 1.28-3.26 2.5-4 2.5-1.5 5.88-.5 7.5 2"/>
+          <path d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 0 1 .866.5z" fill={stroke} stroke={stroke}/>
+          <path d="M24.55 10.4l-.45 1.45.5.15c3.15 1 5.65 2.49 6.9 4.05 1.5 1.9 1.5 3.9.8 5.5-.5 2-2.5 3.5-5 4.5-2 .8-5 1-7.8 1-3.8 0-7.7-1.5-8.5-4.5a5.5 5.5 0 0 1 2-5.5" fill={fill}/>
+        </g>
+        <path d="M24 12c2 1 5 3 6 5" stroke={hi} strokeWidth="1" fill="none"/>
+      </svg>
+    ),
+    b: ( // Tượng
+      <svg viewBox="0 0 45 45" width="100%" height="100%">
+        <g fill={fill} stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <g fill={fill} strokeLinecap="butt">
+            <path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.354.49-2.323.47-3-.5 1.354-1.94 3-2 3-2z"/>
+            <path d="M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z"/>
+            <path d="M25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+          </g>
+          <path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" strokeLinejoin="miter"/>
+        </g>
+        <path d="M22.5 9a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" fill={hi}/>
+      </svg>
+    ),
+    q: ( // Hậu
+      <svg viewBox="0 0 45 45" width="100%" height="100%">
+        <g fill={fill} stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="6" cy="12" r="2.75"/>
+          <circle cx="14" cy="9" r="2.75"/>
+          <circle cx="22.5" cy="8" r="2.75"/>
+          <circle cx="31" cy="9" r="2.75"/>
+          <circle cx="39" cy="12" r="2.75"/>
+          <path d="M9 26c8.5-8.5 15.5-8.5 27 0l2.5-12.5L31 25l-.3-14.1-8.2 13.7-8.2-13.7L14 25 6.5 13.5 9 26z" strokeLinecap="butt"/>
+          <path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" strokeLinecap="butt"/>
+          <path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c4-1.5 17-1.5 21 0"/>
+        </g>
+      </svg>
+    ),
+    k: ( // Vua
+      <svg viewBox="0 0 45 45" width="100%" height="100%">
+        <g fill={fill} stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22.5 11.63V6M20 8h5" strokeWidth="1.5"/>
+          <path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill={fill}/>
+          <path d="M12.5 37c5.5 3.5 14.5 3.5 20 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V17s-5.5-3.5-6 1c-.5 4.5 6 7 6 7v13" strokeLinecap="butt"/>
+          <path d="M12.5 30c5.5-3 14.5-3 20 0M12.5 33.5c5.5-3 14.5-3 20 0M12.5 37c5.5-3 14.5-3 20 0"/>
+        </g>
+        <path d="M22.5 7c1 0 2 1 2 2s-1 2-2 2-2-1-2-2 1-2 2-2z" fill={hi}/>
+      </svg>
+    ),
+  };
+
+  return pieces[type] || null;
+}
+
 // Màu quân cờ
 const LIGHT_SQ = "#F0D9B5";
 const DARK_SQ  = "#B58863";
@@ -472,6 +560,8 @@ export default function ChessGame({ onExit }) {
           "🎯 Bạn chỉ mất lượt chơi khi vào ván",
           "⚔️ Trận đấu bắt đầu khi 2 người vào",
           "♔ Chiếu hết đối thủ để thắng",
+          "⏱ Mỗi nước đi tối đa 30 giây",
+          "⏳ Mỗi người có 60s quỹ thời gian dự trữ — kích hoạt khi hết 30s, hết quỹ là thua",
           "📊 BXH theo số trận thắng & chuỗi thắng",
         ].map((r,i) => <p key={i} style={{ color:"#aaa", fontSize:12, margin:"0 0 6px" }}>{r}</p>)}
       </div>
@@ -729,7 +819,7 @@ export default function ChessGame({ onExit }) {
         </h2>
         <p style={{ color:"#666", fontSize:14, margin:"0 0 8px" }}>{reasonText}</p>
         {won && <p style={{ color:"#4CAF50", fontSize:13, margin:"0 0 24px",
-          fontWeight:700 }}>+20 điểm tích lũy 🎉</p>}
+          fontWeight:700 }}></p>}
         {!won && !draw && <p style={{ color:"#888", fontSize:13, margin:"0 0 24px" }}>
           Cố gắng hơn ở ván tiếp theo!</p>}
 
