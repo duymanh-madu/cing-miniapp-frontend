@@ -1,33 +1,55 @@
 import { create } from "zustand";
 
+const CART_KEY = "cing_cart_session";
+
+function loadCart() {
+  try {
+    const raw = sessionStorage.getItem(CART_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function saveCart(items) {
+  try { sessionStorage.setItem(CART_KEY, JSON.stringify(items)); } catch(e) {}
+}
+
 const useCartStore = create((set, get) => ({
-  items: [],
+  items: loadCart(),
 
   addItem: (product) => {
     const items = get().items;
     const existing = items.find(i => i.id === product.id);
-    if (existing) {
-      set({ items: items.map(i => i.id === product.id ? {...i, qty: i.qty + 1} : i) });
-    } else {
-      set({ items: [...items, { ...product, qty: 1, cartId: crypto.randomUUID() }] });
-    }
+    const next = existing
+      ? items.map(i => i.id === product.id ? {...i, qty: i.qty + 1} : i)
+      : [...items, { ...product, qty: 1, cartId: crypto.randomUUID() }];
+    saveCart(next);
+    set({ items: next });
   },
 
-  increment: (id) => set({ items: get().items.map(i => i.id === id ? {...i, qty: i.qty + 1} : i) }),
+  increment: (id) => {
+    const next = get().items.map(i => i.id === id ? {...i, qty: i.qty + 1} : i);
+    saveCart(next); set({ items: next });
+  },
 
   decrement: (id) => {
     const items = get().items;
     const item = items.find(i => i.id === id);
     if (!item) return;
-    if (item.qty <= 1) {
-      set({ items: items.filter(i => i.id !== id) });
-    } else {
-      set({ items: items.map(i => i.id === id ? {...i, qty: i.qty - 1} : i) });
-    }
+    const next = item.qty <= 1
+      ? items.filter(i => i.id !== id)
+      : items.map(i => i.id === id ? {...i, qty: i.qty - 1} : i);
+    saveCart(next); set({ items: next });
   },
 
-  removeItem: (id) => set({ items: get().items.filter(i => i.id !== id) }),
-  clearCart: () => set({ items: [] }),
+  removeItem: (id) => {
+    const next = get().items.filter(i => i.id !== id);
+    saveCart(next); set({ items: next });
+  },
+
+  clearCart: () => {
+    saveCart([]);
+    set({ items: [] });
+  },
 
   get total() {
     return get().items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
