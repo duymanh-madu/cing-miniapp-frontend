@@ -70,6 +70,7 @@ export default function CheckoutPage(){
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
   const [pointsToUse, setPointsToUse] = useState(0);
+  const [momoPayUrl, setMomoPayUrl] = useState(null);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const memberPhone = (() => {
     for (const src of [runtimePhone, profile?.phone]) {
@@ -251,19 +252,12 @@ export default function CheckoutPage(){
         order_id: orderId,
       });
 
-      const payUrl       = paymentRes.data?.paymentUrl;
-      const deeplink     = paymentRes.data?.payment?.deeplink;
-      const deeplinkMini = paymentRes.data?.payment?.deeplinkMiniApp;
-
-      // Ưu tiên deeplinkMiniApp → deeplink → paymentUrl
-      const momoUrl = deeplinkMini || deeplink || payUrl;
-
-      if(momoUrl){
-        // Gửi message lên shell để mở MoMo
-        window.parent.postMessage({ type: "OPEN_OUT_APP", url: momoUrl }, "*");
-      } else {
-        throw new Error("Không lấy được link thanh toán MoMo");
-      }
+      const payUrl = paymentRes.data?.paymentUrl;
+      if(!payUrl) throw new Error("Không lấy được link thanh toán MoMo");
+      // Lưu payUrl để hiển thị nút mở MoMo
+      setMomoPayUrl(payUrl);
+      setLoading(false);
+      return;
     }catch(e){
       const msg=e?.response?.data?.error||e?.response?.data?.message||"Đặt hàng thất bại. Vui lòng thử lại.";
       setError(msg);
@@ -271,6 +265,36 @@ export default function CheckoutPage(){
       setLoading(false);
     }
   }
+
+  // Hiển thị màn MoMo payment sau khi tạo session
+  if (momoPayUrl) return (
+    <div style={{ minHeight:"100vh", background:"#f5f5f5", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
+      <div style={{ background:"white", borderRadius:20, padding:28, width:"100%", maxWidth:360, textAlign:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.08)" }}>
+        <div style={{ fontSize:64, marginBottom:12 }}>💜</div>
+        <h2 style={{ fontSize:18, fontWeight:900, color:"#1a1a1a", margin:"0 0 8px" }}>Thanh toán MoMo</h2>
+        <p style={{ fontSize:13, color:"#666", margin:"0 0 8px", lineHeight:1.6 }}>
+          Bấm nút bên dưới để mở trang thanh toán MoMo.<br/>
+          Trang có QR code, bạn có thể scan bằng app MoMo.
+        </p>
+        <div style={{ background:"#f9f0ff", borderRadius:12, padding:"10px 16px", marginBottom:20 }}>
+          <p style={{ fontSize:13, fontWeight:700, color:"#D4531C", margin:0 }}>
+            Tổng thanh toán: {fmt(total)}
+          </p>
+        </div>
+        <button onClick={() => {
+          window.parent.postMessage({ type: "OPEN_OUT_APP", url: momoPayUrl }, "*");
+        }} style={{ width:"100%", padding:"14px", background:"#ae2070", color:"white", border:"none", borderRadius:14, fontSize:15, fontWeight:900, cursor:"pointer", marginBottom:12 }}>
+          💜 Mở trang thanh toán MoMo
+        </button>
+        <button onClick={() => setMomoPayUrl(null)} style={{ width:"100%", padding:"12px", background:"none", color:"#999", border:"1px solid #e0e0e0", borderRadius:14, fontSize:13, cursor:"pointer" }}>
+          ← Quay lại
+        </button>
+        <p style={{ fontSize:11, color:"#aaa", margin:"12px 0 0", lineHeight:1.6 }}>
+          Sau khi thanh toán xong, quay lại app để xem đơn hàng
+        </p>
+      </div>
+    </div>
+  );
 
   if(!items.length) return(
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
