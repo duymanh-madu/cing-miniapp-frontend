@@ -240,7 +240,7 @@ export default function AccountPage() {
         <EditProfileSheet userId={userId} currentName={name} currentAvatar={avatarUrl} cooldown={cooldown} onClose={() => setShowEdit(false)} onSaved={handleSaved}/>
       )}
 
-      <div style={{ background:"linear-gradient(135deg,#D4531C,#E8622A)", padding:"20px 20px 24px", paddingTop:"max(env(safe-area-inset-top, 0px) + 16px, 16px)" }}>
+      <div style={{ background:"linear-gradient(135deg,#D4531C,#E8622A)", padding:"20px 20px 24px", paddingTop:"calc(env(safe-area-inset-top, 0px) + 8px)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:16 }}>
           <div onClick={openEdit} style={{ position:"relative", cursor:"pointer", flexShrink:0 }}>
             {avatarUrl ? (
