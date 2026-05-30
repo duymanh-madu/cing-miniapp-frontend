@@ -251,20 +251,16 @@ export default function CheckoutPage(){
         order_id: orderId,
       });
 
-      const payUrl = paymentRes.data?.paymentUrl;
+      const payUrl       = paymentRes.data?.paymentUrl;
+      const deeplink     = paymentRes.data?.payment?.deeplink;
+      const deeplinkMini = paymentRes.data?.payment?.deeplinkMiniApp;
 
-      if(payUrl){
-        // 3. Redirect đến MoMo dùng openOutApp
-        try {
-          const { openOutApp } = await import("zmp-sdk/apis").catch(() => ({}));
-          if (openOutApp) {
-            await openOutApp({ url: payUrl });
-          } else {
-            window.location.href = payUrl;
-          }
-        } catch(e) {
-          window.location.href = payUrl;
-        }
+      // Ưu tiên deeplinkMiniApp → deeplink → paymentUrl
+      const momoUrl = deeplinkMini || deeplink || payUrl;
+
+      if(momoUrl){
+        // Gửi message lên shell để mở MoMo
+        window.parent.postMessage({ type: "OPEN_OUT_APP", url: momoUrl }, "*");
       } else {
         throw new Error("Không lấy được link thanh toán MoMo");
       }
