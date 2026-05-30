@@ -17,7 +17,7 @@ const DEFAULT_TABS = [
 function RankNotification({ msg, up, onDone }) {
   useEffect(() => { const t = setTimeout(onDone, 4000); return () => clearTimeout(t); }, []);
   return (
-    <div style={{ position:"fixed", top:24, left:16, right:16, zIndex:999,
+    <div style={{ position:"fixed", top:"calc(env(safe-area-inset-top, 0px) + 56px)", left:16, right:16, zIndex:999,
       background: up ? "linear-gradient(135deg,#00c853,#69f0ae)" : "linear-gradient(135deg,#d50000,#ff5252)",
       borderRadius:16, padding:"14px 18px", boxShadow:"0 8px 32px rgba(0,0,0,0.5)",
       display:"flex", alignItems:"center", gap:12 }}>
@@ -193,7 +193,7 @@ export default function LeaderboardPage() {
       <div style={{ position:"fixed", top:0, left:0, right:0, height:"var(--app-safe-top, 0px)", background:"#050310", zIndex:99 }} />
 
       {resetNotif && (
-        <div style={{ position:"fixed", top:24, left:16, right:16, zIndex:999, background:"linear-gradient(135deg,#D4531C,#ff6b35)", borderRadius:16, padding:"14px 18px", boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
+        <div style={{ position:"fixed", top:"calc(env(safe-area-inset-top, 0px) + 56px)", left:16, right:16, zIndex:999, background:"linear-gradient(135deg,#D4531C,#ff6b35)", borderRadius:16, padding:"14px 18px", boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
           <p style={{color:"white",fontSize:13,fontWeight:900,margin:"0 0 4px"}}>🔄 BXH tuần mới!</p>
           <p style={{color:"rgba(255,255,255,0.85)",fontSize:11,margin:0,whiteSpace:"pre-line"}}>{resetNotif}</p>
         </div>

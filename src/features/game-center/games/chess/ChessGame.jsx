@@ -334,90 +334,93 @@ export default function ChessGame({ onExit }) {
 
   // ── PLAYING ──
   if (phase === "playing") return (
-    <div style={{ background:"#0a0604", minHeight:"100vh",
+    <div style={{ background:"#0a0604", position:"fixed", inset:0, zIndex:200,
       display:"flex", flexDirection:"column", alignItems:"center",
-      paddingBottom:20 }}>
+      paddingTop:"env(safe-area-inset-top, 0px)" }}>
 
       {/* Đối thủ (trên) */}
-      <div style={{ width:"100%", maxWidth:432, padding:"12px 16px",
-        display:"flex", alignItems:"center", gap:10,
-        background: !isMyTurn ? "rgba(255,215,0,0.06)" : "transparent",
-        borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
-        <div style={{ width:40, height:40, borderRadius:20, overflow:"hidden",
-          background:"linear-gradient(135deg,#333,#555)", flexShrink:0,
-          border:`2px solid ${!isMyTurn?"#FFD700":"rgba(255,255,255,0.15)"}` }}>
+      <div style={{ width:"100%", maxWidth:480, padding:"10px 16px",
+        display:"flex", alignItems:"center", gap:12, flexShrink:0,
+        background: !isMyTurn ? "rgba(255,215,0,0.08)" : "rgba(255,255,255,0.03)",
+        borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ width:44, height:44, borderRadius:22, overflow:"hidden", flexShrink:0,
+          border:`3px solid ${!isMyTurn?"#FFD700":"rgba(255,255,255,0.15)"}`,
+          boxShadow: !isMyTurn?"0 0 12px rgba(255,215,0,0.4)":"none" }}>
           {opponent?.avatar
             ? <img src={opponent.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-            : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",
-                justifyContent:"center",color:"white",fontSize:18,fontWeight:900}}>
+            : <div style={{width:"100%",height:"100%",background:"linear-gradient(135deg,#333,#555)",
+                display:"flex",alignItems:"center",justifyContent:"center",
+                color:"white",fontSize:18,fontWeight:900}}>
                 {(opponent?.name||"?")[0]?.toUpperCase()}
-              </div>
-          }
+              </div>}
         </div>
         <div style={{ flex:1 }}>
-          <p style={{ color:"white", fontSize:14, fontWeight:800, margin:0 }}>{opponent?.name||"Đối thủ"}</p>
-          <p style={{ color:"#666", fontSize:11, margin:0 }}>
-            {myColor==="w"?"♚ Đen":"♔ Trắng"}
+          <p style={{ color:"white", fontSize:14, fontWeight:800, margin:"0 0 2px" }}>{opponent?.name||"Đối thủ"}</p>
+          <p style={{ color: myColor==="w"?"#aaa":"#FFD700", fontSize:11, margin:0, fontWeight:600 }}>
+            {myColor==="w"?"♚ Quân Đen":"♔ Quân Trắng"}
           </p>
         </div>
-        {!isMyTurn && (
-          <div style={{ background:"rgba(255,215,0,0.15)", border:"1px solid #FFD700",
-            borderRadius:8, padding:"4px 10px" }}>
-            <p style={{ color:"#FFD700", fontSize:11, fontWeight:800, margin:0 }}>Đang đi...</p>
-          </div>
-        )}
+        {!isMyTurn
+          ? <div style={{ background:"rgba(255,215,0,0.15)", border:"1px solid #FFD700", borderRadius:10, padding:"5px 12px" }}>
+              <p style={{ color:"#FFD700", fontSize:11, fontWeight:900, margin:0 }}>⏳ Đang đi...</p>
+            </div>
+          : <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:10, padding:"5px 12px" }}>
+              <p style={{ color:"rgba(255,255,255,0.3)", fontSize:11, fontWeight:600, margin:0 }}>Chờ...</p>
+            </div>}
       </div>
 
-      {/* Thông báo check */}
+      {/* Check warning */}
       {inCheck && isMyTurn && (
-        <div style={{ background:"rgba(255,68,68,0.15)", border:"1px solid #FF4444",
-          color:"#FF4444", padding:"6px 20px", fontSize:13, fontWeight:800,
-          width:"100%", maxWidth:432, textAlign:"center" }}>
+        <div style={{ background:"rgba(255,68,68,0.2)", border:"1px solid #FF4444",
+          color:"#FF4444", padding:"5px 20px", fontSize:12, fontWeight:800,
+          width:"100%", maxWidth:480, textAlign:"center", flexShrink:0 }}>
           ⚠️ Vua đang bị chiếu!
         </div>
       )}
 
-      {/* Bàn cờ */}
-      <div style={{ padding:"12px 0" }}>
+      {/* Bàn cờ — flex:1 để fill hết phần giữa */}
+      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", width:"100%", padding:"8px 0" }}>
         {renderBoard()}
       </div>
 
       {/* Mình (dưới) */}
-      <div style={{ width:"100%", maxWidth:432, padding:"12px 16px",
-        display:"flex", alignItems:"center", gap:10,
-        background: isMyTurn ? "rgba(212,83,28,0.08)" : "transparent",
-        borderTop:"1px solid rgba(255,255,255,0.06)" }}>
-        <div style={{ width:40, height:40, borderRadius:20, overflow:"hidden",
-          background:"linear-gradient(135deg,#D4531C,#FF6B35)", flexShrink:0,
-          border:`2px solid ${isMyTurn?"#D4531C":"rgba(255,255,255,0.15)"}` }}>
+      <div style={{ width:"100%", maxWidth:480, padding:"10px 16px",
+        display:"flex", alignItems:"center", gap:12, flexShrink:0,
+        background: isMyTurn ? "rgba(212,83,28,0.1)" : "rgba(255,255,255,0.03)",
+        borderTop:"1px solid rgba(255,255,255,0.08)",
+        paddingBottom:"calc(env(safe-area-inset-bottom, 0px) + 10px)" }}>
+        <div style={{ width:44, height:44, borderRadius:22, overflow:"hidden", flexShrink:0,
+          border:`3px solid ${isMyTurn?"#D4531C":"rgba(255,255,255,0.15)"}`,
+          boxShadow: isMyTurn?"0 0 12px rgba(212,83,28,0.5)":"none" }}>
           {userAvatar
             ? <img src={userAvatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-            : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",
-                justifyContent:"center",color:"white",fontSize:18,fontWeight:900}}>
+            : <div style={{width:"100%",height:"100%",background:"linear-gradient(135deg,#D4531C,#FF6B35)",
+                display:"flex",alignItems:"center",justifyContent:"center",
+                color:"white",fontSize:18,fontWeight:900}}>
                 {(userName||"?")[0]?.toUpperCase()}
-              </div>
-          }
+              </div>}
         </div>
         <div style={{ flex:1 }}>
-          <p style={{ color:"white", fontSize:14, fontWeight:800, margin:0 }}>{userName} (bạn)</p>
-          <p style={{ color:"#666", fontSize:11, margin:0 }}>
-            {myColor==="w"?"♔ Trắng":"♚ Đen"}
+          <p style={{ color:"white", fontSize:14, fontWeight:800, margin:"0 0 2px" }}>{userName} <span style={{color:"#D4531C",fontSize:11}}>(bạn)</span></p>
+          <p style={{ color: myColor==="w"?"#FFD700":"#aaa", fontSize:11, margin:0, fontWeight:600 }}>
+            {myColor==="w"?"♔ Quân Trắng":"♚ Quân Đen"}
           </p>
         </div>
-        {isMyTurn && (
-          <div style={{ background:"rgba(212,83,28,0.2)", border:"1px solid #D4531C",
-            borderRadius:8, padding:"4px 10px" }}>
-            <p style={{ color:"#D4531C", fontSize:11, fontWeight:800, margin:0 }}>Lượt bạn</p>
-          </div>
-        )}
-        <button onClick={resign} style={{ background:"rgba(244,67,54,0.1)",
-          border:"1px solid rgba(244,67,54,0.3)", color:"#f44336",
-          borderRadius:8, padding:"6px 12px", fontSize:11, cursor:"pointer", fontWeight:700 }}>
+        {isMyTurn
+          ? <div style={{ background:"rgba(212,83,28,0.2)", border:"1px solid #D4531C", borderRadius:10, padding:"5px 12px" }}>
+              <p style={{ color:"#D4531C", fontSize:11, fontWeight:900, margin:0 }}>🎯 Lượt bạn</p>
+            </div>
+          : <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:10, padding:"5px 12px" }}>
+              <p style={{ color:"rgba(255,255,255,0.3)", fontSize:11, fontWeight:600, margin:0 }}>Chờ...</p>
+            </div>}
+        <button onClick={resign} style={{ background:"rgba(244,67,54,0.12)",
+          border:"1px solid rgba(244,67,54,0.4)", color:"#f44336",
+          borderRadius:10, padding:"7px 14px", fontSize:11, cursor:"pointer", fontWeight:800 }}>
           🏳 Đầu hàng
         </button>
       </div>
 
-      {msg && <p style={{ color:"#FF9800", fontSize:12, marginTop:8 }}>{msg}</p>}
+      {msg && <p style={{ color:"#FF9800", fontSize:12, position:"absolute", bottom:80, textAlign:"center" }}>{msg}</p>}
     </div>
   );
 
