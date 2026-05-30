@@ -5,6 +5,7 @@ import { useMembership } from "@/features/home/hooks/useMembership";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import QRCode from "qrcode";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
@@ -76,22 +77,24 @@ export default function CheckoutPage(){
   const [momoDeeplink, setMomoDeeplink] = useState(null);
   const [momoOrderId,  setMomoOrderId]  = useState(null);
 
-  // Poll payment status sau khi mở MoMo
+  // Lắng nghe payment.success từ socket — realtime, không poll
   useEffect(() => {
-    if (!momoOrderId) return;
-    const interval = setInterval(async () => {
-      try {
-        const r = await apiClient.get(`/payments/status/${momoOrderId}`);
-        const d = r.data?.data;
-        if (d?.status === "paid" || d?.payment_status === "paid") {
-          clearInterval(interval);
+    if (!momoPayUrl) return;
+    let attempts = 0;
+    const attach = () => {
+      const socket = getRuntimeSocket();
+      if (socket?.connected) {
+        socket.on("payment.success", (data) => {
           clearCart();
           navigate("/order-success");
-        }
-      } catch(e) {}
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [momoOrderId]);
+        });
+        return;
+      }
+      if (attempts++ < 20) setTimeout(attach, 1000);
+    };
+    attach();
+    return () => { getRuntimeSocket()?.off("payment.success"); };
+  }, [momoPayUrl]);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const memberPhone = (() => {
     for (const src of [runtimePhone, profile?.phone]) {
