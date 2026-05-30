@@ -199,11 +199,30 @@ export default function CheckoutPage(){
       if (total === 0 && pointsToUse > 0) {
         const deductPhone = memberPhone || (profile?.phone||"").replace(/\D/g,"").replace(/^84/,"0");
         if (!deductPhone) throw new Error("Không tìm thấy số điện thoại để trừ điểm");
-        await apiClient.post("/points/deduct", {
+        await apiClient.post("/points/pay-with-points", {
           user_id: deductPhone,
           phone: deductPhone,
           points: pointsToUse,
-          reason: "Thanh toán đơn hàng bằng điểm",
+          order_id: orderId,
+          order_data: {
+            order_id: orderId,
+            user_id: deductPhone,
+            customer_name: name.trim(),
+            customer_phone: deductPhone,
+            shipping_address: address.trim(),
+            shipping_fee: shipFee,
+            items: items.map(i=>({
+              item_id: i.id,
+              item_code: i.code||i.id,
+              name: i.displayName||i.name,
+              price: i.price,
+              quantity: i.qty,
+            })),
+            subtotal,
+            total_amount: 0,
+            points_used: pointsToUse,
+            order_type: orderType,
+          },
         });
         clearCart();
         navigate("/order-success");
