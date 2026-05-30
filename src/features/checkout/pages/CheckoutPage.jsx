@@ -85,8 +85,13 @@ export default function CheckoutPage(){
       const socket = getRuntimeSocket();
       if (socket?.connected) {
         socket.on("payment.success", (data) => {
-          clearCart();
-          navigate("/order-success");
+          // Chỉ xử lý nếu đúng user hoặc không có user_id filter
+          const myPhone = (runtimePhone || profile?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+          const eventUserId = String(data?.payload?.user_id || "");
+          if (!eventUserId || eventUserId === myPhone || eventUserId === profile?.id) {
+            clearCart();
+            navigate("/order-success");
+          }
         });
         return;
       }
