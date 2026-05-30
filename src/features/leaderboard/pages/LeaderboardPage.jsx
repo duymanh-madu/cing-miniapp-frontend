@@ -202,13 +202,14 @@ export default function LeaderboardPage() {
       {notification && <RankNotification msg={notification.msg} up={notification.up} onDone={() => setNotification(null)} />}
 
       {/* HEADER */}
-      <div style={{ background:"linear-gradient(180deg,rgba(255,215,0,0.07),transparent)", padding:"0 16px 0", paddingTop:"max(env(safe-area-inset-top, 0px) + 12px, 12px)", borderBottom:"1px solid rgba(255,215,0,0.08)" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20, paddingTop:"calc(var(--app-safe-top, 0px) + 8px)" }}>
+      <div style={{ background:"linear-gradient(180deg,rgba(255,215,0,0.07),transparent)", padding:"0 16px 0", paddingTop:"calc(env(safe-area-inset-top, 0px) + 8px)", borderBottom:"1px solid rgba(255,215,0,0.08)" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
           <button onClick={() => navigate(-1)} style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", color:"white", borderRadius:12, width:38, height:38, cursor:"pointer", fontSize:18, display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
           <div style={{ flex:1, textAlign:"center" }}>
-            <p style={{ color:"rgba(255,215,0,0.6)", fontSize:10, fontWeight:800, letterSpacing:4, margin:"0 0 4px", textTransform:"uppercase" }}>Hall of Fame</p>
-            <h1 style={{ color:"white", fontSize:22, fontWeight:900, margin:0, letterSpacing:1 }}>Đại sảnh danh vọng</h1>
-            <p style={{ color:"rgba(255,215,0,0.55)", fontSize:13, fontWeight:500, margin:"6px 0 0" }}>Nơi vinh danh những Cing iu chịu chi nhất</p>
+            <p style={{ color:"#FFD700", fontSize:10, fontWeight:800, letterSpacing:3, margin:"0 0 2px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
+            <p style={{ color:"rgba(255,215,0,0.5)", fontSize:9, fontWeight:700, letterSpacing:4, margin:"0 0 3px", textTransform:"uppercase" }}>Hall of Fame</p>
+            <h1 style={{ color:"white", fontSize:20, fontWeight:900, margin:0, letterSpacing:1 }}>Đại sảnh danh vọng</h1>
+            <p style={{ color:"rgba(255,215,0,0.55)", fontSize:12, fontWeight:500, margin:"4px 0 0" }}>Nơi vinh danh những Cing iu chịu chi nhất</p>
           </div>
           <div style={{ width:38 }}/>
         </div>
