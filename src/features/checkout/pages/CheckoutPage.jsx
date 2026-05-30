@@ -5,6 +5,7 @@ import { useMembership } from "@/features/home/hooks/useMembership";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
+import QRCode from "qrcode";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
@@ -71,6 +72,8 @@ export default function CheckoutPage(){
   const [error,setError]=useState("");
   const [pointsToUse, setPointsToUse] = useState(0);
   const [momoPayUrl, setMomoPayUrl] = useState(null);
+  const [momoQR, setMomoQR] = useState(null);
+  const [momoDeeplink, setMomoDeeplink] = useState(null);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const memberPhone = (() => {
     for (const src of [runtimePhone, profile?.phone]) {
@@ -252,9 +255,17 @@ export default function CheckoutPage(){
         order_id: orderId,
       });
 
-      const payUrl = paymentRes.data?.paymentUrl;
+      const payUrl       = paymentRes.data?.paymentUrl;
+      const deeplinkMini = paymentRes.data?.payment?.deeplinkMiniApp || paymentRes.data?.payment?.deeplink;
       if(!payUrl) throw new Error("Không lấy được link thanh toán MoMo");
-      // Lưu payUrl để hiển thị nút mở MoMo
+
+      // Generate QR từ deeplinkMiniApp (user scan bằng app MoMo)
+      const qrTarget = deeplinkMini || payUrl;
+      try {
+        const qrImg = await QRCode.toDataURL(qrTarget, { width: 280, margin: 2 });
+        setMomoQR(qrImg);
+      } catch(e) {}
+      setMomoDeeplink(deeplinkMini);
       setMomoPayUrl(payUrl);
       setLoading(false);
       return;
@@ -270,21 +281,23 @@ export default function CheckoutPage(){
   if (momoPayUrl) return (
     <div style={{ minHeight:"100vh", background:"#f5f5f5", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
       <div style={{ background:"white", borderRadius:20, padding:28, width:"100%", maxWidth:360, textAlign:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.08)" }}>
-        <div style={{ fontSize:64, marginBottom:12 }}>💜</div>
-        <h2 style={{ fontSize:18, fontWeight:900, color:"#1a1a1a", margin:"0 0 8px" }}>Thanh toán MoMo</h2>
-        <p style={{ fontSize:13, color:"#666", margin:"0 0 8px", lineHeight:1.6 }}>
-          Bấm nút bên dưới để mở trang thanh toán MoMo.<br/>
-          Trang có QR code, bạn có thể scan bằng app MoMo.
-        </p>
-        <div style={{ background:"#f9f0ff", borderRadius:12, padding:"10px 16px", marginBottom:20 }}>
-          <p style={{ fontSize:13, fontWeight:700, color:"#D4531C", margin:0 }}>
-            Tổng thanh toán: {fmt(total)}
-          </p>
-        </div>
+        <div style={{ fontSize:48, marginBottom:8 }}>💜</div>
+        <h2 style={{ fontSize:17, fontWeight:900, color:"#1a1a1a", margin:"0 0 4px" }}>Thanh toán MoMo</h2>
+        <p style={{ fontSize:13, fontWeight:700, color:"#ae2070", margin:"0 0 12px" }}>{fmt(total)}</p>
+
+        {momoQR && (
+          <div style={{ marginBottom:16 }}>
+            <img src={momoQR} alt="MoMo QR" style={{ width:220, height:220, borderRadius:12, border:"2px solid #ae2070" }}/>
+            <p style={{ fontSize:11, color:"#666", margin:"8px 0 0", lineHeight:1.5 }}>
+              Mở app MoMo → Quét mã QR để thanh toán
+            </p>
+          </div>
+        )}
+
         <button onClick={() => {
           window.parent.postMessage({ type: "OPEN_OUT_APP", url: momoPayUrl }, "*");
-        }} style={{ width:"100%", padding:"14px", background:"#ae2070", color:"white", border:"none", borderRadius:14, fontSize:15, fontWeight:900, cursor:"pointer", marginBottom:12 }}>
-          💜 Mở trang thanh toán MoMo
+        }} style={{ width:"100%", padding:"13px", background:"#ae2070", color:"white", border:"none", borderRadius:14, fontSize:14, fontWeight:800, cursor:"pointer", marginBottom:10 }}>
+          💜 Mở trang MoMo
         </button>
         <button onClick={() => setMomoPayUrl(null)} style={{ width:"100%", padding:"12px", background:"none", color:"#999", border:"1px solid #e0e0e0", borderRadius:14, fontSize:13, cursor:"pointer" }}>
           ← Quay lại
