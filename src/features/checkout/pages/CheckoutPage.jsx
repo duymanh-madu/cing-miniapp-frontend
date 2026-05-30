@@ -79,6 +79,10 @@ export default function CheckoutPage(){
     }
     return "";
   })();
+  // Pre-fill phone field khi có memberPhone
+  useEffect(() => {
+    if (memberPhone && !phone) setPhone(memberPhone);
+  }, [memberPhone]);
   const { data: membership } = useMembership(memberPhone);
   const availablePoints = membership?.points || 0;
   const pointsDiscount = pointsToUse * 1000; // 1 diem = 1000 VND
@@ -193,9 +197,11 @@ export default function CheckoutPage(){
       // 2. Tao MoMo payment session
       // Neu tong tien = 0 (chi dung diem) -> khong can MoMo
       if (total === 0 && pointsToUse > 0) {
+        const deductPhone = memberPhone || (profile?.phone||"").replace(/\D/g,"").replace(/^84/,"0");
+        if (!deductPhone) throw new Error("Không tìm thấy số điện thoại để trừ điểm");
         await apiClient.post("/points/deduct", {
-          user_id: userId,
-          phone: memberPhone || phone,
+          user_id: deductPhone,
+          phone: deductPhone,
           points: pointsToUse,
           reason: "Thanh toán đơn hàng bằng điểm",
         });
@@ -229,9 +235,18 @@ export default function CheckoutPage(){
       const payUrl = paymentRes.data?.paymentUrl;
 
       if(payUrl){
-        // 3. Redirect den MoMo
+        // 3. Redirect den MoMo — dùng openWebview của ZMP nếu có, fallback window.open
         clearCart();
-        window.location.href = payUrl;
+        try {
+          const { openWebview } = await import("zmp-sdk/apis").catch(() => ({}));
+          if (openWebview) {
+            await openWebview({ url: payUrl, title: "Thanh toán MoMo" });
+          } else {
+            window.open(payUrl, "_blank");
+          }
+        } catch(e) {
+          window.open(payUrl, "_blank");
+        }
       } else {
         throw new Error("Không lấy được link thanh toán MoMo");
       }
