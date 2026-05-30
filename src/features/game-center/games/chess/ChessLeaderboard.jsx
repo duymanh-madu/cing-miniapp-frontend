@@ -2,16 +2,41 @@ import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
+
+function getPhone() {
+  const sources = [
+    useRuntimeCustomerIdentityStore.getState().identity?.phone,
+    useAuthStore.getState().profile?.phone,
+  ];
+  for (const src of sources) {
+    if (!src || src === "pending") continue;
+    const n = src.replace(/\D/g,"").replace(/^84/,"0");
+    if (n.length >= 9) return n;
+  }
+  return "";
+}
+
+const MEDAL = ["🥇","🥈","🥉"];
 
 export default function ChessLeaderboard({ onClose }) {
-  const [tab, setTab]     = useState("wins");
-  const [data, setData]   = useState(null);
+  const [tab,     setTab]     = useState("wins");
+  const [data,    setData]    = useState(null);
   const [loading, setLoading] = useState(true);
-  const [myRank, setMyRank] = useState(null);
-  const profile = useAuthStore(s => s.profile);
-  const userId  = profile?.id || profile?.phone;
+  const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const profilePhone = useAuthStore(s => s.profile?.phone);
+
+  const myPhone = (() => {
+    for (const src of [runtimePhone, profilePhone]) {
+      if (!src || src === "pending") continue;
+      const n = src.replace(/\D/g,"").replace(/^84/,"0");
+      if (n.length >= 9) return n;
+    }
+    return "";
+  })();
 
   const fetchData = () => {
+    setLoading(true);
     apiClient.get("/game/chess/leaderboard")
       .then(r => setData(r.data?.data))
       .catch(() => {})
@@ -20,15 +45,15 @@ export default function ChessLeaderboard({ onClose }) {
 
   useEffect(() => {
     fetchData();
-    // Realtime refresh khi có ván kết thúc
     const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
     const s = io(`${GAME_SERVER}/chess`, { transports:["websocket"] });
-    s.on("chess:leaderboard_updated", () => fetchData());
+    s.on("chess:leaderboard_updated", fetchData);
     return () => s.disconnect();
   }, []);
 
-  const list = tab === "wins" ? data?.topWins : data?.topStreak;
-  const MEDAL = ["🥇","🥈","🥉"];
+  const list   = tab === "wins" ? data?.topWins : data?.topStreak;
+  const myEntry = list?.find(e => String(e.user_id) === myPhone);
+  const myRank  = myEntry?.rank;
 
   return (
     <>
@@ -39,21 +64,16 @@ export default function ChessLeaderboard({ onClose }) {
         display:"flex", flexDirection:"column",
         border:"1px solid rgba(255,215,0,0.15)" }}>
 
-        <div style={{ width:40, height:4, background:"rgba(255,255,255,0.15)",
-          borderRadius:2, margin:"12px auto 4px" }}/>
+        <div style={{ width:40, height:4, background:"rgba(255,255,255,0.15)", borderRadius:2, margin:"12px auto 4px" }}/>
 
         {/* Header */}
         <div style={{ padding:"12px 20px 0", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
             <div>
-              <p style={{ color:"#FFD700", fontSize:10, fontWeight:800, margin:"0 0 2px", letterSpacing:3 }}>
-                BẢNG XẾP HẠNG
-              </p>
+              <p style={{ color:"#FFD700", fontSize:10, fontWeight:800, margin:"0 0 2px", letterSpacing:3 }}>BẢNG XẾP HẠNG</p>
               <p style={{ color:"white", fontSize:17, fontWeight:900, margin:0 }}>♟ Kỳ thủ cờ vua</p>
             </div>
-            <button onClick={onClose} style={{ background:"rgba(255,255,255,0.08)",
-              border:"none", color:"white", borderRadius:10,
-              width:32, height:32, cursor:"pointer", fontSize:16 }}>✕</button>
+            <button onClick={onClose} style={{ background:"rgba(255,255,255,0.08)", border:"none", color:"white", borderRadius:10, width:32, height:32, cursor:"pointer", fontSize:16 }}>✕</button>
           </div>
 
           {/* Tabs */}
@@ -71,6 +91,22 @@ export default function ChessLeaderboard({ onClose }) {
               }}>{t.label}</button>
             ))}
           </div>
+
+          {/* My rank */}
+          {myRank && myEntry && (
+            <div style={{ marginBottom:12, padding:"10px 14px", background:"rgba(212,83,28,0.12)", borderRadius:12, border:"1px solid rgba(212,83,28,0.3)", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div>
+                <p style={{ color:"rgba(255,255,255,0.5)", fontSize:10, margin:"0 0 2px" }}>Hạng của bạn</p>
+                <p style={{ color:"white", fontSize:13, fontWeight:800, margin:0 }}>{myEntry.name}</p>
+              </div>
+              <div style={{ textAlign:"right" }}>
+                <p style={{ color:"#D4531C", fontSize:20, fontWeight:900, margin:0 }}>#{myRank}</p>
+                <p style={{ color:"rgba(255,255,255,0.3)", fontSize:10, margin:0 }}>
+                  {tab==="wins" ? `${myEntry.wins} thắng` : `${myEntry.best_streak} chuỗi`}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* List */}
@@ -80,34 +116,29 @@ export default function ChessLeaderboard({ onClose }) {
           ) : !list?.length ? (
             <div style={{ textAlign:"center", padding:40 }}>
               <p style={{ fontSize:36, margin:"0 0 8px" }}>♟</p>
-              <p style={{ color:"#666" }}>Chưa có dữ liệu</p>
+              <p style={{ color:"#666" }}>Chưa có dữ liệu. Hãy chơi để xếp hạng!</p>
             </div>
           ) : list.map((entry, i) => {
-            const isMe = String(entry.user_id) === String(userId);
+            const isMe = myPhone && String(entry.user_id) === myPhone;
             return (
               <div key={i} style={{
                 display:"flex", alignItems:"center", gap:10,
                 padding:"10px 14px", borderRadius:12, marginBottom:6,
-                background: i<3 ? (i===0?"rgba(255,215,0,0.08)":i===1?"rgba(192,192,192,0.05)":"rgba(205,127,50,0.05)")
-                  : isMe ? "rgba(212,83,28,0.08)" : "rgba(255,255,255,0.02)",
-                border: `1px solid ${i<3?(i===0?"rgba(255,215,0,0.25)":i===1?"rgba(192,192,192,0.15)":"rgba(205,127,50,0.15)")
-                  :isMe?"rgba(212,83,28,0.2)":"rgba(255,255,255,0.04)"}`,
+                background: isMe ? "rgba(212,83,28,0.08)" : i<3 ? (i===0?"rgba(255,215,0,0.08)":i===1?"rgba(192,192,192,0.05)":"rgba(205,127,50,0.05)") : "rgba(255,255,255,0.02)",
+                border: `1px solid ${isMe?"rgba(212,83,28,0.3)":i<3?(i===0?"rgba(255,215,0,0.25)":i===1?"rgba(192,192,192,0.15)":"rgba(205,127,50,0.15)"):"rgba(255,255,255,0.04)"}`,
               }}>
                 <span style={{ fontSize:i<3?20:13, width:28, textAlign:"center",
-                  color:i===0?"#FFD700":i===1?"#C0C0C0":i===2?"#CD7F32":"rgba(255,255,255,0.3)",
-                  fontWeight:700 }}>
+                  color:i===0?"#FFD700":i===1?"#C0C0C0":i===2?"#CD7F32":"rgba(255,255,255,0.3)", fontWeight:700 }}>
                   {i<3 ? MEDAL[i] : `#${i+1}`}
                 </span>
-
-                <div style={{ width:34, height:34, borderRadius:17, flexShrink:0,
-                  overflow:"hidden", background:"linear-gradient(135deg,#1a0a2e,#2d1254)",
+                <div style={{ width:34, height:34, borderRadius:17, flexShrink:0, overflow:"hidden",
+                  background:"linear-gradient(135deg,#1a0a2e,#2d1254)",
                   display:"flex", alignItems:"center", justifyContent:"center",
                   fontSize:14, fontWeight:900, color:"rgba(255,255,255,0.4)" }}>
                   {entry.avatar
                     ? <img src={entry.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
                     : (entry.name||"?")[0]?.toUpperCase()}
                 </div>
-
                 <div style={{ flex:1, minWidth:0 }}>
                   <p style={{ color:isMe?"#FFD700":"white", fontSize:13, fontWeight:700, margin:0,
                     overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
@@ -115,18 +146,16 @@ export default function ChessLeaderboard({ onClose }) {
                   </p>
                   <p style={{ color:"#666", fontSize:10, margin:0 }}>
                     {tab==="wins"
-                      ? `${entry.total_games} trận · tỷ lệ thắng ${entry.winRate}%`
+                      ? `${entry.total_games} trận · ${entry.winRate}% thắng`
                       : `${entry.total_games} trận · chuỗi hiện tại ${entry.current_streak}`}
                   </p>
                 </div>
-
                 <div style={{ textAlign:"right" }}>
-                  <p style={{ color:i===0?"#FFD700":i===1?"#C0C0C0":i===2?"#CD7F32":"rgba(255,215,0,0.6)",
-                    fontSize:16, fontWeight:900, margin:0 }}>
+                  <p style={{ color:i===0?"#FFD700":i===1?"#C0C0C0":i===2?"#CD7F32":"rgba(255,215,0,0.6)", fontSize:16, fontWeight:900, margin:0 }}>
                     {tab==="wins" ? entry.wins : entry.best_streak}
                   </p>
                   <p style={{ color:"rgba(255,255,255,0.25)", fontSize:9, margin:0 }}>
-                    {tab==="wins" ? "trận thắng" : "trận liên tiếp"}
+                    {tab==="wins" ? "thắng" : "liên tiếp"}
                   </p>
                 </div>
               </div>
