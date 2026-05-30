@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useCartStore from "@/features/menu/store/cartStore";
 import { useMembership } from "@/features/home/hooks/useMembership";
 import useAuthStore from "@/stores/auth/authStore";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
@@ -69,7 +70,15 @@ export default function CheckoutPage(){
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
   const [pointsToUse, setPointsToUse] = useState(0);
-  const memberPhone = (profile?.phone||profile?.phoneNumber||sessionStorage.getItem("dev_membership_phone")||"").replace(/\D/g,"");
+  const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const memberPhone = (() => {
+    for (const src of [runtimePhone, profile?.phone]) {
+      if (!src || src === "pending") continue;
+      const n = src.replace(/\D/g,"").replace(/^84/,"0");
+      if (n.length >= 9) return n;
+    }
+    return "";
+  })();
   const { data: membership } = useMembership(memberPhone);
   const availablePoints = membership?.points || 0;
   const pointsDiscount = pointsToUse * 1000; // 1 diem = 1000 VND
@@ -188,7 +197,7 @@ export default function CheckoutPage(){
           user_id: userId,
           phone: memberPhone || phone,
           points: pointsToUse,
-          reason: "Thanh toan don hang bang diem",
+          reason: "Thanh toán đơn hàng bằng điểm",
         });
         clearCart();
         navigate("/order-success");
@@ -254,7 +263,7 @@ export default function CheckoutPage(){
         gap:12,borderBottom:"1px solid #f0f0f0",position:"sticky",top:0,zIndex:10}}>
         <button onClick={()=>navigate(-1)}
           style={{background:"none",border:"none",fontSize:22,cursor:"pointer",padding:0,color:"#333",lineHeight:1}}>←</button>
-        <h1 style={{fontSize:17,fontWeight:900,margin:0,color:"#1a1a1a"}}>Giỏ hàng ({count} mon)</h1>
+        <h1 style={{fontSize:17,fontWeight:900,margin:0,color:"#1a1a1a"}}>Giỏ hàng ({count} món)</h1>
       </div>
 
       {/* ITEMS */}
@@ -369,14 +378,14 @@ export default function CheckoutPage(){
           <Field label="Địa chỉ giao hàng *" value={address} onChange={setAddress} placeholder="Số nhà, đường, phường/xã..."/>}
       </div>
 
-      {/* THANH TOAN */}
+      {/* THANH TOÁN */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
-        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 10px",letterSpacing:.5}}>THANH TOAN</p>
+        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 10px",letterSpacing:.5}}>THANH TOÁN</p>
         <div style={{display:"flex",alignItems:"center",gap:12,padding:"6px 0"}}>
           <span style={{fontSize:24}}>💜</span>
           <div style={{flex:1}}>
             <p style={{fontSize:13,fontWeight:700,color:"#1a1a1a",margin:0}}>MoMo</p>
-            <p style={{fontSize:11,color:"#999",margin:0}}>Vi dien tu MoMo</p>
+            <p style={{fontSize:11,color:"#999",margin:0}}>Ví điện tử MoMo</p>
           </div>
           <div style={{width:20,height:20,borderRadius:"50%",background:"#D4531C",
             display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -385,9 +394,9 @@ export default function CheckoutPage(){
         </div>
       </div>
 
-      {/* GHI CHU */}
+      {/* GHI CHÚ */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
-        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 8px",letterSpacing:.5}}>GHI CHU</p>
+        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 8px",letterSpacing:.5}}>GHI CHÚ</p>
         <textarea placeholder="Ví dụ: ít đá, nhiều topping..." value={note}
           onChange={e=>setNote(e.target.value)} rows={2}
           style={{width:"100%",border:"1.5px solid #f0f0f0",borderRadius:10,
@@ -401,7 +410,7 @@ export default function CheckoutPage(){
         padding:"10px 16px 12px",zIndex:40}}>
         <div style={{marginBottom:8}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-            <span style={{fontSize:12,color:"#666"}}>Tam tinh</span>
+            <span style={{fontSize:12,color:"#666"}}>Tạm tính</span>
             <span style={{fontSize:12,fontWeight:600,color:"#1a1a1a"}}>{fmt(subtotal)}</span>
           </div>
           {tierDiscount > 0 && (
@@ -420,7 +429,7 @@ export default function CheckoutPage(){
             </div>
           )}
           <div style={{height:1,background:"#f0f0f0",margin:"6px 0"}}/>
-          {/* DUNG DIEM GIAM GIA */}
+          {/* DÙNG ĐIỂM GIẢM GIÁ */}
           {availablePoints > 0 && (
             <div style={{marginBottom:8,padding:"10px 12px",background:"#fff8f0",borderRadius:10,border:"1px solid #fde8d5"}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
