@@ -307,7 +307,7 @@ export default function CheckoutPage(){
 
   // Hiển thị màn MoMo payment sau khi tạo session
   if (momoPayUrl) return (
-    <div style={{ minHeight:"100vh", background:"#f5f5f5", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
+    <div style={{ position:"fixed", inset:0, background:"#f5f5f5", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, zIndex:200 }}>
       <div style={{ background:"white", borderRadius:20, padding:28, width:"100%", maxWidth:360, textAlign:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.08)" }}>
         <div style={{ fontSize:48, marginBottom:8 }}>💜</div>
         <h2 style={{ fontSize:17, fontWeight:900, color:"#1a1a1a", margin:"0 0 4px" }}>Thanh toán MoMo</h2>
