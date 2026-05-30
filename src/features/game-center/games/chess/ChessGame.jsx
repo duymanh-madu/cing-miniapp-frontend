@@ -65,6 +65,7 @@ export default function ChessGame({ onExit }) {
 
     s.on("chess:matched", (data) => {
       clearInterval(timerRef.current);
+      clearInterval(moveTimerRef.current);
       const c = new Chess();
       setChess(c);
       setMyColor(data.myColor);
@@ -75,6 +76,10 @@ export default function ChessGame({ onExit }) {
       setLastMove(null);
       setInCheck(false);
       setGameOver(null);
+      // Reset timer cho ván mới
+      setMyReserve(60);
+      setOppReserve(60);
+      setMoveTimer(30);
       setPhase("playing");
     });
 
@@ -96,8 +101,17 @@ export default function ChessGame({ onExit }) {
       clearInterval(moveTimerRef.current);
       // Save score
       try {
-        const phone = (profile?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
-        const uid = phone || profile?.id || "";
+        const sources = [
+          useRuntimeCustomerIdentityStore?.getState()?.identity?.phone,
+          profile?.phone,
+        ];
+        let uid = "";
+        for (const src of sources) {
+          if (!src || src === "pending") continue;
+          const n = src.replace(/\D/g,"").replace(/^84/,"0");
+          if (n.length >= 9) { uid = n; break; }
+        }
+        if (!uid) uid = profile?.id || "";
         if (uid) {
           const won  = data?.winner === userId;
           const draw = !data?.winner;
@@ -141,28 +155,30 @@ export default function ChessGame({ onExit }) {
   }, [phase]);
 
   // Move timer 30s + reserve 60s
-  const isMyTurnRef = useRef(false);
   useEffect(() => {
     if (phase !== "playing") return;
     const myTurn = chess.turn() === myColor;
-    isMyTurnRef.current = myTurn;
     clearInterval(moveTimerRef.current);
     setMoveTimer(30);
 
     if (myTurn) {
+      let move = 30;
       moveTimerRef.current = setInterval(() => {
-        setMoveTimer(t => {
-          if (t > 1) return t - 1;
-          // Hết 30s → kích hoạt reserve
+        if (move > 1) {
+          move--;
+          setMoveTimer(move);
+        } else {
+          // Hết 30s → dùng reserve
           setMyReserve(r => {
-            if (r > 1) return r - 1;
-            // Hết reserve → thua
-            sockRef.current?.emit("chess:timeout_move", { gameId, userId });
-            clearInterval(moveTimerRef.current);
-            return 0;
+            const next = r - 1;
+            if (next <= 0) {
+              // Hết reserve → thua
+              clearInterval(moveTimerRef.current);
+              sockRef.current?.emit("chess:resign", { gameId, userId });
+            }
+            return Math.max(0, next);
           });
-          return 0;
-        });
+        }
       }, 1000);
     }
     return () => clearInterval(moveTimerRef.current);
@@ -258,23 +274,23 @@ export default function ChessGame({ onExit }) {
                   justifyContent:"center", position:"relative", cursor:"pointer",
                   transition:"background 0.1s" }}>
 
-                {/* Quân cờ Unicode */}
+                {/* Quân cờ — trắng và đen cùng shape ♟ chỉ khác màu */}
                 {pieceKey && (
                   <div style={{
                     position:"absolute", inset:0,
                     display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:"min(7vw,36px)",
-                    color: piece.color==="w" ? "#FFFDE7" : "#1a1a1a",
+                    fontSize:"min(7.5vw,38px)",
+                    color: piece.color==="w" ? "#ffffff" : "#1a1208",
                     textShadow: piece.color==="w"
-                      ? "0 1px 3px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.4)"
-                      : "0 1px 3px rgba(255,255,255,0.2)",
+                      ? "0 0 3px #000, 0 2px 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.5)"
+                      : "0 1px 2px rgba(255,255,255,0.15)",
                     userSelect:"none", lineHeight:1,
                     filter: piece.color==="w"
-                      ? "drop-shadow(0 2px 2px rgba(0,0,0,0.6))"
-                      : "drop-shadow(0 2px 2px rgba(0,0,0,0.8))",
+                      ? "drop-shadow(0 2px 3px rgba(0,0,0,0.8))"
+                      : "drop-shadow(0 1px 2px rgba(0,0,0,0.6))",
                     zIndex:2, pointerEvents:"none",
                   }}>
-                    {{"wK":"♔","wQ":"♕","wR":"♖","wB":"♗","wN":"♘","wP":"♙",
+                    {{"wK":"♚","wQ":"♛","wR":"♜","wB":"♝","wN":"♞","wP":"♟",
                       "bK":"♚","bQ":"♛","bR":"♜","bB":"♝","bN":"♞","bP":"♟"}[pieceKey]}
                   </div>
                 )}
