@@ -202,7 +202,7 @@ export default function LeaderboardPage() {
       {notification && <RankNotification msg={notification.msg} up={notification.up} onDone={() => setNotification(null)} />}
 
       {/* HEADER */}
-      <div style={{ background:"linear-gradient(180deg,rgba(255,215,0,0.07),transparent)", padding:"0 16px 0", paddingTop:"calc(env(safe-area-inset-top, 0px) + 8px)", borderBottom:"1px solid rgba(255,215,0,0.08)" }}>
+      <div style={{ background:"linear-gradient(180deg,rgba(255,215,0,0.07),transparent)", padding:"0 16px 0", paddingTop:"env(safe-area-inset-top, 0px)", borderBottom:"1px solid rgba(255,215,0,0.08)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
           <button onClick={() => navigate(-1)} style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", color:"white", borderRadius:12, width:38, height:38, cursor:"pointer", fontSize:18, display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
           <div style={{ flex:1, textAlign:"center" }}>
