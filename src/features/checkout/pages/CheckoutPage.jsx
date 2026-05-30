@@ -74,6 +74,24 @@ export default function CheckoutPage(){
   const [momoPayUrl, setMomoPayUrl] = useState(null);
   const [momoQR, setMomoQR] = useState(null);
   const [momoDeeplink, setMomoDeeplink] = useState(null);
+  const [momoOrderId,  setMomoOrderId]  = useState(null);
+
+  // Poll payment status sau khi mở MoMo
+  useEffect(() => {
+    if (!momoOrderId) return;
+    const interval = setInterval(async () => {
+      try {
+        const r = await apiClient.get(`/payments/status/${momoOrderId}`);
+        const d = r.data?.data;
+        if (d?.status === "paid" || d?.payment_status === "paid") {
+          clearInterval(interval);
+          clearCart();
+          navigate("/order-success");
+        }
+      } catch(e) {}
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [momoOrderId]);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const memberPhone = (() => {
     for (const src of [runtimePhone, profile?.phone]) {
@@ -267,6 +285,8 @@ export default function CheckoutPage(){
       } catch(e) {}
       setMomoDeeplink(deeplinkMini);
       setMomoPayUrl(payUrl);
+      const txCode = paymentRes.data?.payment?.transaction_code || paymentRes.data?.transactionCode || "";
+      setMomoOrderId(txCode);
       setLoading(false);
       return;
     }catch(e){
