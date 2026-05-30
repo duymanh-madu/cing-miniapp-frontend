@@ -44,11 +44,13 @@ export default function ChessGame({ onExit }) {
   const [msg,setMsg]=useState("");
   const [showLB,setShowLB]=useState(false);
   const timerRef    = useRef(null);
-  const moveTimerRef = useRef(null);
-  const [myReserve,    setMyReserve]    = useState(60); // 60s reserve
-  const [oppReserve,   setOppReserve]   = useState(60);
-  const [moveTimer,    setMoveTimer]    = useState(30); // 30s/move
-  const moveTimerActive = useRef(false);
+  const moveTimerRef  = useRef(null);
+  const myReserveRef  = useRef(60);
+  const gameIdRef     = useRef(null);
+  const userIdRef     = useRef(null);
+  const [myReserve,  setMyReserve]  = useState(60);
+  const [oppReserve, setOppReserve] = useState(60);
+  const [moveTimer,  setMoveTimer]  = useState(30);
 
   // Socket connection
   useEffect(() => {
@@ -77,6 +79,8 @@ export default function ChessGame({ onExit }) {
       setInCheck(false);
       setGameOver(null);
       // Reset timer cho ván mới
+      myReserveRef.current = 60;
+      gameIdRef.current = data.gameId;
       setMyReserve(60);
       setOppReserve(60);
       setMoveTimer(30);
@@ -169,20 +173,24 @@ export default function ChessGame({ onExit }) {
           setMoveTimer(move);
         } else {
           // Hết 30s → dùng reserve
-          setMyReserve(r => {
-            const next = r - 1;
-            if (next <= 0) {
-              // Hết reserve → thua
-              clearInterval(moveTimerRef.current);
-              sockRef.current?.emit("chess:resign", { gameId, userId });
-            }
-            return Math.max(0, next);
-          });
+          myReserveRef.current = myReserveRef.current - 1;
+          setMyReserve(myReserveRef.current);
+          if (myReserveRef.current <= 0) {
+            // Hết reserve → thua
+            clearInterval(moveTimerRef.current);
+            sockRef.current?.emit("chess:resign", {
+              gameId: gameIdRef.current,
+              userId: userIdRef.current || userId,
+            });
+          }
         }
       }, 1000);
     }
     return () => clearInterval(moveTimerRef.current);
   }, [chess, phase, myColor]);
+
+  // Sync refs
+  userIdRef.current = userId;
 
   const findMatch = useCallback(() => {
     if (!userId) return;
