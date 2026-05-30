@@ -282,23 +282,24 @@ export default function ChessGame({ onExit }) {
                   justifyContent:"center", position:"relative", cursor:"pointer",
                   transition:"background 0.1s" }}>
 
-                {/* Quân cờ — trắng và đen cùng shape ♟ chỉ khác màu */}
+                {/* Quân cờ — Unicode rõ nét, đúng màu */}
                 {pieceKey && (
                   <div style={{
                     position:"absolute", inset:0,
                     display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:"min(7.5vw,38px)",
-                    color: piece.color==="w" ? "#ffffff" : "#1a1208",
+                    fontSize:"min(6.5vw,32px)",
+                    color: piece.color==="w" ? "#fffff0" : "#1a1208",
                     textShadow: piece.color==="w"
-                      ? "0 0 3px #000, 0 2px 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.5)"
-                      : "0 1px 2px rgba(255,255,255,0.15)",
+                      ? "0 0 2px #000, 0 1px 3px rgba(0,0,0,1), 1px 1px 0 #000, -1px -1px 0 #333"
+                      : "0 1px 2px rgba(255,255,255,0.2)",
                     userSelect:"none", lineHeight:1,
                     filter: piece.color==="w"
-                      ? "drop-shadow(0 2px 3px rgba(0,0,0,0.8))"
-                      : "drop-shadow(0 1px 2px rgba(0,0,0,0.6))",
+                      ? "drop-shadow(0 2px 2px rgba(0,0,0,1))"
+                      : "drop-shadow(0 1px 2px rgba(0,0,0,0.7))",
                     zIndex:2, pointerEvents:"none",
+                    WebkitFontSmoothing:"antialiased",
                   }}>
-                    {{"wK":"♚","wQ":"♛","wR":"♜","wB":"♝","wN":"♞","wP":"♟",
+                    {{"wK":"♔","wQ":"♕","wR":"♖","wB":"♗","wN":"♘","wP":"♙",
                       "bK":"♚","bQ":"♛","bR":"♜","bB":"♝","bN":"♞","bP":"♟"}[pieceKey]}
                   </div>
                 )}
