@@ -177,10 +177,11 @@ export default function ChessGame({ onExit }) {
         {/* Bàn cờ */}
         <div style={{
           display:"grid", gridTemplateColumns:"repeat(8,1fr)",
-          width:"min(92vw,420px)", height:"min(92vw,420px)",
-          borderRadius:8, overflow:"hidden",
-          boxShadow:"0 8px 40px rgba(0,0,0,0.6), inset 0 0 0 4px #8B6914",
-          border:"6px solid #8B6914",
+          gridTemplateRows:"repeat(8,1fr)",
+          width:"min(94vw,440px)", aspectRatio:"1/1",
+          borderRadius:4, overflow:"hidden",
+          boxShadow:"0 12px 40px rgba(0,0,0,0.8), 0 0 0 8px #6B4C11, 0 0 0 10px #8B6914",
+          border:"none",
         }}>
           {ranks.map(r => fOrder.map(f => {
             const sq    = files[f] + (r+1);
@@ -204,20 +205,15 @@ export default function ChessGame({ onExit }) {
                   justifyContent:"center", position:"relative", cursor:"pointer",
                   transition:"background 0.1s" }}>
 
-                {/* Quân cờ */}
-                {pieceKey && (
-                  <span style={{
-                    fontSize:"clamp(22px,7vw,38px)",
-                    color:PIECE_COLORS[piece.color],
-                    textShadow:`0 1px 3px ${PIECE_SHADOW[piece.color]}, 0 0 8px ${PIECE_SHADOW[piece.color]}`,
-                    userSelect:"none", lineHeight:1,
+                {/* Quân cờ SVG */}
+                {pieceKey && PIECE_SVG[pieceKey] && (
+                  <div style={{
+                    position:"absolute", inset:"5%",
+                    zIndex:2, pointerEvents:"none",
                     filter: piece.color==="w"
-                      ? "drop-shadow(0 2px 2px rgba(0,0,0,0.6))"
-                      : "drop-shadow(0 2px 2px rgba(0,0,0,0.8))",
-                    zIndex:2,
-                  }}>
-                    {PIECES[pieceKey]}
-                  </span>
+                      ? "drop-shadow(0 2px 3px rgba(0,0,0,0.5))"
+                      : "drop-shadow(0 2px 3px rgba(0,0,0,0.7))",
+                  }} dangerouslySetInnerHTML={{ __html: PIECE_SVG[pieceKey] }} />
                 )}
 
                 {/* Nước đi hợp lệ */}
