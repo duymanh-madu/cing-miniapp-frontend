@@ -205,15 +205,25 @@ export default function ChessGame({ onExit }) {
                   justifyContent:"center", position:"relative", cursor:"pointer",
                   transition:"background 0.1s" }}>
 
-                {/* Quân cờ SVG */}
-                {pieceKey && PIECE_SVG[pieceKey] && (
+                {/* Quân cờ Unicode */}
+                {pieceKey && (
                   <div style={{
-                    position:"absolute", inset:"5%",
-                    zIndex:2, pointerEvents:"none",
+                    position:"absolute", inset:0,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:"min(7vw,36px)",
+                    color: piece.color==="w" ? "#FFFDE7" : "#1a1a1a",
+                    textShadow: piece.color==="w"
+                      ? "0 1px 3px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.4)"
+                      : "0 1px 3px rgba(255,255,255,0.2)",
+                    userSelect:"none", lineHeight:1,
                     filter: piece.color==="w"
-                      ? "drop-shadow(0 2px 3px rgba(0,0,0,0.5))"
-                      : "drop-shadow(0 2px 3px rgba(0,0,0,0.7))",
-                  }} dangerouslySetInnerHTML={{ __html: PIECE_SVG[pieceKey] }} />
+                      ? "drop-shadow(0 2px 2px rgba(0,0,0,0.6))"
+                      : "drop-shadow(0 2px 2px rgba(0,0,0,0.8))",
+                    zIndex:2, pointerEvents:"none",
+                  }}>
+                    {{"wK":"♔","wQ":"♕","wR":"♖","wB":"♗","wN":"♘","wP":"♙",
+                      "bK":"♚","bQ":"♛","bR":"♜","bB":"♝","bN":"♞","bP":"♟"}[pieceKey]}
+                  </div>
                 )}
 
                 {/* Nước đi hợp lệ */}
