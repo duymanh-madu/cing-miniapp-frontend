@@ -254,16 +254,18 @@ export default function CheckoutPage(){
       const payUrl = paymentRes.data?.paymentUrl;
 
       if(payUrl){
-        // 3. Redirect den MoMo — KHÔNG clearCart ở đây, chờ webhook callback
+        // 3. Redirect đến MoMo
         try {
-          const { openWebview } = await import("zmp-sdk/apis").catch(() => ({}));
-          if (openWebview) {
-            await openWebview({ url: payUrl, title: "Thanh toán MoMo" });
+          // Thử ZMP openURL trước
+          const zmpApis = await import("zmp-sdk/apis").catch(() => ({}));
+          const openURL = zmpApis.openURL || zmpApis.openWebview;
+          if (openURL) {
+            await openURL({ url: payUrl });
           } else {
-            window.open(payUrl, "_blank");
+            window.location.href = payUrl;
           }
         } catch(e) {
-          window.open(payUrl, "_blank");
+          window.location.href = payUrl;
         }
       } else {
         throw new Error("Không lấy được link thanh toán MoMo");
