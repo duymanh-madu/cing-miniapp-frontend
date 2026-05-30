@@ -254,13 +254,11 @@ export default function CheckoutPage(){
       const payUrl = paymentRes.data?.paymentUrl;
 
       if(payUrl){
-        // 3. Redirect đến MoMo
+        // 3. Redirect đến MoMo dùng openOutApp
         try {
-          // Thử ZMP openURL trước
-          const zmpApis = await import("zmp-sdk/apis").catch(() => ({}));
-          const openURL = zmpApis.openURL || zmpApis.openWebview;
-          if (openURL) {
-            await openURL({ url: payUrl });
+          const { openOutApp } = await import("zmp-sdk/apis").catch(() => ({}));
+          if (openOutApp) {
+            await openOutApp({ url: payUrl });
           } else {
             window.location.href = payUrl;
           }
