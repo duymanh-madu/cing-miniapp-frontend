@@ -43,7 +43,12 @@ export default function ChessGame({ onExit }) {
   const [searchTime,setSearchTime]=useState(0);
   const [msg,setMsg]=useState("");
   const [showLB,setShowLB]=useState(false);
-  const timerRef = useRef(null);
+  const timerRef    = useRef(null);
+  const moveTimerRef = useRef(null);
+  const [myReserve,    setMyReserve]    = useState(60); // 60s reserve
+  const [oppReserve,   setOppReserve]   = useState(60);
+  const [moveTimer,    setMoveTimer]    = useState(30); // 30s/move
+  const moveTimerActive = useRef(false);
 
   // Socket connection
   useEffect(() => {
@@ -88,6 +93,26 @@ export default function ChessGame({ onExit }) {
       setGameOver(data);
       setPhase("gameover");
       clearInterval(timerRef.current);
+      clearInterval(moveTimerRef.current);
+      // Save score
+      try {
+        const phone = (profile?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+        const uid = phone || profile?.id || "";
+        if (uid) {
+          const won  = data?.winner === userId;
+          const draw = !data?.winner;
+          const score = won ? 3 : draw ? 1 : 0;
+          fetch((import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api") + "/game/score", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              game_key: "chess", user_id: uid, score,
+              player_name: profile?.name || userName,
+              avatar: profile?.avatar || userAvatar,
+            }),
+          }).catch(() => {});
+        }
+      } catch(e) {}
     });
 
     s.on("chess:timeout", () => {
@@ -114,6 +139,34 @@ export default function ChessGame({ onExit }) {
     }
     return () => clearInterval(timerRef.current);
   }, [phase]);
+
+  // Move timer 30s + reserve 60s
+  const isMyTurnRef = useRef(false);
+  useEffect(() => {
+    if (phase !== "playing") return;
+    const myTurn = chess.turn() === myColor;
+    isMyTurnRef.current = myTurn;
+    clearInterval(moveTimerRef.current);
+    setMoveTimer(30);
+
+    if (myTurn) {
+      moveTimerRef.current = setInterval(() => {
+        setMoveTimer(t => {
+          if (t > 1) return t - 1;
+          // Hết 30s → kích hoạt reserve
+          setMyReserve(r => {
+            if (r > 1) return r - 1;
+            // Hết reserve → thua
+            sockRef.current?.emit("chess:timeout_move", { gameId, userId });
+            clearInterval(moveTimerRef.current);
+            return 0;
+          });
+          return 0;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(moveTimerRef.current);
+  }, [chess, phase, myColor]);
 
   const findMatch = useCallback(() => {
     if (!userId) return;
@@ -412,13 +465,20 @@ export default function ChessGame({ onExit }) {
             {myColor==="w"?"♔ Quân Trắng":"♚ Quân Đen"}
           </p>
         </div>
-        {isMyTurn
-          ? <div style={{ background:"rgba(212,83,28,0.2)", border:"1px solid #D4531C", borderRadius:10, padding:"5px 12px" }}>
-              <p style={{ color:"#D4531C", fontSize:11, fontWeight:900, margin:0 }}>🎯 Lượt bạn</p>
-            </div>
-          : <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:10, padding:"5px 12px" }}>
-              <p style={{ color:"rgba(255,255,255,0.3)", fontSize:11, fontWeight:600, margin:0 }}>Chờ...</p>
-            </div>}
+          <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:3 }}>
+            {isMyTurn
+              ? <div style={{ background:"rgba(212,83,28,0.2)", border:"1px solid #D4531C", borderRadius:10, padding:"4px 10px" }}>
+                  <p style={{ color:"#D4531C", fontSize:11, fontWeight:900, margin:0 }}>
+                    🎯 {moveTimer > 0 ? `${moveTimer}s` : `⚠️${myReserve}s`}
+                  </p>
+                </div>
+              : <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:10, padding:"4px 10px" }}>
+                  <p style={{ color:"rgba(255,255,255,0.3)", fontSize:11, margin:0 }}>Chờ...</p>
+                </div>}
+            <p style={{ color: myReserve < 15 ? "#FF4444" : "rgba(255,255,255,0.4)", fontSize:10, margin:0 }}>
+              🕐 {myReserve}s dự trữ
+            </p>
+          </div>
         <button onClick={resign} style={{ background:"rgba(244,67,54,0.12)",
           border:"1px solid rgba(244,67,54,0.4)", color:"#f44336",
           borderRadius:10, padding:"7px 14px", fontSize:11, cursor:"pointer", fontWeight:800 }}>
