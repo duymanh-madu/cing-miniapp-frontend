@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import useCartStore from "@/features/menu/store/cartStore";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
@@ -24,6 +25,12 @@ export default function OrderSuccessPage() {
   const stateOrder    = location.state?.order;
 
   const isSuccess = momoResult === "0" || !momoResult; // null = từ điểm
+  const clearCart = useCartStore(s => s.clearCart);
+
+  useEffect(() => {
+    // Xóa giỏ hàng khi về trang success (MoMo redirect hoặc điểm)
+    clearCart();
+  }, []);
 
   useEffect(() => {
     // Nếu có state từ checkout (thanh toán bằng điểm)

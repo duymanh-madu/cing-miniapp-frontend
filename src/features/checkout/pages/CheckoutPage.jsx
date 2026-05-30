@@ -254,8 +254,7 @@ export default function CheckoutPage(){
       const payUrl = paymentRes.data?.paymentUrl;
 
       if(payUrl){
-        // 3. Redirect den MoMo — dùng openWebview của ZMP nếu có, fallback window.open
-        clearCart();
+        // 3. Redirect den MoMo — KHÔNG clearCart ở đây, chờ webhook callback
         try {
           const { openWebview } = await import("zmp-sdk/apis").catch(() => ({}));
           if (openWebview) {
