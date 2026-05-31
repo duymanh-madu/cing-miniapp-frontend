@@ -10,9 +10,7 @@ export default function CommunityChat({ onClose }) {
   const [voiceState, setVoiceState] = useState("idle");
   const [speaker,    setSpeaker]    = useState(null);
   const [tab,        setTab]        = useState("chat");
-  const [debugLog,   setDebugLog]   = useState([]);
-
-  const addLog = (msg) => setDebugLog(prev => [...prev.slice(-10), msg]);
+  const addLog = (msg) => {};  // debug removed
   const [myId,       setMyId]       = useState("");
 
   const sockRef    = useRef(null);
@@ -194,13 +192,6 @@ export default function CommunityChat({ onClose }) {
         </div>
       </div>
 
-      {/* Debug panel */}
-      {debugLog.length > 0 && (
-        <div style={{ background:"#000", padding:"8px 12px", fontSize:10, color:"#0f0", fontFamily:"monospace", maxHeight:80, overflowY:"auto" }}>
-          {debugLog.map((l,i) => <div key={i}>{l}</div>)}
-        </div>
-      )}
-
       {/* Voice status */}
       {speaker && (
         <div style={{ padding:"8px 16px", background: voiceState==="speaking"?"rgba(0,200,100,0.15)":"rgba(255,100,0,0.1)", borderBottom:"1px solid rgba(255,255,255,0.06)", display:"flex", alignItems:"center", gap:8 }}>
@@ -229,7 +220,7 @@ export default function CommunityChat({ onClose }) {
                     {m.avatar ? <img src={m.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (m.name||"?")[0]}
                   </div>
                 )}
-                <div style={{ background: isMe(m.userId)?"#D4531C":"rgba(255,255,255,0.1)", borderRadius: isMe(m.userId)?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"8px 12px", maxWidth:"75%" }}>
+                <div style={{ background: isMe(m.userId)?"#D4531C":"rgba(255,255,255,0.1)", borderRadius: isMe(m.userId)?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"8px 14px", maxWidth:"70%", marginRight: isMe(m.userId)?8:0, marginLeft: isMe(m.userId)?0:8 }}>
                   <p style={{ color:"white", fontSize:13, margin:0, lineHeight:1.4 }}>{m.message}</p>
                 </div>
               </div>
