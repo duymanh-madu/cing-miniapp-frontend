@@ -726,7 +726,6 @@ export default function ChessGame({ onExit }) {
         )}
         {showEmoji && (
           <>
-            <div onClick={() => setShowEmoji(false)} style={{ position:"fixed", inset:0, zIndex:9998, background:"rgba(0,0,0,0.5)" }}/>
             <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:9999,
               background:"rgba(10,6,4,0.98)", borderRadius:16, padding:"16px",
               border:"1px solid rgba(255,215,0,0.3)", display:"flex", gap:10, flexWrap:"wrap",
@@ -742,7 +741,6 @@ export default function ChessGame({ onExit }) {
         )}
         {showTip && (
           <>
-            <div onClick={() => setShowTip(false)} style={{ position:"fixed", inset:0, zIndex:9998, background:"rgba(0,0,0,0.5)" }}/>
             <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:9999,
               background:"rgba(10,6,4,0.98)", borderRadius:16, padding:"16px",
               border:"1px solid rgba(255,215,0,0.3)", minWidth:220,
