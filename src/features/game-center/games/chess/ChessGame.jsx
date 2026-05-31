@@ -1037,7 +1037,6 @@ export default function ChessGame({ onExit }) {
             </div>
         )}
         {showChat && (
-          <>
             <div style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:9998,
               background:"rgba(10,6,4,0.97)", borderRadius:"20px 20px 0 0",
               border:"1px solid rgba(255,215,0,0.2)", height:"40vh", display:"flex", flexDirection:"column" }}>
@@ -1073,7 +1072,6 @@ export default function ChessGame({ onExit }) {
                     fontSize:13, fontWeight:700, cursor:"pointer" }}>Gửi</button>
               </div>
             </div>
-          </>
         )}
       </>, document.body)}
 
