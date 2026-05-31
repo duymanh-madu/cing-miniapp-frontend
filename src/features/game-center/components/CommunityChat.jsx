@@ -44,13 +44,16 @@ export default function CommunityChat({ onClose }) {
     sockRef.current = s;
 
     s.on("connect", () => {
-      // Lấy info tại thời điểm connect
+      console.log("[COMMUNITY] Connected:", s.id);
       const info = getMyInfo();
       const uid  = info.phone || ("guest-" + s.id);
       myIdRef.current = uid;
       setMyId(uid);
+      console.log("[COMMUNITY] Joining as:", uid, info.name);
       s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar });
     });
+
+    s.on("connect_error", (e) => console.error("[COMMUNITY] Connect error:", e.message));
 
     s.on("community:history", (history) => {
       setMessages(history || []);
@@ -98,6 +101,7 @@ export default function CommunityChat({ onClose }) {
   }, [runtimePhone, getMyInfo]);
 
   const sendChat = () => {
+    console.log("[COMMUNITY] sendChat", { input, connected: sockRef.current?.connected, myId: myIdRef.current });
     if (!input.trim() || !sockRef.current?.connected) return;
     const info = getMyInfo();
     const uid  = myIdRef.current || info.phone || ("guest-" + Date.now());
