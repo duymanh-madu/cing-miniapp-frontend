@@ -518,9 +518,23 @@ export function initializeRuntimeSocket() {
         attempt
       );
 
-      setConnected(
-        true
-      );
+      setConnected(true);
+
+      // Re-emit user:online sau reconnect (tắt/bật màn hình)
+      try {
+        const store = (window as any).__runtimeIdentityStore;
+        if (store) {
+          const identity = store.getState().identity;
+          const phone = (identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+          if (phone && phone !== "pending" && phone.length >= 9) {
+            runtimeSocket?.emit("user:online", {
+              userId: phone,
+              name: identity?.fullName || "",
+              avatar: identity?.avatar || "",
+            });
+          }
+        }
+      } catch(e) {}
 
     }
   );
