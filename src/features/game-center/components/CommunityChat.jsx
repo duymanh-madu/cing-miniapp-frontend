@@ -45,8 +45,17 @@ export default function CommunityChat({ onClose }) {
       if (myPhone) s.emit("community:join", { userId: myPhone, name: myName, avatar: myAvatar });
     });
 
+    s.on("community:history", (history) => {
+      setMessages(history);
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 100);
+    });
+
     s.on("community:chat", (msg) => {
-      setMessages(prev => [...prev, msg]);
+      setMessages(prev => {
+        // Tránh duplicate nếu là tin nhắn của chính mình
+        const isDup = prev.some(m => m.timestamp === msg.timestamp && m.userId === msg.userId);
+        return isDup ? prev : [...prev, msg];
+      });
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 50);
     });
 
