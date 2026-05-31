@@ -123,6 +123,7 @@ export default function GameCenterPage() {
     setPlayingChess(true);
   };
 
+  if (showChat) return <CommunityChat onClose={() => setShowChat(false)} />;
   if (playingChess) return <ChessGame onExit={() => setPlayingChess(false)} />;
 
   if (activeGame) {
