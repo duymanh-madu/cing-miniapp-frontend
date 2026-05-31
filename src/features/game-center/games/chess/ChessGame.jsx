@@ -727,10 +727,10 @@ export default function ChessGame({ onExit }) {
 
       {/* Emoji picker */}
       {showEmoji && (
-        <div style={{ position:"fixed", bottom:120, left:"50%", transform:"translateX(-50%)", zIndex:300,
-          background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"12px",
-          border:"1px solid rgba(255,215,0,0.2)", display:"flex", gap:8, flexWrap:"wrap",
-          maxWidth:220, pointerEvents:"all" }}>
+        <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:500,
+          background:"rgba(10,6,4,0.98)", borderRadius:16, padding:"16px",
+          border:"1px solid rgba(255,215,0,0.3)", display:"flex", gap:10, flexWrap:"wrap",
+          maxWidth:240, pointerEvents:"all", boxShadow:"0 8px 32px rgba(0,0,0,0.8)" }}>
           {["😄","😂","🤔","😮","👏","🔥","💀","🤝","😈","❤️"].map(e => (
             <button key={e} onClick={() => sendEmoji(e)}
               style={{ fontSize:28, background:"none", border:"none", cursor:"pointer", padding:2 }}>
@@ -742,9 +742,10 @@ export default function ChessGame({ onExit }) {
 
       {/* Tip picker */}
       {showTip && (
-        <div style={{ position:"fixed", bottom:120, left:16, right:16, zIndex:300,
-          background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"14px",
-          border:"1px solid rgba(255,215,0,0.2)", pointerEvents:"all" }}>
+        <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:500,
+          background:"rgba(10,6,4,0.98)", borderRadius:16, padding:"16px",
+          border:"1px solid rgba(255,215,0,0.3)", minWidth:220, pointerEvents:"all",
+          boxShadow:"0 8px 32px rgba(0,0,0,0.8)" }}>
           <p style={{ color:"#FFD700", fontSize:12, fontWeight:800, margin:"0 0 10px", textAlign:"center" }}>
             💎 Tặng điểm cho đối thủ
           </p>
@@ -805,7 +806,7 @@ export default function ChessGame({ onExit }) {
       {showChat && (
         <div style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:250,
           background:"rgba(10,6,4,0.97)", borderRadius:"20px 20px 0 0",
-          border:"1px solid rgba(255,215,0,0.2)", height:"45vh", display:"flex", flexDirection:"column",
+          border:"1px solid rgba(255,215,0,0.2)", height:"38vh", display:"flex", flexDirection:"column",
           pointerEvents:"all" }}>
           <div style={{ padding:"12px 16px 8px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
             <p style={{ color:"#FFD700", fontSize:13, fontWeight:800, margin:0 }}>💬 Chat trong ván</p>
