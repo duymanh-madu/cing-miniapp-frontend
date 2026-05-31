@@ -141,6 +141,10 @@ export default function ChessGame({ onExit }) {
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput,    setChatInput]    = useState("");
   const [showChat,     setShowChat]     = useState(false);
+  const [showEmoji,    setShowEmoji]    = useState(false);
+  const [showTip,      setShowTip]      = useState(false);
+  const [floatEmoji,   setFloatEmoji]   = useState(null); // {emoji, fromMe}
+  const [tipResult,    setTipResult]    = useState(null); // {amount, fromMe}
   const [unreadCount,  setUnreadCount]  = useState(0);
   const chatEndRef = useRef(null);
 
@@ -243,6 +247,17 @@ export default function ChessGame({ onExit }) {
     });
 
     s.on("chess:error", ({ message }) => setMsg(message));
+
+    s.on("chess:emoji", ({ userId: fromId, emoji }) => {
+      setFloatEmoji({ emoji, fromMe: fromId === userIdRef.current });
+      setTimeout(() => setFloatEmoji(null), 2500);
+    });
+
+    s.on("chess:tip_received", ({ fromUserId, toUserId, amount }) => {
+      const fromMe = fromUserId === userIdRef.current;
+      setTipResult({ amount, fromMe });
+      setTimeout(() => setTipResult(null), 3000);
+    });
 
     // Chat
     s.on("chess:chat", (data) => {
@@ -639,8 +654,94 @@ export default function ChessGame({ onExit }) {
 
 
 
+      {/* Float emoji animation */}
+      {floatEmoji && (
+        <div style={{ position:"fixed", top:"40%", left:"50%", transform:"translate(-50%,-50%)",
+          fontSize:72, zIndex:400, animation:"floatUp 2.5s ease-out forwards", pointerEvents:"none" }}>
+          {floatEmoji.emoji}
+        </div>
+      )}
+
+      {/* Tip notification */}
+      {tipResult && (
+        <div style={{ position:"fixed", top:100, left:16, right:16, zIndex:400,
+          background: tipResult.fromMe ? "rgba(212,83,28,0.95)" : "rgba(0,180,100,0.95)",
+          borderRadius:14, padding:"12px 16px", display:"flex", alignItems:"center", gap:10 }}>
+          <span style={{ fontSize:24 }}>💎</span>
+          <p style={{ color:"white", fontSize:13, fontWeight:800, margin:0 }}>
+            {tipResult.fromMe
+              ? `Bạn đã tặng ${tipResult.amount} điểm cho đối thủ!`
+              : `Đối thủ vừa tặng bạn ${tipResult.amount} điểm! 🎉`}
+          </p>
+        </div>
+      )}
+
+      {/* Emoji picker */}
+      {showEmoji && (
+        <div style={{ position:"fixed", bottom:180, right:16, zIndex:300,
+          background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"12px",
+          border:"1px solid rgba(255,215,0,0.2)", display:"flex", gap:8, flexWrap:"wrap",
+          maxWidth:200, pointerEvents:"all" }}>
+          {["😄","😂","🤔","😮","👏","🔥","💀","🤝","😈","❤️"].map(e => (
+            <button key={e} onClick={() => sendEmoji(e)}
+              style={{ fontSize:28, background:"none", border:"none", cursor:"pointer", padding:2 }}>
+              {e}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Tip picker */}
+      {showTip && (
+        <div style={{ position:"fixed", bottom:180, right:16, zIndex:300,
+          background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"14px",
+          border:"1px solid rgba(255,215,0,0.2)", pointerEvents:"all" }}>
+          <p style={{ color:"#FFD700", fontSize:12, fontWeight:800, margin:"0 0 10px", textAlign:"center" }}>
+            💎 Tặng điểm cho đối thủ
+          </p>
+          <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+            {[
+              { amount:5,   label:"5 điểm",   fx:"✨", bg:"rgba(255,255,255,0.08)" },
+              { amount:10,  label:"10 điểm",  fx:"⭐", bg:"rgba(100,200,255,0.15)" },
+              { amount:20,  label:"20 điểm",  fx:"🌟", bg:"rgba(255,215,0,0.15)" },
+              { amount:50,  label:"50 điểm",  fx:"💫", bg:"rgba(255,150,0,0.2)" },
+              { amount:100, label:"100 điểm", fx:"🔥", bg:"rgba(212,83,28,0.3)" },
+            ].map(t => (
+              <button key={t.amount} onClick={() => sendTip(t.amount)}
+                style={{ background:t.bg, border:"1px solid rgba(255,255,255,0.1)",
+                  borderRadius:10, padding:"8px 14px", color:"white", fontSize:13,
+                  fontWeight:700, cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <span>{t.fx} {t.label}</span>
+              </button>
+            ))}
+          </div>
+          <button onClick={() => setShowTip(false)}
+            style={{ width:"100%", marginTop:8, background:"none", border:"none", color:"#555", cursor:"pointer", fontSize:12 }}>
+            Huỷ
+          </button>
+        </div>
+      )}
+
       {/* Chat bubble button */}
       <div style={{ position:"fixed", bottom:120, right:16, zIndex:200, display:"flex", flexDirection:"column", gap:8, pointerEvents:"all" }}>
+
+        {/* Emoji button */}
+        <button onClick={() => { setShowEmoji(v => !v); setShowTip(false); }}
+          style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
+            background:"rgba(255,150,50,0.9)",
+            display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
+            boxShadow:"0 4px 12px rgba(0,0,0,0.4)" }}>
+          😄
+        </button>
+
+        {/* Tip button */}
+        <button onClick={() => { setShowTip(v => !v); setShowEmoji(false); }}
+          style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
+            background:"rgba(255,215,0,0.9)",
+            display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
+            boxShadow:"0 4px 12px rgba(0,0,0,0.4)" }}>
+          💎
+        </button>
 
         {/* Chat button */}
         <button onClick={() => { setShowChat(v => !v); setUnreadCount(0); }}
