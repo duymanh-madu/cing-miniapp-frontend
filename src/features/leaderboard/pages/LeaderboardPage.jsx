@@ -209,7 +209,7 @@ export default function LeaderboardPage() {
             <p style={{ color:"#FFD700", fontSize:10, fontWeight:800, letterSpacing:3, margin:"0 0 2px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
             <p style={{ color:"rgba(255,215,0,0.5)", fontSize:9, fontWeight:700, letterSpacing:4, margin:"0 0 3px", textTransform:"uppercase" }}>Hall of Fame</p>
             <h1 style={{ color:"white", fontSize:20, fontWeight:900, margin:0, letterSpacing:1 }}>Đại sảnh danh vọng</h1>
-            <p style={{ color:"rgba(255,215,0,0.55)", fontSize:12, fontWeight:500, margin:"4px 0 0" }}>Nơi vinh danh những Cing iu chịu chi nhất</p>
+            <p style={{ color:"rgba(255,215,0,0.55)", fontSize:12, fontWeight:500, margin:"4px 0 0" }}>Nơi vinh danh những Cing iu có "sức hút" nhất</p>
           </div>
           <div style={{ width:38 }}/>
         </div>
