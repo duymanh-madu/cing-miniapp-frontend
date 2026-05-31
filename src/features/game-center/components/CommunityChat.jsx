@@ -6,6 +6,7 @@ import useAuthStore from "@/stores/auth/authStore";
 const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
 
 export default function CommunityChat({ onClose }) {
+  console.log("[COMMUNITY] CommunityChat rendering...");
   const [messages,    setMessages]    = useState([]);
   const [input,       setInput]       = useState("");
   const [users,       setUsers]       = useState([]);
