@@ -1,4 +1,3 @@
-cat > /Users/style/cing-miniapp-frontend/src/features/game-center/games/chess/ChessGame.jsx << 'ENDOFFILE'
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { io } from "socket.io-client";
@@ -472,4 +471,3 @@ export default function ChessGame({ onExit }) {
   }
   return null;
 }
-ENDOFFILE
