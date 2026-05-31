@@ -95,6 +95,26 @@ export async function bootstrapRuntime() {
     }
   });
 
+  // Re-emit user:online khi tab/app visible lại (tắt/bật màn hình)
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      setTimeout(() => {
+        const store = (window as any).__runtimeIdentityStore;
+        const socket = (window as any).__runtimeSocket;
+        if (!store || !socket) return;
+        const identity = store.getState().identity;
+        const phone = (identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+        if (phone && phone !== "pending" && phone.length >= 9 && socket.connected) {
+          socket.emit("user:online", {
+            userId: phone,
+            name: identity?.fullName || "",
+            avatar: identity?.avatar || "",
+          });
+        }
+      }, 1000);
+    }
+  });
+
   console.log("[RUNTIME] BOOTSTRAP COMPLETED");
 }
 
