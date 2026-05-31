@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { io } from "socket.io-client";
 import { Chess } from "chess.js";
 import useAuthStore from "@/stores/auth/authStore";
@@ -703,74 +704,115 @@ export default function ChessGame({ onExit }) {
 
 
 
-      {/* Float emoji animation */}
-      {floatEmoji && (
-        <div style={{ position:"fixed", top:"40%", left:"50%", transform:"translate(-50%,-50%)",
-          fontSize:72, zIndex:400, animation:"floatUp 2.5s ease-out forwards", pointerEvents:"none" }}>
-          {floatEmoji.emoji}
-        </div>
-      )}
-
-      {/* Tip notification */}
-      {tipResult && (
-        <div style={{ position:"fixed", top:100, left:16, right:16, zIndex:400,
-          background: tipResult.fromMe ? "rgba(212,83,28,0.95)" : "rgba(0,180,100,0.95)",
-          borderRadius:14, padding:"12px 16px", display:"flex", alignItems:"center", gap:10 }}>
-          <span style={{ fontSize:24 }}>💎</span>
-          <p style={{ color:"white", fontSize:13, fontWeight:800, margin:0 }}>
-            {tipResult.fromMe
-              ? `Bạn đã tặng ${tipResult.amount} điểm cho đối thủ!`
-              : `Đối thủ vừa tặng bạn ${tipResult.amount} điểm! 🎉`}
-          </p>
-        </div>
-      )}
-
-      {/* Emoji picker */}
-      {showEmoji && (
-        <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:500,
-          background:"rgba(10,6,4,0.98)", borderRadius:16, padding:"16px",
-          border:"1px solid rgba(255,215,0,0.3)", display:"flex", gap:10, flexWrap:"wrap",
-          maxWidth:240, pointerEvents:"all", boxShadow:"0 8px 32px rgba(0,0,0,0.8)" }}>
-          {["😄","😂","🤔","😮","👏","🔥","💀","🤝","😈","❤️"].map(e => (
-            <button key={e} onClick={() => sendEmoji(e)}
-              style={{ fontSize:28, background:"none", border:"none", cursor:"pointer", padding:2 }}>
-              {e}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Tip picker */}
-      {showTip && (
-        <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:500,
-          background:"rgba(10,6,4,0.98)", borderRadius:16, padding:"16px",
-          border:"1px solid rgba(255,215,0,0.3)", minWidth:220, pointerEvents:"all",
-          boxShadow:"0 8px 32px rgba(0,0,0,0.8)" }}>
-          <p style={{ color:"#FFD700", fontSize:12, fontWeight:800, margin:"0 0 10px", textAlign:"center" }}>
-            💎 Tặng điểm cho đối thủ
-          </p>
-          <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-            {[
-              { amount:5,   label:"5 điểm",   fx:"✨", bg:"rgba(255,255,255,0.08)" },
-              { amount:10,  label:"10 điểm",  fx:"⭐", bg:"rgba(100,200,255,0.15)" },
-              { amount:20,  label:"20 điểm",  fx:"🌟", bg:"rgba(255,215,0,0.15)" },
-              { amount:50,  label:"50 điểm",  fx:"💫", bg:"rgba(255,150,0,0.2)" },
-              { amount:100, label:"100 điểm", fx:"🔥", bg:"rgba(212,83,28,0.3)" },
-            ].map(t => (
-              <button key={t.amount} onClick={() => sendTip(t.amount)}
-                style={{ background:t.bg, border:"1px solid rgba(255,255,255,0.1)",
-                  borderRadius:10, padding:"8px 14px", color:"white", fontSize:13,
-                  fontWeight:700, cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                <span>{t.fx} {t.label}</span>
-              </button>
-            ))}
+      {/* Portals — render ngoài stacking context để không bị block */}
+      {createPortal(<>
+        {floatEmoji && (
+          <div style={{ position:"fixed", top:"40%", left:"50%", transform:"translate(-50%,-50%)",
+            fontSize:72, zIndex:9999, animation:"floatUp 2.5s ease-out forwards", pointerEvents:"none" }}>
+            {floatEmoji.emoji}
           </div>
-          <button onClick={() => setShowTip(false)}
-            style={{ width:"100%", marginTop:8, background:"none", border:"none", color:"#555", cursor:"pointer", fontSize:12 }}>
-            Huỷ
-          </button>
-        </div>
-      )}
+        )}
+        {tipResult && (
+          <div style={{ position:"fixed", top:100, left:16, right:16, zIndex:9999,
+            background: tipResult.fromMe ? "rgba(212,83,28,0.95)" : "rgba(0,180,100,0.95)",
+            borderRadius:14, padding:"12px 16px", display:"flex", alignItems:"center", gap:10 }}>
+            <span style={{ fontSize:24 }}>💎</span>
+            <p style={{ color:"white", fontSize:13, fontWeight:800, margin:0 }}>
+              {tipResult.fromMe
+                ? `Bạn đã tặng ${tipResult.amount} điểm cho đối thủ!`
+                : `Đối thủ vừa tặng bạn ${tipResult.amount} điểm! 🎉`}
+            </p>
+          </div>
+        )}
+        {showEmoji && (
+          <>
+            <div onClick={() => setShowEmoji(false)} style={{ position:"fixed", inset:0, zIndex:9998, background:"rgba(0,0,0,0.5)" }}/>
+            <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:9999,
+              background:"rgba(10,6,4,0.98)", borderRadius:16, padding:"16px",
+              border:"1px solid rgba(255,215,0,0.3)", display:"flex", gap:10, flexWrap:"wrap",
+              maxWidth:240, boxShadow:"0 8px 32px rgba(0,0,0,0.8)" }}>
+              {["😄","😂","🤔","😮","👏","🔥","💀","🤝","😈","❤️"].map(e => (
+                <button key={e} onClick={() => sendEmoji(e)}
+                  style={{ fontSize:32, background:"none", border:"none", cursor:"pointer", padding:4 }}>
+                  {e}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+        {showTip && (
+          <>
+            <div onClick={() => setShowTip(false)} style={{ position:"fixed", inset:0, zIndex:9998, background:"rgba(0,0,0,0.5)" }}/>
+            <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:9999,
+              background:"rgba(10,6,4,0.98)", borderRadius:16, padding:"16px",
+              border:"1px solid rgba(255,215,0,0.3)", minWidth:220,
+              boxShadow:"0 8px 32px rgba(0,0,0,0.8)" }}>
+              <p style={{ color:"#FFD700", fontSize:13, fontWeight:800, margin:"0 0 12px", textAlign:"center" }}>
+                💎 Tặng điểm cho đối thủ
+              </p>
+              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                {[
+                  { amount:5,   label:"5 điểm",   fx:"✨", bg:"rgba(255,255,255,0.08)" },
+                  { amount:10,  label:"10 điểm",  fx:"⭐", bg:"rgba(100,200,255,0.15)" },
+                  { amount:20,  label:"20 điểm",  fx:"🌟", bg:"rgba(255,215,0,0.15)" },
+                  { amount:50,  label:"50 điểm",  fx:"💫", bg:"rgba(255,150,0,0.2)" },
+                  { amount:100, label:"100 điểm", fx:"🔥", bg:"rgba(212,83,28,0.3)" },
+                ].map(t => (
+                  <button key={t.amount} onClick={() => sendTip(t.amount)}
+                    style={{ background:t.bg, border:"1px solid rgba(255,255,255,0.15)",
+                      borderRadius:10, padding:"10px 16px", color:"white", fontSize:14,
+                      fontWeight:700, cursor:"pointer", textAlign:"left" }}>
+                    {t.fx} {t.label}
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setShowTip(false)}
+                style={{ width:"100%", marginTop:10, background:"none", border:"none", color:"#666", cursor:"pointer", fontSize:12 }}>
+                Huỷ
+              </button>
+            </div>
+          </>
+        )}
+        {showChat && (
+          <>
+            <div style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:9998,
+              background:"rgba(10,6,4,0.97)", borderRadius:"20px 20px 0 0",
+              border:"1px solid rgba(255,215,0,0.2)", height:"40vh", display:"flex", flexDirection:"column" }}>
+              <div style={{ padding:"12px 16px 8px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+                <p style={{ color:"#FFD700", fontSize:13, fontWeight:800, margin:0 }}>💬 Chat trong ván</p>
+                <button onClick={() => setShowChat(false)} style={{ background:"none", border:"none", color:"#666", fontSize:18, cursor:"pointer" }}>✕</button>
+              </div>
+              <div style={{ flex:1, overflowY:"auto", padding:"8px 12px" }}>
+                {chatMessages.length === 0 && (
+                  <p style={{ color:"rgba(255,255,255,0.3)", fontSize:12, textAlign:"center", marginTop:20 }}>Chưa có tin nhắn</p>
+                )}
+                {chatMessages.map((m, i) => (
+                  <div key={i} style={{ marginBottom:8, display:"flex", flexDirection:"column",
+                    alignItems: m.userId === userIdRef.current ? "flex-end" : "flex-start" }}>
+                    <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 2px" }}>{m.name}</p>
+                    <div style={{ background: m.userId === userIdRef.current ? "#D4531C" : "rgba(255,255,255,0.1)",
+                      borderRadius:12, padding:"6px 12px", maxWidth:"75%" }}>
+                      <p style={{ color:"white", fontSize:13, margin:0 }}>{m.message}</p>
+                    </div>
+                  </div>
+                ))}
+                <div ref={chatEndRef}/>
+              </div>
+              <div style={{ padding:"8px 12px 24px", display:"flex", gap:8, borderTop:"1px solid rgba(255,255,255,0.06)" }}>
+                <input value={chatInput} onChange={e => setChatInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && sendChat()}
+                  placeholder="Nhập tin nhắn..." maxLength={100}
+                  style={{ flex:1, background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)",
+                    borderRadius:10, padding:"8px 12px", color:"white", fontSize:13, outline:"none" }}/>
+                <button onClick={sendChat} disabled={!chatInput.trim()}
+                  style={{ background: chatInput.trim() ? "#D4531C" : "rgba(255,255,255,0.1)",
+                    border:"none", borderRadius:10, padding:"8px 14px", color:"white",
+                    fontSize:13, fontWeight:700, cursor:"pointer" }}>Gửi</button>
+              </div>
+            </div>
+          </>
+        )}
+      </>, document.body)}
 
       {/* Action buttons — nằm ngang dưới bàn cờ */}
       <div style={{ position:"relative", display:"flex", gap:10, justifyContent:"center", padding:"8px 0 16px", zIndex:200, pointerEvents:"all" }}>
@@ -802,45 +844,7 @@ export default function ChessGame({ onExit }) {
         </button>
       </div>
 
-      {/* Chat panel */}
-      {showChat && (
-        <div style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:250,
-          background:"rgba(10,6,4,0.97)", borderRadius:"20px 20px 0 0",
-          border:"1px solid rgba(255,215,0,0.2)", height:"38vh", display:"flex", flexDirection:"column",
-          pointerEvents:"all" }}>
-          <div style={{ padding:"12px 16px 8px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
-            <p style={{ color:"#FFD700", fontSize:13, fontWeight:800, margin:0 }}>💬 Chat trong ván</p>
-            <button onClick={() => setShowChat(false)} style={{ background:"none", border:"none", color:"#666", fontSize:18, cursor:"pointer" }}>✕</button>
-          </div>
-          <div style={{ flex:1, overflowY:"auto", padding:"8px 12px", minHeight:120 }}>
-            {chatMessages.length === 0 && (
-              <p style={{ color:"rgba(255,255,255,0.3)", fontSize:12, textAlign:"center", marginTop:20 }}>Chưa có tin nhắn</p>
-            )}
-            {chatMessages.map((m, i) => (
-              <div key={i} style={{ marginBottom:8, display:"flex", flexDirection:"column",
-                alignItems: m.userId === userIdRef.current ? "flex-end" : "flex-start" }}>
-                <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 2px" }}>{m.name}</p>
-                <div style={{ background: m.userId === userIdRef.current ? "#D4531C" : "rgba(255,255,255,0.1)",
-                  borderRadius:12, padding:"6px 12px", maxWidth:"75%" }}>
-                  <p style={{ color:"white", fontSize:13, margin:0 }}>{m.message}</p>
-                </div>
-              </div>
-            ))}
-            <div ref={chatEndRef}/>
-          </div>
-          <div style={{ padding:"8px 12px 16px", display:"flex", gap:8, borderTop:"1px solid rgba(255,255,255,0.06)" }}>
-            <input value={chatInput} onChange={e => setChatInput(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && sendChat()}
-              placeholder="Nhập tin nhắn..." maxLength={100}
-              style={{ flex:1, background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)",
-                borderRadius:10, padding:"8px 12px", color:"white", fontSize:13, outline:"none" }}/>
-            <button onClick={sendChat} disabled={!chatInput.trim()}
-              style={{ background: chatInput.trim() ? "#D4531C" : "rgba(255,255,255,0.1)",
-                border:"none", borderRadius:10, padding:"8px 14px", color:"white",
-                fontSize:13, fontWeight:700, cursor:"pointer" }}>Gửi</button>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 
