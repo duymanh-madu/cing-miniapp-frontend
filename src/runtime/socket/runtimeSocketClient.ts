@@ -449,19 +449,21 @@ export function initializeRuntimeSocket() {
 
       startHeartbeat();
 
-      // Emit user:online để admin dashboard track
-      try {
-        const { useRuntimeCustomerIdentityStore } = require("../customer/runtimeCustomerIdentityStore");
-        const identity = useRuntimeCustomerIdentityStore.getState().identity;
-        const phone = (identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
-        if (phone && phone !== "pending" && phone.length >= 9) {
-          runtimeSocket?.emit("user:online", {
-            userId: phone,
-            name: identity?.fullName || "",
-            avatar: identity?.avatar || "",
-          });
-        }
-      } catch(e) {}
+      // Emit user:online — dùng window store, retry đến khi có phone
+      const tryEmitOnline = (attempts = 0) => {
+        try {
+          const store = (window as any).__runtimeIdentityStore;
+          if (!store) { if (attempts < 10) setTimeout(() => tryEmitOnline(attempts+1), 1000); return; }
+          const identity = store.getState().identity;
+          const phone = (identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+          if (phone && phone !== "pending" && phone.length >= 9) {
+            runtimeSocket?.emit("user:online", { userId: phone, name: identity?.fullName||"", avatar: identity?.avatar||"" });
+          } else if (attempts < 10) {
+            setTimeout(() => tryEmitOnline(attempts+1), 1000);
+          }
+        } catch(e) {}
+      };
+      tryEmitOnline();
 
     }
   );
