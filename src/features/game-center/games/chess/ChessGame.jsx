@@ -329,6 +329,24 @@ export default function ChessGame({ onExit }) {
 
 
 
+  const sendEmoji = (emoji) => {
+    if (!gameIdRef.current) return;
+    sockRef.current?.emit("chess:emoji", { gameId: gameIdRef.current, userId: userIdRef.current, emoji });
+    setShowEmoji(false);
+  };
+
+  const sendTip = (amount) => {
+    if (!gameIdRef.current || !opponent) return;
+    const opponentId = opponent.userId || opponent.id;
+    sockRef.current?.emit("chess:tip", {
+      gameId: gameIdRef.current,
+      fromUserId: userIdRef.current,
+      toUserId: opponentId,
+      amount,
+    });
+    setShowTip(false);
+  };
+
   const findMatch = useCallback(() => {
     if (!userId) return;
     sockRef.current?.emit("chess:find", { userId, name: userName, avatar: userAvatar });
@@ -602,7 +620,9 @@ export default function ChessGame({ onExit }) {
       )}
 
       {/* Bàn cờ — flex:1 để fill hết phần giữa */}
-      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", width:"100%", padding:"8px 0" }}>
+      <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", width:"100%", padding:"4px 0" }}>
+        <p style={{ color:"#FFD700", fontSize:18, fontWeight:900, margin:"0 0 2px", letterSpacing:1, textShadow:"0 0 10px rgba(255,215,0,0.4)" }}>Cing Hu Tang Kinh Bắc</p>
+        <p style={{ color:"#FFD700", fontSize:12, fontWeight:600, margin:"0 0 6px", opacity:0.7 }}>Kỳ thủ cờ vua</p>
         {renderBoard()}
       </div>
 
@@ -678,10 +698,10 @@ export default function ChessGame({ onExit }) {
 
       {/* Emoji picker */}
       {showEmoji && (
-        <div style={{ position:"fixed", top:80, right:16, zIndex:300,
+        <div style={{ position:"fixed", bottom:240, right:68, zIndex:300,
           background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"12px",
           border:"1px solid rgba(255,215,0,0.2)", display:"flex", gap:8, flexWrap:"wrap",
-          maxWidth:200, pointerEvents:"all" }}>
+          maxWidth:220, pointerEvents:"all" }}>
           {["😄","😂","🤔","😮","👏","🔥","💀","🤝","😈","❤️"].map(e => (
             <button key={e} onClick={() => sendEmoji(e)}
               style={{ fontSize:28, background:"none", border:"none", cursor:"pointer", padding:2 }}>
@@ -693,9 +713,9 @@ export default function ChessGame({ onExit }) {
 
       {/* Tip picker */}
       {showTip && (
-        <div style={{ position:"fixed", top:80, right:16, zIndex:300,
+        <div style={{ position:"fixed", bottom:170, right:68, zIndex:300,
           background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"14px",
-          border:"1px solid rgba(255,215,0,0.2)", pointerEvents:"all" }}>
+          border:"1px solid rgba(255,215,0,0.2)", pointerEvents:"all", minWidth:180 }}>
           <p style={{ color:"#FFD700", fontSize:12, fontWeight:800, margin:"0 0 10px", textAlign:"center" }}>
             💎 Tặng điểm cho đối thủ
           </p>
