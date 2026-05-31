@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
@@ -6,90 +6,76 @@ import useAuthStore from "@/stores/auth/authStore";
 const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
 
 export default function CommunityChat({ onClose }) {
-  console.log("[COMMUNITY] CommunityChat rendering...");
-  const [messages,    setMessages]    = useState([]);
-  const [input,       setInput]       = useState("");
-  const [users,       setUsers]       = useState([]);
-  const [voiceState,  setVoiceState]  = useState("idle"); // idle | speaking | others_speaking
-  const [speaker,     setSpeaker]     = useState(null);
-  const [unread,      setUnread]      = useState(0);
-  const [tab,         setTab]         = useState("chat"); // chat | users
+  const [messages,   setMessages]   = useState([]);
+  const [input,      setInput]      = useState("");
+  const [users,      setUsers]      = useState([]);
+  const [voiceState, setVoiceState] = useState("idle");
+  const [speaker,    setSpeaker]    = useState(null);
+  const [tab,        setTab]        = useState("chat");
+  const [myId,       setMyId]       = useState("");
 
-  const sockRef      = useRef(null);
-  const chatEndRef   = useRef(null);
-  const peerRef      = useRef(null);
-  const streamRef    = useRef(null);
-  const audioRef     = useRef(null);
+  const sockRef    = useRef(null);
+  const chatEndRef = useRef(null);
+  const audioRef   = useRef(null);
+  const peerRef    = useRef(null);
+  const streamRef  = useRef(null);
+  const myIdRef    = useRef("");
 
   const runtimePhone  = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const runtimeName   = useRuntimeCustomerIdentityStore(s => s.identity?.fullName);
   const runtimeAvatar = useRuntimeCustomerIdentityStore(s => s.identity?.avatar);
   const profile       = useAuthStore(s => s.profile);
 
-  const myPhone = (() => {
+  const getMyInfo = useCallback(() => {
     for (const src of [runtimePhone, profile?.phone]) {
       if (!src || src === "pending") continue;
       const n = src.replace(/\D/g,"").replace(/^84/,"0");
-      if (n.length >= 9) return n;
+      if (n.length >= 9) return {
+        phone: n,
+        name:  runtimeName || profile?.name || "Cing iu",
+        avatar: runtimeAvatar || profile?.avatar || "",
+      };
     }
-    return "";
-  })();
-  const myName   = runtimeName   || profile?.name || "Cing iu";
-  const myAvatar = runtimeAvatar || profile?.avatar || "";
+    return { phone: "", name: runtimeName || profile?.name || "Cing iu", avatar: runtimeAvatar || profile?.avatar || "" };
+  }, [runtimePhone, runtimeName, runtimeAvatar, profile]);
 
   useEffect(() => {
     const s = io(`${GAME_SERVER}/community`, { transports:["websocket"] });
     sockRef.current = s;
 
     s.on("connect", () => {
-      // Emit join với info hiện tại
-      const phone = (useRuntimeCustomerIdentityStore.getState().identity?.phone||"").replace(/\D/g,"").replace(/^84/,"0");
-      const name  = useRuntimeCustomerIdentityStore.getState().identity?.fullName || "Cing iu";
-      const avatar = useRuntimeCustomerIdentityStore.getState().identity?.avatar || "";
-      const uid = (phone && phone !== "pending" && phone.length >= 9) ? phone : ("guest-" + Date.now());
-      s.emit("community:join", { userId: uid, name, avatar });
+      // Lấy info tại thời điểm connect
+      const info = getMyInfo();
+      const uid  = info.phone || ("guest-" + s.id);
+      myIdRef.current = uid;
+      setMyId(uid);
+      s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar });
     });
 
     s.on("community:history", (history) => {
-      setMessages(history);
+      setMessages(history || []);
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 100);
     });
 
     s.on("community:chat", (msg) => {
-      setMessages(prev => {
-        // Tránh duplicate nếu là tin nhắn của chính mình
-        const isDup = prev.some(m => m.timestamp === msg.timestamp && m.userId === msg.userId);
-        return isDup ? prev : [...prev, msg];
-      });
+      setMessages(prev => [...prev, msg]);
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 50);
     });
 
-    s.on("community:users", (list) => setUsers(list));
-    s.on("community:user_joined", (u) => setUsers(prev => [...prev.filter(p=>p.userId!==u.userId), u]));
-    s.on("community:user_left",   (u) => setUsers(prev => prev.filter(p=>p.userId!==u.userId)));
+    s.on("community:users",       (list) => setUsers(list));
+    s.on("community:user_joined", (u)    => setUsers(prev => [...prev.filter(p=>p.userId!==u.userId), u]));
+    s.on("community:user_left",   (u)    => setUsers(prev => prev.filter(p=>p.userId!==u.userId)));
+    s.on("community:voice_start", ({userId}) => { setSpeaker(userId); if (userId !== myIdRef.current) setVoiceState("others_speaking"); });
+    s.on("community:voice_end",   ()    => { setSpeaker(null); setVoiceState("idle"); });
 
-    s.on("community:voice_start", ({ userId }) => {
-      setSpeaker(userId);
-      if (userId !== myPhone) {
-        setVoiceState("others_speaking");
-        // Nhận audio stream từ speaker
-      }
-    });
-
-    s.on("community:voice_end", () => {
-      setSpeaker(null);
-      setVoiceState("idle");
-      // Dừng nhận audio
-    });
-
-    s.on("community:signal", async ({ userId, signal }) => {
+    s.on("community:signal", async ({ signal }) => {
       if (!peerRef.current) return;
       try {
         if (signal.type === "offer") {
           await peerRef.current.setRemoteDescription(signal);
           const answer = await peerRef.current.createAnswer();
           await peerRef.current.setLocalDescription(answer);
-          s.emit("community:signal", { userId: myPhone, signal: answer });
+          s.emit("community:signal", { userId: myIdRef.current, signal: answer });
         } else if (signal.type === "answer") {
           await peerRef.current.setRemoteDescription(signal);
         } else if (signal.candidate) {
@@ -99,64 +85,63 @@ export default function CommunityChat({ onClose }) {
     });
 
     return () => s.disconnect();
-  }, [myPhone]);
+  }, []); // Chỉ mount 1 lần — không re-run khi myPhone thay đổi
 
-  // Push-to-talk: giữ để nói
+  // Khi phone resolve sau khi đã connect — emit join lại với đúng phone
+  useEffect(() => {
+    const info = getMyInfo();
+    if (!info.phone || !sockRef.current?.connected) return;
+    if (myIdRef.current === info.phone) return; // Đã join đúng rồi
+    myIdRef.current = info.phone;
+    setMyId(info.phone);
+    sockRef.current.emit("community:join", { userId: info.phone, name: info.name, avatar: info.avatar });
+  }, [runtimePhone, getMyInfo]);
+
+  const sendChat = () => {
+    if (!input.trim() || !sockRef.current?.connected) return;
+    const info = getMyInfo();
+    const uid  = myIdRef.current || info.phone || ("guest-" + Date.now());
+    sockRef.current.emit("community:chat", {
+      userId:  uid,
+      name:    info.name,
+      avatar:  info.avatar,
+      message: input.trim(),
+    });
+    setInput("");
+  };
+
   const startVoice = async () => {
-    if (speaker && speaker !== myPhone) return; // Người khác đang nói
+    if (speaker && speaker !== myIdRef.current) return;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
       streamRef.current = stream;
-
-      // Tạo peer connections đến tất cả user
-      const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+      const pc = new RTCPeerConnection({ iceServers:[{ urls:"stun:stun.l.google.com:19302" }] });
       peerRef.current = pc;
       stream.getTracks().forEach(t => pc.addTrack(t, stream));
-
-      pc.onicecandidate = (e) => {
-        if (e.candidate) sockRef.current?.emit("community:signal", { userId: myPhone, signal: e.candidate });
-      };
-      pc.ontrack = (e) => {
-        if (audioRef.current) audioRef.current.srcObject = e.streams[0];
-      };
-
+      pc.onicecandidate = e => { if (e.candidate) sockRef.current?.emit("community:signal", { userId: myIdRef.current, signal: e.candidate }); };
+      pc.ontrack = e => { if (audioRef.current) audioRef.current.srcObject = e.streams[0]; };
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      sockRef.current?.emit("community:signal", { userId: myPhone, signal: offer });
-      sockRef.current?.emit("community:voice_start", { userId: myPhone });
+      sockRef.current?.emit("community:signal",     { userId: myIdRef.current, signal: offer });
+      sockRef.current?.emit("community:voice_start", { userId: myIdRef.current });
       setVoiceState("speaking");
-      setSpeaker(myPhone);
-    } catch(e) {
-      console.warn("Voice failed:", e.message);
-    }
+      setSpeaker(myIdRef.current);
+    } catch(e) { console.warn("Voice failed:", e.message); }
   };
 
   const endVoice = () => {
-    peerRef.current?.close();
-    peerRef.current = null;
-    streamRef.current?.getTracks().forEach(t => t.stop());
-    streamRef.current = null;
-    sockRef.current?.emit("community:voice_end", { userId: myPhone });
-    setVoiceState("idle");
-    setSpeaker(null);
+    peerRef.current?.close(); peerRef.current = null;
+    streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null;
+    if (audioRef.current) audioRef.current.srcObject = null;
+    sockRef.current?.emit("community:voice_end", { userId: myIdRef.current });
+    setVoiceState("idle"); setSpeaker(null);
   };
 
-  const sendChat = () => {
-    if (!input.trim()) return;
-    const phone = myPhone || "guest-" + Date.now();
-    const name  = myName  || "Cing iu";
-    sockRef.current?.emit("community:chat", { userId: phone, name, avatar: myAvatar, message: input.trim() });
-    // Hiện tin nhắn của mình ngay lập tức
-    setMessages(prev => [...prev, { userId: phone, name, avatar: myAvatar, message: input.trim(), timestamp: Date.now() }]);
-    setInput("");
-    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 50);
-  };
-
-  const isMe = (uid) => uid === myPhone;
+  const isMe = (uid) => uid === myId || uid === myIdRef.current;
   const speakerUser = users.find(u => u.userId === speaker);
 
   return (
-    <div style={{ position:"fixed", inset:0, zIndex:500, background:"rgba(0,0,0,0.92)", display:"flex", flexDirection:"column" }}>
+    <div style={{ position:"fixed", inset:0, zIndex:500, background:"#080810", display:"flex", flexDirection:"column" }}>
       <audio ref={audioRef} autoPlay style={{ display:"none" }}/>
 
       {/* Header */}
@@ -167,19 +152,19 @@ export default function CommunityChat({ onClose }) {
           <p style={{ color:"#555", fontSize:11, margin:0 }}>{users.length} người đang online</p>
         </div>
         <div style={{ display:"flex", gap:4 }}>
-          {["chat","users"].map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{
+          {[{k:"chat",l:"💬 Chat"},{k:"users",l:`👥 ${users.length}`}].map(t => (
+            <button key={t.k} onClick={() => setTab(t.k)} style={{
               padding:"5px 12px", borderRadius:8, border:"none", cursor:"pointer", fontSize:11, fontWeight:700,
-              background: tab===t ? "#D4531C" : "rgba(255,255,255,0.06)",
-              color: tab===t ? "white" : "#888",
-            }}>{t === "chat" ? "💬 Chat" : `👥 ${users.length}`}</button>
+              background: tab===t.k ? "#D4531C" : "rgba(255,255,255,0.06)",
+              color: tab===t.k ? "white" : "#888",
+            }}>{t.l}</button>
           ))}
         </div>
       </div>
 
       {/* Voice status */}
       {speaker && (
-        <div style={{ padding:"8px 16px", background: voiceState==="speaking" ? "rgba(0,200,100,0.15)" : "rgba(255,100,0,0.1)", borderBottom:"1px solid rgba(255,255,255,0.06)", display:"flex", alignItems:"center", gap:8 }}>
+        <div style={{ padding:"8px 16px", background: voiceState==="speaking"?"rgba(0,200,100,0.15)":"rgba(255,100,0,0.1)", borderBottom:"1px solid rgba(255,255,255,0.06)", display:"flex", alignItems:"center", gap:8 }}>
           <div style={{ width:8, height:8, borderRadius:4, background: voiceState==="speaking"?"#00c864":"#FF6B35", animation:"pulse 1s infinite" }}/>
           <p style={{ color: voiceState==="speaking"?"#00c864":"#FF6B35", fontSize:12, fontWeight:700, margin:0 }}>
             {voiceState==="speaking" ? "🎙️ Bạn đang nói..." : `🎙️ ${speakerUser?.name||speaker} đang nói...`}
@@ -198,14 +183,14 @@ export default function CommunityChat({ onClose }) {
           )}
           {messages.map((m, i) => (
             <div key={i} style={{ display:"flex", flexDirection:"column", alignItems: isMe(m.userId)?"flex-end":"flex-start" }}>
-              {!isMe(m.userId) && <p style={{ color:"#555", fontSize:10, margin:"0 0 3px 8px" }}>{m.name}</p>}
+              {!isMe(m.userId) && <p style={{ color:"#666", fontSize:10, margin:"0 0 3px 8px" }}>{m.name}</p>}
               <div style={{ display:"flex", alignItems:"flex-end", gap:6, flexDirection: isMe(m.userId)?"row-reverse":"row" }}>
                 {!isMe(m.userId) && (
                   <div style={{ width:28, height:28, borderRadius:14, background:"#1a1a2e", flexShrink:0, overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:900, color:"#666" }}>
                     {m.avatar ? <img src={m.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (m.name||"?")[0]}
                   </div>
                 )}
-                <div style={{ background: isMe(m.userId)?"#D4531C":"rgba(255,255,255,0.08)", borderRadius: isMe(m.userId)?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"8px 12px", maxWidth:"72%" }}>
+                <div style={{ background: isMe(m.userId)?"#D4531C":"rgba(255,255,255,0.1)", borderRadius: isMe(m.userId)?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"8px 12px", maxWidth:"75%" }}>
                   <p style={{ color:"white", fontSize:13, margin:0, lineHeight:1.4 }}>{m.message}</p>
                 </div>
               </div>
@@ -223,34 +208,26 @@ export default function CommunityChat({ onClose }) {
               </div>
               <div>
                 <p style={{ color: isMe(u.userId)?"#FFD700":"white", fontSize:13, fontWeight:700, margin:0 }}>{u.name}{isMe(u.userId)?" (bạn)":""}</p>
-                {speaker === u.userId && <p style={{ color:"#00c864", fontSize:10, margin:0 }}>🎙️ Đang nói</p>}
+                {speaker===u.userId && <p style={{ color:"#00c864", fontSize:10, margin:0 }}>🎙️ Đang nói</p>}
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Bottom: input + voice */}
+      {/* Bottom */}
       <div style={{ padding:"8px 16px calc(env(safe-area-inset-bottom,0px) + 8px)", background:"#0d0d18", borderTop:"1px solid rgba(255,255,255,0.06)", display:"flex", gap:8, alignItems:"center" }}>
-        {/* Voice button — giữ để nói */}
-        <button
-          onPointerDown={startVoice}
-          onPointerUp={endVoice}
-          onPointerLeave={endVoice}
-          disabled={!!(speaker && speaker !== myPhone)}
-          style={{
-            width:44, height:44, borderRadius:22, border:"none", cursor: (speaker && speaker !== myPhone)?"not-allowed":"pointer", flexShrink:0,
-            background: voiceState==="speaking" ? "#00c864" : speaker ? "rgba(255,100,0,0.3)" : "rgba(255,255,255,0.08)",
-            display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
-          }}>
+        <button onPointerDown={startVoice} onPointerUp={endVoice} onPointerLeave={endVoice}
+          disabled={!!(speaker && speaker !== myIdRef.current)}
+          style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer", flexShrink:0,
+            background: voiceState==="speaking"?"#00c864":speaker?"rgba(255,100,0,0.3)":"rgba(255,255,255,0.08)",
+            display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>
           {voiceState==="speaking" ? "🔴" : "🎙️"}
         </button>
-
         <input value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key==="Enter" && sendChat()}
           placeholder="Nhập tin nhắn..." maxLength={200}
           style={{ flex:1, background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:20, padding:"10px 16px", color:"white", fontSize:13, outline:"none" }}/>
-
         <button onClick={sendChat} disabled={!input.trim()}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer", flexShrink:0,
             background: input.trim()?"#D4531C":"rgba(255,255,255,0.06)",
@@ -258,7 +235,6 @@ export default function CommunityChat({ onClose }) {
           ➤
         </button>
       </div>
-
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
     </div>
   );
