@@ -1009,8 +1009,7 @@ export default function ChessGame({ onExit }) {
                 💎 Tặng điểm cho đối thủ
               </p>
               <p style={{ color:"rgba(255,150,0,0.7)", fontSize:10, margin:"0 0 14px", textAlign:"center", lineHeight:1.5 }}>
-                ⚠️ Điểm sẽ bị trừ từ tài khoản thật của bạn{"
-"}và đối thủ nhận điểm có giá trị thật
+                ⚠️ Điểm trừ từ tài khoản thật · Đối thủ nhận điểm có giá trị thật
               </p>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                 {[
