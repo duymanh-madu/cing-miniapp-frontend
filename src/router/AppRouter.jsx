@@ -22,16 +22,46 @@ const PAGE_NAMES = {
 function PageTracker() {
   const location = useLocation();
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const runtimeName  = useRuntimeCustomerIdentityStore(s => s.identity?.fullName);
+  const runtimeAvatar = useRuntimeCustomerIdentityStore(s => s.identity?.avatar);
 
+  const getPhone = () => {
+    const p = (runtimePhone||"").replace(/\D/g,"").replace(/^84/,"0");
+    return p.length >= 9 && p !== "pending" ? p : null;
+  };
+
+  // Emit user:online khi phone ready
   useEffect(() => {
-    const phone = (runtimePhone||"").replace(/\D/g,"").replace(/^84/,"0");
-    if (!phone || phone === "pending") return;
-    const path = location.pathname;
-    const pageName = PAGE_NAMES[path] || path;
-    const socket = getRuntimeSocket();
-    if (socket?.connected) {
-      socket.emit("user:page", { userId: phone, page: pageName, action: "" });
-    }
+    const phone = getPhone();
+    if (!phone) return;
+    let attempts = 0;
+    const tryEmit = () => {
+      const socket = getRuntimeSocket();
+      if (socket?.connected) {
+        socket.emit("user:online", { userId: phone, name: runtimeName||"", avatar: runtimeAvatar||"" });
+        console.log("[TRACKER] user:online emitted for", phone);
+      } else if (attempts++ < 20) {
+        setTimeout(tryEmit, 1000);
+      }
+    };
+    tryEmit();
+  }, [runtimePhone]);
+
+  // Emit user:page khi route thay đổi
+  useEffect(() => {
+    const phone = getPhone();
+    if (!phone) return;
+    const pageName = PAGE_NAMES[location.pathname] || location.pathname;
+    let attempts = 0;
+    const tryEmit = () => {
+      const socket = getRuntimeSocket();
+      if (socket?.connected) {
+        socket.emit("user:page", { userId: phone, page: pageName, action: "" });
+      } else if (attempts++ < 10) {
+        setTimeout(tryEmit, 1000);
+      }
+    };
+    tryEmit();
   }, [location.pathname, runtimePhone]);
 
   return null;
