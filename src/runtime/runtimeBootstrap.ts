@@ -77,6 +77,24 @@ export async function bootstrapRuntime() {
   initializeRuntimeSocket();
   await initializeRealtimeOrchestrator();
 
+  // Expose identity store cho socket client
+  (window as any).__runtimeIdentityStore = useRuntimeCustomerIdentityStore;
+
+  // Subscribe để emit user:online khi phone được resolve
+  useRuntimeCustomerIdentityStore.subscribe((state: any) => {
+    const phone = (state.identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+    if (phone && phone !== "pending" && phone.length >= 9) {
+      const socket = (window as any).__runtimeSocket;
+      if (socket?.connected) {
+        socket.emit("user:online", {
+          userId: phone,
+          name: state.identity?.fullName || "",
+          avatar: state.identity?.avatar || "",
+        });
+      }
+    }
+  });
+
   console.log("[RUNTIME] BOOTSTRAP COMPLETED");
 }
 
