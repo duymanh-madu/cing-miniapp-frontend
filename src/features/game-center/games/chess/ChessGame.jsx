@@ -756,7 +756,8 @@ export default function ChessGame({ onExit }) {
       {showChat && (
         <div style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:250,
           background:"rgba(10,6,4,0.97)", borderRadius:"20px 20px 0 0",
-          border:"1px solid rgba(255,215,0,0.2)", maxHeight:"50vh", display:"flex", flexDirection:"column" }}>
+          border:"1px solid rgba(255,215,0,0.2)", height:"45vh", display:"flex", flexDirection:"column",
+          pointerEvents:"all" }}>
           <div style={{ padding:"12px 16px 8px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
             <p style={{ color:"#FFD700", fontSize:13, fontWeight:800, margin:0 }}>💬 Chat trong ván</p>
             <button onClick={() => setShowChat(false)} style={{ background:"none", border:"none", color:"#666", fontSize:18, cursor:"pointer" }}>✕</button>
