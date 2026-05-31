@@ -12,6 +12,9 @@ export default function CommunityChat({ onClose }) {
   const [voiceState, setVoiceState] = useState("idle");
   const [speaker,    setSpeaker]    = useState(null);
   const [tab,        setTab]        = useState("chat");
+  const [debugLog,   setDebugLog]   = useState([]);
+
+  const addLog = (msg) => setDebugLog(prev => [...prev.slice(-10), msg]);
   const [myId,       setMyId]       = useState("");
 
   const sockRef    = useRef(null);
@@ -44,16 +47,15 @@ export default function CommunityChat({ onClose }) {
     sockRef.current = s;
 
     s.on("connect", () => {
-      console.log("[COMMUNITY] Connected:", s.id);
       const info = getMyInfo();
       const uid  = info.phone || ("guest-" + s.id);
       myIdRef.current = uid;
       setMyId(uid);
-      console.log("[COMMUNITY] Joining as:", uid, info.name);
+      addLog(`✅ Connected: ${uid}`);
       s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar });
     });
 
-    s.on("connect_error", (e) => console.error("[COMMUNITY] Connect error:", e.message));
+    s.on("connect_error", (e) => addLog(`❌ Error: ${e.message}`));
 
     s.on("community:history", (history) => {
       setMessages(history || []);
@@ -101,7 +103,7 @@ export default function CommunityChat({ onClose }) {
   }, [runtimePhone, getMyInfo]);
 
   const sendChat = () => {
-    console.log("[COMMUNITY] sendChat", { input, connected: sockRef.current?.connected, myId: myIdRef.current });
+    addLog(`Send: connected=${sockRef.current?.connected} myId=${myIdRef.current}`);
     if (!input.trim() || !sockRef.current?.connected) return;
     const info = getMyInfo();
     const uid  = myIdRef.current || info.phone || ("guest-" + Date.now());
@@ -165,6 +167,13 @@ export default function CommunityChat({ onClose }) {
           ))}
         </div>
       </div>
+
+      {/* Debug panel */}
+      {debugLog.length > 0 && (
+        <div style={{ background:"#000", padding:"8px 12px", fontSize:10, color:"#0f0", fontFamily:"monospace", maxHeight:80, overflowY:"auto" }}>
+          {debugLog.map((l,i) => <div key={i}>{l}</div>)}
+        </div>
+      )}
 
       {/* Voice status */}
       {speaker && (
