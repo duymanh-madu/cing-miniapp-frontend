@@ -727,7 +727,7 @@ export default function ChessGame({ onExit }) {
 
       {/* Emoji picker */}
       {showEmoji && (
-        <div style={{ position:"absolute", bottom:"100%", left:"50%", transform:"translateX(-50%)", marginBottom:8, zIndex:300,
+        <div style={{ position:"fixed", bottom:120, left:"50%", transform:"translateX(-50%)", zIndex:300,
           background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"12px",
           border:"1px solid rgba(255,215,0,0.2)", display:"flex", gap:8, flexWrap:"wrap",
           maxWidth:220, pointerEvents:"all" }}>
@@ -742,9 +742,9 @@ export default function ChessGame({ onExit }) {
 
       {/* Tip picker */}
       {showTip && (
-        <div style={{ position:"absolute", bottom:"100%", left:"50%", transform:"translateX(-50%)", marginBottom:8, zIndex:300,
+        <div style={{ position:"fixed", bottom:120, left:16, right:16, zIndex:300,
           background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"14px",
-          border:"1px solid rgba(255,215,0,0.2)", pointerEvents:"all", minWidth:180 }}>
+          border:"1px solid rgba(255,215,0,0.2)", pointerEvents:"all" }}>
           <p style={{ color:"#FFD700", fontSize:12, fontWeight:800, margin:"0 0 10px", textAlign:"center" }}>
             💎 Tặng điểm cho đối thủ
           </p>
@@ -772,7 +772,7 @@ export default function ChessGame({ onExit }) {
       )}
 
       {/* Action buttons — nằm ngang dưới bàn cờ */}
-      <div style={{ position:"relative", display:"flex", gap:10, justifyContent:"center", padding:"6px 0", zIndex:200, pointerEvents:"all" }}>
+      <div style={{ position:"relative", display:"flex", gap:10, justifyContent:"center", padding:"8px 0 16px", zIndex:200, pointerEvents:"all" }}>
         <button onClick={() => { setShowEmoji(v => !v); setShowTip(false); setShowChat(false); }}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
             background: showEmoji?"#FF9632":"rgba(255,150,50,0.85)",
