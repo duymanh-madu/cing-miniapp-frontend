@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { io } from "socket.io-client";
 import { Chess } from "chess.js";
 import useAuthStore from "@/stores/auth/authStore";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import ChessLeaderboard from "./ChessLeaderboard";
 
 const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
@@ -113,9 +114,18 @@ const PIECE_SHADOW = { w:"rgba(0,0,0,0.5)", b:"rgba(255,255,255,0.15)" };
 
 export default function ChessGame({ onExit }) {
   const profile  = useAuthStore(s => s.profile);
-  const userId   = profile?.id || profile?.phone;
-  const userName = profile?.name || profile?.zalo_name || "Cing iu";
-  const userAvatar = profile?.avatar || "";
+  const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
+  
+  const userId = (() => {
+    for (const src of [runtimeIdentity?.phone, profile?.phone]) {
+      if (!src || src === "pending") continue;
+      const n = src.replace(/\D/g,"").replace(/^84/,"0");
+      if (n.length >= 9) return n;
+    }
+    return profile?.id || "";
+  })();
+  const userName = runtimeIdentity?.fullName || profile?.name || profile?.zalo_name || profile?.displayName || "Cing iu";
+  const userAvatar = runtimeIdentity?.avatar || profile?.avatar || "";
 
   const sockRef  = useRef(null);
   const [phase,  setPhase]  = useState("lobby"); // lobby | searching | playing | gameover
@@ -330,14 +340,16 @@ export default function ChessGame({ onExit }) {
 
 
   const sendEmoji = (emoji) => {
+    console.log("[EMOJI]", { gameId: gameIdRef.current, userId: userIdRef.current, emoji });
     if (!gameIdRef.current) return;
     sockRef.current?.emit("chess:emoji", { gameId: gameIdRef.current, userId: userIdRef.current, emoji });
     setShowEmoji(false);
   };
 
   const sendTip = (amount) => {
-    if (!gameIdRef.current || !opponent) return;
-    const opponentId = opponent.userId || opponent.id;
+    console.log("[TIP]", { gameId: gameIdRef.current, opponent, amount });
+    if (!gameIdRef.current) return;
+    const opponentId = opponent?.userId || opponent?.id || "";
     sockRef.current?.emit("chess:tip", {
       gameId: gameIdRef.current,
       fromUserId: userIdRef.current,
@@ -349,7 +361,12 @@ export default function ChessGame({ onExit }) {
 
   const findMatch = useCallback(() => {
     if (!userId) return;
-    sockRef.current?.emit("chess:find", { userId, name: userName, avatar: userAvatar });
+    // Lấy tên mới nhất từ runtime store tại thời điểm bấm
+    const rtName = useRuntimeCustomerIdentityStore.getState().identity?.fullName;
+    const rtAvatar = useRuntimeCustomerIdentityStore.getState().identity?.avatar;
+    const name = rtName || userName;
+    const avatar = rtAvatar || userAvatar;
+    sockRef.current?.emit("chess:find", { userId, name, avatar });
   }, [userId, userName, userAvatar]);
 
   const cancelSearch = useCallback(() => {
