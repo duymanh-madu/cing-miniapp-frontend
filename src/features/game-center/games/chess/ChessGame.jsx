@@ -322,6 +322,7 @@ export default function ChessGame({ onExit }) {
 
   // Send chat
   const sendChat = () => {
+    console.log("[CHESS CHAT] sendChat", { chatInput, gameId: gameIdRef.current, userId: userIdRef.current, connected: sockRef.current?.connected });
     if (!chatInput.trim() || !gameIdRef.current) return;
     sockRef.current?.emit("chess:chat", {
       gameId: gameIdRef.current,
