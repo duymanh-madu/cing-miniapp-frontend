@@ -3,6 +3,7 @@ import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
+import CommunityChat from "../components/CommunityChat";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import GameLeaderboard from "../components/GameLeaderboard";
@@ -59,7 +60,9 @@ export default function GameCenterPage() {
       if (attempts++ < 20) setTimeout(attach, 1000);
     };
     attach();
-    return () => { getRuntimeSocket()?.off("challenge.won"); };
+    if (showChat) return <CommunityChat onClose={() => setShowChat(false)} />;
+
+  return () => { getRuntimeSocket()?.off("challenge.won"); };
   }, []);
 
   const handleGameOver = async ({ bestCombo, score }) => {
@@ -225,5 +228,14 @@ export default function GameCenterPage() {
         </>
       )}
     </div>
+    {/* Community Chat Button */}
+      <button onClick={() => setShowChat(true)}
+        style={{ position:"fixed", bottom:80, right:16, zIndex:100,
+          width:52, height:52, borderRadius:26, border:"none", cursor:"pointer",
+          background:"linear-gradient(135deg,#D4531C,#FF6B35)",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          fontSize:22, boxShadow:"0 4px 16px rgba(212,83,28,0.5)" }}>
+        💬
+      </button>
   );
 }
