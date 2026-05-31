@@ -60,7 +60,8 @@ export default function GameCenterPage() {
       if (attempts++ < 20) setTimeout(attach, 1000);
     };
     attach();
-    if (showChat) return <CommunityChat onClose={() => setShowChat(false)} />;
+
+  if (showChat) return <CommunityChat onClose={() => setShowChat(false)} />;
 
   return () => { getRuntimeSocket()?.off("challenge.won"); };
   }, []);
