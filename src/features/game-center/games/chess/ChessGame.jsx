@@ -320,7 +320,7 @@ export default function ChessGame({ onExit }) {
       const n = src.replace(/\D/g,"").replace(/^84/,"0");
       if (n.length >= 9) return n;
     }
-    return profile?.id || "";
+    return ""; // Không dùng UUID — phải là phone
   })();
   const userName = runtimeIdentity?.fullName || profile?.name || profile?.zalo_name || profile?.displayName || "Cing iu";
   const userAvatar = runtimeIdentity?.avatar || profile?.avatar || "";
