@@ -385,9 +385,8 @@ export default function ChessGame({ onExit }) {
     if (chess.turn() !== myColor) return; // không phải lượt mình
 
     if (selected) {
-      // Thử di chuyển
+      // Thử di chuyển — kể cả ô có quân đối phương (ăn quân)
       if (legalMoves.includes(sq)) {
-        // Kiểm tra phong cờ
         const piece = chess.get(selected);
         const isPromotion = piece?.type === "p" &&
           ((myColor === "w" && sq[1] === "8") || (myColor === "b" && sq[1] === "1"));
@@ -401,9 +400,18 @@ export default function ChessGame({ onExit }) {
         setLegalMoves([]);
         return;
       }
-      // Chọn quân khác
+      // Nếu click vào quân mình khác → đổi selection
+      const clickedPiece = chess.get(sq);
+      if (clickedPiece && clickedPiece.color === myColor) {
+        const moves = chess.moves({ square: sq, verbose: true }).map(m => m.to);
+        setSelected(sq);
+        setLegalMoves(moves);
+        return;
+      }
+      // Click vào ô trống không hợp lệ → bỏ selection
       setSelected(null);
       setLegalMoves([]);
+      return;
     }
 
     const piece = chess.get(sq);
@@ -596,6 +604,12 @@ export default function ChessGame({ onExit }) {
       display:"flex", flexDirection:"column", alignItems:"center",
       paddingTop:"env(safe-area-inset-top, 0px)" }}>
 
+      {/* Branding */}
+      <div style={{ width:"100%", textAlign:"center", padding:"4px 0 2px", background:"#0a0604" }}>
+        <p style={{ color:"#FFD700", fontSize:13, fontWeight:900, margin:0, letterSpacing:1 }}>Cing Hu Tang Kinh Bắc</p>
+        <p style={{ color:"#FFD700", fontSize:10, fontWeight:500, margin:0, opacity:0.6 }}>Kỳ thủ cờ vua</p>
+      </div>
+
       {/* Đối thủ (trên) */}
       <div style={{ width:"100%", maxWidth:480, padding:"10px 16px",
         display:"flex", alignItems:"center", gap:12, flexShrink:0,
@@ -638,8 +652,6 @@ export default function ChessGame({ onExit }) {
 
       {/* Bàn cờ — flex:1 để fill hết phần giữa */}
       <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", width:"100%", padding:"4px 0" }}>
-        <p style={{ color:"#FFD700", fontSize:18, fontWeight:900, margin:"0 0 2px", letterSpacing:1, textShadow:"0 0 10px rgba(255,215,0,0.4)" }}>Cing Hu Tang Kinh Bắc</p>
-        <p style={{ color:"#FFD700", fontSize:12, fontWeight:600, margin:"0 0 6px", opacity:0.7 }}>Kỳ thủ cờ vua</p>
         {renderBoard()}
       </div>
 
@@ -715,7 +727,7 @@ export default function ChessGame({ onExit }) {
 
       {/* Emoji picker */}
       {showEmoji && (
-        <div style={{ position:"fixed", bottom:240, right:68, zIndex:300,
+        <div style={{ position:"absolute", bottom:"100%", left:"50%", transform:"translateX(-50%)", marginBottom:8, zIndex:300,
           background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"12px",
           border:"1px solid rgba(255,215,0,0.2)", display:"flex", gap:8, flexWrap:"wrap",
           maxWidth:220, pointerEvents:"all" }}>
@@ -730,7 +742,7 @@ export default function ChessGame({ onExit }) {
 
       {/* Tip picker */}
       {showTip && (
-        <div style={{ position:"fixed", bottom:170, right:68, zIndex:300,
+        <div style={{ position:"absolute", bottom:"100%", left:"50%", transform:"translateX(-50%)", marginBottom:8, zIndex:300,
           background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"14px",
           border:"1px solid rgba(255,215,0,0.2)", pointerEvents:"all", minWidth:180 }}>
           <p style={{ color:"#FFD700", fontSize:12, fontWeight:800, margin:"0 0 10px", textAlign:"center" }}>
@@ -759,31 +771,25 @@ export default function ChessGame({ onExit }) {
         </div>
       )}
 
-      {/* Chat bubble button */}
-      <div style={{ position:"fixed", bottom:120, right:16, zIndex:200, display:"flex", flexDirection:"column", gap:8, pointerEvents:"all" }}>
-
-        {/* Emoji button */}
-        <button onClick={() => { setShowEmoji(v => !v); setShowTip(false); }}
+      {/* Action buttons — nằm ngang dưới bàn cờ */}
+      <div style={{ position:"relative", display:"flex", gap:10, justifyContent:"center", padding:"6px 0", zIndex:200, pointerEvents:"all" }}>
+        <button onClick={() => { setShowEmoji(v => !v); setShowTip(false); setShowChat(false); }}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
-            background:"rgba(255,150,50,0.9)",
+            background: showEmoji?"#FF9632":"rgba(255,150,50,0.85)",
             display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
             boxShadow:"0 4px 12px rgba(0,0,0,0.4)" }}>
           😄
         </button>
-
-        {/* Tip button */}
-        <button onClick={() => { setShowTip(v => !v); setShowEmoji(false); }}
+        <button onClick={() => { setShowTip(v => !v); setShowEmoji(false); setShowChat(false); }}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
-            background:"rgba(255,215,0,0.9)",
+            background: showTip?"#FFD700":"rgba(255,215,0,0.85)",
             display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
             boxShadow:"0 4px 12px rgba(0,0,0,0.4)" }}>
           💎
         </button>
-
-        {/* Chat button */}
-        <button onClick={() => { setShowChat(v => !v); setUnreadCount(0); }}
+        <button onClick={() => { setShowChat(v => !v); setShowEmoji(false); setShowTip(false); setUnreadCount(0); }}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
-            background:"rgba(255,215,0,0.9)", position:"relative",
+            background: showChat?"#D4531C":"rgba(255,255,255,0.15)", position:"relative",
             display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
             boxShadow:"0 4px 12px rgba(0,0,0,0.4)" }}>
           💬
