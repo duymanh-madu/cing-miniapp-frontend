@@ -128,9 +128,14 @@ export default function CommunityChat({ onClose }) {
   };
 
   const sendChat = () => {
-    if (!input.trim() || !myPhone) return;
-    sockRef.current?.emit("community:chat", { userId: myPhone, name: myName, avatar: myAvatar, message: input.trim() });
+    if (!input.trim()) return;
+    const phone = myPhone || "guest-" + Date.now();
+    const name  = myName  || "Cing iu";
+    sockRef.current?.emit("community:chat", { userId: phone, name, avatar: myAvatar, message: input.trim() });
+    // Hiện tin nhắn của mình ngay lập tức
+    setMessages(prev => [...prev, { userId: phone, name, avatar: myAvatar, message: input.trim(), timestamp: Date.now() }]);
     setInput("");
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 50);
   };
 
   const isMe = (uid) => uid === myPhone;
