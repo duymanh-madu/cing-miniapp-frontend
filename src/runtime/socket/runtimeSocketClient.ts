@@ -172,42 +172,26 @@ function bindVisibilityRecovery() {
 
       }
 
-      if (
-        runtimeSocket.connected
-      ) {
+      runtimeLogger.info("RUNTIME", "[SOCKET] VISIBILITY RECOVERY");
 
-        return;
-
-      }
-
-      runtimeLogger.info("RUNTIME", 
-        "[SOCKET] VISIBILITY RECOVERY"
-      );
-
-      runtimeSocket.connect();
-
-      // Emit user:online sau khi reconnect thành công
-      const waitAndEmit = (attempts = 0) => {
-        if (runtimeSocket?.connected) {
-          try {
-            const store = (window as any).__runtimeIdentityStore;
-            if (store) {
-              const identity = store.getState().identity;
-              const phone = (identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
-              if (phone && phone !== "pending" && phone.length >= 9) {
-                runtimeSocket.emit("user:online", {
-                  userId: phone,
-                  name: identity?.fullName || "",
-                  avatar: identity?.avatar || "",
-                });
-              }
+      // Luôn emit user:online khi app visible lại — dù connected hay không
+      const emitOnline = () => {
+        try {
+          const store = (window as any).__runtimeIdentityStore;
+          if (!store) return;
+          const identity = store.getState().identity;
+          const phone = (identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+          if (phone && phone !== "pending" && phone.length >= 9) {
+            if (runtimeSocket?.connected) {
+              runtimeSocket.emit("user:online", { userId: phone, name: identity?.fullName||"", avatar: identity?.avatar||"" });
+            } else {
+              runtimeSocket?.connect();
+              setTimeout(emitOnline, 1000);
             }
-          } catch(e) {}
-        } else if (attempts < 10) {
-          setTimeout(() => waitAndEmit(attempts + 1), 500);
-        }
+          }
+        } catch(e) {}
       };
-      setTimeout(() => waitAndEmit(), 500);
+      emitOnline();
 
     };
 
