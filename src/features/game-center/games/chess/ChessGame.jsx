@@ -1072,7 +1072,7 @@ export default function ChessGame({ onExit }) {
                     fontSize:13, fontWeight:700, cursor:"pointer" }}>Gửi</button>
               </div>
             </div>
-        )}
+          )}
       </>, document.body)}
 
       {/* Action buttons — nằm ngang dưới bàn cờ */}
