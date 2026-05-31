@@ -717,7 +717,7 @@ export default function ChessGame({ onExit }) {
       {voiceState === "requesting" && (
         <div style={{ position:"fixed", top:80, left:16, right:16, zIndex:300,
           background:"rgba(0,200,100,0.95)", borderRadius:16, padding:"14px 18px",
-          display:"flex", alignItems:"center", gap:12 }}>
+          display:"flex", alignItems:"center", gap:12, pointerEvents:"all" }}>
           <span style={{ fontSize:24 }}>🎙️</span>
           <div style={{ flex:1 }}>
             <p style={{ color:"white", fontWeight:800, fontSize:13, margin:0 }}>Yêu cầu voice chat</p>
@@ -729,7 +729,7 @@ export default function ChessGame({ onExit }) {
       )}
 
       {/* Chat bubble button */}
-      <div style={{ position:"fixed", bottom:120, right:16, zIndex:200, display:"flex", flexDirection:"column", gap:8 }}>
+      <div style={{ position:"fixed", bottom:120, right:16, zIndex:200, display:"flex", flexDirection:"column", gap:8, pointerEvents:"all" }}>
         {/* Voice button */}
         <button onClick={voiceState === "active" ? endVoiceCall : requestVoice}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
