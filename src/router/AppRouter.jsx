@@ -80,9 +80,6 @@ function AuthRequired({ children }) {
   const authenticated = useAuthStore(s => s.authenticated);
   if (!authenticated) {
     return (
-    <>
-    <LeaderboardResetPopup />
-    <PendingRewardsBadge />
       <div style={{ display:"flex", flexDirection:"column", alignItems:"center",
         justifyContent:"center", minHeight:"70vh", padding:"24px", textAlign:"center" }}>
         <div style={{ fontSize:64, marginBottom:16 }}>🔐</div>
@@ -101,7 +98,10 @@ function AuthRequired({ children }) {
 
 export default function AppRouter() {
   return (
-    <HashRouter>
+    <>
+      <LeaderboardResetPopup />
+      <PendingRewardsBadge />
+      <HashRouter>
       <PageTracker />
       <AppLayout>
         <Suspense fallback={<AppLoadingScreen />}>
