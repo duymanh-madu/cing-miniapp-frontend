@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
+import { LeaderboardResetPopup, PendingRewardsBadge } from "@/features/rewards/components/RewardNotification";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "@/layouts/AppLayout";
@@ -79,6 +80,9 @@ function AuthRequired({ children }) {
   const authenticated = useAuthStore(s => s.authenticated);
   if (!authenticated) {
     return (
+    <>
+    <LeaderboardResetPopup />
+    <PendingRewardsBadge />
       <div style={{ display:"flex", flexDirection:"column", alignItems:"center",
         justifyContent:"center", minHeight:"70vh", padding:"24px", textAlign:"center" }}>
         <div style={{ fontSize:64, marginBottom:16 }}>🔐</div>
@@ -114,5 +118,6 @@ export default function AppRouter() {
         </Suspense>
       </AppLayout>
     </HashRouter>
+    </>
   );
 }

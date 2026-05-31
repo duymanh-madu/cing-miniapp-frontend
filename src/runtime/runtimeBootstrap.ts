@@ -115,6 +115,15 @@ export async function bootstrapRuntime() {
     }
   });
 
+  // Lắng nghe reset BXH — hiện popup toàn server
+  const socket = getRuntimeSocket();
+  if (socket) {
+    socket.on("leaderboard.weekly_reset", (data: any) => {
+      (window as any).__leaderboardResetMsg = data;
+      window.dispatchEvent(new CustomEvent("leaderboard_reset", { detail: data }));
+    });
+  }
+
   console.log("[RUNTIME] BOOTSTRAP COMPLETED");
 }
 
