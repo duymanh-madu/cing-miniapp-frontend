@@ -186,6 +186,29 @@ function bindVisibilityRecovery() {
 
       runtimeSocket.connect();
 
+      // Emit user:online sau khi reconnect thành công
+      const waitAndEmit = (attempts = 0) => {
+        if (runtimeSocket?.connected) {
+          try {
+            const store = (window as any).__runtimeIdentityStore;
+            if (store) {
+              const identity = store.getState().identity;
+              const phone = (identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+              if (phone && phone !== "pending" && phone.length >= 9) {
+                runtimeSocket.emit("user:online", {
+                  userId: phone,
+                  name: identity?.fullName || "",
+                  avatar: identity?.avatar || "",
+                });
+              }
+            }
+          } catch(e) {}
+        } else if (attempts < 10) {
+          setTimeout(() => waitAndEmit(attempts + 1), 500);
+        }
+      };
+      setTimeout(() => waitAndEmit(), 500);
+
     };
 
   document.addEventListener(
