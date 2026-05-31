@@ -47,7 +47,7 @@ function PageTracker() {
     tryEmit();
   }, [runtimePhone]);
 
-  // Emit user:page khi route thay đổi
+  // Emit user:page + user:online khi route thay đổi
   useEffect(() => {
     const phone = getPhone();
     if (!phone) return;
@@ -56,6 +56,8 @@ function PageTracker() {
     const tryEmit = () => {
       const socket = getRuntimeSocket();
       if (socket?.connected) {
+        // Emit cả 2 — đảm bảo user luôn trong onlineMap
+        socket.emit("user:online", { userId: phone, name: runtimeName||"", avatar: runtimeAvatar||"" });
         socket.emit("user:page", { userId: phone, page: pageName, action: "" });
       } else if (attempts++ < 10) {
         setTimeout(tryEmit, 1000);
