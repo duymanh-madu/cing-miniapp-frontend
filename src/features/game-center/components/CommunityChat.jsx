@@ -192,15 +192,7 @@ export default function CommunityChat({ onClose }) {
         </div>
       </div>
 
-      {/* Voice status */}
-      {speaker && (
-        <div style={{ padding:"8px 16px", background: voiceState==="speaking"?"rgba(0,200,100,0.15)":"rgba(255,100,0,0.1)", borderBottom:"1px solid rgba(255,255,255,0.06)", display:"flex", alignItems:"center", gap:8 }}>
-          <div style={{ width:8, height:8, borderRadius:4, background: voiceState==="speaking"?"#00c864":"#FF6B35", animation:"pulse 1s infinite" }}/>
-          <p style={{ color: voiceState==="speaking"?"#00c864":"#FF6B35", fontSize:12, fontWeight:700, margin:0 }}>
-            {voiceState==="speaking" ? "🎙️ Bạn đang nói..." : `🎙️ ${speakerUser?.name||speaker} đang nói...`}
-          </p>
-        </div>
-      )}
+
 
       {/* Content */}
       {tab === "chat" ? (
@@ -247,13 +239,7 @@ export default function CommunityChat({ onClose }) {
 
       {/* Bottom */}
       <div style={{ padding:"8px 16px calc(env(safe-area-inset-bottom,0px) + 8px)", background:"#0d0d18", borderTop:"1px solid rgba(255,255,255,0.06)", display:"flex", gap:8, alignItems:"center" }}>
-        <button onPointerDown={startVoice} onPointerUp={endVoice} onPointerLeave={endVoice}
-          disabled={!!(speaker && speaker !== myIdRef.current)}
-          style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer", flexShrink:0,
-            background: voiceState==="speaking"?"#00c864":speaker?"rgba(255,100,0,0.3)":"rgba(255,255,255,0.08)",
-            display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>
-          {voiceState==="speaking" ? "🔴" : "🎙️"}
-        </button>
+
         <input value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key==="Enter" && sendChat()}
           placeholder="Nhập tin nhắn..." maxLength={200}
