@@ -6,6 +6,203 @@ import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import ChessLeaderboard from "./ChessLeaderboard";
 
+// Bộ emoji trân châu đen độc quyền — SVG data URIs
+const PEARL_EMOJIS = [
+  { id:'laugh',  label:'Cười vỡ bụng',      color:'#c8f0ff' },
+  { id:'king',   label:'Nước đi của vua',    color:'#FFD700' },
+  { id:'cry',    label:'Thua đau lòng',      color:'#64b5f6' },
+  { id:'love',   label:'Yêu nước đi này',    color:'#ff6b9d' },
+  { id:'cold',   label:'Ông không quan tâm', color:'#a8edff' },
+  { id:'dizzy',  label:'Choáng toàn tập',    color:'#c8f0ff' },
+  { id:'rage',   label:'Điên tiết rồi',      color:'#ff4444' },
+  { id:'cool',   label:'Đại cao thủ',        color:'#00ff88' },
+  { id:'think',  label:'Mưu sâu kế hiểm',   color:'#64b5f6' },
+  { id:'rip',    label:'GG thua trắng tay',  color:'#c8f0ff' },
+];
+
+// Vẽ pearl emoji lên canvas và trả về data URL
+function drawPearlEmoji(id, size=144) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const s = c.getContext('2d');
+  const S = size;
+
+  function bg(c1,c2){
+    const g=s.createRadialGradient(S*.37,S*.3,S*.02,S*.5,S*.5,S*.5);
+    g.addColorStop(0,c1);g.addColorStop(.45,'#0d0d1e');g.addColorStop(1,c2);
+    s.beginPath();s.arc(S/2,S/2,S*.46,0,Math.PI*2);s.fillStyle=g;s.fill();
+    s.beginPath();s.arc(S/2,S/2,S*.46,0,Math.PI*2);
+    s.strokeStyle='rgba(168,237,255,0.12)';s.lineWidth=1;s.stroke();
+  }
+  function shine(col){
+    s.beginPath();s.ellipse(S*.36,S*.3,S*.14,S*.08,-.3,0,Math.PI*2);
+    s.fillStyle=col||'rgba(255,255,255,0.2)';s.fill();
+    s.beginPath();s.ellipse(S*.3,S*.26,S*.05,S*.03,-.3,0,Math.PI*2);
+    s.fillStyle='rgba(255,255,255,0.32)';s.fill();
+  }
+  function eye(cx,cy,iris){
+    s.beginPath();s.ellipse(cx*S,cy*S,S*.08,S*.09,0,0,Math.PI*2);s.fillStyle='#050508';s.fill();
+    s.beginPath();s.ellipse(cx*S,cy*S,S*.055,S*.065,0,0,Math.PI*2);s.fillStyle=iris;s.fill();
+    s.beginPath();s.ellipse((cx-.02)*S,(cy-.025)*S,S*.022,S*.018,0,0,Math.PI*2);s.fillStyle='white';s.globalAlpha=.9;s.fill();s.globalAlpha=1;
+  }
+  function brow(x1,y1,x2,y2,col,w){
+    s.beginPath();s.moveTo(x1*S,y1*S);s.lineTo(x2*S,y2*S);
+    s.strokeStyle=col;s.lineWidth=w||2;s.lineCap='round';s.stroke();
+  }
+  function mouth(x1,y1,x2,y2,mx,my,fill,inner){
+    s.beginPath();s.moveTo(x1*S,y1*S);s.quadraticCurveTo(mx*S,my*S,x2*S,y2*S);s.quadraticCurveTo(mx*S,(my-.08)*S,x1*S,y1*S);s.fillStyle=fill;s.fill();
+    s.beginPath();s.moveTo(x1*S,y1*S);s.quadraticCurveTo(mx*S,(my-.04)*S,x2*S,y2*S);s.fillStyle=inner;s.fill();
+  }
+  function heart(cx,cy,size,col){
+    const r=size*S;s.save();s.translate(cx*S,cy*S);
+    s.beginPath();s.moveTo(0,-r*.3);s.bezierCurveTo(r*.5,-r*1.,r*1.1,-r*.3,0,r*.7);s.bezierCurveTo(-r*1.1,-r*.3,-r*.5,-r*1.,0,-r*.3);
+    s.fillStyle=col;s.fill();s.restore();
+  }
+  function bigTear(cx,cy,col){
+    s.beginPath();s.moveTo(cx*S,(cy-.02)*S);
+    s.bezierCurveTo((cx-.04)*S,(cy+.04)*S,(cx-.05)*S,(cy+.1)*S,cx*S,(cy+.14)*S);
+    s.bezierCurveTo((cx+.05)*S,(cy+.1)*S,(cx+.04)*S,(cy+.04)*S,cx*S,(cy-.02)*S);
+    s.fillStyle=col;s.globalAlpha=.75;s.fill();s.globalAlpha=1;
+  }
+  function spiral(cx,cy,col){
+    s.beginPath();s.arc(cx*S,cy*S,S*.1,0,Math.PI*2);s.fillStyle='#050508';s.fill();
+    for(let i=0;i<3;i++){s.beginPath();s.arc(cx*S,cy*S,S*(.03+i*.025),0,Math.PI*1.7);s.strokeStyle=col;s.lineWidth=1.5;s.globalAlpha=.8-i*.2;s.stroke();s.globalAlpha=1;}
+  }
+  function xEye(cx,cy,col){
+    [[1,1],[-1,1]].forEach(([a,b])=>{s.beginPath();s.moveTo((cx-.07*a)*S,(cy-.07*b)*S);s.lineTo((cx+.07*a)*S,(cy+.07*b)*S);s.strokeStyle=col;s.lineWidth=2.5;s.lineCap='round';s.stroke();});
+  }
+  function eyeAngry(cx,cy,col){
+    s.beginPath();s.ellipse(cx*S,cy*S,S*.08,S*.085,0,0,Math.PI*2);s.fillStyle='#2a0000';s.fill();
+    s.beginPath();s.ellipse(cx*S,cy*S,S*.055,S*.06,0,0,Math.PI*2);s.fillStyle=col;s.fill();
+  }
+  function sunglasses(lens,frame){
+    [.3,.7].forEach(cx=>{
+      s.beginPath();s.ellipse(cx*S,.47*S,S*.12,S*.09,0,0,Math.PI*2);s.fillStyle=lens;s.fill();s.strokeStyle=frame;s.lineWidth=2;s.stroke();
+    });
+    s.beginPath();s.moveTo(.42*S,.47*S);s.lineTo(.58*S,.47*S);s.strokeStyle=frame;s.lineWidth=2;s.stroke();
+    [.18,.82].forEach(x=>{s.beginPath();s.moveTo(x*S,.45*S);s.lineTo(x*S,.38*S);s.strokeStyle=frame;s.lineWidth=2;s.lineCap='round';s.stroke();});
+  }
+  function star(cx,cy,sz,col){
+    const n=5,r1=sz*S,r2=r1*.4;s.beginPath();
+    for(let i=0;i<n*2;i++){const r=i%2?r2:r1,a=Math.PI*i/n-Math.PI/2;i?s.lineTo(cx*S+r*Math.cos(a),cy*S+r*Math.sin(a)):s.moveTo(cx*S+r*Math.cos(a),cy*S+r*Math.sin(a));}
+    s.closePath();s.fillStyle=col;s.fill();
+  }
+  function smoke(col){
+    [.3,.5,.7].forEach(cx=>{s.beginPath();s.moveTo(cx*S,.15*S);s.bezierCurveTo((cx-.04)*S,.09*S,(cx+.04)*S,.05*S,cx*S,.01*S);s.strokeStyle=col;s.lineWidth=2.5;s.lineCap='round';s.globalAlpha=.7;s.stroke();s.globalAlpha=1;});
+  }
+  function tombstone(cx,cy,sz,col){
+    s.beginPath();s.moveTo((cx-sz/2)*S,(cy-sz*.7+sz)*S);s.lineTo((cx-sz/2)*S,(cy-sz*.7+sz*.4)*S);s.arc(cx*S,(cy-sz*.7+sz*.4)*S,sz/2*S,Math.PI,0);s.lineTo((cx+sz/2)*S,(cy-sz*.7+sz)*S);s.closePath();
+    s.fillStyle='#1a1a3e';s.fill();s.strokeStyle=col;s.lineWidth=1;s.stroke();
+    s.font=`${S*.065}px sans-serif`;s.fillStyle=col;s.textAlign='center';s.textBaseline='middle';s.fillText('RIP',cx*S,(cy-sz*.1)*S);
+  }
+
+  const draws = {
+    laugh(){
+      bg('#1a1a3e','#05050d');shine();
+      s.beginPath();s.arc(.3*S,.47*S,.11*S,0,Math.PI);s.strokeStyle='#c8f0ff';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+      s.beginPath();s.arc(.7*S,.47*S,.11*S,0,Math.PI);s.strokeStyle='#c8f0ff';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+      s.beginPath();s.ellipse(.2*S,.58*S,S*.1,S*.06,0,0,Math.PI*2);s.fillStyle='rgba(255,120,160,0.5)';s.fill();
+      s.beginPath();s.ellipse(.8*S,.58*S,S*.1,S*.06,0,0,Math.PI*2);s.fillStyle='rgba(255,120,160,0.5)';s.fill();
+      mouth(.26,.64,.74,.64,.5,.82,'#ffe4a0','#1a0800');
+      // nước mắt 2 bên
+      [[.22,.49,.14,.7],[.78,.49,.86,.7]].forEach(([x1,y1,x2,y2])=>{
+        s.beginPath();s.moveTo(x1*S,y1*S);s.bezierCurveTo((x1+(x2>x1?.04:-.04))*S,(y1+.06)*S,(x2+(x2>x1?.02:-.02))*S,(y2-.08)*S,x2*S,y2*S);
+        s.strokeStyle='#64b5f6';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+        s.beginPath();s.ellipse(x2*S,(y2+.02)*S,S*.025,S*.032,0,0,Math.PI*2);s.fillStyle='#64b5f6';s.globalAlpha=.8;s.fill();s.globalAlpha=1;
+      });
+    },
+    king(){
+      bg('#2a1a0e','#05050d');shine();
+      // vương miện lộng lẫy
+      s.beginPath();s.moveTo(.14*S,.36*S);s.lineTo(.14*S,.22*S);s.lineTo(.25*S,.32*S);s.lineTo(.36*S,.14*S);s.lineTo(.5*S,.26*S);s.lineTo(.64*S,.14*S);s.lineTo(.75*S,.32*S);s.lineTo(.86*S,.22*S);s.lineTo(.86*S,.36*S);s.closePath();
+      const gk=s.createLinearGradient(0,.14*S,0,.36*S);gk.addColorStop(0,'#FFF3a0');gk.addColorStop(.3,'#FFD700');gk.addColorStop(.7,'#e6a800');gk.addColorStop(1,'#8B6914');
+      s.fillStyle=gk;s.fill();s.strokeStyle='rgba(255,255,200,0.6)';s.lineWidth=1;s.stroke();
+      s.beginPath();s.rect(.14*S,.34*S,.72*S,.05*S);const gb=s.createLinearGradient(0,.34*S,0,.39*S);gb.addColorStop(0,'#FFD700');gb.addColorStop(1,'#8B6914');s.fillStyle=gb;s.fill();
+      [[.5,.13,.045,'#FF6B35'],[.36,.13,.032,'#ff3366'],[.64,.13,.032,'#ff3366'],[.25,.27,.025,'#00d4ff'],[.75,.27,.025,'#00d4ff']].forEach(([x,y,r,c])=>{
+        s.beginPath();s.moveTo(x*S,(y-r)*S);s.lineTo((x+r*.8)*S,y*S);s.lineTo(x*S,(y+r)*S);s.lineTo((x-r*.8)*S,y*S);s.closePath();s.fillStyle=c;s.fill();s.strokeStyle='rgba(255,255,255,0.5)';s.lineWidth=.8;s.stroke();
+      });
+      for(let i=0;i<5;i++){s.beginPath();s.arc((.22+i*.14)*S,.36*S,2.5,0,Math.PI*2);s.fillStyle='#FFF3a0';s.fill();}
+      eye(.32,.54,'#1a3a7a');eye(.68,.54,'#1a3a7a');
+      brow(.22,.47,.38,.44,'#FFD700',2.2);brow(.62,.44,.78,.47,'#FFD700',2.2);
+      s.beginPath();s.moveTo(.3*S,.7*S);s.quadraticCurveTo(.5*S,.78*S,.7*S,.7*S);s.strokeStyle='#c8f0ff';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+    },
+    cry(){
+      bg('#0a1a3e','#05050d');shine();
+      brow(.22,.38,.38,.44,'#c8f0ff',2.5);brow(.62,.44,.78,.38,'#c8f0ff',2.5);
+      s.beginPath();s.arc(.32*S,.5*S,.1*S,Math.PI,0);s.strokeStyle='#c8f0ff';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+      s.beginPath();s.arc(.68*S,.5*S,.1*S,Math.PI,0);s.strokeStyle='#c8f0ff';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+      bigTear(.28,.55,'#64b5f6');bigTear(.72,.55,'#64b5f6');
+      s.beginPath();s.moveTo(.28*S,.72*S);s.quadraticCurveTo(.4*S,.68*S,.5*S,.71*S);s.quadraticCurveTo(.6*S,.74*S,.72*S,.7*S);s.strokeStyle='#c8f0ff';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+    },
+    love(){
+      bg('#2e0a2e','#05050d');shine();
+      heart(.32,.49,.14,'#ff6b9d');heart(.68,.49,.14,'#ff6b9d');
+      s.beginPath();s.ellipse(.18*S,.6*S,S*.1,S*.065,0,0,Math.PI*2);s.fillStyle='rgba(255,80,140,0.5)';s.fill();
+      s.beginPath();s.ellipse(.82*S,.6*S,S*.1,S*.065,0,0,Math.PI*2);s.fillStyle='rgba(255,80,140,0.5)';s.fill();
+      mouth(.26,.68,.74,.68,.5,.82,'#ffe4a0','#2a0015');
+    },
+    cold(){
+      bg('#0a0a1a','#05050d');
+      s.beginPath();s.ellipse(S*.36,S*.3,S*.14,S*.08,-.3,0,Math.PI*2);s.fillStyle='rgba(255,255,255,0.06)';s.fill();
+      [.32,.68].forEach(cx=>{
+        s.beginPath();s.ellipse(cx*S,.46*S,S*.075,S*.08,0,0,Math.PI*2);s.fillStyle='#050508';s.fill();
+        s.beginPath();s.rect((cx-.09)*S,.38*S,S*.18,S*.06);s.fillStyle='#0d0d1e';s.fill();
+        s.beginPath();s.ellipse(cx*S,.47*S,S*.04,S*.045,0,0,Math.PI*2);s.fillStyle='#1a2030';s.fill();
+        s.beginPath();s.ellipse((cx-.015)*S,.455*S,S*.015,S*.012,0,0,Math.PI*2);s.fillStyle='rgba(200,240,255,0.4)';s.fill();
+        s.beginPath();s.moveTo((cx-.075)*S,.41*S);s.lineTo((cx+.075)*S,.41*S);s.strokeStyle='rgba(200,240,255,0.35)';s.lineWidth=1.5;s.lineCap='round';s.stroke();
+      });
+      s.beginPath();s.moveTo(.23*S,.36*S);s.lineTo(.41*S,.36*S);s.strokeStyle='rgba(200,240,255,0.3)';s.lineWidth=2;s.lineCap='round';s.stroke();
+      s.beginPath();s.moveTo(.59*S,.36*S);s.lineTo(.77*S,.36*S);s.strokeStyle='rgba(200,240,255,0.3)';s.lineWidth=2;s.lineCap='round';s.stroke();
+      s.beginPath();s.moveTo(.28*S,.68*S);s.lineTo(.72*S,.68*S);s.strokeStyle='rgba(200,240,255,0.4)';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+      [.4,.5,.6].forEach(x=>{s.beginPath();s.arc(x*S,.78*S,2.5,0,Math.PI*2);s.fillStyle='rgba(200,240,255,0.3)';s.fill();});
+    },
+    dizzy(){
+      bg('#1a0a2e','#05050d');shine();
+      spiral(.32,.47,'#c8f0ff');spiral(.68,.47,'#c8f0ff');
+      s.beginPath();s.ellipse(.5*S,.7*S,.1*S,.08*S,0,0,Math.PI*2);s.fillStyle='#1a0800';s.fill();
+      s.beginPath();s.ellipse(.5*S,.69*S,.08*S,.05*S,0,0,Math.PI*2);s.fillStyle='#e74c3c';s.fill();
+      [0,1,2].forEach(i=>{const a=-Math.PI/2+i*Math.PI*2/3;star(.5+.44*Math.cos(a),.18+.12*Math.sin(a),.04,'#FFD700');});
+    },
+    rage(){
+      bg('#2e0a0a','#05050d');shine('rgba(255,80,80,0.12)');smoke('#ff6b35');
+      s.beginPath();s.moveTo(.2*S,.42*S);s.lineTo(.38*S,.38*S);s.lineTo(.46*S,.42*S);s.strokeStyle='#ffb3b3';s.lineWidth=3;s.lineJoin='round';s.stroke();
+      s.beginPath();s.moveTo(.8*S,.42*S);s.lineTo(.62*S,.38*S);s.lineTo(.54*S,.42*S);s.strokeStyle='#ffb3b3';s.lineWidth=3;s.lineJoin='round';s.stroke();
+      eyeAngry(.32,.5,'#ff4444');eyeAngry(.68,.5,'#ff4444');
+      s.beginPath();s.moveTo(.28*S,.68*S);s.quadraticCurveTo(.5*S,.62*S,.72*S,.68*S);s.strokeStyle='#ffb3b3';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+      for(let i=0;i<5;i++){const x=(.31+i*.09)*S;s.beginPath();s.moveTo(x,.67*S);s.lineTo(x,.62*S);s.strokeStyle='#ffb3b3';s.lineWidth=1.2;s.stroke();}
+    },
+    cool(){
+      bg('#0a0a1e','#05050d');shine();
+      s.beginPath();s.moveTo(.15*S,.48*S);s.quadraticCurveTo(.18*S,.2*S,.5*S,.18*S);s.quadraticCurveTo(.82*S,.2*S,.85*S,.48*S);s.fillStyle='#0a0a1e';s.fill();
+      sunglasses('#001a0a','#00ff88');
+      s.beginPath();s.moveTo(.36*S,.71*S);s.quadraticCurveTo(.5*S,.78*S,.66*S,.7*S);s.strokeStyle='#c8f0ff';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+      star(.82,.52,.045,'#FFD700');
+    },
+    think(){
+      bg('#0a1a2e','#05050d');shine();
+      // mắt nhìn lên
+      [.32,.68].forEach(cx=>{
+        s.beginPath();s.ellipse(cx*S,.51*S,S*.09,S*.1,0,0,Math.PI*2);s.fillStyle='#050508';s.fill();
+        s.beginPath();s.ellipse((cx-.04)*S,.45*S,S*.055,S*.065,0,0,Math.PI*2);s.fillStyle='#0a2a6a';s.fill();
+        s.beginPath();s.ellipse((cx-.06)*S,.435*S,S*.022,S*.018,0,0,Math.PI*2);s.fillStyle='white';s.globalAlpha=.9;s.fill();s.globalAlpha=1;
+      });
+      brow(.22,.4,.38,.44,'#c8f0ff',2);brow(.62,.42,.78,.4,'#c8f0ff',1.5);
+      s.beginPath();s.moveTo(.5*S,.82*S);s.quadraticCurveTo(.3*S,.78*S,.28*S,.62*S);s.strokeStyle='#c8f0ff';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+      s.beginPath();s.arc(.72*S,.22*S,S*.1,0,Math.PI*2);s.fillStyle='#1a2a4a';s.fill();s.strokeStyle='#c8f0ff';s.lineWidth=1;s.stroke();
+      s.font=`${S*.1}px sans-serif`;s.fillStyle='#c8f0ff';s.textAlign='center';s.textBaseline='middle';s.fillText('?',.72*S,.22*S);
+    },
+    rip(){
+      bg('#0a0a1e','#05050d');shine();
+      s.beginPath();s.ellipse(.5*S,.18*S,.14*S,.05*S,0,0,Math.PI*2);s.strokeStyle='rgba(200,240,255,0.6)';s.lineWidth=2;s.stroke();
+      xEye(.32,.47,'#c8f0ff');xEye(.68,.47,'#c8f0ff');
+      s.beginPath();s.moveTo(.3*S,.68*S);s.quadraticCurveTo(.5*S,.61*S,.7*S,.68*S);s.strokeStyle='#c8f0ff';s.lineWidth=2.5;s.lineCap='round';s.stroke();
+      tombstone(.78,.62,.14,'#c8f0ff');
+    },
+  };
+  draws[id]?.();
+  return c.toDataURL();
+}
+
 const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
 
 // SVG quân cờ Staunton style — đẹp, có chiều sâu
@@ -704,68 +901,138 @@ export default function ChessGame({ onExit }) {
 
 
 
-      {/* Portals — render ngoài stacking context để không bị block */}
+      {/* Portals */}
       {createPortal(<>
+
+        {/* Float emoji — tối màn hình + pearl emoji to giữa bàn cờ */}
         {floatEmoji && (
-          <div style={{ position:"fixed", top:"40%", left:"50%", transform:"translate(-50%,-50%)",
-            fontSize:72, zIndex:9999, animation:"floatUp 2.5s ease-out forwards", pointerEvents:"none" }}>
-            {floatEmoji.emoji}
-          </div>
-        )}
-        {tipResult && (
-          <div style={{ position:"fixed", top:100, left:16, right:16, zIndex:9999,
-            background: tipResult.fromMe ? "rgba(212,83,28,0.95)" : "rgba(0,180,100,0.95)",
-            borderRadius:14, padding:"12px 16px", display:"flex", alignItems:"center", gap:10 }}>
-            <span style={{ fontSize:24 }}>💎</span>
-            <p style={{ color:"white", fontSize:13, fontWeight:800, margin:0 }}>
-              {tipResult.fromMe
-                ? `Bạn đã tặng ${tipResult.amount} điểm cho đối thủ!`
-                : `Đối thủ vừa tặng bạn ${tipResult.amount} điểm! 🎉`}
-            </p>
-          </div>
-        )}
-        {showEmoji && (
-          <>
-            <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:9999,
-              background:"rgba(10,6,4,0.98)", borderRadius:16, padding:"16px",
-              border:"1px solid rgba(255,215,0,0.3)", display:"flex", gap:10, flexWrap:"wrap",
-              maxWidth:240, boxShadow:"0 8px 32px rgba(0,0,0,0.8)" }}>
-              {["😄","😂","🤔","😮","👏","🔥","💀","🤝","😈","❤️"].map(e => (
-                <button key={e} onClick={() => sendEmoji(e)}
-                  style={{ fontSize:32, background:"none", border:"none", cursor:"pointer", padding:4 }}>
-                  {e}
-                </button>
-              ))}
+          <div style={{ position:"fixed", inset:0, zIndex:9990, background:"rgba(0,0,0,0.55)",
+            display:"flex", alignItems:"center", justifyContent:"center", pointerEvents:"none",
+            animation:"fadeOverlay 2s ease-out forwards" }}>
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:12,
+              animation:"popEmoji 2s cubic-bezier(0.34,1.56,0.64,1) forwards" }}>
+              <img src={drawPearlEmoji(floatEmoji.emoji, 320)} alt=""
+                style={{ width:160, height:160, borderRadius:"50%",
+                  filter:"drop-shadow(0 0 30px rgba(200,240,255,0.6))" }}/>
+              <p style={{ color:"#c8f0ff", fontSize:14, fontWeight:700, margin:0,
+                textShadow:"0 0 20px rgba(200,240,255,0.8)" }}>
+                {PEARL_EMOJIS.find(e=>e.id===floatEmoji.emoji)?.label || ""}
+              </p>
             </div>
-          </>
+          </div>
         )}
+
+        {/* Tip notification — lộng lẫy */}
+        {tipResult && (
+          <div style={{ position:"fixed", inset:0, zIndex:9990, background:"rgba(0,0,0,0.7)",
+            display:"flex", alignItems:"center", justifyContent:"center", pointerEvents:"none",
+            animation:"fadeOverlay 3s ease-out forwards" }}>
+            <div style={{ position:"relative", display:"flex", flexDirection:"column", alignItems:"center", gap:16,
+              animation:"popEmoji 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards" }}>
+              {/* Rays */}
+              {[...Array(12)].map((_,i) => (
+                <div key={i} style={{
+                  position:"absolute", width:2, height:tipResult.fromMe?60:80,
+                  background:`linear-gradient(to top, transparent, ${tipResult.fromMe?"#FFD700":"#00ff88"})`,
+                  transformOrigin:"bottom center",
+                  transform:`rotate(${i*30}deg) translateY(-${tipResult.fromMe?90:110}px)`,
+                  opacity:0.5, borderRadius:1,
+                }}/>
+              ))}
+              {/* Main badge */}
+              <div style={{
+                background: tipResult.fromMe
+                  ? "linear-gradient(135deg,#8B6914,#FFD700,#FFF3a0,#FFD700,#8B6914)"
+                  : "linear-gradient(135deg,#006b3c,#00c864,#80ffb8,#00c864,#006b3c)",
+                borderRadius:20, padding:"20px 32px", textAlign:"center",
+                boxShadow: tipResult.fromMe
+                  ? "0 0 40px rgba(255,215,0,0.8), 0 0 80px rgba(255,215,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3)"
+                  : "0 0 40px rgba(0,200,100,0.8), 0 0 80px rgba(0,200,100,0.3), inset 0 1px 0 rgba(255,255,255,0.3)",
+                border: `2px solid ${tipResult.fromMe?"rgba(255,255,200,0.6)":"rgba(150,255,200,0.6)"}`,
+                minWidth:220,
+              }}>
+                <p style={{ fontSize:40, margin:"0 0 8px" }}>💎</p>
+                <p style={{ color: tipResult.fromMe?"#1a0a00":"#003820", fontSize:20, fontWeight:900, margin:"0 0 4px",
+                  textShadow:"0 1px 0 rgba(255,255,255,0.3)" }}>
+                  {tipResult.fromMe ? `−${tipResult.amount} điểm` : `+${tipResult.amount} điểm`}
+                </p>
+                <p style={{ color: tipResult.fromMe?"rgba(26,10,0,0.7)":"rgba(0,56,32,0.8)", fontSize:12, fontWeight:700, margin:0 }}>
+                  {tipResult.fromMe ? "Bạn vừa tặng đối thủ" : "Đối thủ vừa tặng bạn"}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Emoji picker — pearl SVG grid */}
+        {showEmoji && (
+          <div onClick={() => setShowEmoji(false)}
+            style={{ position:"fixed", inset:0, zIndex:9991, background:"rgba(0,0,0,0.6)",
+              display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <div onClick={e => e.stopPropagation()}
+              style={{ background:"#0a0814", borderRadius:20, padding:"16px",
+                border:"1px solid rgba(200,240,255,0.15)", boxShadow:"0 8px 40px rgba(0,0,0,0.9)" }}>
+              <p style={{ color:"#FFD700", fontSize:12, fontWeight:800, margin:"0 0 12px", textAlign:"center", letterSpacing:1 }}>
+                Chọn biểu cảm
+              </p>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:8 }}>
+                {PEARL_EMOJIS.map(e => (
+                  <button key={e.id} onClick={() => sendEmoji(e.id)}
+                    style={{ background:"none", border:"none", cursor:"pointer", padding:0,
+                      display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
+                    <img src={drawPearlEmoji(e.id, 144)} alt={e.label}
+                      style={{ width:52, height:52, borderRadius:"50%",
+                        border:`2px solid ${e.color}22`,
+                        transition:"transform 0.12s, border-color 0.12s" }}
+                      onMouseOver={ev=>{ev.target.style.transform='scale(1.15)';ev.target.style.borderColor=e.color+'88';}}
+                      onMouseOut={ev=>{ev.target.style.transform='scale(1)';ev.target.style.borderColor=e.color+'22';}}
+                    />
+                    <span style={{ color:"rgba(200,240,255,0.5)", fontSize:8, lineHeight:1.2, textAlign:"center", maxWidth:52 }}>
+                      {e.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tip picker */}
         {showTip && (
-          <>
-            <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:9999,
-              background:"rgba(10,6,4,0.98)", borderRadius:16, padding:"16px",
-              border:"1px solid rgba(255,215,0,0.3)", minWidth:220,
-              boxShadow:"0 8px 32px rgba(0,0,0,0.8)" }}>
-              <p style={{ color:"#FFD700", fontSize:13, fontWeight:800, margin:"0 0 12px", textAlign:"center" }}>
+          <div onClick={() => setShowTip(false)}
+            style={{ position:"fixed", inset:0, zIndex:9991, background:"rgba(0,0,0,0.7)",
+              display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <div onClick={e => e.stopPropagation()}
+              style={{ background:"#0a0814", borderRadius:20, padding:"20px",
+                border:"1px solid rgba(255,215,0,0.2)", boxShadow:"0 8px 40px rgba(0,0,0,0.9)", minWidth:260 }}>
+              <p style={{ color:"#FFD700", fontSize:14, fontWeight:900, margin:"0 0 4px", textAlign:"center" }}>
                 💎 Tặng điểm cho đối thủ
+              </p>
+              <p style={{ color:"rgba(255,150,0,0.7)", fontSize:10, margin:"0 0 14px", textAlign:"center", lineHeight:1.5 }}>
+                ⚠️ Điểm sẽ bị trừ từ tài khoản thật của bạn{"
+"}và đối thủ nhận điểm có giá trị thật
               </p>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                 {[
-                  { amount:5,   label:"5 điểm",   fx:"✨", bg:"rgba(255,255,255,0.08)" },
-                  { amount:10,  label:"10 điểm",  fx:"⭐", bg:"rgba(100,200,255,0.15)" },
-                  { amount:20,  label:"20 điểm",  fx:"🌟", bg:"rgba(255,215,0,0.15)" },
-                  { amount:50,  label:"50 điểm",  fx:"💫", bg:"rgba(255,150,0,0.2)" },
-                  { amount:100, label:"100 điểm", fx:"🔥", bg:"rgba(212,83,28,0.3)" },
+                  { amount:5,   label:"5 điểm",   fx:"✨", grad:"linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))" },
+                  { amount:10,  label:"10 điểm",  fx:"⭐", grad:"linear-gradient(135deg,rgba(100,180,255,0.12),rgba(100,180,255,0.04))" },
+                  { amount:20,  label:"20 điểm",  fx:"🌟", grad:"linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,215,0,0.04))" },
+                  { amount:50,  label:"50 điểm",  fx:"💫", grad:"linear-gradient(135deg,rgba(255,150,0,0.2),rgba(255,150,0,0.05))" },
+                  { amount:100, label:"100 điểm", fx:"🔥", grad:"linear-gradient(135deg,rgba(212,83,28,0.3),rgba(212,83,28,0.08))" },
                 ].map(t => (
                   <button key={t.amount} onClick={() => sendTip(t.amount)}
-                    style={{ background:t.bg, border:"1px solid rgba(255,255,255,0.15)",
-                      borderRadius:10, padding:"10px 16px", color:"white", fontSize:14,
-                      fontWeight:700, cursor:"pointer", textAlign:"left" }}>
-                    {t.fx} {t.label}
+                    style={{ background:t.grad, border:"1px solid rgba(255,255,255,0.1)",
+                      borderRadius:12, padding:"12px 16px", color:"white", fontSize:14,
+                      fontWeight:700, cursor:"pointer", textAlign:"left",
+                      display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                    <span>{t.fx} {t.label}</span>
+                    <span style={{ color:"rgba(255,255,255,0.3)", fontSize:11 }}>Tặng ngay →</span>
                   </button>
                 ))}
               </div>
               <button onClick={() => setShowTip(false)}
-                style={{ width:"100%", marginTop:10, background:"none", border:"none", color:"#666", cursor:"pointer", fontSize:12 }}>
+                style={{ width:"100%", marginTop:12, background:"none", border:"1px solid rgba(255,255,255,0.08)",
+                  borderRadius:10, color:"rgba(255,255,255,0.3)", cursor:"pointer", fontSize:12, padding:"8px" }}>
                 Huỷ
               </button>
             </div>
