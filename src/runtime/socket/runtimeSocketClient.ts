@@ -442,6 +442,20 @@ export function initializeRuntimeSocket() {
 
       startHeartbeat();
 
+      // Emit user:online để admin dashboard track
+      try {
+        const { useRuntimeCustomerIdentityStore } = require("../customer/runtimeCustomerIdentityStore");
+        const identity = useRuntimeCustomerIdentityStore.getState().identity;
+        const phone = (identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+        if (phone && phone !== "pending" && phone.length >= 9) {
+          runtimeSocket?.emit("user:online", {
+            userId: phone,
+            name: identity?.fullName || "",
+            avatar: identity?.avatar || "",
+          });
+        }
+      } catch(e) {}
+
     }
   );
 
