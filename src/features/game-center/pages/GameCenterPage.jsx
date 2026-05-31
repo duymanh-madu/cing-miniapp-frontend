@@ -36,6 +36,7 @@ export default function GameCenterPage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [challenge, setChallenge]         = useState(null);
   const [gamePlays, setGamePlays]         = useState(null);
+  const [showChat, setShowChat]           = useState(false);
 
   const authenticated = useAuthStore(s => s.authenticated);
   const profile       = useAuthStore(s => s.profile);
@@ -60,8 +61,6 @@ export default function GameCenterPage() {
       if (attempts++ < 20) setTimeout(attach, 1000);
     };
     attach();
-
-  if (showChat) return <CommunityChat onClose={() => setShowChat(false)} />;
 
   return () => { getRuntimeSocket()?.off("challenge.won"); };
   }, []);
