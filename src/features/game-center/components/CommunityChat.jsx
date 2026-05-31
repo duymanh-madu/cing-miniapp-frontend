@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { io } from "socket.io-client";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
-
-const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 
 export default function CommunityChat({ onClose }) {
   const [messages,   setMessages]   = useState([]);
@@ -43,19 +41,24 @@ export default function CommunityChat({ onClose }) {
   }, [runtimePhone, runtimeName, runtimeAvatar, profile]);
 
   useEffect(() => {
-    const s = io(`${GAME_SERVER}/community`, { transports:["polling", "websocket"] });
-    sockRef.current = s;
-
-    s.on("connect", () => {
+    // Dùng main socket đã connected thay vì tạo socket mới
+    let attempts = 0;
+    const init = () => {
+      const s = getRuntimeSocket();
+      if (!s?.connected) {
+        if (attempts++ < 20) setTimeout(init, 1000);
+        else addLog("❌ Socket not available");
+        return;
+      }
+      sockRef.current = s;
       const info = getMyInfo();
-      const uid  = info.phone || ("guest-" + s.id);
+      const uid = info.phone || ("guest-" + s.id);
       myIdRef.current = uid;
       setMyId(uid);
       addLog(`✅ Connected: ${uid}`);
       s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar });
-    });
-
-    s.on("connect_error", (e) => addLog(`❌ Error: ${e.message}`));
+    };
+    init();
 
     s.on("community:history", (history) => {
       setMessages(history || []);
@@ -89,7 +92,7 @@ export default function CommunityChat({ onClose }) {
       } catch(e) {}
     });
 
-    return () => s.disconnect();
+    return () => { const s = getRuntimeSocket(); if (s) { s.off('community:history'); s.off('community:chat'); s.off('community:users'); s.off('community:user_joined'); s.off('community:user_left'); s.off('community:voice_start'); s.off('community:voice_end'); s.off('community:signal'); } };
   }, []); // Chỉ mount 1 lần — không re-run khi myPhone thay đổi
 
   // Khi phone resolve sau khi đã connect — emit join lại với đúng phone
