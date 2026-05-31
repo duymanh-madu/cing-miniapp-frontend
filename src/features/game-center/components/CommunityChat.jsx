@@ -43,7 +43,7 @@ export default function CommunityChat({ onClose }) {
   }, [runtimePhone, runtimeName, runtimeAvatar, profile]);
 
   useEffect(() => {
-    const s = io(`${GAME_SERVER}/community`, { transports:["websocket"] });
+    const s = io(`${GAME_SERVER}/community`, { transports:["polling", "websocket"] });
     sockRef.current = s;
 
     s.on("connect", () => {
