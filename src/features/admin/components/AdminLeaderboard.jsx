@@ -10,7 +10,9 @@ const PERIODS = [
 ];
 
 const GAMES = [
-  { key:"black-pearl-rush",    label:"Bay cùng trân châu",    icon:"🫧" },
+  { key:"black-pearl-rush",       label:"Bay cùng trân châu",                    icon:"🫧" },
+  { key:"chess-wins",             label:"Kỳ thủ cờ vua — Thắng nhiều nhất",     icon:"♟️" },
+  { key:"chess-streak",           label:"Kỳ thủ cờ vua — Chuỗi thắng dài nhất", icon:"🔥" },
 ];
 
 export default function AdminLeaderboard({ token }) {
@@ -320,6 +322,17 @@ function defaultConfig() {
         enabled:true, weekly_reset:true, display_name:"Bay cùng trân châu", icon:"🫧",
         rewards:[{rank:1,points:50,label:"🥇 Top 1 tuần"},{rank:2,points:30,label:"🥈 Top 2 tuần"},{rank:3,points:20,label:"🥉 Top 3 tuần"}],
       },
-          },
+    },
+    chess: {
+      enabled: true,
+      wins: {
+        enabled:true, weekly_reset:false, display_name:"Kỳ thủ cờ vua — Thắng nhiều nhất", icon:"♟️",
+        rewards:[{rank:1,points:100,label:"🥇 Top 1 kỳ thủ"},{rank:2,points:60,label:"🥈 Top 2 kỳ thủ"},{rank:3,points:40,label:"🥉 Top 3 kỳ thủ"}],
+      },
+      streak: {
+        enabled:true, weekly_reset:false, display_name:"Kỳ thủ cờ vua — Chuỗi thắng dài nhất", icon:"🔥",
+        rewards:[{rank:1,points:80,label:"🥇 Chuỗi thắng #1"},{rank:2,points:50,label:"🥈 Chuỗi thắng #2"},{rank:3,points:30,label:"🥉 Chuỗi thắng #3"}],
+      },
+    },
   };
 }
