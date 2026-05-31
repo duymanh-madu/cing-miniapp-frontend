@@ -227,8 +227,7 @@ export default function GameCenterPage() {
           </div>
         </>
       )}
-    </div>
-    {/* Community Chat Button */}
+      {/* Community Chat Button */}
       <button onClick={() => setShowChat(true)}
         style={{ position:"fixed", bottom:80, right:16, zIndex:100,
           width:52, height:52, borderRadius:26, border:"none", cursor:"pointer",
@@ -237,5 +236,6 @@ export default function GameCenterPage() {
           fontSize:22, boxShadow:"0 4px 16px rgba(212,83,28,0.5)" }}>
         💬
       </button>
+    </div>
   );
 }
