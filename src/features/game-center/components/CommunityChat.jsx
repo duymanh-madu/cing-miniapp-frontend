@@ -42,21 +42,12 @@ export default function CommunityChat({ onClose }) {
     sockRef.current = s;
 
     s.on("connect", () => {
-      // Retry join cho đến khi có phone
-      const tryJoin = (attempts = 0) => {
-        const phone = (useRuntimeCustomerIdentityStore.getState().identity?.phone||"").replace(/\D/g,"").replace(/^84/,"0");
-        const name  = useRuntimeCustomerIdentityStore.getState().identity?.fullName || myName || "Cing iu";
-        const avatar = useRuntimeCustomerIdentityStore.getState().identity?.avatar || myAvatar || "";
-        if (phone && phone !== "pending" && phone.length >= 9) {
-          s.emit("community:join", { userId: phone, name, avatar });
-        } else if (attempts < 10) {
-          setTimeout(() => tryJoin(attempts + 1), 1000);
-        } else {
-          // Join với guest nếu không có phone
-          s.emit("community:join", { userId: "guest-" + Date.now(), name: "Khách", avatar: "" });
-        }
-      };
-      tryJoin();
+      // Emit join với info hiện tại
+      const phone = (useRuntimeCustomerIdentityStore.getState().identity?.phone||"").replace(/\D/g,"").replace(/^84/,"0");
+      const name  = useRuntimeCustomerIdentityStore.getState().identity?.fullName || "Cing iu";
+      const avatar = useRuntimeCustomerIdentityStore.getState().identity?.avatar || "";
+      const uid = (phone && phone !== "pending" && phone.length >= 9) ? phone : ("guest-" + Date.now());
+      s.emit("community:join", { userId: uid, name, avatar });
     });
 
     s.on("community:history", (history) => {
