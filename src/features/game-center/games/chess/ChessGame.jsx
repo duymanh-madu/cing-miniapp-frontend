@@ -1035,6 +1035,7 @@ export default function ChessGame({ onExit }) {
                 Huỷ
               </button>
             </div>
+          </div>
         )}
         {showChat && (
             <div style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:9998,
