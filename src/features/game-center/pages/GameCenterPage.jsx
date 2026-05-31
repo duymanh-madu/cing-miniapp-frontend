@@ -229,7 +229,7 @@ export default function GameCenterPage() {
       )}
       {/* Community Chat Button */}
       <button onClick={() => setShowChat(true)}
-        style={{ position:"fixed", bottom:80, right:16, zIndex:100,
+        style={{ position:"fixed", bottom:80, right:16, zIndex:999,
           width:52, height:52, borderRadius:26, border:"none", cursor:"pointer",
           background:"linear-gradient(135deg,#D4531C,#FF6B35)",
           display:"flex", alignItems:"center", justifyContent:"center",
