@@ -144,11 +144,7 @@ export default function ChessGame({ onExit }) {
   const [unreadCount,  setUnreadCount]  = useState(0);
   const chatEndRef = useRef(null);
 
-  // Voice WebRTC
-  const [voiceState,   setVoiceState]   = useState("idle"); // idle | requesting | active | denied
-  const peerRef        = useRef(null);
-  const localStreamRef = useRef(null);
-  const remoteAudioRef = useRef(null);
+
   const [myReserve,  setMyReserve]  = useState(60);
   const [oppReserve, setOppReserve] = useState(60);
   const [moveTimer,  setMoveTimer]  = useState(30);
@@ -255,25 +251,8 @@ export default function ChessGame({ onExit }) {
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 50);
     });
 
-    // Voice signaling
-    s.on("chess:voice_request", () => setVoiceState("requesting"));
-    s.on("chess:voice_accept",  () => startVoiceCall());
-    s.on("chess:voice_end",     () => endVoiceCall());
-    s.on("chess:signal", async ({ signal }) => {
-      if (!peerRef.current) return;
-      try {
-        if (signal.type === "offer") {
-          await peerRef.current.setRemoteDescription(signal);
-          const answer = await peerRef.current.createAnswer();
-          await peerRef.current.setLocalDescription(answer);
-          s.emit("chess:signal", { gameId: gameIdRef.current, userId: userIdRef.current, signal: answer });
-        } else if (signal.type === "answer") {
-          await peerRef.current.setRemoteDescription(signal);
-        } else if (signal.candidate) {
-          await peerRef.current.addIceCandidate(signal);
-        }
-      } catch(e) {}
-    });
+
+
 
     return () => { s.disconnect(); clearInterval(timerRef.current); };
   }, []);
@@ -333,59 +312,7 @@ export default function ChessGame({ onExit }) {
     setChatInput("");
   };
 
-  // Voice call
-  const requestVoice = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      localStreamRef.current = stream;
-      const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
-      peerRef.current = pc;
-      stream.getTracks().forEach(t => pc.addTrack(t, stream));
-      pc.onicecandidate = (e) => {
-        if (e.candidate) sockRef.current?.emit("chess:signal", { gameId: gameIdRef.current, userId: userIdRef.current, signal: e.candidate });
-      };
-      pc.ontrack = (e) => {
-        if (remoteAudioRef.current) remoteAudioRef.current.srcObject = e.streams[0];
-      };
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      sockRef.current?.emit("chess:signal", { gameId: gameIdRef.current, userId: userIdRef.current, signal: offer });
-      sockRef.current?.emit("chess:voice_request", { gameId: gameIdRef.current, userId: userIdRef.current });
-      setVoiceState("requesting");
-    } catch(e) { console.warn("Voice request failed:", e.message); }
-  };
 
-  const startVoiceCall = async () => {
-    if (!localStreamRef.current) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        localStreamRef.current = stream;
-        const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
-        peerRef.current = pc;
-        stream.getTracks().forEach(t => pc.addTrack(t, stream));
-        pc.onicecandidate = (e) => {
-          if (e.candidate) sockRef.current?.emit("chess:signal", { gameId: gameIdRef.current, userId: userIdRef.current, signal: e.candidate });
-        };
-        pc.ontrack = (e) => {
-          if (remoteAudioRef.current) remoteAudioRef.current.srcObject = e.streams[0];
-        };
-        sockRef.current?.emit("chess:voice_accept", { gameId: gameIdRef.current, userId: userIdRef.current });
-      } catch(e) {}
-    } else {
-      sockRef.current?.emit("chess:voice_accept", { gameId: gameIdRef.current, userId: userIdRef.current });
-    }
-    setVoiceState("active");
-  };
-
-  const endVoiceCall = () => {
-    peerRef.current?.close();
-    peerRef.current = null;
-    localStreamRef.current?.getTracks().forEach(t => t.stop());
-    localStreamRef.current = null;
-    if (remoteAudioRef.current) remoteAudioRef.current.srcObject = null;
-    setVoiceState("idle");
-    sockRef.current?.emit("chess:voice_end", { gameId: gameIdRef.current, userId: userIdRef.current });
-  };
 
   const findMatch = useCallback(() => {
     if (!userId) return;
@@ -710,34 +637,11 @@ export default function ChessGame({ onExit }) {
 
       {msg && <p style={{ color:"#FF9800", fontSize:12, position:"absolute", bottom:80, textAlign:"center" }}>{msg}</p>}
 
-      {/* Audio element cho voice */}
-      <audio ref={remoteAudioRef} autoPlay style={{ display:"none" }} />
 
-      {/* Voice request notification */}
-      {voiceState === "requesting" && (
-        <div style={{ position:"fixed", top:80, left:16, right:16, zIndex:300,
-          background:"rgba(0,200,100,0.95)", borderRadius:16, padding:"14px 18px",
-          display:"flex", alignItems:"center", gap:12, pointerEvents:"all" }}>
-          <span style={{ fontSize:24 }}>🎙️</span>
-          <div style={{ flex:1 }}>
-            <p style={{ color:"white", fontWeight:800, fontSize:13, margin:0 }}>Yêu cầu voice chat</p>
-            <p style={{ color:"rgba(255,255,255,0.8)", fontSize:11, margin:"2px 0 0" }}>Đối thủ muốn nói chuyện</p>
-          </div>
-          <button onClick={startVoiceCall} style={{ background:"white", color:"#00c864", border:"none", borderRadius:10, padding:"6px 12px", fontWeight:800, cursor:"pointer", fontSize:12 }}>Chấp nhận</button>
-          <button onClick={() => setVoiceState("idle")} style={{ background:"rgba(255,255,255,0.2)", color:"white", border:"none", borderRadius:10, padding:"6px 12px", fontWeight:700, cursor:"pointer", fontSize:12 }}>Từ chối</button>
-        </div>
-      )}
 
       {/* Chat bubble button */}
       <div style={{ position:"fixed", bottom:120, right:16, zIndex:200, display:"flex", flexDirection:"column", gap:8, pointerEvents:"all" }}>
-        {/* Voice button */}
-        <button onClick={voiceState === "active" ? endVoiceCall : requestVoice}
-          style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
-            background: voiceState === "active" ? "#ff4444" : "rgba(0,200,100,0.9)",
-            display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
-            boxShadow:"0 4px 12px rgba(0,0,0,0.4)" }}>
-          {voiceState === "active" ? "🔇" : "🎙️"}
-        </button>
+
         {/* Chat button */}
         <button onClick={() => { setShowChat(v => !v); setUnreadCount(0); }}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
