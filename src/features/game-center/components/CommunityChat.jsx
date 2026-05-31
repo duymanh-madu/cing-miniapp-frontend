@@ -43,13 +43,9 @@ export default function CommunityChat({ onClose }) {
   useEffect(() => {
     // Dùng main socket đã connected thay vì tạo socket mới
     let attempts = 0;
-    const init = () => {
-      const s = getRuntimeSocket();
-      if (!s?.connected) {
-        if (attempts++ < 20) setTimeout(init, 1000);
-        else addLog("❌ Socket not available");
-        return;
-      }
+    let intervalId = null;
+
+    const attachEvents = (s) => {
       sockRef.current = s;
       const info = getMyInfo();
       const uid = info.phone || ("guest-" + s.id);
@@ -57,10 +53,8 @@ export default function CommunityChat({ onClose }) {
       setMyId(uid);
       addLog(`✅ Connected: ${uid}`);
       s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar });
-    };
-    init();
 
-    s.on("community:history", (history) => {
+      s.on("community:history", (history) => {
       setMessages(history || []);
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 100);
     });
@@ -92,8 +86,37 @@ export default function CommunityChat({ onClose }) {
       } catch(e) {}
     });
 
-    return () => { const s = getRuntimeSocket(); if (s) { s.off('community:history'); s.off('community:chat'); s.off('community:users'); s.off('community:user_joined'); s.off('community:user_left'); s.off('community:voice_start'); s.off('community:voice_end'); s.off('community:signal'); } };
-  }, []); // Chỉ mount 1 lần — không re-run khi myPhone thay đổi
+    };
+
+    const init = () => {
+      const s = getRuntimeSocket();
+      if (s?.connected) {
+        clearInterval(intervalId);
+        attachEvents(s);
+      } else {
+        addLog(`⏳ Waiting socket... ${attempts}`);
+        if (attempts++ > 20) { clearInterval(intervalId); addLog("❌ Socket not available"); }
+      }
+    };
+
+    intervalId = setInterval(init, 1000);
+    init();
+
+    return () => {
+      clearInterval(intervalId);
+      const s = getRuntimeSocket();
+      if (s) {
+        s.off('community:history');
+        s.off('community:chat');
+        s.off('community:users');
+        s.off('community:user_joined');
+        s.off('community:user_left');
+        s.off('community:voice_start');
+        s.off('community:voice_end');
+        s.off('community:signal');
+      }
+    };
+  }, []);
 
   // Khi phone resolve sau khi đã connect — emit join lại với đúng phone
   useEffect(() => {
