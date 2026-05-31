@@ -678,7 +678,7 @@ export default function ChessGame({ onExit }) {
 
       {/* Emoji picker */}
       {showEmoji && (
-        <div style={{ position:"fixed", bottom:180, right:16, zIndex:300,
+        <div style={{ position:"fixed", top:80, right:16, zIndex:300,
           background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"12px",
           border:"1px solid rgba(255,215,0,0.2)", display:"flex", gap:8, flexWrap:"wrap",
           maxWidth:200, pointerEvents:"all" }}>
@@ -693,7 +693,7 @@ export default function ChessGame({ onExit }) {
 
       {/* Tip picker */}
       {showTip && (
-        <div style={{ position:"fixed", bottom:180, right:16, zIndex:300,
+        <div style={{ position:"fixed", top:80, right:16, zIndex:300,
           background:"rgba(10,6,4,0.97)", borderRadius:16, padding:"14px",
           border:"1px solid rgba(255,215,0,0.2)", pointerEvents:"all" }}>
           <p style={{ color:"#FFD700", fontSize:12, fontWeight:800, margin:"0 0 10px", textAlign:"center" }}>
