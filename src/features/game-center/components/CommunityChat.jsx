@@ -181,6 +181,14 @@ export default function CommunityChat({ onClose }) {
           <p style={{ color:"#FFD700", fontSize:15, fontWeight:900, margin:0 }}>💬 Cộng đồng "Cing iu"</p>
           <p style={{ color:"#555", fontSize:11, margin:0 }}>{users.length} người đang online</p>
         </div>
+        <button
+          onClick={() => window.parent.postMessage({ type:"OPEN_OUT_APP", url:"https://www.facebook.com/groups/cinghutangkinhbac" }, "*")}
+          style={{ background:"linear-gradient(135deg,#1877F2,#0a5dc2)", border:"none", borderRadius:10,
+            padding:"6px 12px", color:"white", fontSize:11, fontWeight:800, cursor:"pointer",
+            display:"flex", alignItems:"center", gap:5, flexShrink:0,
+            boxShadow:"0 2px 8px rgba(24,119,242,0.4)" }}>
+          <span style={{ fontSize:13 }}>👥</span> Gia nhập
+        </button>
         <div style={{ display:"flex", gap:4 }}>
           {[{k:"chat",l:"💬 Chat"},{k:"users",l:`👥 ${users.length}`}].map(t => (
             <button key={t.k} onClick={() => setTab(t.k)} style={{
