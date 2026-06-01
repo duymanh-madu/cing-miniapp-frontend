@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
@@ -24,6 +24,46 @@ function getPhone() {
     if (n.length >= 9) return n;
   }
   return "";
+}
+
+function DraggableChatButton({ onClick }) {
+  const [pos, setPos] = React.useState({ x: window.innerWidth - 68, y: window.innerHeight - 140 });
+  const dragging = React.useRef(false);
+  const startPos = React.useRef(null);
+  const moved = React.useRef(false);
+
+  const onPointerDown = (e) => {
+    dragging.current = true;
+    moved.current = false;
+    startPos.current = { x: e.clientX - pos.x, y: e.clientY - pos.y };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e) => {
+    if (!dragging.current) return;
+    moved.current = true;
+    const nx = Math.max(0, Math.min(window.innerWidth - 52, e.clientX - startPos.current.x));
+    const ny = Math.max(0, Math.min(window.innerHeight - 52, e.clientY - startPos.current.y));
+    setPos({ x: nx, y: ny });
+  };
+  const onPointerUp = (e) => {
+    dragging.current = false;
+    if (!moved.current) onClick();
+  };
+
+  return (
+    <div
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      style={{ position:"fixed", left:pos.x, top:pos.y, zIndex:9999,
+        width:52, height:52, borderRadius:26, cursor:"grab",
+        background:"linear-gradient(135deg,#D4531C,#FF6B35)",
+        display:"flex", alignItems:"center", justifyContent:"center",
+        fontSize:22, boxShadow:"0 4px 16px rgba(212,83,28,0.5)",
+        userSelect:"none", touchAction:"none" }}>
+      💬
+    </div>
+  );
 }
 
 export default function GameCenterPage() {
@@ -228,15 +268,8 @@ export default function GameCenterPage() {
           </div>
         </>
       )}
-      {/* Community Chat Button */}
-      <button onClick={() => setShowChat(true)}
-        style={{ position:"fixed", bottom:80, right:16, zIndex:9999,
-          width:52, height:52, borderRadius:26, border:"none", cursor:"pointer",
-          background:"linear-gradient(135deg,#D4531C,#FF6B35)",
-          display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:22, boxShadow:"0 4px 16px rgba(212,83,28,0.5)" }}>
-        💬
-      </button>
+      {/* Community Chat Button — draggable */}
+      <DraggableChatButton onClick={() => setShowChat(true)} />
     </div>
   );
 }
