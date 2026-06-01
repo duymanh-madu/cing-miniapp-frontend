@@ -182,7 +182,19 @@ export default function CommunityChat({ onClose }) {
           <p style={{ color:"#555", fontSize:11, margin:0 }}>{users.length} người đang online</p>
         </div>
         <button
-          onClick={() => window.parent.postMessage({ type:"OPEN_OUT_APP", url:"https://www.facebook.com/groups/2210684146435472" }, "*")}
+          onClick={async () => {
+            const url = "https://www.facebook.com/groups/2210684146435472";
+            // Thử Zalo SDK trước
+            try {
+              const { openWebview } = await import("zmp-sdk/apis");
+              await openWebview({ url, config: { headerTitle: "Cộng đồng Cing iu" } });
+              return;
+            } catch(e) {}
+            // Fallback: postMessage lên shell
+            try { window.parent.postMessage({ type:"OPEN_OUT_APP", url }, "*"); } catch(e) {}
+            // Fallback cuối: window.open
+            try { window.open(url, "_blank"); } catch(e) {}
+          }}
           style={{ background:"linear-gradient(135deg,#1877F2,#0a5dc2)", border:"none", borderRadius:10,
             padding:"6px 12px", color:"white", fontSize:11, fontWeight:800, cursor:"pointer",
             display:"flex", alignItems:"center", gap:5, flexShrink:0,
