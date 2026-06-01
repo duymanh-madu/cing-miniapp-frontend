@@ -1,6 +1,6 @@
 export const routeManifest = [
   { key:"home",          path:"/",               feature:"home",          loader:() => import("@/features/home") },
-  { key:"game-center",   path:"/game-center",    feature:"game-center",   loader:() => import("@/features/game-center") },
+  { key:"game-center",   path:"/game-center",    feature:"game-center",   loader:() => import("@/features/game-center"),   requireAuth: true },
   { key:"game",          path:"/game",           feature:"game",          loader:() => import("@/features/game") },
   { key:"menu",          path:"/menu",           feature:"menu",          loader:() => import("@/features/menu") },
   { key:"leaderboard",   path:"/leaderboard",    feature:"leaderboard",   loader:() => import("@/features/leaderboard"), requireAuth: true },

@@ -377,6 +377,13 @@ export default function ChessGame({ onExit }) {
     s.on("chess:matched", (data) => {
       clearInterval(timerRef.current);
       clearInterval(moveTimerRef.current);
+      // Trừ lượt chơi đúng lúc — khi đã tìm được đối thủ
+      const phone = userIdRef.current;
+      if (phone) {
+        fetch((import.meta.env.VITE_API_BASE_URL||"https://cing-backend-production.up.railway.app/api")+"/game/use-play",
+          { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ user_id: phone }) }
+        ).catch(()=>{});
+      }
       const c = new Chess();
       setChess(c);
       setMyColor(data.myColor);

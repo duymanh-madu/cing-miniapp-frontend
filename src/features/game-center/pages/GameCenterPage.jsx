@@ -158,11 +158,8 @@ export default function GameCenterPage() {
   const handlePlayChess = () => {
     if (!authenticated) { setShowAuthModal(true); return; }
     if (gamePlays !== null && gamePlays <= 0) { alert("Hết lượt chơi!"); return; }
-    const phone = getPhone();
-    if (phone) {
-      apiClient.post("/game/use-play", { user_id: phone }).catch(() => {});
-    }
     setPlayingChess(true);
+    // KHÔNG trừ lượt ở đây — chỉ trừ khi match thành công (chess:matched)
   };
 
   if (showChat) return <CommunityChat onClose={() => setShowChat(false)} />;
