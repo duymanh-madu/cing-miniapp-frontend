@@ -4,6 +4,74 @@ import apiClient from "@/infra/api/apiClient";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
 
+export function ChallengeWonPopup() {
+  const [data, setData] = useState(null);
+  const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+
+  useEffect(() => {
+    const handler = (e) => {
+      setData(e.detail);
+      setTimeout(() => setData(null), 6000);
+    };
+    window.addEventListener("challenge_won", handler);
+    return () => window.removeEventListener("challenge_won", handler);
+  }, []);
+
+  if (!data) return null;
+
+  const myPhone = (() => {
+    const src = runtimePhone || useAuthStore.getState().profile?.phone;
+    if (!src || src === "pending") return "";
+    const n = src.replace(/\D/g,"").replace(/^84/,"0");
+    return n.length >= 9 ? n : "";
+  })();
+
+  const isWinner = myPhone && data?.winner_user_id === myPhone;
+
+  return createPortal(
+    <div style={{ position:"fixed", inset:0, zIndex:9500, display:"flex", alignItems:"center",
+      justifyContent:"center", background:"rgba(0,0,0,0.8)", padding:24 }}
+      onClick={() => setData(null)}>
+      <div onClick={e => e.stopPropagation()}
+        style={{ background:"linear-gradient(135deg,#0d0a08,#1a1208)", borderRadius:20,
+          border:`2px solid ${isWinner?"rgba(255,215,0,0.6)":"rgba(212,83,28,0.4)"}`,
+          padding:24, maxWidth:320, width:"100%", textAlign:"center",
+          boxShadow:`0 0 60px ${isWinner?"rgba(255,215,0,0.3)":"rgba(212,83,28,0.2)"}` }}>
+        <div style={{ fontSize:56, marginBottom:12 }}>{isWinner ? "🏆" : "🎯"}</div>
+        {isWinner ? (
+          <>
+            <h2 style={{ color:"#FFD700", fontSize:20, fontWeight:900, margin:"0 0 8px" }}>
+              Bạn đã chinh phục thách thức!
+            </h2>
+            <p style={{ color:"rgba(255,255,255,0.7)", fontSize:13, margin:"0 0 16px" }}>
+              +{data?.reward_points} điểm tích lũy đã được cộng vào tài khoản
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 style={{ color:"#FF6B35", fontSize:18, fontWeight:900, margin:"0 0 8px" }}>
+              Thách thức ngày đã có người nhận!
+            </h2>
+            <p style={{ color:"rgba(255,255,255,0.7)", fontSize:13, margin:"0 0 4px" }}>
+              🥇 <strong style={{color:"#FFD700"}}>{data?.winner_name}</strong>
+            </p>
+            <p style={{ color:"rgba(255,255,255,0.4)", fontSize:12, margin:"0 0 16px" }}>
+              vừa nhận +{data?.reward_points} điểm tích lũy
+            </p>
+          </>
+        )}
+        <button onClick={() => setData(null)}
+          style={{ background: isWinner?"linear-gradient(135deg,#FFD700,#FF6B35)":"linear-gradient(135deg,#D4531C,#FF6B35)",
+            border:"none", borderRadius:12, padding:"11px 32px",
+            color: isWinner?"#1a0800":"white", fontSize:14, fontWeight:800, cursor:"pointer" }}>
+          {isWinner ? "Tuyệt vời! 🎉" : "Cố lên lần sau! 💪"}
+        </button>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 export function LeaderboardResetPopup() {
   const [msg, setMsg] = useState(null);
   useEffect(() => {
@@ -63,7 +131,16 @@ export function PendingRewardsBadge() {
     loadRewards();
     const handler = () => setTimeout(loadRewards, 2000);
     window.addEventListener("leaderboard_reset", handler);
-    return () => window.removeEventListener("leaderboard_reset", handler);
+    window.addEventListener("challenge_won", handler);
+    // Refresh khi user.updated (nhận điểm)
+    const socketHandler = () => setTimeout(loadRewards, 1000);
+    const s = (window as any).__runtimeSocket;
+    s?.on?.("user.updated", socketHandler);
+    return () => {
+      window.removeEventListener("leaderboard_reset", handler);
+      window.removeEventListener("challenge_won", handler);
+      s?.off?.("user.updated", socketHandler);
+    };
   }, [phone]);
 
   const claim = async (reward) => {

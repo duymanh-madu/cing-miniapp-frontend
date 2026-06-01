@@ -122,6 +122,12 @@ export async function bootstrapRuntime() {
       (window as any).__leaderboardResetMsg = data;
       window.dispatchEvent(new CustomEvent("leaderboard_reset", { detail: data }));
     });
+    socket.on("leaderboard.monthly_reset", (data: any) => {
+      window.dispatchEvent(new CustomEvent("leaderboard_reset", { detail: data }));
+    });
+    socket.on("leaderboard.yearly_reset", (data: any) => {
+      window.dispatchEvent(new CustomEvent("leaderboard_reset", { detail: data }));
+    });
   }
 
   console.log("[RUNTIME] BOOTSTRAP COMPLETED");

@@ -95,6 +95,8 @@ export default function GameCenterPage() {
       if (socket?.connected) {
         socket.on("challenge.won", (data) => {
           setChallenge(prev => prev ? { ...prev, completed: true, winner_name: data?.payload?.winner_name } : prev);
+          // Popup toàn server
+          window.dispatchEvent(new CustomEvent("challenge_won", { detail: data?.payload }));
         });
         return;
       }
