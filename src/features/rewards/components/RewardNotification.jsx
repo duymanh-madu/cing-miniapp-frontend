@@ -134,7 +134,7 @@ export function PendingRewardsBadge() {
     window.addEventListener("challenge_won", handler);
     // Refresh khi user.updated (nhận điểm)
     const socketHandler = () => setTimeout(loadRewards, 1000);
-    const s = (window as any).__runtimeSocket;
+    const s = window.__runtimeSocket;
     s?.on?.("user.updated", socketHandler);
     return () => {
       window.removeEventListener("leaderboard_reset", handler);
