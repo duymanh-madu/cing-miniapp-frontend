@@ -22,6 +22,7 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
   const [loading, setLoading] = useState(true);
   const [buying,  setBuying]  = useState(false);
   const [buyMsg,  setBuyMsg]  = useState("");
+  const [pressing, setPressing] = useState(null);
 
   const profileId    = useAuthStore(s => s.profile?.id);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
@@ -53,14 +54,17 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
   const buyPlay = async (qty) => {
     const phone = getPhone();
     if (!phone) return;
-    setBuying(true); setBuyMsg("");
+    // Hiệu ứng nhấp ngay lập tức
+    setPressing(qty);
+    setTimeout(() => setPressing(null), 200);
+    setBuying(true); setBuyMsg("⏳ Đang xử lý...");
     try {
       const res = await apiClient.post("/points/buy-plays", { user_id: phone, quantity: qty });
       if (res.data?.success) {
         setPlays(res.data.data.new_plays);
         setPoints(res.data.data.remaining_points);
         onPlaysUpdate?.(res.data.data.new_plays);
-        setBuyMsg("✅ " + res.data.message);
+        setBuyMsg("✅ +" + qty + " lượt thành công!");
       } else {
         setBuyMsg("❌ " + res.data.message);
       }
@@ -124,9 +128,12 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
           {[1,3,5].map(qty => (
             <button key={qty} onClick={() => buyPlay(qty)} disabled={buying || points < qty * 5}
               style={{ flex:1, padding:"7px 0", borderRadius:10, fontSize:11, fontWeight:700, cursor:"pointer", border:"none",
-                background: points >= qty * 5 ? "rgba(255,215,0,0.15)" : "rgba(255,255,255,0.05)",
-                color: points >= qty * 5 ? "#FFD700" : "rgba(255,255,255,0.2)" }}>
-              +{qty} lượt<br/>
+                background: pressing === qty ? "rgba(255,215,0,0.4)" : points >= qty * 5 ? "rgba(255,215,0,0.15)" : "rgba(255,255,255,0.05)",
+                color: points >= qty * 5 ? "#FFD700" : "rgba(255,255,255,0.2)",
+                transform: pressing === qty ? "scale(0.95)" : "scale(1)",
+                transition:"all 0.15s ease",
+                boxShadow: pressing === qty ? "0 0 12px rgba(255,215,0,0.4)" : "none" }}>
+              {buying && pressing === qty ? "⏳" : `+${qty} lượt`}<br/>
               <span style={{ fontSize:9, fontWeight:400 }}>({qty*5} điểm)</span>
             </button>
           ))}
