@@ -217,34 +217,31 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
           <p style={{ color:cfg.subColor, fontSize:10, fontWeight:700, letterSpacing:1.5, margin:"0 0 16px", textTransform:"uppercase" }}>Hạng thành viên</p>
 
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-            {/* Badge với glow */}
+            {/* Badge với vòng nhẫn xoay */}
             <div style={{ position:"relative", flexShrink:0 }}>
-              {/* Vòng nhẫn xoay bao quanh badge — dùng position:relative wrapper */}
-              <div style={{ position:"relative", width:64, height:64, flexShrink:0 }}>
-                <div style={{ position:"absolute", inset:-10, borderRadius:"50%", border:`2px solid ${tierKey==="diamond"?"rgba(0,200,255,.6)":"rgba(255,80,160,.6)"}`, borderTopColor:"transparent", borderBottomColor:"transparent", animation:"ringRotate 2.5s linear infinite", pointerEvents:"none" }}/>
-                <div style={{ position:"absolute", inset:-18, borderRadius:"50%", border:`1.5px dashed ${tierKey==="diamond"?"rgba(0,150,255,.35)":"rgba(180,60,255,.35)"}`, animation:"ringRotateRev 4s linear infinite", pointerEvents:"none" }}/>
+              {/* Crown for loyal_partner */}
+              {tierKey === "loyal_partner" && (
+                <div style={{ position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)", zIndex:2, filter:"drop-shadow(0 0 5px rgba(250,199,117,.9))" }}>
+                  <svg width="24" height="14" viewBox="0 0 24 14"><polygon points="12,0 24,14 0,14" fill="#ffd700"/><polygon points="4,4 0,14 8,14" fill="#c47a00"/><polygon points="20,4 24,14 16,14" fill="#c47a00"/></svg>
+                </div>
+              )}
+              {/* Vòng nhẫn xoay */}
+              <div style={{ position:"absolute", inset:-10, borderRadius:"50%", border:`2px solid ${tierKey==="diamond"?"rgba(0,200,255,.6)":"rgba(255,80,160,.6)"}`, borderTopColor:"transparent", borderBottomColor:"transparent", animation:"ringRotate 2.5s linear infinite", pointerEvents:"none" }}/>
+              <div style={{ position:"absolute", inset:-18, borderRadius:"50%", border:`1.5px dashed ${tierKey==="diamond"?"rgba(0,150,255,.35)":"rgba(180,60,255,.35)"}`, animation:"ringRotateRev 4s linear infinite", pointerEvents:"none" }}/>
+              {/* Badge */}
               <div style={{ width:64, height:64, borderRadius:"50%", background:cfg.badgeBg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, animation:`tcGlow_${tierKey} 1.8s ease-in-out infinite, tcFloat 3s ease-in-out infinite`, position:"relative" }}>
                 {cfg.icon}
-                {/* 6 sparkles */}
                 <div style={{ position:"absolute", top:3, right:5, width:7, height:7, borderRadius:"50%", background:"#fff", animation:"tcSp1 2.4s ease-in-out infinite" }}/>
-                <div style={{ position:"absolute", bottom:5, left:4, width:5, height:5, borderRadius:"50%", background:tierKey==="diamond"?"#a0d8ff":"#ffb0d8", animation:"tcSp2 2.4s ease-in-out .5s infinite" }}/>
+                <div style={{ position:"absolute", bottom:5, left:4, width:5, height:5, borderRadius:"50%", background:tierKey==="diamond"?"#80e0ff":"#ffb0d8", animation:"tcSp2 2.4s ease-in-out .5s infinite" }}/>
                 <div style={{ position:"absolute", top:9, left:7, width:4, height:4, borderRadius:"50%", background:"#fff", animation:"tcSp3 2.4s ease-in-out 1s infinite" }}/>
-                <div style={{ position:"absolute", bottom:10, right:6, width:6, height:6, borderRadius:"50%", background:tierKey==="diamond"?"#60c0ff":"#ff90c0", animation:"tcSp4 2.4s ease-in-out .3s infinite" }}/>
+                <div style={{ position:"absolute", bottom:10, right:6, width:6, height:6, borderRadius:"50%", background:tierKey==="diamond"?"#40c0ff":"#ff90c0", animation:"tcSp4 2.4s ease-in-out .3s infinite" }}/>
                 <div style={{ position:"absolute", top:6, right:10, width:4, height:4, borderRadius:"50%", background:"#fff", animation:"tcSp5 2.4s ease-in-out .8s infinite" }}/>
                 <div style={{ position:"absolute", bottom:6, left:10, width:3, height:3, borderRadius:"50%", background:tierKey==="diamond"?"#a0e0ff":"#ffaada", animation:"tcSp6 2.4s ease-in-out 1.4s infinite" }}/>
               </div>
               {/* Gold dot for diamond */}
               {tierKey === "diamond" && (
-                <div style={{ position:"absolute", top:-2, right:-2, width:18, height:18, background:"linear-gradient(135deg,#fac775,#ef9f27)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, border:"2px solid #04101e", boxShadow:"0 0 6px rgba(250,199,117,.8)" }}>✦</div>
+                <div style={{ position:"absolute", top:-2, right:-2, width:18, height:18, background:"linear-gradient(135deg,#fac775,#ef9f27)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, border:"2px solid #010c18", boxShadow:"0 0 8px rgba(250,199,117,.9)" }}>✦</div>
               )}
-              </div></div>
-              {/* Crown for loyal_partner */}
-              {tierKey === "loyal_partner" && (
-                <div style={{ position:"absolute", top:-8, left:"50%", transform:"translateX(-50%)", filter:"drop-shadow(0 0 5px rgba(250,199,117,.9))" }}>
-                  <svg width="24" height="14" viewBox="0 0 24 14"><polygon points="12,0 24,14 0,14" fill="#ffd700"/><polygon points="4,4 0,14 8,14" fill="#c47a00"/><polygon points="20,4 24,14 16,14" fill="#c47a00"/></svg>
-                </div>
-              )}
-              </div></div>
             </div>
 
             <div>
