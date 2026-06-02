@@ -139,7 +139,7 @@ export default function HomeMembershipCard() {
     setSubmittedPhone(clean);
   };
   const { data: membership, isLoading } = useMembership(submittedPhone || phone);
-  const displayName = membership?.name || profile?.name || profile?.displayName || "Hội viên";
+  const displayName = profile?.name || profile?.displayName || membership?.name || "Hội viên"; // custom name ưu tiên
 
   const tierRaw = membership?.tierName || membership?.tierKey || realtimeTier || "member";
   // Uu tien tierKey neu da biet (chinh xac hon)

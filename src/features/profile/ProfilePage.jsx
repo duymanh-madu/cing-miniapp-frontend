@@ -74,7 +74,7 @@ export default function ProfilePage() {
   const tierKey = member.tierKey || "member";
   const theme   = TIER_THEME[tierKey] || TIER_THEME.member;
 
-  const displayName   = member.name || profile?.name || "Cing iu";
+  const displayName   = profile?.name || profile?.displayName || member.name || "Cing iu"; // profile.name là custom name, ưu tiên hơn iPOS
   const avatarUrl     = isOwn ? (profile?.avatar || null) : null;
   const points        = member.points || 0;
   const eatTimes      = member.eatTimes || 0;
