@@ -244,10 +244,15 @@ export default function AccountPage() {
 
 
       <div onClick={() => {
-        const id = window.__runtimeIdentityStore?.getState()?.identity;
-        alert('identity=' + id?.fullName + '\nprofile=' + profile?.name);
+        const id = window.__runtimeIdentityStore?.getState();
+        alert(
+          'fullName=' + id?.identity?.fullName +
+          '\nstatus=' + id?.activationStatus +
+          '\nhydrated=' + id?.profileHydrated +
+          '\nzaloId=' + id?.identity?.zaloUserId
+        );
       }} style={{ background:"#000c", padding:"8px 12px", fontSize:11, color:"#0f0", fontFamily:"monospace", position:"fixed", bottom:100, left:16, right:16, zIndex:9999, cursor:"pointer", borderRadius:8, textAlign:"center" }}>
-        🔍 TAP ĐỂ DEBUG | p:{profile?.name}
+        🔍 TAP DEBUG
       </div>
       {toast && (
         <div style={{ position:"fixed", top:20, left:16, right:16, zIndex:200, background:"#1a1a1a", color:"white", borderRadius:14, padding:"14px 18px", fontSize:13, fontWeight:700, textAlign:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.3)" }}>
