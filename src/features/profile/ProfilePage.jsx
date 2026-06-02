@@ -44,12 +44,13 @@ export default function ProfilePage() {
     if (!resolvedPhone) { setLoading(false); return; }
     Promise.all([
       apiClient.get(`/membership/${resolvedPhone}`).catch(() => null),
-      apiClient.get(`/leaderboard/top-games/chess-wins`).catch(() => null),
+      apiClient.get(`/leaderboard/top-games/chess`).catch(() => null),
     ]).then(([mRes, lbRes]) => {
       if (mRes?.data?.data) setMember(mRes.data.data);
       const top = lbRes?.data?.data?.[0];
       if (top) {
         const topPhone = String(top.user_id).replace(/\D/g,"").replace(/^84/,"0");
+        console.log('[CHAMPION] topPhone:', topPhone, 'resolvedPhone:', resolvedPhone, 'match:', topPhone === resolvedPhone);
         if (topPhone === resolvedPhone) setChampion(true);
       }
     }).finally(() => setLoading(false));
