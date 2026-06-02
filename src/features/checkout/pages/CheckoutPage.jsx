@@ -62,6 +62,11 @@ export default function CheckoutPage(){
 
   const [orderType,setOrderType]=useState("dine_in");
   const [name,setName]=useState(profile?.name||profile?.displayName||"");
+  // Update name khi profile thay đổi (sau khi bootstrap sync xong)
+  useEffect(() => {
+    const n = profile?.name || profile?.displayName || "";
+    if (n) setName(n);
+  }, [profile?.name, profile?.displayName]);
   const [phone,setPhone]=useState(profile?.phone||"");
   const [address,setAddress]=useState("");
   const [note,setNote]=useState("");
