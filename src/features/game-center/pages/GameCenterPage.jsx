@@ -233,6 +233,52 @@ export default function GameCenterPage() {
         )}
       </div>
 
+      {/* ── NHIỆM VỤ NGÀY ── */}
+      {missions.length > 0 && (
+        <div style={{ margin:"0 16px 16px" }}>
+          <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, fontWeight:700, letterSpacing:3, margin:"0 0 10px", textTransform:"uppercase" }}>📋 Nhiệm Vụ Hôm Nay</p>
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {missions.map((m, i) => (
+              <div key={i} style={{ background: m.completed ? "rgba(76,175,80,0.1)" : "rgba(255,255,255,0.05)",
+                border:`1px solid ${m.completed ? "rgba(76,175,80,0.3)" : "rgba(255,255,255,0.08)"}`,
+                borderRadius:14, padding:"12px 16px", display:"flex", alignItems:"center", gap:12 }}>
+                <span style={{ fontSize:24, flexShrink:0 }}>{m.icon}</span>
+                <div style={{ flex:1 }}>
+                  <p style={{ color: m.completed ? "#4CAF50" : "white", fontSize:13, fontWeight:700, margin:"0 0 2px" }}>
+                    {m.label}
+                  </p>
+                  <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:0 }}>
+                    Phần thưởng: +{m.plays} lượt chơi{m.points > 0 ? ` · +${m.points} điểm` : ""}
+                  </p>
+                </div>
+                {m.completed ? (
+                  <span style={{ color:"#4CAF50", fontSize:22 }}>✅</span>
+                ) : m.condition_type === "checkin" ? (
+                  <button onClick={async () => {
+                    const phone = getPhone();
+                    if (!phone) return;
+                    try {
+                      const res = await apiClient.post("/missions/checkin", { user_id: phone });
+                      if (res.data?.success) {
+                        setMissions(prev => prev.map(x => x.type === "checkin" ? {...x, completed:true} : x));
+                        alert(`✅ Điểm danh thành công! +${m.plays} lượt chơi`);
+                      } else alert(res.data?.message || "Đã điểm danh hôm nay rồi!");
+                    } catch(e) { alert("Lỗi điểm danh"); }
+                  }}
+                    style={{ background:"linear-gradient(135deg,#D4531C,#FF6B35)", border:"none",
+                      borderRadius:10, padding:"8px 14px", color:"white", fontSize:12,
+                      fontWeight:800, cursor:"pointer", flexShrink:0 }}>
+                    Điểm danh
+                  </button>
+                ) : (
+                  <span style={{ color:"rgba(255,255,255,0.25)", fontSize:11 }}>Tự động</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <GamePlaysCard onPlaysUpdate={setGamePlays} />
 
       {/* GAME LIST */}
