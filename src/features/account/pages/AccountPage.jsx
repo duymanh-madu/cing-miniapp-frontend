@@ -245,11 +245,13 @@ export default function AccountPage() {
 
       <div onClick={() => {
         const id = window.__runtimeIdentityStore?.getState();
+        const eng = window.__debugEngine;
         alert(
-          'fullName=' + id?.identity?.fullName +
+          'identity=' + id?.identity?.fullName +
           '\nstatus=' + id?.activationStatus +
-          '\nhydrated=' + id?.profileHydrated +
-          '\nzaloId=' + id?.identity?.zaloUserId
+          '\neng.result=' + (eng?.resultFullName||'N/A') +
+          '\neng.nameToSet=' + (eng?.nameToSet||'N/A') +
+          '\neng.after=' + (eng?.afterName||'N/A')
         );
       }} style={{ background:"#000c", padding:"8px 12px", fontSize:11, color:"#0f0", fontFamily:"monospace", position:"fixed", bottom:100, left:16, right:16, zIndex:9999, cursor:"pointer", borderRadius:8, textAlign:"center" }}>
         🔍 TAP DEBUG

@@ -51,7 +51,8 @@ export async function initializeCustomerIdentityEngine() {
         });
 
         const nameToSet = (result.fullName && result.fullName !== 'Khách hàng' ? result.fullName : identity?.fullName) || result.fullName || "";
-        console.log("[ENGINE] setIdentity — result.fullName:", result.fullName, "nameToSet:", nameToSet, "result.avatar:", result.avatar);
+        // Lưu kết quả vào window để debug
+        (window as any).__debugEngine = { resultFullName: result.fullName, nameToSet, resultAvatar: result.avatar };
         store.setIdentity({
           customerId:    result.customerId    || "",
           fullName:      nameToSet,
@@ -61,7 +62,7 @@ export async function initializeCustomerIdentityEngine() {
           phoneGranted:  true,
           oaFollowed:    true,
         });
-        console.log("[ENGINE] after setIdentity — store.fullName:", store.identity?.fullName);
+        (window as any).__debugEngine.afterName = store.identity?.fullName;
         store.setProfileHydrated(true);
         store.setActivationStatus("activated");
         runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path activated");
