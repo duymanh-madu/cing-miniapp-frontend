@@ -75,6 +75,7 @@ export default function GameCenterPage() {
   const [showAlltimeLB, setShowAlltimeLB] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [challenge, setChallenge]         = useState(null);
+  const [missions,  setMissions]          = useState([]);
   const [gamePlays, setGamePlays]         = useState(null);
   const [showChat, setShowChat]           = useState(false);
 
@@ -85,6 +86,12 @@ export default function GameCenterPage() {
     apiClient.get("/game/daily-challenge")
       .then(r => setChallenge(r.data?.data))
       .catch(() => {});
+    const phone = getPhone();
+    if (phone) {
+      apiClient.get(`/missions/${phone}`)
+        .then(r => setMissions(r.data?.data || []))
+        .catch(() => {});
+    }
   }, []);
 
   // Socket: challenge winner
