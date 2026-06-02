@@ -126,7 +126,9 @@ function ZaloPanel({ h }) {
     setSending(true); setMsg("");
     try {
       const phones = parsePhones();
-      const body = phones.length
+      const isCustom = segment === "custom";
+      if (isCustom && !phones.length) { setMsg("err:Nhập ít nhất 1 số điện thoại"); setSending(false); return; }
+      const body = isCustom
         ? { template_id: selTpl.id, custom_phones: phones }
         : { template_id: selTpl.id, segment_key: segment };
       const res = await apiClient.post("/admin/cdp/send-zbs-template", body, { headers:h });
@@ -140,7 +142,9 @@ function ZaloPanel({ h }) {
     setSending(true); setMsg("");
     try {
       const phones = parsePhones();
-      const body = phones.length
+      const isCustom = segment === "custom";
+      if (isCustom && !phones.length) { setMsg("err:Nhập ít nhất 1 số điện thoại"); setSending(false); return; }
+      const body = isCustom
         ? { title, message, custom_phones: phones }
         : { title, message, segment_key: segment };
       const res = await apiClient.post("/admin/cdp/send-uid", body, { headers:h });
