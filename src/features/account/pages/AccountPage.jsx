@@ -246,12 +246,15 @@ export default function AccountPage() {
       <div onClick={() => {
         const p = window.__debugPayload;
         const r = window.__debugResult;
+        const id = window.__runtimeIdentityStore?.getState()?.identity;
         alert(
-          'payload.name=' + (p?.name||'N/A') +
-          '\npayload.phone=' + (p?.phone||'N/A') +
+          'phone=' + (p?.phone||'N/A') +
           '\nhasPhoneToken=' + (p?.hasPhoneToken||false) +
+          '\nhasMiniToken=' + (p?.hasMiniToken||false) +
           '\nresult.fullName=' + (r?.fullName||'N/A') +
-          '\nresult.name=' + (r?.name||'N/A')
+          '\nidentity.phone=' + (id?.phone||'N/A') +
+          '\nidentity.phoneToken=' + !!(id?.phoneToken) +
+          '\nidentity.miniToken=' + !!(id?.miniAccessToken)
         );
       }} style={{ background:"#000c", padding:"8px 12px", fontSize:11, color:"#0f0", fontFamily:"monospace", position:"fixed", bottom:100, left:16, right:16, zIndex:9999, cursor:"pointer", borderRadius:8, textAlign:"center" }}>
         🔍 TAP DEBUG
