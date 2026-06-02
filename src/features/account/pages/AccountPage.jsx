@@ -3,10 +3,14 @@ import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
+import { TierBadge } from "@/membership/components/TierBadge";
+import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
+injectTierBadgeStyles();
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
 const MENU_ITEMS = [
+  { icon:"👤", label:"Hồ sơ của tôi",      path:"/profile",     desc:"Xem trang hồ sơ cá nhân" },
   { icon:"📦", label:"Lịch sử đơn hàng",  path:"/orders",      desc:"Xem các đơn đã đặt" },
   { icon:"🎟", label:"Voucher của tôi",    path:"/voucher",     desc:"Ưu đãi và mã giảm giá" },
   { icon:"⭐", label:"Điểm tích lũy",      path:"/loyalty",     desc:"Xem điểm và đổi quà" },
@@ -256,6 +260,7 @@ export default function AccountPage() {
             <p style={{ color:"rgba(255,255,255,0.7)", fontSize:11, margin:"0 0 4px", fontWeight:600 }}>Xin chào 👋</p>
             <div onClick={openEdit} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:6 }}>
               <p style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 4px" }}>{name}</p>
+              <TierBadge tierKey={membership?.tierKey || "member"} size="sm"/>
               <span style={{ fontSize:12, color:"rgba(255,255,255,0.7)" }}>✏️</span>
             </div>
             <p style={{ color:"rgba(255,255,255,0.6)", fontSize:12, margin:0 }}>{profile?.phone || "Thành viên Cing Hu Tang Kinh Bắc"}</p>

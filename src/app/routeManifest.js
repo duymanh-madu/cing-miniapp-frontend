@@ -12,5 +12,7 @@ export const routeManifest = [
   { key:"orders", path:"/orders", loader:() => import("@/features/order-history/OrderHistoryPage") },
   { key:"membership-benefits", path:"/membership-benefits", loader:() => import("@/features/membership/pages/MembershipBenefitsPage") },
   { key:"loyalty",       path:"/loyalty",        loader:() => import("@/membership/pages/MembershipPage") },
+  { key:"profile",       path:"/profile/:userId", loader:() => import("@/features/profile/ProfilePage") },
+  { key:"my-profile",    path:"/profile",         loader:() => import("@/features/profile/ProfilePage") },
 ];
 export const routeMap = Object.fromEntries(routeManifest.map(r => [r.key, r]));

@@ -2,6 +2,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
+import { TierBadge } from "@/membership/components/TierBadge";
+import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
+injectTierBadgeStyles();
 
 export default function CommunityChat({ onClose }) {
   const [messages,   setMessages]   = useState([]);
@@ -51,6 +54,11 @@ export default function CommunityChat({ onClose }) {
       setMyId(uid);
       addLog(`✅ Connected: ${uid}`);
       s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar });
+      // Load tier từ membership store nếu có
+      try {
+        const mStore = (window).__membershipStore;
+        if (mStore) info.tierKey = mStore.getState?.()?.membershipTier || "member";
+      } catch(e) {}
 
       s.on("community:history", (history) => {
       setMessages(history || []);
@@ -131,11 +139,17 @@ export default function CommunityChat({ onClose }) {
     if (!input.trim() || !sockRef.current?.connected) return;
     const info = getMyInfo();
     const uid  = myIdRef.current || info.phone || ("guest-" + Date.now());
+    let tierKey = "member";
+    try {
+      const mStore = (window).__membershipStore;
+      if (mStore) tierKey = mStore.getState?.()?.membershipTier || "member";
+    } catch(e) {}
     sockRef.current.emit("community:chat", {
       userId:  uid,
       name:    info.name,
       avatar:  info.avatar,
       message: input.trim(),
+      tierKey,
     });
     setInput("");
   };
@@ -217,7 +231,10 @@ export default function CommunityChat({ onClose }) {
           )}
           {messages.map((m, i) => (
             <div key={i} style={{ display:"flex", flexDirection:"column", alignItems: isMe(m.userId)?"flex-end":"flex-start" }}>
-              {!isMe(m.userId) && <p style={{ color:"#666", fontSize:10, margin:"0 0 3px 8px" }}>{m.name}</p>}
+              {!isMe(m.userId) && <div style={{ display:"flex", alignItems:"center", gap:4, marginBottom:3, marginLeft:8 }}>
+              <p style={{ color:"#666", fontSize:10, margin:0 }}>{m.name}</p>
+              <TierBadge tierKey={m.tierKey || "member"} size="sm"/>
+            </div>}
               <div style={{ display:"flex", alignItems:"flex-end", gap:6, flexDirection: isMe(m.userId)?"row-reverse":"row" }}>
                 {!isMe(m.userId) && (
                   <div style={{ width:28, height:28, borderRadius:14, background:"#1a1a2e", flexShrink:0, overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:900, color:"#666" }}>
@@ -241,7 +258,10 @@ export default function CommunityChat({ onClose }) {
                 <div style={{ position:"absolute", bottom:0, right:0, width:10, height:10, borderRadius:5, background:"#00c864", border:"2px solid #0d0d18" }}/>
               </div>
               <div>
+                <div style={{ display:"flex", alignItems:"center", gap:5 }}>
                 <p style={{ color: isMe(u.userId)?"#FFD700":"white", fontSize:13, fontWeight:700, margin:0 }}>{u.name}{isMe(u.userId)?" (bạn)":""}</p>
+                <TierBadge tierKey={u.tierKey || "member"} size="sm"/>
+              </div>
                 {speaker===u.userId && <p style={{ color:"#00c864", fontSize:10, margin:0 }}>🎙️ Đang nói</p>}
               </div>
             </div>
