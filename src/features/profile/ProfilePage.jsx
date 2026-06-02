@@ -83,7 +83,7 @@ export default function ProfilePage() {
 
       {/* Header */}
       <div style={{ background:theme.header, padding:"calc(env(safe-area-inset-top,0px) + 14px) 20px 48px", position:"relative", overflow:"hidden" }}>
-        {theme.royal && <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 7px)", pointerEvents:"none" }}/>}
+
 
         <button onClick={() => navigate(-1)} style={{ background:"rgba(0,0,0,.3)", border:"none", borderRadius:8, padding:"6px 14px", color:"rgba(255,255,255,.75)", fontSize:14, cursor:"pointer", marginBottom:24 }}>←</button>
 
@@ -132,20 +132,10 @@ export default function ProfilePage() {
           ))}
         </div>
 
-        {/* Champion card */}
+        {/* Champion card — dùng TierCard isChampion để đúng thiết kế */}
         {champion && (
-          <div style={{ borderRadius:16, padding:"16px 18px", marginBottom:14, background:"linear-gradient(135deg,#1e1400,#2a1c04)", border:"1.5px solid #ffd700", boxShadow:"0 0 24px rgba(186,117,23,.4)", position:"relative", overflow:"hidden" }}>
-            <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,210,0,.025) 0,rgba(255,210,0,.025) 1px,transparent 1px,transparent 7px)", pointerEvents:"none" }}/>
-            <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-              <span style={{ fontSize:32 }}>♟️</span>
-              <div>
-                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3 }}>
-                  <p style={{ color:"#ffd700", fontSize:15, fontWeight:900, margin:0 }}>Kiện tướng cờ vua</p>
-                  <span style={{ background:"rgba(255,0,0,.85)", borderRadius:4, padding:"1px 6px", fontSize:8, fontWeight:900, color:"#fff", animation:"liveFlash 1.2s ease-in-out infinite" }}>LIVE</span>
-                </div>
-                <p style={{ color:"#c47a00", fontSize:11, margin:0 }}>Đang giữ ngôi vị Top 1 bảng xếp hạng cờ vua</p>
-              </div>
-            </div>
+          <div style={{ marginBottom:14 }}>
+            <TierCard isChampion={true} firstVisit={member.firstVisit}/>
           </div>
         )}
 
