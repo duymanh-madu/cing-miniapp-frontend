@@ -30,8 +30,12 @@ export default function CommunityChat({ onClose }) {
   const profile       = useAuthStore(s => s.profile);
 
   const memberPhone = (() => {
-    const src = runtimePhone || profile?.phone || "";
-    return src.replace(/\D/g,"").replace(/^84/,"0");
+    for (const src of [runtimePhone, profile?.phone]) {
+      if (!src || src === "pending") continue;
+      const n = src.replace(/\D/g,"").replace(/^84/,"0");
+      if (n.length >= 9) return n;
+    }
+    return "";
   })();
   const { data: membershipData } = useMembership(memberPhone);
   const myTierKey = membershipData?.tierKey || "member";
