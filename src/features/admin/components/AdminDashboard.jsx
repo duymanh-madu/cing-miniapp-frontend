@@ -65,6 +65,7 @@ export default function AdminDashboard({ auth }) {
       <div style={{ marginLeft:220, flex:1, padding:"24px", minHeight:"100vh" }}>
         {tab==="stats"     && <AdminStats token={auth.token} />}
         {tab==="missions"  && <AdminMissions token={auth.token} />}
+        {tab==="notifications" && <AdminNotifications token={auth.token} />}
         {tab==="games"     && <AdminGames token={auth.token} />}
         {tab==="vouchers"  && <AdminVouchers token={auth.token} />}
         {tab==="players"   && <AdminPlayers token={auth.token} />}
