@@ -4,7 +4,7 @@ const BACKEND_URL =
   (import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api");
 // Auth đi qua Mắt Bão VN — Zalo không chặn
 const AUTH_URL =
-  (import.meta.env.VITE_AUTH_URL || "https://game.madu.com.vn");
+  (import.meta.env.VITE_AUTH_URL || "http://112.78.3.72:3001");
 
 export interface ActivateMiniAppUserInput {
   phone:        string;
