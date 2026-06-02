@@ -34,9 +34,7 @@ export async function initializeCustomerIdentityEngine() {
           runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: missing OA follow, blocked");
           store.setActivationStatus("blocked");
           return;
-        }
-
-        const payload = {
+        }        const payload = {
           zaloUserId,
           name:         identity?.fullName  || "",
           avatar:       identity?.avatar    || "",
@@ -49,13 +47,9 @@ export async function initializeCustomerIdentityEngine() {
           source:       "zalo-miniapp",
           birthday:     birthday,
         };
-        (window as any).__debugPayload = { name: payload.name, phone: payload.phone, hasPhoneToken: !!payload.phoneToken, hasMiniToken: !!payload.miniAccessToken };
         const result = await activateMiniAppUser(payload);
-        (window as any).__debugResult = { fullName: result.fullName, name: result.name, avatar: !!result.avatar };
 
         const nameToSet = (result.fullName && result.fullName !== 'Khách hàng' ? result.fullName : identity?.fullName) || result.fullName || "";
-        // Lưu kết quả vào window để debug
-        (window as any).__debugEngine = { resultFullName: result.fullName, nameToSet, resultAvatar: result.avatar };
         store.setIdentity({
           customerId:    result.customerId    || "",
           fullName:      nameToSet,
@@ -65,7 +59,6 @@ export async function initializeCustomerIdentityEngine() {
           phoneGranted:  true,
           oaFollowed:    true,
         });
-        (window as any).__debugEngine.afterName = store.identity?.fullName;
         store.setProfileHydrated(true);
         store.setActivationStatus("activated");
         runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path activated");
