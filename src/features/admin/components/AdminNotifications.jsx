@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
+import ZbsTemplateManager from "./ZbsTemplateManager";
 
 const TABS = [
   { key:"broadcast", label:"📢 Flash Sales" },
@@ -107,6 +108,7 @@ function ZaloPanel({ h }) {
   const [message, setMessage]         = useState("");
   const [sending, setSending]         = useState(false);
   const [msg, setMsg]                 = useState("");
+  const [showManager, setShowManager] = useState(false);
 
   useEffect(() => {
     apiClient.get("/admin/cdp/zbs-templates", { headers:h })
@@ -150,6 +152,24 @@ function ZaloPanel({ h }) {
   const ok = msg.startsWith("ok:");
   return (
     <div style={{ background:"#1a1a24", borderRadius:16, padding:20, border:"1px solid #2a2a38" }}>
+      {/* Nút quản lý templates */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+        <p style={{ color:"#00d4ff", fontSize:13, fontWeight:800, margin:0 }}>💬 Gửi tin Zalo OA</p>
+        <button onClick={() => setShowManager(v=>!v)}
+          style={{ background:"rgba(124,58,237,0.15)", border:"1px solid #7c3aed",
+            color:"#a78bfa", borderRadius:8, padding:"5px 12px", fontSize:11, cursor:"pointer" }}>
+          {showManager ? "Ẩn" : "⚙️ Quản lý templates"}
+        </button>
+      </div>
+
+      {showManager && (
+        <ZbsTemplateManager
+          token={h.Authorization.replace("Bearer ","")}
+          templates={templates}
+          onSaved={(newList) => { setTemplates(newList); setShowManager(false); setSelTpl(null); }}
+        />
+      )}
+
       {/* Mode selector */}
       <div style={{ display:"flex", gap:8, marginBottom:16 }}>
         {[
