@@ -81,7 +81,7 @@ const notif = data?.payload?.notification || data?.notification || data;
           ) : notifications.map((n, i) => (
             <div key={i} style={{ padding:"12px 16px", borderBottom:"1px solid #f5f5f5",
               background: i === 0 ? "#fff8f5" : "white" }}>
-              <p style={{ fontWeight:700, fontSize:13, margin:"0 0 2px" }}>{n.title}</p>
+              <p style={{ fontWeight:700, fontSize:13, margin:"0 0 2px", color:"#1a1a1a" }}>{n.title}</p>
               <p style={{ fontSize:12, color:"#888", margin:"0 0 4px" }}>{n.message}</p>
               <p style={{ fontSize:10, color:"#bbb", margin:0 }}>
                 {new Date(n.created_at).toLocaleTimeString("vi-VN")}
