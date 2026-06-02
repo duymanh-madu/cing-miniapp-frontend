@@ -4,6 +4,7 @@ import useAuthStore from "@/stores/auth/authStore";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { TierBadge } from "@/membership/components/TierBadge";
 import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
+import { useMembership } from "@/features/home/hooks/useMembership";
 injectTierBadgeStyles();
 
 export default function CommunityChat({ onClose }) {
@@ -27,6 +28,15 @@ export default function CommunityChat({ onClose }) {
   const runtimeName   = useRuntimeCustomerIdentityStore(s => s.identity?.fullName);
   const runtimeAvatar = useRuntimeCustomerIdentityStore(s => s.identity?.avatar);
   const profile       = useAuthStore(s => s.profile);
+
+  const memberPhone = (() => {
+    const src = runtimePhone || profile?.phone || "";
+    return src.replace(/\D/g,"").replace(/^84/,"0");
+  })();
+  const { data: membershipData } = useMembership(memberPhone);
+  const myTierKey = membershipData?.tierKey || "member";
+  const tierKeyRef = useRef("member");
+  useEffect(() => { tierKeyRef.current = myTierKey; }, [myTierKey]);
 
   const getMyInfo = useCallback(() => {
     for (const src of [runtimePhone, profile?.phone]) {
@@ -53,12 +63,7 @@ export default function CommunityChat({ onClose }) {
       myIdRef.current = uid;
       setMyId(uid);
       addLog(`✅ Connected: ${uid}`);
-      s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar });
-      // Load tier từ membership store nếu có
-      try {
-        const mStore = (window).__membershipStore;
-        if (mStore) info.tierKey = mStore.getState?.()?.membershipTier || "member";
-      } catch(e) {}
+      s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current });
 
       s.on("community:history", (history) => {
       setMessages(history || []);
@@ -124,32 +129,41 @@ export default function CommunityChat({ onClose }) {
     };
   }, []);
 
-  // Khi phone resolve sau khi đã connect — emit join lại với đúng phone
+  // Khi phone resolve — emit join với đúng phone
   useEffect(() => {
     const info = getMyInfo();
     if (!info.phone || !sockRef.current?.connected) return;
-    if (myIdRef.current === info.phone) return; // Đã join đúng rồi
+    if (myIdRef.current === info.phone) return;
     myIdRef.current = info.phone;
     setMyId(info.phone);
-    sockRef.current.emit("community:join", { userId: info.phone, name: info.name, avatar: info.avatar });
+    sockRef.current.emit("community:join", { userId: info.phone, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current });
   }, [runtimePhone, getMyInfo]);
+
+  // Re-emit khi tierKey resolve từ API — cập nhật badge cho các client khác
+  useEffect(() => {
+    if (myTierKey === "member") return;
+    const emitWithRetry = (attempts = 0) => {
+      if (sockRef.current?.connected && myIdRef.current) {
+        const info = getMyInfo();
+        sockRef.current.emit("community:join", { userId: myIdRef.current, name: info.name, avatar: info.avatar, tierKey: myTierKey });
+      } else if (attempts < 10) {
+        setTimeout(() => emitWithRetry(attempts + 1), 1000);
+      }
+    };
+    emitWithRetry();
+  }, [myTierKey]);
 
   const sendChat = () => {
     addLog(`Send: connected=${sockRef.current?.connected} myId=${myIdRef.current}`);
     if (!input.trim() || !sockRef.current?.connected) return;
     const info = getMyInfo();
     const uid  = myIdRef.current || info.phone || ("guest-" + Date.now());
-    let tierKey = "member";
-    try {
-      const mStore = (window).__membershipStore;
-      if (mStore) tierKey = mStore.getState?.()?.membershipTier || "member";
-    } catch(e) {}
     sockRef.current.emit("community:chat", {
       userId:  uid,
       name:    info.name,
       avatar:  info.avatar,
       message: input.trim(),
-      tierKey,
+      tierKey: tierKeyRef.current,
     });
     setInput("");
   };
