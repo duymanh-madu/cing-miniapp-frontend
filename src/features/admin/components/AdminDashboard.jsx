@@ -13,6 +13,8 @@ import AdminLeaderboard from "./AdminLeaderboard";
 import AdminNotifications from './AdminNotifications';
 import AdminManagement from './AdminManagement';
 import AdminAnalytics from './AdminAnalytics';
+import AdminOrders from './AdminOrders';
+import AdminPayments from './AdminPayments';
 
 const TABS = [
   { key:"stats",     icon:"📊", label:"Tổng quan" },
@@ -27,6 +29,8 @@ const TABS = [
   { key:"notifications", icon:"🔔", label:"Thông báo" },
   { key:"monitor",       icon:"👁",  label:"Monitor" },
   { key:"alltime_games", icon:"🏅", label:"Alltime Games" },
+  { key:"orders_admin",  icon:"📦", label:"Đơn hàng" },
+  { key:"payments_admin",icon:"💳", label:"Thanh toán" },
   { key:"analytics_pro", icon:"📈", label:"Analytics" },
   { key:"management",   icon:"🔐", label:"Quản lý Admin" },
 ];
@@ -83,6 +87,8 @@ export default function AdminDashboard({ auth }) {
         {tab==="logs"      && <AdminLogs token={auth.token} />}
         {tab==="monitor"      && <AdminMonitor token={auth.token} />}
         {tab==="alltime_games" && <AdminAlltimeGames token={auth.token} />}
+        {tab==="orders_admin"  && <AdminOrders token={auth.token} />}
+        {tab==="payments_admin" && <AdminPayments token={auth.token} />}
         {tab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
         {tab==="management"    && <AdminManagement token={auth.token} />}
       </div>
