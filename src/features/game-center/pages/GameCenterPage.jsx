@@ -86,13 +86,17 @@ export default function GameCenterPage() {
     apiClient.get("/game/daily-challenge")
       .then(r => setChallenge(r.data?.data))
       .catch(() => {});
-    const phone = getPhone();
-    if (phone) {
-      apiClient.get(`/missions/${phone}`)
-        .then(r => setMissions(r.data?.data || []))
-        .catch(() => {});
-    }
   }, []);
+
+  // Fetch missions riêng — chờ phone load xong
+  const runtimePhone2 = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  useEffect(() => {
+    const phone = getPhone();
+    if (!phone || phone === "pending") return;
+    apiClient.get(`/missions/${phone}`)
+      .then(r => setMissions(r.data?.data || []))
+      .catch(() => {});
+  }, [runtimePhone2]);
 
   // Socket: challenge winner
   useEffect(() => {
