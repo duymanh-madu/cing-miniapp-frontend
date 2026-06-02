@@ -139,19 +139,25 @@ export default function CommunityChat({ onClose }) {
     sockRef.current.emit("community:join", { userId: info.phone, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current });
   }, [runtimePhone, getMyInfo]);
 
-  // Re-emit khi tierKey resolve từ API — cập nhật badge cho các client khác
+  // Re-emit khi tierKey resolve từ API — cập nhật badge cho tất cả client
+  // Không skip "member" vì đây có thể là hạng thật của user
   useEffect(() => {
-    if (myTierKey === "member") return;
+    if (!membershipData) return; // Chờ API trả về thật, không emit với giá trị default
     const emitWithRetry = (attempts = 0) => {
       if (sockRef.current?.connected && myIdRef.current) {
         const info = getMyInfo();
-        sockRef.current.emit("community:join", { userId: myIdRef.current, name: info.name, avatar: info.avatar, tierKey: myTierKey });
-      } else if (attempts < 10) {
-        setTimeout(() => emitWithRetry(attempts + 1), 1000);
+        sockRef.current.emit("community:join", {
+          userId:  myIdRef.current,
+          name:    info.name,
+          avatar:  info.avatar,
+          tierKey: myTierKey,
+        });
+      } else if (attempts < 15) {
+        setTimeout(() => emitWithRetry(attempts + 1), 800);
       }
     };
     emitWithRetry();
-  }, [myTierKey]);
+  }, [membershipData]);
 
   const sendChat = () => {
     addLog(`Send: connected=${sockRef.current?.connected} myId=${myIdRef.current}`);
