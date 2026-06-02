@@ -156,7 +156,8 @@ export default function AccountPage() {
   const navigate      = useNavigate();
   const profile       = useAuthStore(s => s.profile);
   const updateProfile = useAuthStore(s => s.updateProfile);
-  const runtimePhone  = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const runtimePhone       = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const runtimeIdentityName = useRuntimeCustomerIdentityStore(s => s.identity?.fullName);
   const [showEdit, setShowEdit]   = useState(false);
   const [cooldown, setCooldown]   = useState(null);
   const [toast, setToast]         = useState("");
@@ -236,7 +237,7 @@ export default function AccountPage() {
       <div style={{ position:"fixed", top:0, left:0, right:0, height:"var(--app-safe-top, 0px)", background:"linear-gradient(135deg,#D4531C,#E8622A)", zIndex:99 }} />
       {/* DEBUG — xóa sau */}
       <div style={{ background:"#ff000033", padding:"4px 10px", fontSize:9, color:"#ff9999", fontFamily:"monospace", position:"fixed", top:0, left:0, right:0, zIndex:999 }}>
-        auth:{name} | runtime:{runtimePhone}
+        auth:{name} | identity:{runtimeIdentityName}
       </div>
 
       {toast && (
