@@ -50,16 +50,18 @@ export async function initializeCustomerIdentityEngine() {
           birthday:     birthday,
         });
 
+        const nameToSet = (result.fullName && result.fullName !== 'Khách hàng' ? result.fullName : identity?.fullName) || result.fullName || "";
+        console.log("[ENGINE] setIdentity — result.fullName:", result.fullName, "nameToSet:", nameToSet, "result.avatar:", result.avatar);
         store.setIdentity({
           customerId:    result.customerId    || "",
-          fullName:      (result.fullName && result.fullName !== 'Khách hàng' ? result.fullName : identity?.fullName) || result.fullName || "",
+          fullName:      nameToSet,
           phone:         (result.phone && result.phone !== "pending" ? result.phone : null) || (identity?.phone && identity.phone !== "pending" ? identity.phone : null) || "",
-          // Ưu tiên custom avatar từ Supabase players table
           avatar:        result.avatar || identity?.avatar || "",
           memberActivated: true,
           phoneGranted:  true,
           oaFollowed:    true,
         });
+        console.log("[ENGINE] after setIdentity — store.fullName:", store.identity?.fullName);
         store.setProfileHydrated(true);
         store.setActivationStatus("activated");
         runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path activated");
