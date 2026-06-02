@@ -21,6 +21,7 @@ const TABS = [
   { key:"cdp",       icon:"📡", label:"CDP" },
   { key:"leaderboard_admin", icon:"🏆", label:"BXH & Thưởng" },
   { key:"logs",      icon:"📋", label:"Activity Logs" },
+  { key:"notifications", icon:"🔔", label:"Thông báo" },
 ];
 
 export default function AdminDashboard({ auth }) {
