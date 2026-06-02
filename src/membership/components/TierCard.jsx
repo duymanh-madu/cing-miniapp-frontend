@@ -219,12 +219,18 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
             {/* Badge với glow */}
             <div style={{ position:"relative", flexShrink:0 }}>
-              <div style={{ width:68, height:68, borderRadius:"50%", background:cfg.badgeBg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, animation:`tcGlow_${tierKey} 2s ease-in-out infinite, tcFloat 3s ease-in-out infinite`, flexShrink:0 }}>
+              {/* Vòng nhẫn quang xoay — chỉ 5 sao */}
+              <div style={{ position:"absolute", inset:-8, borderRadius:"50%", border:`2px solid ${tierKey==="diamond"?"rgba(80,180,255,.5)":"rgba(255,100,180,.5)"}`, borderTopColor:"transparent", borderBottomColor:"transparent", animation:"ringRotate 3s linear infinite", pointerEvents:"none" }}/>
+              <div style={{ position:"absolute", inset:-14, borderRadius:"50%", border:`1.5px dashed ${tierKey==="diamond"?"rgba(30,120,255,.3)":"rgba(180,80,255,.3)"}`, animation:"ringRotateRev 5s linear infinite", pointerEvents:"none" }}/>
+              <div style={{ width:68, height:68, borderRadius:"50%", background:cfg.badgeBg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, animation:`tcGlow_${tierKey} 2s ease-in-out infinite, tcFloat 3s ease-in-out infinite, outerPulse${tierKey==="diamond"?"D":"P"} 2.5s ease-in-out infinite`, flexShrink:0, position:"relative" }}>
                 {cfg.icon}
-                {/* Sparkles */}
+                {/* 6 sparkles */}
                 <div style={{ position:"absolute", top:3, right:5, width:7, height:7, borderRadius:"50%", background:"#fff", animation:"tcSp1 2.4s ease-in-out infinite" }}/>
                 <div style={{ position:"absolute", bottom:5, left:4, width:5, height:5, borderRadius:"50%", background:tierKey==="diamond"?"#a0d8ff":"#ffb0d8", animation:"tcSp2 2.4s ease-in-out .5s infinite" }}/>
                 <div style={{ position:"absolute", top:9, left:7, width:4, height:4, borderRadius:"50%", background:"#fff", animation:"tcSp3 2.4s ease-in-out 1s infinite" }}/>
+                <div style={{ position:"absolute", bottom:10, right:6, width:6, height:6, borderRadius:"50%", background:tierKey==="diamond"?"#60c0ff":"#ff90c0", animation:"tcSp4 2.4s ease-in-out .3s infinite" }}/>
+                <div style={{ position:"absolute", top:6, right:10, width:4, height:4, borderRadius:"50%", background:"#fff", animation:"tcSp5 2.4s ease-in-out .8s infinite" }}/>
+                <div style={{ position:"absolute", bottom:6, left:10, width:3, height:3, borderRadius:"50%", background:tierKey==="diamond"?"#a0e0ff":"#ffaada", animation:"tcSp6 2.4s ease-in-out 1.4s infinite" }}/>
               </div>
               {/* Gold dot for diamond */}
               {tierKey === "diamond" && (
@@ -254,6 +260,13 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
           @keyframes ktBorderSpin  { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
           @keyframes tcFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
           @keyframes tcScan  { 0%{left:-60%} 100%{left:120%} }
+          @keyframes ringRotate { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+          @keyframes ringRotateRev { 0%{transform:rotate(0deg)} 100%{transform:rotate(-360deg)} }
+          @keyframes outerPulseD { 0%,100%{box-shadow:0 0 0 3px rgba(30,120,255,.4),0 0 0 7px rgba(30,120,255,.15),0 0 0 14px rgba(30,120,255,.06)} 50%{box-shadow:0 0 0 5px rgba(80,180,255,.7),0 0 0 12px rgba(30,120,255,.3),0 0 0 22px rgba(30,120,255,.12)} }
+          @keyframes outerPulseP { 0%,100%{box-shadow:0 0 0 3px rgba(212,83,126,.4),0 0 0 7px rgba(180,80,255,.15),0 0 0 14px rgba(212,83,126,.06)} 50%{box-shadow:0 0 0 5px rgba(255,100,180,.7),0 0 0 12px rgba(200,80,255,.3),0 0 0 22px rgba(212,83,126,.12)} }
+          @keyframes tcSp4 { 0%,35%,100%{opacity:0;transform:scale(0)} 60%,72%{opacity:1;transform:scale(1)} }
+          @keyframes tcSp5 { 0%,70%,100%{opacity:0;transform:scale(0)} 85%,92%{opacity:1;transform:scale(1)} }
+          @keyframes tcSp6 { 0%,50%,100%{opacity:0;transform:scale(0)} 68%,78%{opacity:1;transform:scale(1)} }
           @keyframes tcSp1 { 0%,100%{opacity:0;transform:scale(0)} 42%,55%{opacity:1;transform:scale(1)} }
           @keyframes tcSp2 { 0%,18%,100%{opacity:0;transform:scale(0)} 55%,65%{opacity:1;transform:scale(1)} }
           @keyframes tcSp3 { 0%,58%,100%{opacity:0;transform:scale(0)} 78%,85%{opacity:1;transform:scale(1)} }
