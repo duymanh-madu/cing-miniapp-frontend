@@ -73,6 +73,26 @@ export async function bootstrapRuntime() {
   // 4. Chạy Zalo identity engine
   await initializeCustomerIdentityRuntime();
 
+  // 4b. Sync custom name/avatar từ identityStore → authStore sau khi bootstrap xong
+  try {
+    const identityState = useRuntimeCustomerIdentityStore.getState();
+    const customName   = identityState.identity?.fullName;
+    const customAvatar = identityState.identity?.avatar;
+    console.log("[RUNTIME] 4b sync — customName:", customName, "customAvatar:", !!customAvatar);
+    if (customName) {
+      const { default: useAuthStore } = await import("@/stores/auth/authStore");
+      const profile = useAuthStore.getState().profile;
+      console.log("[RUNTIME] 4b sync — profile.name:", profile?.name);
+      useAuthStore.getState().updateProfile({
+        ...profile,
+        name:        customName,
+        displayName: customName,
+        avatar:      customAvatar || profile?.avatar,
+      });
+      console.log("[RUNTIME] 4b sync done — new name:", customName);
+    }
+  } catch(e) { console.warn("[RUNTIME] sync name failed:", e); }
+
   // 5. Socket + Realtime
   initializeRuntimeSocket();
   await initializeRealtimeOrchestrator();
