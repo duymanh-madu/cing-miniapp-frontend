@@ -10,15 +10,42 @@ injectTierBadgeStyles();
 
 const fmt = n => new Intl.NumberFormat("vi-VN").format(n || 0);
 
-const TIER_BG = {
-  member:        { headerBg:"linear-gradient(135deg,#d3d1c7,#b4b2a9)", dark:false },
-  loyal:         { headerBg:"linear-gradient(135deg,#9fe1cb,#5dcaa5)", dark:false },
-  silver:        { headerBg:"linear-gradient(135deg,#c0d4e8,#85b7eb)", dark:false },
-  gold:          { headerBg:"linear-gradient(135deg,#fac775,#ef9f27)", dark:false },
-  partner:       { headerBg:"linear-gradient(135deg,#afa9ec,#7f77dd)", dark:false },
-  diamond:       { headerBg:"linear-gradient(150deg,#04101e,#061828,#0d2244)", dark:true },
-  loyal_partner: { headerBg:"linear-gradient(150deg,#120608,#1e0a14,#200c28)", dark:true },
+const TIER_THEME = {
+  member:        { header:"linear-gradient(160deg,#2c2c2a,#444441)", card:"rgba(255,255,255,.08)", border:"rgba(255,255,255,.1)",  text:"#f1efe8", sub:"#888780", accent:"#d3d1c7" },
+  loyal:         { header:"linear-gradient(160deg,#04342c,#0f6e56)", card:"rgba(255,255,255,.09)", border:"rgba(159,225,203,.2)", text:"#e1f5ee", sub:"#9fe1cb", accent:"#5dcaa5" },
+  silver:        { header:"linear-gradient(160deg,#042c53,#0c447c)", card:"rgba(255,255,255,.09)", border:"rgba(133,183,235,.2)", text:"#e6f1fb", sub:"#85b7eb", accent:"#378add" },
+  gold:          { header:"linear-gradient(160deg,#412402,#854f0b)", card:"rgba(255,255,255,.09)", border:"rgba(250,199,117,.2)", text:"#faeeda", sub:"#fac775", accent:"#ef9f27" },
+  partner:       { header:"linear-gradient(160deg,#26215c,#534ab7)", card:"rgba(255,255,255,.09)", border:"rgba(175,169,236,.2)", text:"#eeedfe", sub:"#afa9ec", accent:"#7f77dd" },
+  diamond:       { header:"linear-gradient(160deg,#020810,#061828,#0d2244)", card:"rgba(255,255,255,.07)", border:"rgba(58,138,223,.25)", text:"#e0f4ff", sub:"#64b4ff", accent:"#3a8adf", royal:true },
+  loyal_partner: { header:"linear-gradient(160deg,#0a0308,#1e0a14,#200c28)", card:"rgba(255,255,255,.07)", border:"rgba(212,83,126,.25)", text:"#ffe0f0", sub:"#ff90c0", accent:"#d4537e", royal:true },
 };
+
+
+function StarRow({ tierKey }) {
+  const stars = { member:0, loyal:1, silver:2, gold:3.5, partner:3.5, diamond:5, loyal_partner:5 };
+  const colors = { member:"#b4b2a9", loyal:"#1d9e75", silver:"#378add", gold:"#ef9f27", partner:"#7f77dd", diamond:"#3a8adf", loyal_partner:"#d4537e" };
+  const s = stars[tierKey] || 0;
+  const c = colors[tierKey] || "#888";
+  const full = Math.floor(s);
+  const half = s % 1 >= 0.5;
+  const empty = 5 - full - (half ? 1 : 0);
+  return (
+    <div style={{ display:"flex", gap:3, alignItems:"center" }}>
+      {Array(full).fill(0).map((_,i) => (
+        <svg key={"f"+i} width="14" height="14" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill={c} stroke={c} strokeWidth=".5"/></svg>
+      ))}
+      {half && (
+        <svg width="14" height="14" viewBox="0 0 12 12">
+          <defs><linearGradient id="hpf" x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stopColor={c}/><stop offset="50%" stopColor="transparent" stopOpacity="0"/></linearGradient></defs>
+          <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="url(#hpf)" stroke={c} strokeWidth="1"/>
+        </svg>
+      )}
+      {Array(empty).fill(0).map((_,i) => (
+        <svg key={"e"+i} width="14" height="14" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="none" stroke={c} strokeWidth="1" opacity=".4"/></svg>
+      ))}
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const navigate     = useNavigate();
@@ -53,24 +80,21 @@ export default function ProfilePage() {
   }, [resolvedPhone]);
 
   if (loading) return (
-    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#f5f5f5" }}>
-      <p style={{ color:"#bbb", fontSize:14 }}>⏳ Đang tải hồ sơ...</p>
+    <div style={{ minHeight:"100vh", background:"#0a0a0f", display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <p style={{ color:"#555", fontSize:14 }}>Đang tải hồ sơ...</p>
     </div>
   );
 
   if (!resolvedPhone || !member) return (
-    <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:"#f5f5f5", padding:24 }}>
+    <div style={{ minHeight:"100vh", background:"#0a0a0f", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
       <p style={{ fontSize:48, margin:"0 0 12px" }}>👤</p>
       <p style={{ fontSize:15, fontWeight:700, color:"#666" }}>Không tìm thấy hồ sơ</p>
       <button onClick={() => navigate(-1)} style={{ marginTop:16, padding:"10px 24px", borderRadius:12, border:"none", background:"#D4531C", color:"white", fontSize:14, fontWeight:700, cursor:"pointer" }}>← Quay lại</button>
     </div>
   );
 
-  const tierKey  = member.tierKey || "member";
-  const tierCfg  = TIER_BG[tierKey] || TIER_BG.member;
-  const isDark   = tierCfg.dark;
-  const textColor = isDark ? "white" : "#1a1a1a";
-  const subColor  = isDark ? "rgba(255,255,255,.55)" : "#999";
+  const tierKey = member.tierKey || "member";
+  const theme   = TIER_THEME[tierKey] || TIER_THEME.member;
 
   const displayName   = member.name || profile?.name || "Cing iu";
   const avatarUrl     = isOwn ? (profile?.avatar || null) : null;
@@ -79,35 +103,34 @@ export default function ProfilePage() {
   const paymentAmount = member.paymentAmount || 0;
 
   return (
-    <div style={{ minHeight:"100vh", background: isDark ? tierCfg.headerBg.split(",")[0].replace("linear-gradient(150deg","").replace("(","").trim() : "#f5f5f5", paddingBottom:100 }}>
+    <div style={{ minHeight:"100vh", background:"#0a0a0f", paddingBottom:100 }}>
 
       {/* Header */}
-      <div style={{ background:tierCfg.headerBg, padding:"calc(env(safe-area-inset-top,0px) + 14px) 20px 36px", position:"relative", overflow:"hidden" }}>
-        {isDark && <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 7px)", pointerEvents:"none" }}/>}
+      <div style={{ background:theme.header, padding:"calc(env(safe-area-inset-top,0px) + 14px) 20px 48px", position:"relative", overflow:"hidden" }}>
+        {theme.royal && <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 7px)", pointerEvents:"none" }}/>}
 
-        <button onClick={() => navigate(-1)} style={{ background:"rgba(0,0,0,.2)", border:"none", borderRadius:8, padding:"6px 14px", color:"rgba(255,255,255,.8)", fontSize:14, cursor:"pointer", marginBottom:20 }}>←</button>
+        <button onClick={() => navigate(-1)} style={{ background:"rgba(0,0,0,.3)", border:"none", borderRadius:8, padding:"6px 14px", color:"rgba(255,255,255,.75)", fontSize:14, cursor:"pointer", marginBottom:24 }}>←</button>
 
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:14 }}>
-
           {/* Avatar */}
           <div style={{ position:"relative" }}>
-            <div style={{ width:96, height:96, borderRadius:48, border:"3px solid rgba(255,255,255,.4)", overflow:"hidden", background:"rgba(255,255,255,.2)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:36, fontWeight:900, color:"white", boxShadow:"0 4px 20px rgba(0,0,0,.25)" }}>
+            <div style={{ width:96, height:96, borderRadius:48, border:`2.5px solid ${theme.accent}`, overflow:"hidden", background:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:38, fontWeight:900, color:"white", boxShadow:`0 4px 24px rgba(0,0,0,.4), 0 0 0 1px ${theme.border}` }}>
               {avatarUrl
                 ? <img src={avatarUrl} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
                 : displayName[0]?.toUpperCase()
               }
             </div>
             {champion && (
-              <div style={{ position:"absolute", bottom:-6, left:"50%", transform:"translateX(-50%)", background:"linear-gradient(90deg,#8a6000,#ffd700,#c47a00)", borderRadius:10, padding:"2px 8px", border:"1.5px solid #ffd700", boxShadow:"0 0 10px rgba(255,210,0,.7)", whiteSpace:"nowrap" }}>
+              <div style={{ position:"absolute", bottom:-8, left:"50%", transform:"translateX(-50%)", background:"linear-gradient(90deg,#8a6000,#ffd700,#c47a00)", borderRadius:10, padding:"2px 10px", border:"1.5px solid #ffd700", boxShadow:"0 0 12px rgba(255,210,0,.7)", whiteSpace:"nowrap" }}>
                 <span style={{ fontSize:9, fontWeight:900, color:"#120c00" }}>♟️ KIỆN TƯỚNG</span>
               </div>
             )}
           </div>
 
-          {/* Tên + badge nhỏ */}
+          {/* Tên */}
           <div style={{ textAlign:"center" }}>
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:8 }}>
-              <h1 style={{ color:"white", fontSize:22, fontWeight:900, margin:0 }}>{displayName}</h1>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:10 }}>
+              <h1 style={{ color:"white", fontSize:24, fontWeight:900, margin:0, textShadow:"0 2px 8px rgba(0,0,0,.5)" }}>{displayName}</h1>
               <TierBadge tierKey={tierKey} isChampion={champion} size="sm"/>
             </div>
             <TierBadge tierKey={tierKey} isChampion={champion} size="md" showLabel={true}/>
@@ -115,27 +138,27 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Body */}
-      <div style={{ padding:"0 16px", marginTop:-16 }}>
+      {/* Body — nổi lên trên header */}
+      <div style={{ padding:"0 16px", marginTop:-20 }}>
 
         {/* Stats */}
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:14 }}>
           {[
-            { label:"Điểm tích lũy",  value:fmt(points),           icon:"⭐" },
-            { label:"Lần ghé thăm",   value:fmt(eatTimes),          icon:"🧋" },
-            { label:"Chi tiêu",       value:fmt(paymentAmount)+"đ", icon:"💰" },
+            { label:"Điểm tích lũy",  value:fmt(points),           icon:"⭐", accent:"#D4531C" },
+            { label:"Lần ghé thăm",   value:fmt(eatTimes),          icon:"🧋", accent:"#2196F3" },
+            { label:"Chi tiêu",       value:fmt(paymentAmount)+"đ", icon:"💰", accent:"#4CAF50" },
           ].map((s,i) => (
-            <div key={i} style={{ background: isDark?"rgba(255,255,255,.08)":"white", borderRadius:14, padding:"14px 8px", textAlign:"center", border: isDark?"1px solid rgba(255,255,255,.1)":"1px solid #f0f0f0", boxShadow:"0 2px 8px rgba(0,0,0,.05)" }}>
-              <p style={{ fontSize:20, margin:"0 0 4px" }}>{s.icon}</p>
-              <p style={{ color:textColor, fontSize:14, fontWeight:900, margin:"0 0 2px" }}>{s.value}</p>
-              <p style={{ color:subColor, fontSize:9, margin:0, fontWeight:700 }}>{s.label}</p>
+            <div key={i} style={{ background:theme.card, borderRadius:16, padding:"16px 8px", textAlign:"center", border:`1px solid ${theme.border}`, backdropFilter:"blur(10px)" }}>
+              <p style={{ fontSize:22, margin:"0 0 6px" }}>{s.icon}</p>
+              <p style={{ color:"white", fontSize:14, fontWeight:900, margin:"0 0 3px" }}>{s.value}</p>
+              <p style={{ color:theme.sub, fontSize:9, margin:0, fontWeight:700 }}>{s.label}</p>
             </div>
           ))}
         </div>
 
         {/* Champion card */}
         {champion && (
-          <div style={{ borderRadius:16, padding:"16px 18px", marginBottom:14, background:"linear-gradient(135deg,#1e1400,#2a1c04)", border:"1.5px solid #ffd700", boxShadow:"0 0 20px rgba(186,117,23,.35)", position:"relative", overflow:"hidden" }}>
+          <div style={{ borderRadius:16, padding:"16px 18px", marginBottom:14, background:"linear-gradient(135deg,#1e1400,#2a1c04)", border:"1.5px solid #ffd700", boxShadow:"0 0 24px rgba(186,117,23,.4)", position:"relative", overflow:"hidden" }}>
             <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,210,0,.025) 0,rgba(255,210,0,.025) 1px,transparent 1px,transparent 7px)", pointerEvents:"none" }}/>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
               <span style={{ fontSize:32 }}>♟️</span>
@@ -151,15 +174,15 @@ export default function ProfilePage() {
         )}
 
         {/* Hạng thành viên */}
-        <div style={{ background: isDark?"rgba(255,255,255,.07)":"white", borderRadius:16, padding:"18px", marginBottom:14, border: isDark?"1px solid rgba(255,255,255,.1)":"1px solid #f0f0f0", boxShadow:"0 2px 8px rgba(0,0,0,.05)" }}>
-          <p style={{ color:subColor, fontSize:10, fontWeight:700, letterSpacing:1.5, margin:"0 0 14px", textTransform:"uppercase" }}>Hạng thành viên</p>
-          <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+        <div style={{ background:theme.card, borderRadius:16, padding:"20px", marginBottom:14, border:`1px solid ${theme.border}` }}>
+          <p style={{ color:theme.sub, fontSize:10, fontWeight:700, letterSpacing:1.5, margin:"0 0 16px", textTransform:"uppercase" }}>Hạng thành viên</p>
+          <div style={{ display:"flex", alignItems:"center", gap:16 }}>
             <TierBadge tierKey={tierKey} size="lg" showLabel={false}/>
             <div>
-              <p style={{ color:textColor, fontSize:17, fontWeight:900, margin:"0 0 6px" }}>{member.tierName || "Hội viên"}</p>
-              <TierBadge tierKey={tierKey} size="md" showLabel={false}/>
+              <p style={{ color:"white", fontSize:18, fontWeight:900, margin:"0 0 8px" }}>{member.tierName || "Hội viên"}</p>
+              <StarRow tierKey={tierKey}/>
               {member.firstVisit && (
-                <p style={{ color:subColor, fontSize:10, margin:"6px 0 0" }}>
+                <p style={{ color:theme.sub, fontSize:10, margin:"8px 0 0" }}>
                   Thành viên từ {new Date(member.firstVisit).toLocaleDateString("vi-VN", { month:"long", year:"numeric" })}
                 </p>
               )}
@@ -167,14 +190,14 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Actions — chỉ hiện với profile chính mình */}
+        {/* Actions */}
         {isOwn && (
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
             {[
               { label:"⭐ Điểm tích lũy", path:"/loyalty", bg:"#D4531C" },
-              { label:"📦 Lịch sử đơn",  path:"/orders",  bg:"#2196F3" },
+              { label:"📦 Lịch sử đơn",  path:"/orders",  bg:"#185fa5" },
             ].map((a,i) => (
-              <button key={i} onClick={() => navigate(a.path)} style={{ background:a.bg, border:"none", borderRadius:12, padding:"13px", color:"white", fontSize:13, fontWeight:800, cursor:"pointer" }}>
+              <button key={i} onClick={() => navigate(a.path)} style={{ background:a.bg, border:"none", borderRadius:14, padding:"14px", color:"white", fontSize:13, fontWeight:800, cursor:"pointer", boxShadow:`0 4px 12px ${a.bg}55` }}>
                 {a.label}
               </button>
             ))}
