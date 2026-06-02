@@ -4,6 +4,7 @@ import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import { TierBadge } from "@/membership/components/TierBadge";
+import { TierCard } from "@/membership/components/TierCard";
 import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
 
 injectTierBadgeStyles();
@@ -21,31 +22,6 @@ const TIER_THEME = {
 };
 
 
-function StarRow({ tierKey }) {
-  const stars = { member:0, loyal:1, silver:2, gold:3.5, partner:3.5, diamond:5, loyal_partner:5 };
-  const colors = { member:"#b4b2a9", loyal:"#1d9e75", silver:"#378add", gold:"#ef9f27", partner:"#7f77dd", diamond:"#3a8adf", loyal_partner:"#d4537e" };
-  const s = stars[tierKey] || 0;
-  const c = colors[tierKey] || "#888";
-  const full = Math.floor(s);
-  const half = s % 1 >= 0.5;
-  const empty = 5 - full - (half ? 1 : 0);
-  return (
-    <div style={{ display:"flex", gap:3, alignItems:"center" }}>
-      {Array(full).fill(0).map((_,i) => (
-        <svg key={"f"+i} width="14" height="14" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill={c} stroke={c} strokeWidth=".5"/></svg>
-      ))}
-      {half && (
-        <svg width="14" height="14" viewBox="0 0 12 12">
-          <defs><linearGradient id="hpf" x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stopColor={c}/><stop offset="50%" stopColor="transparent" stopOpacity="0"/></linearGradient></defs>
-          <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="url(#hpf)" stroke={c} strokeWidth="1"/>
-        </svg>
-      )}
-      {Array(empty).fill(0).map((_,i) => (
-        <svg key={"e"+i} width="14" height="14" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="none" stroke={c} strokeWidth="1" opacity=".4"/></svg>
-      ))}
-    </div>
-  );
-}
 
 export default function ProfilePage() {
   const navigate     = useNavigate();
@@ -173,21 +149,9 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Hạng thành viên */}
-        <div style={{ background:theme.card, borderRadius:16, padding:"20px", marginBottom:14, border:`1px solid ${theme.border}` }}>
-          <p style={{ color:theme.sub, fontSize:10, fontWeight:700, letterSpacing:1.5, margin:"0 0 16px", textTransform:"uppercase" }}>Hạng thành viên</p>
-          <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-            <TierBadge tierKey={tierKey} size="lg" showLabel={false}/>
-            <div>
-              <p style={{ color:"white", fontSize:18, fontWeight:900, margin:"0 0 8px" }}>{member.tierName || "Hội viên"}</p>
-              <StarRow tierKey={tierKey}/>
-              {member.firstVisit && (
-                <p style={{ color:theme.sub, fontSize:10, margin:"8px 0 0" }}>
-                  Thành viên từ {new Date(member.firstVisit).toLocaleDateString("vi-VN", { month:"long", year:"numeric" })}
-                </p>
-              )}
-            </div>
-          </div>
+        {/* Hạng thành viên — full hiệu ứng theo thiết kế */}
+        <div style={{ marginBottom:14 }}>
+          <TierCard tierKey={tierKey} tierName={member.tierName} firstVisit={member.firstVisit}/>
         </div>
 
         {/* Actions */}
