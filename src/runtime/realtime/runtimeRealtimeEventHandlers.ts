@@ -1,3 +1,4 @@
+import { useMembershipStore } from "@/membership/store/membershipStore";
 import {
   runtimeLogger,
 } from "@/runtime/logger/runtimeLogger";
@@ -114,5 +115,17 @@ export const realtimeEventHandlers = {
       });
 
     },
+
+  "membership.points": (payload: any) => {
+    runtimeLogger.info("RUNTIME", "[EVENT] membership.points", payload);
+    if (payload?.points !== undefined) useMembershipStore.getState().setLoyaltyPoints(payload.points);
+    dispatchRuntimeNotification({ title: "Điểm thưởng cập nhật", message: `Bạn có ${payload?.points ?? ""} điểm.` });
+  },
+
+  "membership.updated": (payload: any) => {
+    runtimeLogger.info("RUNTIME", "[EVENT] membership.updated", payload);
+    if (payload?.tier) useMembershipStore.getState().setMembershipTier(payload.tier);
+    if (payload?.points !== undefined) useMembershipStore.getState().setLoyaltyPoints(payload.points);
+  },
 
 };

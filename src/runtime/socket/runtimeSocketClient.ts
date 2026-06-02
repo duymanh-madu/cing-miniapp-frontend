@@ -458,6 +458,7 @@ export function initializeRuntimeSocket() {
           const phone = (identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
           if (phone && phone !== "pending" && phone.length >= 9) {
             runtimeSocket?.emit("user:online", { userId: phone, name: identity?.fullName||"", avatar: identity?.avatar||"" });
+            runtimeSocket?.emit("member:connect", { member_id: phone });
           } else if (attempts < 10) {
             setTimeout(() => tryEmitOnline(attempts+1), 1000);
           }
@@ -541,6 +542,7 @@ export function initializeRuntimeSocket() {
               name: identity?.fullName || "",
               avatar: identity?.avatar || "",
             });
+            runtimeSocket?.emit("member:connect", { member_id: phone });
           }
         }
       } catch(e) {}

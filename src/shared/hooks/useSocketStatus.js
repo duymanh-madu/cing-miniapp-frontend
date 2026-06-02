@@ -1,4 +1,4 @@
-import useRealtimeStore from "@/stores/realtimeStore";
+import { useRuntimeSystemStore } from "@/runtime/system/runtimeSystemStore";
 
 /**
  * =====================================================
@@ -8,10 +8,8 @@ import useRealtimeStore from "@/stores/realtimeStore";
 
 function useSocketStatus() {
 
-  return useRealtimeStore(
-    (
-      state
-    ) => state.connected
+  return useRuntimeSystemStore(
+    (state) => state.connected
   );
 
 }
