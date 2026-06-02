@@ -98,30 +98,30 @@ const TIER_CARD_CONFIG = {
     pulseColor:"rgba(127,119,221,.5)",
   },
   diamond: {
-    borderAnim: "linear-gradient(90deg,#0040dd,#60c0ff,#ffffff,#ffffff,#60c0ff,#0040dd)",
-    innerBg:    "linear-gradient(150deg,#020c18,#040e20,#071530)",
+    borderAnim: "linear-gradient(90deg,#0030cc,#60d0ff,#ffffff,#ffffff,#60d0ff,#0030cc)",
+    innerBg:    "linear-gradient(150deg,#000508,#010c18,#020e20)",
     badgeBg:    "linear-gradient(135deg,#0a2a5a,#1a50a0,#3a8adf,#80c0ff,#3a8adf)",
     icon:       "💎",
     nameColor:  "#e0f4ff",
     subColor:   "#64b4ff",
     label:      "Hội viên kim cương",
     royal:      true,
-    glowColor:  "rgba(30,120,255,.9)",
-    glowColor2: "rgba(30,120,255,.5)",
-    scanColor:  "rgba(120,200,255,.35)",
+    glowColor:  "rgba(0,150,255,1)",
+    glowColor2: "rgba(0,150,255,.65)",
+    scanColor:  "rgba(150,230,255,.45)",
   },
   loyal_partner: {
-    borderAnim: "linear-gradient(90deg,#aa1155,#ff50a0,#ffffff,#ffffff,#e090ff,#aa1155)",
-    innerBg:    "linear-gradient(150deg,#0a0208,#160610,#100618)",
+    borderAnim: "linear-gradient(90deg,#990044,#ff50a0,#ffffff,#ffffff,#dd88ff,#990044)",
+    innerBg:    "linear-gradient(150deg,#060004,#0e0410,#100618)",
     badgeBg:    "linear-gradient(135deg,#4a0a28,#8a1a50,#d4537e,#ff90c0,#c080ff)",
     icon:       "👑",
     nameColor:  "#ffe0f0",
     subColor:   "#ff90c0",
     label:      "Đối tác thân thiết",
     royal:      true,
-    glowColor:  "rgba(212,83,126,.9)",
-    glowColor2: "rgba(180,80,255,.5)",
-    scanColor:  "rgba(255,140,200,.35)",
+    glowColor:  "rgba(220,60,120,1)",
+    glowColor2: "rgba(180,60,255,.65)",
+    scanColor:  "rgba(255,160,220,.45)",
   },
 };
 
@@ -207,7 +207,7 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
 
   if (cfg.royal) {
     return (
-      <div style={{ borderRadius:20, padding:"2.5px", background:cfg.borderAnim, backgroundSize:"400% 100%", animation:"royalBorder 1.4s linear infinite" }}>
+      <div style={{ borderRadius:20, padding:"2.5px", background:cfg.borderAnim, backgroundSize:"400% 100%", animation:"royalBorder 1.2s linear infinite" }}>
         <div style={{ borderRadius:18, padding:"20px 18px", background:cfg.innerBg, position:"relative", overflow:"hidden" }}>
           {/* Scanline */}
           <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:`linear-gradient(90deg,transparent,${cfg.scanColor},transparent)`, animation:"tcScan 3.5s ease-in-out infinite", pointerEvents:"none" }}/>
@@ -219,10 +219,12 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
             {/* Badge với glow */}
             <div style={{ position:"relative", flexShrink:0 }}>
-              {/* Vòng nhẫn quang xoay — chỉ 5 sao */}
-              <div style={{ position:"absolute", inset:-8, borderRadius:"50%", border:`2px solid ${tierKey==="diamond"?"rgba(80,180,255,.5)":"rgba(255,100,180,.5)"}`, borderTopColor:"transparent", borderBottomColor:"transparent", animation:"ringRotate 3s linear infinite", pointerEvents:"none" }}/>
-              <div style={{ position:"absolute", inset:-14, borderRadius:"50%", border:`1.5px dashed ${tierKey==="diamond"?"rgba(30,120,255,.3)":"rgba(180,80,255,.3)"}`, animation:"ringRotateRev 5s linear infinite", pointerEvents:"none" }}/>
-              <div style={{ width:68, height:68, borderRadius:"50%", background:cfg.badgeBg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, animation:`tcGlow_${tierKey} 2s ease-in-out infinite, tcFloat 3s ease-in-out infinite, outerPulse${tierKey==="diamond"?"D":"P"} 2.5s ease-in-out infinite`, flexShrink:0, position:"relative" }}>
+              {/* Vòng nhẫn xoay bao quanh badge */}
+              <div style={{ position:"relative", padding:18 }}>
+                <div style={{ position:"absolute", inset:0, borderRadius:"50%", border:`2px solid ${tierKey==="diamond"?"rgba(0,200,255,.6)":"rgba(255,80,160,.6)"}`, borderTopColor:"transparent", borderBottomColor:"transparent", animation:"ringRotate 2.5s linear infinite", pointerEvents:"none" }}/>
+                <div style={{ position:"absolute", inset:-6, borderRadius:"50%", border:`1.5px dashed ${tierKey==="diamond"?"rgba(0,150,255,.35)":"rgba(180,60,255,.35)"}`, animation:"ringRotateRev 4s linear infinite", pointerEvents:"none" }}/>
+              </div>
+              <div style={{ width:64, height:64, borderRadius:"50%", background:cfg.badgeBg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, animation:`tcGlow_${tierKey} 1.8s ease-in-out infinite, tcFloat 3s ease-in-out infinite`, flexShrink:0, position:"relative", marginLeft:-82 }}>
                 {cfg.icon}
                 {/* 6 sparkles */}
                 <div style={{ position:"absolute", top:3, right:5, width:7, height:7, borderRadius:"50%", background:"#fff", animation:"tcSp1 2.4s ease-in-out infinite" }}/>
@@ -271,14 +273,12 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
           @keyframes tcSp2 { 0%,18%,100%{opacity:0;transform:scale(0)} 55%,65%{opacity:1;transform:scale(1)} }
           @keyframes tcSp3 { 0%,58%,100%{opacity:0;transform:scale(0)} 78%,85%{opacity:1;transform:scale(1)} }
           @keyframes tcGlow_diamond {
-            0%,100%{box-shadow:0 0 28px 10px rgba(30,120,255,.65),0 0 70px 24px rgba(30,120,255,.38),0 0 130px 50px rgba(30,120,255,.18),inset 0 0 24px rgba(255,255,255,.32)}
-            33%{box-shadow:0 0 45px 18px rgba(80,180,255,.85),0 0 110px 40px rgba(30,120,255,.55),0 0 200px 80px rgba(30,120,255,.28),inset 0 0 40px rgba(255,255,255,.55)}
-            66%{box-shadow:0 0 60px 24px rgba(30,120,255,1),0 0 140px 55px rgba(80,180,255,.7),0 0 250px 100px rgba(30,120,255,.38),inset 0 0 50px rgba(255,255,255,.65)}
+            0%,100%{box-shadow:0 0 35px 12px rgba(0,150,255,.7),0 0 80px 30px rgba(0,150,255,.4),0 0 150px 60px rgba(0,150,255,.2),inset 0 0 30px rgba(255,255,255,.35)}
+            50%{box-shadow:0 0 60px 22px rgba(0,200,255,1),0 0 130px 55px rgba(0,150,255,.65),0 0 250px 100px rgba(0,150,255,.35),inset 0 0 55px rgba(255,255,255,.65)}
           }
           @keyframes tcGlow_loyal_partner {
-            0%,100%{box-shadow:0 0 28px 10px rgba(212,83,126,.65),0 0 70px 24px rgba(180,80,255,.38),0 0 130px 50px rgba(212,83,126,.18),inset 0 0 24px rgba(255,255,255,.28)}
-            33%{box-shadow:0 0 45px 18px rgba(255,100,180,.85),0 0 110px 40px rgba(200,80,255,.55),0 0 200px 80px rgba(212,83,126,.28),inset 0 0 40px rgba(255,255,255,.48)}
-            66%{box-shadow:0 0 60px 24px rgba(212,83,126,1),0 0 140px 55px rgba(220,100,255,.7),0 0 250px 100px rgba(212,83,126,.38),inset 0 0 50px rgba(255,255,255,.58)}
+            0%,100%{box-shadow:0 0 35px 12px rgba(220,60,120,.7),0 0 80px 30px rgba(180,60,255,.4),0 0 150px 60px rgba(220,60,120,.2),inset 0 0 30px rgba(255,255,255,.3)}
+            50%{box-shadow:0 0 60px 22px rgba(255,80,160,1),0 0 130px 55px rgba(200,60,255,.65),0 0 250px 100px rgba(220,60,120,.35),inset 0 0 55px rgba(255,255,255,.6)}
           }
         `}</style>
       </div>
