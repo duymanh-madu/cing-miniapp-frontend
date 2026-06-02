@@ -188,6 +188,12 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
             </div>
           </div>
           <style>{`
+            @keyframes ktBorderSpin { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+            @keyframes tcScan { 0%{left:-60%} 100%{left:120%} }
+            @keyframes tcFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+            @keyframes tcSp1 { 0%,100%{opacity:0;transform:scale(0)} 42%,55%{opacity:1;transform:scale(1)} }
+            @keyframes tcSp2 { 0%,20%,100%{opacity:0;transform:scale(0)} 55%,65%{opacity:1;transform:scale(1)} }
+            @keyframes tcSp3 { 0%,58%,100%{opacity:0;transform:scale(0)} 76%,87%{opacity:1;transform:scale(1)} }
             @keyframes tcGlow_champion {
               0%,100%{box-shadow:0 0 22px 7px rgba(186,117,23,.55),0 0 55px 18px rgba(255,180,0,.28),0 0 100px 35px rgba(186,117,23,.12),inset 0 0 18px rgba(255,220,100,.22)}
               50%{box-shadow:0 0 40px 14px rgba(186,117,23,.85),0 0 100px 35px rgba(255,180,0,.5),0 0 180px 65px rgba(186,117,23,.28),inset 0 0 32px rgba(255,220,100,.45)}
