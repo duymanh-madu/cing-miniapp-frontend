@@ -10,6 +10,7 @@ import AdminCDP from "./AdminCDP";
 import AdminAlltimeGames from './AdminAlltimeGames';
 import AdminMonitor from './AdminMonitor';
 import AdminLeaderboard from "./AdminLeaderboard";
+import AdminNotifications from './AdminNotifications';
 
 const TABS = [
   { key:"stats",     icon:"📊", label:"Tổng quan" },
