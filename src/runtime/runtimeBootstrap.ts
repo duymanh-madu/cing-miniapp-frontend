@@ -100,15 +100,20 @@ export async function bootstrapRuntime() {
   (window as any).__runtimeIdentityStore = useRuntimeCustomerIdentityStore;
 
   // Mirror identityStore → authStore (single source of truth)
-  // Mỗi khi identity thay đổi → authStore tự update theo
   const { default: useAuthStore } = await import("@/stores/auth/authStore");
   useRuntimeCustomerIdentityStore.subscribe((state: any) => {
     const fullName = state.identity?.fullName;
     const avatar   = state.identity?.avatar;
+    console.log("[MIRROR] identity changed:", fullName, "avatar:", !!avatar);
     if (!fullName || fullName === "Khách hàng") return;
     const profile = useAuthStore.getState().profile;
-    if (!profile) return;
+    console.log("[MIRROR] current profile.name:", profile?.name, "authenticated:", useAuthStore.getState().authenticated);
+    if (!profile) {
+      console.log("[MIRROR] no profile yet — skipping");
+      return;
+    }
     if (profile.name !== fullName || (avatar && profile.avatar !== avatar)) {
+      console.log("[MIRROR] updating profile to:", fullName);
       useAuthStore.getState().updateProfile({
         ...profile,
         name:        fullName,
