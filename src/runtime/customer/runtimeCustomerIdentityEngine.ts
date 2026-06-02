@@ -10,9 +10,11 @@ export async function initializeCustomerIdentityEngine() {
   try {
     const store = useRuntimeCustomerIdentityStore.getState();
 
-    if (store.activationStatus === "checking" || store.activationStatus === "activated") {
+    if (store.activationStatus === "checking") {
       return;
     }
+    // Nếu đã activated — vẫn cần fetch custom name từ backend
+    // vì shell luôn inject tên Zalo đè lên tên custom
 
     store.setActivationStatus("checking");
     runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity initializing");
