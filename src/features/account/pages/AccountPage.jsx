@@ -236,8 +236,11 @@ export default function AccountPage() {
     <div style={{ minHeight:"100vh", background:"#f5f5f5", paddingBottom:100 }}>
       <div style={{ position:"fixed", top:0, left:0, right:0, height:"var(--app-safe-top, 0px)", background:"linear-gradient(135deg,#D4531C,#E8622A)", zIndex:99 }} />
       {/* DEBUG — xóa sau */}
-      <div style={{ background:"#ff000033", padding:"4px 10px", fontSize:9, color:"#ff9999", fontFamily:"monospace", position:"fixed", top:0, left:0, right:0, zIndex:999 }}>
-        auth:{name} | identity:{runtimeIdentityName}
+      <div onClick={() => {
+        const i = window.__runtimeIdentityStore?.getState()?.identity;
+        alert('identity:' + i?.fullName + ' | auth:' + name + ' | time:' + new Date().toLocaleTimeString());
+      }} style={{ background:"#ff000033", padding:"4px 10px", fontSize:9, color:"#ff9999", fontFamily:"monospace", position:"fixed", top:0, left:0, right:0, zIndex:999, cursor:"pointer" }}>
+        Tap để xem debug | auth:{name} | id:{runtimeIdentityName}
       </div>
 
       {toast && (
