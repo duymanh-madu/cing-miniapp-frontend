@@ -98,30 +98,30 @@ const TIER_CARD_CONFIG = {
     pulseColor:"rgba(127,119,221,.5)",
   },
   diamond: {
-    borderAnim: "linear-gradient(90deg,#0050ff,#40b0ff,#fff,#80d0ff,#0050ff)",
-    innerBg:    "linear-gradient(150deg,#04101e,#061828,#0d2244)",
+    borderAnim: "linear-gradient(90deg,#0040dd,#60c0ff,#ffffff,#ffffff,#60c0ff,#0040dd)",
+    innerBg:    "linear-gradient(150deg,#020c18,#040e20,#071530)",
     badgeBg:    "linear-gradient(135deg,#0a2a5a,#1a50a0,#3a8adf,#80c0ff,#3a8adf)",
     icon:       "💎",
     nameColor:  "#e0f4ff",
     subColor:   "#64b4ff",
     label:      "Hội viên kim cương",
     royal:      true,
-    glowColor:  "rgba(50,140,255,.7)",
-    glowColor2: "rgba(50,140,255,.35)",
-    scanColor:  "rgba(100,180,255,.2)",
+    glowColor:  "rgba(30,120,255,.9)",
+    glowColor2: "rgba(30,120,255,.5)",
+    scanColor:  "rgba(120,200,255,.35)",
   },
   loyal_partner: {
-    borderAnim: "linear-gradient(90deg,#cc2266,#ff60b0,#fff,#c080ff,#cc2266)",
-    innerBg:    "linear-gradient(150deg,#120608,#1e0a14,#160820)",
+    borderAnim: "linear-gradient(90deg,#aa1155,#ff50a0,#ffffff,#ffffff,#e090ff,#aa1155)",
+    innerBg:    "linear-gradient(150deg,#0a0208,#160610,#100618)",
     badgeBg:    "linear-gradient(135deg,#4a0a28,#8a1a50,#d4537e,#ff90c0,#c080ff)",
     icon:       "👑",
     nameColor:  "#ffe0f0",
     subColor:   "#ff90c0",
     label:      "Đối tác thân thiết",
     royal:      true,
-    glowColor:  "rgba(212,83,126,.7)",
-    glowColor2: "rgba(180,80,255,.35)",
-    scanColor:  "rgba(255,120,180,.2)",
+    glowColor:  "rgba(212,83,126,.9)",
+    glowColor2: "rgba(180,80,255,.5)",
+    scanColor:  "rgba(255,140,200,.35)",
   },
 };
 
@@ -207,7 +207,7 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
 
   if (cfg.royal) {
     return (
-      <div style={{ borderRadius:20, padding:"2.5px", background:cfg.borderAnim, backgroundSize:"400% 100%", animation:"royalBorder 1.8s linear infinite" }}>
+      <div style={{ borderRadius:20, padding:"2.5px", background:cfg.borderAnim, backgroundSize:"400% 100%", animation:"royalBorder 1.4s linear infinite" }}>
         <div style={{ borderRadius:18, padding:"20px 18px", background:cfg.innerBg, position:"relative", overflow:"hidden" }}>
           {/* Scanline */}
           <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:`linear-gradient(90deg,transparent,${cfg.scanColor},transparent)`, animation:"tcScan 3.5s ease-in-out infinite", pointerEvents:"none" }}/>
@@ -258,12 +258,14 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
           @keyframes tcSp2 { 0%,18%,100%{opacity:0;transform:scale(0)} 55%,65%{opacity:1;transform:scale(1)} }
           @keyframes tcSp3 { 0%,58%,100%{opacity:0;transform:scale(0)} 78%,85%{opacity:1;transform:scale(1)} }
           @keyframes tcGlow_diamond {
-            0%,100%{box-shadow:0 0 22px 7px rgba(50,140,255,.55),0 0 55px 18px rgba(50,140,255,.28),0 0 100px 35px rgba(50,140,255,.12),inset 0 0 18px rgba(255,255,255,.22)}
-            50%{box-shadow:0 0 40px 14px rgba(50,140,255,.85),0 0 100px 35px rgba(50,140,255,.5),0 0 180px 65px rgba(50,140,255,.28),inset 0 0 32px rgba(255,255,255,.45)}
+            0%,100%{box-shadow:0 0 28px 10px rgba(30,120,255,.65),0 0 70px 24px rgba(30,120,255,.38),0 0 130px 50px rgba(30,120,255,.18),inset 0 0 24px rgba(255,255,255,.32)}
+            33%{box-shadow:0 0 45px 18px rgba(80,180,255,.85),0 0 110px 40px rgba(30,120,255,.55),0 0 200px 80px rgba(30,120,255,.28),inset 0 0 40px rgba(255,255,255,.55)}
+            66%{box-shadow:0 0 60px 24px rgba(30,120,255,1),0 0 140px 55px rgba(80,180,255,.7),0 0 250px 100px rgba(30,120,255,.38),inset 0 0 50px rgba(255,255,255,.65)}
           }
           @keyframes tcGlow_loyal_partner {
-            0%,100%{box-shadow:0 0 22px 7px rgba(212,83,126,.55),0 0 55px 18px rgba(180,80,255,.28),0 0 100px 35px rgba(212,83,126,.12),inset 0 0 18px rgba(255,255,255,.2)}
-            50%{box-shadow:0 0 40px 14px rgba(212,83,126,.85),0 0 100px 35px rgba(180,80,255,.5),0 0 180px 65px rgba(212,83,126,.28),inset 0 0 32px rgba(255,255,255,.45)}
+            0%,100%{box-shadow:0 0 28px 10px rgba(212,83,126,.65),0 0 70px 24px rgba(180,80,255,.38),0 0 130px 50px rgba(212,83,126,.18),inset 0 0 24px rgba(255,255,255,.28)}
+            33%{box-shadow:0 0 45px 18px rgba(255,100,180,.85),0 0 110px 40px rgba(200,80,255,.55),0 0 200px 80px rgba(212,83,126,.28),inset 0 0 40px rgba(255,255,255,.48)}
+            66%{box-shadow:0 0 60px 24px rgba(212,83,126,1),0 0 140px 55px rgba(220,100,255,.7),0 0 250px 100px rgba(212,83,126,.38),inset 0 0 50px rgba(255,255,255,.58)}
           }
         `}</style>
       </div>
