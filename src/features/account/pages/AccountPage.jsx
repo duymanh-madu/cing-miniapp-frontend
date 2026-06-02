@@ -157,7 +157,7 @@ export default function AccountPage() {
   const profile       = useAuthStore(s => s.profile);
   const updateProfile = useAuthStore(s => s.updateProfile);
   const runtimePhone       = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
-  const runtimeIdentityName = useRuntimeCustomerIdentityStore(s => s.identity?.fullName);
+
   const [showEdit, setShowEdit]   = useState(false);
   const [cooldown, setCooldown]   = useState(null);
   const [toast, setToast]         = useState("");
@@ -241,13 +241,7 @@ export default function AccountPage() {
   return (
     <div style={{ minHeight:"100vh", background:"#f5f5f5", paddingBottom:100 }}>
       <div style={{ position:"fixed", top:0, left:0, right:0, height:"var(--app-safe-top, 0px)", background:"linear-gradient(135deg,#D4531C,#E8622A)", zIndex:99 }} />
-      {/* DEBUG — xóa sau */}
-      <div onClick={() => {
-        const i = window.__runtimeIdentityStore?.getState()?.identity;
-        alert('identity:' + i?.fullName + ' | auth:' + name + ' | time:' + new Date().toLocaleTimeString());
-      }} style={{ background:"#ff000033", padding:"4px 10px", fontSize:9, color:"#ff9999", fontFamily:"monospace", position:"fixed", top:0, left:0, right:0, zIndex:999, cursor:"pointer" }}>
-        Tap để xem debug | auth:{name} | id:{runtimeIdentityName}
-      </div>
+
 
       {toast && (
         <div style={{ position:"fixed", top:20, left:16, right:16, zIndex:200, background:"#1a1a1a", color:"white", borderRadius:14, padding:"14px 18px", fontSize:13, fontWeight:700, textAlign:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.3)" }}>
