@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { io } from "socket.io-client";
@@ -311,6 +312,7 @@ const PIECE_COLORS = { w:"#FFFDE7", b:"#212121" };
 const PIECE_SHADOW = { w:"rgba(0,0,0,0.5)", b:"rgba(255,255,255,0.15)" };
 
 export default function ChessGame({ onExit }) {
+  const navigate = useNavigate();
   const profile  = useAuthStore(s => s.profile);
   const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
   
@@ -831,8 +833,13 @@ export default function ChessGame({ onExit }) {
                 {(opponent?.name||"?")[0]?.toUpperCase()}
               </div>}
         </div>
-        <div style={{ flex:1 }}>
-          <p style={{ color:"white", fontSize:14, fontWeight:800, margin:"0 0 2px" }}>{opponent?.name||"Đối thủ"}</p>
+        <div style={{ flex:1, cursor: opponent?.userId ? "pointer" : "default" }}
+          onClick={() => opponent?.userId && navigate(`/profile/${opponent.userId}`)}>
+          <p style={{ color:"white", fontSize:14, fontWeight:800, margin:"0 0 2px",
+            textDecoration: opponent?.userId ? "underline" : "none",
+            textDecorationColor:"rgba(255,255,255,.2)" }}>
+            {opponent?.name||"Đối thủ"}
+          </p>
           <p style={{ color: myColor==="w"?"#aaa":"#FFD700", fontSize:11, margin:0, fontWeight:600 }}>
             {myColor==="w"?"♚ Quân Đen":"♔ Quân Trắng"}
           </p>
