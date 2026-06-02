@@ -50,7 +50,6 @@ export default function ProfilePage() {
       const top = lbRes?.data?.data?.[0];
       if (top) {
         const topPhone = String(top.user_id).replace(/\D/g,"").replace(/^84/,"0");
-        console.log('[CHAMPION] topPhone:', topPhone, 'resolvedPhone:', resolvedPhone, 'match:', topPhone === resolvedPhone);
         if (topPhone === resolvedPhone) setChampion(true);
       }
     }).finally(() => setLoading(false));
@@ -118,12 +117,7 @@ export default function ProfilePage() {
       {/* Body — nổi lên trên header */}
       <div style={{ padding:"0 16px", marginTop:-20 }}>
 
-        {/* DEBUG — xóa sau */}
-        <div style={{ background:"#ff000033", padding:"4px 10px", fontSize:9, color:"#ff9999", fontFamily:"monospace", borderRadius:8, marginBottom:8 }}>
-          phone:{resolvedPhone||"EMPTY"} | champion:{String(champion)} | isOwn:{String(isOwn)}
-        </div>
-
-      {/* Stats */}
+        {/* Stats */}
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:14 }}>
           {[
             { label:"Điểm tích lũy",  value:fmt(points),           icon:"⭐", accent:"#D4531C" },
