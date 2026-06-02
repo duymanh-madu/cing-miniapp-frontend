@@ -218,6 +218,13 @@ export default function CommunityChat({ onClose }) {
     <div style={{ position:"fixed", inset:0, zIndex:500, background:"#080810", display:"flex", flexDirection:"column" }}>
       <audio ref={audioRef} autoPlay style={{ display:"none" }}/>
 
+      {/* DEBUG BAR — xóa sau khi fix */}
+      {process.env.NODE_ENV !== 'production' || true ? (
+        <div style={{ background:"#ff000033", padding:"4px 12px", fontSize:10, color:"#ff9999", fontFamily:"monospace" }}>
+          phone:{memberPhone||"EMPTY"} | tier:{myTierKey} | data:{membershipData?.tierKey||"null"}
+        </div>
+      ) : null}
+
       {/* Header */}
       <div style={{ padding:"calc(env(safe-area-inset-top,0px) + 12px) 16px 12px", background:"#0d0d18", borderBottom:"1px solid rgba(255,215,0,0.15)", display:"flex", alignItems:"center", gap:12 }}>
         <button onClick={onClose} style={{ background:"none", border:"none", color:"#888", fontSize:22, cursor:"pointer" }}>←</button>
