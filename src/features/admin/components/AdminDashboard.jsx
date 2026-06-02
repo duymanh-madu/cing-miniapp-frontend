@@ -23,6 +23,8 @@ const TABS = [
   { key:"leaderboard_admin", icon:"🏆", label:"BXH & Thưởng" },
   { key:"logs",      icon:"📋", label:"Activity Logs" },
   { key:"notifications", icon:"🔔", label:"Thông báo" },
+  { key:"monitor",       icon:"👁",  label:"Monitor" },
+  { key:"alltime_games", icon:"🏅", label:"Alltime Games" },
 ];
 
 export default function AdminDashboard({ auth }) {
@@ -75,6 +77,8 @@ export default function AdminDashboard({ auth }) {
         {tab==="cdp"       && <AdminCDP token={auth.token} />}
         {tab==="leaderboard_admin" && <AdminLeaderboard token={auth.token} />}
         {tab==="logs"      && <AdminLogs token={auth.token} />}
+        {tab==="monitor"      && <AdminMonitor token={auth.token} />}
+        {tab==="alltime_games" && <AdminAlltimeGames token={auth.token} />}
       </div>
     </div>
   );

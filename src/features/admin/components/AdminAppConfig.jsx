@@ -27,6 +27,7 @@ export default function AdminAppConfig({ token }) {
         voucher_enabled: config.voucher_enabled,
         banner_enabled: config.banner_enabled,
         momo_enabled: config.momo_enabled,
+        delivery_enabled: config.delivery_enabled,
         hotline: config.hotline,
         support_zalo: config.support_zalo,
         facebook_url: config.facebook_url,
