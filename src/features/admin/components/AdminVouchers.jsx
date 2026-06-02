@@ -10,7 +10,7 @@ export default function AdminVouchers({ token }) {
   const h = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    apiClient.get("/vouchers/admin/list", { headers: h })
+    apiClient.get("/admin/vouchers/list", { headers: h })
       .then(r => setVouchers(r.data?.data || []))
       .catch(() => setVouchers([]))
       .finally(() => setLoading(false));
@@ -18,7 +18,7 @@ export default function AdminVouchers({ token }) {
 
   const create = async () => {
     try {
-      await apiClient.post("/vouchers/admin/create", form, { headers: h });
+      await apiClient.post("/admin/vouchers/create", form, { headers: h });
       setMsg("✅ Tạo voucher thành công!");
       setForm({ code:"", discount:0, type:"percent", min_order:0, max_uses:100, expires_at:"", description:"" });
     } catch(e) { setMsg("❌ " + (e.response?.data?.message || e.message)); }
