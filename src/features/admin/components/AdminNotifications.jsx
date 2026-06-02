@@ -87,9 +87,13 @@ function BroadcastPanel({ h }) {
 }
 
 function ZaloPanel({ h }) {
+  const [mode, setMode]           = useState("zbs");
   const [templates, setTemplates] = useState([]);
   const [segment, setSegment]     = useState("all");
   const [selTpl, setSelTpl]       = useState(null);
+  const [customPhones, setCustomPhones] = useState("");
+  const [title, setTitle]         = useState("");
+  const [message, setMessage]     = useState("");
   const [sending, setSending]     = useState(false);
   const [msg, setMsg]             = useState("");
 
@@ -98,52 +102,102 @@ function ZaloPanel({ h }) {
       .then(r => setTemplates(r.data?.data||[]));
   }, []);
 
-  const send = async () => {
-    if (!selTpl) { setMsg("Chọn template"); return; }
+  const parsePhones = () => customPhones.split(/[,\n]/).map(p=>p.trim()).filter(Boolean);
+
+  const sendZBS = async () => {
+    if (!selTpl) { setMsg("Chon template"); return; }
     setSending(true); setMsg("");
     try {
-      const res = await apiClient.post("/admin/cdp/send-zbs-template",
-        { template_id: selTpl.id, segment }, { headers:h });
-      setMsg("Đã gửi tới " + (res.data?.sent||0) + " người!");
-    } catch(e) { setMsg("Lỗi: " + (e.response?.data?.message || e.message)); }
-    finally { setSending(false); setTimeout(()=>setMsg(""), 4000); }
+      const phones = parsePhones();
+      const body = phones.length ? { template_id: selTpl.id, custom_phones: phones } : { template_id: selTpl.id, segment_key: segment };
+      const res = await apiClient.post("/admin/cdp/send-zbs-template", body, { headers:h });
+      setMsg("OK " + (res.data?.message || "Da gui!"));
+    } catch(e) { setMsg("LOI " + (e.response?.data?.error || e.message)); }
+    finally { setSending(false); setTimeout(()=>setMsg(""), 5000); }
   };
+
+  const sendUID = async () => {
+    if (!title || !message) { setMsg("LOI Nhap day du tieu de va noi dung"); return; }
+    setSending(true); setMsg("");
+    try {
+      const phones = parsePhones();
+      const body = phones.length ? { title, message, custom_phones: phones } : { title, message, segment_key: segment };
+      const res = await apiClient.post("/admin/cdp/send-uid", body, { headers:h });
+      setMsg("OK " + (res.data?.message || "Dang gui..."));
+    } catch(e) { setMsg("LOI " + (e.response?.data?.error || e.message)); }
+    finally { setSending(false); setTimeout(()=>setMsg(""), 5000); }
+  };
+
+  const inp = { width:"100%", background:"#0d0d18", border:"1px solid #2a2a38", borderRadius:8, padding:"8px 12px", color:"white", fontSize:13, outline:"none", boxSizing:"border-box" };
 
   return (
     <div style={{ background:"#1a1a24", borderRadius:16, padding:20, border:"1px solid #2a2a38" }}>
-      <p style={{ color:"#00d4ff", fontSize:13, fontWeight:800, margin:"0 0 16px" }}>💬 Gửi tin Zalo OA</p>
-      {msg && <div style={{ background:"rgba(76,175,80,0.1)", border:"1px solid #4CAF50",
-        borderRadius:8, padding:"10px 14px", marginBottom:14, color:"#4CAF50", fontSize:12 }}>{msg}</div>}
+      <div style={{ display:"flex", gap:6, marginBottom:16 }}>
+        {[{k:"zbs",label:"ZBS Template"},{k:"uid",label:"OA Message"}].map(m=>(
+          <button key={m.k} onClick={()=>setMode(m.k)}
+            style={{ flex:1, background:mode===m.k?"rgba(0,212,255,0.15)":"rgba(255,255,255,0.04)",
+              border:"1px solid "+(mode===m.k?"#00d4ff":"#2a2a38"), borderRadius:10,
+              padding:"10px", cursor:"pointer", color:mode===m.k?"#00d4ff":"#888",
+              fontSize:12, fontWeight:800 }}>{m.label}</button>
+        ))}
+      </div>
+
+      {msg && <div style={{ background:msg.startsWith("OK")?"rgba(76,175,80,0.1)":"rgba(255,80,80,0.1)",
+        border:"1px solid "+(msg.startsWith("OK")?"#4CAF50":"#ff6b6b"),
+        borderRadius:8, padding:"10px 14px", marginBottom:14,
+        color:msg.startsWith("OK")?"#4CAF50":"#ff6b6b", fontSize:12 }}>
+        {msg.startsWith("OK")?"OK "+msg.slice(2):"LOI "+msg.slice(3)}
+      </div>}
+
       <div style={{ marginBottom:12 }}>
-        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Phân khúc người nhận</p>
-        <select value={segment} onChange={e=>setSegment(e.target.value)}
-          style={{ width:"100%", background:"#0d0d18", border:"1px solid #2a2a38", borderRadius:8,
-            padding:"8px 12px", color:"white", fontSize:13, outline:"none" }}>
-          <option value="all">👥 Tất cả thành viên</option>
-          <option value="diamond">💎 Hạng Kim Cương</option>
-          <option value="gold">🥇 Hạng Vàng</option>
-          <option value="inactive_7">😴 Không mua 7 ngày</option>
-          <option value="inactive_30">💤 Không mua 30 ngày</option>
-          <option value="birthday">🎂 Sinh nhật tháng này</option>
+        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Phan khuc (bo qua neu nhap SDT cu the)</p>
+        <select value={segment} onChange={e=>setSegment(e.target.value)} style={inp}>
+          <option value="all">Tat ca thanh vien</option>
+          <option value="diamond">Hang Kim Cuong</option>
+          <option value="gold">Hang Vang</option>
+          <option value="inactive_7">Khong mua 7 ngay</option>
+          <option value="inactive_30">Khong mua 30 ngay</option>
         </select>
       </div>
-      <div style={{ marginBottom:16 }}>
-        <p style={{ color:"#888", fontSize:11, margin:"0 0 8px" }}>Chọn template</p>
-        {templates.length === 0
-          ? <p style={{ color:"#555", fontSize:12 }}>Chưa có template. Tạo trong tab CDP.</p>
-          : templates.map(t => (
-            <div key={t.id} onClick={() => setSelTpl(t)}
-              style={{ background: selTpl?.id===t.id?"rgba(0,212,255,0.1)":"rgba(255,255,255,0.04)",
-                border:`1px solid ${selTpl?.id===t.id?"#00d4ff":"#2a2a38"}`,
-                borderRadius:10, padding:"10px 14px", cursor:"pointer", marginBottom:6 }}>
-              <p style={{ color:"white", fontSize:12, fontWeight:700, margin:0 }}>{t.name}</p>
-            </div>
-          ))}
+
+      <div style={{ marginBottom:12 }}>
+        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>SDT cu the (moi so 1 dong hoac cach dau phay)</p>
+        <textarea value={customPhones} onChange={e=>setCustomPhones(e.target.value)} rows={3}
+          placeholder="0984966336&#10;0961835636" style={{ ...inp, resize:"vertical" }}/>
       </div>
-      <button onClick={send} disabled={sending||!selTpl}
+
+      {mode === "zbs" && (
+        <div style={{ marginBottom:16 }}>
+          <p style={{ color:"#888", fontSize:11, margin:"0 0 8px" }}>Chon template ZBS</p>
+          {templates.length === 0
+            ? <p style={{ color:"#555", fontSize:12 }}>Chua co template.</p>
+            : templates.map(t=>(
+              <div key={t.id} onClick={()=>setSelTpl(t)}
+                style={{ background:selTpl?.id===t.id?"rgba(0,212,255,0.1)":"rgba(255,255,255,0.04)",
+                  border:"1px solid "+(selTpl?.id===t.id?"#00d4ff":"#2a2a38"),
+                  borderRadius:10, padding:"10px 14px", cursor:"pointer", marginBottom:6 }}>
+                <p style={{ color:"white", fontSize:12, fontWeight:700, margin:0 }}>{t.name}</p>
+              </div>
+            ))}
+        </div>
+      )}
+
+      {mode === "uid" && (<>
+        <div style={{ marginBottom:12 }}>
+          <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Tieu de</p>
+          <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Tieu de" style={inp}/>
+        </div>
+        <div style={{ marginBottom:16 }}>
+          <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Noi dung</p>
+          <textarea value={message} onChange={e=>setMessage(e.target.value)} rows={4}
+            placeholder="Noi dung..." style={{ ...inp, resize:"vertical" }}/>
+        </div>
+      </>)}
+
+      <button onClick={mode==="zbs"?sendZBS:sendUID} disabled={sending}
         style={{ width:"100%", background:"linear-gradient(135deg,#0077b6,#00d4ff)", border:"none",
           borderRadius:10, padding:"12px", color:"white", fontSize:14, fontWeight:800, cursor:"pointer" }}>
-        {sending ? "Đang gửi..." : "💬 Gửi tin Zalo OA"}
+        {sending?"Dang gui...":mode==="zbs"?"Gui ZBS Template":"Gui OA Message"}
       </button>
     </div>
   );
