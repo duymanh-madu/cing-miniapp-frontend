@@ -14,6 +14,7 @@ import AdminNotifications from './AdminNotifications';
 import AdminManagement from './AdminManagement';
 import AdminAnalytics from './AdminAnalytics';
 import AdminOrders from './AdminOrders';
+import AdminDelivery from './AdminDelivery';
 import AdminPayments from './AdminPayments';
 
 const TABS = [
@@ -30,6 +31,7 @@ const TABS = [
   { key:"monitor",       icon:"👁",  label:"Monitor" },
   { key:"alltime_games", icon:"🏅", label:"Alltime Games" },
   { key:"orders_admin",  icon:"📦", label:"Đơn hàng" },
+  { key:"delivery_admin", icon:"🚀", label:"Giao hàng" },
   { key:"payments_admin",icon:"💳", label:"Thanh toán" },
   { key:"analytics_pro", icon:"📈", label:"Analytics" },
   { key:"management",   icon:"🔐", label:"Quản lý Admin" },
@@ -88,6 +90,7 @@ export default function AdminDashboard({ auth }) {
         {tab==="monitor"      && <AdminMonitor token={auth.token} />}
         {tab==="alltime_games" && <AdminAlltimeGames token={auth.token} />}
         {tab==="orders_admin"  && <AdminOrders token={auth.token} />}
+        {tab==="delivery_admin" && <AdminDelivery token={auth.token} />}
         {tab==="payments_admin" && <AdminPayments token={auth.token} />}
         {tab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
         {tab==="management"    && <AdminManagement token={auth.token} />}
