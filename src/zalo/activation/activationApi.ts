@@ -2,9 +2,6 @@ import { createSession } from "@/infra/auth/authSession";
 
 const BACKEND_URL =
   (import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api");
-// Auth đi qua Mắt Bão VN — Zalo không chặn
-const AUTH_URL =
-  (import.meta.env.VITE_AUTH_URL || "http://112.78.3.72:3001");
 
 export interface ActivateMiniAppUserInput {
   phone:        string;
@@ -35,7 +32,7 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
     mini_access_token:  input.miniAccessToken  || "",
   };
 
-  const res = await fetch(`${AUTH_URL}/auth/zalo/login`, {
+  const res = await fetch(`${BACKEND_URL}/auth/zalo/login`, {
     method:  "POST",
     headers: { "Content-Type": "application/json" },
     body:    JSON.stringify(payload),
