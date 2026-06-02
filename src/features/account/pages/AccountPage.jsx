@@ -243,8 +243,11 @@ export default function AccountPage() {
       <div style={{ position:"fixed", top:0, left:0, right:0, height:"var(--app-safe-top, 0px)", background:"linear-gradient(135deg,#D4531C,#E8622A)", zIndex:99 }} />
 
 
-      <div style={{ background:"#00000088", padding:"3px 8px", fontSize:9, color:"#0f0", fontFamily:"monospace", position:"fixed", top:0, left:0, right:0, zIndex:9999 }}>
-        p:{profile?.name} | auth:{authenticated?"y":"n"}
+      <div onClick={() => {
+        const id = window.__runtimeIdentityStore?.getState()?.identity;
+        alert('identity.fullName=' + id?.fullName + '\nprofile.name=' + profile?.name + '\nauth=' + authenticated);
+      }} style={{ background:"#00000088", padding:"3px 8px", fontSize:9, color:"#0f0", fontFamily:"monospace", position:"fixed", top:0, left:0, right:0, zIndex:9999, cursor:"pointer" }}>
+        tap|p:{profile?.name}|auth:{authenticated?"y":"n"}
       </div>
       {toast && (
         <div style={{ position:"fixed", top:20, left:16, right:16, zIndex:200, background:"#1a1a1a", color:"white", borderRadius:14, padding:"14px 18px", fontSize:13, fontWeight:700, textAlign:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.3)" }}>
