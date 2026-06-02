@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
@@ -25,6 +25,8 @@ const TIER_THEME = {
 
 export default function ProfilePage() {
   const navigate     = useNavigate();
+  const location     = useLocation();
+  const backToGame   = location.state?.backToGame;
   const { userId }   = useParams();
   const profile      = useAuthStore(s => s.profile);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
@@ -85,7 +87,9 @@ export default function ProfilePage() {
       <div style={{ background:theme.header, padding:"calc(env(safe-area-inset-top,0px) + 14px) 20px 48px", position:"relative", overflow:"hidden" }}>
 
 
-        <button onClick={() => navigate(-1)} style={{ background:"rgba(0,0,0,.3)", border:"none", borderRadius:8, padding:"6px 14px", color:"rgba(255,255,255,.75)", fontSize:14, cursor:"pointer", marginBottom:24 }}>←</button>
+        <button onClick={() => navigate(-1)} style={{ background:"rgba(0,0,0,.3)", border:"none", borderRadius:8, padding:"6px 14px", color:"rgba(255,255,255,.75)", fontSize:14, cursor:"pointer", marginBottom:24, display:"flex", alignItems:"center", gap:6 }}>
+          ← {backToGame ? "Quay lại ván cờ" : ""}
+        </button>
 
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:14 }}>
           {/* Avatar */}
