@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
@@ -16,12 +17,19 @@ function typeLabel(type) {
   if (type === "DELI" || type === "FOODBOOK") return { label:"Giao hàng", color:"#1565C0", bg:"#E3F2FD" };
   if (type === "TA")   return { label:"Mang về",  color:"#2E7D32", bg:"#E8F5E9" };
   if (type === "OTS")  return { label:"Tại quán", color:"#E65100", bg:"#FFF3E0" };
+  if (type === "APP")  return { label:"Đặt qua App", color:"#7B1FA2", bg:"#F3E5F5" };
   return { label: type || "Tại quán", color:"#666", bg:"#f5f5f5" };
 }
 
 function OrderCard({ order }) {
   const [expanded, setExpanded] = useState(false);
   const type = typeLabel(order.type);
+  const sourceBadge = order.source === "app"
+    ? { label:"App", color:"#7B1FA2" }
+    : order.source === "ipos"
+    ? { label:"iPOS", color:"#1565C0" }
+    : null;
+
   return (
     <div style={{ background:"white", borderRadius:16, marginBottom:10,
       boxShadow:"0 2px 8px rgba(0,0,0,0.06)", overflow:"hidden" }}>
@@ -32,10 +40,19 @@ function OrderCard({ order }) {
           background:"#fff7ed", display:"flex", alignItems:"center",
           justifyContent:"center", fontSize:22 }}>🧋</div>
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3, flexWrap:"wrap" }}>
             <span style={{ fontSize:11, fontWeight:700, color:type.color,
               background:type.bg, borderRadius:6, padding:"2px 8px" }}>{type.label}</span>
+            {sourceBadge && (
+              <span style={{ fontSize:9, fontWeight:700, color:sourceBadge.color,
+                border:`1px solid ${sourceBadge.color}`, borderRadius:4, padding:"1px 5px" }}>
+                {sourceBadge.label}
+              </span>
+            )}
             {order.tran_no && <span style={{ fontSize:10, color:"#999" }}>#{order.tran_no}</span>}
+            {order.status && order.status !== "paid" && (
+              <span style={{ fontSize:9, color:"#FF9800", fontWeight:700 }}>{order.status}</span>
+            )}
           </div>
           <p style={{ fontSize:12, color:"#999", margin:0 }}>{fmtDate(order.date)}</p>
         </div>
@@ -81,15 +98,23 @@ function OrderCard({ order }) {
 export default function OrderHistoryPage() {
   const navigate  = useNavigate();
   const profile   = useAuthStore(s => s.profile);
-  const phone     = (profile?.phone || profile?.phoneNumber || "").replace(/\D/g, "");
+  const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const phone = (() => {
+    const src = runtimePhone || profile?.phone || profile?.phoneNumber || "";
+    return src.replace(/\D/g,"").replace(/^84/,"0");
+  })();
+
   const [orders, setOrders]   = useState([]);
   const [loading, setLoading] = useState(true);
-  const [total, setTotal]     = useState(0);
+  const [meta, setMeta]       = useState({});
 
   useEffect(() => {
     if (!phone) { setLoading(false); return; }
     apiClient.get(`/orders/history/${phone}`)
-      .then(r => { setOrders(r.data?.data || []); setTotal(r.data?.total || 0); })
+      .then(r => {
+        setOrders(r.data?.data || []);
+        setMeta({ total: r.data?.total || 0, ipos: r.data?.ipos_count || 0, app: r.data?.app_count || 0 });
+      })
       .catch(() => setOrders([]))
       .finally(() => setLoading(false));
   }, [phone]);
@@ -102,7 +127,12 @@ export default function OrderHistoryPage() {
         <button onClick={() => navigate(-1)}
           style={{ background:"none", border:"none", fontSize:22, cursor:"pointer" }}>←</button>
         <h1 style={{ fontSize:18, fontWeight:900, margin:0 }}>📦 Lịch sử đơn hàng</h1>
-        {total > 0 && <span style={{ marginLeft:"auto", fontSize:12, color:"#999" }}>{total} đơn</span>}
+        {meta.total > 0 && (
+          <div style={{ marginLeft:"auto", textAlign:"right" }}>
+            <p style={{ fontSize:12, color:"#999", margin:0 }}>{meta.total} đơn</p>
+            <p style={{ fontSize:10, color:"#bbb", margin:0 }}>iPOS: {meta.ipos} · App: {meta.app}</p>
+          </div>
+        )}
       </div>
       <div style={{ padding:"16px" }}>
         {loading ? (
