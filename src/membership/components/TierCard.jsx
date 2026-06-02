@@ -125,8 +125,78 @@ const TIER_CARD_CONFIG = {
   },
 };
 
-export function TierCard({ tierKey = "member", tierName, firstVisit }) {
+export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion = false }) {
   const cfg = TIER_CARD_CONFIG[tierKey] || TIER_CARD_CONFIG.member;
+
+  // Champion card — Kiện tướng
+  if (isChampion) {
+    return (
+      <div style={{ borderRadius:20, padding:"2.5px", background:"linear-gradient(90deg,#8a6000,#ffd700,#fff8dc,#ffb800,#ffd700,#8a6000)", backgroundSize:"400% 100%", animation:"royalBorder 1.6s linear infinite" }}>
+        <div style={{ borderRadius:18, padding:"20px 18px", background:"linear-gradient(150deg,#120c00,#1e1400,#2a1c04)", position:"relative", overflow:"hidden" }}>
+          <div style={{ position:"absolute", top:0, bottom:0, width:"50%", background:"linear-gradient(90deg,transparent,rgba(255,210,0,.14),rgba(255,240,150,.28),rgba(255,210,0,.14),transparent)", animation:"tcScan 2.2s ease-in-out infinite", pointerEvents:"none" }}/>
+          <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,210,0,.025) 0,rgba(255,210,0,.025) 1px,transparent 1px,transparent 7px)", pointerEvents:"none" }}/>
+
+          <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:14 }}>
+            <p style={{ color:"#c47a00", fontSize:10, fontWeight:700, letterSpacing:1.5, margin:0, textTransform:"uppercase" }}>Danh hiệu đặc biệt</p>
+            <span style={{ background:"rgba(255,0,0,.85)", borderRadius:4, padding:"1px 6px", fontSize:8, fontWeight:900, color:"#fff", animation:"liveFlash 1.2s ease-in-out infinite" }}>LIVE</span>
+          </div>
+
+          <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+            <div style={{ position:"relative", flexShrink:0 }}>
+              {/* Crown */}
+              <div style={{ position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)", filter:"drop-shadow(0 0 6px rgba(255,210,0,.9))", zIndex:1 }}>
+                <svg width="32" height="18" viewBox="0 0 32 18">
+                  <polygon points="16,0 32,18 0,18" fill="#ffd700"/>
+                  <polygon points="4,5 0,18 9,18" fill="#c47a00"/>
+                  <polygon points="28,5 32,18 23,18" fill="#c47a00"/>
+                  <polygon points="16,2 19,10 16,8 13,10" fill="#fff8dc" opacity=".7"/>
+                </svg>
+              </div>
+              {/* Badge */}
+              <div style={{ width:68, height:68, borderRadius:"50%", background:"linear-gradient(135deg,#3a2200,#7a4a00,#c47a00,#ffd700,#ffb800,#c47a00)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, animation:"tcGlow_champion 2.2s ease-in-out infinite, tcFloat 3.2s ease-in-out infinite", position:"relative" }}>
+                ♟️
+                <div style={{ position:"absolute", inset:0, borderRadius:"50%", background:"radial-gradient(circle at 35% 30%,rgba(255,240,150,.35),transparent 60%)", pointerEvents:"none" }}/>
+                <div style={{ position:"absolute", top:3, right:5, width:8, height:8, borderRadius:"50%", background:"#fff", animation:"tcSp1 2.6s ease-in-out infinite" }}/>
+                <div style={{ position:"absolute", bottom:5, left:4, width:6, height:6, borderRadius:"50%", background:"#ffd700", animation:"tcSp2 2.6s ease-in-out .55s infinite" }}/>
+                <div style={{ position:"absolute", top:10, left:7, width:4, height:4, borderRadius:"50%", background:"#fff", animation:"tcSp3 2.6s ease-in-out 1.1s infinite" }}/>
+              </div>
+              {/* TOP 1 badge */}
+              <div style={{ position:"absolute", bottom:-6, left:"50%", transform:"translateX(-50%)", background:"linear-gradient(90deg,#c47a00,#ffd700,#c47a00)", borderRadius:10, padding:"2px 8px", border:"1px solid #ffd700", boxShadow:"0 0 8px rgba(255,210,0,.6)", whiteSpace:"nowrap" }}>
+                <span style={{ fontSize:9, fontWeight:900, color:"#120c00" }}>TOP 1</span>
+              </div>
+            </div>
+
+            <div>
+              <p style={{ color:"#ffd700", fontSize:18, fontWeight:900, margin:"0 0 6px", textShadow:"0 0 12px rgba(255,210,0,.6)" }}>Kiện tướng</p>
+              <div style={{ display:"flex", gap:3, marginBottom:6 }}>
+                {[1,2,3,4].map(i => (
+                  <svg key={i} width="15" height="15" viewBox="0 0 12 12">
+                    <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="#ffd700" stroke="#ffc000" strokeWidth=".5"/>
+                  </svg>
+                ))}
+                <svg width="15" height="15" viewBox="0 0 12 12">
+                  <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="none" stroke="#7a5800" strokeWidth="1"/>
+                </svg>
+              </div>
+              <p style={{ color:"#c47a00", fontSize:10, margin:0 }}>Vương giả cờ vua · Độc chiếm Top 1</p>
+              {firstVisit && (
+                <p style={{ color:"#7a5800", fontSize:10, margin:"6px 0 0" }}>
+                  Thành viên từ {new Date(firstVisit).toLocaleDateString("vi-VN", { month:"long", year:"numeric" })}
+                </p>
+              )}
+            </div>
+          </div>
+          <style>{`
+            @keyframes tcGlow_champion {
+              0%,100%{box-shadow:0 0 22px 7px rgba(186,117,23,.55),0 0 55px 18px rgba(255,180,0,.28),0 0 100px 35px rgba(186,117,23,.12),inset 0 0 18px rgba(255,220,100,.22)}
+              50%{box-shadow:0 0 40px 14px rgba(186,117,23,.85),0 0 100px 35px rgba(255,180,0,.5),0 0 180px 65px rgba(186,117,23,.28),inset 0 0 32px rgba(255,220,100,.45)}
+            }
+            @keyframes liveFlash { 0%,100%{opacity:1} 50%{opacity:.35} }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
 
   if (cfg.royal) {
     return (
