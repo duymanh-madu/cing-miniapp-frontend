@@ -42,7 +42,10 @@ export default function CommunityChat({ onClose }) {
   const { data: membershipData } = useMembership(memberPhone);
   const myTierKey = membershipData?.tierKey || "member";
   const tierKeyRef = useRef("member");
-  useEffect(() => { tierKeyRef.current = myTierKey; }, [myTierKey]);
+  useEffect(() => {
+    tierKeyRef.current = myTierKey;
+    console.log('[TIER] myTierKey updated:', myTierKey, 'memberPhone:', memberPhone, 'membershipData:', membershipData?.tierKey);
+  }, [myTierKey]);
 
   const getMyInfo = useCallback(() => {
     for (const src of [runtimePhone, profile?.phone]) {
@@ -148,6 +151,7 @@ export default function CommunityChat({ onClose }) {
   // Re-emit khi tierKey resolve từ API — cập nhật badge cho tất cả client
   // Không skip "member" vì đây có thể là hạng thật của user
   useEffect(() => {
+    console.log('[TIER] membershipData changed:', membershipData?.tierKey, 'myTierKey:', myTierKey);
     if (!membershipData) return; // Chờ API trả về thật, không emit với giá trị default
     const emitWithRetry = (attempts = 0) => {
       if (sockRef.current?.connected && myIdRef.current) {
