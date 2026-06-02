@@ -118,7 +118,12 @@ export default function ProfilePage() {
       {/* Body — nổi lên trên header */}
       <div style={{ padding:"0 16px", marginTop:-20 }}>
 
-        {/* Stats */}
+        {/* DEBUG — xóa sau */}
+        <div style={{ background:"#ff000033", padding:"4px 10px", fontSize:9, color:"#ff9999", fontFamily:"monospace", borderRadius:8, marginBottom:8 }}>
+          phone:{resolvedPhone||"EMPTY"} | champion:{String(champion)} | isOwn:{String(isOwn)}
+        </div>
+
+      {/* Stats */}
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:14 }}>
           {[
             { label:"Điểm tích lũy",  value:fmt(points),           icon:"⭐", accent:"#D4531C" },
