@@ -98,6 +98,19 @@ export default function GameCenterPage() {
       .catch(() => {});
   }, [runtimePhone2]);
 
+  // Retry missions sau 3s nếu vẫn rỗng
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (missions.length > 0) return;
+      const phone = getPhone();
+      if (!phone || phone === "pending") return;
+      apiClient.get(`/missions/${phone}`)
+        .then(r => setMissions(r.data?.data || []))
+        .catch(() => {});
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [runtimePhone2]);
+
   // Socket: challenge winner
   useEffect(() => {
     let attempts = 0;
