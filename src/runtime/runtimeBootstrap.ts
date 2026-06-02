@@ -37,10 +37,19 @@ function hydrateIdentityFromUrlParams() {
     console.log("[RUNTIME] Shell params:", { zaloId, name, phone });
 
     const store = useRuntimeCustomerIdentityStore.getState();
+    // Nếu đã có custom name từ session trước → dùng custom name, không dùng tên Zalo
+    let displayName = name;
+    let displayAvatar = avatar;
+    try {
+      const savedName   = sessionStorage.getItem("__custom_name");
+      const savedAvatar = sessionStorage.getItem("__custom_avatar");
+      if (savedName)   displayName   = savedName;
+      if (savedAvatar) displayAvatar = savedAvatar;
+    } catch(e) {}
     store.setIdentity({
       zaloUserId:   zaloId,
-      fullName:     name,
-      avatar:       avatar,
+      fullName:     displayName,
+      avatar:       displayAvatar,
       phone:        phone,
       phoneToken:   phoneToken,
       phoneGranted: !!(phone || phoneToken),
@@ -74,22 +83,25 @@ export async function bootstrapRuntime() {
   await initializeCustomerIdentityRuntime();
 
   // 4b. Sync custom name/avatar từ identityStore → authStore sau khi bootstrap xong
+  // identity store lúc này đã có tên từ backend (Admin) — sync sang authStore
   try {
     const identityState = useRuntimeCustomerIdentityStore.getState();
     const customName   = identityState.identity?.fullName;
     const customAvatar = identityState.identity?.avatar;
-    console.log("[RUNTIME] 4b sync — customName:", customName, "customAvatar:", !!customAvatar);
-    if (customName) {
+    if (customName && customName !== "Khách hàng") {
       const { default: useAuthStore } = await import("@/stores/auth/authStore");
       const profile = useAuthStore.getState().profile;
-      console.log("[RUNTIME] 4b sync — profile.name:", profile?.name);
       useAuthStore.getState().updateProfile({
         ...profile,
         name:        customName,
         displayName: customName,
         avatar:      customAvatar || profile?.avatar,
       });
-      console.log("[RUNTIME] 4b sync done — new name:", customName);
+      // Lưu vào sessionStorage để tránh bị shell override
+      try {
+        sessionStorage.setItem("__custom_name",   customName);
+        sessionStorage.setItem("__custom_avatar", customAvatar || "");
+      } catch(e) {}
     }
   } catch(e) { console.warn("[RUNTIME] sync name failed:", e); }
 
