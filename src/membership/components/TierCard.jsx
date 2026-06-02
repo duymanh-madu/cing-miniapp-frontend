@@ -131,10 +131,11 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
   // Champion card — Kiện tướng
   if (isChampion) {
     return (
-      <div style={{ borderRadius:20, padding:"2.5px", background:"linear-gradient(90deg,#8a6000,#ffd700,#fff8dc,#ffb800,#ffd700,#8a6000)", backgroundSize:"400% 100%", animation:"royalBorder 1.6s linear infinite" }}>
-        <div style={{ borderRadius:18, padding:"20px 18px", background:"linear-gradient(150deg,#120c00,#1e1400,#2a1c04)", position:"relative", overflow:"hidden" }}>
-          <div style={{ position:"absolute", top:0, bottom:0, width:"50%", background:"linear-gradient(90deg,transparent,rgba(255,210,0,.14),rgba(255,240,150,.28),rgba(255,210,0,.14),transparent)", animation:"tcScan 2.2s ease-in-out infinite", pointerEvents:"none" }}/>
-          <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,210,0,.025) 0,rgba(255,210,0,.025) 1px,transparent 1px,transparent 7px)", pointerEvents:"none" }}/>
+      <div style={{ borderRadius:20, padding:"3px", background:"linear-gradient(90deg,#5a3a00,#ffd700,#fff8e0,#ffcc00,#ffd700,#5a3a00)", backgroundSize:"400% 100%", animation:"ktBorderSpin 1.4s linear infinite" }}>
+        <div style={{ borderRadius:18, padding:"20px 18px", background:"linear-gradient(150deg,#0e0900,#1a1000,#261800)", position:"relative", overflow:"hidden" }}>
+          <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:"linear-gradient(90deg,transparent,rgba(255,210,0,.18),rgba(255,240,150,.35),rgba(255,210,0,.18),transparent)", animation:"tcScan 2.2s ease-in-out infinite", pointerEvents:"none" }}/>
+          <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,210,0,.018) 0,rgba(255,210,0,.018) 1px,transparent 1px,transparent 8px)", pointerEvents:"none" }}/>
+          <div style={{ position:"absolute", inset:0, background:"radial-gradient(ellipse at 50% 50%,rgba(186,117,23,.08) 0%,transparent 65%)", pointerEvents:"none" }}/>
 
           <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:14 }}>
             <p style={{ color:"#c47a00", fontSize:10, fontWeight:700, letterSpacing:1.5, margin:0, textTransform:"uppercase" }}>Danh hiệu đặc biệt</p>
@@ -205,7 +206,7 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
           {/* Scanline */}
           <div style={{ position:"absolute", top:0, bottom:0, width:"50%", background:`linear-gradient(90deg,transparent,${cfg.scanColor},transparent)`, animation:"tcScan 3.5s ease-in-out infinite", pointerEvents:"none" }}/>
           {/* Texture */}
-          <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 7px)", pointerEvents:"none" }}/>
+          <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,255,255,.01) 0,rgba(255,255,255,.01) 1px,transparent 1px,transparent 8px)", pointerEvents:"none" }}/>
           {/* Radial glow center */}
           <div style={{ position:"absolute", inset:0, background:`radial-gradient(ellipse at 50% 50%,${cfg.glowColor2.replace(".35",",.08")} 0%,transparent 65%)`, pointerEvents:"none" }}/>
 
@@ -246,6 +247,7 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
         </div>
         <style>{`
           @keyframes royalBorder { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+          @keyframes ktBorderSpin  { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
           @keyframes tcFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
           @keyframes tcScan  { 0%{left:-60%} 100%{left:120%} }
           @keyframes tcSp1 { 0%,100%{opacity:0;transform:scale(0)} 42%,55%{opacity:1;transform:scale(1)} }
