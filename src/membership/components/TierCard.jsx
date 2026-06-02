@@ -210,11 +210,9 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
       <div style={{ borderRadius:20, padding:"2.5px", background:cfg.borderAnim, backgroundSize:"400% 100%", animation:"royalBorder 1.8s linear infinite" }}>
         <div style={{ borderRadius:18, padding:"20px 18px", background:cfg.innerBg, position:"relative", overflow:"hidden" }}>
           {/* Scanline */}
-          <div style={{ position:"absolute", top:0, bottom:0, width:"50%", background:`linear-gradient(90deg,transparent,${cfg.scanColor},transparent)`, animation:"tcScan 3.5s ease-in-out infinite", pointerEvents:"none" }}/>
-          {/* Texture */}
-          <div style={{ position:"absolute", inset:0, backgroundImage:"repeating-linear-gradient(45deg,rgba(255,255,255,.01) 0,rgba(255,255,255,.01) 1px,transparent 1px,transparent 8px)", pointerEvents:"none" }}/>
+          <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:`linear-gradient(90deg,transparent,${cfg.scanColor},transparent)`, animation:"tcScan 3.5s ease-in-out infinite", pointerEvents:"none" }}/>
           {/* Radial glow center */}
-          <div style={{ position:"absolute", inset:0, background:`radial-gradient(ellipse at 50% 50%,${cfg.glowColor2.replace(".35",",.08")} 0%,transparent 65%)`, pointerEvents:"none" }}/>
+          <div style={{ position:"absolute", inset:0, background:`radial-gradient(ellipse at 50% 50%,${cfg.glowColor}22 0%,transparent 65%)`, pointerEvents:"none" }}/>
 
           <p style={{ color:cfg.subColor, fontSize:10, fontWeight:700, letterSpacing:1.5, margin:"0 0 16px", textTransform:"uppercase" }}>Hạng thành viên</p>
 
