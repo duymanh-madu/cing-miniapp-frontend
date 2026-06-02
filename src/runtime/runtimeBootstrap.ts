@@ -1,4 +1,4 @@
-import { initializeRuntimeSocket }           from "./socket/runtimeSocketClient";
+import { initializeRuntimeSocket, getRuntimeSocket } from "./socket/runtimeSocketClient";
 import { initializeRealtimeOrchestrator }    from "./realtime/runtimeRealtimeOrchestrator";
 import { initializeRuntimeStores }           from "../core/store/runtimeStoreOrchestrator";
 import { initializeRuntimeSession }          from "./session/runtimeSessionOrchestrator";
