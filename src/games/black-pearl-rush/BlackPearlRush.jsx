@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function BlackPearlRush({ onExit, onGameOver }) {
+export default function BlackPearlRush({ onExit, onGameOver, onRestart }) {
   const navigate = useNavigate();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -151,7 +151,11 @@ export default function BlackPearlRush({ onExit, onGameOver }) {
         console.log('[GAME] onGameOver fired, bestCombo:', game.bestCombo, 'score:', game.score, 'has callback:', !!onGameOver);
         if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
       }
-      if (game.dead) { resetGame(); return; }
+      if (game.dead) {
+        resetGame();
+        if (onRestart) onRestart(); // Trừ lượt chơi mới
+        return;
+      }
       game.started = true;
       game.pearl.vy = -8.2;
       game.pearl.squash = 1.22;

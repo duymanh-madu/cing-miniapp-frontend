@@ -311,7 +311,7 @@ const PIECES = {
 const PIECE_COLORS = { w:"#FFFDE7", b:"#212121" };
 const PIECE_SHADOW = { w:"rgba(0,0,0,0.5)", b:"rgba(255,255,255,0.15)" };
 
-export default function ChessGame({ onExit }) {
+export default function ChessGame({ onExit, onFindMatch }) {
   const navigate = useNavigate();
   const profile  = useAuthStore(s => s.profile);
   const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
@@ -567,6 +567,8 @@ export default function ChessGame({ onExit }) {
   };
 
   const findMatch = useCallback(() => {
+    // Nếu có callback từ parent — check lượt chơi trước
+    if (onFindMatch && !onFindMatch()) return; // onFindMatch trả false = hết lượt
     if (!userId) return;
     // Lấy tên mới nhất từ runtime store tại thời điểm bấm
     const rtName = useRuntimeCustomerIdentityStore.getState().identity?.fullName;

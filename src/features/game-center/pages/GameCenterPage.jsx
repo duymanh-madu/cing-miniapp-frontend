@@ -179,6 +179,18 @@ export default function GameCenterPage() {
     setActiveGame(gameId);
   };
 
+  const handleRestart = () => {
+    const phone = getPhone();
+    if (!phone) return;
+    if (gamePlays !== null && gamePlays <= 0) {
+      alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
+      setActiveGame(null); // Thoát game nếu hết lượt
+      return;
+    }
+    apiClient.post("/game/use-play", { user_id: phone })
+      .catch(e => console.warn("[GAME] use-play restart:", e.message));
+  };
+
   const handlePlayChess = () => {
     if (!authenticated) { setShowAuthModal(true); return; }
     if (gamePlays !== null && gamePlays <= 0) { alert("Hết lượt chơi!"); return; }
@@ -186,8 +198,17 @@ export default function GameCenterPage() {
     // KHÔNG trừ lượt ở đây — chỉ trừ khi match thành công (chess:matched)
   };
 
+  // Callback cho ChessGame.findMatch — check lượt trước khi tìm ván mới
+  const handleFindChessMatch = () => {
+    if (gamePlays !== null && gamePlays <= 0) {
+      alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
+      return false; // Chặn tìm ván mới
+    }
+    return true; // Cho phép tìm ván
+  };
+
   if (showChat) return <CommunityChat onClose={() => setShowChat(false)} />;
-  if (playingChess) return <ChessGame onExit={() => setPlayingChess(false)} />;
+  if (playingChess) return <ChessGame onExit={() => setPlayingChess(false)} onFindMatch={handleFindChessMatch} />;
 
   if (activeGame) {
     const game     = games.find(g => g.id === activeGame);
@@ -197,6 +218,7 @@ export default function GameCenterPage() {
         <GameComp
           onExit={() => setActiveGame(null)}
           onGameOver={handleGameOver}
+          onRestart={handleRestart}
           onShowLeaderboard={() => setShowBoard(activeGame)}
         />
         {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
