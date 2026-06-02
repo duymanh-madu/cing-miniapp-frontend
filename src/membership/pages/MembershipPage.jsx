@@ -1,6 +1,9 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMembership } from "@/features/home/hooks/useMembership";
 import useAuthStore from "@/stores/auth/authStore";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
+import apiClient from "@/infra/api/apiClient";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
@@ -10,9 +13,54 @@ export default function MembershipPage() {
   const phone    = (profile?.phone || profile?.phoneNumber || "").replace(/\D/g, "");
   const { data: membership, isLoading } = useMembership(phone);
 
+  const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const resolvedPhone = (() => {
+    const src = runtimePhone || profile?.phone || "";
+    return src.replace(/\D/g,"").replace(/^84/,"0");
+  })();
+
   const points    = membership?.points || 0;
   const tierName  = membership?.tierName || "Hội viên";
   const pointsVnd = points * 1000;
+
+  const [history, setHistory]   = useState([]);
+  const [histLoading, setHistLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("points");
+
+  useEffect(() => {
+    const p = resolvedPhone || phone;
+    if (!p) return;
+    setHistLoading(true);
+    apiClient.get(`/membership/${p}/transactions`)
+      .then(r => {
+        const d = r.data?.data;
+        if (!d) return;
+        // Merge app payments + ipos logs thành 1 danh sách điểm
+        const appItems = (d.app?.payments || []).filter(p => p.payment_status === "paid").map(p => ({
+          id: p.id,
+          date: p.created_at,
+          amount: Number(p.amount || 0),
+          type: "payment",
+          source: "app",
+          method: p.payment_method,
+          label: "Thanh toán đơn hàng (App)",
+        }));
+        const iposItems = (d.ipos?.logs || []).map(l => ({
+          id: l.id || l.tran_id,
+          date: l.create_date || l.tran_date,
+          amount: Number(l.amount || l.bill_amount || 0),
+          type: "ipos",
+          source: "ipos",
+          label: l.note || l.type_name || "Giao dịch tại quán",
+          points: l.point_change || l.point || 0,
+        }));
+        const merged = [...appItems, ...iposItems]
+          .sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
+        setHistory(merged);
+      })
+      .catch(() => {})
+      .finally(() => setHistLoading(false));
+  }, [resolvedPhone, phone]);
 
   return (
     <div style={{ minHeight:"100vh", background:"#f5f5f5", paddingBottom:80 }}>
@@ -144,6 +192,76 @@ export default function MembershipPage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* LỊCH SỬ GIAO DỊCH */}
+          <div style={{ background:"white", borderRadius:20, padding:"20px",
+            marginTop:16, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+            <p style={{ fontSize:15, fontWeight:800, color:"#1a1a1a", margin:"0 0 12px" }}>
+              📋 Lịch sử giao dịch
+            </p>
+            <div style={{ display:"flex", gap:8, marginBottom:14 }}>
+              {[
+                { key:"points", label:"Tất cả" },
+                { key:"app",    label:"Qua App" },
+                { key:"ipos",   label:"Tại quán" },
+              ].map(t => (
+                <button key={t.key} onClick={() => setActiveTab(t.key)} style={{
+                  background: activeTab===t.key ? "#D4531C" : "#f5f5f5",
+                  border:"none", borderRadius:20, padding:"6px 14px", cursor:"pointer",
+                  color: activeTab===t.key ? "white" : "#666",
+                  fontSize:12, fontWeight:700,
+                }}>{t.label}</button>
+              ))}
+            </div>
+            {histLoading ? (
+              <p style={{ textAlign:"center", color:"#bbb", padding:"20px 0" }}>Đang tải...</p>
+            ) : history.length === 0 ? (
+              <p style={{ textAlign:"center", color:"#bbb", fontSize:13, padding:"20px 0" }}>
+                Chưa có lịch sử giao dịch
+              </p>
+            ) : history
+              .filter(item => activeTab === "points" || item.source === activeTab)
+              .slice(0, 20)
+              .map((item, i) => (
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:12,
+                  padding:"10px 0", borderBottom:"1px solid #f5f5f5" }}>
+                  <div style={{ width:38, height:38, borderRadius:12, flexShrink:0,
+                    background: item.source==="app" ? "#f3e5f5" : "#e3f2fd",
+                    display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
+                    {item.source === "app" ? "📱" : "🏪"}
+                  </div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <p style={{ fontSize:13, fontWeight:700, color:"#1a1a1a",
+                      margin:"0 0 2px", overflow:"hidden", whiteSpace:"nowrap",
+                      textOverflow:"ellipsis" }}>
+                      {item.label}
+                    </p>
+                    <p style={{ fontSize:11, color:"#999", margin:0 }}>
+                      {item.date ? new Date(item.date).toLocaleDateString("vi-VN", {
+                        day:"2-digit", month:"2-digit", year:"numeric",
+                        hour:"2-digit", minute:"2-digit"
+                      }) : ""}
+                      {item.source === "app" && (
+                        <span style={{ marginLeft:6, fontSize:9, color:"#7B1FA2",
+                          border:"1px solid #7B1FA2", borderRadius:4, padding:"1px 5px" }}>App</span>
+                      )}
+                      {item.source === "ipos" && (
+                        <span style={{ marginLeft:6, fontSize:9, color:"#1565C0",
+                          border:"1px solid #1565C0", borderRadius:4, padding:"1px 5px" }}>iPOS</span>
+                      )}
+                    </p>
+                  </div>
+                  <div style={{ textAlign:"right", flexShrink:0 }}>
+                    <p style={{ fontSize:14, fontWeight:900,
+                      color: item.points > 0 ? "#4CAF50" : "#D4531C",
+                      margin:0 }}>
+                      {item.points > 0 ? `+${item.points} điểm` : new Intl.NumberFormat("vi-VN").format(item.amount) + "đ"}
+                    </p>
+                  </div>
+                </div>
+              ))
+            }
           </div>
 
         </div>
