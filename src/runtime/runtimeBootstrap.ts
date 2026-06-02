@@ -37,19 +37,10 @@ function hydrateIdentityFromUrlParams() {
     console.log("[RUNTIME] Shell params:", { zaloId, name, phone });
 
     const store = useRuntimeCustomerIdentityStore.getState();
-    // Nếu đã có custom name từ session trước → dùng custom name, không dùng tên Zalo
-    let displayName = name;
-    let displayAvatar = avatar;
-    try {
-      const savedName   = sessionStorage.getItem("__custom_name");
-      const savedAvatar = sessionStorage.getItem("__custom_avatar");
-      if (savedName)   displayName   = savedName;
-      if (savedAvatar) displayAvatar = savedAvatar;
-    } catch(e) {}
     store.setIdentity({
       zaloUserId:   zaloId,
-      fullName:     displayName,
-      avatar:       displayAvatar,
+      fullName:     name,
+      avatar:       avatar,
       phone:        phone,
       phoneToken:   phoneToken,
       phoneGranted: !!(phone || phoneToken),
@@ -97,11 +88,7 @@ export async function bootstrapRuntime() {
         displayName: customName,
         avatar:      customAvatar || profile?.avatar,
       });
-      // Lưu vào sessionStorage để tránh bị shell override
-      try {
-        sessionStorage.setItem("__custom_name",   customName);
-        sessionStorage.setItem("__custom_avatar", customAvatar || "");
-      } catch(e) {}
+
     }
   } catch(e) { console.warn("[RUNTIME] sync name failed:", e); }
 
@@ -111,6 +98,25 @@ export async function bootstrapRuntime() {
 
   // Expose identity store cho socket client
   (window as any).__runtimeIdentityStore = useRuntimeCustomerIdentityStore;
+
+  // Mirror identityStore → authStore (single source of truth)
+  // Mỗi khi identity thay đổi → authStore tự update theo
+  const { default: useAuthStore } = await import("@/stores/auth/authStore");
+  useRuntimeCustomerIdentityStore.subscribe((state: any) => {
+    const fullName = state.identity?.fullName;
+    const avatar   = state.identity?.avatar;
+    if (!fullName || fullName === "Khách hàng") return;
+    const profile = useAuthStore.getState().profile;
+    if (!profile) return;
+    if (profile.name !== fullName || (avatar && profile.avatar !== avatar)) {
+      useAuthStore.getState().updateProfile({
+        ...profile,
+        name:        fullName,
+        displayName: fullName,
+        avatar:      avatar || profile.avatar,
+      });
+    }
+  });
 
   // Subscribe để emit user:online khi phone được resolve
   useRuntimeCustomerIdentityStore.subscribe((state: any) => {

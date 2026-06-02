@@ -227,17 +227,12 @@ export default function AccountPage() {
   };
 
   const handleSaved = ({ name: newName, avatarUrl: newAvatar, pointsUsed }) => {
-    // Update authStore
-    updateProfile({ ...profile, name: newName, displayName: newName, avatar: newAvatar });
-    // Update identityStore — để CommunityChat, ChessGame, socket emit đúng tên
+    // Chỉ update identityStore — subscriber tự mirror sang authStore
     try {
-      const identityStore = useRuntimeCustomerIdentityStore.getState();
-      identityStore.setIdentity({ fullName: newName, avatar: newAvatar || profile?.avatar });
-    } catch(e) {}
-    // Lưu vào sessionStorage để persist qua reload
-    try {
-      sessionStorage.setItem("__custom_name",   newName);
-      sessionStorage.setItem("__custom_avatar", newAvatar || profile?.avatar || "");
+      useRuntimeCustomerIdentityStore.getState().setIdentity({
+        fullName: newName,
+        avatar:   newAvatar || profile?.avatar || "",
+      });
     } catch(e) {}
     setToast(pointsUsed > 0 ? `Đã lưu! Trừ ${pointsUsed} điểm 🎉` : "Cập nhật hồ sơ thành công! ✅");
     setTimeout(() => setToast(""), 3000);
