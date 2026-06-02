@@ -244,17 +244,17 @@ export default function AccountPage() {
 
 
       <div onClick={() => {
-        const p = window.__debugPayload;
-        const r = window.__debugResult;
-        const id = window.__runtimeIdentityStore?.getState()?.identity;
+        const id = window.__runtimeIdentityStore?.getState();
+        const isZalo = !!(window.__ZALO_MINI_APP__);
+        const ua = navigator.userAgent.includes('ZaloApp');
         alert(
-          'phone=' + (p?.phone||'N/A') +
-          '\nhasPhoneToken=' + (p?.hasPhoneToken||false) +
-          '\nhasMiniToken=' + (p?.hasMiniToken||false) +
-          '\nresult.fullName=' + (r?.fullName||'N/A') +
-          '\nidentity.phone=' + (id?.phone||'N/A') +
-          '\nidentity.phoneToken=' + !!(id?.phoneToken) +
-          '\nidentity.miniToken=' + !!(id?.miniAccessToken)
+          'status=' + id?.activationStatus +
+          '\nzaloUserId=' + (id?.identity?.zaloUserId||'none') +
+          '\nphone=' + (id?.identity?.phone||'none') +
+          '\nisZalo=' + isZalo +
+          '\nuaZalo=' + ua +
+          '\nphoneGranted=' + id?.phoneGranted +
+          '\noaFollowed=' + id?.oaFollowed
         );
       }} style={{ background:"#000c", padding:"8px 12px", fontSize:11, color:"#0f0", fontFamily:"monospace", position:"fixed", bottom:100, left:16, right:16, zIndex:9999, cursor:"pointer", borderRadius:8, textAlign:"center" }}>
         🔍 TAP DEBUG
