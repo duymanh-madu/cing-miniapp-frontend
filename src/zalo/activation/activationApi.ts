@@ -52,9 +52,11 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
       refreshToken: data.refreshToken || data.refresh_token || null,
       profile: {
         id:     data.customer?.id     || data.customer?.zalo_id || "",
-        name:   (data.customer?.name && data.customer?.name !== 'Khách hàng' ? data.customer?.name : input.name) || data.customer?.name || "",
+        name:   (data.customer?.fullName && data.customer?.fullName !== 'Khách hàng' ? data.customer?.fullName : null)
+                || (data.customer?.name && data.customer?.name !== 'Khách hàng' ? data.customer?.name : null)
+                || input.name || "",
         phone:  data.customer?.phone  || (input.phone !== "pending" ? input.phone : "") || "",
-        avatar: data.customer?.avatar || input.avatar           || "",
+        avatar: data.customer?.avatar || input.avatar || "",
       },
     });
   }
@@ -62,7 +64,7 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
   return {
     ...data,
     customerId:    data.customer?.id            || "",
-    fullName:      data.customer?.name          || "",
+    fullName:      data.customer?.fullName || data.customer?.name || "",
     phone:         data.customer?.phone         || input.phone,
     totalSpent:    data.customer?.total_spent   || 0,
     monthlySpent:  data.customer?.monthly_spent || 0,
