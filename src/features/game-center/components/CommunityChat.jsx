@@ -84,8 +84,14 @@ export default function CommunityChat({ onClose }) {
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 50);
     });
 
-    s.on("community:users",       (list) => setUsers(list));
-    s.on("community:user_joined", (u)    => setUsers(prev => [...prev.filter(p=>p.userId!==u.userId), u]));
+    s.on("community:users", (list) => {
+      // Merge tierKey: nếu là chính mình thì dùng tierKeyRef.current (đúng hơn server)
+      const merged = list.map(u =>
+        u.userId === myIdRef.current ? { ...u, tierKey: tierKeyRef.current || u.tierKey } : u
+      );
+      setUsers(merged);
+    });
+    s.on("community:user_joined", (u) => setUsers(prev => [...prev.filter(p=>p.userId!==u.userId), u]));
     s.on("community:user_left",   (u)    => setUsers(prev => prev.filter(p=>p.userId!==u.userId)));
     s.on("community:voice_start", ({userId}) => { setSpeaker(userId); if (userId !== myIdRef.current) setVoiceState("others_speaking"); });
     s.on("community:voice_end",   ()    => { setSpeaker(null); setVoiceState("idle"); });
