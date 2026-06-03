@@ -130,13 +130,7 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
           <input ref={fileRef} type="file" accept="image/*" style={{ display:"none" }} onChange={handleFile}/>
         </div>
 
-        <div style={{ marginBottom:20 }}>
-          <p style={{ fontSize:12, fontWeight:700, color:"#666", margin:"0 0 8px" }}>TÊN HIỂN THỊ</p>
-          <input value={name} onChange={e => setName(e.target.value)} maxLength={30} disabled={blocked && !usePoints}
-            placeholder="Nhập tên hiển thị..."
-            style={{ width:"100%", padding:"14px 16px", borderRadius:14, border:"1.5px solid #e0e0e0", fontSize:15, fontWeight:600, outline:"none", boxSizing:"border-box", background: (blocked && !usePoints) ? "#f5f5f5" : "#fafafa", color:"#1a1a1a", opacity: (blocked && !usePoints) ? 0.5 : 1 }}/>
-          <p style={{ fontSize:11, color:"#ccc", margin:"4px 0 0", textAlign:"right" }}>{name.length}/30</p>
-        </div>
+        {/* Đổi tên tạm ẩn — chỉ cho đổi avatar */}
 
         {error && <p style={{ color:"#e53935", fontSize:12, margin:"0 0 12px", textAlign:"center" }}>{error}</p>}
 
@@ -253,7 +247,7 @@ export default function AccountPage() {
 
       <div style={{ background:"linear-gradient(135deg,#D4531C,#E8622A)", padding:"20px 20px 24px", paddingTop:"calc(env(safe-area-inset-top, 0px) + 8px)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-          <div style={{ position:"relative", flexShrink:0 }}>
+          <div onClick={openEdit} style={{ position:"relative", cursor:"pointer", flexShrink:0 }}>
             {avatarUrl ? (
               <img src={avatarUrl} alt="avatar" style={{ width:72, height:72, borderRadius:36, objectFit:"cover", border:"3px solid rgba(255,255,255,0.4)" }}/>
             ) : (
@@ -261,7 +255,7 @@ export default function AccountPage() {
                 {name[0]?.toUpperCase()}
               </div>
             )}
-            {false && <div style={{ position:"absolute", bottom:0, right:0, background:"white", borderRadius:10, width:22, height:22, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, boxShadow:"0 1px 4px rgba(0,0,0,0.2)" }}>✏️</div>}
+            <div style={{ position:"absolute", bottom:0, right:0, background:"white", borderRadius:10, width:22, height:22, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, boxShadow:"0 1px 4px rgba(0,0,0,0.2)" }}>✏️</div>
           </div>
           <div style={{ flex:1 }}>
             <p style={{ color:"rgba(255,255,255,0.7)", fontSize:11, margin:"0 0 4px", fontWeight:600 }}>Xin chào 👋</p>
