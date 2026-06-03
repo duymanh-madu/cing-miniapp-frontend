@@ -132,6 +132,11 @@ export async function initializeCustomerIdentityEngine() {
 
     store.setProfileHydrated(true);
     store.setActivationStatus("activated");
+    // Lưu zaloUserId để fetch avatar lần sau
+    try {
+      const uid = store.identity?.zaloUserId || (store.identity as any)?.zaloUserId || "";
+      if (uid) localStorage.setItem("__zalo_uid", uid);
+    } catch(e) {}
     runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity ready");
 
   } catch(err) {
