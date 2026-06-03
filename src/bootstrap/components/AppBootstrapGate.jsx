@@ -8,11 +8,6 @@ function AppBootstrapGate({ children }) {
   const phoneGranted     = useRuntimeCustomerIdentityStore(s => s.phoneGranted);
 
   useEffect(() => {
-    // Nếu không phải Zalo app → reset blocked status
-    const isZalo = navigator.userAgent.includes("ZaloApp");
-    if (!isZalo && useRuntimeCustomerIdentityStore.getState().activationStatus === "blocked") {
-      useRuntimeCustomerIdentityStore.getState().setActivationStatus("activated");
-    }
     async function boot() {
       await initializeApplication();
       setReady(true);
@@ -29,7 +24,12 @@ function AppBootstrapGate({ children }) {
     );
   }
 
-  // Chỉ block trong Zalo app
+  // Không block nếu là admin route
+  const isAdmin = window.location.hash.includes("/admin") || 
+                  window.location.pathname.includes("/admin");
+  if (isAdmin) return children;
+
+  // Block nếu bị blocked trong Zalo
   const isZalo = navigator.userAgent.includes("ZaloApp");
   if (isZalo && activationStatus === "blocked") {
     const needPhone = !phoneGranted;
