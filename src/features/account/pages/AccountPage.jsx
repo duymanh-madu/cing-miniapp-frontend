@@ -235,6 +235,21 @@ export default function AccountPage() {
   return (
     <div style={{ minHeight:"100vh", background:"#f5f5f5", paddingBottom:100 }}>
       <div style={{ position:"fixed", top:0, left:0, right:0, height:"var(--app-safe-top, 0px)", background:"linear-gradient(135deg,#D4531C,#E8622A)", zIndex:99 }} />
+      <div onClick={() => {
+        const uid = localStorage.getItem('__zalo_uid');
+        const ph  = localStorage.getItem('__user_phone');
+        const id  = window.__runtimeIdentityStore?.getState()?.identity;
+        const auth = window.__runtimeIdentityStore?.getState()?.activationStatus;
+        alert(
+          'localStorage.__zalo_uid=' + (uid||'EMPTY') +
+          '\n__user_phone=' + (ph||'EMPTY') +
+          '\nidentity.avatar=' + (id?.avatar ? id.avatar.slice(0,40) : 'EMPTY') +
+          '\nidentity.zaloUserId=' + (id?.zaloUserId||'EMPTY') +
+          '\nstatus=' + auth
+        );
+      }} style={{ background:"#000c", padding:"6px 12px", fontSize:10, color:"#0f0", fontFamily:"monospace", position:"fixed", bottom:80, left:16, right:16, zIndex:9999, cursor:"pointer", borderRadius:8, textAlign:"center" }}>
+        🔍 TAP DEBUG
+      </div>
       {toast && (
         <div style={{ position:"fixed", top:20, left:16, right:16, zIndex:200, background:"#1a1a1a", color:"white", borderRadius:14, padding:"14px 18px", fontSize:13, fontWeight:700, textAlign:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.3)" }}>
           {toast}
