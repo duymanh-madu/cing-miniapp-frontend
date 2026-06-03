@@ -177,6 +177,7 @@ export default function GameCenterPage() {
     }
     if (phone) {
       apiClient.post("/game/use-play", { user_id: phone }).catch(e => console.warn("[GAME] use-play:", e.message));
+      setGamePlays(prev => prev !== null ? Math.max(0, prev - 1) : null);
     }
     setActiveGame(gameId);
     trackGameStart(gameId);
@@ -192,6 +193,7 @@ export default function GameCenterPage() {
     }
     apiClient.post("/game/use-play", { user_id: phone })
       .catch(e => console.warn("[GAME] use-play restart:", e.message));
+    setGamePlays(prev => prev !== null ? Math.max(0, prev - 1) : null);
   };
 
   const handlePlayChess = () => {
