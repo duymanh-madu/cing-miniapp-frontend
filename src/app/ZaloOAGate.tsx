@@ -14,8 +14,16 @@ export default function ZaloOAGate() {
     window.location.hash.includes("/admin") ||
     window.location.pathname.includes("/admin")
   );
-  const isZalo = typeof navigator !== "undefined" && navigator.userAgent.includes("ZaloApp");
-  const shouldShow = status === "blocked" && !oaFollowed && isZalo && !isAdmin;
+  // Debug userAgent
+  if (typeof window !== "undefined" && status === "blocked") {
+    console.log("[OAGate] UA:", navigator.userAgent, "isZalo:", navigator.userAgent.includes("ZaloApp"));
+  }
+  const isZalo = typeof navigator !== "undefined" && (
+    navigator.userAgent.includes("ZaloApp") ||
+    navigator.userAgent.includes("Zalo") ||
+    navigator.userAgent.includes("zalo")
+  );
+  const shouldShow = status === "blocked" && !oaFollowed && !isAdmin;
   if (!shouldShow) return null;
 
   const handleFollow = async () => {
