@@ -16,14 +16,11 @@ export function useMembership(overridePhone = "") {
     if (!phone) return;
 
     const handler = (data) => {
-      console.log("[MEMBERSHIP] user.updated received:", JSON.stringify(data));
       const eventPhone = String(data?.payload?.phone || data?.phone || "").replace(/\D/g,"");
       const normalizedEvent = eventPhone.startsWith("84") ? "0" + eventPhone.slice(2) : eventPhone;
-      console.log("[MEMBERSHIP] eventPhone:", eventPhone, "localPhone:", phone);
       // Refetch neu dung dien thoai hoac neu points_changed (sau khi cong/tru diem)
       const isPointsChanged = data?.payload?.points_changed === true;
       if (normalizedEvent === phone || eventPhone === phone || isPointsChanged) {
-        console.log("[MEMBERSHIP] Realtime update received for", phone);
         queryClient.invalidateQueries({ queryKey: ["membership", phone] });
       }
     };
@@ -33,10 +30,8 @@ export function useMembership(overridePhone = "") {
     let attempts = 0;
     const attach = () => {
       const socket = getRuntimeSocket();
-      console.log(`[MEMBERSHIP] attach attempt ${attempts} - socket:`, !!socket, "connected:", socket?.connected, "id:", socket?.id);
       if (socket && socket.connected) {
         socket.on("user.updated", handler);
-        console.log("[MEMBERSHIP] Socket listener attached for user.updated - id:", socket.id);
         return true;
       }
       if (attempts++ < 30) {

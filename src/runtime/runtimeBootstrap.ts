@@ -34,7 +34,6 @@ function hydrateIdentityFromUrlParams() {
     if (source !== "zalo-miniapp" || !zaloId) return;
     try { sessionStorage.setItem("zalo_source", "zalo-miniapp"); } catch(e) {}
 
-    console.log("[RUNTIME] Shell params:", { zaloId, name, phone });
 
     const store = useRuntimeCustomerIdentityStore.getState();
     store.setIdentity({
@@ -59,7 +58,6 @@ function hydrateIdentityFromUrlParams() {
 }
 
 export async function bootstrapRuntime() {
-  console.log("[RUNTIME] BOOTSTRAP STARTED");
 
   // 1. Đọc params từ shell trước tiên
   hydrateIdentityFromUrlParams();
@@ -165,7 +163,6 @@ export async function bootstrapRuntime() {
     });
   }
 
-  console.log("[RUNTIME] BOOTSTRAP COMPLETED");
 }
 
 import "@/runtime/control-plane/controlPlaneBridge";

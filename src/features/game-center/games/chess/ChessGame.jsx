@@ -533,7 +533,6 @@ export default function ChessGame({ onExit, onFindMatch }) {
 
   // Send chat
   const sendChat = () => {
-    console.log("[CHESS CHAT] sendChat", { chatInput, gameId: gameIdRef.current, userId: userIdRef.current, connected: sockRef.current?.connected });
     if (!chatInput.trim() || !gameIdRef.current) return;
     sockRef.current?.emit("chess:chat", {
       gameId: gameIdRef.current,
@@ -547,14 +546,12 @@ export default function ChessGame({ onExit, onFindMatch }) {
 
 
   const sendEmoji = (emoji) => {
-    console.log("[EMOJI]", { gameId: gameIdRef.current, userId: userIdRef.current, emoji });
     if (!gameIdRef.current) return;
     sockRef.current?.emit("chess:emoji", { gameId: gameIdRef.current, userId: userIdRef.current, emoji });
     setShowEmoji(false);
   };
 
   const sendTip = (amount) => {
-    console.log("[TIP]", { gameId: gameIdRef.current, opponent, amount });
     if (!gameIdRef.current) return;
     const opponentId = opponent?.userId || opponent?.id || "";
     sockRef.current?.emit("chess:tip", {

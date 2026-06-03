@@ -53,7 +53,6 @@ export default function CommunityChat({ onClose }) {
   const tierKeyRef = useRef("member");
   useEffect(() => {
     tierKeyRef.current = myTierKey;
-    console.log('[TIER] myTierKey updated:', myTierKey, 'memberPhone:', memberPhone, 'membershipData:', membershipData?.tierKey);
   }, [myTierKey]);
 
   const getMyInfo = useCallback(() => {

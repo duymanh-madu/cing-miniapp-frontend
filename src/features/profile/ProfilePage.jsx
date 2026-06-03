@@ -38,7 +38,6 @@ export default function ProfilePage() {
 
   const myPhone = (runtimePhone || profile?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
   const isOwn = !userId || (myPhone && userId.replace(/\D/g,"").replace(/^84/,"0") === myPhone);
-  console.log('[PROFILE] userId:', userId, 'resolvedPhone:', resolvedPhone, 'isOwn:', isOwn, 'runtimePhone:', runtimePhone, 'profile.phone:', profile?.phone);
 
   const [member,   setMember]   = useState(null);
   const [champion, setChampion] = useState(false);
@@ -65,7 +64,6 @@ export default function ProfilePage() {
 
   // Debug — xóa sau
   useEffect(() => {
-    if (member) console.log('[PROFILE] member:', JSON.stringify({ name: member.name, avatar: member.avatar, tierKey: member.tierKey }), 'isOwn:', isOwn, 'displayName will be:', isOwn ? 'profile.name' : member.name);
   }, [member]);
 
   if (loading) return (
