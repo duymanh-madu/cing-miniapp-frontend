@@ -35,9 +35,7 @@ function AppBootstrapGate({ children }) {
   }
 
   // Block trên mobile nếu chưa grant phone hoặc chưa follow OA
-  // Không block admin routes
-  const isAdminRoute = window.location.hash.startsWith("#/admin") || window.location.pathname.startsWith("/admin");
-  if (isZaloMiniApp() && activationStatus === "blocked" && !isAdminRoute) {
+
     const needPhone = !phoneGranted;
     const needOA    = phoneGranted && !oaFollowed;
     return (
