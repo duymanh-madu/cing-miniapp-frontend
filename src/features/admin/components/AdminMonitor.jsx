@@ -21,6 +21,7 @@ export default function AdminMonitor({ token }) {
   const [tab,     setTab]     = useState("overview");
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [search, setSearch] = useState("");
   const timerRef = useRef(null);
   const h = { Authorization: `Bearer ${token}` };
 
@@ -144,38 +145,68 @@ export default function AdminMonitor({ token }) {
         {/* ONLINE LIST */}
         {tab === "online" && (
           <div>
-            {online.length === 0 ? (
-              <p style={{ color:"#666", textAlign:"center", padding:40 }}>Không có ai đang online</p>
-            ) : online.map((u,i) => (
+            {/* Search */}
+            <input
+              placeholder="🔍 Tìm theo tên hoặc số điện thoại..."
+              onChange={e => setSearch(e.target.value)}
+              style={{ width:"100%", padding:"10px 14px", borderRadius:10, border:"1px solid #2a2a38",
+                background:"#1a1a24", color:"white", fontSize:12, marginBottom:12,
+                outline:"none", boxSizing:"border-box" }}
+            />
+            {online.filter(u =>
+              !search || u.name?.toLowerCase().includes(search.toLowerCase()) ||
+              u.userId?.includes(search)
+            ).length === 0 ? (
+              <p style={{ color:"#666", textAlign:"center", padding:40 }}>Không tìm thấy</p>
+            ) : online.filter(u =>
+              !search || u.name?.toLowerCase().includes(search.toLowerCase()) ||
+              u.userId?.includes(search)
+            ).map((u,i) => (
               <div key={i} style={{ background:"#1a1a24", borderRadius:12, padding:"12px 14px",
-                marginBottom:8, border:"1px solid rgba(76,175,80,0.2)",
-                display:"flex", alignItems:"center", gap:10 }}>
-                <div style={{ position:"relative", flexShrink:0 }}>
-                  <div style={{ width:40, height:40, borderRadius:20, overflow:"hidden",
-                    background:"linear-gradient(135deg,#D4531C,#ff6b35)",
-                    display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:16, fontWeight:900, color:"white" }}>
-                    {u.avatar ? <img src={u.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                      : (u.name||"?")[0]?.toUpperCase()}
+                marginBottom:8, border:"1px solid rgba(76,175,80,0.2)" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom: (u.currentPage||u.currentGame) ? 8 : 0 }}>
+                  <div style={{ position:"relative", flexShrink:0 }}>
+                    <div style={{ width:40, height:40, borderRadius:20, overflow:"hidden",
+                      background:"linear-gradient(135deg,#D4531C,#ff6b35)",
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      fontSize:16, fontWeight:900, color:"white" }}>
+                      {u.avatar ? <img src={u.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                        : (u.name||"?")[0]?.toUpperCase()}
+                    </div>
+                    <div style={{ position:"absolute", bottom:0, right:0,
+                      width:10, height:10, borderRadius:5, background:"#4CAF50",
+                      border:"2px solid #1a1a24" }}/>
                   </div>
-                  <div style={{ position:"absolute", bottom:0, right:0,
-                    width:10, height:10, borderRadius:5, background:"#4CAF50",
-                    border:"2px solid #1a1a24" }}/>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <p style={{ color:"white", fontSize:13, fontWeight:700, margin:0 }}>{u.name}</p>
+                    <p style={{ color:"#888", fontSize:10, margin:0 }}>
+                      {TIERS[u.tier]||"🌱"} {u.tier} · {fmt(u.points)}đ · {u.userId}
+                    </p>
+                  </div>
+                  <div style={{ textAlign:"right", flexShrink:0 }}>
+                    <p style={{ color:"#4CAF50", fontSize:11, fontWeight:800, margin:0 }}>
+                      🟢 {fmtDur(u.connectedDuration)}
+                    </p>
+                    <p style={{ color:"#555", fontSize:9, margin:0 }}>{fmtDate(u.connectedAt)}</p>
+                  </div>
                 </div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <p style={{ color:"white", fontSize:13, fontWeight:700, margin:0 }}>{u.name}</p>
-                  <p style={{ color:"#888", fontSize:10, margin:0 }}>
-                    {TIERS[u.tier]||"🌱"} {u.tier} · {fmt(u.points)} điểm
-                  </p>
-                </div>
-                <div style={{ textAlign:"right", flexShrink:0 }}>
-                  <p style={{ color:"#4CAF50", fontSize:11, fontWeight:800, margin:0 }}>
-                    🟢 {fmtDur(u.connectedDuration)}
-                  </p>
-                  <p style={{ color:"#555", fontSize:9, margin:0 }}>
-                    {fmtDate(u.connectedAt)}
-                  </p>
-                </div>
+                {/* Activity row */}
+                {(u.currentPage || u.currentGame) && (
+                  <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                    {u.currentPage && (
+                      <span style={{ background:"rgba(33,150,243,0.15)", border:"1px solid rgba(33,150,243,0.3)",
+                        borderRadius:6, padding:"2px 8px", fontSize:10, color:"#64B5F6" }}>
+                        📍 {u.currentPage}
+                      </span>
+                    )}
+                    {u.currentGame && (
+                      <span style={{ background:"rgba(255,152,0,0.15)", border:"1px solid rgba(255,152,0,0.3)",
+                        borderRadius:6, padding:"2px 8px", fontSize:10, color:"#FFB74D" }}>
+                        🎮 {u.currentGame} · {fmtDur(u.gameDuration)}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
