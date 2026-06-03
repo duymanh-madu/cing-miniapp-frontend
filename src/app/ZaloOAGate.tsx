@@ -4,9 +4,8 @@ import { followOARuntime } from "@/runtime/customer/runtimeCustomerFollowEngine"
 import { initializeCustomerIdentityEngine } from "@/runtime/customer/runtimeCustomerIdentityEngine";
 
 export default function ZaloOAGate() {
-  const store      = useRuntimeCustomerIdentityStore();
-  const status     = store.activationStatus;
-  const oaFollowed = store.oaFollowed;
+  const status     = useRuntimeCustomerIdentityStore(s => s.activationStatus);
+  const oaFollowed = useRuntimeCustomerIdentityStore(s => s.oaFollowed);
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
 
@@ -20,9 +19,9 @@ export default function ZaloOAGate() {
     try {
       const followed = await followOARuntime();
       if (followed) {
-        store.setPermissionState({ oaFollowed: true });
+        useRuntimeCustomerIdentityStore.getState().setPermissionState({ oaFollowed: true });
         // Chạy lại engine để activate
-        store.setActivationStatus("idle");
+        useRuntimeCustomerIdentityStore.getState().setActivationStatus("idle");
         await initializeCustomerIdentityEngine();
       } else {
         setError("Vui lòng follow OA để tiếp tục sử dụng app");
