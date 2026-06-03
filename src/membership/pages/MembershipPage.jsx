@@ -24,8 +24,20 @@ export default function MembershipPage() {
   const pointsVnd = points * 1000;
 
   const [history, setHistory]   = useState([]);
+  const [pointsLog, setPointsLog] = useState([]);
+  const [logLoading, setLogLoading] = useState(false);
   const [histLoading, setHistLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("points");
+
+  useEffect(() => {
+    const p = resolvedPhone || phone;
+    if (!p) return;
+    setLogLoading(true);
+    apiClient.get(`/profile-update/points-history/${p}`)
+      .then(r => setPointsLog(r.data?.data || []))
+      .catch(() => {})
+      .finally(() => setLogLoading(false));
+  }, [resolvedPhone, phone]);
 
   useEffect(() => {
     const p = resolvedPhone || phone;
