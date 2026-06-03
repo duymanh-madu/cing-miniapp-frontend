@@ -308,7 +308,7 @@ export default function CommunityChat({ onClose }) {
                     {m.avatar ? <img src={m.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (m.name||"?")[0]}
                   </div>
                 )}
-                <div style={{ background: isMe(m.userId)?"#D4531C":"rgba(255,255,255,0.1)", borderRadius: isMe(m.userId)?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"8px 14px", maxWidth:"70%", marginRight: isMe(m.userId)?8:0, marginLeft: isMe(m.userId)?0:8 }}>
+                <div style={{ background: isMe(m.userId)?"#D4531C":"rgba(255,255,255,0.1)", borderRadius: isMe(m.userId)?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"8px 14px", maxWidth:"85%", marginRight: isMe(m.userId)?8:0, marginLeft: isMe(m.userId)?0:8 }}>
                   <p style={{ color:"white", fontSize:13, margin:0, lineHeight:1.4 }}>{m.message}</p>
                 </div>
               </div>
