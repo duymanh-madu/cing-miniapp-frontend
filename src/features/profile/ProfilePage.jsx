@@ -37,6 +37,7 @@ export default function ProfilePage() {
   })();
 
   const isOwn = !userId || userId === resolvedPhone;
+  console.log('[PROFILE] userId:', userId, 'resolvedPhone:', resolvedPhone, 'isOwn:', isOwn, 'runtimePhone:', runtimePhone, 'profile.phone:', profile?.phone);
 
   const [member,   setMember]   = useState(null);
   const [champion, setChampion] = useState(false);
