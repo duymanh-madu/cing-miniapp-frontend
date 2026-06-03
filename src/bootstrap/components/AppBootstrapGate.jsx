@@ -2,18 +2,17 @@ import { useEffect, useState } from "react";
 import { initializeApplication } from "../services/appBootstrapOrchestrator";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
-// Chỉ true khi đang chạy trong Zalo app thật
-const isInZalo = () => {
-  if (typeof navigator === "undefined") return false;
-  return navigator.userAgent.includes("ZaloApp");
-};
-
 function AppBootstrapGate({ children }) {
   const [ready, setReady] = useState(false);
   const activationStatus = useRuntimeCustomerIdentityStore(s => s.activationStatus);
   const phoneGranted     = useRuntimeCustomerIdentityStore(s => s.phoneGranted);
 
   useEffect(() => {
+    // Nếu không phải Zalo app → reset blocked status
+    const isZalo = navigator.userAgent.includes("ZaloApp");
+    if (!isZalo && useRuntimeCustomerIdentityStore.getState().activationStatus === "blocked") {
+      useRuntimeCustomerIdentityStore.getState().setActivationStatus("activated");
+    }
     async function boot() {
       await initializeApplication();
       setReady(true);
@@ -30,8 +29,9 @@ function AppBootstrapGate({ children }) {
     );
   }
 
-  // Chỉ hiện gate khi trong Zalo app VÀ bị blocked
-  if (isInZalo() && activationStatus === "blocked") {
+  // Chỉ block trong Zalo app
+  const isZalo = navigator.userAgent.includes("ZaloApp");
+  if (isZalo && activationStatus === "blocked") {
     const needPhone = !phoneGranted;
     return (
       <div style={{minHeight:"100vh",background:"#080810",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:32,textAlign:"center"}}>
