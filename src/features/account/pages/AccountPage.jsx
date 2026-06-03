@@ -261,14 +261,14 @@ export default function AccountPage() {
                 {name[0]?.toUpperCase()}
               </div>
             )}
-            <div style={{ position:"absolute", bottom:0, right:0, background:"white", borderRadius:10, width:22, height:22, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, boxShadow:"0 1px 4px rgba(0,0,0,0.2)" }}>✏️</div>
+            {false && <div style={{ position:"absolute", bottom:0, right:0, background:"white", borderRadius:10, width:22, height:22, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, boxShadow:"0 1px 4px rgba(0,0,0,0.2)" }}>✏️</div>}
           </div>
           <div style={{ flex:1 }}>
             <p style={{ color:"rgba(255,255,255,0.7)", fontSize:11, margin:"0 0 4px", fontWeight:600 }}>Xin chào 👋</p>
             <div onClick={openEdit} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:6 }}>
               <p style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 4px" }}>{name}</p>
               <TierBadge tierKey={membership?.tierKey || "member"} size="sm"/>
-              <span style={{ fontSize:12, color:"rgba(255,255,255,0.7)" }}>✏️</span>
+              {false && <span style={{ fontSize:12, color:"rgba(255,255,255,0.7)" }}>✏️</span>}
             </div>
             <p style={{ color:"rgba(255,255,255,0.6)", fontSize:12, margin:0 }}>{profile?.phone || "Thành viên Cing Hu Tang Kinh Bắc"}</p>
           </div>
