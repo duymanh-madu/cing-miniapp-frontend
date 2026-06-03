@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { initializeApplication } from "../services/appBootstrapOrchestrator";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
-// Check có phải mobile không
-const isMobile = () => {
-  if (typeof navigator === "undefined") return false;
-  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+// Chỉ block trên Zalo Mini App thật
+const isZaloMiniApp = () => {
+  if (typeof window === "undefined") return false;
+  if (window.__ZALO_MINI_APP__) return true;
+  if (navigator.userAgent.includes("ZaloApp")) return true;
+  try { if (sessionStorage.getItem("zalo_source") === "zalo-miniapp") return true; } catch(e) {}
+  return false;
 };
 
 function AppBootstrapGate({ children }) {
@@ -33,7 +36,7 @@ function AppBootstrapGate({ children }) {
   }
 
   // Block trên mobile nếu chưa grant phone hoặc chưa follow OA
-  if (isMobile() && activationStatus === "blocked") {
+  if (isZaloMiniApp() && activationStatus === "blocked") {
     const needPhone = !phoneGranted;
     const needOA    = phoneGranted && !oaFollowed;
     return (
