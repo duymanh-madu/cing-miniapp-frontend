@@ -1,4 +1,4 @@
-import { requestPhonePermission, getZaloUserInfo } from "./runtimeCustomerPermissionEngine";
+import { requestPhonePermission } from "./runtimeCustomerPermissionEngine";
 import { verifyOAFollowStatus } from "./runtimeCustomerFollowEngine";
 import { activateCustomerMembership } from "./runtimeCustomerActivationEngine";
 import { runtimeLogger } from "@/runtime/logger/runtimeLogger";
@@ -113,29 +113,11 @@ export async function initializeCustomerIdentityEngine() {
       customerId: "", fullName: ""
     }));
 
-    // Lấy avatar + tên Zalo để hiển thị và sync vào DB
-    const zaloInfo = await getZaloUserInfo().catch(() => null);
-
     store.setIdentity({
       customerId:      profile.customerId || "",
-      fullName:        zaloInfo?.name   || profile.fullName   || "",
-      avatar:          zaloInfo?.avatar || "",
+      fullName:        profile.fullName   || "",
       memberActivated: true,
     });
-
-    // Sync avatar Zalo vào backend
-    if (zaloInfo?.avatar) {
-      const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
-      fetch(`${apiBase}/auth/sync-avatar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          zalo_id: store.identity?.zaloUserId || "",
-          avatar:  zaloInfo.avatar,
-          name:    zaloInfo.name || "",
-        }),
-      }).catch(() => {});
-    }
 
     store.setProfileHydrated(true);
     store.setActivationStatus("activated");
