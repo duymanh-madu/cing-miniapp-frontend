@@ -94,16 +94,12 @@ export async function bootstrapRuntime() {
   useRuntimeCustomerIdentityStore.subscribe((state: any) => {
     const fullName = state.identity?.fullName;
     const avatar   = state.identity?.avatar;
-    console.log("[MIRROR] identity changed:", fullName, "avatar:", !!avatar);
     if (!fullName || fullName === "Khách hàng") return;
     const profile = useAuthStore.getState().profile;
-    console.log("[MIRROR] current profile.name:", profile?.name, "authenticated:", useAuthStore.getState().authenticated);
     if (!profile) {
-      console.log("[MIRROR] no profile yet — skipping");
       return;
     }
     if (profile.name !== fullName || (avatar && profile.avatar !== avatar)) {
-      console.log("[MIRROR] updating profile to:", fullName);
       useAuthStore.getState().updateProfile({
         ...profile,
         name:        fullName,

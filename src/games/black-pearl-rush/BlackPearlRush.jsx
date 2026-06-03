@@ -148,7 +148,6 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart }) {
     function jump() {
       if (game.dead && !game._deadNotified) {
         game._deadNotified = true;
-        console.log('[GAME] onGameOver fired, bestCombo:', game.bestCombo, 'score:', game.score, 'has callback:', !!onGameOver);
         if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
       }
       if (game.dead) {
@@ -178,7 +177,6 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart }) {
       // Gọi onGameOver ngay khi chết
       if (!game._deadNotified) {
         game._deadNotified = true;
-        console.log('[GAME] onGameOver fired in die(), bestCombo:', game.bestCombo, 'score:', game.score);
         if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
         // Fetch leaderboard thật sau khi die
         fetch((import.meta.env.VITE_API_BASE_URL || 'https://cing-backend-production.up.railway.app/api') + '/leaderboard/top-games/black-pearl-rush?limit=10')
