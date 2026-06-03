@@ -41,6 +41,15 @@ export default function CommunityChat({ onClose }) {
   })();
   const { data: membershipData } = useMembership(memberPhone);
   const myTierKey = membershipData?.tierKey || "member";
+  const [championId, setChampionId] = useState("");
+
+  // Fetch top 1 chess để hiển thị danh hiệu Kiện tướng
+  useEffect(() => {
+    fetch((import.meta.env.VITE_API_BASE_URL||"https://cing-backend-production.up.railway.app/api") + "/leaderboard/top-games/chess")
+      .then(r => r.json())
+      .then(d => { if (d?.data?.[0]?.user_id) setChampionId(String(d.data[0].user_id)); })
+      .catch(() => {});
+  }, []);
   const tierKeyRef = useRef("member");
   useEffect(() => {
     tierKeyRef.current = myTierKey;
@@ -274,6 +283,9 @@ export default function CommunityChat({ onClose }) {
               cursor:"pointer" }} onClick={() => navigate(`/profile/${m.userId}`)}>
               <p style={{ color:"#888", fontSize:10, margin:0, textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.15)" }}>{m.name}</p>
               <TierBadge tierKey={m.tierKey || "member"} size="sm"/>
+              {championId && String(m.userId) === championId && (
+                <TierBadge tierKey="member" isChampion={true} size="sm"/>
+              )}
             </div>}
               <div style={{ display:"flex", alignItems:"flex-end", gap:6, flexDirection: isMe(m.userId)?"row-reverse":"row" }}>
                 {!isMe(m.userId) && (
@@ -305,6 +317,9 @@ export default function CommunityChat({ onClose }) {
                   {u.name}{isMe(u.userId)?" (bạn)":""}
                 </p>
                 <TierBadge tierKey={u.tierKey || "member"} size="sm"/>
+                {championId && String(u.userId) === championId && (
+                  <TierBadge tierKey="member" isChampion={true} size="sm"/>
+                )}
               </div>
                 {speaker===u.userId && <p style={{ color:"#00c864", fontSize:10, margin:0 }}>🎙️ Đang nói</p>}
               </div>
