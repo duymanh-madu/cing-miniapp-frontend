@@ -135,7 +135,13 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
           <input ref={fileRef} type="file" accept="image/*" style={{ display:"none" }} onChange={handleFile}/>
         </div>
 
-        {/* Đổi tên tạm ẩn — chỉ cho đổi avatar */}
+        <div style={{ marginBottom:20 }}>
+          <p style={{ fontSize:12, fontWeight:700, color:"#666", margin:"0 0 8px" }}>TÊN HIỂN THỊ</p>
+          <input value={name} onChange={e => setName(e.target.value)} maxLength={30} disabled={blocked && !usePoints}
+            placeholder="Nhập tên hiển thị..."
+            style={{ width:"100%", padding:"14px 16px", borderRadius:14, border:"1.5px solid #e0e0e0", fontSize:15, fontWeight:600, outline:"none", boxSizing:"border-box", background: (blocked && !usePoints) ? "#f5f5f5" : "#fafafa", color:"#1a1a1a", opacity: (blocked && !usePoints) ? 0.5 : 1 }}/>
+          <p style={{ fontSize:11, color:"#ccc", margin:"4px 0 0", textAlign:"right" }}>{name.length}/30</p>
+        </div>
 
         {error && <p style={{ color:"#e53935", fontSize:12, margin:"0 0 12px", textAlign:"center" }}>{error}</p>}
 
@@ -271,10 +277,10 @@ export default function AccountPage() {
           </div>
           <div style={{ flex:1 }}>
             <p style={{ color:"rgba(255,255,255,0.7)", fontSize:11, margin:"0 0 4px", fontWeight:600 }}>Xin chào 👋</p>
-            <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+            <div onClick={openEdit} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:6 }}>
               <p style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 4px" }}>{name}</p>
               <TierBadge tierKey={membership?.tierKey || "member"} size="sm"/>
-              {false && <span style={{ fontSize:12, color:"rgba(255,255,255,0.7)" }}>✏️</span>}
+              <span style={{ fontSize:12, color:"rgba(255,255,255,0.7)" }}>✏️</span>
             </div>
             <p style={{ color:"rgba(255,255,255,0.6)", fontSize:12, margin:0 }}>{profile?.phone || "Thành viên Cing Hu Tang Kinh Bắc"}</p>
           </div>
