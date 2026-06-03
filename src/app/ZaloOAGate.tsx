@@ -10,7 +10,12 @@ export default function ZaloOAGate() {
   const [error,   setError]   = useState("");
 
   // Chỉ hiện khi blocked VÀ chưa follow OA
-  const shouldShow = status === "blocked" && !oaFollowed;
+  const isAdmin = typeof window !== "undefined" && (
+    window.location.hash.includes("/admin") ||
+    window.location.pathname.includes("/admin")
+  );
+  const isZalo = typeof navigator !== "undefined" && navigator.userAgent.includes("ZaloApp");
+  const shouldShow = status === "blocked" && !oaFollowed && isZalo && !isAdmin;
   if (!shouldShow) return null;
 
   const handleFollow = async () => {
