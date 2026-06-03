@@ -15,22 +15,28 @@ export async function initializeCustomerIdentityEngine() {
     }
 
     if (store.activationStatus === "activated") {
-      // Đã activated — fetch avatar mới nhất từ players table bằng zaloUserId hoặc phone
+      // Đã activated — fetch avatar mới nhất từ players table
       try {
-        const zaloUserId = (store.identity as any)?.zaloUserId || "";
-        const phone = (store.identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
         const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
-        
-        // Dùng zaloUserId để fetch nếu có
+        // Ưu tiên: store > localStorage
+        const zaloUserId = (store.identity as any)?.zaloUserId
+          || (() => { try { return localStorage.getItem("__zalo_uid") || ""; } catch(e) { return ""; } })();
+        const phone = (store.identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+        const savedPhone = (() => { try { return localStorage.getItem("__user_phone") || ""; } catch(e) { return ""; } })();
+        const effectivePhone = (phone && phone !== "pending" && phone.length >= 9) ? phone : savedPhone;
+
         let avatar = null;
+        // Fetch bằng zaloUserId
         if (zaloUserId) {
           const res = await fetch(`${apiBase}/auth/player-avatar/${zaloUserId}`).catch(() => null);
           if (res?.ok) {
             const data = await res.json().catch(() => null);
             avatar = data?.avatar || null;
           }
-        } else if (phone && phone.length >= 9) {
-          const res = await fetch(`${apiBase}/profile-update/profile/${phone}`).catch(() => null);
+        }
+        // Fallback: fetch bằng phone
+        if (!avatar && effectivePhone && effectivePhone.length >= 9) {
+          const res = await fetch(`${apiBase}/profile-update/profile/${effectivePhone}`).catch(() => null);
           if (res?.ok) {
             const data = await res.json().catch(() => null);
             avatar = data?.data?.avatar || null;
@@ -132,10 +138,12 @@ export async function initializeCustomerIdentityEngine() {
 
     store.setProfileHydrated(true);
     store.setActivationStatus("activated");
-    // Lưu zaloUserId để fetch avatar lần sau
+    // Lưu zaloUserId + phone để fetch avatar lần sau
     try {
-      const uid = store.identity?.zaloUserId || (store.identity as any)?.zaloUserId || "";
+      const uid = (store.identity as any)?.zaloUserId || "";
       if (uid) localStorage.setItem("__zalo_uid", uid);
+      const ph = (store.identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+      if (ph && ph.length >= 9 && ph !== "pending") localStorage.setItem("__user_phone", ph);
     } catch(e) {}
     runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity ready");
 
