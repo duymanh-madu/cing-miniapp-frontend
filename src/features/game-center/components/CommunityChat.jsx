@@ -63,10 +63,10 @@ export default function CommunityChat({ onClose }) {
       if (n.length >= 9) return {
         phone: n,
         name:  runtimeName || profile?.name || "Cing iu",
-        avatar: runtimeAvatar || profile?.avatar || "",
+        avatar: profile?.avatar || runtimeAvatar || "",
       };
     }
-    return { phone: "", name: runtimeName || profile?.name || "Cing iu", avatar: runtimeAvatar || profile?.avatar || "" };
+    return { phone: "", name: runtimeName || profile?.name || "Cing iu", avatar: profile?.avatar || runtimeAvatar || "" };
   }, [runtimePhone, runtimeName, runtimeAvatar, profile]);
 
   useEffect(() => {
