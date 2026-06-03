@@ -36,7 +36,8 @@ export default function ProfilePage() {
     return src.replace(/\D/g,"").replace(/^84/,"0");
   })();
 
-  const isOwn = !userId || userId === resolvedPhone;
+  const myPhone = (runtimePhone || profile?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+  const isOwn = !userId || (myPhone && userId.replace(/\D/g,"").replace(/^84/,"0") === myPhone);
   console.log('[PROFILE] userId:', userId, 'resolvedPhone:', resolvedPhone, 'isOwn:', isOwn, 'runtimePhone:', runtimePhone, 'profile.phone:', profile?.phone);
 
   const [member,   setMember]   = useState(null);
