@@ -164,6 +164,17 @@ export default function CommunityChat({ onClose }) {
     sockRef.current.emit("community:join", { userId: info.phone, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current });
   }, [runtimePhone, getMyInfo]);
 
+  // Re-emit khi avatar load xong — cập nhật avatar đúng cho tất cả client
+  useEffect(() => {
+    if (!profile?.avatar || !sockRef.current?.connected || !myIdRef.current) return;
+    sockRef.current.emit("community:join", {
+      userId: myIdRef.current,
+      name:   info.name,
+      avatar: profile.avatar,
+      tierKey: tierKeyRef.current,
+    });
+  }, [profile?.avatar]);
+
   // Re-emit khi tierKey resolve từ API — cập nhật badge cho tất cả client
   useEffect(() => {
     if (!membershipData) return;
