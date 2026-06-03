@@ -6,6 +6,7 @@ import AppBootstrapGate from "@/bootstrap/components/AppBootstrapGate";
 
 import AppRouter from "@/router/AppRouter";
 import ZaloBirthdayGate from "@/app/ZaloBirthdayGate";
+import ZaloOAGate from "@/app/ZaloOAGate";
 import GlobalTicker from "@/features/notification/components/GlobalTicker";
 
 /**
@@ -31,6 +32,7 @@ export default function App() {
 
           <AppRouter />
           <ZaloBirthdayGate />
+          <ZaloOAGate />
           <GlobalTicker />
 
         </AppBootstrapGate>
