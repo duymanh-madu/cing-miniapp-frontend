@@ -15,22 +15,33 @@ export async function initializeCustomerIdentityEngine() {
     }
 
     if (store.activationStatus === "activated") {
-      // Đã activated — chỉ fetch avatar/tên mới nhất từ players table
+      // Đã activated — fetch avatar mới nhất từ players table bằng zaloUserId hoặc phone
       try {
+        const zaloUserId = (store.identity as any)?.zaloUserId || "";
         const phone = (store.identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
-        if (phone && phone.length >= 9 && phone !== "pending") {
-          const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
+        const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
+        
+        // Dùng zaloUserId để fetch nếu có
+        let avatar = null;
+        if (zaloUserId) {
+          const res = await fetch(`${apiBase}/auth/player-avatar/${zaloUserId}`).catch(() => null);
+          if (res?.ok) {
+            const data = await res.json().catch(() => null);
+            avatar = data?.avatar || null;
+          }
+        } else if (phone && phone.length >= 9) {
           const res = await fetch(`${apiBase}/profile-update/profile/${phone}`).catch(() => null);
           if (res?.ok) {
             const data = await res.json().catch(() => null);
-            const avatar = data?.data?.avatar;
-            if (avatar) {
-              store.setIdentity({ avatar });
-              const { default: useAuthStore } = await import("@/stores/auth/authStore");
-              const profile = useAuthStore.getState().profile;
-              if (profile) useAuthStore.getState().updateProfile({ ...profile, avatar });
-            }
+            avatar = data?.data?.avatar || null;
           }
+        }
+
+        if (avatar) {
+          store.setIdentity({ avatar });
+          const { default: useAuthStore } = await import("@/stores/auth/authStore");
+          const profile = useAuthStore.getState().profile;
+          if (profile) useAuthStore.getState().updateProfile({ ...profile, avatar });
         }
       } catch(e) {}
       return;
