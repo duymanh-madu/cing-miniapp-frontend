@@ -22,6 +22,7 @@ export default function AdminMonitor({ token }) {
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [search, setSearch] = useState("");
+  const [pageFilter, setPageFilter] = useState("all");
   const timerRef = useRef(null);
   const h = { Authorization: `Bearer ${token}` };
 
@@ -145,6 +146,29 @@ export default function AdminMonitor({ token }) {
         {/* ONLINE LIST */}
         {tab === "online" && (
           <div>
+            {/* Page stats */}
+            {(() => {
+              const pageCounts = {};
+              online.forEach(u => {
+                const p = u.currentPage || "Không xác định";
+                pageCounts[p] = (pageCounts[p] || 0) + 1;
+              });
+              const pages = [["all", "Tất cả", online.length], ...Object.entries(pageCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,k,v])];
+              return (
+                <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:12 }}>
+                  {pages.map(([key, label, count]) => (
+                    <button key={key} onClick={() => setPageFilter(key)} style={{
+                      padding:"5px 10px", borderRadius:20, fontSize:10, fontWeight:700, cursor:"pointer",
+                      border: pageFilter===key ? "none" : "1px solid #2a2a38",
+                      background: pageFilter===key ? "#D4531C" : "#1a1a24",
+                      color: pageFilter===key ? "white" : "#888",
+                    }}>
+                      {label} <span style={{ opacity:0.7 }}>({count})</span>
+                    </button>
+                  ))}
+                </div>
+              );
+            })()}
             {/* Search */}
             <input
               placeholder="🔍 Tìm theo tên hoặc số điện thoại..."
@@ -153,15 +177,17 @@ export default function AdminMonitor({ token }) {
                 background:"#1a1a24", color:"white", fontSize:12, marginBottom:12,
                 outline:"none", boxSizing:"border-box" }}
             />
-            {online.filter(u =>
-              !search || u.name?.toLowerCase().includes(search.toLowerCase()) ||
-              u.userId?.includes(search)
-            ).length === 0 ? (
+            {online.filter(u => {
+              const matchSearch = !search || u.name?.toLowerCase().includes(search.toLowerCase()) || u.userId?.includes(search);
+              const matchPage = pageFilter === "all" || (u.currentPage || "Không xác định") === pageFilter;
+              return matchSearch && matchPage;
+            }).length === 0 ? (
               <p style={{ color:"#666", textAlign:"center", padding:40 }}>Không tìm thấy</p>
-            ) : online.filter(u =>
-              !search || u.name?.toLowerCase().includes(search.toLowerCase()) ||
-              u.userId?.includes(search)
-            ).map((u,i) => (
+            ) : online.filter(u => {
+              const matchSearch = !search || u.name?.toLowerCase().includes(search.toLowerCase()) || u.userId?.includes(search);
+              const matchPage = pageFilter === "all" || (u.currentPage || "Không xác định") === pageFilter;
+              return matchSearch && matchPage;
+            }).map((u,i) => (
               <div key={i} style={{ background:"#1a1a24", borderRadius:12, padding:"12px 14px",
                 marginBottom:8, border:"1px solid rgba(76,175,80,0.2)" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom: (u.currentPage||u.currentGame) ? 8 : 0 }}>
