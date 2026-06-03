@@ -44,7 +44,7 @@ export default function AdminDashboard({ auth }) {
     <div style={{ minHeight:"100vh", background:"#0f0f13", display:"flex" }}>
       {/* SIDEBAR */}
       <div style={{ width:220, background:"#1a1a24", borderRight:"1px solid #2a2a38",
-        display:"flex", flexDirection:"column", position:"fixed", height:"100vh", zIndex:10 }}>
+        display:"flex", flexDirection:"column", position:"fixed", height:"100vh", zIndex:10, overflowY:"auto" }}>
         <div style={{ padding:"24px 20px 16px", borderBottom:"1px solid #2a2a38" }}>
           <p style={{ color:"#D4531C", fontSize:10, fontWeight:800,
             letterSpacing:3, margin:"0 0 4px" }}>CING HU TANG</p>
