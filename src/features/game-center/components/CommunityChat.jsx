@@ -169,7 +169,7 @@ export default function CommunityChat({ onClose }) {
     if (!profile?.avatar || !sockRef.current?.connected || !myIdRef.current) return;
     sockRef.current.emit("community:join", {
       userId: myIdRef.current,
-      name:   info.name,
+      name:   runtimeName || profile?.name || "Cing iu",
       avatar: profile.avatar,
       tierKey: tierKeyRef.current,
     });
