@@ -30,14 +30,11 @@ export default function ZaloOAGate() {
     setLoading(true);
     setError("");
     try {
-      const followed = await followOARuntime();
-      if (followed) {
-        useRuntimeCustomerIdentityStore.getState().setPermissionState({ oaFollowed: true });
-        // Chạy lại engine để activate
-        useRuntimeCustomerIdentityStore.getState().setActivationStatus("idle");
-        await initializeCustomerIdentityEngine();
-      } else {
-        setError("Vui lòng follow OA để tiếp tục sử dụng app");
+      await followOARuntime().catch(() => {});
+      try { localStorage.setItem("__oa_followed", "1"); } catch(e) {}
+      window.location.reload();
+    } catch(e) {
+      setError("Có lỗi xảy ra, vui lòng thử lại");
       }
     } catch(e) {
       setError("Có lỗi xảy ra, vui lòng thử lại");

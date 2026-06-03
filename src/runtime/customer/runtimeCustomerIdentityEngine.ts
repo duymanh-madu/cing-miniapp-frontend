@@ -119,10 +119,15 @@ export async function initializeCustomerIdentityEngine() {
     }
 
     // NORMAL PATH: SDK flow
-    const [phoneGranted, oaFollowed] = await Promise.all([
+    const [phoneGranted, oaVerified] = await Promise.all([
       requestPhonePermission().catch(() => null),
       verifyOAFollowStatus().catch(() => false),
     ]);
+
+    // Đọc flag localStorage nếu user đã confirm follow OA
+    const oaLocalFlag = (() => { try { return localStorage.getItem("__oa_followed") === "1"; } catch(e) { return false; } })();
+    if (oaLocalFlag) { try { localStorage.removeItem("__oa_followed"); } catch(e) {} }
+    const oaFollowed = store.oaFollowed || oaVerified || oaLocalFlag;
 
     store.setPermissionState({ phoneGranted, oaFollowed });
     runtimeLogger.info("RUNTIME", "[IDENTITY] Permission status", { phoneGranted, oaFollowed });
