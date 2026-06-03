@@ -74,14 +74,14 @@ export async function initializeCustomerIdentityEngine() {
     if (zaloUserId) {
       runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: zaloUserId found", { zaloUserId });
       try {
-        // OA follow và birthday đã được xử lý trong shell
-        const oaFollowed = !!(identity as any)?.oaFollowed;
+        // OA follow — đọc localStorage flag nếu user đã confirm follow OA
+        const oaLocalFlag = (() => { try { return localStorage.getItem("__oa_followed") === "1"; } catch(e) { return false; } })();
+        if (oaLocalFlag) { try { localStorage.removeItem("__oa_followed"); } catch(e) {} }
+        const oaFollowed = !!(identity as any)?.oaFollowed || oaLocalFlag;
         const birthday   = (identity as any)?.birthday || "";
         store.setPermissionState({ phoneGranted: true, oaFollowed });
-        runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: oaFollowed=" + oaFollowed + " birthday=" + !!birthday);
 
         if (!oaFollowed) {
-          runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: missing OA follow, blocked");
           store.setActivationStatus("blocked");
           return;
         }        const payload = {
