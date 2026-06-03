@@ -162,8 +162,9 @@ export default function CommunityChat({ onClose }) {
   useEffect(() => {
     const info = getMyInfo();
     if (!info.phone || !sockRef.current?.connected) return;
-    if (myIdRef.current === info.phone) return;
+    if (!info.phone || myIdRef.current === info.phone) return;
     myIdRef.current = info.phone;
+    setMyId(info.phone);
     setMyId(info.phone);
     sockRef.current.emit("community:join", { userId: info.phone, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current });
   }, [runtimePhone, getMyInfo]);
