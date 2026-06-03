@@ -64,6 +64,15 @@ export async function bootstrapRuntime() {
   // 1. Đọc params từ shell trước tiên
   hydrateIdentityFromUrlParams();
 
+  // Reset activationStatus về idle mỗi lần mở app
+  // để engine check lại OA follow, phone permission
+  try {
+    const store = useRuntimeCustomerIdentityStore.getState();
+    if (store.activationStatus === "activated") {
+      store.setActivationStatus("idle");
+    }
+  } catch(e) {}
+
   // 2. Restore session từ localStorage
   await initializeRuntimeSession();
 
