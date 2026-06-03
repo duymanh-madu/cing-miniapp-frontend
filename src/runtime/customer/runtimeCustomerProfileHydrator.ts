@@ -94,8 +94,18 @@ Promise<RuntimeCustomerProfile> {
 
       const response =
         await activateMiniAppUser({
+          zaloUserId:
+            (identity as any)?.zaloUserId || "",
+          name:
+            identity?.fullName || "",
+          avatar:
+            identity?.avatar   || "",
           phone:
-            identity?.phone || "",
+            identity?.phone    || "",
+          phoneToken:
+            (identity as any)?.phoneToken      || "",
+          miniAccessToken:
+            (identity as any)?.miniAccessToken || "",
           phoneGranted:
             Boolean(identity?.phoneGranted),
           oaFollowed:
