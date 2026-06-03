@@ -41,7 +41,12 @@ function resizeToBase64(file) {
 
 function fmtDate(isoStr) {
   if (!isoStr) return "";
-  return new Date(isoStr).toLocaleDateString("vi-VN", { day:"2-digit", month:"2-digit", year:"numeric" });
+  // Parse trực tiếp tránh lệch timezone UTC
+  const parts = isoStr.split("T")[0].split("-");
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return isoStr;
 }
 
 function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClose, onSaved }) {
@@ -289,7 +294,7 @@ export default function AccountPage() {
           <p style={{ fontSize:13, fontWeight:800, color:"#1a1a1a", margin:"0 0 10px", display:"flex", alignItems:"center", gap:6 }}>🎂 Ngày sinh nhật</p>
           <div style={{ display:"flex", gap:8, alignItems:"center" }}>
             <input type="date" value={birthday} onChange={e => setBirthday(e.target.value)}
-              max={new Date().toISOString().split("T")[0]}
+              max={new Date(Date.now() + 7*60*60*1000).toISOString().split("T")[0]}
               style={{ flex:1, padding:"10px 12px", border:"1.5px solid #e0e0e0", borderRadius:10, fontSize:14, outline:"none", boxSizing:"border-box" }}/>
             <button onClick={saveBirthday} disabled={bdSaving || !birthday}
               style={{ padding:"10px 16px", background: bdSaving||!birthday ? "#ccc" : "#D4531C", color:"white", border:"none", borderRadius:10, fontSize:13, fontWeight:700, cursor: bdSaving||!birthday ? "default":"pointer", flexShrink:0 }}>
