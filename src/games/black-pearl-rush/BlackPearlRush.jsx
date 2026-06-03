@@ -151,8 +151,12 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart }) {
         if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
       }
       if (game.dead) {
+        // Check lượt trước khi reset
+        if (onRestart) {
+          const allowed = onRestart();
+          if (allowed === false) return; // Hết lượt — không reset
+        }
         resetGame();
-        if (onRestart) onRestart(); // Trừ lượt chơi mới
         return;
       }
       game.started = true;
