@@ -35,9 +35,6 @@ export default function ZaloOAGate() {
       window.location.reload();
     } catch(e) {
       setError("Có lỗi xảy ra, vui lòng thử lại");
-      }
-    } catch(e) {
-      setError("Có lỗi xảy ra, vui lòng thử lại");
     }
     setLoading(false);
   };
