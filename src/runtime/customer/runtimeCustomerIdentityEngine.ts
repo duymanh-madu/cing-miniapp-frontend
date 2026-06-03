@@ -15,6 +15,17 @@ export async function initializeCustomerIdentityEngine() {
     }
 
     if (store.activationStatus === "activated") {
+      // Check lại OA follow — user có thể đã bỏ follow
+      try {
+        const { verifyOAFollowStatus } = await import("./runtimeCustomerFollowEngine");
+        const stillFollowing = await verifyOAFollowStatus().catch(() => true); // default true nếu lỗi
+        if (!stillFollowing) {
+          store.setPermissionState({ oaFollowed: false });
+          store.setActivationStatus("blocked");
+          return;
+        }
+      } catch(e) {}
+
       // Đã activated — fetch avatar mới nhất từ players table
       try {
         const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
