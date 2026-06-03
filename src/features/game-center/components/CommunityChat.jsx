@@ -45,9 +45,9 @@ export default function CommunityChat({ onClose }) {
 
   // Fetch top 1 chess để hiển thị danh hiệu Kiện tướng
   useEffect(() => {
-    fetch((import.meta.env.VITE_API_BASE_URL||"https://cing-backend-production.up.railway.app/api") + "/leaderboard/top-games/chess")
+    fetch((import.meta.env.VITE_API_BASE_URL||"https://cing-backend-production.up.railway.app/api") + "/game/chess/leaderboard")
       .then(r => r.json())
-      .then(d => { if (d?.data?.[0]?.user_id) setChampionId(String(d.data[0].user_id)); })
+      .then(d => { const top = d?.wins?.[0] || d?.data?.[0]; if (top?.user_id) setChampionId(String(top.user_id)); })
       .catch(() => {});
   }, []);
   const tierKeyRef = useRef("member");

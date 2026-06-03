@@ -46,10 +46,10 @@ export default function ProfilePage() {
     if (!resolvedPhone) { setLoading(false); return; }
     Promise.all([
       apiClient.get(`/membership/${resolvedPhone}`).catch(() => null),
-      apiClient.get(`/leaderboard/top-games/chess`).catch(() => null),
+      apiClient.get(`/game/chess/leaderboard`).catch(() => null),
     ]).then(([mRes, lbRes]) => {
       if (mRes?.data?.data) setMember(mRes.data.data);
-      const top = lbRes?.data?.data?.[0];
+      const top = lbRes?.data?.wins?.[0] || lbRes?.data?.data?.[0];
       if (top) {
         const topPhone = String(top.user_id).replace(/\D/g,"").replace(/^84/,"0");
         if (topPhone === resolvedPhone) setChampion(true);
