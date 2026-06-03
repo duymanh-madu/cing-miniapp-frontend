@@ -253,7 +253,7 @@ export default function AccountPage() {
 
       <div style={{ background:"linear-gradient(135deg,#D4531C,#E8622A)", padding:"20px 20px 24px", paddingTop:"calc(env(safe-area-inset-top, 0px) + 8px)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-          <div onClick={openEdit} style={{ position:"relative", cursor:"pointer", flexShrink:0 }}>
+          <div style={{ position:"relative", flexShrink:0 }}>
             {avatarUrl ? (
               <img src={avatarUrl} alt="avatar" style={{ width:72, height:72, borderRadius:36, objectFit:"cover", border:"3px solid rgba(255,255,255,0.4)" }}/>
             ) : (
@@ -265,7 +265,7 @@ export default function AccountPage() {
           </div>
           <div style={{ flex:1 }}>
             <p style={{ color:"rgba(255,255,255,0.7)", fontSize:11, margin:"0 0 4px", fontWeight:600 }}>Xin chào 👋</p>
-            <div onClick={openEdit} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:6 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:6 }}>
               <p style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 4px" }}>{name}</p>
               <TierBadge tierKey={membership?.tierKey || "member"} size="sm"/>
               {false && <span style={{ fontSize:12, color:"rgba(255,255,255,0.7)" }}>✏️</span>}
