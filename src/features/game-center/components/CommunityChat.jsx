@@ -15,7 +15,6 @@ export default function CommunityChat({ onClose }) {
   const [voiceState, setVoiceState] = useState("idle");
   const [speaker,    setSpeaker]    = useState(null);
   const [tab,        setTab]        = useState("chat");
-  const addLog = (msg) => {};  // debug removed
   const [myId,       setMyId]       = useState("");
   const navigate = useNavigate();
 
@@ -79,7 +78,6 @@ export default function CommunityChat({ onClose }) {
       const uid = info.phone || ("guest-" + s.id);
       myIdRef.current = uid;
       setMyId(uid);
-      addLog(`✅ Connected: ${uid}`);
       s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current });
 
       s.on("community:history", (history) => {
@@ -133,7 +131,6 @@ export default function CommunityChat({ onClose }) {
         clearInterval(intervalId);
         attachEvents(s);
       } else {
-        addLog(`⏳ Waiting socket... ${attempts}`);
         if (attempts++ > 20) { clearInterval(intervalId); addLog("❌ Socket not available"); }
       }
     };
@@ -203,7 +200,6 @@ export default function CommunityChat({ onClose }) {
   }, [membershipData]);
 
   const sendChat = () => {
-    addLog(`Send: connected=${sockRef.current?.connected} myId=${myIdRef.current}`);
     if (!input.trim() || !sockRef.current?.connected) return;
     const info = getMyInfo();
     const uid  = myIdRef.current || info.phone || ("guest-" + Date.now());
