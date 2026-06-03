@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import { initializeApplication } from "../services/appBootstrapOrchestrator";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
-// Chỉ block trên Zalo Mini App thật
+// Chỉ block trên Zalo Mini App thật — không dùng sessionStorage (có thể còn từ lần trước)
 const isZaloMiniApp = () => {
   if (typeof window === "undefined") return false;
   if (window.__ZALO_MINI_APP__) return true;
   if (navigator.userAgent.includes("ZaloApp")) return true;
-  try { if (sessionStorage.getItem("zalo_source") === "zalo-miniapp") return true; } catch(e) {}
   return false;
 };
 
