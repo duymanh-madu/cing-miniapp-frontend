@@ -170,6 +170,8 @@ export default function GameCenterPage() {
 
   const handlePlayGame = (gameId) => {
     if (!authenticated) { setShowAuthModal(true); return; }
+    const phone = getPhone();
+    if (!phone || phone === "pending") { setShowAuthModal(true); return; }
     if (gamePlays !== null && gamePlays <= 0) {
       alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt."); return;
     }
@@ -195,6 +197,8 @@ export default function GameCenterPage() {
 
   const handlePlayChess = () => {
     if (!authenticated) { setShowAuthModal(true); return; }
+    const phoneCheck = getPhone();
+    if (!phoneCheck || phoneCheck === "pending") { setShowAuthModal(true); return; }
     if (gamePlays !== null && gamePlays <= 0) { alert("Hết lượt chơi!"); return; }
     setPlayingChess(true);
     trackGameStart('chess');
