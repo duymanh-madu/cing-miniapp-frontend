@@ -290,6 +290,22 @@ export default function HomeMembershipCard() {
       </>)}
         {/* Loyal Partner royal effects */}
       {tier === "loyal_partner" && (<>
+        <style>{`
+          @keyframes royalShimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(400%) rotate(45deg); }
+          }
+          @keyframes royalPrismatic {
+            0%   { opacity:0.7; filter: hue-rotate(0deg) brightness(1.4); }
+            33%  { opacity:1;   filter: hue-rotate(90deg) brightness(1.8); }
+            66%  { opacity:0.8; filter: hue-rotate(200deg) brightness(1.6); }
+            100% { opacity:0.7; filter: hue-rotate(360deg) brightness(1.4); }
+          }
+          @keyframes facetGlow {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.4; }
+          }
+        `}</style>
         <div style={{ position:"absolute", inset:0, overflow:"hidden", borderRadius:24, zIndex:0 }}>
           <div style={{ position:"absolute", top:"-50%", left:"-20%", width:"40%", height:"200%",
             background:"linear-gradient(to right, transparent, rgba(220,180,255,0.2), rgba(255,200,255,0.25), rgba(220,180,255,0.2), transparent)",
