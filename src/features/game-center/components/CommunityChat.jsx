@@ -296,7 +296,9 @@ export default function CommunityChat({ onClose }) {
           {messages.map((m, i) => (
             <div key={i} style={{ display:"flex", flexDirection:"column", alignItems: isMe(m.userId)?"flex-end":"flex-start" }}>
               {!isMe(m.userId) && <div style={{ display:"flex", alignItems:"center", gap:4, marginBottom:3, marginLeft:8,
-              cursor:"pointer" }} onClick={() => navigate(`/profile/${m.userId}`)}>
+              cursor: /^(0|84)\d{8,10}$/.test(String(m.userId)) ? "pointer" : "default" }} onClick={() => {
+                if (/^(0|84)\d{8,10}$/.test(String(m.userId))) navigate(`/profile/${m.userId}`);
+              }}>
               <p style={{ color:"#888", fontSize:10, margin:0, textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.15)" }}>{m.name}</p>
               <TierBadge tierKey={m.tierKey || "member"} size="sm"/>
               {championId && String(m.userId) === championId && (
@@ -327,7 +329,9 @@ export default function CommunityChat({ onClose }) {
               </div>
               <div>
                 <div style={{ display:"flex", alignItems:"center", gap:5, cursor: isMe(u.userId)?"default":"pointer" }}
-                  onClick={() => !isMe(u.userId) && navigate(`/profile/${u.userId}`)}>
+                  onClick={() => {
+                    if (!isMe(u.userId) && /^(0|84)\d{8,10}$/.test(String(u.userId))) navigate(`/profile/${u.userId}`);
+                  }}>
                 <p style={{ color: isMe(u.userId)?"#FFD700":"white", fontSize:13, fontWeight:700, margin:0,
                   textDecoration: isMe(u.userId)?"none":"underline", textDecorationColor:"rgba(255,255,255,.2)" }}>
                   {u.name}{isMe(u.userId)?" (bạn)":""}
