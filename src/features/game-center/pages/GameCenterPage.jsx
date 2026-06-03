@@ -6,6 +6,7 @@ import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import CommunityChat from "../components/CommunityChat";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
+import { trackGameStart, trackGameStop } from "@/runtime/tracking/gameTracking";
 import GameLeaderboard from "../components/GameLeaderboard";
 import AlltimeLeaderboard from "../components/AlltimeLeaderboard";
 import ChessGame from "../games/chess/ChessGame";
@@ -177,6 +178,7 @@ export default function GameCenterPage() {
       apiClient.post("/game/use-play", { user_id: phone }).catch(e => console.warn("[GAME] use-play:", e.message));
     }
     setActiveGame(gameId);
+    trackGameStart(gameId);
   };
 
   const handleRestart = () => {
@@ -195,6 +197,7 @@ export default function GameCenterPage() {
     if (!authenticated) { setShowAuthModal(true); return; }
     if (gamePlays !== null && gamePlays <= 0) { alert("Hết lượt chơi!"); return; }
     setPlayingChess(true);
+    trackGameStart('chess');
     // KHÔNG trừ lượt ở đây — chỉ trừ khi match thành công (chess:matched)
   };
 
@@ -208,7 +211,7 @@ export default function GameCenterPage() {
   };
 
   if (showChat) return <CommunityChat onClose={() => setShowChat(false)} />;
-  if (playingChess) return <ChessGame onExit={() => setPlayingChess(false)} onFindMatch={handleFindChessMatch} />;
+  if (playingChess) return <ChessGame onExit={() => { trackGameStop('chess'); setPlayingChess(false); }} onFindMatch={handleFindChessMatch} />;
 
   if (activeGame) {
     const game     = games.find(g => g.id === activeGame);
@@ -216,7 +219,7 @@ export default function GameCenterPage() {
     return (
       <>
         <GameComp
-          onExit={() => setActiveGame(null)}
+          onExit={() => { trackGameStop(activeGame); setActiveGame(null); }}
           onGameOver={handleGameOver}
           onRestart={handleRestart}
           onShowLeaderboard={() => setShowBoard(activeGame)}
