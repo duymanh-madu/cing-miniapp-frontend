@@ -33,9 +33,17 @@ export default function GlobalTicker() {
       socket.on("leaderboard.weekly_reset",  (d) => addMessage("🔄 Reset BXH tuần! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
       socket.on("leaderboard.monthly_reset", (d) => addMessage("🔄 Reset BXH tháng! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
       socket.on("leaderboard.yearly_reset",  (d) => addMessage("🔄 Reset BXH năm! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
+      // Challenge won — lắng nghe cả socket và window event
+      socket.on("challenge.won", (d) => {
+        const payload = d?.payload || d;
+        const name = payload?.winner_name || "Một thành viên";
+        const pts  = payload?.reward_points || 0;
+        addMessage("🏆 Chúc mừng " + name + " đã xuất sắc hoàn thành thách thức ngày! +" + pts + " điểm 🎉");
+      });
       window.addEventListener("challenge_won", (e) => {
         const name = e.detail?.winner_name || "Một thành viên";
-        addMessage("🎯 " + name + " vừa hoàn thành thách thức ngày! Chúc mừng 🎉");
+        const pts  = e.detail?.reward_points || 0;
+        addMessage("🏆 Chúc mừng " + name + " đã xuất sắc hoàn thành thách thức ngày! +" + pts + " điểm 🎉");
       });
     }, 500);
     return () => clearInterval(interval);
@@ -45,7 +53,7 @@ export default function GlobalTicker() {
 
   return (
     <div style={{
-      position:"fixed", top:0, left:0, right:0, zIndex:99999,
+      position:"fixed", top:"env(safe-area-inset-top, 0px)", left:0, right:0, zIndex:99999,
       background:"linear-gradient(90deg,#1a0a00,#2a1400,#1a0a00)",
       borderBottom:"1px solid rgba(255,180,0,0.3)",
       overflow:"hidden", height:32,
