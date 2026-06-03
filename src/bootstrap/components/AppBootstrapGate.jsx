@@ -2,12 +2,9 @@ import { useEffect, useState } from "react";
 import { initializeApplication } from "../services/appBootstrapOrchestrator";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
-// Chỉ block trên Zalo Mini App thật — không dùng sessionStorage (có thể còn từ lần trước)
-const isZaloMiniApp = () => {
+const isRealZaloApp = () => {
   if (typeof window === "undefined") return false;
-  if (window.__ZALO_MINI_APP__) return true;
-  if (navigator.userAgent.includes("ZaloApp")) return true;
-  return false;
+  return !!window.__ZALO_MINI_APP__;
 };
 
 function AppBootstrapGate({ children }) {
@@ -24,7 +21,6 @@ function AppBootstrapGate({ children }) {
     boot();
   }, []);
 
-  // Loading — đợi cả khi checking
   if (!ready || activationStatus === "checking" || activationStatus === "idle") {
     return (
       <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"#080810"}}>
@@ -34,10 +30,8 @@ function AppBootstrapGate({ children }) {
     );
   }
 
-  // Block trên mobile nếu chưa grant phone hoặc chưa follow OA
-
+  if (isRealZaloApp() && activationStatus === "blocked") {
     const needPhone = !phoneGranted;
-    const needOA    = phoneGranted && !oaFollowed;
     return (
       <div style={{minHeight:"100vh",background:"#080810",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:32,textAlign:"center"}}>
         <div style={{fontSize:72,marginBottom:20}}>{needPhone ? "📱" : "🫶"}</div>
