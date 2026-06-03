@@ -196,11 +196,17 @@ export default function AccountPage() {
   useEffect(() => {
     if (!phone) return;
     apiClient.get(`/membership/${phone}`)
+      .then(r => { setMembership(r.data?.data); })
+      .catch(() => {});
+  }, [phone]);
+
+  // Fetch birthday từ players table (nguồn chính xác nhất)
+  useEffect(() => {
+    if (!phone) return;
+    apiClient.get(`/profile-update/profile/${phone}`)
       .then(r => {
-        setMembership(r.data?.data);
         const raw = r.data?.data?.birthday || "";
         if (raw) {
-          // Lấy date string trực tiếp, không convert timezone
           const bd = raw.includes("T") ? raw.split("T")[0] : raw.split(" ")[0];
           setBirthday(bd);
         }
