@@ -47,9 +47,13 @@ export default function ProfilePage() {
     Promise.all([
       apiClient.get(`/membership/${resolvedPhone}`).catch(() => null),
       apiClient.get(`/game/chess/leaderboard`).catch(() => null),
-    ]).then(([mRes, lbRes]) => {
-      if (mRes?.data?.data) setMember(mRes.data.data);
-      const top = lbRes?.data?.wins?.[0] || lbRes?.data?.data?.[0];
+      apiClient.get(`/profile-update/profile/${resolvedPhone}`).catch(() => null),
+    ]).then(([mRes, lbRes, pRes]) => {
+      const memberData = mRes?.data?.data || {};
+      // Merge avatar từ players table
+      const playerAvatar = pRes?.data?.data?.avatar || null;
+      setMember({ ...memberData, avatar: playerAvatar });
+      const top = lbRes?.data?.data?.topWins?.[0] || lbRes?.data?.topWins?.[0];
       if (top) {
         const topPhone = String(top.user_id).replace(/\D/g,"").replace(/^84/,"0");
         if (topPhone === resolvedPhone) setChampion(true);
@@ -74,8 +78,14 @@ export default function ProfilePage() {
   const tierKey = member.tierKey || "member";
   const theme   = TIER_THEME[tierKey] || TIER_THEME.member;
 
-  const displayName   = profile?.name || profile?.displayName || member.name || "Cing iu"; // profile.name là custom name, ưu tiên hơn iPOS
-  const avatarUrl     = isOwn ? (profile?.avatar || null) : null;
+  // Nếu xem profile mình: dùng profile.name (custom) + profile.avatar (custom)
+  // Nếu xem profile người khác: dùng member.name + member.avatar từ API
+  const displayName = isOwn
+    ? (profile?.name || profile?.displayName || member.name || "Cing iu")
+    : (member.name || "Cing iu");
+  const avatarUrl = isOwn
+    ? (profile?.avatar || null)
+    : (member.avatar || null);
   const points        = member.points || 0;
   const eatTimes      = member.eatTimes || 0;
   const paymentAmount = member.paymentAmount || 0;

@@ -47,7 +47,7 @@ export default function CommunityChat({ onClose }) {
   useEffect(() => {
     fetch((import.meta.env.VITE_API_BASE_URL||"https://cing-backend-production.up.railway.app/api") + "/game/chess/leaderboard")
       .then(r => r.json())
-      .then(d => { const top = d?.wins?.[0] || d?.data?.[0]; if (top?.user_id) setChampionId(String(top.user_id)); })
+      .then(d => { const top = d?.topWins?.[0] || d?.data?.topWins?.[0]; if (top?.user_id) setChampionId(String(top.user_id)); })
       .catch(() => {});
   }, []);
   const tierKeyRef = useRef("member");
@@ -101,7 +101,11 @@ export default function CommunityChat({ onClose }) {
       setUsers(merged);
     });
     s.on("community:user_joined",  (u) => setUsers(prev => [...prev.filter(p=>p.userId!==u.userId), u]));
-    s.on("community:user_updated", (u) => setUsers(prev => prev.map(p => p.userId===u.userId ? {...p, tierKey:u.tierKey} : p)));
+    s.on("community:user_updated", (u) => {
+      setUsers(prev => prev.map(p => p.userId===u.userId ? {...p, tierKey:u.tierKey} : p));
+      // Cũng update tierKey trong messages
+      setMessages(prev => prev.map(m => m.userId===u.userId ? {...m, tierKey:u.tierKey} : m));
+    });
     s.on("community:user_left",    (u) => setUsers(prev => prev.filter(p=>p.userId!==u.userId)));
     s.on("community:voice_start", ({userId}) => { setSpeaker(userId); if (userId !== myIdRef.current) setVoiceState("others_speaking"); });
     s.on("community:voice_end",   ()    => { setSpeaker(null); setVoiceState("idle"); });
