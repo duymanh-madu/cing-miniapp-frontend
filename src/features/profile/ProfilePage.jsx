@@ -62,6 +62,11 @@ export default function ProfilePage() {
     }).finally(() => setLoading(false));
   }, [resolvedPhone]);
 
+  // Debug — xóa sau
+  useEffect(() => {
+    if (member) console.log('[PROFILE] member:', JSON.stringify({ name: member.name, avatar: member.avatar, tierKey: member.tierKey }), 'isOwn:', isOwn, 'displayName will be:', isOwn ? 'profile.name' : member.name);
+  }, [member]);
+
   if (loading) return (
     <div style={{ minHeight:"100vh", background:"#0a0a0f", display:"flex", alignItems:"center", justifyContent:"center" }}>
       <p style={{ color:"#555", fontSize:14 }}>Đang tải hồ sơ...</p>
