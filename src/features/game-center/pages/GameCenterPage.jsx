@@ -7,6 +7,7 @@ import CommunityChat from "../components/CommunityChat";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import { trackGameStart, trackGameStop } from "@/runtime/tracking/gameTracking";
+import { useMemberRequired } from "@/hooks/useMemberRequired";
 import GameLeaderboard from "../components/GameLeaderboard";
 import AlltimeLeaderboard from "../components/AlltimeLeaderboard";
 import ChessGame from "../games/chess/ChessGame";
@@ -81,6 +82,7 @@ export default function GameCenterPage() {
   const [showChat, setShowChat]           = useState(false);
 
   const authenticated = useAuthStore(s => s.authenticated);
+  const { isActivated, requireMember, MemberPrompt } = useMemberRequired();
   const profile       = useAuthStore(s => s.profile);
 
   useEffect(() => {
@@ -169,9 +171,7 @@ export default function GameCenterPage() {
   };
 
   const handlePlayGame = (gameId) => {
-    if (!authenticated) { setShowAuthModal(true); return; }
-    const phone = getPhone();
-    if (!phone || phone === "pending") { setShowAuthModal(true); return; }
+    if (!requireMember()) return;
     if (gamePlays !== null && gamePlays <= 0) {
       alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt."); return;
     }
@@ -198,9 +198,7 @@ export default function GameCenterPage() {
   };
 
   const handlePlayChess = () => {
-    if (!authenticated) { setShowAuthModal(true); return; }
-    const phoneCheck = getPhone();
-    if (!phoneCheck || phoneCheck === "pending") { setShowAuthModal(true); return; }
+    if (!requireMember()) return;
     if (gamePlays !== null && gamePlays <= 0) { alert("Hết lượt chơi!"); return; }
     setPlayingChess(true);
     trackGameStart('chess');
@@ -247,6 +245,7 @@ export default function GameCenterPage() {
       </div>
 
       {/* DAILY CHALLENGE */}
+      {MemberPrompt}
       <div style={{ margin:"0 16px 20px", background: challenge?.completed ? "linear-gradient(135deg,rgba(76,175,80,0.15),rgba(76,175,80,0.05))" : "linear-gradient(135deg,rgba(255,215,0,0.12),rgba(255,140,0,0.08))", border: challenge?.completed ? "1px solid rgba(76,175,80,0.3)" : "1px solid rgba(255,215,0,0.2)", borderRadius:20, padding:"16px 20px" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom: challenge?.completed ? 10 : 0 }}>
           <div>
