@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function BlackPearlRush({ onExit, onGameOver, onRestart }) {
+export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameStart }) {
   const navigate = useNavigate();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -159,6 +159,7 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart }) {
         resetGame();
         return;
       }
+      if (!game.started && onGameStart) onGameStart();
       game.started = true;
       game.pearl.vy = -8.2;
       game.pearl.squash = 1.22;

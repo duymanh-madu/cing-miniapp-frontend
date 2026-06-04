@@ -232,6 +232,13 @@ export default function GameCenterPage() {
           onGameOver={handleGameOver}
           onRestart={handleRestart}
           onShowLeaderboard={() => setShowBoard(activeGame)}
+          onGameStart={() => {
+            const ph = getPhone();
+            if (ph) {
+              apiClient.post("/game/use-play", { user_id: ph }).catch(e => console.warn("[GAME] use-play:", e.message));
+              setGamePlays(prev => prev !== null ? Math.max(0, prev - 1) : null);
+            }
+          }}
         />
         {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
       </>
