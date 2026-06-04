@@ -41,8 +41,8 @@ export default function NotificationBell({ hidden = false }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Chỉ socket listener khi hidden
-  if (hidden) return null;
+  // Chỉ ẩn UI khi hidden, vẫn giữ socket listener
+  if (hidden) return <>{/* socket listener only */}</>;
 
   const fmt = (d) => {
     if (!d) return "";
