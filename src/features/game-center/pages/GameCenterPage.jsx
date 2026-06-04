@@ -173,7 +173,8 @@ export default function GameCenterPage() {
   };
 
   const handlePlayGame = (gameId) => {
-    if (!requireMember()) return;
+    const _r = requireMember();
+    if (!_r) { alert('Blocked: isActivated=' + isActivated); return; }
     if (gamePlays !== null && gamePlays <= 0) {
       alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt."); return;
     }
