@@ -178,10 +178,12 @@ export default function GameCenterPage() {
     if (gamePlays !== null && gamePlays <= 0) {
       alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt."); return;
     }
-    if (phone) {
-      apiClient.post("/game/use-play", { user_id: phone }).catch(e => console.warn("[GAME] use-play:", e.message));
+    const ph = getPhone();
+    if (ph) {
+      apiClient.post("/game/use-play", { user_id: ph }).catch(e => console.warn("[GAME] use-play:", e.message));
       setGamePlays(prev => prev !== null ? Math.max(0, prev - 1) : null);
     }
+    alert('Setting activeGame: ' + gameId);
     setActiveGame(gameId);
     trackGameStart(gameId);
   };
