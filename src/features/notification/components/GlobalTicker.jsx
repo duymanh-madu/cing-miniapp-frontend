@@ -68,7 +68,7 @@ export default function GlobalTicker() {
 
   return (
     <div style={{
-      position:"fixed", top:"env(safe-area-inset-top, 0px)", left:0, right:0, zIndex:99999,
+      position:"fixed", top:0, left:0, right:0, zIndex:99999,
       background:"linear-gradient(90deg,#1a0a00,#2a1400,#1a0a00)",
       borderBottom:"1px solid rgba(255,180,0,0.3)",
       overflow:"hidden", height:32,
