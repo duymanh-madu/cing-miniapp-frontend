@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
+import { useMemberRequired } from "@/hooks/useMemberRequired";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
@@ -95,6 +96,7 @@ function Top23Card({ entry, rank }) {
 }
 
 export default function LeaderboardPage() {
+  const { isActivated, requireMember, MemberPrompt } = useMemberRequired();
   const navigate     = useNavigate();
   const profile      = useAuthStore(s => s.profile);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
@@ -187,6 +189,26 @@ export default function LeaderboardPage() {
   }, [tab, customRange.from, validPhone]);
 
   const top1 = data[0], top2 = data[1], top3 = data[2], rest = data.slice(3);
+
+  if (!isActivated) {
+    return (
+      <div style={{ minHeight:"100vh", background:"#0a0a0f", display:"flex", flexDirection:"column",
+        alignItems:"center", justifyContent:"center", padding:32, textAlign:"center" }}>
+        {MemberPrompt}
+        <div style={{ fontSize:64, marginBottom:16 }}>🏆</div>
+        <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 12px" }}>Đại Sảnh Danh Vọng</h2>
+        <p style={{ color:"rgba(255,255,255,0.6)", fontSize:14, margin:"0 0 28px", lineHeight:1.6 }}>
+          Đăng ký thành viên để xem bảng xếp hạng và tranh tài cùng cộng đồng Cing iu 🎯
+        </p>
+        <button onClick={() => requireMember()}
+          style={{ padding:"16px 32px", borderRadius:14, border:"none",
+            background:"linear-gradient(135deg,#D4531C,#E8622A)",
+            color:"white", fontSize:16, fontWeight:800, cursor:"pointer" }}>
+          📱 Kích hoạt ngay
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight:"100vh", background:"linear-gradient(180deg,#050310 0%,#0d0820 35%,#080514 70%,#050310 100%)", paddingBottom:100 }}>

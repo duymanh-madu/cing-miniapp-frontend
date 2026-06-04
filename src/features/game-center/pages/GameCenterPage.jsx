@@ -368,7 +368,7 @@ export default function GameCenterPage() {
         </>
       )}
       {/* Community Chat Button — draggable */}
-      <DraggableChatButton onClick={() => setShowChat(true)} />
+      <DraggableChatButton onClick={() => requireMember(() => setShowChat(true))} />
     </div>
   );
 }
