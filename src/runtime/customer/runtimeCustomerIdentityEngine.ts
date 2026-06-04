@@ -101,12 +101,11 @@ export async function initializeCustomerIdentityEngine() {
       }
     }
 
-    // NORMAL PATH: Không xin phone ngay — cho user vào app trước
-    // Chỉ xin phone khi user muốn dùng tính năng thành viên
+    // NORMAL PATH: Không xin phone ngay — cho user vào app với trạng thái guest
     // Tuân thủ Zalo Mini App policy 6.1 — không xin quyền khi vừa vào app
-    store.setActivationStatus("activated");
+    store.setActivationStatus("guest" as any);
     store.setProfileHydrated(true);
-    runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity ready — phone permission deferred");
+    runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity ready — guest mode");
 
   } catch(err) {
     console.warn("[IDENTITY] initializeCustomerIdentityEngine failed gracefully:", err);

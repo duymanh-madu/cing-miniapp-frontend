@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 
 export function useMemberRequired() {
   const activationStatus = useRuntimeCustomerIdentityStore(s => s.activationStatus);
-  const isActivated = activationStatus === "activated";
+  const isActivated = activationStatus === "activated";  // guest, blocked, idle = chưa activate
   const [showPrompt, setShowPrompt] = useState(false);
   const [loading, setLoading] = useState(false);
 
