@@ -7,7 +7,7 @@ import { createPortal } from "react-dom";
 export function useMemberRequired() {
   const activationStatus = useRuntimeCustomerIdentityStore(s => s.activationStatus);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
-  const profilePhone = useAuthStore.getState().profile?.phone;
+  const profilePhone = useAuthStore(s => s.profile?.phone);
   const hasPhone = (() => {
     const p = runtimePhone || profilePhone || "";
     if (!p || p === "pending") return false;
