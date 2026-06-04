@@ -173,8 +173,7 @@ export default function GameCenterPage() {
   };
 
   const handlePlayGame = (gameId) => {
-    const _r = requireMember();
-    if (!_r) { alert('Blocked: isActivated=' + isActivated); return; }
+    if (!requireMember()) return;
     if (gamePlays !== null && gamePlays <= 0) {
       alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt."); return;
     }
@@ -183,9 +182,10 @@ export default function GameCenterPage() {
       apiClient.post("/game/use-play", { user_id: ph }).catch(e => console.warn("[GAME] use-play:", e.message));
       setGamePlays(prev => prev !== null ? Math.max(0, prev - 1) : null);
     }
-    alert('Setting activeGame: ' + gameId);
-    setActiveGame(gameId);
-    trackGameStart(gameId);
+    setTimeout(() => {
+      setActiveGame(gameId);
+      trackGameStart(gameId);
+    }, 50);
   };
 
   const handleRestart = () => {
