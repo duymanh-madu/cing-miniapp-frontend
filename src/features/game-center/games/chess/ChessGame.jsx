@@ -383,7 +383,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
       const phone = userIdRef.current;
       if (phone) {
         fetch((import.meta.env.VITE_API_BASE_URL||"https://cing-backend-production.up.railway.app/api")+"/game/use-play",
-          { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ user_id: phone }) }
+          { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ user_id: phone, game_name: "Kỳ thủ cờ vua" }) }
         ).catch(()=>{});
       }
       const c = new Chess();
