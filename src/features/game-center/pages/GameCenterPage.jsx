@@ -83,8 +83,6 @@ export default function GameCenterPage() {
 
   const authenticated = useAuthStore(s => s.authenticated);
   const { isActivated, requireMember, MemberPrompt } = useMemberRequired();
-  const _status = useRuntimeCustomerIdentityStore(s => s.activationStatus);
-  console.log('[GAME] activationStatus:', _status, 'isActivated:', isActivated);
   const profile       = useAuthStore(s => s.profile);
 
   useEffect(() => {

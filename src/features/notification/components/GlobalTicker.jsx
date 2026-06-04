@@ -32,7 +32,6 @@ export default function GlobalTicker() {
       attached = true;
       socket.on("notification.broadcast", (data) => {
         const msg = data?.notification?.message || data?.message || "";
-        console.log('[TICKER MOBILE] received msg:', msg);
         if (msg) addMessage(msg);
       });
       socket.on("leaderboard.weekly_reset",  (d) => addMessage("🔄 Reset BXH tuần! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
