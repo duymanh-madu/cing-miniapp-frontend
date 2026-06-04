@@ -1,46 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 
-const BELL_KEY = 'cing_bell_v1';
-const BELL_TTL = 3 * 24 * 60 * 60 * 1000;
-
-async function loadBellNotifs() {
-  try {
-    const zmp = await import('zmp-sdk');
-    const res = await zmp.getStorage({ keys: [BELL_KEY] });
-    const raw = res?.data?.[BELL_KEY];
-    if (!raw) return [];
-    const { data, savedAt } = JSON.parse(raw);
-    if (Date.now() - savedAt > BELL_TTL) return [];
-    return data || [];
-  } catch(e) {
-    try {
-      const raw = sessionStorage.getItem(BELL_KEY);
-      if (!raw) return [];
-      const { data, savedAt } = JSON.parse(raw);
-      if (Date.now() - savedAt > BELL_TTL) return [];
-      return data || [];
-    } catch(e2) { return []; }
-  }
-}
-
-async function saveBellNotifs(notifs) {
-  try {
-    const zmp = await import('zmp-sdk');
-    await zmp.setStorage({ data: { [BELL_KEY]: JSON.stringify({ data: notifs.slice(0,20), savedAt: Date.now() }) } });
-  } catch(e) {
-    try {
-      sessionStorage.setItem(BELL_KEY, JSON.stringify({ data: notifs.slice(0,20), savedAt: Date.now() }));
-    } catch(e2) {}
-  }
-}
-
 export default function NotificationBell() {
   const [notifications, setNotifications] = useState([]);
-
-  useEffect(() => {
-    loadBellNotifs().then(data => { if (data.length > 0) setNotifications(data); });
-  }, []);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -53,21 +15,13 @@ export default function NotificationBell() {
 socket.on("notification.new", (data) => {
 const notif = data?.payload?.notification || data?.notification || data;
           if (!notif) return;
-          setNotifications(prev => {
-            const next = [notif, ...prev].slice(0, 20);
-            saveBellNotifs(next);
-            return next;
-          });
+          setNotifications(prev => [notif, ...prev].slice(0, 20));
           setUnread(u => u + 1);
         });
         socket.on("notification.broadcast", (data) => {
 const notif = data?.payload?.notification || data?.notification || data;
           if (!notif) return;
-          setNotifications(prev => {
-            const next = [notif, ...prev].slice(0, 20);
-            saveBellNotifs(next);
-            return next;
-          });
+          setNotifications(prev => [notif, ...prev].slice(0, 20));
           setUnread(u => u + 1);
         });
         return;
@@ -113,7 +67,7 @@ const notif = data?.payload?.notification || data?.notification || data;
             display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <p style={{ fontWeight:800, fontSize:14, margin:0 }}>Thông báo</p>
             {notifications.length > 0 && (
-              <button onClick={() => { setNotifications([]); saveBellNotifs([]); }}
+              <button onClick={() => setNotifications([])}
                 style={{ fontSize:11, color:"#999", background:"none", border:"none", cursor:"pointer" }}>
                 Xóa tất cả
               </button>
