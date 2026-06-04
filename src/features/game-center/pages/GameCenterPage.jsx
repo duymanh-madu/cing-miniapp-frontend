@@ -8,6 +8,7 @@ import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import { trackGameStart, trackGameStop } from "@/runtime/tracking/gameTracking";
 import { useMemberRequired } from "@/hooks/useMemberRequired";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import GameLeaderboard from "../components/GameLeaderboard";
 import AlltimeLeaderboard from "../components/AlltimeLeaderboard";
 import ChessGame from "../games/chess/ChessGame";
@@ -83,6 +84,8 @@ export default function GameCenterPage() {
 
   const authenticated = useAuthStore(s => s.authenticated);
   const { isActivated, requireMember, MemberPrompt } = useMemberRequired();
+  const _status = useRuntimeCustomerIdentityStore(s => s.activationStatus);
+  console.log('[GAME] activationStatus:', _status, 'isActivated:', isActivated);
   const profile       = useAuthStore(s => s.profile);
 
   useEffect(() => {
