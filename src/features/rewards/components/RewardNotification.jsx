@@ -11,7 +11,7 @@ export function ChallengeWonPopup() {
   useEffect(() => {
     const handler = (e) => {
       setData(e.detail);
-      setTimeout(() => setData(null), 6000);
+      setTimeout(() => setData(null), 30000);
     };
     window.addEventListener("challenge_won", handler);
     return () => window.removeEventListener("challenge_won", handler);
@@ -26,7 +26,12 @@ export function ChallengeWonPopup() {
     return n.length >= 9 ? n : "";
   })();
 
-  const isWinner = myPhone && data?.winner_user_id === myPhone;
+  const winnerId = data?.winner_user_id || "";
+  const isWinner = myPhone && (
+    winnerId === myPhone ||
+    winnerId === "84" + myPhone.slice(1) ||
+    winnerId.replace(/^84/,"0") === myPhone
+  );
 
   return createPortal(
     <div style={{ position:"fixed", inset:0, zIndex:9500, display:"flex", alignItems:"center",
