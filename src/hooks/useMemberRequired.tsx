@@ -1,11 +1,19 @@
 import { useState } from "react";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
+import useAuthStore from "@/stores/auth/authStore";
 import { initializeCustomerIdentityEngine } from "@/runtime/customer/runtimeCustomerIdentityEngine";
 import { createPortal } from "react-dom";
 
 export function useMemberRequired() {
   const activationStatus = useRuntimeCustomerIdentityStore(s => s.activationStatus);
-  const isActivated = activationStatus === "activated";  // guest, blocked, idle = chưa activate
+  const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const profilePhone = useAuthStore.getState().profile?.phone;
+  const hasPhone = (() => {
+    const p = runtimePhone || profilePhone || "";
+    if (!p || p === "pending") return false;
+    return p.replace(/\D/g,"").length >= 9;
+  })();
+  const isActivated = activationStatus === "activated" || hasPhone;
   const [showPrompt, setShowPrompt] = useState(false);
   const [loading, setLoading] = useState(false);
 
