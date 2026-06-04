@@ -74,28 +74,43 @@ export default function GamePlaysHistoryPage() {
             const amt = Math.abs(item.event_data?.amount || 0);
             const reason = item.event_data?.reason || (isAdd ? "Nhận lượt chơi" : "Chơi game");
             const newTotal = item.event_data?.new_total;
+            // Icon theo loại
+            const icon = (() => {
+              if (!isAdd) return "🕹️";
+              if (reason.includes("chi tiêu") || reason.includes("tiêu dùng")) return "🧋";
+              if (reason.includes("nhiệm vụ") || reason.includes("Nhiệm vụ") || reason.includes("Điểm danh")) return "✅";
+              if (reason.includes("kích hoạt") || reason.includes("Bonus")) return "🎉";
+              if (reason.includes("cờ vua") || reason.includes("chess")) return "♟️";
+              if (reason.includes("điểm") || reason.includes("Đổi")) return "⭐";
+              return "🎁";
+            })();
             return (
               <div key={i} style={{ display:"flex", alignItems:"center", gap:12,
-                padding:"12px 0", borderBottom: i < log.length-1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
-                <div style={{ width:40, height:40, borderRadius:12, flexShrink:0,
-                  background: isAdd ? "rgba(76,175,80,0.15)" : "rgba(244,67,54,0.15)",
-                  display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
-                  {isAdd ? "🎁" : "🕹️"}
+                padding:"14px 0", borderBottom: i < log.length-1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                <div style={{ width:42, height:42, borderRadius:12, flexShrink:0,
+                  background: isAdd ? "rgba(76,175,80,0.12)" : "rgba(244,67,54,0.12)",
+                  display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>
+                  {icon}
                 </div>
-                <div style={{ flex:1 }}>
-                  <p style={{ fontSize:13, fontWeight:700, color:"white", margin:"0 0 3px",
+                <div style={{ flex:1, minWidth:0 }}>
+                  <p style={{ fontSize:13, fontWeight:700, color:"white", margin:"0 0 4px",
                     overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>{reason}</p>
-                  <p style={{ fontSize:11, color:"rgba(255,255,255,0.4)", margin:0 }}>
-                    {fmt(item.created_at)}
+                  <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                    <p style={{ fontSize:11, color:"rgba(255,255,255,0.4)", margin:0 }}>{fmt(item.created_at)}</p>
                     {newTotal !== undefined && (
-                      <span style={{ marginLeft:6, color:"rgba(255,255,255,0.25)" }}>· Còn {Math.round(newTotal)} lượt</span>
+                      <p style={{ fontSize:11, color:"rgba(255,215,0,0.5)", margin:0 }}>
+                        · Còn lại: <strong style={{ color:"#FFD700" }}>{Math.round(newTotal)} lượt</strong>
+                      </p>
                     )}
-                  </p>
+                  </div>
                 </div>
-                <p style={{ fontSize:16, fontWeight:900, margin:0, flexShrink:0,
-                  color: isAdd ? "#4CAF50" : "#f44336" }}>
-                  {isAdd ? "+" : "-"}{amt}
-                </p>
+                <div style={{ textAlign:"right", flexShrink:0 }}>
+                  <p style={{ fontSize:18, fontWeight:900, margin:0,
+                    color: isAdd ? "#4CAF50" : "#f44336" }}>
+                    {isAdd ? "+" : "-"}{amt}
+                  </p>
+                  <p style={{ fontSize:10, color:"rgba(255,255,255,0.3)", margin:0 }}>lượt</p>
+                </div>
               </div>
             );
           })}
