@@ -1,93 +1,108 @@
 import { useState, useEffect, useRef } from "react";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
+import useNotificationStore from "@/stores/notification/notificationStore";
 
 export default function NotificationBell({ hidden = false }) {
-  const [notifications, setNotifications] = useState([]);
-  const [unread, setUnread] = useState(0);
+  const { notifications, unread, loaded, load, addNotification, markAllRead, clearAll } = useNotificationStore();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
+  // Load từ storage khi mount
+  useEffect(() => { if (!loaded) load(); }, []);
+
+  // Lắng nghe socket
   useEffect(() => {
     let attempts = 0;
     const attach = () => {
       const socket = getRuntimeSocket();
       if (socket && socket.connected) {
-socket.on("notification.new", (data) => {
-const notif = data?.payload?.notification || data?.notification || data;
-          if (!notif) return;
-          setNotifications(prev => [notif, ...prev].slice(0, 20));
-          setUnread(u => u + 1);
-        });
-        socket.on("notification.broadcast", (data) => {
-const notif = data?.payload?.notification || data?.notification || data;
-          if (!notif) return;
-          setNotifications(prev => [notif, ...prev].slice(0, 20));
-          setUnread(u => u + 1);
-        });
+        const handler = (data) => {
+          const notif = data?.payload?.notification || data?.notification || data;
+          if (!notif?.title && !notif?.message) return;
+          addNotification(notif);
+        };
+        socket.on("notification.new", handler);
+        socket.on("notification.broadcast", handler);
         return;
       }
-      if (attempts++ < 20) setTimeout(attach, 1000);
+      if (attempts++ < 30) setTimeout(attach, 1000);
     };
     attach();
     return () => {
       const s = getRuntimeSocket();
-      if (s) { s.off("notification.new"); s.off("notification.broadcast"); s.off("menu.updated"); s.off("menu.item_out_of_stock"); }
+      if (s) { s.off("notification.new"); s.off("notification.broadcast"); }
     };
   }, []);
 
+  // Click outside
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Chỉ socket listener khi hidden
+  if (hidden) return null;
+
+  const fmt = (d) => {
+    if (!d) return "";
+    const date = new Date(d);
+    const now = new Date();
+    const diff = now - date;
+    if (diff < 60000) return "Vừa xong";
+    if (diff < 3600000) return Math.floor(diff/60000) + " phút trước";
+    if (diff < 86400000) return Math.floor(diff/3600000) + " giờ trước";
+    return Math.floor(diff/86400000) + " ngày trước";
+  };
+
   return (
-    <div ref={ref} style={{ position:"relative", zIndex:999 }}>
-      <button onClick={() => { setOpen(o => !o); setUnread(0); }}
-        style={{ background:"rgba(255,255,255,0.15)", border:"none", borderRadius:"50%",
-          width:44, height:44, cursor:"pointer", position:"relative",
-          display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>
-        🔔
+    <div ref={ref} style={{ position:"relative" }}>
+      <button onClick={() => { setOpen(o => !o); if (!open) markAllRead(); }}
+        style={{ background:"rgba(255,255,255,0.15)", border:"none", borderRadius:12,
+          width:42, height:42, display:"flex", alignItems:"center", justifyContent:"center",
+          cursor:"pointer", position:"relative", backdropFilter:"blur(8px)" }}>
+        <span style={{ fontSize:20 }}>🔔</span>
         {unread > 0 && (
-          <span style={{ position:"absolute", top:-2, right:-2, background:"#ff4444",
-            color:"white", borderRadius:"50%", width:18, height:18, fontSize:10,
-            fontWeight:900, display:"flex", alignItems:"center", justifyContent:"center" }}>
-            {unread > 9 ? "9+" : unread}
-          </span>
+          <div style={{ position:"absolute", top:-4, right:-4, background:"#e74c3c",
+            color:"white", borderRadius:10, minWidth:18, height:18,
+            display:"flex", alignItems:"center", justifyContent:"center",
+            fontSize:10, fontWeight:900, padding:"0 4px" }}>
+            {unread > 99 ? "99+" : unread}
+          </div>
         )}
       </button>
+
       {open && (
-        <div style={{ position:"fixed", top:100, left:"50%", transform:"translateX(-50%)", width:"85vw", maxWidth:340,
-          background:"rgba(255,255,255,0.2)", backdropFilter:"blur(16px)",
-          WebkitBackdropFilter:"blur(16px)",
-          borderRadius:20, boxShadow:"0 8px 40px rgba(0,0,0,0.18)",
-          zIndex:9999, maxHeight:400, overflowY:"auto",
-          border:"1px solid rgba(255,255,255,0.6)" }}>
+        <div style={{ position:"fixed", top:60, right:12, width:300, maxHeight:400,
+          background:"white", borderRadius:16, boxShadow:"0 8px 32px rgba(0,0,0,0.2)",
+          overflow:"hidden", zIndex:9999, display:"flex", flexDirection:"column" }}>
           <div style={{ padding:"12px 16px", borderBottom:"1px solid #f0f0f0",
             display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-            <p style={{ fontWeight:800, fontSize:14, margin:0 }}>Thông báo</p>
-            {notifications.length > 0 && (
-              <button onClick={() => setNotifications([])}
-                style={{ fontSize:11, color:"#999", background:"none", border:"none", cursor:"pointer" }}>
-                Xóa tất cả
-              </button>
-            )}
+            <p style={{ fontSize:14, fontWeight:800, margin:0 }}>🔔 Thông báo</p>
+            <button onClick={clearAll}
+              style={{ background:"none", border:"none", fontSize:11, color:"#999", cursor:"pointer" }}>
+              Xóa tất cả
+            </button>
           </div>
-          {notifications.length === 0 ? (
-            <div style={{ padding:"24px 16px", textAlign:"center", color:"#333" }}>
-              <p style={{ fontSize:32, margin:"0 0 8px" }}>🔔</p>
-              <p style={{ fontSize:13, margin:0 }}>Chưa có thông báo nào</p>
-            </div>
-          ) : notifications.map((n, i) => (
-            <div key={i} style={{ padding:"12px 16px", borderBottom:"1px solid #f5f5f5",
-              background: i === 0 ? "#fff8f5" : "white" }}>
-              <p style={{ fontWeight:700, fontSize:13, margin:"0 0 2px", color:"#1a1a1a" }}>{n.title}</p>
-              <p style={{ fontSize:12, color:"#888", margin:"0 0 4px" }}>{n.message}</p>
-              <p style={{ fontSize:10, color:"#bbb", margin:0 }}>
-                {new Date(n.created_at).toLocaleTimeString("vi-VN")}
+          <div style={{ overflowY:"auto", flex:1 }}>
+            {notifications.length === 0 ? (
+              <p style={{ textAlign:"center", color:"#bbb", padding:"24px 16px", fontSize:13 }}>
+                Chưa có thông báo nào
               </p>
-            </div>
-          ))}
+            ) : notifications.map((n, i) => (
+              <div key={i} style={{ padding:"12px 16px",
+                borderBottom:"1px solid #f5f5f5",
+                background: n.read ? "white" : "#fff8f0" }}>
+                <p style={{ fontSize:13, fontWeight:700, color:"#1a1a1a", margin:"0 0 3px" }}>
+                  {n.title || "Thông báo"}
+                </p>
+                <p style={{ fontSize:12, color:"#666", margin:"0 0 4px", lineHeight:1.5 }}>
+                  {n.message || ""}
+                </p>
+                <p style={{ fontSize:10, color:"#bbb", margin:0 }}>{fmt(n.created_at)}</p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
