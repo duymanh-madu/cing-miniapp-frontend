@@ -28,9 +28,13 @@ export default function GlobalTicker() {
   }, [queue, current]);
 
   useEffect(() => {
+    let attempts = 0;
     let interval = setInterval(() => {
       const socket = getRuntimeSocket();
-      if (!socket) return;
+      if (!socket || !socket.connected) {
+        if (attempts++ > 20) clearInterval(interval);
+        return;
+      }
       clearInterval(interval);
       socket.on("notification.broadcast", (data) => {
         const msg = data?.notification?.message || data?.message || "";
