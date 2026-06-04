@@ -28,31 +28,38 @@ export default function GlobalTicker() {
   }, [queue, current]);
 
   useEffect(() => {
-    let attempts = 0;
-    let interval = setInterval(() => {
-      const socket = getRuntimeSocket();
-      if (!socket || !socket.connected) {
-        if (attempts++ > 20) clearInterval(interval);
-        return;
-      }
-      clearInterval(interval);
+    let attached = false;
+
+    const attachListeners = (socket) => {
+      if (attached) return;
+      attached = true;
       socket.on("notification.broadcast", (data) => {
-        console.log('[TICKER] notification.broadcast received:', JSON.stringify(data).slice(0,100));
         const msg = data?.notification?.message || data?.message || "";
         if (msg) addMessage(msg);
-        else console.warn('[TICKER] No message found in payload');
       });
       socket.on("leaderboard.weekly_reset",  (d) => addMessage("🔄 Reset BXH tuần! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
       socket.on("leaderboard.monthly_reset", (d) => addMessage("🔄 Reset BXH tháng! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
       socket.on("leaderboard.yearly_reset",  (d) => addMessage("🔄 Reset BXH năm! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
-      // Challenge won — lắng nghe cả socket và window event
       socket.on("challenge.won", (d) => {
         const payload = d?.payload || d;
         const name = payload?.winner_name || "Một thành viên";
         const pts  = payload?.reward_points || 0;
         addMessage("🏆 Chúc mừng " + name + " đã xuất sắc hoàn thành thách thức ngày! +" + pts + " điểm 🎉");
       });
+      // Re-attach khi reconnect
+      socket.on("connect", () => { attached = false; attachListeners(socket); });
+    };
 
+    let attempts = 0;
+    let interval = setInterval(() => {
+      const socket = getRuntimeSocket();
+      if (!socket) { if (attempts++ > 40) clearInterval(interval); return; }
+      clearInterval(interval);
+      if (socket.connected) {
+        attachListeners(socket);
+      } else {
+        socket.on("connect", () => attachListeners(socket));
+      }
     }, 500);
     return () => clearInterval(interval);
   }, []);
