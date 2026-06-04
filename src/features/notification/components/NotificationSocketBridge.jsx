@@ -10,7 +10,10 @@ export default function NotificationSocketBridge() {
         const handler = (data) => {
           const notif = data?.payload?.notification || data?.notification || data;
           if (!notif?.title && !notif?.message) return;
-          window.dispatchEvent(new CustomEvent("notification_received", { detail: notif }));
+          // Ghi thẳng vào store — không cần component listener
+          import("@/stores/notification/notificationStore").then(({ default: store }) => {
+            store.getState().addNotification(notif);
+          });
         };
         socket.on("notification.new", handler);
         socket.on("notification.broadcast", handler);
