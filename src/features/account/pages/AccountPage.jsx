@@ -324,14 +324,17 @@ export default function AccountPage() {
             <div key={idx} onClick={() => {
               if (item.action === "chat_admin") {
                 // Mở Zalo OA chat
-                try {
-                  import("zmp-sdk").then(sdk => {
-                    if (sdk?.openChat) sdk.openChat({ type: "oa", id: "4341283871868668950", message: "Xin chào Cing Hu Tang! Tôi cần hỗ trợ." });
-                    else window.open("https://zalo.me/cinghutangkinhbac", "_blank");
-                  }).catch(() => window.open("https://zalo.me/cinghutangkinhbac", "_blank"));
-                } catch(e) {
-                  window.open("https://zalo.me/cinghutangkinhbac", "_blank");
-                }
+                import("zmp-sdk").then(({ openChat, openWebview }) => {
+                  openChat({ 
+                    type: "oa", 
+                    id: "4341283871868668950",
+                    message: "Xin chào Cing Hu Tang! Tôi cần hỗ trợ."
+                  }).catch(() => {
+                    openWebview({ url: "https://zalo.me/4341283871868668950" });
+                  });
+                }).catch(() => {
+                  window.open("https://zalo.me/4341283871868668950", "_blank");
+                });
               } else if (item.path) {
                 navigate(item.path);
               }
