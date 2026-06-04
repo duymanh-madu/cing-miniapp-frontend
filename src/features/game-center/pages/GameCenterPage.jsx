@@ -68,6 +68,12 @@ function DraggableChatButton({ onClick }) {
   );
 }
 
+function showToast(msg) {
+  import("zmp-sdk").then(sdk => {
+    sdk.showToast?.({ text: msg, duration: "long" });
+  }).catch(() => {});
+}
+
 export default function GameCenterPage() {
   const games = getAllGames();
   const [activeGame, setActiveGame]       = useState(null);
@@ -165,7 +171,7 @@ export default function GameCenterPage() {
           combo:       bestCombo,
           game_key:    gameKey,
         });
-        if (res.data?.success) alert("🏆 " + res.data.message);
+        if (res.data?.success) showToast("🏆 " + res.data.message);
       } catch(e) {}
     }
   };
@@ -173,7 +179,7 @@ export default function GameCenterPage() {
   const handlePlayGame = (gameId) => {
     if (!requireMember()) return;
     if (gamePlays !== null && gamePlays <= 0) {
-      alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt."); return;
+      showToast("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt."); return;
     }
     setTimeout(() => {
       setActiveGame(gameId);
@@ -185,7 +191,7 @@ export default function GameCenterPage() {
     const phone = getPhone();
     if (!phone) return false;
     if (gamePlays !== null && gamePlays <= 0) {
-      alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
+      showToast("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
       setActiveGame(null);
       return false; // Không cho restart
     }
@@ -197,7 +203,7 @@ export default function GameCenterPage() {
 
   const handlePlayChess = () => {
     if (!requireMember()) return;
-    if (gamePlays !== null && gamePlays <= 0) { alert("Hết lượt chơi!"); return; }
+    if (gamePlays !== null && gamePlays <= 0) { showToast("Hết lượt chơi!"); return; }
     setPlayingChess(true);
     trackGameStart('chess');
     // KHÔNG trừ lượt ở đây — chỉ trừ khi match thành công (chess:matched)
@@ -206,7 +212,7 @@ export default function GameCenterPage() {
   // Callback cho ChessGame.findMatch — check lượt trước khi tìm ván mới
   const handleFindChessMatch = () => {
     if (gamePlays !== null && gamePlays <= 0) {
-      alert("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
+      showToast("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
       return false; // Chặn tìm ván mới
     }
     return true; // Cho phép tìm ván
@@ -296,9 +302,9 @@ export default function GameCenterPage() {
                       const res = await apiClient.post("/missions/checkin", { user_id: phone });
                       if (res.data?.success) {
                         setMissions(prev => prev.map(x => x.type === "checkin" ? {...x, completed:true} : x));
-                        alert(`✅ Điểm danh thành công! +${m.plays} lượt chơi`);
-                      } else alert(res.data?.message || "Đã điểm danh hôm nay rồi!");
-                    } catch(e) { alert("Lỗi điểm danh"); }
+                        showToast(`✅ Điểm danh thành công! +${m.plays} lượt chơi`);
+                      } else showToast(res.data?.message || "Đã điểm danh hôm nay rồi!");
+                    } catch(e) { showToast("Lỗi điểm danh"); }
                   }}
                     style={{ background:"linear-gradient(135deg,#D4531C,#FF6B35)", border:"none",
                       borderRadius:10, padding:"8px 14px", color:"white", fontSize:12,
