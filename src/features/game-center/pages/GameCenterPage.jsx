@@ -325,7 +325,7 @@ export default function GameCenterPage() {
               <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>Thử thách phản xạ — ghi điểm cao nhất</p>
               <div style={{ display:"flex", gap:8 }}>
                 <button onClick={() => handlePlayGame(game.id)} style={{ background:"linear-gradient(135deg,#D4531C,#ff6b35)", color:"white", border:"none", borderRadius:10, padding:"8px 18px", fontSize:12, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 15px rgba(212,83,28,0.4)" }}>Chơi ngay</button>
-                <button onClick={() => setShowBoard(game.id)} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
+                <button onClick={() => requireMember(() => setShowBoard(game.id))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
               </div>
             </div>
           </div>
@@ -346,7 +346,7 @@ export default function GameCenterPage() {
             <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>PvP 1v1 · Chiếu hết đối thủ · Leo bảng danh vọng</p>
             <div style={{ display:"flex", gap:8 }}>
               <button onClick={handlePlayChess} style={{ background:"linear-gradient(135deg,#8B6914,#FFD700)", color:"#1a0a00", border:"none", borderRadius:10, padding:"8px 18px", fontSize:12, fontWeight:800, cursor:"pointer" }}>♟ Tìm đối thủ</button>
-              <button onClick={() => setShowChessLB(true)} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
+              <button onClick={() => requireMember(() => setShowChessLB(true))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
             </div>
           </div>
         </div>
