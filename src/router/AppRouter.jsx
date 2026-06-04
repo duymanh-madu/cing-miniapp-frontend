@@ -2,7 +2,6 @@ import { Suspense, lazy, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { LeaderboardResetPopup, PendingRewardsBadge, ChallengeWonPopup } from "@/features/rewards/components/RewardNotification";
-import NotificationBell from "@/features/notification/components/NotificationBell";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "@/layouts/AppLayout";
@@ -102,7 +101,6 @@ export default function AppRouter() {
     <>
       <LeaderboardResetPopup />
       <ChallengeWonPopup />
-      <NotificationBell />
       <PendingRewardsBadge />
       <HashRouter>
       <PageTracker />
