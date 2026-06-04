@@ -87,7 +87,8 @@ export async function initializeCustomerIdentityEngine() {
           || (identity?.phone && identity.phone !== "pending" ? identity.phone : null) || "";
 
         // Nếu không có phone hợp lệ → guest mode, không activate
-        if (!resolvedPhone || resolvedPhone === "pending") {
+        const isValidPhone = resolvedPhone && resolvedPhone !== "pending" && resolvedPhone.length >= 9;
+        if (!isValidPhone) {
           store.setActivationStatus("guest" as any);
           store.setProfileHydrated(true);
           runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path — no phone, guest mode");
