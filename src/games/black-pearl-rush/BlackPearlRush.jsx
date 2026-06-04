@@ -9,6 +9,13 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
   const scoreThrottleRef = useRef(0);
+  const gameStartedRef = useRef(false);
+  const [canInteract, setCanInteract] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setCanInteract(true), 300);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -379,7 +386,7 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
     document.addEventListener("visibilitychange", onVisibility);
 
     /* ── Touch event ── */
-    function handleTap() { unlockAudio(); jump(); }
+    function handleTap() { if (!canInteract) return; unlockAudio(); jump(); }
     canvas.addEventListener("pointerdown", handleTap, { passive: true });
 
     return () => {
