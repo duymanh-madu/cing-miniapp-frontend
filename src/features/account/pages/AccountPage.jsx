@@ -14,9 +14,9 @@ const MENU_ITEMS = [
   { icon:"📦", label:"Lịch sử đơn hàng",  path:"/orders",      desc:"Xem các đơn đã đặt" },
   { icon:"🎟", label:"Voucher của tôi",    path:"/voucher",     desc:"Ưu đãi và mã giảm giá" },
   { icon:"⭐", label:"Điểm tích lũy",      path:"/loyalty",     desc:"Xem điểm và đổi quà" },
+  { icon:"🎮", label:"Lượt chơi game",     path:"/game-plays",  desc:"Lịch sử lượt chơi game" },
   { icon:"👑", label:"Đại Sảnh Danh Vọng", path:"/leaderboard", desc:"Bảng xếp hạng khách hàng" },
-  { icon:"🎮", label:"Game Center",        path:"/game-center", desc:"Chơi game nhận thưởng" },
-  { icon:"📞", label:"Liên hệ hỗ trợ",    path:null,           desc:"Hotline: 0989.585.355" },
+  { icon:"💬", label:"Chat với admin",     path:null,           desc:"Nhắn tin hỗ trợ trực tiếp", action:"chat_admin" },
 ];
 
 function resizeToBase64(file) {
@@ -321,14 +321,34 @@ export default function AccountPage() {
       <div style={{ padding:"16px 16px 0" }}>
         <div style={{ background:"white", borderRadius:20, overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,0.06)" }}>
           {MENU_ITEMS.map((item, idx) => (
-            <div key={idx} onClick={() => item.path ? navigate(item.path) : null}
-              style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderTop: idx > 0 ? "1px solid #f5f5f5" : "none", cursor: item.path ? "pointer" : "default" }}>
-              <div style={{ width:44, height:44, borderRadius:14, flexShrink:0, background:"#f5f5f5", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>{item.icon}</div>
+            <div key={idx} onClick={() => {
+              if (item.action === "chat_admin") {
+                // Mở Zalo OA chat
+                try {
+                  const zmpSdk = window.zmp;
+                  if (zmpSdk?.openOAChat) {
+                    zmpSdk.openOAChat({});
+                  } else {
+                    window.open("https://zalo.me/cinghutangkinhbac", "_blank");
+                  }
+                } catch(e) {
+                  window.open("https://zalo.me/cinghutangkinhbac", "_blank");
+                }
+              } else if (item.path) {
+                navigate(item.path);
+              }
+            }}
+              style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px",
+                borderTop: idx > 0 ? "1px solid #f5f5f5" : "none",
+                cursor: (item.path || item.action) ? "pointer" : "default" }}>
+              <div style={{ width:44, height:44, borderRadius:14, flexShrink:0,
+                background: item.action === "chat_admin" ? "#e8f5e9" : "#f5f5f5",
+                display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>{item.icon}</div>
               <div style={{ flex:1 }}>
                 <p style={{ fontSize:14, fontWeight:700, color:"#1a1a1a", margin:"0 0 2px" }}>{item.label}</p>
                 <p style={{ fontSize:11, color:"#999", margin:0 }}>{item.desc}</p>
               </div>
-              {item.path && <span style={{ color:"#ccc", fontSize:18 }}>›</span>}
+              {(item.path || item.action) && <span style={{ color:"#ccc", fontSize:18 }}>›</span>}
             </div>
           ))}
         </div>
