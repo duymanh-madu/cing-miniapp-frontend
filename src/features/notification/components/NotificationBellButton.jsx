@@ -2,6 +2,15 @@ import { useState, useRef, useEffect } from "react";
 import useNotificationStore from "@/stores/notification/notificationStore";
 
 export default function NotificationBellButton() {
+  useEffect(() => {
+    const handler = (e) => {
+      const notif = e.detail;
+      if (!notif) return;
+      useNotificationStore.getState().addNotification(notif);
+    };
+    window.addEventListener("notification_received", handler);
+    return () => window.removeEventListener("notification_received", handler);
+  }, []);
   const { notifications, unread, markAllRead, clearAll } = useNotificationStore();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);

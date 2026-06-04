@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { LeaderboardResetPopup, PendingRewardsBadge, ChallengeWonPopup } from "@/features/rewards/components/RewardNotification";
+import NotificationSocketBridge from "@/features/notification/components/NotificationSocketBridge";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "@/layouts/AppLayout";
@@ -99,6 +100,7 @@ function AuthRequired({ children }) {
 export default function AppRouter() {
   return (
     <>
+      <NotificationSocketBridge />
       <LeaderboardResetPopup />
       <ChallengeWonPopup />
       <PendingRewardsBadge />
