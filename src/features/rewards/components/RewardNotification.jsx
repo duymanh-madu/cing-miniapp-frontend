@@ -11,10 +11,10 @@ export function ChallengeWonPopup() {
   const shownRef = useRef(false);
 
   useEffect(() => {
-    const handler = (e) => {
+    const show = (detail) => {
       if (shownRef.current) return;
       shownRef.current = true;
-      setData(e.detail);
+      setData(detail);
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
         setData(null);
@@ -22,9 +22,28 @@ export function ChallengeWonPopup() {
         timerRef.current = null;
       }, 30000);
     };
-    window.addEventListener("challenge_won", handler);
+
+    // Lắng nghe window event (từ GameCenterPage)
+    const windowHandler = (e) => show(e.detail);
+    window.addEventListener("challenge_won", windowHandler);
+
+    // Lắng nghe socket trực tiếp
+    const attachSocket = () => {
+      const socket = window.__runtimeSocket;
+      if (socket?.connected) {
+        socket.on("challenge.won", (d) => {
+          const payload = d?.payload || d;
+          show(payload);
+        });
+      } else {
+        setTimeout(attachSocket, 1000);
+      }
+    };
+    attachSocket();
+
     return () => {
-      window.removeEventListener("challenge_won", handler);
+      window.removeEventListener("challenge_won", windowHandler);
+      window.__runtimeSocket?.off?.("challenge.won");
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
