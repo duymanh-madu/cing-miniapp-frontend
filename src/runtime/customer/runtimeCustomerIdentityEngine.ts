@@ -118,50 +118,12 @@ export async function initializeCustomerIdentityEngine() {
       }
     }
 
-    // NORMAL PATH: SDK flow
-    const [phoneGranted, oaVerified] = await Promise.all([
-      requestPhonePermission().catch(() => null),
-      verifyOAFollowStatus().catch(() => false),
-    ]);
-
-    // Đọc flag localStorage nếu user đã confirm follow OA
-    const oaLocalFlag = (() => { try { return localStorage.getItem("__oa_followed") === "1"; } catch(e) { return false; } })();
-    if (oaLocalFlag) { try { localStorage.removeItem("__oa_followed"); } catch(e) {} }
-    const oaFollowed = store.oaFollowed || oaVerified || oaLocalFlag;
-
-    store.setPermissionState({ phoneGranted, oaFollowed });
-    runtimeLogger.info("RUNTIME", "[IDENTITY] Permission status", { phoneGranted, oaFollowed });
-
-    const activated = await activateCustomerMembership({ phoneGranted, oaFollowed })
-      .catch(() => false);
-
-    store.setIdentity({ phoneGranted, oaFollowed, memberActivated: activated });
-
-    if (!activated) {
-      store.setActivationStatus("blocked");
-      return;
-    }
-
-    const profile = await hydrateCustomerProfile().catch(() => ({
-      customerId: "", fullName: ""
-    }));
-
-    store.setIdentity({
-      customerId:      profile.customerId || "",
-      fullName:        profile.fullName   || "",
-      memberActivated: true,
-    });
-
-    store.setProfileHydrated(true);
+    // NORMAL PATH: Không xin phone ngay — cho user vào app trước
+    // Chỉ xin phone khi user muốn dùng tính năng thành viên
+    // Tuân thủ Zalo Mini App policy 6.1 — không xin quyền khi vừa vào app
     store.setActivationStatus("activated");
-    // Lưu zaloUserId + phone để fetch avatar lần sau
-    try {
-      const uid = (store.identity as any)?.zaloUserId || "";
-      if (uid) localStorage.setItem("__zalo_uid", uid);
-      const ph = (store.identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
-      if (ph && ph.length >= 9 && ph !== "pending") localStorage.setItem("__user_phone", ph);
-    } catch(e) {}
-    runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity ready");
+    store.setProfileHydrated(true);
+    runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity ready — phone permission deferred");
 
   } catch(err) {
     console.warn("[IDENTITY] initializeCustomerIdentityEngine failed gracefully:", err);
