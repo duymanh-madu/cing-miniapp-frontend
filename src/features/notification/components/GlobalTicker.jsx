@@ -74,7 +74,7 @@ export default function GlobalTicker() {
         onAnimationEnd={() => setCurrent(null)}
         style={{
           whiteSpace:"nowrap",
-          animation:\`tickerScroll\${current.id.toString().replace('.','')} \${TICKER_DURATION}ms linear 1\`,
+          animation:("tickerScroll" + current.id.toString().replace('.','') + " " + TICKER_DURATION + "ms linear 1"),
           color:"#FFD700", fontSize:12, fontWeight:700, paddingLeft:16,
         }}>
         {current.msg}
