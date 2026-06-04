@@ -65,17 +65,9 @@ export async function initializeCustomerIdentityEngine() {
     if (zaloUserId) {
       runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path: zaloUserId found", { zaloUserId });
       try {
-        // OA follow — đọc localStorage flag nếu user đã confirm follow OA
-        const oaLocalFlag = (() => { try { return localStorage.getItem("__oa_followed") === "1"; } catch(e) { return false; } })();
-        if (oaLocalFlag) { try { localStorage.removeItem("__oa_followed"); } catch(e) {} }
-        const oaFollowed = !!(identity as any)?.oaFollowed || oaLocalFlag;
-        const birthday   = (identity as any)?.birthday || "";
-        store.setPermissionState({ phoneGranted: true, oaFollowed });
-
-        if (!oaFollowed) {
-          store.setActivationStatus("blocked");
-          return;
-        }        const payload = {
+        // Không check OA follow — tuân thủ Zalo policy 6.1
+        const birthday = (identity as any)?.birthday || "";
+        store.setPermissionState({ phoneGranted: true, oaFollowed: true });        const payload = {
           zaloUserId,
           name:         identity?.fullName  || "",
           avatar:       identity?.avatar    || "",
