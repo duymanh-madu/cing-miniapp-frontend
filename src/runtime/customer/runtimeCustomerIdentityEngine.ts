@@ -83,11 +83,13 @@ export async function initializeCustomerIdentityEngine() {
         const result = await activateMiniAppUser(payload);
 
         const nameToSet = (result.fullName && result.fullName !== 'Khách hàng' ? result.fullName : identity?.fullName) || result.fullName || "";
-        const resolvedPhone = (result.phone && result.phone !== "pending" ? result.phone : null)
-          || (identity?.phone && identity.phone !== "pending" ? identity.phone : null) || "";
+        // Ưu tiên phone từ backend (đã có trong DB) trước phone từ shell
+        const backendPhone = result.phone && result.phone !== "pending" && String(result.phone).replace(/\D/g,"").length >= 9 ? result.phone : null;
+        const shellPhone = identity?.phone && identity.phone !== "pending" && String(identity.phone).replace(/\D/g,"").length >= 9 ? identity.phone : null;
+        const resolvedPhone = backendPhone || shellPhone || "";
 
         // Nếu không có phone hợp lệ → guest mode, không activate
-        const isValidPhone = resolvedPhone && resolvedPhone !== "pending" && resolvedPhone.length >= 9;
+        const isValidPhone = resolvedPhone && resolvedPhone !== "pending" && String(resolvedPhone).replace(/\D/g,"").length >= 9;
         if (!isValidPhone) {
           store.setActivationStatus("guest" as any);
           store.setProfileHydrated(true);
