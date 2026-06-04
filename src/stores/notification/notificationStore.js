@@ -59,31 +59,4 @@ const useNotificationStore = create((set, get) => ({
   },
 }));
 
-// Attach socket listener — gọi 1 lần từ App
-let _attached = false;
-export function initNotificationSocket() {
-  if (_attached) return;
-  const tryAttach = (attempts) => {
-    import("@/runtime/socket/runtimeSocketClient").then(({ getRuntimeSocket }) => {
-      const socket = getRuntimeSocket?.();
-      if (socket?.connected) {
-        _attached = true;
-        const handler = (data) => {
-          const notif = data?.payload?.notification || data?.notification || data;
-          if (notif?.title || notif?.message) {
-            useNotificationStore.getState().addNotification(notif);
-          }
-        };
-        socket.on("notification.new", handler);
-        socket.on("notification.broadcast", handler);
-        // Re-attach khi reconnect
-        socket.on("connect", () => { _attached = false; initNotificationSocket(); });
-      } else if (attempts < 30) {
-        setTimeout(() => tryAttach(attempts + 1), 1000);
-      }
-    });
-  };
-  tryAttach(0);
-}
-
 export default useNotificationStore;

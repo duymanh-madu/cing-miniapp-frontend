@@ -7,7 +7,6 @@ import AppBootstrapGate from "@/bootstrap/components/AppBootstrapGate";
 import AppRouter from "@/router/AppRouter";
 import ZaloBirthdayGate from "@/app/ZaloBirthdayGate";
 import GlobalTicker from "@/features/notification/components/GlobalTicker";
-import { initNotificationSocket } from "@/stores/notification/notificationStore";
 
 /**
  * =====================================================
@@ -21,7 +20,6 @@ import { initNotificationSocket } from "@/stores/notification/notificationStore"
  */
 
 export default function App() {
-  useEffect(() => { initNotificationSocket(); }, []);
 
   return (
 
