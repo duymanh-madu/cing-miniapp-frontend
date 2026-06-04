@@ -28,6 +28,28 @@ async function saveToStorage(notifications) {
   } catch(e) {}
 }
 
+// Socket listener — chạy 1 lần khi store khởi tạo
+let socketAttached = false;
+function attachSocketListener(addNotification) {
+  if (socketAttached) return;
+  const tryAttach = (attempts = 0) => {
+    const { getRuntimeSocket } = require('@/runtime/socket/runtimeSocketClient');
+    const socket = getRuntimeSocket?.();
+    if (socket?.connected) {
+      socketAttached = true;
+      const handler = (data) => {
+        const notif = data?.payload?.notification || data?.notification || data;
+        if (notif?.title || notif?.message) addNotification(notif);
+      };
+      socket.on("notification.new", handler);
+      socket.on("notification.broadcast", handler);
+    } else if (attempts < 30) {
+      setTimeout(() => tryAttach(attempts + 1), 1000);
+    }
+  };
+  tryAttach();
+}
+
 const useNotificationStore = create((set, get) => ({
   notifications: [],
   unread: 0,
@@ -51,6 +73,11 @@ const useNotificationStore = create((set, get) => ({
     const notifications = get().notifications.map(n => ({ ...n, read: true }));
     set({ notifications, unread: 0 });
     saveToStorage(notifications);
+  },
+
+  init: () => {
+    attachSocketListener(get().addNotification);
+    get().load();
   },
 
   clearAll: () => {

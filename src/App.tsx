@@ -7,6 +7,7 @@ import AppBootstrapGate from "@/bootstrap/components/AppBootstrapGate";
 import AppRouter from "@/router/AppRouter";
 import ZaloBirthdayGate from "@/app/ZaloBirthdayGate";
 import GlobalTicker from "@/features/notification/components/GlobalTicker";
+import useNotificationStore from "@/stores/notification/notificationStore";
 
 /**
  * =====================================================
@@ -20,6 +21,8 @@ import GlobalTicker from "@/features/notification/components/GlobalTicker";
  */
 
 export default function App() {
+  const initNotifications = useNotificationStore(s => s.init);
+  useEffect(() => { initNotifications(); }, []);
 
   return (
 
