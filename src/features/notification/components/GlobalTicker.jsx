@@ -37,8 +37,10 @@ export default function GlobalTicker() {
       }
       clearInterval(interval);
       socket.on("notification.broadcast", (data) => {
+        console.log('[TICKER] notification.broadcast received:', JSON.stringify(data).slice(0,100));
         const msg = data?.notification?.message || data?.message || "";
         if (msg) addMessage(msg);
+        else console.warn('[TICKER] No message found in payload');
       });
       socket.on("leaderboard.weekly_reset",  (d) => addMessage("🔄 Reset BXH tuần! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
       socket.on("leaderboard.monthly_reset", (d) => addMessage("🔄 Reset BXH tháng! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
