@@ -53,7 +53,11 @@ export default function NotificationBell() {
 socket.on("notification.new", (data) => {
 const notif = data?.payload?.notification || data?.notification || data;
           if (!notif) return;
-          setNotifications(prev => [notif, ...prev].slice(0, 20));
+          setNotifications(prev => {
+            const next = [notif, ...prev].slice(0, 20);
+            saveBellNotifs(next);
+            return next;
+          });
           setUnread(u => u + 1);
         });
         socket.on("notification.broadcast", (data) => {
@@ -109,7 +113,7 @@ const notif = data?.payload?.notification || data?.notification || data;
             display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <p style={{ fontWeight:800, fontSize:14, margin:0 }}>Thông báo</p>
             {notifications.length > 0 && (
-              <button onClick={() => setNotifications([])}
+              <button onClick={() => { setNotifications([]); saveBellNotifs([]); }}
                 style={{ fontSize:11, color:"#999", background:"none", border:"none", cursor:"pointer" }}>
                 Xóa tất cả
               </button>
