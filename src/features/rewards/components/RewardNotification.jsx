@@ -8,13 +8,17 @@ export function ChallengeWonPopup() {
   const [data, setData] = useState(null);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const timerRef = useRef(null);
+  const shownRef = useRef(false);
 
   useEffect(() => {
     const handler = (e) => {
-      if (timerRef.current) return;
+      if (shownRef.current) return;
+      shownRef.current = true;
       setData(e.detail);
+      if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
         setData(null);
+        shownRef.current = false;
         timerRef.current = null;
       }, 30000);
     };
