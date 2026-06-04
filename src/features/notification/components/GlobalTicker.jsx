@@ -62,18 +62,19 @@ export default function GlobalTicker() {
   if (!current) return null;
 
   return (
-    <div style={{
+    <div key={current.id} style={{
       position:"fixed", top:"calc(env(safe-area-inset-top, 0px) + 56px)", left:0, right:0, zIndex:99999,
       background:"linear-gradient(90deg,#1a0a00,#2a1400,#1a0a00)",
       borderBottom:"1px solid rgba(255,180,0,0.3)",
       overflow:"hidden", height:32,
       display:"flex", alignItems:"center",
     }}>
-      <style>{`@keyframes tickerScroll{0%{transform:translateX(100vw);opacity:1}90%{opacity:1}100%{transform:translateX(-100%);opacity:0}}`}</style>
-      <div style={{
+      <style>{`@keyframes tickerScroll${current.id.toString().replace('.','')}{0%{transform:translateX(100vw)}100%{transform:translateX(-200%)}}`}</style>
+      <div
+        onAnimationEnd={() => setCurrent(null)}
+        style={{
           whiteSpace:"nowrap",
-          animation:"tickerScroll " + TICKER_DURATION + "ms linear 1 forwards",
-          animationFillMode:"forwards",
+          animation:\`tickerScroll\${current.id.toString().replace('.','')} \${TICKER_DURATION}ms linear 1\`,
           color:"#FFD700", fontSize:12, fontWeight:700, paddingLeft:16,
         }}>
         {current.msg}
