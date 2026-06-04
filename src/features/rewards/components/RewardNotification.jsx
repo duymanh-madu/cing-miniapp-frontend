@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import apiClient from "@/infra/api/apiClient";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
@@ -7,11 +7,10 @@ import useAuthStore from "@/stores/auth/authStore";
 export function ChallengeWonPopup() {
   const [data, setData] = useState(null);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
-  const timerRef = { current: null };
+  const timerRef = useRef(null);
 
   useEffect(() => {
     const handler = (e) => {
-      // Nếu đã hiện rồi thì bỏ qua — tránh reset timer khi socket bắn 2 lần
       if (timerRef.current) return;
       setData(e.detail);
       timerRef.current = setTimeout(() => {

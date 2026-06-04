@@ -40,11 +40,7 @@ export default function GlobalTicker() {
         const pts  = payload?.reward_points || 0;
         addMessage("🏆 Chúc mừng " + name + " đã xuất sắc hoàn thành thách thức ngày! +" + pts + " điểm 🎉");
       });
-      window.addEventListener("challenge_won", (e) => {
-        const name = e.detail?.winner_name || "Một thành viên";
-        const pts  = e.detail?.reward_points || 0;
-        addMessage("🏆 Chúc mừng " + name + " đã xuất sắc hoàn thành thách thức ngày! +" + pts + " điểm 🎉");
-      });
+
     }, 500);
     return () => clearInterval(interval);
   }, []);
