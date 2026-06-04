@@ -1,27 +1,46 @@
 import { useState, useEffect, useRef } from "react";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 
-const BELL_KEY = 'cing_bell_notifications';
-const BELL_TTL = 3 * 24 * 60 * 60 * 1000; // 3 ngày
+const BELL_KEY = 'cing_bell_v1';
+const BELL_TTL = 3 * 24 * 60 * 60 * 1000;
 
-function loadBellNotifs() {
+async function loadBellNotifs() {
   try {
-    const raw = localStorage.getItem(BELL_KEY);
+    const zmp = await import('zmp-sdk');
+    const res = await zmp.getStorage({ keys: [BELL_KEY] });
+    const raw = res?.data?.[BELL_KEY];
     if (!raw) return [];
     const { data, savedAt } = JSON.parse(raw);
-    if (Date.now() - savedAt > BELL_TTL) { localStorage.removeItem(BELL_KEY); return []; }
+    if (Date.now() - savedAt > BELL_TTL) return [];
     return data || [];
-  } catch(e) { return []; }
+  } catch(e) {
+    try {
+      const raw = sessionStorage.getItem(BELL_KEY);
+      if (!raw) return [];
+      const { data, savedAt } = JSON.parse(raw);
+      if (Date.now() - savedAt > BELL_TTL) return [];
+      return data || [];
+    } catch(e2) { return []; }
+  }
 }
 
-function saveBellNotifs(notifs) {
+async function saveBellNotifs(notifs) {
   try {
-    localStorage.setItem(BELL_KEY, JSON.stringify({ data: notifs.slice(0,20), savedAt: Date.now() }));
-  } catch(e) {}
+    const zmp = await import('zmp-sdk');
+    await zmp.setStorage({ data: { [BELL_KEY]: JSON.stringify({ data: notifs.slice(0,20), savedAt: Date.now() }) } });
+  } catch(e) {
+    try {
+      sessionStorage.setItem(BELL_KEY, JSON.stringify({ data: notifs.slice(0,20), savedAt: Date.now() }));
+    } catch(e2) {}
+  }
 }
 
 export default function NotificationBell() {
-  const [notifications, setNotifications] = useState(() => loadBellNotifs());
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    loadBellNotifs().then(data => { if (data.length > 0) setNotifications(data); });
+  }, []);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
