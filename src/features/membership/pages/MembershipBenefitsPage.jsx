@@ -112,7 +112,7 @@ const TIERS = [
     border: "rgba(139,92,246,0.5)",
     glow: "rgba(139,92,246,0.35)",
     condition: "Được admin xét duyệt và kích hoạt",
-    spend: "Là Hội viên và đăng kí trực tiếp với admin",
+    spend: "Duy trì ≥ 1.000.000đ mỗi tháng",
     benefits: [
       { icon:"⭐", text:"Tích 10% tổng tiêu dùng tháng thành điểm hoa hồng" },
       { icon:"💰", text:"Hoa hồng nhận ngay mỗi tháng - tiêu dùng càng nhiều, hoa hồng càng cao" },
