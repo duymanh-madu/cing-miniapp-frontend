@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 
-const TICKER_DURATION = 6000;
+const TICKER_DURATION = 30000;
 
 export default function GlobalTicker() {
   const [queue, setQueue]     = useState([]);
@@ -9,7 +9,13 @@ export default function GlobalTicker() {
   const timerRef = useRef(null);
 
   const addMessage = (msg) => {
-    setQueue(q => [...q, { id: Date.now() + Math.random(), msg }]);
+    setQueue(q => {
+      // Dedup — không thêm nếu message giống hệt đã có trong queue
+      if (q.some(m => m.msg === msg)) return q;
+      // Giới hạn queue 3 messages
+      const next = [...q, { id: Date.now() + Math.random(), msg }];
+      return next.slice(-3);
+    });
   };
 
   useEffect(() => {
