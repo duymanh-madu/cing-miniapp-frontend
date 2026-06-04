@@ -326,7 +326,7 @@ export default function AccountPage() {
                 // Mở Zalo OA chat
                 try {
                   import("zmp-sdk").then(sdk => {
-                    if (sdk?.openChat) sdk.openChat({ type: "oa", id: "3359248659547740671" });
+                    if (sdk?.openChat) sdk.openChat({ type: "oa", id: "4341283871868668950", message: "Xin chào Cing Hu Tang! Tôi cần hỗ trợ." });
                     else window.open("https://zalo.me/cinghutangkinhbac", "_blank");
                   }).catch(() => window.open("https://zalo.me/cinghutangkinhbac", "_blank"));
                 } catch(e) {
