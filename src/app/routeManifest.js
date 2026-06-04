@@ -12,6 +12,7 @@ export const routeManifest = [
   { key:"orders", path:"/orders", loader:() => import("@/features/order-history/OrderHistoryPage") },
   { key:"membership-benefits", path:"/membership-benefits", loader:() => import("@/features/membership/pages/MembershipBenefitsPage") },
   { key:"loyalty",       path:"/loyalty",        loader:() => import("@/membership/pages/MembershipPage") },
+  { key:"game-plays",    path:"/game-plays",     loader:() => import("@/features/game-plays/GamePlaysHistoryPage") },
   { key:"profile",       path:"/profile/:userId", loader:() => import("@/features/profile/ProfilePage") },
   { key:"my-profile",    path:"/profile",         loader:() => import("@/features/profile/ProfilePage") },
 ];
