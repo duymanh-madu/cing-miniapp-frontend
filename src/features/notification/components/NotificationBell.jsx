@@ -1,8 +1,27 @@
 import { useState, useEffect, useRef } from "react";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 
+const BELL_KEY = 'cing_bell_notifications';
+const BELL_TTL = 3 * 24 * 60 * 60 * 1000; // 3 ngày
+
+function loadBellNotifs() {
+  try {
+    const raw = localStorage.getItem(BELL_KEY);
+    if (!raw) return [];
+    const { data, savedAt } = JSON.parse(raw);
+    if (Date.now() - savedAt > BELL_TTL) { localStorage.removeItem(BELL_KEY); return []; }
+    return data || [];
+  } catch(e) { return []; }
+}
+
+function saveBellNotifs(notifs) {
+  try {
+    localStorage.setItem(BELL_KEY, JSON.stringify({ data: notifs.slice(0,20), savedAt: Date.now() }));
+  } catch(e) {}
+}
+
 export default function NotificationBell() {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(() => loadBellNotifs());
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -21,7 +40,11 @@ const notif = data?.payload?.notification || data?.notification || data;
         socket.on("notification.broadcast", (data) => {
 const notif = data?.payload?.notification || data?.notification || data;
           if (!notif) return;
-          setNotifications(prev => [notif, ...prev].slice(0, 20));
+          setNotifications(prev => {
+            const next = [notif, ...prev].slice(0, 20);
+            saveBellNotifs(next);
+            return next;
+          });
           setUnread(u => u + 1);
         });
         return;

@@ -72,7 +72,8 @@ export default function GlobalTicker() {
       <style>{`@keyframes tickerScroll{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}`}</style>
       <div style={{
           whiteSpace:"nowrap",
-          animation:"tickerScroll " + TICKER_DURATION + "ms linear",
+          animation:"tickerScroll " + TICKER_DURATION + "ms linear 1 forwards",
+          animationFillMode:"forwards",
           color:"#FFD700", fontSize:12, fontWeight:700, paddingLeft:16,
         }}>
         {current.msg}
