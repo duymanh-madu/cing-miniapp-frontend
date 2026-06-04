@@ -101,11 +101,45 @@ export async function initializeCustomerIdentityEngine() {
       }
     }
 
-    // NORMAL PATH: Không xin phone ngay — cho user vào app với trạng thái guest
-    // Tuân thủ Zalo Mini App policy 6.1 — không xin quyền khi vừa vào app
-    store.setActivationStatus("guest" as any);
+    // NORMAL PATH: Check nếu đã có phone (từ lần trước hoặc từ useMemberRequired)
+    const alreadyGranted = store.phoneGranted;
+    if (!alreadyGranted) {
+      // Chưa có phone — set guest mode, không xin phone
+      store.setActivationStatus("guest" as any);
+      store.setProfileHydrated(true);
+      runtimeLogger.info("RUNTIME", "[IDENTITY] Guest mode — phone not yet granted");
+      return;
+    }
+
+    // Có phone → activate
+    const [phoneGranted, oaVerified] = await Promise.all([
+      requestPhonePermission().catch(() => store.phoneGranted || null),
+      Promise.resolve(true),
+    ]);
+
+    store.setPermissionState({ phoneGranted, oaFollowed: true });
+
+    const activated = await activateCustomerMembership({ phoneGranted, oaFollowed: true })
+      .catch(() => false);
+
+    store.setIdentity({ phoneGranted, oaFollowed: true, memberActivated: activated });
+
+    if (!activated) {
+      store.setActivationStatus("guest" as any);
+      return;
+    }
+
+    const profile = await hydrateCustomerProfile().catch(() => ({ customerId: "", fullName: "" }));
+    store.setIdentity({ customerId: profile.customerId || "", fullName: profile.fullName || "", memberActivated: true });
     store.setProfileHydrated(true);
-    runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity ready — guest mode");
+    store.setActivationStatus("activated");
+    try {
+      const uid = (store.identity as any)?.zaloUserId || "";
+      if (uid) localStorage.setItem("__zalo_uid", uid);
+      const ph = (store.identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
+      if (ph && ph.length >= 9 && ph !== "pending") localStorage.setItem("__user_phone", ph);
+    } catch(e) {}
+    runtimeLogger.info("RUNTIME", "[IDENTITY] Runtime identity activated");
 
   } catch(err) {
     console.warn("[IDENTITY] initializeCustomerIdentityEngine failed gracefully:", err);

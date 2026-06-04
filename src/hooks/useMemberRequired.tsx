@@ -18,7 +18,15 @@ export function useMemberRequired() {
   const handleActivate = async () => {
     setLoading(true);
     try {
-      useRuntimeCustomerIdentityStore.getState().setActivationStatus("idle");
+      // Xin phone permission trực tiếp
+      const { requestPhonePermission } = await import("@/runtime/customer/runtimeCustomerPermissionEngine");
+      const phone = await requestPhonePermission().catch(() => null);
+      if (!phone) { setLoading(false); return; }
+
+      // Activate với phone đã có
+      const store = useRuntimeCustomerIdentityStore.getState();
+      store.setActivationStatus("idle");
+      store.setPermissionState({ phoneGranted: true });
       await initializeCustomerIdentityEngine();
       const status = useRuntimeCustomerIdentityStore.getState().activationStatus;
       if (status === "activated") setShowPrompt(false);
