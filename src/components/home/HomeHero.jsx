@@ -1,5 +1,5 @@
 import RealtimeStatusBadge from '../system/RealtimeStatusBadge';
-import NotificationBell from '@/features/notification/components/NotificationBell';
+import NotificationBellButton from '@/features/notification/components/NotificationBellButton';
 import useAuthStore from '@/stores/auth/authStore';
 import useRealtimeCustomerStore from '@/stores/customer/customerRuntimeStore';
 
@@ -18,7 +18,7 @@ function HomeHero() {
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <img src='/logo-cing.png' alt='Cing Hu Tang Kinh Bắc'
             style={{ height:54, objectFit:'contain', filter:'drop-shadow(0 2px 8px rgba(0,0,0,0.25))' }} />
-          <NotificationBell />
+          <NotificationBellButton />
         </div>
         <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-end', textAlign:'center', paddingBottom:4 }}>
           <p className='text-sm font-medium text-white/80'>{greeting}</p>

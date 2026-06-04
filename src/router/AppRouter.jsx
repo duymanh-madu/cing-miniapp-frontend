@@ -102,7 +102,7 @@ export default function AppRouter() {
     <>
       <LeaderboardResetPopup />
       <ChallengeWonPopup />
-      <NotificationBell hidden />
+      <NotificationBell />
       <PendingRewardsBadge />
       <HashRouter>
       <PageTracker />
