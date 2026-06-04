@@ -29,7 +29,7 @@ export default function GamePlaysHistoryPage() {
       .finally(() => setLoading(false));
     // Fetch số lượt hiện tại
     apiClient.get(`/game/plays/${phone}`)
-      .then(r => setGamePlays(r.data?.plays ?? r.data?.game_plays ?? null))
+      .then(r => setGamePlays(r.data?.data?.game_plays ?? r.data?.game_plays ?? null))
       .catch(() => {});
   }, [phone]);
 

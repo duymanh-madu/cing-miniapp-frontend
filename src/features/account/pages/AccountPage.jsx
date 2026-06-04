@@ -325,12 +325,10 @@ export default function AccountPage() {
               if (item.action === "chat_admin") {
                 // Mở Zalo OA chat
                 try {
-                  const zmpSdk = window.zmp;
-                  if (zmpSdk?.openOAChat) {
-                    zmpSdk.openOAChat({});
-                  } else {
-                    window.open("https://zalo.me/cinghutangkinhbac", "_blank");
-                  }
+                  import("zmp-sdk").then(sdk => {
+                    if (sdk?.openChat) sdk.openChat({ type: "oa", id: "3359248659547740671" });
+                    else window.open("https://zalo.me/cinghutangkinhbac", "_blank");
+                  }).catch(() => window.open("https://zalo.me/cinghutangkinhbac", "_blank"));
                 } catch(e) {
                   window.open("https://zalo.me/cinghutangkinhbac", "_blank");
                 }
