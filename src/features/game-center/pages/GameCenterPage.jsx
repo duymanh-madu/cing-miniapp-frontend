@@ -8,7 +8,6 @@ import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
 import { trackGameStart, trackGameStop } from "@/runtime/tracking/gameTracking";
 import { useMemberRequired } from "@/hooks/useMemberRequired";
-import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import GameLeaderboard from "../components/GameLeaderboard";
 import AlltimeLeaderboard from "../components/AlltimeLeaderboard";
 import ChessGame from "../games/chess/ChessGame";
