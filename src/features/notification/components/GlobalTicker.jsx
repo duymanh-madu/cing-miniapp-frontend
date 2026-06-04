@@ -53,11 +53,8 @@ export default function GlobalTicker() {
       const socket = getRuntimeSocket();
       if (!socket) { if (attempts++ > 40) clearInterval(interval); return; }
       clearInterval(interval);
-      if (socket.connected) {
-        attachListeners(socket);
-      } else {
-        socket.on("connect", () => attachListeners(socket));
-      }
+      // Attach ngay — socket.on hoạt động dù chưa connected
+      attachListeners(socket);
     }, 500);
     return () => clearInterval(interval);
   }, []);
