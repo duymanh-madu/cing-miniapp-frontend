@@ -287,20 +287,24 @@ export default function MembershipPage() {
             ) : pointsLog.length === 0 ? (
               <p style={{ color:"#bbb", textAlign:"center", fontSize:13, padding:"20px 0" }}>Chưa có lịch sử điểm</p>
             ) : pointsLog.map((item, i) => {
-              const isAdd = item.event_name === "points_added";
-              const amt   = Math.abs(item.event_data?.amount || 0);
-              const reason = item.event_data?.reason || (isAdd ? "Nhận điểm thưởng" : "Sử dụng điểm");
+              const isPoints = item.event_name === "points_added" || item.event_name === "points_deducted";
+              const isPlays  = item.event_name === "plays_added"  || item.event_name === "plays_deducted";
+              const isAdd    = item.event_name === "points_added" || item.event_name === "plays_added";
+              const amt      = Math.abs(item.event_data?.amount || 0);
+              const reason   = item.event_data?.reason || (isAdd ? "Nhận thưởng" : "Sử dụng");
               const newTotal = item.event_data?.new_total;
-              const date  = new Date(item.created_at).toLocaleString("vi-VN", {
+              const date     = new Date(item.created_at).toLocaleString("vi-VN", {
                 day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"
               });
+              const unit = isPlays ? "lượt" : "điểm";
+              const icon = isPlays ? (isAdd ? "🎮" : "🕹️") : (isAdd ? "⭐" : "💸");
+              const bg   = isAdd ? "rgba(76,175,80,0.1)" : "rgba(244,67,54,0.1)";
               return (
                 <div key={i} style={{ display:"flex", alignItems:"center", gap:12,
                   padding:"10px 0", borderBottom: i < pointsLog.length-1 ? "1px solid #f5f5f5" : "none" }}>
                   <div style={{ width:38, height:38, borderRadius:12, flexShrink:0,
-                    background: isAdd ? "rgba(76,175,80,0.1)" : "rgba(244,67,54,0.1)",
-                    display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
-                    {isAdd ? "➕" : "➖"}
+                    background: bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
+                    {icon}
                   </div>
                   <div style={{ flex:1 }}>
                     <p style={{ fontSize:13, fontWeight:700, color:"#1a1a1a", margin:"0 0 2px",
@@ -308,13 +312,13 @@ export default function MembershipPage() {
                     <p style={{ fontSize:11, color:"#999", margin:0 }}>
                       {date}
                       {newTotal !== undefined && (
-                        <span style={{ marginLeft:6, color:"#bbb" }}>· Còn {Math.round(newTotal)} điểm</span>
+                        <span style={{ marginLeft:6, color:"#bbb" }}>· Còn {Math.round(newTotal)} {unit}</span>
                       )}
                     </p>
                   </div>
                   <p style={{ fontSize:15, fontWeight:900, margin:0,
                     color: isAdd ? "#4CAF50" : "#f44336", flexShrink:0 }}>
-                    {isAdd ? "+" : "-"}{amt} điểm
+                    {isAdd ? "+" : "-"}{amt} {unit}
                   </p>
                 </div>
               );
