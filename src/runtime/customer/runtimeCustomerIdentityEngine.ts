@@ -15,16 +15,7 @@ export async function initializeCustomerIdentityEngine() {
     }
 
     if (store.activationStatus === "activated") {
-      // Check lại OA follow — user có thể đã bỏ follow
-      try {
-        const { verifyOAFollowStatus } = await import("./runtimeCustomerFollowEngine");
-        const stillFollowing = await verifyOAFollowStatus().catch(() => true); // default true nếu lỗi
-        if (!stillFollowing) {
-          store.setPermissionState({ oaFollowed: false });
-          store.setActivationStatus("blocked");
-          return;
-        }
-      } catch(e) {}
+      // Không check OA follow — tuân thủ Zalo policy 6.1
 
       // Đã activated — fetch avatar mới nhất từ players table
       try {
