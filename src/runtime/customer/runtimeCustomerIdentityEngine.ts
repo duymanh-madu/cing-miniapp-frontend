@@ -83,10 +83,21 @@ export async function initializeCustomerIdentityEngine() {
         const result = await activateMiniAppUser(payload);
 
         const nameToSet = (result.fullName && result.fullName !== 'Khách hàng' ? result.fullName : identity?.fullName) || result.fullName || "";
+        const resolvedPhone = (result.phone && result.phone !== "pending" ? result.phone : null)
+          || (identity?.phone && identity.phone !== "pending" ? identity.phone : null) || "";
+
+        // Nếu không có phone hợp lệ → guest mode, không activate
+        if (!resolvedPhone || resolvedPhone === "pending") {
+          store.setActivationStatus("guest" as any);
+          store.setProfileHydrated(true);
+          runtimeLogger.info("RUNTIME", "[IDENTITY] Shell fast-path — no phone, guest mode");
+          return;
+        }
+
         store.setIdentity({
           customerId:    result.customerId    || "",
           fullName:      nameToSet,
-          phone:         (result.phone && result.phone !== "pending" ? result.phone : null) || (identity?.phone && identity.phone !== "pending" ? identity.phone : null) || "",
+          phone:         resolvedPhone,
           avatar:        result.avatar || identity?.avatar || "",
           memberActivated: true,
           phoneGranted:  true,
