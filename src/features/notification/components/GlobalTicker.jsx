@@ -10,9 +10,6 @@ export default function GlobalTicker() {
 
   const addMessage = (msg) => {
     setQueue(q => {
-      // Dedup — không thêm nếu message giống hệt đã có trong queue
-      if (q.some(m => m.msg === msg)) return q;
-      // Giới hạn queue 3 messages
       const next = [...q, { id: Date.now() + Math.random(), msg }];
       return next.slice(-3);
     });
