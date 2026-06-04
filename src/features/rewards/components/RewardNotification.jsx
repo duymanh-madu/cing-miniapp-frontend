@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { createPortal } from "react-dom";
 import apiClient from "@/infra/api/apiClient";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
@@ -28,22 +29,24 @@ export function ChallengeWonPopup() {
     window.addEventListener("challenge_won", windowHandler);
 
     // Lắng nghe socket trực tiếp
-    const attachSocket = () => {
-      const socket = window.__runtimeSocket;
+    let socketRef = null;
+    const attachSocket = (attempts = 0) => {
+      const socket = getRuntimeSocket();
       if (socket?.connected) {
+        socketRef = socket;
         socket.on("challenge.won", (d) => {
           const payload = d?.payload || d;
           show(payload);
         });
-      } else {
-        setTimeout(attachSocket, 1000);
+      } else if (attempts < 20) {
+        setTimeout(() => attachSocket(attempts + 1), 1000);
       }
     };
     attachSocket();
 
     return () => {
       window.removeEventListener("challenge_won", windowHandler);
-      window.__runtimeSocket?.off?.("challenge.won");
+      socketRef?.off?.("challenge.won");
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
@@ -170,7 +173,7 @@ export function PendingRewardsBadge() {
     window.addEventListener("challenge_won", handler);
     // Refresh khi user.updated (nhận điểm)
     const socketHandler = () => setTimeout(loadRewards, 1000);
-    const s = window.__runtimeSocket;
+    const s = getRuntimeSocket();
     s?.on?.("user.updated", socketHandler);
     return () => {
       window.removeEventListener("leaderboard_reset", handler);
