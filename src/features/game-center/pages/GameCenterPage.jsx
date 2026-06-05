@@ -188,17 +188,13 @@ export default function GameCenterPage() {
   };
 
   const handleRestart = () => {
-    const phone = getPhone();
-    if (!phone) return false;
+    // Chỉ check lượt, không trừ — lượt trừ khi tap START
     if (gamePlays !== null && gamePlays <= 0) {
       showToast("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
       setActiveGame(null);
-      return false; // Không cho restart
+      return false;
     }
-    apiClient.post("/game/use-play", { user_id: phone })
-      .catch(e => console.warn("[GAME] use-play restart:", e.message));
-    setGamePlays(prev => prev !== null ? Math.max(0, prev - 1) : null);
-    return true; // Cho phép restart
+    return true;
   };
 
   const handlePlayChess = () => {
