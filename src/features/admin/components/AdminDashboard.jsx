@@ -12,6 +12,9 @@ import AdminMonitor from './AdminMonitor';
 import AdminLeaderboard from "./AdminLeaderboard";
 import AdminNotifications from './AdminNotifications';
 import AdminManagement from './AdminManagement';
+import AdminBadges from './AdminBadges';
+import AdminMembers from './AdminMembers';
+import AdminBadgeStore from './AdminBadgeStore';
 import AdminAnalytics from './AdminAnalytics';
 import AdminOrders from './AdminOrders';
 import AdminDelivery from './AdminDelivery';
@@ -35,6 +38,9 @@ const TABS = [
   { key:"payments_admin",icon:"💳", label:"Thanh toán" },
   { key:"analytics_pro", icon:"📈", label:"Analytics" },
   { key:"management",   icon:"🔐", label:"Quản lý Admin" },
+  { key:"badges_admin",  icon:"🏅", label:"Danh hiệu" },
+  { key:"members_admin", icon:"👤", label:"Thành viên" },
+  { key:"badge_store",   icon:"💎", label:"Store danh hiệu" },
 ];
 
 export default function AdminDashboard({ auth }) {
