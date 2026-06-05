@@ -15,7 +15,7 @@ export default function AdminMembers({ token }) {
   const [newName, setNewName] = useState("");
 
   useEffect(() => {
-    apiClient.get("/admin/members-list", { headers:{ Authorization:`Bearer ${token}` } })
+    apiClient.get("/admin/monitor/members-list", { headers:{ Authorization:`Bearer ${token}` } })
       .then(r => setMembers(r.data?.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -29,7 +29,7 @@ export default function AdminMembers({ token }) {
     if (!selected || !action) return;
     setSaving(true);
     try {
-      await apiClient.post("/admin/member-action",
+      await apiClient.post("/admin/monitor/member-action",
         { user_id: selected.user_id, action, duration },
         { headers:{ Authorization:`Bearer ${token}` } }
       );
@@ -49,7 +49,7 @@ export default function AdminMembers({ token }) {
   const handleUnblock = async (m) => {
     setSaving(true);
     try {
-      await apiClient.post("/admin/member-action",
+      await apiClient.post("/admin/monitor/member-action",
         { user_id: m.user_id, action: "unblock" },
         { headers:{ Authorization:`Bearer ${token}` } }
       );
@@ -64,7 +64,7 @@ export default function AdminMembers({ token }) {
     if (!newPhone) return;
     setSaving(true);
     try {
-      await apiClient.post("/admin/add-member",
+      await apiClient.post("/admin/monitor/add-member",
         { phone: newPhone, name: newName },
         { headers:{ Authorization:`Bearer ${token}` } }
       );

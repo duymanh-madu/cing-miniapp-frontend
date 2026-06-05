@@ -24,7 +24,7 @@ export default function AdminBadges({ token }) {
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    apiClient.get("/admin/players-badges", { headers:{ Authorization:`Bearer ${token}` } })
+    apiClient.get("/admin/monitor/players-badges", { headers:{ Authorization:`Bearer ${token}` } })
       .then(r => setPlayers(r.data?.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -41,7 +41,7 @@ export default function AdminBadges({ token }) {
       const newBadges = hasBadge
         ? (player.custom_badges || []).filter(b => b !== badgeKey)
         : [...(player.custom_badges || []), badgeKey];
-      await apiClient.post("/admin/update-player-badges",
+      await apiClient.post("/admin/monitor/update-player-badges",
         { user_id: player.user_id, custom_badges: newBadges },
         { headers:{ Authorization:`Bearer ${token}` } }
       );
