@@ -8,6 +8,10 @@ import apiClient from "@/infra/api/apiClient";
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
 export default function MembershipPage() {
+  const [showExchange, setShowExchange] = React.useState(false);
+  const [exchangePoints, setExchangePoints] = React.useState(50);
+  const [exchanging, setExchanging] = React.useState(false);
+  const [exchangeResult, setExchangeResult] = React.useState(null);
   const navigate = useNavigate();
   const profile  = useAuthStore(s => s.profile);
   const phone    = (profile?.phone || profile?.phoneNumber || "").replace(/\D/g, "");
@@ -135,13 +139,14 @@ export default function MembershipPage() {
 
             {[
               {
-                icon:"🧋",
-                title:"Thanh toán đơn hàng",
-                desc:"Dùng điểm để giảm trực tiếp vào hoá đơn khi đặt đồ. 1 điểm = giảm 1.000đ.",
-                action:"Đặt đồ ngay",
-                path:"/menu",
-                color:"#D4531C",
-                bg:"#fff7ed",
+                icon:"🎟",
+                title:"Đổi điểm lấy voucher",
+                desc:"1 điểm = 1.000đ giảm giá. Voucher dùng được cả online lẫn tại quán.",
+                action:"Đổi ngay",
+                path:null,
+                actionKey:"exchange_voucher",
+                color:"#059669",
+                bg:"#f0fdf4",
               },
               {
                 icon:"🎮",
@@ -151,6 +156,16 @@ export default function MembershipPage() {
                 path:"/game-center",
                 color:"#7c3aed",
                 bg:"#f5f3ff",
+              },
+              {
+                icon:"🎟",
+                title:"Đổi điểm lấy voucher",
+                desc:"1 điểm = 1.000đ giảm giá. Dùng được cả online lẫn tại quán.",
+                action:"Đổi ngay",
+                path:null,
+                actionKey:"exchange_voucher",
+                color:"#059669",
+                bg:"#f0fdf4",
               },
             ].map((item, i) => (
               <div key={i} style={{
@@ -168,7 +183,10 @@ export default function MembershipPage() {
                     </p>
                   </div>
                 </div>
-                <button onClick={() => navigate(item.path)} style={{
+                <button onClick={() => {
+                  if (item.actionKey === "exchange_voucher") setShowExchange(true);
+                  else if (item.path) navigate(item.path);
+                }} style={{
                   width:"100%", padding:"11px", borderRadius:12, border:"none",
                   background:item.color, color:"white",
                   fontSize:13, fontWeight:800, cursor:"pointer",
