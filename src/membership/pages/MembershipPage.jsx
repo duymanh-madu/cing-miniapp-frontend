@@ -335,6 +335,109 @@ export default function MembershipPage() {
 
         </div>
       )}
+
+      {/* Modal đổi điểm lấy voucher */}
+      {showExchange && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.6)",
+          zIndex:9999, display:"flex", alignItems:"flex-end" }}
+          onClick={() => { setShowExchange(false); setExchangeResult(null); }}>
+          <div style={{ background:"white", borderRadius:"24px 24px 0 0", width:"100%",
+            padding:"28px 24px 48px" }}
+            onClick={e => e.stopPropagation()}>
+            <h2 style={{ fontSize:18, fontWeight:900, margin:"0 0 6px" }}>🎟 Đổi điểm lấy voucher</h2>
+            <p style={{ fontSize:13, color:"#666", margin:"0 0 20px" }}>1 điểm = 1.000đ giảm giá</p>
+
+            {exchangeResult ? (
+              <div style={{ textAlign:"center", padding:"16px 0" }}>
+                <p style={{ fontSize:40 }}>🎉</p>
+                <p style={{ fontSize:16, fontWeight:800, color:"#059669", margin:"8px 0 4px" }}>Đổi thành công!</p>
+                <div style={{ background:"#f0fdf4", borderRadius:16, padding:"16px", margin:"16px 0" }}>
+                  <p style={{ fontSize:12, color:"#666", margin:"0 0 6px" }}>Mã voucher của bạn</p>
+                  <p style={{ fontSize:28, fontWeight:900, color:"#059669", letterSpacing:3, margin:"0 0 6px" }}>
+                    {exchangeResult.voucher_code}
+                  </p>
+                  <p style={{ fontSize:13, color:"#333", margin:"0 0 4px" }}>
+                    Giảm {new Intl.NumberFormat("vi-VN").format(exchangeResult.discount_amount)}đ
+                  </p>
+                  <p style={{ fontSize:11, color:"#999", margin:0 }}>HSD: {exchangeResult.date_end?.slice(0,10)}</p>
+                </div>
+                <p style={{ fontSize:12, color:"#666" }}>Dùng được cả online lẫn tại quán</p>
+                <button onClick={() => { setShowExchange(false); setExchangeResult(null); }}
+                  style={{ marginTop:16, width:"100%", padding:12, borderRadius:12, border:"none",
+                    background:"#059669", color:"white", fontSize:14, fontWeight:800, cursor:"pointer" }}>
+                  Đóng
+                </button>
+              </div>
+            ) : (
+              <>
+                <div style={{ background:"#f0fdf4", borderRadius:16, padding:"16px", marginBottom:20 }}>
+                  <p style={{ fontSize:13, color:"#666", margin:"0 0 4px" }}>Bạn đang có</p>
+                  <p style={{ fontSize:28, fontWeight:900, color:"#059669", margin:0 }}>
+                    {points.toLocaleString("vi-VN")} điểm
+                  </p>
+                  <p style={{ fontSize:12, color:"#999", margin:"4px 0 0" }}>= {fmt(points * 1000)}</p>
+                </div>
+
+                <p style={{ fontSize:13, fontWeight:700, margin:"0 0 12px" }}>Chọn số điểm muốn đổi:</p>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:16 }}>
+                  {[10, 20, 50, 100, 200].map(pt => (
+                    <button key={pt} onClick={() => setExchangePoints(pt)}
+                      style={{ padding:"8px 16px", borderRadius:20,
+                        border: exchangePoints === pt ? "2px solid #059669" : "1px solid #e0e0e0",
+                        background: exchangePoints === pt ? "#f0fdf4" : "white",
+                        color: exchangePoints === pt ? "#059669" : "#333",
+                        fontWeight: exchangePoints === pt ? 800 : 600,
+                        fontSize:13, cursor:"pointer" }}>
+                      {pt} điểm = {new Intl.NumberFormat("vi-VN").format(pt * 1000)}đ
+                    </button>
+                  ))}
+                </div>
+
+                <div style={{ background:"#fff7ed", borderRadius:12, padding:"12px 16px", marginBottom:16 }}>
+                  <p style={{ fontSize:13, margin:0, color:"#92400e" }}>
+                    Đổi <strong>{exchangePoints} điểm</strong> → voucher giảm <strong>{new Intl.NumberFormat("vi-VN").format(exchangePoints * 1000)}đ</strong>
+                    {points < exchangePoints && <span style={{ color:"#dc2626", display:"block", marginTop:4 }}>⚠️ Không đủ điểm</span>}
+                  </p>
+                </div>
+
+                <button
+                  disabled={exchanging || points < exchangePoints}
+                  onClick={async () => {
+                    setExchanging(true);
+                    try {
+                      const phoneIpos = "84" + phone.replace(/^0/, "");
+                      const iposUrl = `https://api.foodbook.vn/ipos/ws/xpartner/exchange_point?access_token=4ETARZYY813AS5LEKOOCD1NP61Y6J55C&pos_parent=BRAND-DQIR&point=${exchangePoints}&user_id=${phoneIpos}`;
+                      const iposRes = await fetch(iposUrl);
+                      const iposData = await iposRes.json();
+                      if (iposData?.data?.voucher_code) {
+                        await apiClient.post("/points/deduct", {
+                          user_id: phone, phone, points: exchangePoints,
+                          reason: `Đổi ${exchangePoints} điểm lấy voucher ${iposData.data.voucher_code}`
+                        }).catch(()=>{});
+                        setExchangeResult({
+                          voucher_code: iposData.data.voucher_code,
+                          discount_amount: iposData.data.discount_amount,
+                          date_end: iposData.data.date_end,
+                        });
+                        setPoints(p => p - exchangePoints);
+                      } else {
+                        import("zmp-sdk").then(sdk => sdk.showToast?.({ text: iposData?.error?.message || "Lỗi đổi voucher", duration: "long" }));
+                      }
+                    } catch(e) {
+                      import("zmp-sdk").then(sdk => sdk.showToast?.({ text: "Lỗi kết nối", duration: "long" }));
+                    }
+                    setExchanging(false);
+                  }}
+                  style={{ width:"100%", padding:14, borderRadius:14, border:"none",
+                    background: (exchanging || points < exchangePoints) ? "#e0e0e0" : "#059669",
+                    color:"white", fontSize:15, fontWeight:900, cursor:"pointer" }}>
+                  {exchanging ? "Đang xử lý..." : `Đổi ${exchangePoints} điểm ngay`}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
