@@ -8,10 +8,10 @@ import apiClient from "@/infra/api/apiClient";
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
 export default function MembershipPage() {
-  const [showExchange, setShowExchange] = React.useState(false);
-  const [exchangePoints, setExchangePoints] = React.useState(50);
-  const [exchanging, setExchanging] = React.useState(false);
-  const [exchangeResult, setExchangeResult] = React.useState(null);
+  const [showExchange, setShowExchange] = useState(false);
+  const [exchangePoints, setExchangePoints] = useState(50);
+  const [exchanging, setExchanging] = useState(false);
+  const [exchangeResult, setExchangeResult] = useState(null);
   const navigate = useNavigate();
   const profile  = useAuthStore(s => s.profile);
   const phone    = (profile?.phone || profile?.phoneNumber || "").replace(/\D/g, "");
