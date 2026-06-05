@@ -81,6 +81,52 @@ const TIER_CONFIG = {
   },
 };
 
+// === HALL OF FAME — Top 3 BXH Alltime (dynamic, không vĩnh viễn) ===
+const HOF_CONFIG = {
+  hof_1: {
+    label:      "Vương Giả",
+    icon:       "💎",
+    bg:         "linear-gradient(135deg,#3a0010,#aa0030,#ff2060,#ff80a0,#aa0030)",
+    color:      "#ff80a0",
+    border:     "#ff2060",
+    stars:      5,
+    glow:       "0 0 30px rgba(255,0,80,.75), 0 0 70px rgba(200,0,60,.4)",
+    royal:      true,
+    borderAnim: "linear-gradient(90deg,#3a0010,#aa0030,#ff2060,#ff80a0,#fff0f3,#ff2060,#aa0030,#3a0010)",
+    innerBg:    "linear-gradient(155deg,#0a0005,#150008,#0a0005)",
+    rank:       1,
+    subtitle:   "Đỉnh Phong Bất Bại · Truyền Thuyết",
+  },
+  hof_2: {
+    label:      "Phú Hào",
+    icon:       "💎",
+    bg:         "linear-gradient(135deg,#080030,#1840cc,#5080ff,#90b8ff,#1840cc)",
+    color:      "#80a0ff",
+    border:     "#2050ee",
+    stars:      4,
+    glow:       "0 0 22px rgba(40,80,255,.65), 0 0 55px rgba(40,80,220,.35)",
+    royal:      true,
+    borderAnim: "linear-gradient(90deg,#080030,#1840cc,#5080ff,#b0c8ff,#fff4,#5080ff,#1840cc,#080030)",
+    innerBg:    "linear-gradient(155deg,#010208,#02040e,#010208)",
+    rank:       2,
+    subtitle:   "Tinh Hoa Đệ Nhị",
+  },
+  hof_3: {
+    label:      "Địa Chủ",
+    icon:       "💎",
+    bg:         "linear-gradient(135deg,#001c0a,#0caa55,#40ee88,#80ffb8,#0caa55)",
+    color:      "#40ee80",
+    border:     "#0caa55",
+    stars:      4,
+    glow:       "0 0 20px rgba(20,180,80,.6), 0 0 50px rgba(20,180,80,.3)",
+    royal:      true,
+    borderAnim: "linear-gradient(90deg,#001c0a,#0caa55,#40ee88,#a0ffcc,#fff4,#40ee88,#0caa55,#001c0a)",
+    innerBg:    "linear-gradient(155deg,#010802,#020e04,#010802)",
+    rank:       3,
+    subtitle:   "Tinh Hoa Đệ Tam",
+  },
+};
+
 const CHAMPION_CONFIG = {
   label:  "Kiện tướng",
   icon:   "♟️",
@@ -127,8 +173,9 @@ function StarRating({ stars, size = "sm" }) {
 }
 
 export function TierBadge({ tierKey = "member", isChampion = false, size = "sm", showLabel = false }) {
-  const cfg = isChampion ? CHAMPION_CONFIG : (TIER_CONFIG[tierKey] || TIER_CONFIG.member);
-  const isRoyal = cfg.royal || isChampion;
+  const isHOF = tierKey?.startsWith("hof_");
+  const cfg = isHOF ? HOF_CONFIG[tierKey] : (isChampion ? CHAMPION_CONFIG : (TIER_CONFIG[tierKey] || TIER_CONFIG.member));
+  const isRoyal = cfg.royal || isChampion || isHOF;
 
   const iconSize = size === "lg" ? 44 : size === "md" ? 32 : 20;
   const fontSize = size === "lg" ? 22 : size === "md" ? 16 : 11;
@@ -208,7 +255,7 @@ export function TierBadge({ tierKey = "member", isChampion = false, size = "sm",
           justifyContent: "center",
           fontSize:     fontSize,
           boxShadow:    cfg.glow,
-          animation:    isChampion ? "ktGlow 2.2s ease-in-out infinite" : tierKey === "diamond" ? "diamondGlowBadge 2s ease-in-out infinite" : "partnerGlowBadge 2s ease-in-out infinite",
+          animation:    isChampion ? "ktGlow 2.2s ease-in-out infinite" : isHOF && tierKey === "hof_1" ? "hofGlow1 2s ease-in-out infinite" : isHOF ? "hofGlow2 2s ease-in-out infinite" : tierKey === "diamond" ? "diamondGlowBadge 2s ease-in-out infinite" : "partnerGlowBadge 2s ease-in-out infinite",
           position:     "relative",
         }}>
           {cfg.icon}
@@ -218,15 +265,15 @@ export function TierBadge({ tierKey = "member", isChampion = false, size = "sm",
         <div>
           <div style={{ display:"flex", alignItems:"center", gap:4 }}>
             <p style={{ color: cfg.color, fontSize: pillFontSize + 3, fontWeight:900, margin:0 }}>{cfg.label}</p>
-            {isChampion && (
-              <span style={{ background:"rgba(255,0,0,.85)", borderRadius:4, padding:"1px 5px", fontSize:8, fontWeight:900, color:"#fff", animation:"liveFlash 1.2s ease-in-out infinite" }}>
-                LIVE
+            {(isChampion || isHOF) && (
+              <span style={{ background: isHOF ? "rgba(255,255,255,.15)" : "rgba(255,0,0,.85)", borderRadius:4, padding:"1px 5px", fontSize:8, fontWeight:900, color: isHOF ? cfg.color : "#fff", animation:"liveFlash 1.2s ease-in-out infinite", border: isHOF ? `1px solid ${cfg.border}` : "none" }}>
+                {isHOF ? `#${cfg.rank} ALLTIME` : "LIVE"}
               </span>
             )}
           </div>
           {size !== "sm" && (
             <StarRating
-              stars={isChampion ? 4 : TIER_CONFIG[tierKey]?.stars || 5}
+              stars={isHOF ? cfg.stars : isChampion ? 4 : TIER_CONFIG[tierKey]?.stars || 5}
               size={size}
             />
           )}

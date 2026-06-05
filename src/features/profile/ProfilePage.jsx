@@ -41,6 +41,9 @@ export default function ProfilePage() {
 
   const [member,   setMember]   = useState(null);
   const [champion, setChampion] = useState(false);
+  const [hofRank, setHofRank] = useState(null); // null | "hof_1" | "hof_2" | "hof_3"
+  const [primaryBadge, setPrimaryBadge] = useState(null); // null = auto (tier/champion/hof)
+  const [showBadgePicker, setShowBadgePicker] = useState(false);
   const [loading,  setLoading]  = useState(true);
 
   useEffect(() => {
@@ -48,8 +51,9 @@ export default function ProfilePage() {
     Promise.all([
       apiClient.get(`/membership/${resolvedPhone}`).catch(() => null),
       apiClient.get(`/game/chess/leaderboard`).catch(() => null),
+      apiClient.get(`/leaderboard/alltime-top3`).catch(() => null),
       apiClient.get(`/profile-update/profile/${resolvedPhone}`).catch(() => null),
-    ]).then(([mRes, lbRes, pRes]) => {
+    ]).then(([mRes, lbRes, pRes, atRes]) => {
       const memberData = mRes?.data?.data || {};
       // Merge avatar từ players table
       const playerAvatar = pRes?.data?.data?.avatar || null;
@@ -59,6 +63,12 @@ export default function ProfilePage() {
         const topPhone = String(top.user_id).replace(/\D/g,"").replace(/^84/,"0");
         if (topPhone === resolvedPhone) setChampion(true);
       }
+      // Check HOF alltime top3
+      const atTop = atRes?.data?.data || [];
+      atTop.forEach((p, i) => {
+        const ph = String(p.user_id).replace(/\D/g,"").replace(/^84/,"0");
+        if (ph === resolvedPhone) setHofRank(`hof_${i+1}`);
+      });
     }).finally(() => setLoading(false));
   }, [resolvedPhone]);
 
@@ -151,17 +161,66 @@ export default function ProfilePage() {
           ))}
         </div>
 
-        {/* Champion card — dùng TierCard isChampion để đúng thiết kế */}
-        {champion && (
+        {/* PRIMARY BADGE */}
+        {(() => {
+          const auto = hofRank || (champion ? "champion" : tierKey);
+          const display = primaryBadge || auto;
+          return (
+            <div style={{ marginBottom:14 }}>
+              {display === "champion"
+                ? <TierCard isChampion={true} firstVisit={member.firstVisit}/>
+                : display?.startsWith("hof_")
+                ? <TierCard tierKey={display} firstVisit={member.firstVisit}/>
+                : <TierCard tierKey={display} tierName={member.tierName} firstVisit={member.firstVisit}/>
+              }
+            </div>
+          );
+        })()}
+
+        {/* Nút chọn danh hiệu */}
+        {(hofRank || champion) && (
+          <div style={{ marginBottom:14 }}>
+            <button onClick={() => setShowBadgePicker(p => !p)}
+              style={{ width:"100%", padding:"10px 16px", borderRadius:12, border:"1px solid rgba(255,255,255,.15)", background:"rgba(255,255,255,.06)", color:"rgba(255,255,255,.7)", fontSize:12, fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+              <span>🎖</span> Chọn danh hiệu hiển thị chính
+              <span style={{ marginLeft:"auto", opacity:.5 }}>{showBadgePicker ? "▲" : "▼"}</span>
+            </button>
+            {showBadgePicker && (
+              <div style={{ marginTop:8, background:"rgba(0,0,0,.4)", borderRadius:14, padding:12, border:"1px solid rgba(255,255,255,.1)" }}>
+                {[
+                  ...(hofRank ? [{ key: hofRank, label: hofRank === "hof_1" ? "Vương Giả" : hofRank === "hof_2" ? "Phú Hào" : "Địa Chủ", sub: hofRank === "hof_1" ? "#1 Alltime · Ruby" : hofRank === "hof_2" ? "#2 Alltime · Sapphire" : "#3 Alltime · Emerald", color: hofRank === "hof_1" ? "#ff80a0" : hofRank === "hof_2" ? "#80a0ff" : "#40ee80" }] : []),
+                  ...(champion ? [{ key: "champion", label: "Kiện tướng", sub: "Top 1 Cờ vua · Live", color: "#ffd700" }] : []),
+                  { key: tierKey, label: member.tierName || "Hạng thành viên", sub: "Hạng thành viên", color: "#aaa" },
+                ].map(opt => {
+                  const current = primaryBadge || hofRank || (champion ? "champion" : tierKey);
+                  return (
+                    <div key={opt.key} onClick={() => { setPrimaryBadge(opt.key === current ? null : opt.key); setShowBadgePicker(false); }}
+                      style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 12px", borderRadius:10, marginBottom:6, cursor:"pointer", border: current === opt.key ? `1.5px solid ${opt.color}` : "1px solid rgba(255,255,255,.1)", background: current === opt.key ? "rgba(255,255,255,.08)" : "transparent" }}>
+                      <TierBadge tierKey={opt.key === "champion" ? tierKey : opt.key} isChampion={opt.key === "champion"} size="sm"/>
+                      <div style={{ flex:1 }}>
+                        <p style={{ fontSize:13, fontWeight:800, color:opt.color, margin:0 }}>{opt.label}</p>
+                        <p style={{ fontSize:10, color:"rgba(255,255,255,.4)", margin:0 }}>{opt.sub}</p>
+                      </div>
+                      {current === opt.key && <span style={{ color:opt.color, fontSize:16 }}>✓</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Danh hiệu phụ */}
+        {hofRank && champion && (primaryBadge || hofRank) !== "champion" && (
           <div style={{ marginBottom:14 }}>
             <TierCard isChampion={true} firstVisit={member.firstVisit}/>
           </div>
         )}
-
-        {/* Hạng thành viên — full hiệu ứng theo thiết kế */}
-        <div style={{ marginBottom:14 }}>
-          <TierCard tierKey={tierKey} tierName={member.tierName} firstVisit={member.firstVisit}/>
-        </div>
+        {hofRank && primaryBadge && !primaryBadge.startsWith("hof_") && (
+          <div style={{ marginBottom:14 }}>
+            <TierCard tierKey={hofRank} firstVisit={member.firstVisit}/>
+          </div>
+        )}
 
         {/* Actions */}
         {isOwn && (

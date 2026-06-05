@@ -125,6 +125,47 @@ const TIER_CARD_CONFIG = {
   },
 };
 
+// HOF Card configs
+const HOF_CARD_CONFIG = {
+  hof_1: {
+    borderAnim: "linear-gradient(90deg,#3a0010,#aa0030,#ff2060,#ff80a0,#fff0f3,#ff2060,#aa0030,#3a0010)",
+    innerBg: "linear-gradient(155deg,#0a0005,#150008,#0a0005)",
+    scanColor: "rgba(255,60,100,.22),rgba(255,200,210,.38)",
+    glowAnim: "hofCard1Glow",
+    gemColors: { top:"#fff0f3,#ff80a0,#ee0055,#880030", left:"#ff4080,#cc0045,#3a0018", right:"#ff90b0,#dd0055,#550020", btm:"#cc0048,#1a0008" },
+    nameColor: "#ff80a0", subColor: "#cc3060", borderColor: "rgba(255,80,120,.45)",
+    rankLabel: "#1 ALLTIME", rankBg: "linear-gradient(135deg,#880028,#dd0055,#ff2060)",
+    label: "Vương Giả", subtitle: "Đỉnh Phong Bất Bại · Truyền Thuyết",
+    stars: 5, starColor: "#ff2060", starStroke: "#ff80a0",
+    pillBg: "linear-gradient(135deg,#3a0010,#aa0035,#ff2060)", pillColor: "#ffe0ea",
+    pillBorder: "rgba(255,80,120,.45)", pillLabel: "♦ RUBY ♦",
+  },
+  hof_2: {
+    borderAnim: "linear-gradient(90deg,#080030,#1840cc,#5080ff,#b0c8ff,#fff4,#5080ff,#1840cc,#080030)",
+    innerBg: "linear-gradient(155deg,#010208,#02040e,#010208)",
+    scanColor: "rgba(50,100,255,.18),rgba(180,210,255,.3)",
+    glowAnim: "hofCard2Glow",
+    nameColor: "#6090ff", subColor: "#2848cc", borderColor: "rgba(80,140,255,.4)",
+    rankLabel: "#2 ALLTIME", rankBg: "linear-gradient(90deg,#0a1888,#1840cc)",
+    label: "Phú Hào", subtitle: "Tinh Hoa Đệ Nhị",
+    stars: 4, starColor: "#2050ee", starStroke: "#70a0ff",
+    pillBg: "linear-gradient(90deg,#040828,#0a1888)", pillColor: "#6090ff",
+    pillBorder: "rgba(80,140,255,.4)", pillLabel: "♦ SAPPHIRE ♦",
+  },
+  hof_3: {
+    borderAnim: "linear-gradient(90deg,#001c0a,#0caa55,#40ee88,#a0ffcc,#fff4,#40ee88,#0caa55,#001c0a)",
+    innerBg: "linear-gradient(155deg,#010802,#020e04,#010802)",
+    scanColor: "rgba(20,180,80,.16),rgba(160,255,200,.28)",
+    glowAnim: "hofCard3Glow",
+    nameColor: "#40ee80", subColor: "#0c8840", borderColor: "rgba(50,200,110,.35)",
+    rankLabel: "#3 ALLTIME", rankBg: "linear-gradient(90deg,#065530,#0caa55)",
+    label: "Địa Chủ", subtitle: "Tinh Hoa Đệ Tam",
+    stars: 4, starColor: "#0caa55", starStroke: "#40ee80",
+    pillBg: "linear-gradient(90deg,#001808,#065530)", pillColor: "#40ee80",
+    pillBorder: "rgba(50,200,110,.3)", pillLabel: "♦ EMERALD ♦",
+  },
+};
+
 export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion = false }) {
   const cfg = TIER_CARD_CONFIG[tierKey] || TIER_CARD_CONFIG.member;
 
@@ -200,6 +241,192 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
             }
             @keyframes liveFlash { 0%,100%{opacity:1} 50%{opacity:.35} }
           `}</style>
+        </div>
+      </div>
+    );
+  }
+
+  // HOF cards — Top 3 Alltime
+  if (tierKey?.startsWith("hof_")) {
+    const hof = HOF_CARD_CONFIG[tierKey];
+    const gemSvg = tierKey === "hof_1" ? `
+      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 10px rgba(255,40,100,1)) drop-shadow(0 0 20px rgba(255,0,80,.8))">
+        <defs>
+          <linearGradient id="hc1t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff0f3"/><stop offset="20%" stop-color="#ff80a0"/><stop offset="60%" stop-color="#ee0055"/><stop offset="100%" stop-color="#880030"/></linearGradient>
+          <linearGradient id="hc1l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4080"/><stop offset="100%" stop-color="#3a0018"/></linearGradient>
+          <linearGradient id="hc1r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff90b0"/><stop offset="100%" stop-color="#550020"/></linearGradient>
+          <radialGradient id="hc1g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#ff90b0" stop-opacity=".9"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+        </defs>
+        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#3060cc" opacity=".5"/>
+        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc1t)" opacity=".98"/>
+        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc1l)" opacity=".88"/>
+        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc1r)" opacity=".85"/>
+        <polygon points="12,36 36,36 28,48 20,48" fill="#440018" opacity=".88"/>
+        <polygon points="20,48 24,52 28,48" fill="#220010" opacity=".9"/>
+        <ellipse cx="22" cy="14" rx="8" ry="5" fill="url(#hc1g)" opacity=".85"/>
+        <line x1="16" y1="8" x2="22" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+      </svg>` : tierKey === "hof_2" ? `
+      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 8px rgba(60,120,255,1)) drop-shadow(0 0 16px rgba(40,80,255,.8))">
+        <defs>
+          <linearGradient id="hc2t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f0ff"/><stop offset="25%" stop-color="#90b8ff"/><stop offset="65%" stop-color="#2050ee"/><stop offset="100%" stop-color="#0c1880"/></linearGradient>
+          <linearGradient id="hc2l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3060ee"/><stop offset="100%" stop-color="#040830"/></linearGradient>
+          <linearGradient id="hc2r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#70a0ff"/><stop offset="100%" stop-color="#080840"/></linearGradient>
+          <radialGradient id="hc2g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#c0d8ff" stop-opacity=".85"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+        </defs>
+        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#1840cc" opacity=".5"/>
+        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc2t)" opacity=".97"/>
+        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc2l)" opacity=".85"/>
+        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc2r)" opacity=".82"/>
+        <polygon points="12,36 36,36 28,48 20,48" fill="#0c1870" opacity=".88"/>
+        <polygon points="20,48 24,52 28,48" fill="#060c38" opacity=".9"/>
+        <ellipse cx="22" cy="14" rx="7" ry="4" fill="url(#hc2g)" opacity=".82"/>
+        <line x1="15" y1="8" x2="21" y2="15" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity=".48"/>
+      </svg>` : `
+      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 8px rgba(30,200,100,1)) drop-shadow(0 0 16px rgba(20,180,80,.8))">
+        <defs>
+          <linearGradient id="hc3t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d0ffe8"/><stop offset="25%" stop-color="#70ee99"/><stop offset="65%" stop-color="#0caa55"/><stop offset="100%" stop-color="#043820"/></linearGradient>
+          <linearGradient id="hc3l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#18cc66"/><stop offset="100%" stop-color="#011a08"/></linearGradient>
+          <linearGradient id="hc3r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#60ee88"/><stop offset="100%" stop-color="#022810"/></linearGradient>
+          <radialGradient id="hc3g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#b0ffda" stop-opacity=".85"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+        </defs>
+        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#0c8840" opacity=".5"/>
+        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc3t)" opacity=".97"/>
+        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc3l)" opacity=".85"/>
+        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc3r)" opacity=".82"/>
+        <polygon points="12,36 36,36 28,48 20,48" fill="#043820" opacity=".88"/>
+        <polygon points="20,48 24,52 28,48" fill="#021408" opacity=".9"/>
+        <ellipse cx="22" cy="14" rx="7" ry="4" fill="url(#hc3g)" opacity=".82"/>
+        <line x1="15" y1="8" x2="21" y2="15" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity=".48"/>
+      </svg>`;
+
+    return (
+      <div style={{ borderRadius:20, padding:"2.5px", background:hof.borderAnim, backgroundSize:"400% 100%", animation:"hofBorder 2s linear infinite" }}>
+        <div style={{ borderRadius:18, padding:"20px 18px", background:hof.innerBg, position:"relative", overflow:"hidden" }}>
+          <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:`linear-gradient(90deg,transparent,${hof.scanColor},transparent)`, animation:"hofScan 2.5s ease-in-out infinite", pointerEvents:"none" }}/>
+          <div style={{ position:"absolute", inset:0, borderRadius:18, background:"radial-gradient(ellipse at 30% 50%,rgba(255,255,255,.06) 0%,transparent 60%)", pointerEvents:"none" }}/>
+
+          <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:14 }}>
+            <p style={{ color:hof.subColor, fontSize:10, fontWeight:700, letterSpacing:1.5, margin:0, textTransform:"uppercase" }}>Đại Sảnh Danh Vọng</p>
+            <span style={{ background:"rgba(255,255,255,.12)", borderRadius:4, padding:"1px 6px", fontSize:8, fontWeight:900, color:hof.nameColor, border:`1px solid ${hof.borderColor}`, animation:"liveFlash 1.2s ease-in-out infinite" }}>{hof.rankLabel}</span>
+          </div>
+
+          <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+            <div style={{ position:"relative", flexShrink:0 }}>
+              <div style={{ width:72, height:72, borderRadius:"50%", background: tierKey==="hof_1" ? "radial-gradient(circle at 35% 35%,#ff80a0 0%,#dd0050 30%,#880028 60%,#3a0010 100%)" : tierKey==="hof_2" ? "radial-gradient(circle at 35% 35%,#90b8ff 0%,#2050ee 32%,#0c1880 62%,#040830 100%)" : "radial-gradient(circle at 35% 35%,#80ffb8 0%,#18cc66 30%,#066838 60%,#001c0a 100%)", display:"flex", alignItems:"center", justifyContent:"center", animation:`${hof.glowAnim} 2s ease-in-out infinite, tcFloat 3s ease-in-out infinite`, position:"relative" }}
+                dangerouslySetInnerHTML={{ __html: gemSvg }}
+              />
+              <div style={{ position:"absolute", bottom:-6, left:"50%", transform:"translateX(-50%)", background:hof.rankBg, borderRadius:10, padding:"2px 8px", border:`1px solid ${hof.borderColor}`, boxShadow:`0 0 8px ${hof.borderColor}`, whiteSpace:"nowrap" }}>
+                <span style={{ fontSize:9, fontWeight:900, color:hof.rankLabel.includes("1") ? "#ffe0ea" : hof.rankLabel.includes("2") ? "#c0d8ff" : "#a0ffcc" }}>{hof.rankLabel}</span>
+              </div>
+            </div>
+
+            <div style={{ flex:1 }}>
+              <p style={{ color:hof.nameColor, fontSize:18, fontWeight:900, margin:"0 0 6px", textShadow:`0 0 12px ${hof.borderColor}` }}>{hof.label}</p>
+              <div style={{ display:"flex", gap:3, marginBottom:6 }}>
+                {Array(hof.stars).fill(0).map((_,i) => (
+                  <svg key={i} width="15" height="15" viewBox="0 0 12 12">
+                    <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill={hof.starColor} stroke={hof.starStroke} strokeWidth=".5"/>
+                  </svg>
+                ))}
+                {hof.stars < 5 && <svg width="15" height="15" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="none" stroke={hof.starColor} strokeWidth="1" opacity=".4"/></svg>}
+              </div>
+              <p style={{ color:hof.subColor, fontSize:10, margin:0 }}>{hof.subtitle}</p>
+              {firstVisit && <p style={{ color:hof.subColor, fontSize:10, margin:"6px 0 0", opacity:.7 }}>Thành viên từ {new Date(firstVisit).toLocaleDateString("vi-VN", { month:"long", year:"numeric" })}</p>}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // HOF cards — Top 3 Alltime
+  if (tierKey?.startsWith("hof_")) {
+    const hof = HOF_CARD_CONFIG[tierKey];
+    const gemSvg = tierKey === "hof_1" ? `
+      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 10px rgba(255,40,100,1)) drop-shadow(0 0 20px rgba(255,0,80,.8))">
+        <defs>
+          <linearGradient id="hc1t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff0f3"/><stop offset="20%" stop-color="#ff80a0"/><stop offset="60%" stop-color="#ee0055"/><stop offset="100%" stop-color="#880030"/></linearGradient>
+          <linearGradient id="hc1l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4080"/><stop offset="100%" stop-color="#3a0018"/></linearGradient>
+          <linearGradient id="hc1r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff90b0"/><stop offset="100%" stop-color="#550020"/></linearGradient>
+          <radialGradient id="hc1g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#ff90b0" stop-opacity=".9"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+        </defs>
+        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#3060cc" opacity=".5"/>
+        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc1t)" opacity=".98"/>
+        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc1l)" opacity=".88"/>
+        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc1r)" opacity=".85"/>
+        <polygon points="12,36 36,36 28,48 20,48" fill="#440018" opacity=".88"/>
+        <polygon points="20,48 24,52 28,48" fill="#220010" opacity=".9"/>
+        <ellipse cx="22" cy="14" rx="8" ry="5" fill="url(#hc1g)" opacity=".85"/>
+        <line x1="16" y1="8" x2="22" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+      </svg>` : tierKey === "hof_2" ? `
+      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 8px rgba(60,120,255,1)) drop-shadow(0 0 16px rgba(40,80,255,.8))">
+        <defs>
+          <linearGradient id="hc2t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f0ff"/><stop offset="25%" stop-color="#90b8ff"/><stop offset="65%" stop-color="#2050ee"/><stop offset="100%" stop-color="#0c1880"/></linearGradient>
+          <linearGradient id="hc2l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3060ee"/><stop offset="100%" stop-color="#040830"/></linearGradient>
+          <linearGradient id="hc2r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#70a0ff"/><stop offset="100%" stop-color="#080840"/></linearGradient>
+          <radialGradient id="hc2g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#c0d8ff" stop-opacity=".85"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+        </defs>
+        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#1840cc" opacity=".5"/>
+        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc2t)" opacity=".97"/>
+        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc2l)" opacity=".85"/>
+        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc2r)" opacity=".82"/>
+        <polygon points="12,36 36,36 28,48 20,48" fill="#0c1870" opacity=".88"/>
+        <polygon points="20,48 24,52 28,48" fill="#060c38" opacity=".9"/>
+        <ellipse cx="22" cy="14" rx="7" ry="4" fill="url(#hc2g)" opacity=".82"/>
+        <line x1="15" y1="8" x2="21" y2="15" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity=".48"/>
+      </svg>` : `
+      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 8px rgba(30,200,100,1)) drop-shadow(0 0 16px rgba(20,180,80,.8))">
+        <defs>
+          <linearGradient id="hc3t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d0ffe8"/><stop offset="25%" stop-color="#70ee99"/><stop offset="65%" stop-color="#0caa55"/><stop offset="100%" stop-color="#043820"/></linearGradient>
+          <linearGradient id="hc3l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#18cc66"/><stop offset="100%" stop-color="#011a08"/></linearGradient>
+          <linearGradient id="hc3r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#60ee88"/><stop offset="100%" stop-color="#022810"/></linearGradient>
+          <radialGradient id="hc3g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#b0ffda" stop-opacity=".85"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+        </defs>
+        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#0c8840" opacity=".5"/>
+        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc3t)" opacity=".97"/>
+        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc3l)" opacity=".85"/>
+        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc3r)" opacity=".82"/>
+        <polygon points="12,36 36,36 28,48 20,48" fill="#043820" opacity=".88"/>
+        <polygon points="20,48 24,52 28,48" fill="#021408" opacity=".9"/>
+        <ellipse cx="22" cy="14" rx="7" ry="4" fill="url(#hc3g)" opacity=".82"/>
+        <line x1="15" y1="8" x2="21" y2="15" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity=".48"/>
+      </svg>`;
+
+    return (
+      <div style={{ borderRadius:20, padding:"2.5px", background:hof.borderAnim, backgroundSize:"400% 100%", animation:"hofBorder 2s linear infinite" }}>
+        <div style={{ borderRadius:18, padding:"20px 18px", background:hof.innerBg, position:"relative", overflow:"hidden" }}>
+          <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:`linear-gradient(90deg,transparent,${hof.scanColor},transparent)`, animation:"hofScan 2.5s ease-in-out infinite", pointerEvents:"none" }}/>
+          <div style={{ position:"absolute", inset:0, borderRadius:18, background:"radial-gradient(ellipse at 30% 50%,rgba(255,255,255,.06) 0%,transparent 60%)", pointerEvents:"none" }}/>
+
+          <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:14 }}>
+            <p style={{ color:hof.subColor, fontSize:10, fontWeight:700, letterSpacing:1.5, margin:0, textTransform:"uppercase" }}>Đại Sảnh Danh Vọng</p>
+            <span style={{ background:"rgba(255,255,255,.12)", borderRadius:4, padding:"1px 6px", fontSize:8, fontWeight:900, color:hof.nameColor, border:`1px solid ${hof.borderColor}`, animation:"liveFlash 1.2s ease-in-out infinite" }}>{hof.rankLabel}</span>
+          </div>
+
+          <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+            <div style={{ position:"relative", flexShrink:0 }}>
+              <div style={{ width:72, height:72, borderRadius:"50%", background: tierKey==="hof_1" ? "radial-gradient(circle at 35% 35%,#ff80a0 0%,#dd0050 30%,#880028 60%,#3a0010 100%)" : tierKey==="hof_2" ? "radial-gradient(circle at 35% 35%,#90b8ff 0%,#2050ee 32%,#0c1880 62%,#040830 100%)" : "radial-gradient(circle at 35% 35%,#80ffb8 0%,#18cc66 30%,#066838 60%,#001c0a 100%)", display:"flex", alignItems:"center", justifyContent:"center", animation:`${hof.glowAnim} 2s ease-in-out infinite, tcFloat 3s ease-in-out infinite`, position:"relative" }}
+                dangerouslySetInnerHTML={{ __html: gemSvg }}
+              />
+              <div style={{ position:"absolute", bottom:-6, left:"50%", transform:"translateX(-50%)", background:hof.rankBg, borderRadius:10, padding:"2px 8px", border:`1px solid ${hof.borderColor}`, boxShadow:`0 0 8px ${hof.borderColor}`, whiteSpace:"nowrap" }}>
+                <span style={{ fontSize:9, fontWeight:900, color:hof.rankLabel.includes("1") ? "#ffe0ea" : hof.rankLabel.includes("2") ? "#c0d8ff" : "#a0ffcc" }}>{hof.rankLabel}</span>
+              </div>
+            </div>
+
+            <div style={{ flex:1 }}>
+              <p style={{ color:hof.nameColor, fontSize:18, fontWeight:900, margin:"0 0 6px", textShadow:`0 0 12px ${hof.borderColor}` }}>{hof.label}</p>
+              <div style={{ display:"flex", gap:3, marginBottom:6 }}>
+                {Array(hof.stars).fill(0).map((_,i) => (
+                  <svg key={i} width="15" height="15" viewBox="0 0 12 12">
+                    <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill={hof.starColor} stroke={hof.starStroke} strokeWidth=".5"/>
+                  </svg>
+                ))}
+                {hof.stars < 5 && <svg width="15" height="15" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="none" stroke={hof.starColor} strokeWidth="1" opacity=".4"/></svg>}
+              </div>
+              <p style={{ color:hof.subColor, fontSize:10, margin:0 }}>{hof.subtitle}</p>
+              {firstVisit && <p style={{ color:hof.subColor, fontSize:10, margin:"6px 0 0", opacity:.7 }}>Thành viên từ {new Date(firstVisit).toLocaleDateString("vi-VN", { month:"long", year:"numeric" })}</p>}
+            </div>
+          </div>
         </div>
       </div>
     );
