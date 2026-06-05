@@ -157,16 +157,6 @@ export default function MembershipPage() {
                 color:"#7c3aed",
                 bg:"#f5f3ff",
               },
-              {
-                icon:"🎟",
-                title:"Đổi điểm lấy voucher",
-                desc:"1 điểm = 1.000đ giảm giá. Dùng được cả online lẫn tại quán.",
-                action:"Đổi ngay",
-                path:null,
-                actionKey:"exchange_voucher",
-                color:"#059669",
-                bg:"#f0fdf4",
-              },
             ].map((item, i) => (
               <div key={i} style={{
                 background:item.bg, borderRadius:16, padding:"16px",
