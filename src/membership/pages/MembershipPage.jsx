@@ -378,17 +378,33 @@ export default function MembershipPage() {
                   <p style={{ fontSize:12, color:"#999", margin:"4px 0 0" }}>= {fmt(points * 1000)}</p>
                 </div>
 
-                <p style={{ fontSize:13, fontWeight:700, margin:"0 0 12px" }}>Chọn số điểm muốn đổi:</p>
-                <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:16 }}>
-                  {[10, 20, 50, 100, 200].map(pt => (
+                <p style={{ fontSize:13, fontWeight:700, margin:"0 0 8px" }}>Nhập số điểm muốn đổi:</p>
+                <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+                  <input
+                    type="number" min={1} max={points}
+                    value={exchangePoints}
+                    onChange={e => {
+                      const v = Math.max(1, Math.min(points, parseInt(e.target.value) || 1));
+                      setExchangePoints(v);
+                    }}
+                    style={{ flex:1, border:"2px solid #059669", borderRadius:10, padding:"10px 12px",
+                      fontSize:16, fontWeight:800, color:"#059669", outline:"none", textAlign:"center" }}
+                  />
+                  <button onClick={() => setExchangePoints(points)}
+                    style={{ padding:"10px 14px", borderRadius:10, border:"none",
+                      background:"#059669", color:"white", fontSize:12, fontWeight:800, cursor:"pointer" }}>
+                    Tối đa
+                  </button>
+                </div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginBottom:16 }}>
+                  {[10, 20, 50, 100, 200].filter(pt => pt <= points).map(pt => (
                     <button key={pt} onClick={() => setExchangePoints(pt)}
-                      style={{ padding:"8px 16px", borderRadius:20,
+                      style={{ padding:"6px 12px", borderRadius:16,
                         border: exchangePoints === pt ? "2px solid #059669" : "1px solid #e0e0e0",
                         background: exchangePoints === pt ? "#f0fdf4" : "white",
-                        color: exchangePoints === pt ? "#059669" : "#333",
-                        fontWeight: exchangePoints === pt ? 800 : 600,
-                        fontSize:13, cursor:"pointer" }}>
-                      {pt} điểm = {new Intl.NumberFormat("vi-VN").format(pt * 1000)}đ
+                        color: exchangePoints === pt ? "#059669" : "#666",
+                        fontWeight:700, fontSize:12, cursor:"pointer" }}>
+                      {pt}đ
                     </button>
                   ))}
                 </div>
@@ -405,23 +421,14 @@ export default function MembershipPage() {
                   onClick={async () => {
                     setExchanging(true);
                     try {
-                      const phoneIpos = "84" + phone.replace(/^0/, "");
-                      const iposUrl = `https://api.foodbook.vn/ipos/ws/xpartner/exchange_point?access_token=4ETARZYY813AS5LEKOOCD1NP61Y6J55C&pos_parent=BRAND-DQIR&point=${exchangePoints}&user_id=${phoneIpos}`;
-                      const iposRes = await fetch(iposUrl);
-                      const iposData = await iposRes.json();
-                      if (iposData?.data?.voucher_code) {
-                        await apiClient.post("/points/deduct", {
-                          user_id: phone, phone, points: exchangePoints,
-                          reason: `Đổi ${exchangePoints} điểm lấy voucher ${iposData.data.voucher_code}`
-                        }).catch(()=>{});
-                        setExchangeResult({
-                          voucher_code: iposData.data.voucher_code,
-                          discount_amount: iposData.data.discount_amount,
-                          date_end: iposData.data.date_end,
-                        });
+                      const res = await apiClient.post("/points/exchange-voucher", {
+                        user_id: phone, phone, points: exchangePoints,
+                      });
+                      if (res.data?.success) {
+                        setExchangeResult(res.data);
                         setPoints(p => p - exchangePoints);
                       } else {
-                        import("zmp-sdk").then(sdk => sdk.showToast?.({ text: iposData?.error?.message || "Lỗi đổi voucher", duration: "long" }));
+                        import("zmp-sdk").then(sdk => sdk.showToast?.({ text: res.data?.message || "Lỗi đổi voucher", duration: "long" }));
                       }
                     } catch(e) {
                       import("zmp-sdk").then(sdk => sdk.showToast?.({ text: "Lỗi kết nối", duration: "long" }));
