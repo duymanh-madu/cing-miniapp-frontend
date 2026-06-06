@@ -26,7 +26,7 @@ export default function CommunityChat({ onClose }) {
   const myIdRef    = useRef("");
 
   const runtimePhone  = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
-  const [chatLocked, setChatLocked] = React.useState(null); // null | Date object
+  const [chatLocked, setChatLocked] = useState(null); // null | Date object
   const runtimeName   = useRuntimeCustomerIdentityStore(s => s.identity?.fullName);
   const runtimeAvatar = useRuntimeCustomerIdentityStore(s => s.identity?.avatar);
   const profile       = useAuthStore(s => s.profile);
@@ -154,6 +154,25 @@ export default function CommunityChat({ onClose }) {
       }
     };
   }, []);
+
+  // Check chat lock khi phone resolve
+  useEffect(() => {
+    const info = getMyInfo();
+    if (!info.phone) return;
+    const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
+    fetch(`${base}/profile-update/profile/${info.phone}`)
+      .then(r => r.json())
+      .then(d => {
+        const p = d?.data;
+        if (!p) return;
+        if (p.is_blocked) { setChatLocked(new Date(Date.now() + 999*86400000)); return; }
+        if (p.chat_locked_until) {
+          const until = new Date(p.chat_locked_until);
+          if (until > new Date()) setChatLocked(until);
+        }
+      })
+      .catch(() => {});
+  }, [runtimePhone, getMyInfo]);
 
   // Khi phone resolve — emit join với đúng phone
   useEffect(() => {
