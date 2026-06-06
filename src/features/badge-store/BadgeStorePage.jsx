@@ -53,8 +53,7 @@ export default function BadgeStorePage() {
       <div style={{ padding:"0 16px 16px", display:"flex", flexDirection:"column", gap:12 }}>
         {filtered.map(b => (
           <div key={b.key}>
-            {b.category === "Danh hiệu quyến rũ" ? <CharmBadgeCard b={b}/>
-            ) : (
+            {b.category === "Danh hiệu quyến rũ" ? <CharmBadgeCard b={b}/> : (
             <TierCard
               tierKey={b.isChampion ? "member" : b.key}
               isChampion={b.isChampion || false}
