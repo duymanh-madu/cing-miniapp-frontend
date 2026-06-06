@@ -59,9 +59,8 @@ export default function ProfilePage() {
   const sendGift = async (gift) => {
     setGiftSending(true);
     try {
-      const myPhone = useAuthStore.getState().userId || useRuntimeCustomerIdentityStore.getState().identity?.phone;
       const res = await apiClient.post("/chess/tip", {
-        fromUserId: myPhone?.replace(/\D/g,"")?.replace(/^84/,"0"),
+        fromUserId: myPhone,
         toUserId: resolvedPhone,
         amount: gift.points, charm: gift.charm,
         giftId: gift.id, giftName: gift.name, giftIcon: gift.icon,

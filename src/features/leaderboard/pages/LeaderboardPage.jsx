@@ -43,14 +43,16 @@ function Avatar({ name, size=64, bg="linear-gradient(135deg,#1a0a2e,#2d1254)", c
   );
 }
 
-function Top1Card({ entry }) {
+function Top1Card({ entry, onProfile }) {
   return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:8 }}>
       <div style={{ fontSize:52, marginBottom:6, filter:"drop-shadow(0 0 24px rgba(255,215,0,0.9))" }}>👑</div>
       <div style={{ position:"relative", marginBottom:10 }}>
-        {entry.avatar
-          ? <img src={entry.avatar} alt="" style={{ width:96,height:96,borderRadius:48,objectFit:"cover",border:"3px solid #FFD700" }}/>
-          : <Avatar name={entry.player_name||entry.name} size={96} bg="linear-gradient(135deg,#FFD700,#FFA500)" color="#1a0a2e" fontSize={38} />}
+        <div onClick={() => onProfile && entry.user_id && onProfile(entry.user_id)} style={{ cursor: entry.user_id ? "pointer" : "default" }}>
+          {entry.avatar
+            ? <img src={entry.avatar} alt="" style={{ width:96,height:96,borderRadius:48,objectFit:"cover",border:"3px solid #FFD700" }}/>
+            : <Avatar name={entry.player_name||entry.name} size={96} bg="linear-gradient(135deg,#FFD700,#FFA500)" color="#1a0a2e" fontSize={38} />}
+        </div>
         <div style={{ position:"absolute", bottom:-4, right:-4, background:"#FFD700",
           borderRadius:14, width:28, height:28, display:"flex", alignItems:"center",
           justifyContent:"center", fontSize:14, fontWeight:900, color:"#1a0a2e",
@@ -68,7 +70,7 @@ function Top1Card({ entry }) {
   );
 }
 
-function Top23Card({ entry, rank }) {
+function Top23Card({ entry, rank, onProfile }) {
   const c = rank===2
     ? { bg:"linear-gradient(135deg,#C0C0C0,#E8E8E8)", text:"#1a1a2e", glow:"rgba(192,192,192,0.4)", medal:"🥈" }
     : { bg:"linear-gradient(135deg,#CD7F32,#E8A857)", text:"#1a0a00", glow:"rgba(205,127,50,0.4)", medal:"🥉" };
@@ -76,9 +78,11 @@ function Top23Card({ entry, rank }) {
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", flex:1 }}>
       <span style={{ fontSize:28, marginBottom:6, filter:`drop-shadow(0 0 8px ${c.glow})` }}>{c.medal}</span>
       <div style={{ position:"relative", marginBottom:8 }}>
-        {entry.avatar
-          ? <img src={entry.avatar} alt="" style={{width:64,height:64,borderRadius:32,objectFit:"cover",border:`3px solid ${c.bg}`}}/>
-          : <Avatar name={entry.player_name||entry.name} size={64} bg={c.bg} color={c.text} fontSize={24} />}
+        <div onClick={() => onProfile && entry.user_id && onProfile(entry.user_id)} style={{ cursor: entry.user_id ? "pointer" : "default" }}>
+          {entry.avatar
+            ? <img src={entry.avatar} alt="" style={{width:64,height:64,borderRadius:32,objectFit:"cover",border:`3px solid ${c.bg}`}}/>
+            : <Avatar name={entry.player_name||entry.name} size={64} bg={c.bg} color={c.text} fontSize={24} />}
+        </div>
         <div style={{ position:"absolute", bottom:-4, right:-4, background:c.bg,
           borderRadius:10, width:20, height:20, display:"flex", alignItems:"center",
           justifyContent:"center", fontSize:10, fontWeight:900, color:c.text,
@@ -98,6 +102,10 @@ function Top23Card({ entry, rank }) {
 export default function LeaderboardPage() {
   const { isActivated, requireMember, MemberPrompt } = useMemberRequired();
   const navigate     = useNavigate();
+  const goProfile = (userId) => {
+    const phone = String(userId).replace(/\D/g,"").replace(/^84/,"0");
+    if (phone.length >= 9) navigate(`/profile/${phone}`);
+  };
   const profile      = useAuthStore(s => s.profile);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
 
@@ -294,11 +302,11 @@ export default function LeaderboardPage() {
         <>
           {/* PODIUM */}
           <div style={{ padding:"32px 24px 20px" }}>
-            {top1 && <Top1Card entry={top1} />}
+            {top1 && <Top1Card entry={top1} onProfile={goProfile} />}
             {(top2 || top3) && (
               <div style={{ display:"flex", gap:20, justifyContent:"center", marginTop:28, padding:"0 8px" }}>
-                {top2 && <Top23Card entry={top2} rank={2} />}
-                {top3 && <Top23Card entry={top3} rank={3} />}
+                {top2 && <Top23Card entry={top2} onProfile={goProfile} rank={2} />}
+                {top3 && <Top23Card entry={top3} onProfile={goProfile} rank={3} />}
               </div>
             )}
           </div>
@@ -336,7 +344,7 @@ export default function LeaderboardPage() {
               const rank = i + 4;
               const isMe = validPhone ? String(entry.user_id) === validPhone : String(entry.user_id) === String(profile?.id);
               return (
-                <div key={i} style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderRadius:12, marginBottom:4, background: isMe ? "rgba(255,215,0,0.08)" : "rgba(255,255,255,0.02)", border: isMe ? "1px solid rgba(255,215,0,0.2)" : "1px solid rgba(255,255,255,0.03)" }}>
+                <div key={i} onClick={() => !isMe && goProfile(entry.user_id)} style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderRadius:12, marginBottom:4, background: isMe ? "rgba(255,215,0,0.08)" : "rgba(255,255,255,0.02)", border: isMe ? "1px solid rgba(255,215,0,0.2)" : "1px solid rgba(255,255,255,0.03)", cursor: isMe ? "default" : "pointer" }}>
                   <span style={{ color:"rgba(255,255,255,0.2)", fontSize:12, fontWeight:700, width:26, textAlign:"center", flexShrink:0 }}>{rank}</span>
                   {entry.avatar
                     ? <img src={entry.avatar} alt="" style={{width:36,height:36,borderRadius:18,objectFit:"cover",flexShrink:0}}/>
