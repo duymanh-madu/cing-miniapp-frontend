@@ -59,8 +59,13 @@ export default function ProfilePage() {
   const sendGift = async (gift) => {
     setGiftSending(true);
     try {
+      // Lấy phone mới nhất tại thời điểm bấm
+      const freshPhone = useRuntimeCustomerIdentityStore.getState().identity?.phone
+        || useAuthStore.getState().profile?.phone || myPhone;
+      const senderPhone = (freshPhone || "").replace(/\D/g,"").replace(/^84/,"0");
+      if (!senderPhone) { setGiftResult({ gift, success: false, error: "Không xác định được tài khoản" }); setGiftSending(false); return; }
       const res = await apiClient.post("/chess/tip", {
-        fromUserId: myPhone,
+        fromUserId: senderPhone,
         toUserId: resolvedPhone,
         amount: gift.points, charm: gift.charm,
         giftId: gift.id, giftName: gift.name, giftIcon: gift.icon,
