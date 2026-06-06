@@ -88,11 +88,12 @@ export default function ProfilePage() {
       apiClient.get(`/game/chess/leaderboard`).catch(() => null),
       apiClient.get(`/leaderboard/alltime-top3`).catch(() => null),
       apiClient.get(`/profile-update/profile/${resolvedPhone}`).catch(() => null),
-    ]).then(([mRes, lbRes, pRes, atRes]) => {
+    ]).then(([mRes, lbRes, atRes, pRes]) => {
       const memberData = mRes?.data?.data || {};
       // Merge avatar từ players table
       const playerAvatar = pRes?.data?.data?.avatar || null;
-      setMember({ ...memberData, avatar: playerAvatar });
+      const charmPoints = pRes?.data?.data?.charm_points || 0;
+      setMember({ ...memberData, avatar: playerAvatar, charmPoints });
       const top = lbRes?.data?.data?.topWins?.[0] || lbRes?.data?.topWins?.[0];
       if (top) {
         const topPhone = String(top.user_id).replace(/\D/g,"").replace(/^84/,"0");
