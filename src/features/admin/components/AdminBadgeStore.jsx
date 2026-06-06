@@ -1,3 +1,4 @@
+import { useState } from "react";
 const BADGE_STORE = [
   {
     key: "member", label: "Hội viên", icon: "🌱", stars: 0,
