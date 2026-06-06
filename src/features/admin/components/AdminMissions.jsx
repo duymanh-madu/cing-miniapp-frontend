@@ -79,7 +79,7 @@ export default function AdminMissions({ token }) {
           <span style={{ fontSize:24 }}>{m.icon}</span>
           <div style={{ flex:1 }}>
             <p style={{ color:"white", fontSize:13, fontWeight:700, margin:"0 0 2px" }}>{m.label}</p>
-            <p style={{ color:"Top 555", fontSize:11, margin:0 }}>
+            <p style={{ color:"#555", fontSize:11, margin:0 }}>
               +{m.plays} lượt · {CONDITION_TYPES.find(c=>c.value===m.condition_type)?.label}
               {m.condition_value > 0 ? ` ≥ ${new Intl.NumberFormat("vi-VN").format(m.condition_value)}` : ""}
             </p>
@@ -126,7 +126,7 @@ export default function AdminMissions({ token }) {
               { label:"Số điểm thưởng (tùy chọn)", field:"points", type:"number" },
             ].map(f => (
               <div key={f.field} style={{ marginBottom:12 }}>
-                <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>{f.label}</p>
+                <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>{f.label}</p>
                 <input type={f.type} value={form[f.field]} onChange={e=>upd(f.field, f.type==="number"?Number(e.target.value):e.target.value)}
                   placeholder={f.placeholder}
                   style={{ width:"100%", background:"#0d0d18", border:"1px solid #2a2a38",
@@ -135,7 +135,7 @@ export default function AdminMissions({ token }) {
             ))}
 
             <div style={{ marginBottom:12 }}>
-              <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>Điều kiện hoàn thành</p>
+              <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Điều kiện hoàn thành</p>
               <select value={form.condition_type} onChange={e=>upd("condition_type",e.target.value)}
                 style={{ width:"100%", background:"#0d0d18", border:"1px solid #2a2a38",
                   borderRadius:8, padding:"8px 12px", color:"white", fontSize:13, outline:"none" }}>
@@ -145,7 +145,7 @@ export default function AdminMissions({ token }) {
 
             {(form.condition_type==="order_amount"||form.condition_type==="game_score") && (
               <div style={{ marginBottom:12 }}>
-                <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>Giá trị điều kiện</p>
+                <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Giá trị điều kiện</p>
                 <input type="number" value={form.condition_value} onChange={e=>upd("condition_value",Number(e.target.value))}
                   style={{ width:"100%", background:"#0d0d18", border:"1px solid #2a2a38",
                     borderRadius:8, padding:"8px 12px", color:"white", fontSize:13, outline:"none", boxSizing:"border-box" }}/>

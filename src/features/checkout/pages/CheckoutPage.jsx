@@ -38,11 +38,11 @@ function Field({label,value,onChange,placeholder,type="text"}){
   const [focus,setFocus]=useState(false);
   return(
     <div style={{marginBottom:12}}>
-      <p style={{fontSize:11,fontWeight:600,color:"Top 666",margin:"0 0 5px"}}>{label}</p>
+      <p style={{fontSize:11,fontWeight:600,color:"#666",margin:"0 0 5px"}}>{label}</p>
       <input type={type} value={value} onChange={e=>onChange(e.target.value)}
         placeholder={placeholder}
         style={{width:"100%",border:`1.5px solid ${focus?"#D4531C":"#f0f0f0"}`,
-          borderRadius:10,padding:"10px 12px",fontSize:13,color:"Top 333",
+          borderRadius:10,padding:"10px 12px",fontSize:13,color:"#333",
           outline:"none",boxSizing:"border-box",background:"#fafafa"}}
         onFocus={()=>setFocus(true)} onBlur={()=>setFocus(false)}/>
     </div>
@@ -321,7 +321,7 @@ export default function CheckoutPage(){
         {momoQR && (
           <div style={{ marginBottom:16 }}>
             <img src={momoQR} alt="MoMo QR" style={{ width:220, height:220, borderRadius:12, border:"2px solid #ae2070" }}/>
-            <p style={{ fontSize:11, color:"Top 666", margin:"8px 0 0", lineHeight:1.5 }}>
+            <p style={{ fontSize:11, color:"#666", margin:"8px 0 0", lineHeight:1.5 }}>
               Mở app MoMo → Quét mã QR để thanh toán
             </p>
           </div>
@@ -332,7 +332,7 @@ export default function CheckoutPage(){
         }} style={{ width:"100%", padding:"13px", background:"#ae2070", color:"white", border:"none", borderRadius:14, fontSize:14, fontWeight:800, cursor:"pointer", marginBottom:10 }}>
           💜 Mở trang MoMo
         </button>
-        <button onClick={() => setMomoPayUrl(null)} style={{ width:"100%", padding:"12px", background:"none", color:"Top 999", border:"1px solid #e0e0e0", borderRadius:14, fontSize:13, cursor:"pointer" }}>
+        <button onClick={() => setMomoPayUrl(null)} style={{ width:"100%", padding:"12px", background:"none", color:"#999", border:"1px solid #e0e0e0", borderRadius:14, fontSize:13, cursor:"pointer" }}>
           ← Quay lại
         </button>
         <p style={{ fontSize:11, color:"#aaa", margin:"12px 0 0", lineHeight:1.6 }}>
@@ -361,13 +361,13 @@ export default function CheckoutPage(){
       <div style={{background:"white",padding:"14px 16px",display:"flex",alignItems:"center",
         gap:12,borderBottom:"1px solid #f0f0f0",position:"sticky",top:0,zIndex:10}}>
         <button onClick={()=>navigate(-1)}
-          style={{background:"none",border:"none",fontSize:22,cursor:"pointer",padding:0,color:"Top 333",lineHeight:1}}>←</button>
+          style={{background:"none",border:"none",fontSize:22,cursor:"pointer",padding:0,color:"#333",lineHeight:1}}>←</button>
         <h1 style={{fontSize:17,fontWeight:900,margin:0,color:"#1a1a1a"}}>Giỏ hàng ({count} món)</h1>
       </div>
 
       {/* ITEMS */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,overflow:"hidden"}}>
-        <div style={{padding:"10px 16px 4px",fontSize:11,fontWeight:700,color:"Top 999",letterSpacing:.5}}>MÓN ĐÃ CHỌN</div>
+        <div style={{padding:"10px 16px 4px",fontSize:11,fontWeight:700,color:"#999",letterSpacing:.5}}>MÓN ĐÃ CHỌN</div>
         {items.map((item,idx)=>(
           <div key={item.cartId} style={{display:"flex",alignItems:"center",gap:10,
             padding:"10px 16px",borderTop:idx>0?"1px solid #f8f8f8":"none"}}>
@@ -383,7 +383,7 @@ export default function CheckoutPage(){
             <div style={{flex:1,minWidth:0}}>
               <p style={{fontSize:12,fontWeight:700,color:"#1a1a1a",margin:"0 0 2px",
                 overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>{item.displayName||item.name}</p>
-              {item.note&&<p style={{fontSize:10,color:"Top 999",margin:"0 0 2px",
+              {item.note&&<p style={{fontSize:10,color:"#999",margin:"0 0 2px",
                 overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>{item.note}</p>}
               <p style={{fontSize:12,fontWeight:900,color:"#D4531C",margin:0}}>{fmt(item.price)}</p>
             </div>
@@ -404,7 +404,7 @@ export default function CheckoutPage(){
 
       {/* ORDER TYPE */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
-        <p style={{fontSize:11,fontWeight:700,color:"Top 999",margin:"0 0 10px",letterSpacing:.5}}>HÌNH THỨC</p>
+        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 10px",letterSpacing:.5}}>HÌNH THỨC</p>
         <div style={{display:"flex",gap:8}}>
           {ORDER_TYPES.map(t=>(
             <button key={t.id} onClick={()=>setOrderType(t.id)} style={{
@@ -413,14 +413,14 @@ export default function CheckoutPage(){
               background:orderType===t.id?"#fff5f2":"white",
               display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
               <span style={{fontSize:20}}>{t.icon}</span>
-              <span style={{fontSize:10,fontWeight:700,color:orderType===t.id?"#D4531C":"Top 666"}}>{t.label}</span>
+              <span style={{fontSize:10,fontWeight:700,color:orderType===t.id?"#D4531C":"#666"}}>{t.label}</span>
             </button>
           ))}
         </div>
 
         {orderType==="delivery"&&(
           <div style={{marginTop:10,padding:"10px 12px",background:"#f9f9f9",borderRadius:10}}>
-            {shipStatus==="loading"&&<p style={{fontSize:12,color:"Top 999",margin:0}}>Đang lấy vị trí và tính phí ship...</p>}
+            {shipStatus==="loading"&&<p style={{fontSize:12,color:"#999",margin:0}}>Đang lấy vị trí và tính phí ship...</p>}
 
 {shipStatus==="denied"&&(
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
@@ -455,7 +455,7 @@ export default function CheckoutPage(){
             {shipStatus==="done"&&(
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <div>
-                  <p style={{fontSize:11,color:"Top 555",margin:0,fontWeight:600}}>{locMsg}</p>
+                  <p style={{fontSize:11,color:"#555",margin:0,fontWeight:600}}>{locMsg}</p>
                   <p style={{fontSize:12,color:shipFee===0?"#2e7d32":"#D4531C",fontWeight:700,margin:"3px 0 0"}}>
                     {shipFee===0?"Miễn phí vận chuyển!":"Phí ship: "+fmt(shipFee)}
                   </p>
@@ -470,7 +470,7 @@ export default function CheckoutPage(){
 
       {/* THONG TIN */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
-        <p style={{fontSize:11,fontWeight:700,color:"Top 999",margin:"0 0 12px",letterSpacing:.5}}>THÔNG TIN NHẬN HÀNG</p>
+        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 12px",letterSpacing:.5}}>THÔNG TIN NHẬN HÀNG</p>
         <Field label="Họ và tên *" value={name} onChange={setName} placeholder="Nguyễn Văn A"/>
         <Field label="Số điện thoại" value={phone} onChange={setPhone} placeholder="0901234567" type="tel"/>
         {orderType==="delivery"&&
@@ -479,12 +479,12 @@ export default function CheckoutPage(){
 
       {/* THANH TOÁN */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
-        <p style={{fontSize:11,fontWeight:700,color:"Top 999",margin:"0 0 10px",letterSpacing:.5}}>THANH TOÁN</p>
+        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 10px",letterSpacing:.5}}>THANH TOÁN</p>
         <div style={{display:"flex",alignItems:"center",gap:12,padding:"6px 0"}}>
           <span style={{fontSize:24}}>💜</span>
           <div style={{flex:1}}>
             <p style={{fontSize:13,fontWeight:700,color:"#1a1a1a",margin:0}}>MoMo</p>
-            <p style={{fontSize:11,color:"Top 999",margin:0}}>Ví điện tử MoMo</p>
+            <p style={{fontSize:11,color:"#999",margin:0}}>Ví điện tử MoMo</p>
           </div>
           <div style={{width:20,height:20,borderRadius:"50%",background:"#D4531C",
             display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -495,11 +495,11 @@ export default function CheckoutPage(){
 
       {/* GHI CHÚ */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
-        <p style={{fontSize:11,fontWeight:700,color:"Top 999",margin:"0 0 8px",letterSpacing:.5}}>GHI CHÚ</p>
+        <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 8px",letterSpacing:.5}}>GHI CHÚ</p>
         <textarea placeholder="Ví dụ: ít đá, nhiều topping..." value={note}
           onChange={e=>setNote(e.target.value)} rows={2}
           style={{width:"100%",border:"1.5px solid #f0f0f0",borderRadius:10,
-            padding:"8px 10px",fontSize:12,color:"Top 333",resize:"none",
+            padding:"8px 10px",fontSize:12,color:"#333",resize:"none",
             outline:"none",boxSizing:"border-box"}}/>
       </div>
 
@@ -509,7 +509,7 @@ export default function CheckoutPage(){
         padding:"10px 16px 12px",zIndex:40}}>
         <div style={{marginBottom:8}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-            <span style={{fontSize:12,color:"Top 666"}}>Tạm tính</span>
+            <span style={{fontSize:12,color:"#666"}}>Tạm tính</span>
             <span style={{fontSize:12,fontWeight:600,color:"#1a1a1a"}}>{fmt(subtotal)}</span>
           </div>
           {tierDiscount > 0 && (
@@ -520,9 +520,9 @@ export default function CheckoutPage(){
           )}
           {orderType==="delivery"&&(
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-              <span style={{fontSize:12,color:"Top 666"}}>Phí ship</span>
+              <span style={{fontSize:12,color:"#666"}}>Phí ship</span>
               <span style={{fontSize:12,fontWeight:700,
-                color:shipStatus==="loading"?"Top 999":shipFee===0?"#2e7d32":"#1a1a1a"}}>
+                color:shipStatus==="loading"?"#999":shipFee===0?"#2e7d32":"#1a1a1a"}}>
                 {shipStatus==="loading"?"Đang tính...":shipFee===0?"Miễn phí":fmt(shipFee)}
               </span>
             </div>
@@ -533,8 +533,8 @@ export default function CheckoutPage(){
             <div style={{marginBottom:8,padding:"10px 12px",background:"#f0fdf4",borderRadius:10,border:"1px solid #bbf7d0",display:"flex",alignItems:"center",gap:10}}>
               <span style={{fontSize:20}}>🎟</span>
               <div style={{flex:1}}>
-                <p style={{fontSize:12,fontWeight:700,color:"Top 059669",margin:"0 0 2px"}}>Bạn có {availablePoints} điểm tích lũy</p>
-                <p style={{fontSize:11,color:"Top 666",margin:0}}>Đổi điểm lấy voucher giảm giá tại mục <strong>Điểm tích lũy</strong></p>
+                <p style={{fontSize:12,fontWeight:700,color:"#059669",margin:"0 0 2px"}}>Bạn có {availablePoints} điểm tích lũy</p>
+                <p style={{fontSize:11,color:"#666",margin:0}}>Đổi điểm lấy voucher giảm giá tại mục <strong>Điểm tích lũy</strong></p>
               </div>
             </div>
           )}

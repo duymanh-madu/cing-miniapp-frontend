@@ -64,7 +64,7 @@ export default function AdminLeaderboard({ token }) {
   };
 
   const resetGame = async (game_key) => {
-    if (!window.confirm(`Reset bảng xếp hạng ${game_key}? Top 100 sẽ được lưu archive.`)) return;
+    if (!window.confirm(`Reset bảng xếp hạng ${game_key}? #100 sẽ được lưu archive.`)) return;
     setResetting(game_key);
     try {
       const res = await apiClient.post("/admin/leaderboard/reset-game-scores",
@@ -99,7 +99,7 @@ export default function AdminLeaderboard({ token }) {
     });
   };
 
-  if (loading) return <div style={{ color:"Top 666", padding:20 }}>Đang tải...</div>;
+  if (loading) return <div style={{ color:"#666", padding:20 }}>Đang tải...</div>;
 
   return (
     <div>
@@ -108,7 +108,7 @@ export default function AdminLeaderboard({ token }) {
           <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 4px" }}>
             🏆 Bảng xếp hạng & Phần thưởng
           </h2>
-          <p style={{ color:"Top 666", fontSize:12, margin:0 }}>
+          <p style={{ color:"#666", fontSize:12, margin:0 }}>
             Cấu hình phần thưởng và reset bảng xếp hạng
           </p>
         </div>
@@ -138,7 +138,7 @@ export default function AdminLeaderboard({ token }) {
 
       {/* SPENDING LEADERBOARD */}
       <div style={{ marginBottom:24 }}>
-        <p style={{ color:"Top 888", fontSize:11, fontWeight:700, letterSpacing:2,
+        <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:2,
           margin:"0 0 12px", textTransform:"uppercase" }}>
           💰 Bảng xếp hạng tiêu dùng
         </p>
@@ -157,7 +157,7 @@ export default function AdminLeaderboard({ token }) {
                     <p style={{ color:"white", fontWeight:800, margin:0 }}>
                       Bảng xếp hạng {p.label}
                     </p>
-                    <p style={{ color:"Top 666", fontSize:11, margin:"2px 0 0" }}>
+                    <p style={{ color:"#666", fontSize:11, margin:"2px 0 0" }}>
                       {p.resetInfo}
                     </p>
                   </div>
@@ -168,8 +168,8 @@ export default function AdminLeaderboard({ token }) {
                       onClick={() => distribute("spending", p.key, null)}
                       disabled={!isEnabled || distributing === "spending" + p.key}
                       style={{ background: isEnabled ? "rgba(255,215,0,0.15)" : "rgba(255,255,255,0.05)",
-                        border: `1px solid ${isEnabled ? "#FFD700" : "Top 333"}`,
-                        color: isEnabled ? "#FFD700" : "Top 444",
+                        border: `1px solid ${isEnabled ? "#FFD700" : "#333"}`,
+                        color: isEnabled ? "#FFD700" : "#444",
                         borderRadius:8, padding:"6px 12px", fontSize:11,
                         fontWeight:700, cursor: isEnabled ? "pointer" : "default" }}>
                       {distributing === "spending" + p.key ? "Đang phát..." : "🎁 Phát thưởng"}
@@ -200,7 +200,7 @@ export default function AdminLeaderboard({ token }) {
                           style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
                             borderRadius:6, padding:"6px 8px", color:"white",
                             fontSize:13, fontWeight:700, textAlign:"center" }}/>
-                        <span style={{ color:"Top 666", fontSize:10, whiteSpace:"nowrap" }}>điểm</span>
+                        <span style={{ color:"#666", fontSize:10, whiteSpace:"nowrap" }}>điểm</span>
                       </div>
                     </div>
                   ))}
@@ -213,7 +213,7 @@ export default function AdminLeaderboard({ token }) {
 
       {/* GAME LEADERBOARD */}
       <div>
-        <p style={{ color:"Top 888", fontSize:11, fontWeight:700, letterSpacing:2,
+        <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:2,
           margin:"0 0 12px", textTransform:"uppercase" }}>
           🎮 Bảng xếp hạng game
         </p>
@@ -231,7 +231,7 @@ export default function AdminLeaderboard({ token }) {
                   <span style={{ fontSize:20 }}>{g.icon}</span>
                   <div>
                     <p style={{ color:"white", fontWeight:800, margin:0 }}>{g.label}</p>
-                    <p style={{ color:"Top 666", fontSize:11, margin:"2px 0 0" }}>
+                    <p style={{ color:"#666", fontSize:11, margin:"2px 0 0" }}>
                       {gc.weekly_reset ? "Reset mỗi thứ Hai" : "Không reset"}
                     </p>
                   </div>
@@ -240,8 +240,8 @@ export default function AdminLeaderboard({ token }) {
                   <button onClick={() => distribute("game", null, g.key)}
                     disabled={!isEnabled || distributing === "game" + g.key}
                     style={{ background: isEnabled ? "rgba(255,215,0,0.15)" : "rgba(255,255,255,0.05)",
-                      border: `1px solid ${isEnabled ? "#FFD700" : "Top 333"}`,
-                      color: isEnabled ? "#FFD700" : "Top 444",
+                      border: `1px solid ${isEnabled ? "#FFD700" : "#333"}`,
+                      color: isEnabled ? "#FFD700" : "#444",
                       borderRadius:8, padding:"6px 12px", fontSize:11,
                       fontWeight:700, cursor: isEnabled ? "pointer" : "default" }}>
                     {distributing === "game" + g.key ? "Đang phát..." : "🎁 Phát thưởng"}
@@ -268,7 +268,7 @@ export default function AdminLeaderboard({ token }) {
                 <>
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
                     padding:"8px 0", borderBottom:"1px solid #2a2a38", marginBottom:10 }}>
-                    <p style={{ color:"Top 888", fontSize:12, margin:0 }}>
+                    <p style={{ color:"#888", fontSize:12, margin:0 }}>
                       🔄 Auto reset mỗi tuần (Thứ Hai 0:00)
                     </p>
                     <button onClick={() => toggleWeeklyReset(g.key)}
@@ -293,7 +293,7 @@ export default function AdminLeaderboard({ token }) {
                             style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
                               borderRadius:6, padding:"6px 8px", color:"white",
                               fontSize:13, fontWeight:700, textAlign:"center" }}/>
-                          <span style={{ color:"Top 666", fontSize:10, whiteSpace:"nowrap" }}>điểm</span>
+                          <span style={{ color:"#666", fontSize:10, whiteSpace:"nowrap" }}>điểm</span>
                         </div>
                       </div>
                     ))}

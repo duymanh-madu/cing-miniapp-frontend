@@ -115,7 +115,7 @@ export default function AdminCDP({ token }) {
         <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 4px" }}>
           📡 CDP — Customer Data Platform
         </h2>
-        <p style={{ color:"Top 666", fontSize:12, margin:0 }}>
+        <p style={{ color:"#666", fontSize:12, margin:0 }}>
           Phân khúc khách hàng và gửi thông báo có mục tiêu
         </p>
       </div>
@@ -124,7 +124,7 @@ export default function AdminCDP({ token }) {
 
         {/* SEGMENT LIST */}
         <div>
-          <p style={{ color:"Top 888", fontSize:11, fontWeight:700, letterSpacing:2,
+          <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:2,
             margin:"0 0 12px", textTransform:"uppercase" }}>Phân khúc</p>
           {segments.map(seg => (
             <div key={seg.key}
@@ -143,7 +143,7 @@ export default function AdminCDP({ token }) {
                       {seg.label}
                     </p>
                     {seg.note && (
-                      <p style={{ color:"Top 666", fontSize:10, margin:"2px 0 0" }}>{seg.note}</p>
+                      <p style={{ color:"#666", fontSize:10, margin:"2px 0 0" }}>{seg.note}</p>
                     )}
                   </div>
                 </div>
@@ -165,7 +165,7 @@ export default function AdminCDP({ token }) {
             <div style={{ background:"#1a1a24", borderRadius:14, padding:"60px 24px",
               textAlign:"center", border:"1px solid #2a2a38" }}>
               <p style={{ fontSize:40, margin:"0 0 12px" }}>👈</p>
-              <p style={{ color:"Top 666", fontSize:14 }}>Chọn phân khúc để bắt đầu</p>
+              <p style={{ color:"#666", fontSize:14 }}>Chọn phân khúc để bắt đầu</p>
             </div>
           ) : (
             <>
@@ -279,7 +279,7 @@ export default function AdminCDP({ token }) {
                     <div>
                       <div style={{ display:"flex", justifyContent:"space-between",
                         alignItems:"center", marginBottom:8 }}>
-                        <p style={{ color:"Top 888", fontSize:11, margin:0 }}>
+                        <p style={{ color:"#888", fontSize:11, margin:0 }}>
                           {customPhones.length} khách hàng
                         </p>
                         <button onClick={() => setCustomPhones([])}
@@ -314,7 +314,7 @@ export default function AdminCDP({ token }) {
                     <p style={{ color:"white", fontSize:16, fontWeight:800, margin:0 }}>
                       {selected.label}
                     </p>
-                    <p style={{ color:"Top 666", fontSize:12, margin:"2px 0 0" }}>
+                    <p style={{ color:"#666", fontSize:12, margin:"2px 0 0" }}>
                       {selected.key === "custom" ? customPhones.length : selected.count} khách hàng trong phân khúc này
                     </p>
                   </div>
@@ -322,10 +322,10 @@ export default function AdminCDP({ token }) {
 
                 {/* Preview users */}
                 {loadingUsers ? (
-                  <p style={{ color:"Top 666", fontSize:13 }}>Đang tải danh sách...</p>
+                  <p style={{ color:"#666", fontSize:13 }}>Đang tải danh sách...</p>
                 ) : users.length > 0 && (
                   <div>
-                    <p style={{ color:"Top 888", fontSize:11, fontWeight:700, letterSpacing:1,
+                    <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:1,
                       margin:"0 0 8px", textTransform:"uppercase" }}>
                       Xem trước (10 người đầu)
                     </p>
@@ -345,7 +345,7 @@ export default function AdminCDP({ token }) {
                               textOverflow:"ellipsis" }}>
                               {u.zalo_name || u.user_id}
                             </p>
-                            <p style={{ color:"Top 666", fontSize:10, margin:0 }}>
+                            <p style={{ color:"#666", fontSize:10, margin:0 }}>
                               {fmt(u.crm_spend_alltime)} · {u.crm_orders_alltime} đơn
                             </p>
                           </div>
@@ -373,7 +373,7 @@ export default function AdminCDP({ token }) {
                 )}
 
                 <div style={{ marginBottom:12 }}>
-                  <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Tiêu đề *</p>
+                  <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Tiêu đề *</p>
                   <input value={title} onChange={e => setTitle(e.target.value)}
                     placeholder="VD: 🎁 Ưu đãi đặc biệt dành cho bạn!"
                     style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
@@ -382,7 +382,7 @@ export default function AdminCDP({ token }) {
                 </div>
 
                 <div style={{ marginBottom:16 }}>
-                  <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Nội dung *</p>
+                  <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Nội dung *</p>
                   <textarea value={message} onChange={e => setMessage(e.target.value)}
                     placeholder="VD: Chúng tôi nhớ bạn! Ghé Cing Hu Tang Kinh Bắc hôm nay và nhận ngay ưu đãi đặc biệt..."
                     rows={3}
@@ -395,17 +395,17 @@ export default function AdminCDP({ token }) {
                 {preview && title && message && (
                   <div style={{ background:"#12121a", borderRadius:12, padding:"14px",
                     marginBottom:16, border:"1px solid #333" }}>
-                    <p style={{ color:"Top 888", fontSize:10, fontWeight:700,
+                    <p style={{ color:"#888", fontSize:10, fontWeight:700,
                       margin:"0 0 10px", letterSpacing:1 }}>XEM TRƯỚC THÔNG BÁO</p>
                     <div style={{ background:"#1a1a24", borderRadius:10, padding:"12px 14px" }}>
                       <p style={{ color:"white", fontSize:13, fontWeight:700, margin:"0 0 4px" }}>
                         {title}
                       </p>
-                      <p style={{ color:"Top 888", fontSize:12, margin:0, lineHeight:1.5 }}>
+                      <p style={{ color:"#888", fontSize:12, margin:0, lineHeight:1.5 }}>
                         {message}
                       </p>
                     </div>
-                    <p style={{ color:"Top 666", fontSize:11, margin:"8px 0 0" }}>
+                    <p style={{ color:"#666", fontSize:11, margin:"8px 0 0" }}>
                       Sẽ gửi đến: <strong style={{ color:"#D4531C" }}>
                         {selected.key === "custom" ? customPhones.length : selected.count} khách
                       </strong> trong phân khúc "{selected.label}"
@@ -415,7 +415,7 @@ export default function AdminCDP({ token }) {
 
                 {/* Channel selector */}
                 <div style={{ marginBottom:12 }}>
-                  <p style={{ color:"Top 666", fontSize:11, fontWeight:700, margin:"0 0 8px", letterSpacing:1 }}>
+                  <p style={{ color:"#666", fontSize:11, fontWeight:700, margin:"0 0 8px", letterSpacing:1 }}>
                     📡 KÊNH GỬI TIN
                   </p>
                   <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
@@ -430,8 +430,8 @@ export default function AdminCDP({ token }) {
                           prev.includes(ch.key) ? prev.filter(c=>c!==ch.key) : [...prev, ch.key]
                         )} style={{
                           background: active ? "rgba(212,83,28,0.2)" : "rgba(255,255,255,0.05)",
-                          border: `1px solid ${active ? "#D4531C" : "Top 333"}`,
-                          color: active ? "#D4531C" : "Top 666",
+                          border: `1px solid ${active ? "#D4531C" : "#333"}`,
+                          color: active ? "#D4531C" : "#666",
                           borderRadius:8, padding:"6px 12px", fontSize:11,
                           fontWeight:700, cursor:"pointer", textAlign:"left"
                         }}>
@@ -462,14 +462,14 @@ export default function AdminCDP({ token }) {
 
                     <div style={{ display:"flex", flexDirection:"column", gap:6, marginBottom:10 }}>
                       {zbsTemplates.length === 0 ? (
-                        <p style={{ color:"Top 555", fontSize:12 }}>Chưa có mẫu. Click "Quản lý mẫu" để thêm.</p>
+                        <p style={{ color:"#555", fontSize:12 }}>Chưa có mẫu. Click "Quản lý mẫu" để thêm.</p>
                       ) : zbsTemplates.map(t => (
                         <div key={t.id} onClick={() => setSelectedTemplate(t)}
                           style={{ background: selectedTemplate?.id===t.id ? "rgba(124,58,237,0.2)" : "#1a1a24",
                             border: `1px solid ${selectedTemplate?.id===t.id ? "#7c3aed" : "#2a2a38"}`,
                             borderRadius:8, padding:"10px 12px", cursor:"pointer" }}>
                           <p style={{ color:"white", fontSize:12, fontWeight:700, margin:"0 0 2px" }}>{t.name}</p>
-                          <p style={{ color:"Top 666", fontSize:10, margin:0 }}>ID: {t.id} · {t.description||""}</p>
+                          <p style={{ color:"#666", fontSize:10, margin:0 }}>ID: {t.id} · {t.description||""}</p>
                         </div>
                       ))}
                     </div>
@@ -477,10 +477,10 @@ export default function AdminCDP({ token }) {
                     {/* Extra vars */}
                     {selectedTemplate?.vars?.length > 0 && (
                       <div>
-                        <p style={{ color:"Top 888", fontSize:10, fontWeight:700, margin:"0 0 6px" }}>ĐIỀN BIẾN TEMPLATE</p>
+                        <p style={{ color:"#888", fontSize:10, fontWeight:700, margin:"0 0 6px" }}>ĐIỀN BIẾN TEMPLATE</p>
                         {selectedTemplate.vars.map(v => (
                           <div key={v} style={{ marginBottom:6 }}>
-                            <p style={{ color:"Top 666", fontSize:10, margin:"0 0 2px" }}>{v}</p>
+                            <p style={{ color:"#666", fontSize:10, margin:"0 0 2px" }}>{v}</p>
                             <input value={extraVars[v]||""} onChange={e => setExtraVars(p=>({...p,[v]:e.target.value}))}
                               placeholder={`Nhập ${v}...`}
                               style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
@@ -497,14 +497,14 @@ export default function AdminCDP({ token }) {
                   <button onClick={() => setPreview(p => !p)}
                     disabled={!title || !message}
                     style={{ flex:1, background:"rgba(255,255,255,0.06)",
-                      border:"1px solid #333", color: (!title || !message) ? "Top 444" : "white",
+                      border:"1px solid #333", color: (!title || !message) ? "#444" : "white",
                       borderRadius:8, padding:"10px", fontSize:13,
                       fontWeight:700, cursor: (!title || !message) ? "default" : "pointer" }}>
                     {preview ? "Ẩn xem trước" : "👁 Xem trước"}
                   </button>
                   <button onClick={sendNotif}
                     disabled={sending || !title || !message || (selected?.key === "custom" && customPhones.length === 0)}
-                    style={{ flex:2, background: (sending || !title || !message) ? "Top 333" : "#D4531C",
+                    style={{ flex:2, background: (sending || !title || !message) ? "#333" : "#D4531C",
                       border:"none", color:"white", borderRadius:8, padding:"10px",
                       fontSize:13, fontWeight:800,
                       cursor: (sending || !title || !message) ? "default" : "pointer" }}>

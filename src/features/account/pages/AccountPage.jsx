@@ -102,7 +102,7 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
         {blocked && (
           <div style={{ background:"#FFF8E1", border:"1px solid #FFD54F", borderRadius:14, padding:"12px 16px", marginBottom:20 }}>
             <p style={{ fontSize:13, fontWeight:700, color:"#F57F17", margin:"0 0 4px" }}>⏳ Chưa thể đổi miễn phí</p>
-            <p style={{ fontSize:12, color:"Top 795548", margin:"0 0 10px" }}>
+            <p style={{ fontSize:12, color:"#795548", margin:"0 0 10px" }}>
               Có thể đổi miễn phí vào ngày <strong>{fmtDate(cooldown.next_free_date)}</strong>
             </p>
             {cooldown.can_use_points ? (
@@ -112,7 +112,7 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
                 </div>
                 <div>
                   <p style={{ fontSize:13, fontWeight:700, color:"#E65100", margin:0 }}>Dùng {cooldown.point_cost} điểm để đổi ngay</p>
-                  <p style={{ fontSize:11, color:"Top 999", margin:"2px 0 0" }}>Bạn đang có {cooldown.current_points} điểm</p>
+                  <p style={{ fontSize:11, color:"#999", margin:"2px 0 0" }}>Bạn đang có {cooldown.current_points} điểm</p>
                 </div>
               </div>
             ) : (
@@ -132,12 +132,12 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
               <span style={{ fontSize:16 }}>📷</span>
             </div>
           </div>
-          <p style={{ fontSize:11, color:"Top 999", margin:"6px 0 0" }}>{(blocked && !usePoints) ? "Chọn cách đổi ở trên" : "Tap để đổi ảnh"}</p>
+          <p style={{ fontSize:11, color:"#999", margin:"6px 0 0" }}>{(blocked && !usePoints) ? "Chọn cách đổi ở trên" : "Tap để đổi ảnh"}</p>
           <input ref={fileRef} type="file" accept="image/*" style={{ display:"none" }} onChange={handleFile}/>
         </div>
 
         <div style={{ marginBottom:20 }}>
-          <p style={{ fontSize:12, fontWeight:700, color:"Top 666", margin:"0 0 8px" }}>TÊN HIỂN THỊ</p>
+          <p style={{ fontSize:12, fontWeight:700, color:"#666", margin:"0 0 8px" }}>TÊN HIỂN THỊ</p>
           <input value={name} onChange={e => setName(e.target.value)} maxLength={30} disabled={blocked && !usePoints}
             placeholder="Nhập tên hiển thị..."
             style={{ width:"100%", padding:"14px 16px", borderRadius:14, border:"1.5px solid #e0e0e0", fontSize:15, fontWeight:600, outline:"none", boxSizing:"border-box", background: (blocked && !usePoints) ? "#f5f5f5" : "#fafafa", color:"#1a1a1a", opacity: (blocked && !usePoints) ? 0.5 : 1 }}/>
@@ -147,7 +147,7 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
         {error && <p style={{ color:"#e53935", fontSize:12, margin:"0 0 12px", textAlign:"center" }}>{error}</p>}
 
         <div style={{ display:"flex", gap:10 }}>
-          <button onClick={onClose} style={{ flex:1, padding:"14px", borderRadius:14, border:"1.5px solid #e0e0e0", background:"white", fontSize:14, fontWeight:700, color:"Top 666", cursor:"pointer" }}>Hủy</button>
+          <button onClick={onClose} style={{ flex:1, padding:"14px", borderRadius:14, border:"1.5px solid #e0e0e0", background:"white", fontSize:14, fontWeight:700, color:"#666", cursor:"pointer" }}>Hủy</button>
           <button onClick={handleSave} disabled={btnDisabled}
             style={{ flex:2, padding:"14px", borderRadius:14, border:"none", background: btnDisabled ? "#ccc" : "linear-gradient(135deg,#D4531C,#E8622A)", fontSize:14, fontWeight:800, color:"white", cursor: btnDisabled ? "default" : "pointer" }}>
             {saving ? "Đang lưu..." : usePoints ? `Lưu (-${cooldown.point_cost} điểm)` : "Lưu thay đổi"}
@@ -348,7 +348,7 @@ export default function AccountPage() {
                 display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>{item.icon}</div>
               <div style={{ flex:1 }}>
                 <p style={{ fontSize:14, fontWeight:700, color:"#1a1a1a", margin:"0 0 2px" }}>{item.label}</p>
-                <p style={{ fontSize:11, color:"Top 999", margin:0 }}>{item.desc}</p>
+                <p style={{ fontSize:11, color:"#999", margin:0 }}>{item.desc}</p>
               </div>
               {(item.path || item.action) && <span style={{ color:"#ccc", fontSize:18 }}>›</span>}
             </div>

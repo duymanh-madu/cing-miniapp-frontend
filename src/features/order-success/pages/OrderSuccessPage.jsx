@@ -69,7 +69,7 @@ export default function OrderSuccessPage() {
         <h1 style={{ fontSize:22, fontWeight:900, color:"#e53935", margin:"0 0 8px" }}>
           Thanh toán thất bại
         </h1>
-        <p style={{ fontSize:14, color:"Top 666", margin:"0 0 32px", lineHeight:1.6 }}>
+        <p style={{ fontSize:14, color:"#666", margin:"0 0 32px", lineHeight:1.6 }}>
           Giao dịch không thành công.<br/>Vui lòng thử lại.
         </p>
         <button onClick={() => navigate("/checkout")}
@@ -80,7 +80,7 @@ export default function OrderSuccessPage() {
         </button>
         <button onClick={() => navigate("/")}
           style={{ width:"100%", maxWidth:300, padding:"14px", borderRadius:14,
-            background:"white", color:"Top 666", border:"1.5px solid #e0e0e0",
+            background:"white", color:"#666", border:"1.5px solid #e0e0e0",
             fontSize:15, fontWeight:700, cursor:"pointer" }}>
           Về trang chủ
         </button>
@@ -109,7 +109,7 @@ export default function OrderSuccessPage() {
         {/* ORDER INFO CARD */}
         {loading ? (
           <div style={{ background:"white", borderRadius:16, padding:"24px",
-            textAlign:"center", color:"Top 999", marginBottom:12 }}>
+            textAlign:"center", color:"#999", marginBottom:12 }}>
             Đang tải thông tin đơn hàng...
           </div>
         ) : order ? (
@@ -121,7 +121,7 @@ export default function OrderSuccessPage() {
               alignItems:"center", marginBottom:16,
               paddingBottom:16, borderBottom:"1px solid #f5f5f5" }}>
               <div>
-                <p style={{ fontSize:11, color:"Top 999", margin:"0 0 4px", fontWeight:600 }}>
+                <p style={{ fontSize:11, color:"#999", margin:"0 0 4px", fontWeight:600 }}>
                   MÃ ĐƠN HÀNG
                 </p>
                 <p style={{ fontSize:18, fontWeight:900, color:"#D4531C", margin:0,
@@ -139,16 +139,16 @@ export default function OrderSuccessPage() {
             {/* Items */}
             {order.items?.length > 0 && (
               <div style={{ marginBottom:16, paddingBottom:16, borderBottom:"1px solid #f5f5f5" }}>
-                <p style={{ fontSize:12, fontWeight:700, color:"Top 999", margin:"0 0 10px" }}>
+                <p style={{ fontSize:12, fontWeight:700, color:"#999", margin:"0 0 10px" }}>
                   SẢN PHẨM
                 </p>
                 {order.items.map((item, i) => (
                   <div key={i} style={{ display:"flex", justifyContent:"space-between",
                     alignItems:"center", marginBottom:6 }}>
-                    <p style={{ fontSize:13, color:"Top 333", margin:0 }}>
+                    <p style={{ fontSize:13, color:"#333", margin:0 }}>
                       {item.name || item.item_name} × {item.quantity || item.qty}
                     </p>
-                    <p style={{ fontSize:13, fontWeight:700, color:"Top 333", margin:0 }}>
+                    <p style={{ fontSize:13, fontWeight:700, color:"#333", margin:0 }}>
                       {fmt((item.price || 0) * (item.quantity || item.qty || 1))}
                     </p>
                   </div>
@@ -160,13 +160,13 @@ export default function OrderSuccessPage() {
             <div>
               {order.shipping_fee > 0 && (
                 <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                  <p style={{ fontSize:13, color:"Top 666", margin:0 }}>Phí ship</p>
-                  <p style={{ fontSize:13, color:"Top 666", margin:0 }}>{fmt(order.shipping_fee)}</p>
+                  <p style={{ fontSize:13, color:"#666", margin:0 }}>Phí ship</p>
+                  <p style={{ fontSize:13, color:"#666", margin:0 }}>{fmt(order.shipping_fee)}</p>
                 </div>
               )}
               {order.points_used > 0 && (
                 <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                  <p style={{ fontSize:13, color:"Top 666", margin:0 }}>Điểm đã dùng</p>
+                  <p style={{ fontSize:13, color:"#666", margin:0 }}>Điểm đã dùng</p>
                   <p style={{ fontSize:13, color:"#4CAF50", margin:0 }}>
                     -{fmt(order.points_used * 1000)}
                   </p>
@@ -186,10 +186,10 @@ export default function OrderSuccessPage() {
             {/* Delivery info */}
             {order.shipping_address && (
               <div style={{ marginTop:16, paddingTop:16, borderTop:"1px solid #f5f5f5" }}>
-                <p style={{ fontSize:12, fontWeight:700, color:"Top 999", margin:"0 0 6px" }}>
+                <p style={{ fontSize:12, fontWeight:700, color:"#999", margin:"0 0 6px" }}>
                   ĐỊA CHỈ GIAO HÀNG
                 </p>
-                <p style={{ fontSize:13, color:"Top 333", margin:0, lineHeight:1.5 }}>
+                <p style={{ fontSize:13, color:"#333", margin:0, lineHeight:1.5 }}>
                   {order.shipping_address}
                 </p>
               </div>
@@ -198,7 +198,7 @@ export default function OrderSuccessPage() {
         ) : (
           <div style={{ background:"white", borderRadius:16, padding:"20px",
             textAlign:"center", marginBottom:12, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
-            <p style={{ fontSize:14, color:"Top 666", margin:0 }}>
+            <p style={{ fontSize:14, color:"#666", margin:0 }}>
               Đơn hàng đang được xử lý 🍵
             </p>
           </div>

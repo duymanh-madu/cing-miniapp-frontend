@@ -62,12 +62,12 @@ export default function AdminAppConfig({ token }) {
     setConfig(c => ({ ...c, [k]: v }));
   }, []);
 
-  if (!config) return <div style={{ color:"Top 666", padding:20 }}>Đang tải...</div>;
+  if (!config) return <div style={{ color:"#666", padding:20 }}>Đang tải...</div>;
 
   const Section = ({ title, children }) => (
     <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px",
       marginBottom:16, border:"1px solid #2a2a38" }}>
-      <p style={{ color:"Top 888", fontSize:11, fontWeight:800, letterSpacing:2,
+      <p style={{ color:"#888", fontSize:11, fontWeight:800, letterSpacing:2,
         margin:"0 0 16px", textTransform:"uppercase" }}>{title}</p>
       {children}
     </div>
@@ -76,7 +76,7 @@ export default function AdminAppConfig({ token }) {
   const Field = ({ k, label, type="text" }) => {
     return (
       <div style={{ marginBottom:12 }}>
-        <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>{label}</p>
+        <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>{label}</p>
         <input
           type={type}
           defaultValue={config[k] || ""}
@@ -211,7 +211,7 @@ function ShippingTiersConfig({ config, upd }) {
 
   return (
     <div>
-      <p style={{ color:'Top 666', fontSize:12, margin:'0 0 14px', lineHeight:1.5 }}>
+      <p style={{ color:'#666', fontSize:12, margin:'0 0 14px', lineHeight:1.5 }}>
         Cấu hình phí ship theo giá trị đơn hàng. Hệ thống sẽ tự chọn mức phù hợp khi tính ship.
       </p>
       {tiers.map((tier, i) => (
@@ -235,7 +235,7 @@ function ShippingTiersConfig({ config, upd }) {
               ['fee_per_km', 'Phí / km (đ)'],
             ].map(([field, label]) => (
               <div key={field}>
-                <p style={{ color:'Top 666', fontSize:10, margin:'0 0 3px' }}>{label}</p>
+                <p style={{ color:'#666', fontSize:10, margin:'0 0 3px' }}>{label}</p>
                 <input type='number' defaultValue={tier[field]}
                   onBlur={e => updateTier(i, field, e.target.value)}
                   style={{ width:'100%', background:'#2a2a38', border:'1px solid #444',
@@ -247,7 +247,7 @@ function ShippingTiersConfig({ config, upd }) {
         </div>
       ))}
       <button onClick={addTier} style={{ background:'rgba(255,255,255,0.06)',
-        border:'1px solid #333', color:'Top 888', borderRadius:8,
+        border:'1px solid #333', color:'#888', borderRadius:8,
         padding:'8px 16px', fontSize:12, cursor:'pointer', width:'100%', marginTop:4 }}>
         + Thêm mức giá
       </button>
@@ -276,17 +276,17 @@ function FlashSalesBroadcast({ token, h }) {
     <div>
       {msg && <div style={{ color: msg.includes("✅") ? "#4CAF50" : "#ff6b6b", fontSize:13, marginBottom:10 }}>{msg}</div>}
       <div style={{ marginBottom:10 }}>
-        <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Tiêu đề *</p>
+        <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Tiêu đề *</p>
         <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="🔥 Flash Sale - Giảm 30% hôm nay!"
           style={{ width:"100%", background:"#2a2a38", border:"1px solid #333", borderRadius:8, padding:"9px 12px", color:"white", fontSize:13, boxSizing:"border-box" }}/>
       </div>
       <div style={{ marginBottom:14 }}>
-        <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Nội dung</p>
+        <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Nội dung</p>
         <input value={message} onChange={e=>setMessage(e.target.value)} placeholder="Mô tả chi tiết ưu đãi..."
           style={{ width:"100%", background:"#2a2a38", border:"1px solid #333", borderRadius:8, padding:"9px 12px", color:"white", fontSize:13, boxSizing:"border-box" }}/>
       </div>
       <button onClick={send} disabled={sending || !title}
-        style={{ background: title ? "#D4531C" : "Top 333", border:"none", color:"white", borderRadius:10, padding:"10px 24px", fontWeight:800, cursor: title ? "pointer" : "not-allowed" }}>
+        style={{ background: title ? "#D4531C" : "#333", border:"none", color:"white", borderRadius:10, padding:"10px 24px", fontWeight:800, cursor: title ? "pointer" : "not-allowed" }}>
         {sending ? "Đang gửi..." : "📢 Gửi ngay cho tất cả"}
       </button>
     </div>

@@ -7,7 +7,7 @@ function MiniBar({ data, field, color, label }) {
   const max = Math.max(...data.map(d => d[field] || 0), 1);
   return (
     <div style={{ background:"#1a1a24", borderRadius:16, padding:"16px 20px", border:"1px solid #2a2a38" }}>
-      <p style={{ color:"Top 888", fontSize:11, fontWeight:700, margin:"0 0 12px", letterSpacing:1 }}>{label}</p>
+      <p style={{ color:"#888", fontSize:11, fontWeight:700, margin:"0 0 12px", letterSpacing:1 }}>{label}</p>
       <div style={{ display:"flex", alignItems:"flex-end", gap:4, height:60 }}>
         {data.map((d, i) => {
           const h = Math.round((d[field]||0) / max * 100);
@@ -17,7 +17,7 @@ function MiniBar({ data, field, color, label }) {
               <div style={{ width:"100%", height: h ? `${h}%` : 2, minHeight:2,
                 background: isToday ? color : color+"66",
                 borderRadius:"3px 3px 0 0", transition:"height 0.3s" }}/>
-              <span style={{ fontSize:8, color: isToday?"white":"Top 444", whiteSpace:"nowrap" }}>
+              <span style={{ fontSize:8, color: isToday?"white":"#444", whiteSpace:"nowrap" }}>
                 {d.label}
               </span>
             </div>
@@ -26,7 +26,7 @@ function MiniBar({ data, field, color, label }) {
       </div>
       <p style={{ color:"white", fontSize:22, fontWeight:900, margin:"10px 0 0" }}>
         {field === "revenue" ? fmt(data[data.length-1]?.[field]||0)+"đ" : fmt(data[data.length-1]?.[field]||0)}
-        <span style={{ color:"Top 555", fontSize:12, fontWeight:400, marginLeft:6 }}>hôm nay</span>
+        <span style={{ color:"#555", fontSize:12, fontWeight:400, marginLeft:6 }}>hôm nay</span>
       </p>
     </div>
   );
@@ -58,7 +58,7 @@ export default function AdminStats({ token }) {
         {cards.map((c,i) => (
           <div key={i} style={{ background:"#1a1a24", borderRadius:14, padding:"16px",
             border:`1px solid ${c.color}30` }}>
-            <p style={{ color:"Top 666", fontSize:11, margin:"0 0 6px" }}>{c.icon} {c.label}</p>
+            <p style={{ color:"#666", fontSize:11, margin:"0 0 6px" }}>{c.icon} {c.label}</p>
             <p style={{ color:"white", fontSize:22, fontWeight:900, margin:0 }}>{c.value||0}</p>
           </div>
         ))}
@@ -67,7 +67,7 @@ export default function AdminStats({ token }) {
       {/* Charts 7 ngày */}
       {history.length > 0 && (
         <>
-          <p style={{ color:"Top 888", fontSize:11, fontWeight:700, letterSpacing:2, margin:"0 0 12px", textTransform:"uppercase" }}>
+          <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:2, margin:"0 0 12px", textTransform:"uppercase" }}>
             📈 7 ngày gần nhất
           </p>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10, marginBottom:20 }}>
@@ -83,7 +83,7 @@ export default function AdminStats({ token }) {
               <thead>
                 <tr style={{ background:"#0d0d18" }}>
                   {["Ngày","Đơn hàng","Doanh thu","Lượt game","Thành viên mới"].map(h => (
-                    <th key={h} style={{ padding:"10px 12px", color:"Top 555", fontSize:10,
+                    <th key={h} style={{ padding:"10px 12px", color:"#555", fontSize:10,
                       fontWeight:700, textAlign:"left", letterSpacing:1 }}>{h}</th>
                   ))}
                 </tr>

@@ -55,7 +55,7 @@ export default function AdminDashboard({ auth }) {
           <p style={{ color:"#D4531C", fontSize:10, fontWeight:800,
             letterSpacing:3, margin:"0 0 4px" }}>CING HU TANG</p>
           <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0 }}>Admin Panel</p>
-          <p style={{ color:"Top 666", fontSize:11, margin:"4px 0 0" }}>{auth.admin?.username}</p>
+          <p style={{ color:"#666", fontSize:11, margin:"4px 0 0" }}>{auth.admin?.username}</p>
         </div>
         <nav style={{ flex:1, padding:"12px 0" }}>
           {TABS.map(t => (
@@ -64,7 +64,7 @@ export default function AdminDashboard({ auth }) {
                 padding:"11px 20px", border:"none", cursor:"pointer", textAlign:"left",
                 background: tab===t.key ? "rgba(212,83,28,0.15)" : "none",
                 borderLeft: tab===t.key ? "3px solid #D4531C" : "3px solid transparent",
-                color: tab===t.key ? "#D4531C" : "Top 888",
+                color: tab===t.key ? "#D4531C" : "#888",
                 fontSize:13, fontWeight: tab===t.key ? 700 : 500,
               }}>
               <span>{t.icon}</span> {t.label}

@@ -134,8 +134,8 @@ export default function AdminDelivery({ token }) {
         <div style={{ display:"flex", gap:8 }}>
           <button onClick={() => setAutoRefresh(v=>!v)} style={{
             background:autoRefresh?"rgba(76,175,80,0.2)":"rgba(255,255,255,0.07)",
-            border:`1px solid ${autoRefresh?"#4CAF50":"Top 333"}`,
-            color:autoRefresh?"#4CAF50":"Top 888",
+            border:`1px solid ${autoRefresh?"#4CAF50":"#333"}`,
+            color:autoRefresh?"#4CAF50":"#888",
             borderRadius:8, padding:"6px 12px", fontSize:11, fontWeight:700, cursor:"pointer" }}>
             {autoRefresh?"🟢 Live":"⚫ Live"}
           </button>
@@ -161,7 +161,7 @@ export default function AdminDelivery({ token }) {
               border:`1px solid ${s.color}22`, textAlign:"center" }}>
               <p style={{ fontSize:16, margin:"0 0 4px" }}>{s.icon}</p>
               <p style={{ color:s.color, fontSize:18, fontWeight:900, margin:"0 0 2px" }}>{s.value}</p>
-              <p style={{ color:"Top 555", fontSize:9, margin:0, fontWeight:700 }}>{s.label}</p>
+              <p style={{ color:"#555", fontSize:9, margin:0, fontWeight:700 }}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -235,11 +235,11 @@ export default function AdminDelivery({ token }) {
 
       {/* Delivery list */}
       {loading ? (
-        <p style={{ color:"Top 666", textAlign:"center", padding:40 }}>Đang tải...</p>
+        <p style={{ color:"#666", textAlign:"center", padding:40 }}>Đang tải...</p>
       ) : displayList.length === 0 ? (
-        <p style={{ color:"Top 666", textAlign:"center", padding:40 }}>Không có dữ liệu</p>
+        <p style={{ color:"#666", textAlign:"center", padding:40 }}>Không có dữ liệu</p>
       ) : displayList.map((d,i) => {
-        const sc = STATUS_CONFIG[d.status] || { label:d.status, color:"Top 888", bg:"transparent", icon:"📦" };
+        const sc = STATUS_CONFIG[d.status] || { label:d.status, color:"#888", bg:"transparent", icon:"📦" };
         const order = d.orders;
         return (
           <div key={i} style={{ background:"#1a1a24", borderRadius:14, padding:"16px 18px",
@@ -261,14 +261,14 @@ export default function AdminDelivery({ token }) {
                 </div>
                 <div style={{ display:"flex", gap:16 }}>
                   <div>
-                    <p style={{ color:"Top 666", fontSize:10, margin:"0 0 1px" }}>Shipper</p>
+                    <p style={{ color:"#666", fontSize:10, margin:"0 0 1px" }}>Shipper</p>
                     <p style={{ color:"white", fontSize:12, fontWeight:700, margin:0 }}>
-                      {d.shipper_name} {d.shipper_phone && <span style={{ color:"Top 888", fontWeight:400 }}>· {d.shipper_phone}</span>}
+                      {d.shipper_name} {d.shipper_phone && <span style={{ color:"#888", fontWeight:400 }}>· {d.shipper_phone}</span>}
                     </p>
                   </div>
                   {order && (
                     <div>
-                      <p style={{ color:"Top 666", fontSize:10, margin:"0 0 1px" }}>Khách hàng</p>
+                      <p style={{ color:"#666", fontSize:10, margin:"0 0 1px" }}>Khách hàng</p>
                       <p style={{ color:"white", fontSize:12, fontWeight:700, margin:0 }}>
                         {order.customer_name} · {fmt(order.total_amount)}đ
                       </p>
@@ -277,9 +277,9 @@ export default function AdminDelivery({ token }) {
                 </div>
               </div>
               <div style={{ textAlign:"right", flexShrink:0 }}>
-                <p style={{ color:"Top 555", fontSize:10, margin:0 }}>{fmtDate(d.updated_at||d.created_at)}</p>
+                <p style={{ color:"#555", fontSize:10, margin:0 }}>{fmtDate(d.updated_at||d.created_at)}</p>
                 {order?.shipping_address && (
-                  <p style={{ color:"Top 666", fontSize:10, margin:"4px 0 0",
+                  <p style={{ color:"#666", fontSize:10, margin:"4px 0 0",
                     maxWidth:160, overflow:"hidden", whiteSpace:"nowrap",
                     textOverflow:"ellipsis" }}>
                     📍 {order.shipping_address}
@@ -302,11 +302,11 @@ export default function AdminDelivery({ token }) {
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
               <p style={{ color:"white", fontSize:16, fontWeight:900, margin:0 }}>🛵 Gán shipper</p>
               <button onClick={()=>setShowAssign(false)}
-                style={{ background:"none", border:"none", color:"Top 666", fontSize:20, cursor:"pointer" }}>✕</button>
+                style={{ background:"none", border:"none", color:"#666", fontSize:20, cursor:"pointer" }}>✕</button>
             </div>
 
             <div style={{ marginBottom:12 }}>
-              <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Chọn đơn hàng *</p>
+              <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Chọn đơn hàng *</p>
               <select value={assignForm.order_id} onChange={e=>setAssignForm(f=>({...f,order_id:e.target.value}))}
                 style={{ width:"100%", ...inp }}>
                 <option value="">-- Chọn đơn --</option>
@@ -324,7 +324,7 @@ export default function AdminDelivery({ token }) {
               { key:"note",          label:"Ghi chú",          placeholder:"Giao trước 12h..." },
             ].map(f => (
               <div key={f.key} style={{ marginBottom:12 }}>
-                <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>{f.label}</p>
+                <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>{f.label}</p>
                 <input value={assignForm[f.key]} onChange={e=>setAssignForm(p=>({...p,[f.key]:e.target.value}))}
                   placeholder={f.placeholder} style={{ width:"100%", ...inp }}/>
               </div>
@@ -355,7 +355,7 @@ export default function AdminDelivery({ token }) {
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
               <p style={{ color:"white", fontSize:16, fontWeight:900, margin:0 }}>Chi tiết giao hàng</p>
               <button onClick={()=>setSelected(null)}
-                style={{ background:"none", border:"none", color:"Top 666", fontSize:20, cursor:"pointer" }}>✕</button>
+                style={{ background:"none", border:"none", color:"#666", fontSize:20, cursor:"pointer" }}>✕</button>
             </div>
 
             {/* Info */}
@@ -373,7 +373,7 @@ export default function AdminDelivery({ token }) {
               ].map(([label,value],i) => (
                 <div key={i} style={{ display:"flex", justifyContent:"space-between",
                   padding:"6px 0", borderBottom:"1px solid #2a2a38" }}>
-                  <span style={{ color:"Top 666", fontSize:12 }}>{label}</span>
+                  <span style={{ color:"#666", fontSize:12 }}>{label}</span>
                   <span style={{ color:"white", fontSize:12, fontWeight:600,
                     maxWidth:280, textAlign:"right" }}>{value}</span>
                 </div>

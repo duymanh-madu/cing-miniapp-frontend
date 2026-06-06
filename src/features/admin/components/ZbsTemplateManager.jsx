@@ -55,7 +55,7 @@ export default function ZbsTemplateManager({ token, templates, onSaved }) {
             <p style={{ color:"white", fontSize:11, fontWeight:700, margin:0 }}>Mẫu {idx+1}</p>
             <div style={{ display:"flex", gap:6 }}>
               <button onClick={() => setEditing(editing===idx?null:idx)}
-                style={{ background:"none", border:"1px solid #333", color:"Top 888",
+                style={{ background:"none", border:"1px solid #333", color:"#888",
                   borderRadius:4, padding:"2px 8px", fontSize:10, cursor:"pointer" }}>
                 {editing===idx?"Thu gọn":"Sửa"}
               </button>
@@ -68,28 +68,28 @@ export default function ZbsTemplateManager({ token, templates, onSaved }) {
           {editing===idx ? (
             <>
               <div style={{ marginBottom:6 }}>
-                <p style={{ color:"Top 666", fontSize:10, margin:"0 0 3px" }}>Template ID (từ Zalo OA Manager)</p>
+                <p style={{ color:"#666", fontSize:10, margin:"0 0 3px" }}>Template ID (từ Zalo OA Manager)</p>
                 <input value={t.id} onChange={e=>update(idx,"id",e.target.value)}
                   placeholder="VD: 123456"
                   style={{ width:"100%", background:"#2a2a38", border:"1px solid #7c3aed",
                     borderRadius:6, padding:"6px 8px", color:"white", fontSize:12, boxSizing:"border-box" }}/>
               </div>
               <div style={{ marginBottom:6 }}>
-                <p style={{ color:"Top 666", fontSize:10, margin:"0 0 3px" }}>Tên mẫu</p>
+                <p style={{ color:"#666", fontSize:10, margin:"0 0 3px" }}>Tên mẫu</p>
                 <input value={t.name} onChange={e=>update(idx,"name",e.target.value)}
                   placeholder="VD: Gửi voucher sinh nhật"
                   style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
                     borderRadius:6, padding:"6px 8px", color:"white", fontSize:12, boxSizing:"border-box" }}/>
               </div>
               <div style={{ marginBottom:8 }}>
-                <p style={{ color:"Top 666", fontSize:10, margin:"0 0 3px" }}>Mô tả</p>
+                <p style={{ color:"#666", fontSize:10, margin:"0 0 3px" }}>Mô tả</p>
                 <input value={t.description||""} onChange={e=>update(idx,"description",e.target.value)}
                   placeholder="Mô tả ngắn về mẫu tin này"
                   style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
                     borderRadius:6, padding:"6px 8px", color:"white", fontSize:12, boxSizing:"border-box" }}/>
               </div>
               <div>
-                <p style={{ color:"Top 666", fontSize:10, margin:"0 0 6px" }}>
+                <p style={{ color:"#666", fontSize:10, margin:"0 0 6px" }}>
                   Biến cần điền thêm (biến tự động: customer_name, membership_type, visit_times, ...)
                 </p>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
@@ -102,15 +102,15 @@ export default function ZbsTemplateManager({ token, templates, onSaved }) {
                     return (
                       <button key={v} onClick={() => toggleVar(idx,v)} style={{
                         background: active ? "rgba(124,58,237,0.3)" : "#2a2a38",
-                        border: `1px solid ${active?"#7c3aed":"Top 333"}`,
-                        color: active ? "#a78bfa" : "Top 555",
+                        border: `1px solid ${active?"#7c3aed":"#333"}`,
+                        color: active ? "#a78bfa" : "#555",
                         borderRadius:4, padding:"3px 7px", fontSize:9,
                         cursor:"pointer", fontWeight: active?700:400
                       }}>{v}</button>
                     );
                   })}
                 </div>
-                <p style={{ color:"Top 444", fontSize:9, margin:"6px 0 0" }}>
+                <p style={{ color:"#444", fontSize:9, margin:"6px 0 0" }}>
                   Các biến tự động: customer_name, membership_type, membership_point, visit_times, store_name, ...
                 </p>
               </div>
@@ -118,7 +118,7 @@ export default function ZbsTemplateManager({ token, templates, onSaved }) {
           ) : (
             <div>
               <p style={{ color:"#a78bfa", fontSize:11, fontWeight:700, margin:"0 0 2px" }}>{t.name||"Chưa đặt tên"}</p>
-              <p style={{ color:"Top 555", fontSize:10, margin:0 }}>ID: {t.id||"?"} · Biến thêm: {t.vars?.join(", ")||"không có"}</p>
+              <p style={{ color:"#555", fontSize:10, margin:0 }}>ID: {t.id||"?"} · Biến thêm: {t.vars?.join(", ")||"không có"}</p>
             </div>
           )}
         </div>

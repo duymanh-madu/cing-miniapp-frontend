@@ -74,7 +74,7 @@ export default function AdminPlayers({ token }) {
             </div>
             <div style={{ flex:1 }}>
               <p style={{ color:"white", fontSize:18, fontWeight:900, margin:"0 0 3px" }}>{player.name}</p>
-              <p style={{ color:"Top 888", fontSize:12, margin:"0 0 6px" }}>{player.phone}</p>
+              <p style={{ color:"#888", fontSize:12, margin:"0 0 6px" }}>{player.phone}</p>
               <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
                 <span style={{ background:"rgba(212,83,28,0.2)", color:"#D4531C",
                   borderRadius:8, padding:"3px 10px", fontSize:11, fontWeight:700 }}>
@@ -94,11 +94,11 @@ export default function AdminPlayers({ token }) {
 
           {/* Adjust points */}
           <div style={{ borderTop:"1px solid #2a2a38", paddingTop:16 }}>
-            <p style={{ color:"Top 888", fontSize:11, fontWeight:700, letterSpacing:1,
+            <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:1,
               margin:"0 0 12px", textTransform:"uppercase" }}>⭐ Điều chỉnh điểm tích lũy</p>
 
             <div style={{ marginBottom:10 }}>
-              <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Lý do *</p>
+              <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Lý do *</p>
               <input value={reason} onChange={e=>setReason(e.target.value)}
                 placeholder="VD: Thưởng sự kiện, bù điểm lỗi hệ thống..."
                 style={{ width:"100%", background:"#2a2a38", border:"1px solid #333",
@@ -112,7 +112,7 @@ export default function AdminPlayers({ token }) {
                 style={{ flex:1, background:"#2a2a38", border:"1px solid #FFD700",
                   borderRadius:8, padding:"9px 12px", color:"#FFD700",
                   fontSize:16, fontWeight:900, textAlign:"center" }}/>
-              <span style={{ color:"Top 888", fontSize:12 }}>điểm</span>
+              <span style={{ color:"#888", fontSize:12 }}>điểm</span>
             </div>
 
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
@@ -135,8 +135,8 @@ export default function AdminPlayers({ token }) {
               {[10,20,50,100,200,500].map(v => (
                 <button key={v} onClick={()=>setPoints(v)}
                   style={{ background: points==v?"rgba(255,215,0,0.2)":"rgba(255,255,255,0.05)",
-                    border:`1px solid ${points==v?"#FFD700":"Top 333"}`,
-                    color: points==v?"#FFD700":"Top 666",
+                    border:`1px solid ${points==v?"#FFD700":"#333"}`,
+                    color: points==v?"#FFD700":"#666",
                     borderRadius:6, padding:"4px 10px", fontSize:11,
                     fontWeight:700, cursor:"pointer" }}>
                   {v}đ

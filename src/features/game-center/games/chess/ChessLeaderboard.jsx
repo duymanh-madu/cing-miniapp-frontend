@@ -86,7 +86,7 @@ export default function ChessLeaderboard({ onClose }) {
                 flex:1, padding:"8px", borderRadius:10,
                 border: tab===t.key ? "none" : "1px solid rgba(255,255,255,0.1)",
                 background: tab===t.key ? "linear-gradient(135deg,#8B6914,#FFD700)" : "rgba(255,255,255,0.04)",
-                color: tab===t.key ? "#1a0a00" : "Top 888",
+                color: tab===t.key ? "#1a0a00" : "#888",
                 fontSize:11, fontWeight:tab===t.key?900:500, cursor:"pointer"
               }}>{t.label}</button>
             ))}
@@ -112,11 +112,11 @@ export default function ChessLeaderboard({ onClose }) {
         {/* List */}
         <div style={{ overflowY:"auto", flex:1, WebkitOverflowScrolling:"touch", padding:"12px 16px 20px" }}>
           {loading ? (
-            <p style={{ color:"Top 666", textAlign:"center", padding:40 }}>Đang tải...</p>
+            <p style={{ color:"#666", textAlign:"center", padding:40 }}>Đang tải...</p>
           ) : !list?.length ? (
             <div style={{ textAlign:"center", padding:40 }}>
               <p style={{ fontSize:36, margin:"0 0 8px" }}>♟</p>
-              <p style={{ color:"Top 666" }}>Chưa có dữ liệu. Hãy chơi để xếp hạng!</p>
+              <p style={{ color:"#666" }}>Chưa có dữ liệu. Hãy chơi để xếp hạng!</p>
             </div>
           ) : list.map((entry, i) => {
             const isMe = myPhone && String(entry.user_id) === myPhone;
@@ -144,7 +144,7 @@ export default function ChessLeaderboard({ onClose }) {
                     overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
                     {entry.name}{isMe?" (bạn)":""}
                   </p>
-                  <p style={{ color:"Top 666", fontSize:10, margin:0 }}>
+                  <p style={{ color:"#666", fontSize:10, margin:0 }}>
                     {tab==="wins"
                       ? `${entry.total_games} trận · ${entry.winRate}% thắng`
                       : `${entry.total_games} trận · chuỗi hiện tại ${entry.current_streak}`}

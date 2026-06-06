@@ -47,7 +47,7 @@ export default function MenuPage() {
             onChange={e => setSearch(e.target.value)}
             style={{
               flex:1, border:"none", outline:"none",
-              background:"none", fontSize:13, color:"Top 333",
+              background:"none", fontSize:13, color:"#333",
             }}
           />
           {search && (

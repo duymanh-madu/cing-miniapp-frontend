@@ -40,14 +40,14 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
     const pearlGrad = ctx.createRadialGradient(-10, -14, 4, 0, 0, 36);
     pearlGrad.addColorStop(0,   "#4b2a19");
     pearlGrad.addColorStop(0.4, "#1a0f09");
-    pearlGrad.addColorStop(1,   "Top 050505");
+    pearlGrad.addColorStop(1,   "#050505");
 
     /* ── ImageBitmap cache cho pearl body (pre-rendered) ── */
     const offPearl = new OffscreenCanvas(80, 80);
     const offCtx = offPearl.getContext("2d");
     offCtx.translate(40, 40);
     const pg = offCtx.createRadialGradient(-10, -14, 4, 0, 0, 36);
-    pg.addColorStop(0, "#4b2a19"); pg.addColorStop(0.4, "#1a0f09"); pg.addColorStop(1, "Top 050505");
+    pg.addColorStop(0, "#4b2a19"); pg.addColorStop(0.4, "#1a0f09"); pg.addColorStop(1, "#050505");
     offCtx.fillStyle = pg;
     offCtx.beginPath(); offCtx.arc(0, 0, 28, 0, 6.2832); offCtx.fill();
     offCtx.fillStyle = "white";

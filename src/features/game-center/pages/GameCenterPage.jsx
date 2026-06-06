@@ -369,7 +369,7 @@ export default function GameCenterPage() {
           <div style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:101, background:"white", borderRadius:"24px 24px 0 0", padding:"32px 24px 48px", textAlign:"center" }}>
             <div style={{ fontSize:56, marginBottom:16 }}>🎮</div>
             <h2 style={{ fontSize:20, fontWeight:900, color:"#1a1a1a", margin:"0 0 8px" }}>Đăng nhập để chơi game</h2>
-            <p style={{ fontSize:14, color:"Top 666", margin:"0 0 24px", lineHeight:1.6 }}>Bạn cần đăng nhập qua Zalo để chơi game và lưu điểm số của mình</p>
+            <p style={{ fontSize:14, color:"#666", margin:"0 0 24px", lineHeight:1.6 }}>Bạn cần đăng nhập qua Zalo để chơi game và lưu điểm số của mình</p>
             <button onClick={() => setShowAuthModal(false)} style={{ width:"100%", padding:"14px", borderRadius:14, border:"none", background:"#D4531C", color:"white", fontSize:15, fontWeight:900, cursor:"pointer" }}>Đã hiểu</button>
           </div>
         </>

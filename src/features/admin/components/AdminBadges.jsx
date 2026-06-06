@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 
 const ALL_BADGES = [
-  { key:"member",        label:"Hội viên",             icon:"🌱", color:"Top 888780", desc:"Mặc định khi đăng ký" },
+  { key:"member",        label:"Hội viên",             icon:"🌱", color:"#888780", desc:"Mặc định khi đăng ký" },
   { key:"loyal",         label:"Hội viên thân thiết",  icon:"💚", color:"#1d9e75", desc:"Chi tiêu đủ điều kiện" },
   { key:"silver",        label:"Hội viên bạc",         icon:"🥈", color:"#378add", desc:"Hạng bạc" },
   { key:"gold",          label:"Hội viên vàng",        icon:"🥇", color:"#ef9f27", desc:"Hạng vàng" },
@@ -58,7 +58,7 @@ export default function AdminBadges({ token }) {
   return (
     <div style={{ padding:24, color:"white" }}>
       <h2 style={{ fontSize:20, fontWeight:900, margin:"0 0 6px" }}>🏅 Quản lý danh hiệu</h2>
-      <p style={{ color:"Top 888", fontSize:13, margin:"0 0 20px" }}>Xem và cấp/thu hồi danh hiệu cho thành viên</p>
+      <p style={{ color:"#888", fontSize:13, margin:"0 0 20px" }}>Xem và cấp/thu hồi danh hiệu cho thành viên</p>
 
       {msg && <div style={{ background:"rgba(212,83,28,.2)", border:"1px solid #D4531C", borderRadius:8, padding:"8px 14px", marginBottom:16, fontSize:13 }}>{msg}</div>}
 
@@ -75,7 +75,7 @@ export default function AdminBadges({ token }) {
                 <span style={{ fontSize:22 }}>{b.icon}</span>
                 <div>
                   <p style={{ fontSize:13, fontWeight:800, color:b.color, margin:0 }}>{b.label}</p>
-                  <p style={{ fontSize:10, color:"Top 666", margin:0 }}>{b.desc}</p>
+                  <p style={{ fontSize:10, color:"#666", margin:0 }}>{b.desc}</p>
                 </div>
               </div>
               <p style={{ fontSize:12, color:"#aaa", margin:0 }}>{count} thành viên</p>
@@ -91,7 +91,7 @@ export default function AdminBadges({ token }) {
           style={{ flex:1, background:"#1a1a24", border:"1px solid #333", borderRadius:8, padding:"8px 12px", color:"white", fontSize:13 }}/>
       </div>
 
-      {loading ? <p style={{ color:"Top 666" }}>Đang tải...</p> : (
+      {loading ? <p style={{ color:"#666" }}>Đang tải...</p> : (
         <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
           {filtered.slice(0,50).map(p => (
             <div key={p.user_id} style={{ background:"#1a1a24", borderRadius:12, padding:"14px 16px", border:"1px solid #2a2a38", cursor:"pointer" }}
@@ -102,7 +102,7 @@ export default function AdminBadges({ token }) {
                 </div>
                 <div style={{ flex:1 }}>
                   <p style={{ fontSize:13, fontWeight:700, color:"white", margin:0 }}>{p.zalo_name || p.user_id}</p>
-                  <p style={{ fontSize:11, color:"Top 666", margin:0 }}>{p.user_id}</p>
+                  <p style={{ fontSize:11, color:"#666", margin:0 }}>{p.user_id}</p>
                 </div>
                 <div style={{ display:"flex", gap:4, flexWrap:"wrap", justifyContent:"flex-end" }}>
                   {(p.custom_badges || []).map(b => {
@@ -110,20 +110,20 @@ export default function AdminBadges({ token }) {
                     return bc ? <span key={b} style={{ fontSize:14 }}>{bc.icon}</span> : null;
                   })}
                 </div>
-                <span style={{ color:"Top 666", fontSize:12 }}>{selected?.user_id === p.user_id ? "▲" : "▼"}</span>
+                <span style={{ color:"#666", fontSize:12 }}>{selected?.user_id === p.user_id ? "▲" : "▼"}</span>
               </div>
 
               {selected?.user_id === p.user_id && (
                 <div style={{ marginTop:14, borderTop:"1px solid #2a2a38", paddingTop:14 }}
                   onClick={e => e.stopPropagation()}>
-                  <p style={{ fontSize:12, color:"Top 888", margin:"0 0 10px" }}>Chọn danh hiệu cấp thủ công:</p>
+                  <p style={{ fontSize:12, color:"#888", margin:"0 0 10px" }}>Chọn danh hiệu cấp thủ công:</p>
                   <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
                     {ALL_BADGES.filter(b => !["champion","hof_1","hof_2","hof_3"].includes(b.key)).map(b => {
                       const has = p.custom_badges?.includes(b.key);
                       return (
                         <button key={b.key} disabled={saving}
                           onClick={() => handleToggleBadge(p, b.key)}
-                          style={{ padding:"6px 12px", borderRadius:20, border:`1.5px solid ${has ? b.color : "Top 333"}`, background: has ? `${b.color}22` : "transparent", color: has ? b.color : "Top 666", fontSize:12, fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", gap:6 }}>
+                          style={{ padding:"6px 12px", borderRadius:20, border:`1.5px solid ${has ? b.color : "#333"}`, background: has ? `${b.color}22` : "transparent", color: has ? b.color : "#666", fontSize:12, fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", gap:6 }}>
                           <span>{b.icon}</span> {b.label}
                           {has && <span style={{ fontSize:10 }}>✓</span>}
                         </button>

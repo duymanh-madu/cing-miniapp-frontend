@@ -11,10 +11,10 @@ class ZaloSdkRuntime {
       await configAppView({
 
         statusBarColor:
-          "Top 000000",
+          "#000000",
 
         headerColor:
-          "Top 000000",
+          "#000000",
 
       });
 

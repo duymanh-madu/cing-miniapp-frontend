@@ -50,7 +50,7 @@ export default function AdminAlltimeGames({ token }) {
     }}));
   };
 
-  if (!cfg) return <div style={{color:"Top 888",padding:20}}>Đang tải...</div>;
+  if (!cfg) return <div style={{color:"#888",padding:20}}>Đang tải...</div>;
 
   return (
     <div style={{padding:"0 0 40px"}}>
@@ -61,15 +61,15 @@ export default function AdminAlltimeGames({ token }) {
       {/* Master toggle */}
       <div style={{background:"#1a0d05",borderRadius:12,padding:"14px 16px",marginBottom:16,
         display:"flex",justifyContent:"space-between",alignItems:"center",
-        border:`1px solid ${cfg.enabled?"#D4531C44":"Top 333"}`}}>
+        border:`1px solid ${cfg.enabled?"#D4531C44":"#333"}`}}>
         <div>
           <p style={{color:"white",fontWeight:800,margin:"0 0 2px",fontSize:14}}>
             🏆 Bảng XH Alltime Games
           </p>
-          <p style={{color:"Top 888",fontSize:11,margin:0}}>Hiển thị trong Game Center</p>
+          <p style={{color:"#888",fontSize:11,margin:0}}>Hiển thị trong Game Center</p>
         </div>
         <button onClick={toggleAll} style={{
-          background:cfg.enabled?"#D4531C":"Top 333",border:"none",color:"white",
+          background:cfg.enabled?"#D4531C":"#333",border:"none",color:"white",
           borderRadius:8,padding:"6px 14px",fontSize:12,fontWeight:700,cursor:"pointer"}}>
           {cfg.enabled?"🟢 Bật":"⚫ Tắt"}
         </button>
@@ -78,20 +78,20 @@ export default function AdminAlltimeGames({ token }) {
       {/* Game list */}
       {Object.entries(cfg.games||{}).map(([key, game]) => (
         <div key={key} style={{background:"#1a0d05",borderRadius:12,padding:"14px 16px",
-          marginBottom:12,border:`1px solid ${game.enabled?"#D4531C33":"Top 222"}`}}>
+          marginBottom:12,border:`1px solid ${game.enabled?"#D4531C33":"#222"}`}}>
           {/* Game header */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
               <span style={{fontSize:22}}>{game.icon}</span>
               <div>
                 <p style={{color:"white",fontWeight:800,margin:0,fontSize:13}}>{game.display_name}</p>
-                <p style={{color:"Top 555",fontSize:10,margin:0}}>{key}</p>
+                <p style={{color:"#555",fontSize:10,margin:0}}>{key}</p>
               </div>
             </div>
             <button onClick={()=>toggleGame(key)} style={{
               background:game.enabled?"rgba(212,83,28,0.2)":"#2a2a2a",
-              border:`1px solid ${game.enabled?"#D4531C":"Top 333"}`,
-              color:game.enabled?"#D4531C":"Top 666",
+              border:`1px solid ${game.enabled?"#D4531C":"#333"}`,
+              color:game.enabled?"#D4531C":"#666",
               borderRadius:8,padding:"5px 12px",fontSize:11,fontWeight:700,cursor:"pointer"}}>
               {game.enabled?"ON":"OFF"}
             </button>
@@ -100,7 +100,7 @@ export default function AdminAlltimeGames({ token }) {
           {/* Rewards */}
           {game.enabled && (
             <div>
-              <p style={{color:"Top 888",fontSize:10,fontWeight:700,margin:"0 0 8px",letterSpacing:1}}>
+              <p style={{color:"#888",fontSize:10,fontWeight:700,margin:"0 0 8px",letterSpacing:1}}>
                 PHẦN THƯỞNG TOP 3
               </p>
               {(game.rewards||[]).map((r,i)=>(
@@ -112,7 +112,7 @@ export default function AdminAlltimeGames({ token }) {
                   <input type="number" value={r.points} onChange={e=>updateReward(key,i,"points",e.target.value)}
                     style={{width:70,background:"#0d0604",border:"1px solid #D4531C44",color:"#D4531C",
                       borderRadius:6,padding:"6px 8px",fontSize:12,fontWeight:700}}/>
-                  <span style={{color:"Top 555",fontSize:11}}>điểm</span>
+                  <span style={{color:"#555",fontSize:11}}>điểm</span>
                 </div>
               ))}
             </div>

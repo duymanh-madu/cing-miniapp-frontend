@@ -39,7 +39,7 @@ function GameLeaderboard() {
           font-black
         "
       >
-        Top 100 Players
+        #100 Players
       </div>
 
       <div
