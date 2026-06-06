@@ -125,6 +125,63 @@ const TIER_CARD_CONFIG = {
   },
 };
 
+function GemIcon({ tierKey }) {
+  if (tierKey === "hof_1") return (
+    <svg width="44" height="46" viewBox="0 0 48 52" style={{ filter:"drop-shadow(0 0 10px rgba(255,40,100,1)) drop-shadow(0 0 20px rgba(255,0,80,.8))", overflow:"visible" }}>
+      <defs>
+        <linearGradient id="hc1t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#fff0f3"/><stop offset="20%" stopColor="#ff80a0"/><stop offset="60%" stopColor="#ee0055"/><stop offset="100%" stopColor="#880030"/></linearGradient>
+        <linearGradient id="hc1l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ff4080"/><stop offset="100%" stopColor="#3a0018"/></linearGradient>
+        <linearGradient id="hc1r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#ff90b0"/><stop offset="100%" stopColor="#550020"/></linearGradient>
+        <radialGradient id="hc1g" cx="38%" cy="32%" r="55%"><stop offset="0%" stopColor="#ff90b0" stopOpacity=".9"/><stop offset="100%" stopColor="transparent"/></radialGradient>
+      </defs>
+      <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#3060cc" opacity=".5"/>
+      <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc1t)" opacity=".98"/>
+      <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc1l)" opacity=".88"/>
+      <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc1r)" opacity=".85"/>
+      <polygon points="12,36 36,36 28,48 20,48" fill="#440018" opacity=".88"/>
+      <polygon points="20,48 24,52 28,48" fill="#220010" opacity=".9"/>
+      <ellipse cx="22" cy="14" rx="8" ry="5" fill="url(#hc1g)" opacity=".85"/>
+      <line x1="16" y1="8" x2="22" y2="16" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity=".5"/>
+    </svg>
+  );
+  if (tierKey === "hof_2") return (
+    <svg width="44" height="46" viewBox="0 0 48 52" style={{ filter:"drop-shadow(0 0 8px rgba(60,120,255,1)) drop-shadow(0 0 16px rgba(40,80,255,.8))", overflow:"visible" }}>
+      <defs>
+        <linearGradient id="hc2t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#e8f0ff"/><stop offset="25%" stopColor="#90b8ff"/><stop offset="65%" stopColor="#2050ee"/><stop offset="100%" stopColor="#0c1880"/></linearGradient>
+        <linearGradient id="hc2l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3060ee"/><stop offset="100%" stopColor="#040830"/></linearGradient>
+        <linearGradient id="hc2r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#70a0ff"/><stop offset="100%" stopColor="#080840"/></linearGradient>
+        <radialGradient id="hc2g" cx="38%" cy="32%" r="55%"><stop offset="0%" stopColor="#c0d8ff" stopOpacity=".85"/><stop offset="100%" stopColor="transparent"/></radialGradient>
+      </defs>
+      <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#1840cc" opacity=".5"/>
+      <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc2t)" opacity=".97"/>
+      <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc2l)" opacity=".85"/>
+      <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc2r)" opacity=".82"/>
+      <polygon points="12,36 36,36 28,48 20,48" fill="#0c1870" opacity=".88"/>
+      <polygon points="20,48 24,52 28,48" fill="#060c38" opacity=".9"/>
+      <ellipse cx="22" cy="14" rx="7" ry="4" fill="url(#hc2g)" opacity=".82"/>
+      <line x1="15" y1="8" x2="21" y2="15" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity=".48"/>
+    </svg>
+  );
+  return (
+    <svg width="44" height="46" viewBox="0 0 48 52" style={{ filter:"drop-shadow(0 0 8px rgba(30,200,100,1)) drop-shadow(0 0 16px rgba(20,180,80,.8))", overflow:"visible" }}>
+      <defs>
+        <linearGradient id="hc3t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#d0ffe8"/><stop offset="25%" stopColor="#70ee99"/><stop offset="65%" stopColor="#0caa55"/><stop offset="100%" stopColor="#043820"/></linearGradient>
+        <linearGradient id="hc3l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#18cc66"/><stop offset="100%" stopColor="#011a08"/></linearGradient>
+        <linearGradient id="hc3r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#60ee88"/><stop offset="100%" stopColor="#022810"/></linearGradient>
+        <radialGradient id="hc3g" cx="38%" cy="32%" r="55%"><stop offset="0%" stopColor="#b0ffda" stopOpacity=".85"/><stop offset="100%" stopColor="transparent"/></radialGradient>
+      </defs>
+      <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#0c8840" opacity=".5"/>
+      <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc3t)" opacity=".97"/>
+      <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc3l)" opacity=".85"/>
+      <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc3r)" opacity=".82"/>
+      <polygon points="12,36 36,36 28,48 20,48" fill="#043820" opacity=".88"/>
+      <polygon points="20,48 24,52 28,48" fill="#021408" opacity=".9"/>
+      <ellipse cx="22" cy="14" rx="7" ry="4" fill="url(#hc3g)" opacity=".82"/>
+      <line x1="15" y1="8" x2="21" y2="15" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity=".48"/>
+    </svg>
+  );
+}
+
 // HOF Card configs
 const HOF_CARD_CONFIG = {
   hof_1: {
@@ -249,55 +306,7 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
   // HOF cards — Top 3 Alltime
   if (tierKey?.startsWith("hof_")) {
     const hof = HOF_CARD_CONFIG[tierKey];
-    const gemSvg = tierKey === "hof_1" ? `
-      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 10px rgba(255,40,100,1)) drop-shadow(0 0 20px rgba(255,0,80,.8))">
-        <defs>
-          <linearGradient id="hc1t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff0f3"/><stop offset="20%" stop-color="#ff80a0"/><stop offset="60%" stop-color="#ee0055"/><stop offset="100%" stop-color="#880030"/></linearGradient>
-          <linearGradient id="hc1l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4080"/><stop offset="100%" stop-color="#3a0018"/></linearGradient>
-          <linearGradient id="hc1r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff90b0"/><stop offset="100%" stop-color="#550020"/></linearGradient>
-          <radialGradient id="hc1g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#ff90b0" stop-opacity=".9"/><stop offset="100%" stop-color="transparent"/></radialGradient>
-        </defs>
-        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#3060cc" opacity=".5"/>
-        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc1t)" opacity=".98"/>
-        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc1l)" opacity=".88"/>
-        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc1r)" opacity=".85"/>
-        <polygon points="12,36 36,36 28,48 20,48" fill="#440018" opacity=".88"/>
-        <polygon points="20,48 24,52 28,48" fill="#220010" opacity=".9"/>
-        <ellipse cx="22" cy="14" rx="8" ry="5" fill="url(#hc1g)" opacity=".85"/>
-        <line x1="16" y1="8" x2="22" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
-      </svg>` : tierKey === "hof_2" ? `
-      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 8px rgba(60,120,255,1)) drop-shadow(0 0 16px rgba(40,80,255,.8))">
-        <defs>
-          <linearGradient id="hc2t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f0ff"/><stop offset="25%" stop-color="#90b8ff"/><stop offset="65%" stop-color="#2050ee"/><stop offset="100%" stop-color="#0c1880"/></linearGradient>
-          <linearGradient id="hc2l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3060ee"/><stop offset="100%" stop-color="#040830"/></linearGradient>
-          <linearGradient id="hc2r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#70a0ff"/><stop offset="100%" stop-color="#080840"/></linearGradient>
-          <radialGradient id="hc2g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#c0d8ff" stop-opacity=".85"/><stop offset="100%" stop-color="transparent"/></radialGradient>
-        </defs>
-        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#1840cc" opacity=".5"/>
-        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc2t)" opacity=".97"/>
-        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc2l)" opacity=".85"/>
-        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc2r)" opacity=".82"/>
-        <polygon points="12,36 36,36 28,48 20,48" fill="#0c1870" opacity=".88"/>
-        <polygon points="20,48 24,52 28,48" fill="#060c38" opacity=".9"/>
-        <ellipse cx="22" cy="14" rx="7" ry="4" fill="url(#hc2g)" opacity=".82"/>
-        <line x1="15" y1="8" x2="21" y2="15" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity=".48"/>
-      </svg>` : `
-      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 8px rgba(30,200,100,1)) drop-shadow(0 0 16px rgba(20,180,80,.8))">
-        <defs>
-          <linearGradient id="hc3t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d0ffe8"/><stop offset="25%" stop-color="#70ee99"/><stop offset="65%" stop-color="#0caa55"/><stop offset="100%" stop-color="#043820"/></linearGradient>
-          <linearGradient id="hc3l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#18cc66"/><stop offset="100%" stop-color="#011a08"/></linearGradient>
-          <linearGradient id="hc3r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#60ee88"/><stop offset="100%" stop-color="#022810"/></linearGradient>
-          <radialGradient id="hc3g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#b0ffda" stop-opacity=".85"/><stop offset="100%" stop-color="transparent"/></radialGradient>
-        </defs>
-        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#0c8840" opacity=".5"/>
-        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc3t)" opacity=".97"/>
-        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc3l)" opacity=".85"/>
-        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc3r)" opacity=".82"/>
-        <polygon points="12,36 36,36 28,48 20,48" fill="#043820" opacity=".88"/>
-        <polygon points="20,48 24,52 28,48" fill="#021408" opacity=".9"/>
-        <ellipse cx="22" cy="14" rx="7" ry="4" fill="url(#hc3g)" opacity=".82"/>
-        <line x1="15" y1="8" x2="21" y2="15" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity=".48"/>
-      </svg>`;
+    // gemSvg removed — using GemIcon JSX
 
     return (
       <div style={{ borderRadius:20, padding:"2.5px", background:hof.borderAnim, backgroundSize:"400% 100%", animation:"hofBorder 2s linear infinite" }}>
@@ -312,9 +321,9 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
 
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
             <div style={{ position:"relative", flexShrink:0 }}>
-              <div style={{ width:72, height:72, borderRadius:"50%", background: tierKey==="hof_1" ? "radial-gradient(circle at 35% 35%,#ff80a0 0%,#dd0050 30%,#880028 60%,#3a0010 100%)" : tierKey==="hof_2" ? "radial-gradient(circle at 35% 35%,#90b8ff 0%,#2050ee 32%,#0c1880 62%,#040830 100%)" : "radial-gradient(circle at 35% 35%,#80ffb8 0%,#18cc66 30%,#066838 60%,#001c0a 100%)", display:"flex", alignItems:"center", justifyContent:"center", animation:`${hof.glowAnim} 2s ease-in-out infinite, tcFloat 3s ease-in-out infinite`, position:"relative" }}
-                dangerouslySetInnerHTML={{ __html: gemSvg }}
-              />
+              <div style={{ width:72, height:72, borderRadius:"50%", background: tierKey==="hof_1" ? "radial-gradient(circle at 35% 35%,#ff80a0 0%,#dd0050 30%,#880028 60%,#3a0010 100%)" : tierKey==="hof_2" ? "radial-gradient(circle at 35% 35%,#90b8ff 0%,#2050ee 32%,#0c1880 62%,#040830 100%)" : "radial-gradient(circle at 35% 35%,#80ffb8 0%,#18cc66 30%,#066838 60%,#001c0a 100%)", display:"flex", alignItems:"center", justifyContent:"center", animation:`${hof.glowAnim} 2s ease-in-out infinite, tcFloat 3s ease-in-out infinite`, position:"relative", overflow:"visible" }}>
+                <GemIcon tierKey={tierKey}/>
+              </div>
               <div style={{ position:"absolute", bottom:-6, left:"50%", transform:"translateX(-50%)", background:hof.rankBg, borderRadius:10, padding:"2px 8px", border:`1px solid ${hof.borderColor}`, boxShadow:`0 0 8px ${hof.borderColor}`, whiteSpace:"nowrap" }}>
                 <span style={{ fontSize:9, fontWeight:900, color:hof.rankLabel.includes("1") ? "#ffe0ea" : hof.rankLabel.includes("2") ? "#c0d8ff" : "#a0ffcc" }}>{hof.rankLabel}</span>
               </div>
@@ -342,55 +351,7 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
   // HOF cards — Top 3 Alltime
   if (tierKey?.startsWith("hof_")) {
     const hof = HOF_CARD_CONFIG[tierKey];
-    const gemSvg = tierKey === "hof_1" ? `
-      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 10px rgba(255,40,100,1)) drop-shadow(0 0 20px rgba(255,0,80,.8))">
-        <defs>
-          <linearGradient id="hc1t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff0f3"/><stop offset="20%" stop-color="#ff80a0"/><stop offset="60%" stop-color="#ee0055"/><stop offset="100%" stop-color="#880030"/></linearGradient>
-          <linearGradient id="hc1l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4080"/><stop offset="100%" stop-color="#3a0018"/></linearGradient>
-          <linearGradient id="hc1r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff90b0"/><stop offset="100%" stop-color="#550020"/></linearGradient>
-          <radialGradient id="hc1g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#ff90b0" stop-opacity=".9"/><stop offset="100%" stop-color="transparent"/></radialGradient>
-        </defs>
-        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#3060cc" opacity=".5"/>
-        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc1t)" opacity=".98"/>
-        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc1l)" opacity=".88"/>
-        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc1r)" opacity=".85"/>
-        <polygon points="12,36 36,36 28,48 20,48" fill="#440018" opacity=".88"/>
-        <polygon points="20,48 24,52 28,48" fill="#220010" opacity=".9"/>
-        <ellipse cx="22" cy="14" rx="8" ry="5" fill="url(#hc1g)" opacity=".85"/>
-        <line x1="16" y1="8" x2="22" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
-      </svg>` : tierKey === "hof_2" ? `
-      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 8px rgba(60,120,255,1)) drop-shadow(0 0 16px rgba(40,80,255,.8))">
-        <defs>
-          <linearGradient id="hc2t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f0ff"/><stop offset="25%" stop-color="#90b8ff"/><stop offset="65%" stop-color="#2050ee"/><stop offset="100%" stop-color="#0c1880"/></linearGradient>
-          <linearGradient id="hc2l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3060ee"/><stop offset="100%" stop-color="#040830"/></linearGradient>
-          <linearGradient id="hc2r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#70a0ff"/><stop offset="100%" stop-color="#080840"/></linearGradient>
-          <radialGradient id="hc2g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#c0d8ff" stop-opacity=".85"/><stop offset="100%" stop-color="transparent"/></radialGradient>
-        </defs>
-        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#1840cc" opacity=".5"/>
-        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc2t)" opacity=".97"/>
-        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc2l)" opacity=".85"/>
-        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc2r)" opacity=".82"/>
-        <polygon points="12,36 36,36 28,48 20,48" fill="#0c1870" opacity=".88"/>
-        <polygon points="20,48 24,52 28,48" fill="#060c38" opacity=".9"/>
-        <ellipse cx="22" cy="14" rx="7" ry="4" fill="url(#hc2g)" opacity=".82"/>
-        <line x1="15" y1="8" x2="21" y2="15" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity=".48"/>
-      </svg>` : `
-      <svg width="44" height="46" viewBox="0 0 48 52" style="filter:drop-shadow(0 0 8px rgba(30,200,100,1)) drop-shadow(0 0 16px rgba(20,180,80,.8))">
-        <defs>
-          <linearGradient id="hc3t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d0ffe8"/><stop offset="25%" stop-color="#70ee99"/><stop offset="65%" stop-color="#0caa55"/><stop offset="100%" stop-color="#043820"/></linearGradient>
-          <linearGradient id="hc3l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#18cc66"/><stop offset="100%" stop-color="#011a08"/></linearGradient>
-          <linearGradient id="hc3r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#60ee88"/><stop offset="100%" stop-color="#022810"/></linearGradient>
-          <radialGradient id="hc3g" cx="38%" cy="32%" r="55%"><stop offset="0%" stop-color="#b0ffda" stop-opacity=".85"/><stop offset="100%" stop-color="transparent"/></radialGradient>
-        </defs>
-        <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#0c8840" opacity=".5"/>
-        <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#hc3t)" opacity=".97"/>
-        <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#hc3l)" opacity=".85"/>
-        <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#hc3r)" opacity=".82"/>
-        <polygon points="12,36 36,36 28,48 20,48" fill="#043820" opacity=".88"/>
-        <polygon points="20,48 24,52 28,48" fill="#021408" opacity=".9"/>
-        <ellipse cx="22" cy="14" rx="7" ry="4" fill="url(#hc3g)" opacity=".82"/>
-        <line x1="15" y1="8" x2="21" y2="15" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity=".48"/>
-      </svg>`;
+    // gemSvg removed — using GemIcon JSX
 
     return (
       <div style={{ borderRadius:20, padding:"2.5px", background:hof.borderAnim, backgroundSize:"400% 100%", animation:"hofBorder 2s linear infinite" }}>
@@ -405,9 +366,9 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
 
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
             <div style={{ position:"relative", flexShrink:0 }}>
-              <div style={{ width:72, height:72, borderRadius:"50%", background: tierKey==="hof_1" ? "radial-gradient(circle at 35% 35%,#ff80a0 0%,#dd0050 30%,#880028 60%,#3a0010 100%)" : tierKey==="hof_2" ? "radial-gradient(circle at 35% 35%,#90b8ff 0%,#2050ee 32%,#0c1880 62%,#040830 100%)" : "radial-gradient(circle at 35% 35%,#80ffb8 0%,#18cc66 30%,#066838 60%,#001c0a 100%)", display:"flex", alignItems:"center", justifyContent:"center", animation:`${hof.glowAnim} 2s ease-in-out infinite, tcFloat 3s ease-in-out infinite`, position:"relative" }}
-                dangerouslySetInnerHTML={{ __html: gemSvg }}
-              />
+              <div style={{ width:72, height:72, borderRadius:"50%", background: tierKey==="hof_1" ? "radial-gradient(circle at 35% 35%,#ff80a0 0%,#dd0050 30%,#880028 60%,#3a0010 100%)" : tierKey==="hof_2" ? "radial-gradient(circle at 35% 35%,#90b8ff 0%,#2050ee 32%,#0c1880 62%,#040830 100%)" : "radial-gradient(circle at 35% 35%,#80ffb8 0%,#18cc66 30%,#066838 60%,#001c0a 100%)", display:"flex", alignItems:"center", justifyContent:"center", animation:`${hof.glowAnim} 2s ease-in-out infinite, tcFloat 3s ease-in-out infinite`, position:"relative", overflow:"visible" }}>
+                <GemIcon tierKey={tierKey}/>
+              </div>
               <div style={{ position:"absolute", bottom:-6, left:"50%", transform:"translateX(-50%)", background:hof.rankBg, borderRadius:10, padding:"2px 8px", border:`1px solid ${hof.borderColor}`, boxShadow:`0 0 8px ${hof.borderColor}`, whiteSpace:"nowrap" }}>
                 <span style={{ fontSize:9, fontWeight:900, color:hof.rankLabel.includes("1") ? "#ffe0ea" : hof.rankLabel.includes("2") ? "#c0d8ff" : "#a0ffcc" }}>{hof.rankLabel}</span>
               </div>
