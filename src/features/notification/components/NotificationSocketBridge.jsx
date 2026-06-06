@@ -19,10 +19,10 @@ export default function NotificationSocketBridge() {
           notifs.forEach(n => store.getState().addNotification({
             id: n.id,
             title: n.title,
-            message: n.body,
+            message: n.message,
             type: n.type,
             created_at: n.created_at,
-            data: n.data,
+            data: n.metadata,
           }));
         });
         // Mark read sau 3s
