@@ -6,7 +6,6 @@ import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { TierBadge } from "@/membership/components/TierBadge";
 import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
 import { useMembership } from "@/features/home/hooks/useMembership";
-injectTierBadgeStyles();
 
 export default function CommunityChat({ onClose }) {
   const [messages,   setMessages]   = useState([]);
@@ -27,7 +26,7 @@ export default function CommunityChat({ onClose }) {
 
   const runtimePhone  = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const [chatLocked, setChatLocked] = useState(null);
-  React.useEffect(() => { injectTierBadgeStyles(); }, []); // null | Date object
+  useEffect(() => { injectTierBadgeStyles(); }, []);
   const runtimeName   = useRuntimeCustomerIdentityStore(s => s.identity?.fullName);
   const runtimeAvatar = useRuntimeCustomerIdentityStore(s => s.identity?.avatar);
   const profile       = useAuthStore(s => s.profile);
