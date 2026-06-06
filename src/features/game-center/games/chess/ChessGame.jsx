@@ -560,20 +560,28 @@ export default function ChessGame({ onExit, onFindMatch }) {
     setShowEmoji(false);
   };
 
-  const sendTip = (gift) => {
-    if (!gameIdRef.current) return;
+  const sendTip = async (gift) => {
     const opponentId = opponent?.userId || opponent?.id || "";
-    sockRef.current?.emit("chess:tip", {
-      gameId:     gameIdRef.current,
-      fromUserId: userIdRef.current,
-      toUserId:   opponentId,
-      amount:     gift.points,
-      charm:      gift.charm,
-      giftId:     gift.id,
-      giftName:   gift.name,
-      giftIcon:   gift.icon,
-    });
+    if (!opponentId || !userIdRef.current) return;
     setShowTip(false);
+    try {
+      const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
+      await fetch(`${base}/game/chess/tip`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fromUserId: userIdRef.current,
+          toUserId:   opponentId,
+          amount:     gift.points,
+          charm:      gift.charm,
+          giftId:     gift.id,
+          giftName:   gift.name,
+          giftIcon:   gift.icon,
+        }),
+      });
+    } catch(e) {
+      console.warn("[TIP]", e.message);
+    }
   };
 
   const findMatch = useCallback(() => {
