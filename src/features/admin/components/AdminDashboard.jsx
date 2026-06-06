@@ -100,6 +100,9 @@ export default function AdminDashboard({ auth }) {
         {tab==="payments_admin" && <AdminPayments token={auth.token} />}
         {tab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
         {tab==="management"    && <AdminManagement token={auth.token} />}
+        {tab==="badges_admin"  && <AdminBadges token={auth.token} />}
+        {tab==="members_admin" && <AdminMembers token={auth.token} />}
+        {tab==="badge_store"   && <AdminBadgeStore />}
       </div>
     </div>
   );
