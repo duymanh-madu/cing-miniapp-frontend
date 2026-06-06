@@ -53,21 +53,43 @@ export default function BadgeStorePage() {
       <div style={{ padding:"0 16px 16px", display:"flex", flexDirection:"column", gap:12 }}>
         {filtered.map(b => (
           <div key={b.key}>
-            {b.category === "Danh hiệu quyến rũ" ? (
-              <div style={{ borderRadius:20, padding:"2.5px", background: b.key==="minh_tinh" ? "linear-gradient(90deg,#ff6090,#ffb0d0,#fff,#ffb0d0,#ff6090)" : b.key==="ngoi_sao" ? "linear-gradient(90deg,#c0a000,#ffd700,#fff,#ffd700,#c0a000)" : "linear-gradient(90deg,#6040c0,#a080ff,#fff,#a080ff,#6040c0)", backgroundSize:"400% 100%", animation:"royalBorder 2s linear infinite" }}>
-                <div style={{ borderRadius:18, padding:"20px 18px", background: b.key==="minh_tinh" ? "linear-gradient(150deg,#12010a,#1e0210,#12010a)" : b.key==="ngoi_sao" ? "linear-gradient(150deg,#100e00,#1e1a00,#100e00)" : "linear-gradient(150deg,#080420,#0e0830,#080420)", position:"relative", overflow:"hidden" }}>
-                  <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:"linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)", animation:"tcScan 3s ease-in-out infinite", pointerEvents:"none" }}/>
-                  <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-                    <div style={{ width:68, height:68, borderRadius:"50%", background: b.key==="minh_tinh" ? "linear-gradient(135deg,#8a0030,#cc0055,#ff60a0,#ffb0d0)" : b.key==="ngoi_sao" ? "linear-gradient(135deg,#7a5000,#c09000,#ffd700,#ffe880)" : "linear-gradient(135deg,#3a2080,#6040c0,#a080ff,#d0c0ff)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, flexShrink:0, animation: b.key==="minh_tinh" ? "hofGlow1 2s ease-in-out infinite" : b.key==="ngoi_sao" ? "ktGlowCard 2s ease-in-out infinite" : "partnerGlowCard 2s ease-in-out infinite" }}>
-                      {b.key==="minh_tinh" ? "🌟" : b.key==="ngoi_sao" ? "⭐" : "✨"}
-                    </div>
-                    <div>
-                      <p style={{ fontSize:18, fontWeight:900, color: b.key==="minh_tinh" ? "#ff80b0" : b.key==="ngoi_sao" ? "#ffd700" : "#b090ff", margin:"0 0 4px", textShadow:`0 0 12px currentColor` }}>{b.label}</p>
-                      <p style={{ fontSize:10, color:"rgba(255,255,255,.4)", margin:"0 0 6px", letterSpacing:1 }}>DANH HIỆU QUYẾN RŨ</p>
+            {b.category === "Danh hiệu quyến rũ" ? (() => {
+              const cfg = {
+                minh_tinh: { border:"linear-gradient(90deg,#6a0020,#cc0055,#ff60a0,#ffe0f0,#ff60a0,#cc0055,#6a0020)", inner:"linear-gradient(155deg,#0a0005,#180008,#0a0005)", iconBg:"radial-gradient(circle at 35% 35%,#ffb0d0 0%,#ee0055 35%,#880028 65%,#3a0010 100%)", color:"#ff80b0", glow:"hofGlow1 1.8s ease-in-out infinite", icon:"🌟", sub:"20.000 điểm quyến rũ", rank:"Đỉnh cao quyến rũ" },
+                ngoi_sao:  { border:"linear-gradient(90deg,#6a4a00,#c09000,#ffd700,#fffacc,#ffd700,#c09000,#6a4a00)", inner:"linear-gradient(155deg,#090700,#160e00,#090700)", iconBg:"radial-gradient(circle at 35% 35%,#ffe880 0%,#d4a000 35%,#7a5000 65%,#2a1800 100%)", color:"#ffd700", glow:"ktGlowCard 2s ease-in-out infinite", icon:"⭐", sub:"10.000 điểm quyến rũ", rank:"Ngôi sao tỏa sáng" },
+                idol:      { border:"linear-gradient(90deg,#2a1060,#6040c0,#a080ff,#e0d0ff,#a080ff,#6040c0,#2a1060)", inner:"linear-gradient(155deg,#060318,#0e0628,#060318)", iconBg:"radial-gradient(circle at 35% 35%,#d0c0ff 0%,#8060e0 35%,#3a2080 65%,#100840 100%)", color:"#b090ff", glow:"partnerGlowCard 2s ease-in-out infinite", icon:"✨", sub:"5.000 điểm quyến rũ", rank:"Idol của cộng đồng" },
+              }[b.key] || {};
+              return (
+                <div style={{ borderRadius:20, padding:"2.5px", background:cfg.border, backgroundSize:"400% 100%", animation:"royalBorder 1.8s linear infinite" }}>
+                  <div style={{ borderRadius:18, padding:"20px 18px", background:cfg.inner, position:"relative", overflow:"hidden" }}>
+                    <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:"linear-gradient(90deg,transparent,rgba(255,255,255,.1),rgba(255,255,255,.2),rgba(255,255,255,.1),transparent)", animation:"tcScan 2.5s ease-in-out infinite", pointerEvents:"none" }}/>
+                    <div style={{ position:"absolute", inset:0, background:`radial-gradient(ellipse at 30% 50%,${cfg.color}15 0%,transparent 60%)`, pointerEvents:"none", borderRadius:18 }}/>
+                    <div style={{ display:"flex", alignItems:"center", gap:16, position:"relative", zIndex:1 }}>
+                      <div style={{ width:72, height:72, borderRadius:"50%", background:cfg.iconBg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:34, flexShrink:0, animation:cfg.glow }}>
+                        {cfg.icon}
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ display:"inline-block", background:`${cfg.color}22`, borderRadius:20, padding:"2px 10px", marginBottom:6, border:`1px solid ${cfg.color}44` }}>
+                          <span style={{ fontSize:9, fontWeight:800, color:cfg.color, letterSpacing:1.5 }}>{cfg.rank}</span>
+                        </div>
+                        <p style={{ fontSize:19, fontWeight:900, color:cfg.color, margin:"0 0 5px", textShadow:`0 0 16px ${cfg.color}, 0 0 32px ${cfg.color}88` }}>{b.label}</p>
+                        <div style={{ display:"flex", gap:3 }}>
+                          {[1,2,3,4,5].map(i => (
+                            <svg key={i} width="14" height="14" viewBox="0 0 12 12">
+                              <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill={cfg.color} stroke={cfg.color} strokeWidth=".5"/>
+                            </svg>
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ textAlign:"right", flexShrink:0 }}>
+                        <p style={{ fontSize:10, color:"rgba(255,255,255,.3)", margin:"0 0 4px" }}>YÊU CẦU</p>
+                        <p style={{ fontSize:13, fontWeight:900, color:cfg.color, margin:0 }}>{cfg.sub}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              );
+            })()
             ) : (
             <TierCard
               tierKey={b.isChampion ? "member" : b.key}

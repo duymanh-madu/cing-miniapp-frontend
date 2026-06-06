@@ -61,8 +61,8 @@ export default function AdminMonitor({ token }) {
         <div style={{ display:"flex", gap:8, alignItems:"center" }}>
           <button onClick={() => setAutoRefresh(v=>!v)} style={{
             background: autoRefresh?"rgba(76,175,80,0.2)":"rgba(255,255,255,0.05)",
-            border:`1px solid ${autoRefresh?"#4CAF50":"#333"}`,
-            color:autoRefresh?"#4CAF50":"#666",
+            border:`1px solid ${autoRefresh?"#4CAF50":"Top 333"}`,
+            color:autoRefresh?"#4CAF50":"Top 666",
             borderRadius:8, padding:"5px 12px", fontSize:11, fontWeight:700, cursor:"pointer"
           }}>{autoRefresh?"🟢 Auto":"⚫ Auto"}</button>
           <button onClick={fetchAll} style={{
@@ -79,13 +79,13 @@ export default function AdminMonitor({ token }) {
             padding:"7px 14px", borderRadius:20,
             border: tab===t.key?"none":"1px solid #2a2a38",
             background: tab===t.key?"#D4531C":"#1a1a24",
-            color: tab===t.key?"white":"#888",
+            color: tab===t.key?"white":"Top 888",
             fontSize:11, fontWeight:700, cursor:"pointer"
           }}>{t.label}</button>
         ))}
       </div>
 
-      {loading ? <p style={{ color:"#666" }}>Đang tải...</p> : (<>
+      {loading ? <p style={{ color:"Top 666" }}>Đang tải...</p> : (<>
 
         {/* OVERVIEW */}
         {tab === "overview" && stats && (
@@ -106,7 +106,7 @@ export default function AdminMonitor({ token }) {
                   <p style={{ color:s.color, fontSize:18, fontWeight:900, margin:"0 0 2px" }}>
                     {fmt(s.value)}
                   </p>
-                  <p style={{ color:"#666", fontSize:9, margin:0, fontWeight:700 }}>{s.label}</p>
+                  <p style={{ color:"Top 666", fontSize:9, margin:0, fontWeight:700 }}>{s.label}</p>
                 </div>
               ))}
             </div>
@@ -128,7 +128,7 @@ export default function AdminMonitor({ token }) {
                   </div>
                   <div style={{ flex:1 }}>
                     <p style={{ color:"white", fontSize:12, fontWeight:700, margin:0 }}>{u.name}</p>
-                    <p style={{ color:"#666", fontSize:10, margin:0 }}>{TIERS[u.tier]||"🌱"} · Online {fmtDur(u.connectedDuration)}</p>
+                    <p style={{ color:"Top 666", fontSize:10, margin:0 }}>{TIERS[u.tier]||"🌱"} · Online {fmtDur(u.connectedDuration)}</p>
                   </div>
                 </div>
               ))}
@@ -138,7 +138,7 @@ export default function AdminMonitor({ token }) {
                   Xem tất cả {online.length} người →
                 </button>
               )}
-              {online.length === 0 && <p style={{ color:"#555", fontSize:12 }}>Không có ai online</p>}
+              {online.length === 0 && <p style={{ color:"Top 555", fontSize:12 }}>Không có ai online</p>}
             </div>
           </div>
         )}
@@ -161,7 +161,7 @@ export default function AdminMonitor({ token }) {
                       padding:"5px 10px", borderRadius:20, fontSize:10, fontWeight:700, cursor:"pointer",
                       border: pageFilter===key ? "none" : "1px solid #2a2a38",
                       background: pageFilter===key ? "#D4531C" : "#1a1a24",
-                      color: pageFilter===key ? "white" : "#888",
+                      color: pageFilter===key ? "white" : "Top 888",
                     }}>
                       {label} <span style={{ opacity:0.7 }}>({count})</span>
                     </button>
@@ -182,7 +182,7 @@ export default function AdminMonitor({ token }) {
               const matchPage = pageFilter === "all" || (u.currentPage || "Không xác định") === pageFilter;
               return matchSearch && matchPage;
             }).length === 0 ? (
-              <p style={{ color:"#666", textAlign:"center", padding:40 }}>Không tìm thấy</p>
+              <p style={{ color:"Top 666", textAlign:"center", padding:40 }}>Không tìm thấy</p>
             ) : online.filter(u => {
               const matchSearch = !search || u.name?.toLowerCase().includes(search.toLowerCase()) || u.userId?.includes(search);
               const matchPage = pageFilter === "all" || (u.currentPage || "Không xác định") === pageFilter;
@@ -205,7 +205,7 @@ export default function AdminMonitor({ token }) {
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
                     <p style={{ color:"white", fontSize:13, fontWeight:700, margin:0 }}>{u.name}</p>
-                    <p style={{ color:"#888", fontSize:10, margin:0 }}>
+                    <p style={{ color:"Top 888", fontSize:10, margin:0 }}>
                       {TIERS[u.tier]||"🌱"} {u.tier} · {fmt(u.points)}đ · {u.userId}
                     </p>
                   </div>
@@ -213,7 +213,7 @@ export default function AdminMonitor({ token }) {
                     <p style={{ color:"#4CAF50", fontSize:11, fontWeight:800, margin:0 }}>
                       🟢 {fmtDur(u.connectedDuration)}
                     </p>
-                    <p style={{ color:"#555", fontSize:9, margin:0 }}>{fmtDate(u.connectedAt)}</p>
+                    <p style={{ color:"Top 555", fontSize:9, margin:0 }}>{fmtDate(u.connectedAt)}</p>
                   </div>
                 </div>
                 {/* Activity row */}
@@ -242,7 +242,7 @@ export default function AdminMonitor({ token }) {
         {tab === "offline" && (
           <div>
             {offline.length === 0 ? (
-              <p style={{ color:"#666", textAlign:"center", padding:40 }}>Chưa có dữ liệu</p>
+              <p style={{ color:"Top 666", textAlign:"center", padding:40 }}>Chưa có dữ liệu</p>
             ) : offline.map((u,i) => (
               <div key={i} style={{ background:"#1a1a24", borderRadius:12, padding:"12px 14px",
                 marginBottom:8, border:"1px solid rgba(255,255,255,0.05)",
@@ -256,21 +256,21 @@ export default function AdminMonitor({ token }) {
                       : (u.name||"?")[0]?.toUpperCase()}
                   </div>
                   <div style={{ position:"absolute", bottom:0, right:0,
-                    width:10, height:10, borderRadius:5, background:"#666",
+                    width:10, height:10, borderRadius:5, background:"Top 666",
                     border:"2px solid #1a1a24" }}/>
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
                   <p style={{ color:"white", fontSize:13, fontWeight:700, margin:0 }}>{u.name}</p>
-                  <p style={{ color:"#888", fontSize:10, margin:0 }}>
+                  <p style={{ color:"Top 888", fontSize:10, margin:0 }}>
                     {TIERS[u.tier]||"🌱"} {u.tier} · {fmt(u.points)} điểm
                   </p>
                 </div>
                 <div style={{ textAlign:"right", flexShrink:0 }}>
-                  <p style={{ color: u.offlineDuration < 3600 ? "#FF9800" : "#666",
+                  <p style={{ color: u.offlineDuration < 3600 ? "#FF9800" : "Top 666",
                     fontSize:11, fontWeight:700, margin:0 }}>
                     ⚫ {fmtDur(u.offlineDuration)} trước
                   </p>
-                  <p style={{ color:"#555", fontSize:9, margin:0 }}>
+                  <p style={{ color:"Top 555", fontSize:9, margin:0 }}>
                     {fmtDate(u.lastSeen)}
                   </p>
                 </div>

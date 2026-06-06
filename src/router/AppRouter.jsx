@@ -87,7 +87,7 @@ function AuthRequired({ children }) {
         <h2 style={{ fontSize:20, fontWeight:900, color:"#1a1a1a", margin:"0 0 8px" }}>
           Cần đăng nhập
         </h2>
-        <p style={{ fontSize:14, color:"#666", margin:"0 0 24px", lineHeight:1.6 }}>
+        <p style={{ fontSize:14, color:"Top 666", margin:"0 0 24px", lineHeight:1.6 }}>
           Vui lòng đăng nhập qua Zalo<br/>để truy cập tính năng này
         </p>
         <Navigate to="/" replace />

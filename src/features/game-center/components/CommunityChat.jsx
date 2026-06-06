@@ -274,15 +274,15 @@ export default function CommunityChat({ onClose }) {
   const speakerUser = users.find(u => u.userId === speaker);
 
   return (
-    <div style={{ position:"fixed", inset:0, zIndex:500, background:"#080810", display:"flex", flexDirection:"column" }}>
+    <div style={{ position:"fixed", inset:0, zIndex:500, background:"Top 080810", display:"flex", flexDirection:"column" }}>
       <audio ref={audioRef} autoPlay style={{ display:"none" }}/>
 
       {/* Header */}
       <div style={{ padding:"calc(env(safe-area-inset-top,0px) + 12px) 16px 12px", background:"#0d0d18", borderBottom:"1px solid rgba(255,215,0,0.15)", display:"flex", alignItems:"center", gap:12 }}>
-        <button onClick={onClose} style={{ background:"none", border:"none", color:"#888", fontSize:22, cursor:"pointer" }}>←</button>
+        <button onClick={onClose} style={{ background:"none", border:"none", color:"Top 888", fontSize:22, cursor:"pointer" }}>←</button>
         <div style={{ flex:1 }}>
           <p style={{ color:"#FFD700", fontSize:15, fontWeight:900, margin:0 }}>💬 Cộng đồng "Cing iu"</p>
-          <p style={{ color:"#555", fontSize:11, margin:0 }}>{users.length} người đang online</p>
+          <p style={{ color:"Top 555", fontSize:11, margin:0 }}>{users.length} người đang online</p>
         </div>
         <button
           onPointerDown={e => { e.currentTarget.style.transform="scale(0.93)"; e.currentTarget.style.boxShadow="0 0 16px rgba(24,119,242,0.7)"; }}
@@ -301,7 +301,7 @@ export default function CommunityChat({ onClose }) {
             <button key={t.k} onClick={() => setTab(t.k)} style={{
               padding:"5px 12px", borderRadius:8, border:"none", cursor:"pointer", fontSize:11, fontWeight:700,
               background: tab===t.k ? "#D4531C" : "rgba(255,255,255,0.06)",
-              color: tab===t.k ? "white" : "#888",
+              color: tab===t.k ? "white" : "Top 888",
             }}>{t.l}</button>
           ))}
         </div>
@@ -313,7 +313,7 @@ export default function CommunityChat({ onClose }) {
       {tab === "chat" ? (
         <div style={{ flex:1, overflowY:"auto", padding:"12px 16px", display:"flex", flexDirection:"column", gap:8 }}>
           {messages.length === 0 && (
-            <div style={{ textAlign:"center", padding:"40px 0", color:"#444" }}>
+            <div style={{ textAlign:"center", padding:"40px 0", color:"Top 444" }}>
               <p style={{ fontSize:32, margin:"0 0 8px" }}>💬</p>
               <p style={{ fontSize:13 }}>Chưa có tin nhắn. Hãy bắt đầu trò chuyện!</p>
             </div>
@@ -330,7 +330,7 @@ export default function CommunityChat({ onClose }) {
                   <span style={{ fontSize:9, fontWeight:900, padding:"1px 6px", borderRadius:8, background:cb.bg, color:cb.color, border:`1px solid ${cb.color}55`, whiteSpace:"nowrap" }}>{cb.label}</span>
                 ) : null;
               })()}
-              <p style={{ color:"#888", fontSize:10, margin:0, textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.15)" }}>{m.name}</p>
+              <p style={{ color:"Top 888", fontSize:10, margin:0, textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.15)" }}>{m.name}</p>
               <TierBadge tierKey={m.tierKey || "member"} size="sm"/>
               {championId && String(m.userId) === championId && (
                 <TierBadge tierKey="member" isChampion={true} size="sm"/>
@@ -338,7 +338,7 @@ export default function CommunityChat({ onClose }) {
             </div>}
               <div style={{ display:"flex", alignItems:"flex-end", gap:6, flexDirection: isMe(m.userId)?"row-reverse":"row" }}>
                 {!isMe(m.userId) && (
-                  <div style={{ width:28, height:28, borderRadius:14, background:"#1a1a2e", flexShrink:0, overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:900, color:"#666" }}>
+                  <div style={{ width:28, height:28, borderRadius:14, background:"#1a1a2e", flexShrink:0, overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:900, color:"Top 666" }}>
                     {m.avatar ? <img src={m.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (m.name||"?")[0]}
                   </div>
                 )}
@@ -354,7 +354,7 @@ export default function CommunityChat({ onClose }) {
         <div style={{ flex:1, overflowY:"auto", padding:"12px 16px" }}>
           {users.map((u, i) => (
             <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
-              <div style={{ width:36, height:36, borderRadius:18, background:"#1a1a2e", overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:900, color:"#666", position:"relative" }}>
+              <div style={{ width:36, height:36, borderRadius:18, background:"#1a1a2e", overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:900, color:"Top 666", position:"relative" }}>
                 {u.avatar ? <img src={u.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (u.name||"?")[0]}
                 <div style={{ position:"absolute", bottom:0, right:0, width:10, height:10, borderRadius:5, background:"#00c864", border:"2px solid #0d0d18" }}/>
               </div>

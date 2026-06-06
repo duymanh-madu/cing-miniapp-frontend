@@ -32,7 +32,7 @@ function getStyle(item) {
   if (item._type==="plays_given")    return { color:"#e879f9", bg:"rgba(232,121,249,0.1)",icon:"🎀" };
   if (item._type==="reward")         return { color:"#FFD700", bg:"rgba(255,215,0,0.1)",  icon:"🏆" };
   if (item._type==="profile_change") return { color:"#607D8B", bg:"rgba(96,125,139,0.1)",icon:"👤" };
-  return { color:"#999", bg:"rgba(0,0,0,0.05)", icon:"📋" };
+  return { color:"Top 999", bg:"rgba(0,0,0,0.05)", icon:"📋" };
 }
 
 function getTitle(item) {
@@ -144,9 +144,9 @@ export default function AdminLogs({ token }) {
 
       {/* Log list */}
       {loading ? (
-        <p style={{ color:"#555", textAlign:"center", padding:40 }}>Đang tải...</p>
+        <p style={{ color:"Top 555", textAlign:"center", padding:40 }}>Đang tải...</p>
       ) : logs.length === 0 ? (
-        <p style={{ color:"#555", textAlign:"center", padding:40 }}>Không có dữ liệu</p>
+        <p style={{ color:"Top 555", textAlign:"center", padding:40 }}>Không có dữ liệu</p>
       ) : (
         <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
           {logs.map((item, i) => {
@@ -161,9 +161,9 @@ export default function AdminLogs({ token }) {
                   <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
                     <span style={{ fontSize:10, color:st.color, background:st.bg,
                       borderRadius:4, padding:"1px 6px", fontWeight:700 }}>{item._type}</span>
-                    <span style={{ fontSize:10, color:"#555" }}>{fmtDate(item.created_at)}</span>
-                    {item.status && <span style={{ fontSize:10, color:"#888" }}>{item.status}</span>}
-                    {item.source && <span style={{ fontSize:10, color:"#666" }}>via {item.source}</span>}
+                    <span style={{ fontSize:10, color:"Top 555" }}>{fmtDate(item.created_at)}</span>
+                    {item.status && <span style={{ fontSize:10, color:"Top 888" }}>{item.status}</span>}
+                    {item.source && <span style={{ fontSize:10, color:"Top 666" }}>via {item.source}</span>}
                   </div>
                 </div>
               </div>
@@ -177,14 +177,14 @@ export default function AdminLogs({ token }) {
         <button onClick={()=>{ const p=Math.max(1,page-1); setPage(p); fetchLogs(tab,p,search); }}
           disabled={page<=1}
           style={{ background:"rgba(255,255,255,0.08)", border:"none", borderRadius:8,
-            padding:"6px 16px", color: page<=1?"#444":"white", cursor: page<=1?"not-allowed":"pointer", fontSize:12 }}>
+            padding:"6px 16px", color: page<=1?"Top 444":"white", cursor: page<=1?"not-allowed":"pointer", fontSize:12 }}>
           ← Trước
         </button>
-        <span style={{ color:"#666", fontSize:12, padding:"6px 0" }}>Trang {page}</span>
+        <span style={{ color:"Top 666", fontSize:12, padding:"6px 0" }}>Trang {page}</span>
         <button onClick={()=>{ const p=page+1; setPage(p); fetchLogs(tab,p,search); }}
           disabled={logs.length<50}
           style={{ background:"rgba(255,255,255,0.08)", border:"none", borderRadius:8,
-            padding:"6px 16px", color: logs.length<50?"#444":"white", cursor: logs.length<50?"not-allowed":"pointer", fontSize:12 }}>
+            padding:"6px 16px", color: logs.length<50?"Top 444":"white", cursor: logs.length<50?"not-allowed":"pointer", fontSize:12 }}>
           Sau →
         </button>
       </div>

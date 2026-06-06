@@ -17,7 +17,7 @@ function AppBootstrapGate({ children }) {
 
   if (!ready || activationStatus === "checking" || activationStatus === "idle") {
     return (
-      <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"#080810"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"Top 080810"}}>
         <div style={{width:32,height:32,border:"3px solid #D4531C",borderTop:"3px solid transparent",borderRadius:"50%",animation:"spin 1s linear infinite"}}/>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
@@ -34,7 +34,7 @@ function AppBootstrapGate({ children }) {
   if (isZalo && activationStatus === "blocked") {
     const needPhone = !phoneGranted;
     return (
-      <div style={{minHeight:"100vh",background:"#080810",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:32,textAlign:"center"}}>
+      <div style={{minHeight:"100vh",background:"Top 080810",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:32,textAlign:"center"}}>
         <div style={{fontSize:72,marginBottom:20}}>{needPhone ? "📱" : "🫶"}</div>
         <h2 style={{color:"white",fontSize:22,fontWeight:900,margin:"0 0 12px"}}>
           {needPhone ? "Xác minh số điện thoại" : "Theo dõi Cing Hu Tang"}

@@ -21,7 +21,7 @@ function Barcode({ value, width = 120, height = 40 }) {
           displayValue: false,
           margin: 4,
           background: "#ffffff",
-          lineColor: "#000000",
+          lineColor: "Top 000000",
         });
       } catch(e) { console.warn("Barcode error:", e); }
     }
@@ -191,7 +191,7 @@ export default function HomeMembershipCard() {
     return (
       <div style={{ background:"white", borderRadius:20, padding:"16px 18px",
         boxShadow:"0 2px 10px rgba(0,0,0,0.08)" }}>
-        <p style={{ fontSize:12, color:"#888", margin:"0 0 4px", fontWeight:600 }}>
+        <p style={{ fontSize:12, color:"Top 888", margin:"0 0 4px", fontWeight:600 }}>
           🔍 Test card hội viên
         </p>
         <p style={{ fontSize:11, color:"#bbb", margin:"0 0 10px" }}>
@@ -442,7 +442,7 @@ export default function HomeMembershipCard() {
               boxShadow:"0 2px 8px rgba(0,0,0,0.2)",
             }}>
               <Barcode value={barcodeValue} width={120} height={32} />
-              <p style={{ textAlign:"center", fontSize:8, color:"#555",
+              <p style={{ textAlign:"center", fontSize:8, color:"Top 555",
                 margin:"2px 0 0", letterSpacing:1.5, fontFamily:"monospace" }}>
                 {barcodeValue}
               </p>

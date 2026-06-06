@@ -51,7 +51,7 @@ export default function AdminGames({ token }) {
       {/* Adjust plays */}
       <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px",
         border:"1px solid #2a2a38", marginBottom:20 }}>
-        <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:1,
+        <p style={{ color:"Top 888", fontSize:11, fontWeight:700, letterSpacing:1,
           margin:"0 0 12px", textTransform:"uppercase" }}>🎯 Điều chỉnh lượt chơi</p>
         {msg && <div style={{ color:msg.includes("✅")?"#4CAF50":"#f44336",
           fontSize:13, marginBottom:10 }}>{msg}</div>}
@@ -80,7 +80,7 @@ export default function AdminGames({ token }) {
 
       {/* Game tabs */}
       {loading ? (
-        <p style={{ color:"#666" }}>Đang tải...</p>
+        <p style={{ color:"Top 666" }}>Đang tải...</p>
       ) : (
         <>
           <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
@@ -88,7 +88,7 @@ export default function AdminGames({ token }) {
               <button key={g.game_key} onClick={()=>setActiveGame(g.game_key)} style={{
                 background: activeGame===g.game_key ? "rgba(212,83,28,0.2)" : "#1a1a24",
                 border: `1px solid ${activeGame===g.game_key ? "#D4531C" : "#2a2a38"}`,
-                color: activeGame===g.game_key ? "#D4531C" : "#888",
+                color: activeGame===g.game_key ? "#D4531C" : "Top 888",
                 borderRadius:10, padding:"8px 16px", fontSize:12,
                 fontWeight:700, cursor:"pointer"
               }}>
@@ -107,13 +107,13 @@ export default function AdminGames({ token }) {
               </div>
               <div style={{ maxHeight:400, overflowY:"auto" }}>
                 {currentScores.length === 0 ? (
-                  <p style={{ color:"#666", padding:20, textAlign:"center" }}>Chưa có dữ liệu</p>
+                  <p style={{ color:"Top 666", padding:20, textAlign:"center" }}>Chưa có dữ liệu</p>
                 ) : currentScores.map((s, i) => (
                   <div key={i} style={{ display:"flex", alignItems:"center", gap:12,
                     padding:"10px 20px", borderBottom:"1px solid #12121a" }}>
-                    <span style={{ color: i<3?"#FFD700":"#666", fontSize:13,
+                    <span style={{ color: i<3?"#FFD700":"Top 666", fontSize:13,
                       fontWeight:700, width:28, textAlign:"center" }}>
-                      {i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`}
+                      {i===0?"🥇":i===1?"🥈":i===2?"🥉":`Top ${i+1}`}
                     </span>
                     <div style={{ width:32, height:32, borderRadius:16, flexShrink:0,
                       background:"linear-gradient(135deg,#1a0a2e,#2d1254)",
@@ -125,7 +125,7 @@ export default function AdminGames({ token }) {
                     </div>
                     <div style={{ flex:1 }}>
                       <p style={{ color:"white", fontSize:13, fontWeight:700, margin:0 }}>{s.player_name}</p>
-                      <p style={{ color:"#666", fontSize:11, margin:0 }}>{s.user_id}</p>
+                      <p style={{ color:"Top 666", fontSize:11, margin:0 }}>{s.user_id}</p>
                     </div>
                     <p style={{ color:"#FFD700", fontSize:14, fontWeight:900, margin:0 }}>
                       {(s.score||0).toLocaleString()} điểm

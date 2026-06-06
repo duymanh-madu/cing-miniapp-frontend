@@ -145,7 +145,7 @@ export default function MembershipPage() {
                 action:"Đổi ngay",
                 path:null,
                 actionKey:"exchange_voucher",
-                color:"#059669",
+                color:"Top 059669",
                 bg:"#f0fdf4",
               },
               {
@@ -168,7 +168,7 @@ export default function MembershipPage() {
                     <p style={{ fontSize:14, fontWeight:800, color:"#1a1a1a", margin:"0 0 4px" }}>
                       {item.title}
                     </p>
-                    <p style={{ fontSize:12, color:"#666", margin:0, lineHeight:1.5 }}>
+                    <p style={{ fontSize:12, color:"Top 666", margin:0, lineHeight:1.5 }}>
                       {item.desc}
                     </p>
                   </div>
@@ -208,7 +208,7 @@ export default function MembershipPage() {
                   <p style={{ fontSize:13, fontWeight:700, color:"#1a1a1a", margin:"0 0 2px" }}>
                     {item.title}
                   </p>
-                  <p style={{ fontSize:11, color:"#999", margin:0 }}>{item.desc}</p>
+                  <p style={{ fontSize:11, color:"Top 999", margin:0 }}>{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -229,7 +229,7 @@ export default function MembershipPage() {
                 <button key={t.key} onClick={() => setActiveTab(t.key)} style={{
                   background: activeTab===t.key ? "#D4531C" : "#f5f5f5",
                   border:"none", borderRadius:20, padding:"6px 14px", cursor:"pointer",
-                  color: activeTab===t.key ? "white" : "#666",
+                  color: activeTab===t.key ? "white" : "Top 666",
                   fontSize:12, fontWeight:700,
                 }}>{t.label}</button>
               ))}
@@ -257,7 +257,7 @@ export default function MembershipPage() {
                       textOverflow:"ellipsis" }}>
                       {item.label}
                     </p>
-                    <p style={{ fontSize:11, color:"#999", margin:0 }}>
+                    <p style={{ fontSize:11, color:"Top 999", margin:0 }}>
                       {item.date ? new Date(item.date).toLocaleDateString("vi-VN", {
                         day:"2-digit", month:"2-digit", year:"numeric",
                         hour:"2-digit", minute:"2-digit"
@@ -317,7 +317,7 @@ export default function MembershipPage() {
                   <div style={{ flex:1 }}>
                     <p style={{ fontSize:13, fontWeight:700, color:"#1a1a1a", margin:"0 0 2px",
                       overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>{reason}</p>
-                    <p style={{ fontSize:11, color:"#999", margin:0 }}>
+                    <p style={{ fontSize:11, color:"Top 999", margin:0 }}>
                       {date}
                       {newTotal !== undefined && (
                         <span style={{ marginLeft:6, color:"#bbb" }}>· Còn {Math.round(newTotal)} {unit}</span>
@@ -345,37 +345,37 @@ export default function MembershipPage() {
             padding:"28px 24px 48px" }}
             onClick={e => e.stopPropagation()}>
             <h2 style={{ fontSize:18, fontWeight:900, margin:"0 0 6px" }}>🎟 Đổi điểm lấy voucher</h2>
-            <p style={{ fontSize:13, color:"#666", margin:"0 0 20px" }}>1 điểm = 1.000đ giảm giá</p>
+            <p style={{ fontSize:13, color:"Top 666", margin:"0 0 20px" }}>1 điểm = 1.000đ giảm giá</p>
 
             {exchangeResult ? (
               <div style={{ textAlign:"center", padding:"16px 0" }}>
                 <p style={{ fontSize:40 }}>🎉</p>
-                <p style={{ fontSize:16, fontWeight:800, color:"#059669", margin:"8px 0 4px" }}>Đổi thành công!</p>
+                <p style={{ fontSize:16, fontWeight:800, color:"Top 059669", margin:"8px 0 4px" }}>Đổi thành công!</p>
                 <div style={{ background:"#f0fdf4", borderRadius:16, padding:"16px", margin:"16px 0" }}>
-                  <p style={{ fontSize:12, color:"#666", margin:"0 0 6px" }}>Mã voucher của bạn</p>
-                  <p style={{ fontSize:28, fontWeight:900, color:"#059669", letterSpacing:3, margin:"0 0 6px" }}>
+                  <p style={{ fontSize:12, color:"Top 666", margin:"0 0 6px" }}>Mã voucher của bạn</p>
+                  <p style={{ fontSize:28, fontWeight:900, color:"Top 059669", letterSpacing:3, margin:"0 0 6px" }}>
                     {exchangeResult.voucher_code}
                   </p>
-                  <p style={{ fontSize:13, color:"#333", margin:"0 0 4px" }}>
+                  <p style={{ fontSize:13, color:"Top 333", margin:"0 0 4px" }}>
                     Giảm {new Intl.NumberFormat("vi-VN").format(exchangeResult.discount_amount)}đ
                   </p>
-                  <p style={{ fontSize:11, color:"#999", margin:0 }}>HSD: {exchangeResult.date_end?.slice(0,10)}</p>
+                  <p style={{ fontSize:11, color:"Top 999", margin:0 }}>HSD: {exchangeResult.date_end?.slice(0,10)}</p>
                 </div>
-                <p style={{ fontSize:12, color:"#666" }}>Dùng được cả online lẫn tại quán</p>
+                <p style={{ fontSize:12, color:"Top 666" }}>Dùng được cả online lẫn tại quán</p>
                 <button onClick={() => { setShowExchange(false); setExchangeResult(null); }}
                   style={{ marginTop:16, width:"100%", padding:12, borderRadius:12, border:"none",
-                    background:"#059669", color:"white", fontSize:14, fontWeight:800, cursor:"pointer" }}>
+                    background:"Top 059669", color:"white", fontSize:14, fontWeight:800, cursor:"pointer" }}>
                   Đóng
                 </button>
               </div>
             ) : (
               <>
                 <div style={{ background:"#f0fdf4", borderRadius:16, padding:"16px", marginBottom:20 }}>
-                  <p style={{ fontSize:13, color:"#666", margin:"0 0 4px" }}>Bạn đang có</p>
-                  <p style={{ fontSize:28, fontWeight:900, color:"#059669", margin:0 }}>
+                  <p style={{ fontSize:13, color:"Top 666", margin:"0 0 4px" }}>Bạn đang có</p>
+                  <p style={{ fontSize:28, fontWeight:900, color:"Top 059669", margin:0 }}>
                     {points.toLocaleString("vi-VN")} điểm
                   </p>
-                  <p style={{ fontSize:12, color:"#999", margin:"4px 0 0" }}>= {fmt(points * 1000)}</p>
+                  <p style={{ fontSize:12, color:"Top 999", margin:"4px 0 0" }}>= {fmt(points * 1000)}</p>
                 </div>
 
                 <p style={{ fontSize:13, fontWeight:700, margin:"0 0 8px" }}>Nhập số điểm muốn đổi:</p>
@@ -388,11 +388,11 @@ export default function MembershipPage() {
                       setExchangePoints(v);
                     }}
                     style={{ flex:1, border:"2px solid #059669", borderRadius:10, padding:"10px 12px",
-                      fontSize:16, fontWeight:800, color:"#059669", outline:"none", textAlign:"center" }}
+                      fontSize:16, fontWeight:800, color:"Top 059669", outline:"none", textAlign:"center" }}
                   />
                   <button onClick={() => setExchangePoints(points)}
                     style={{ padding:"10px 14px", borderRadius:10, border:"none",
-                      background:"#059669", color:"white", fontSize:12, fontWeight:800, cursor:"pointer" }}>
+                      background:"Top 059669", color:"white", fontSize:12, fontWeight:800, cursor:"pointer" }}>
                     Tối đa
                   </button>
                 </div>
@@ -402,7 +402,7 @@ export default function MembershipPage() {
                       style={{ padding:"6px 12px", borderRadius:16,
                         border: exchangePoints === pt ? "2px solid #059669" : "1px solid #e0e0e0",
                         background: exchangePoints === pt ? "#f0fdf4" : "white",
-                        color: exchangePoints === pt ? "#059669" : "#666",
+                        color: exchangePoints === pt ? "Top 059669" : "Top 666",
                         fontWeight:700, fontSize:12, cursor:"pointer" }}>
                       {pt}đ
                     </button>
@@ -436,7 +436,7 @@ export default function MembershipPage() {
                     setExchanging(false);
                   }}
                   style={{ width:"100%", padding:14, borderRadius:14, border:"none",
-                    background: (exchanging || points < exchangePoints) ? "#e0e0e0" : "#059669",
+                    background: (exchanging || points < exchangePoints) ? "#e0e0e0" : "Top 059669",
                     color:"white", fontSize:15, fontWeight:900, cursor:"pointer" }}>
                   {exchanging ? "Đang xử lý..." : `Đổi ${exchangePoints} điểm ngay`}
                 </button>

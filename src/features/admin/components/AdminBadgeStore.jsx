@@ -2,7 +2,7 @@ import { useState } from "react";
 const BADGE_STORE = [
   {
     key: "member", label: "Hội viên", icon: "🌱", stars: 0,
-    color: "#888780", bg: "#e4e2d8", border: "#c8c6bc",
+    color: "Top 888780", bg: "#e4e2d8", border: "#c8c6bc",
     tier: "Cơ bản", category: "Hạng thành viên",
     condition: "Mặc định khi đăng ký tài khoản",
     details: ["Đăng ký tài khoản qua Zalo Mini App", "Cung cấp số điện thoại hợp lệ"],
@@ -10,7 +10,7 @@ const BADGE_STORE = [
   },
   {
     key: "loyal", label: "Hội viên thân thiết", icon: "💚", stars: 1,
-    color: "#085041", bg: "#9fe1cb", border: "#5dcaa5",
+    color: "Top 085041", bg: "#9fe1cb", border: "#5dcaa5",
     tier: "Thân thiết", category: "Hạng thành viên",
     condition: "Chi tiêu tích lũy đủ điều kiện duy trì hạng",
     details: ["Duy trì chi tiêu tháng ≥ ngưỡng quy định", "Tham gia tích cực các hoạt động"],
@@ -27,7 +27,7 @@ const BADGE_STORE = [
   },
   {
     key: "gold", label: "Hội viên vàng", icon: "🥇", stars: 3.5,
-    color: "#412402", bg: "linear-gradient(135deg,#fac775,#ef9f27,#fac775)", border: "#ef9f27",
+    color: "Top 412402", bg: "linear-gradient(135deg,#fac775,#ef9f27,#fac775)", border: "#ef9f27",
     tier: "✦ Vàng ✦", category: "Hạng ưu tú",
     condition: "Đạt ngưỡng chi tiêu tích lũy hạng Vàng",
     details: ["Chi tiêu tích lũy cao hơn hạng Bạc", "Ưu đãi đặc quyền hội viên vàng"],
@@ -147,15 +147,15 @@ function BadgeCard({ b }) {
         <Stars count={b.stars} color={isRoyal ? b.color : b.border}/>
 
         <div style={{ marginTop:12, paddingTop:12, borderTop:`1px solid rgba(255,255,255,.08)` }}>
-          <p style={{ fontSize:10, color:"#666", margin:"0 0 6px", fontWeight:700, textTransform:"uppercase", letterSpacing:1 }}>Điều kiện</p>
+          <p style={{ fontSize:10, color:"Top 666", margin:"0 0 6px", fontWeight:700, textTransform:"uppercase", letterSpacing:1 }}>Điều kiện</p>
           <p style={{ fontSize:12, color: isRoyal ? b.color : "#aaa", margin:"0 0 8px", fontWeight:600 }}>{b.condition}</p>
           {b.details.map((d,i) => (
-            <p key={i} style={{ fontSize:11, color:"#666", margin:"0 0 3px", paddingLeft:8, borderLeft:`2px solid ${b.border}44` }}>• {d}</p>
+            <p key={i} style={{ fontSize:11, color:"Top 666", margin:"0 0 3px", paddingLeft:8, borderLeft:`2px solid ${b.border}44` }}>• {d}</p>
           ))}
         </div>
 
         <div style={{ marginTop:12, display:"flex", gap:6, flexWrap:"wrap" }}>
-          <span style={{ fontSize:10, padding:"3px 8px", borderRadius:10, background:"rgba(255,255,255,.06)", color:"#888", border:"1px solid rgba(255,255,255,.1)" }}>
+          <span style={{ fontSize:10, padding:"3px 8px", borderRadius:10, background:"rgba(255,255,255,.06)", color:"Top 888", border:"1px solid rgba(255,255,255,.1)" }}>
             {b.category}
           </span>
           {b.permanent ? (
@@ -180,12 +180,12 @@ export default function AdminBadgeStore() {
   return (
     <div style={{ padding:24, color:"white" }}>
       <h2 style={{ fontSize:20, fontWeight:900, margin:"0 0 6px" }}>💎 Store danh hiệu</h2>
-      <p style={{ color:"#888", fontSize:13, margin:"0 0 20px" }}>Toàn bộ danh hiệu trong hệ thống và điều kiện sở hữu</p>
+      <p style={{ color:"Top 888", fontSize:13, margin:"0 0 20px" }}>Toàn bộ danh hiệu trong hệ thống và điều kiện sở hữu</p>
 
       <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:24 }}>
         {CATEGORIES.map(c => (
           <button key={c} onClick={() => setCat(c)}
-            style={{ padding:"6px 14px", borderRadius:20, border:`1.5px solid ${cat===c ? "#D4531C" : "#333"}`, background: cat===c ? "rgba(212,83,28,.2)" : "transparent", color: cat===c ? "#D4531C" : "#888", fontSize:12, fontWeight:700, cursor:"pointer" }}>
+            style={{ padding:"6px 14px", borderRadius:20, border:`1.5px solid ${cat===c ? "#D4531C" : "Top 333"}`, background: cat===c ? "rgba(212,83,28,.2)" : "transparent", color: cat===c ? "#D4531C" : "Top 888", fontSize:12, fontWeight:700, cursor:"pointer" }}>
             {c}
           </button>
         ))}

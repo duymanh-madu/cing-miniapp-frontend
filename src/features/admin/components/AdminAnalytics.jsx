@@ -24,7 +24,7 @@ function MiniBarChart({ data, valueKey, labelKey, color, height = 80 }) {
                 borderRadius:"2px 2px 0 0", transition:"height 0.3s" }}/>
             </div>
             {data.length <= 24 && (
-              <span style={{ fontSize:7, color: isLast?"white":"#444", whiteSpace:"nowrap",
+              <span style={{ fontSize:7, color: isLast?"white":"Top 444", whiteSpace:"nowrap",
                 transform:"rotate(-45deg)", transformOrigin:"center" }}>
                 {d[labelKey]}
               </span>
@@ -41,7 +41,7 @@ function KPICard({ label, current, previous, pct, color, icon, isMoney }) {
   return (
     <div style={{ background:"#1a1a24", borderRadius:14, padding:"16px 18px",
       border:`1px solid ${color}22` }}>
-      <p style={{ color:"#666", fontSize:11, margin:"0 0 8px" }}>{icon} {label}</p>
+      <p style={{ color:"Top 666", fontSize:11, margin:"0 0 8px" }}>{icon} {label}</p>
       <p style={{ color:"white", fontSize:22, fontWeight:900, margin:"0 0 6px" }}>
         {isMoney ? fmtM(current) + "đ" : fmt(current)}
       </p>
@@ -51,7 +51,7 @@ function KPICard({ label, current, previous, pct, color, icon, isMoney }) {
           borderRadius:6, padding:"2px 8px", fontSize:11, fontWeight:700 }}>
           {up ? "▲" : "▼"} {Math.abs(pct)}%
         </span>
-        <span style={{ color:"#555", fontSize:10 }}>so kỳ trước ({isMoney ? fmtM(previous)+"đ" : fmt(previous)})</span>
+        <span style={{ color:"Top 555", fontSize:10 }}>so kỳ trước ({isMoney ? fmtM(previous)+"đ" : fmt(previous)})</span>
       </div>
     </div>
   );
@@ -124,7 +124,7 @@ export default function AdminAnalytics({ token }) {
       </div>
 
       {loading ? (
-        <p style={{ color:"#666", textAlign:"center", padding:60 }}>Đang tải dữ liệu...</p>
+        <p style={{ color:"Top 666", textAlign:"center", padding:60 }}>Đang tải dữ liệu...</p>
       ) : (<>
 
         {/* KPI Cards */}
@@ -149,7 +149,7 @@ export default function AdminAnalytics({ token }) {
             <button key={c.key} onClick={() => setActiveChart(c.key)} style={{
               background: activeChart===c.key ? "rgba(212,83,28,0.2)" : "rgba(255,255,255,0.05)",
               border: `1px solid ${activeChart===c.key ? "#D4531C" : "#2a2a38"}`,
-              color: activeChart===c.key ? "#D4531C" : "#888",
+              color: activeChart===c.key ? "#D4531C" : "Top 888",
               borderRadius:8, padding:"7px 14px", fontSize:12, fontWeight:700, cursor:"pointer",
             }}>{c.label}</button>
           ))}
@@ -160,15 +160,15 @@ export default function AdminAnalytics({ token }) {
           marginBottom:20, border:"1px solid #2a2a38" }}>
           {activeChart === "revenue" && revenueDay.length > 0 && (
             <>
-              <p style={{ color:"#888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
+              <p style={{ color:"Top 888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
                 💰 DOANH THU {period} NGÀY GẦN NHẤT
               </p>
               <MiniBarChart data={revenueDay} valueKey="revenue" labelKey="label" color="#D4531C" height={120}/>
               <div style={{ display:"flex", justifyContent:"space-between", marginTop:12 }}>
-                <span style={{ color:"#555", fontSize:11 }}>
+                <span style={{ color:"Top 555", fontSize:11 }}>
                   Tổng: {fmtM(revenueDay.reduce((s,d)=>s+d.revenue,0))}đ
                 </span>
-                <span style={{ color:"#555", fontSize:11 }}>
+                <span style={{ color:"Top 555", fontSize:11 }}>
                   Trung bình/ngày: {fmtM(Math.round(revenueDay.reduce((s,d)=>s+d.revenue,0)/revenueDay.length))}đ
                 </span>
               </div>
@@ -177,7 +177,7 @@ export default function AdminAnalytics({ token }) {
 
           {activeChart === "hour" && revenueHour.length > 0 && (
             <>
-              <p style={{ color:"#888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
+              <p style={{ color:"Top 888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
                 🕐 DOANH THU THEO GIỜ HÔM NAY
               </p>
               <div style={{ display:"flex", alignItems:"flex-end", gap:2, height:120 }}>
@@ -197,13 +197,13 @@ export default function AdminAnalytics({ token }) {
                           borderRadius:"2px 2px 0 0" }}/>
                       </div>
                       {i % 4 === 0 && (
-                        <span style={{ fontSize:8, color:"#444" }}>{i}h</span>
+                        <span style={{ fontSize:8, color:"Top 444" }}>{i}h</span>
                       )}
                     </div>
                   );
                 })}
               </div>
-              <p style={{ color:"#555", fontSize:11, margin:"10px 0 0" }}>
+              <p style={{ color:"Top 555", fontSize:11, margin:"10px 0 0" }}>
                 Giờ cao điểm: {revenueHour.reduce((m,d,i) => d.revenue>revenueHour[m].revenue?i:m, 0)}h —
                 Doanh thu: {fmtM(Math.max(...revenueHour.map(d=>d.revenue)))}đ
               </p>
@@ -212,15 +212,15 @@ export default function AdminAnalytics({ token }) {
 
           {activeChart === "orders" && revenueDay.length > 0 && (
             <>
-              <p style={{ color:"#888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
+              <p style={{ color:"Top 888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
                 🛍 ĐƠN HÀNG {period} NGÀY GẦN NHẤT
               </p>
               <MiniBarChart data={revenueDay} valueKey="orders" labelKey="label" color="#2196F3" height={120}/>
               <div style={{ display:"flex", justifyContent:"space-between", marginTop:12 }}>
-                <span style={{ color:"#555", fontSize:11 }}>
+                <span style={{ color:"Top 555", fontSize:11 }}>
                   Tổng: {fmt(revenueDay.reduce((s,d)=>s+d.orders,0))} đơn
                 </span>
-                <span style={{ color:"#555", fontSize:11 }}>
+                <span style={{ color:"Top 555", fontSize:11 }}>
                   Trung bình/ngày: {(revenueDay.reduce((s,d)=>s+d.orders,0)/revenueDay.length).toFixed(1)} đơn
                 </span>
               </div>
@@ -233,7 +233,7 @@ export default function AdminAnalytics({ token }) {
 
           {/* Funnel */}
           <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px", border:"1px solid #2a2a38" }}>
-            <p style={{ color:"#888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
+            <p style={{ color:"Top 888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
               🔽 FUNNEL CHUYỂN ĐỔI
             </p>
             {funnel.map((f, i) => {
@@ -251,7 +251,7 @@ export default function AdminAnalytics({ token }) {
                       borderRadius:4, transition:"width 0.5s" }}/>
                   </div>
                   {i > 0 && (
-                    <p style={{ color:"#555", fontSize:10, margin:"3px 0 0", textAlign:"right" }}>
+                    <p style={{ color:"Top 555", fontSize:10, margin:"3px 0 0", textAlign:"right" }}>
                       Tỷ lệ chuyển đổi: {convRate}%
                     </p>
                   )}
@@ -262,11 +262,11 @@ export default function AdminAnalytics({ token }) {
 
           {/* Payment Methods */}
           <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px", border:"1px solid #2a2a38" }}>
-            <p style={{ color:"#888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
+            <p style={{ color:"Top 888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
               💳 PHƯƠNG THỨC THANH TOÁN
             </p>
             {payMethods.length === 0 ? (
-              <p style={{ color:"#555", fontSize:13 }}>Chưa có dữ liệu</p>
+              <p style={{ color:"Top 555", fontSize:13 }}>Chưa có dữ liệu</p>
             ) : payMethods.map((m, i) => {
               const info = PAYMENT_METHOD_LABELS[m.method] || { label: m.method, icon:"💳" };
               const totalRev = payMethods.reduce((s,x)=>s+x.revenue,0);
@@ -282,7 +282,7 @@ export default function AdminAnalytics({ token }) {
                       background: i===0?"#D4531C":i===1?"#2196F3":i===2?"#4CAF50":"#9C27B0",
                       borderRadius:4 }}/>
                   </div>
-                  <p style={{ color:"#555", fontSize:10, margin:"3px 0 0" }}>
+                  <p style={{ color:"Top 555", fontSize:10, margin:"3px 0 0" }}>
                     {fmt(m.count)} giao dịch · {fmtM(m.revenue)}đ
                   </p>
                 </div>
@@ -293,17 +293,17 @@ export default function AdminAnalytics({ token }) {
 
         {/* Top Products */}
         <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px", border:"1px solid #2a2a38" }}>
-          <p style={{ color:"#888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
+          <p style={{ color:"Top 888", fontSize:11, fontWeight:700, margin:"0 0 16px", letterSpacing:1 }}>
             🏆 MÓN BÁN CHẠY NHẤT ({period} ngày)
           </p>
           {topProducts.length === 0 ? (
-            <p style={{ color:"#555", fontSize:13 }}>Chưa có dữ liệu</p>
+            <p style={{ color:"Top 555", fontSize:13 }}>Chưa có dữ liệu</p>
           ) : (
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
               {topProducts.slice(0, 10).map((p, i) => (
                 <div key={i} style={{ display:"flex", alignItems:"center", gap:10,
                   background:"#12121a", borderRadius:10, padding:"10px 12px" }}>
-                  <span style={{ color: i<3?"#FFD700":"#555", fontSize:13,
+                  <span style={{ color: i<3?"#FFD700":"Top 555", fontSize:13,
                     fontWeight:800, width:24, textAlign:"center" }}>
                     {i===0?"🥇":i===1?"🥈":i===2?"🥉":`${i+1}`}
                   </span>
@@ -312,7 +312,7 @@ export default function AdminAnalytics({ token }) {
                       overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
                       {p.name}
                     </p>
-                    <p style={{ color:"#555", fontSize:10, margin:0 }}>
+                    <p style={{ color:"Top 555", fontSize:10, margin:0 }}>
                       {fmt(p.quantity)} phần · {fmtM(p.revenue)}đ
                     </p>
                   </div>

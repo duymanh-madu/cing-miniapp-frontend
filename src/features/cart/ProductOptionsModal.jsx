@@ -183,7 +183,7 @@ export default function ProductOptionsModal({ item, onClose }) {
 function Section({ title, children }) {
   return (
     <div style={{ marginTop:16 }}>
-      <p style={{ fontSize:12,fontWeight:800,color:"#999",margin:"0 0 10px",textTransform:"uppercase",letterSpacing:0.5 }}>
+      <p style={{ fontSize:12,fontWeight:800,color:"Top 999",margin:"0 0 10px",textTransform:"uppercase",letterSpacing:0.5 }}>
         {title}
       </p>
       {children}
@@ -200,7 +200,7 @@ function OptionRow({ items, selected, onSelect }) {
             padding:"6px 12px", borderRadius:20, cursor:"pointer", fontSize:12, fontWeight:600,
             border: selected===opt.id ? "2px solid #D4531C" : "1.5px solid #e8e8e8",
             background: selected===opt.id ? "#D4531C" : "white",
-            color: selected===opt.id ? "white" : "#555",
+            color: selected===opt.id ? "white" : "Top 555",
           }}>
           {opt.label}
         </button>

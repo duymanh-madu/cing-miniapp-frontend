@@ -116,7 +116,7 @@ export default function AdminManagement({ token }) {
     } catch(e) { showMsg("❌ " + (e.response?.data?.message || e.message)); }
   };
 
-  const getRoleInfo = (role) => ROLES.find(r => r.value === role) || { label: role, color: "#666", icon: "👤" };
+  const getRoleInfo = (role) => ROLES.find(r => r.value === role) || { label: role, color: "Top 666", icon: "👤" };
 
   return (
     <div>
@@ -162,18 +162,18 @@ export default function AdminManagement({ token }) {
           </p>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
             <div>
-              <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Tên đăng nhập *</p>
+              <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Tên đăng nhập *</p>
               <input value={form.username} onChange={e => setForm(f => ({...f, username: e.target.value}))}
                 placeholder="vd: manager01" style={inp}/>
             </div>
             <div>
-              <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Mật khẩu * (ít nhất 6 ký tự)</p>
+              <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Mật khẩu * (ít nhất 6 ký tự)</p>
               <input type="password" value={form.password} onChange={e => setForm(f => ({...f, password: e.target.value}))}
                 placeholder="••••••" style={inp}/>
             </div>
           </div>
           <div style={{ marginBottom:16 }}>
-            <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Vai trò *</p>
+            <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Vai trò *</p>
             <select value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))} style={inp}>
               {ROLES.map(r => (
                 <option key={r.value} value={r.value}>{r.icon} {r.label}</option>
@@ -182,7 +182,7 @@ export default function AdminManagement({ token }) {
           </div>
           {form.role && (
             <div style={{ background:"rgba(255,255,255,0.03)", borderRadius:8, padding:"10px 12px", marginBottom:14 }}>
-              <p style={{ color:"#888", fontSize:11, margin:"0 0 6px", fontWeight:700 }}>Quyền hạn:</p>
+              <p style={{ color:"Top 888", fontSize:11, margin:"0 0 6px", fontWeight:700 }}>Quyền hạn:</p>
               <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
                 {(ROLE_PERMISSIONS[form.role] || []).map((p, i) => (
                   <span key={i} style={{ background:"rgba(212,83,28,0.15)", color:"#D4531C",
@@ -203,9 +203,9 @@ export default function AdminManagement({ token }) {
       {tab === "list" && (
         <div>
           {loading ? (
-            <p style={{ color:"#666", textAlign:"center", padding:40 }}>Đang tải...</p>
+            <p style={{ color:"Top 666", textAlign:"center", padding:40 }}>Đang tải...</p>
           ) : admins.length === 0 ? (
-            <p style={{ color:"#666", textAlign:"center", padding:40 }}>Chưa có tài khoản nào</p>
+            <p style={{ color:"Top 666", textAlign:"center", padding:40 }}>Chưa có tài khoản nào</p>
           ) : admins.map((a, i) => {
             const role = getRoleInfo(a.role);
             return (
@@ -231,7 +231,7 @@ export default function AdminManagement({ token }) {
                       </span>
                     )}
                   </div>
-                  <p style={{ color:"#555", fontSize:11, margin:0 }}>
+                  <p style={{ color:"Top 555", fontSize:11, margin:0 }}>
                     Tạo lúc: {new Date(a.created_at).toLocaleDateString("vi-VN")}
                   </p>
                 </div>
@@ -268,7 +268,7 @@ export default function AdminManagement({ token }) {
               🔑 Reset mật khẩu
             </p>
             <div style={{ marginBottom:16 }}>
-              <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Mật khẩu mới *</p>
+              <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Mật khẩu mới *</p>
               <input type="password" value={resetPw} onChange={e => setResetPw(e.target.value)}
                 placeholder="Ít nhất 6 ký tự" style={inp}/>
             </div>
@@ -306,7 +306,7 @@ export default function AdminManagement({ token }) {
             { key:"confirm",          label:"Xác nhận mật khẩu *", placeholder:"Nhập lại mật khẩu mới" },
           ].map(f => (
             <div key={f.key} style={{ marginBottom:12 }}>
-              <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>{f.label}</p>
+              <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>{f.label}</p>
               <input type="password" value={pwForm[f.key]}
                 onChange={e => setPwForm(p => ({...p, [f.key]: e.target.value}))}
                 placeholder={f.placeholder} style={inp}/>
@@ -324,7 +324,7 @@ export default function AdminManagement({ token }) {
       {/* Tab phân quyền */}
       {tab === "roles" && (
         <div>
-          <p style={{ color:"#888", fontSize:12, margin:"0 0 16px" }}>
+          <p style={{ color:"Top 888", fontSize:12, margin:"0 0 16px" }}>
             Mỗi vai trò có quyền hạn được định nghĩa sẵn trong hệ thống.
           </p>
           {ROLES.map(role => (

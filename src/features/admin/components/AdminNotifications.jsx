@@ -71,7 +71,7 @@ function BroadcastPanel({ h }) {
       <p style={{ color:"#FFD700", fontSize:13, fontWeight:800, margin:"0 0 16px" }}>📢 Broadcast Realtime tới toàn server</p>
       {msg && <div style={{ background:ok?"rgba(76,175,80,0.1)":"rgba(255,80,80,0.1)", border:`1px solid ${ok?"#4CAF50":"#ff6b6b"}`, borderRadius:8, padding:"10px 14px", marginBottom:14, color:ok?"#4CAF50":"#ff6b6b", fontSize:12 }}>{msg.slice(4)}</div>}
       <div style={{ marginBottom:12 }}>
-        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Loại thông báo</p>
+        <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>Loại thông báo</p>
         <select value={type} onChange={e=>setType(e.target.value)} style={inp}>
           <option value="flash_sale">🔥 Flash Sale</option>
           <option value="event">🎉 Sự kiện</option>
@@ -80,11 +80,11 @@ function BroadcastPanel({ h }) {
         </select>
       </div>
       <div style={{ marginBottom:12 }}>
-        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Tiêu đề</p>
+        <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>Tiêu đề</p>
         <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="🔥 Flash Sale hôm nay!" style={inp}/>
       </div>
       <div style={{ marginBottom:16 }}>
-        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Nội dung</p>
+        <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>Nội dung</p>
         <textarea value={message} onChange={e=>setMessage(e.target.value)} rows={3}
           placeholder="Nội dung thông báo..."
           style={{ ...inp, resize:"vertical" }}/>
@@ -185,7 +185,7 @@ function ZaloPanel({ h }) {
               border:`1px solid ${mode===m.k?"#00d4ff":"#2a2a38"}`,
               borderRadius:10, padding:"10px 12px", cursor:"pointer", textAlign:"left" }}>
             <p style={{ color:mode===m.k?"#00d4ff":"#aaa", fontSize:12, fontWeight:800, margin:"0 0 2px" }}>{m.label}</p>
-            <p style={{ color:"#555", fontSize:10, margin:0 }}>{m.desc}</p>
+            <p style={{ color:"Top 555", fontSize:10, margin:0 }}>{m.desc}</p>
           </button>
         ))}
       </div>
@@ -194,7 +194,7 @@ function ZaloPanel({ h }) {
 
       {/* Phân khúc */}
       <div style={{ marginBottom:12 }}>
-        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Phân khúc (bỏ qua nếu nhập SĐT cụ thể)</p>
+        <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>Phân khúc (bỏ qua nếu nhập SĐT cụ thể)</p>
         <select value={segment} onChange={e=>setSegment(e.target.value)} style={inp}>
           <option value="all">👥 Tất cả thành viên</option>
           <option value="diamond">💎 Hạng Kim Cương</option>
@@ -207,7 +207,7 @@ function ZaloPanel({ h }) {
 
       {/* SĐT cụ thể */}
       <div style={{ marginBottom:16 }}>
-        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>
+        <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>
           SĐT cụ thể (mỗi số 1 dòng hoặc cách nhau dấu phẩy — ưu tiên hơn phân khúc)
         </p>
         <textarea value={customPhones} onChange={e=>setCustomPhones(e.target.value)} rows={3}
@@ -218,9 +218,9 @@ function ZaloPanel({ h }) {
       {/* ZBS Template selector */}
       {mode === "zbs" && (
         <div style={{ marginBottom:16 }}>
-          <p style={{ color:"#888", fontSize:11, margin:"0 0 8px" }}>Chọn template ZBS</p>
+          <p style={{ color:"Top 888", fontSize:11, margin:"0 0 8px" }}>Chọn template ZBS</p>
           {templates.length === 0
-            ? <p style={{ color:"#555", fontSize:12, padding:"12px", background:"rgba(255,255,255,0.03)", borderRadius:8 }}>
+            ? <p style={{ color:"Top 555", fontSize:12, padding:"12px", background:"rgba(255,255,255,0.03)", borderRadius:8 }}>
                 Chưa có template. Tạo trong tab CDP.
               </p>
             : templates.map(t => (
@@ -232,7 +232,7 @@ function ZaloPanel({ h }) {
                   display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                 <div>
                   <p style={{ color:"white", fontSize:13, fontWeight:700, margin:"0 0 2px" }}>{t.name}</p>
-                  {t.description && <p style={{ color:"#666", fontSize:11, margin:0 }}>{t.description}</p>}
+                  {t.description && <p style={{ color:"Top 666", fontSize:11, margin:0 }}>{t.description}</p>}
                 </div>
                 {selTpl?.id === t.id && <span style={{ color:"#00d4ff", fontSize:18 }}>✓</span>}
               </div>
@@ -249,12 +249,12 @@ function ZaloPanel({ h }) {
       {mode === "uid" && (
         <>
           <div style={{ marginBottom:12 }}>
-            <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Tiêu đề</p>
+            <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>Tiêu đề</p>
             <input value={title} onChange={e=>setTitle(e.target.value)}
               placeholder="Tiêu đề tin nhắn" style={inp}/>
           </div>
           <div style={{ marginBottom:16 }}>
-            <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Nội dung</p>
+            <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>Nội dung</p>
             <textarea value={message} onChange={e=>setMessage(e.target.value)} rows={4}
               placeholder="Nội dung tin nhắn OA..."
               style={{ ...inp, resize:"vertical" }}/>
@@ -296,15 +296,15 @@ function PushPanel({ h }) {
       <p style={{ color:"#4CAF50", fontSize:13, fontWeight:800, margin:"0 0 16px" }}>🔔 Push Notification trong App</p>
       {msg && <div style={{ background:ok?"rgba(76,175,80,0.1)":"rgba(255,80,80,0.1)", border:`1px solid ${ok?"#4CAF50":"#ff6b6b"}`, borderRadius:8, padding:"10px 14px", marginBottom:14, color:ok?"#4CAF50":"#ff6b6b", fontSize:12 }}>{msg.slice(4)}</div>}
       <div style={{ marginBottom:12 }}>
-        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>SĐT người nhận (để trống = gửi tất cả)</p>
+        <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>SĐT người nhận (để trống = gửi tất cả)</p>
         <input value={userId} onChange={e=>setUserId(e.target.value)} placeholder="0984966336" style={inp}/>
       </div>
       <div style={{ marginBottom:12 }}>
-        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Tiêu đề</p>
+        <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>Tiêu đề</p>
         <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Tiêu đề thông báo" style={inp}/>
       </div>
       <div style={{ marginBottom:16 }}>
-        <p style={{ color:"#888", fontSize:11, margin:"0 0 4px" }}>Nội dung</p>
+        <p style={{ color:"Top 888", fontSize:11, margin:"0 0 4px" }}>Nội dung</p>
         <textarea value={message} onChange={e=>setMessage(e.target.value)} rows={3}
           placeholder="Nội dung thông báo..."
           style={{ ...inp, resize:"vertical" }}/>

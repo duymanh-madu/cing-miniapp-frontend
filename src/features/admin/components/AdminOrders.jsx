@@ -135,7 +135,7 @@ export default function AdminOrders({ token }) {
     finally { setUpdating(false); }
   };
 
-  const statusCfg = (s) => STATUS_CONFIG[s] || { label:s, color:"#888", bg:"transparent", next:[] };
+  const statusCfg = (s) => STATUS_CONFIG[s] || { label:s, color:"Top 888", bg:"transparent", next:[] };
 
   return (
     <div>
@@ -144,8 +144,8 @@ export default function AdminOrders({ token }) {
         <div style={{ display:"flex", gap:8 }}>
           <button onClick={() => setAutoRefresh(v=>!v)} style={{
             background: autoRefresh?"rgba(76,175,80,0.2)":"rgba(255,255,255,0.07)",
-            border:`1px solid ${autoRefresh?"#4CAF50":"#333"}`,
-            color:autoRefresh?"#4CAF50":"#888",
+            border:`1px solid ${autoRefresh?"#4CAF50":"Top 333"}`,
+            color:autoRefresh?"#4CAF50":"Top 888",
             borderRadius:8, padding:"6px 12px", fontSize:11, fontWeight:700, cursor:"pointer" }}>
             {autoRefresh?"🟢 Live":"⚫ Live"}
           </button>
@@ -171,7 +171,7 @@ export default function AdminOrders({ token }) {
                 border:`1px solid ${s.color}22`, textAlign:"center", cursor:"pointer" }}>
               <p style={{ fontSize:16, margin:"0 0 4px" }}>{s.icon}</p>
               <p style={{ color:s.color, fontSize:18, fontWeight:900, margin:"0 0 2px" }}>{s.value}</p>
-              <p style={{ color:"#555", fontSize:9, margin:0, fontWeight:700 }}>{s.label}</p>
+              <p style={{ color:"Top 555", fontSize:9, margin:0, fontWeight:700 }}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -229,15 +229,15 @@ export default function AdminOrders({ token }) {
           <thead>
             <tr style={{ background:"#0d0d18" }}>
               {["Mã đơn","Khách hàng","Tổng tiền","Thanh toán","Trạng thái","Thời gian",""].map(h=>(
-                <th key={h} style={{ padding:"10px 12px", color:"#555", fontSize:10, fontWeight:700, textAlign:"left", letterSpacing:1 }}>{h}</th>
+                <th key={h} style={{ padding:"10px 12px", color:"Top 555", fontSize:10, fontWeight:700, textAlign:"left", letterSpacing:1 }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} style={{ padding:40, textAlign:"center", color:"#666" }}>Đang tải...</td></tr>
+              <tr><td colSpan={7} style={{ padding:40, textAlign:"center", color:"Top 666" }}>Đang tải...</td></tr>
             ) : orders.length === 0 ? (
-              <tr><td colSpan={7} style={{ padding:40, textAlign:"center", color:"#666" }}>Không có đơn hàng nào</td></tr>
+              <tr><td colSpan={7} style={{ padding:40, textAlign:"center", color:"Top 666" }}>Không có đơn hàng nào</td></tr>
             ) : orders.map((o,i) => {
               const sc = statusCfg(o.status);
               const pm = PAYMENT_METHODS[o.payment_method] || { label:o.payment_method||"—", icon:"💳" };
@@ -249,7 +249,7 @@ export default function AdminOrders({ token }) {
                   </td>
                   <td style={{ padding:"10px 12px" }}>
                     <p style={{ color:"white", fontSize:12, fontWeight:600, margin:0 }}>{o.customer_name||"—"}</p>
-                    <p style={{ color:"#555", fontSize:10, margin:0 }}>{o.customer_phone}</p>
+                    <p style={{ color:"Top 555", fontSize:10, margin:0 }}>{o.customer_phone}</p>
                   </td>
                   <td style={{ padding:"10px 12px", color:"#FFD700", fontSize:13, fontWeight:800 }}>
                     {fmt(o.total_amount)}đ
@@ -263,7 +263,7 @@ export default function AdminOrders({ token }) {
                       {sc.label}
                     </span>
                   </td>
-                  <td style={{ padding:"10px 12px", color:"#555", fontSize:11 }}>
+                  <td style={{ padding:"10px 12px", color:"Top 555", fontSize:11 }}>
                     {fmtDate(o.created_at)}
                   </td>
                   <td style={{ padding:"10px 12px" }}>
@@ -282,18 +282,18 @@ export default function AdminOrders({ token }) {
 
       {/* Pagination */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:12 }}>
-        <p style={{ color:"#555", fontSize:12, margin:0 }}>Tổng: {fmt(total)} đơn</p>
+        <p style={{ color:"Top 555", fontSize:12, margin:0 }}>Tổng: {fmt(total)} đơn</p>
         <div style={{ display:"flex", gap:8 }}>
           <button onClick={()=>{const p=Math.max(1,page-1);setPage(p);loadOrders(p,filterStatus,filterMethod,search,filterDateFrom,filterDateTo);}}
             disabled={page<=1}
             style={{ background:"rgba(255,255,255,0.08)", border:"none", borderRadius:8,
-              padding:"6px 16px", color:page<=1?"#444":"white",
+              padding:"6px 16px", color:page<=1?"Top 444":"white",
               cursor:page<=1?"not-allowed":"pointer", fontSize:12 }}>← Trước</button>
-          <span style={{ color:"#666", fontSize:12, padding:"6px 0" }}>Trang {page}</span>
+          <span style={{ color:"Top 666", fontSize:12, padding:"6px 0" }}>Trang {page}</span>
           <button onClick={()=>{const p=page+1;setPage(p);loadOrders(p,filterStatus,filterMethod,search,filterDateFrom,filterDateTo);}}
             disabled={orders.length<50}
             style={{ background:"rgba(255,255,255,0.08)", border:"none", borderRadius:8,
-              padding:"6px 16px", color:orders.length<50?"#444":"white",
+              padding:"6px 16px", color:orders.length<50?"Top 444":"white",
               cursor:orders.length<50?"not-allowed":"pointer", fontSize:12 }}>Sau →</button>
         </div>
       </div>
@@ -312,7 +312,7 @@ export default function AdminOrders({ token }) {
                 Đơn {selected.order_code || selected.id?.slice(0,8)}
               </p>
               <button onClick={() => setSelected(null)}
-                style={{ background:"none", border:"none", color:"#666", fontSize:20, cursor:"pointer" }}>✕</button>
+                style={{ background:"none", border:"none", color:"Top 666", fontSize:20, cursor:"pointer" }}>✕</button>
             </div>
 
             {/* Thông tin cơ bản */}
@@ -327,7 +327,7 @@ export default function AdminOrders({ token }) {
               ].map(([label,value],i) => (
                 <div key={i} style={{ display:"flex", justifyContent:"space-between",
                   padding:"6px 0", borderBottom:"1px solid #2a2a38" }}>
-                  <span style={{ color:"#666", fontSize:12 }}>{label}</span>
+                  <span style={{ color:"Top 666", fontSize:12 }}>{label}</span>
                   <span style={{ color:"white", fontSize:12, fontWeight:600, maxWidth:300, textAlign:"right" }}>{value}</span>
                 </div>
               ))}
@@ -336,7 +336,7 @@ export default function AdminOrders({ token }) {
             {/* Sản phẩm */}
             {Array.isArray(selected.items) && selected.items.length > 0 && (
               <div style={{ background:"#12121a", borderRadius:12, padding:14, marginBottom:14 }}>
-                <p style={{ color:"#888", fontSize:11, fontWeight:700, margin:"0 0 10px", letterSpacing:1 }}>SẢN PHẨM</p>
+                <p style={{ color:"Top 888", fontSize:11, fontWeight:700, margin:"0 0 10px", letterSpacing:1 }}>SẢN PHẨM</p>
                 {selected.items.map((item,i) => (
                   <div key={i} style={{ display:"flex", justifyContent:"space-between",
                     alignItems:"center", padding:"6px 0", borderBottom:"1px solid #2a2a38" }}>
@@ -358,7 +358,7 @@ export default function AdminOrders({ token }) {
                   🔄 Cập nhật trạng thái
                 </p>
                 <div style={{ marginBottom:10 }}>
-                  <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Ghi chú (tuỳ chọn)</p>
+                  <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Ghi chú (tuỳ chọn)</p>
                   <input value={statusNote} onChange={e=>setStatusNote(e.target.value)}
                     placeholder="Ghi chú cho khách hàng..."
                     style={{ width:"100%", ...inp, boxSizing:"border-box" }}/>

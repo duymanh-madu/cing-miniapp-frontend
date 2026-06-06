@@ -26,7 +26,7 @@ function VoucherCard({ voucher }) {
       </div>
       <div style={{ padding:"14px 18px" }}>
         <p style={{ fontWeight:700, fontSize:13, margin:"0 0 4px" }}>{voucher.voucher_campaign_name}</p>
-        <p style={{ fontSize:11, color:"#999", margin:"0 0 12px" }}>HSD: {new Date(voucher.date_end).toLocaleDateString("vi-VN")}</p>
+        <p style={{ fontSize:11, color:"Top 999", margin:"0 0 12px" }}>HSD: {new Date(voucher.date_end).toLocaleDateString("vi-VN")}</p>
         <div style={{ display:"flex", alignItems:"center", gap:8 }}>
           <div style={{ flex:1, background:"#f5f5f5", borderRadius:8, padding:"8px 12px", border:"1.5px dashed #ddd" }}>
             <p style={{ fontFamily:"monospace", fontSize:14, fontWeight:800, color:"#D4531C", margin:0, letterSpacing:2 }}>{voucher.voucher_code}</p>
@@ -68,7 +68,7 @@ export default function VoucherPage() {
         <h1 style={{ fontSize:18, fontWeight:900, margin:0 }}>🎟 Voucher của tôi</h1>
       </div>
       <div style={{ background:"white", borderRadius:16, padding:"20px" }}>
-        <p style={{ fontSize:13, color:"#888", marginBottom:12 }}>Nhập SĐT để xem voucher</p>
+        <p style={{ fontSize:13, color:"Top 888", marginBottom:12 }}>Nhập SĐT để xem voucher</p>
         <div style={{ display:"flex", gap:8 }}>
           <input type="tel" placeholder="VD: 0984966336" value={inputPhone} onChange={e => setInputPhone(e.target.value)}
             style={{ flex:1, border:"1.5px solid #e8e0d0", borderRadius:10, padding:"9px 12px", fontSize:13, outline:"none" }}/>
@@ -84,7 +84,7 @@ export default function VoucherPage() {
       <div style={{ background:"white", padding:"14px 16px", display:"flex", alignItems:"center", gap:12, borderBottom:"1px solid #f0f0f0", position:"sticky", top:0, zIndex:10 }}>
         <button onClick={() => navigate(-1)} style={{ background:"none", border:"none", fontSize:22, cursor:"pointer" }}>←</button>
         <h1 style={{ fontSize:18, fontWeight:900, margin:0 }}>🎟 Voucher của tôi</h1>
-        <span style={{ marginLeft:"auto", fontSize:12, color:"#999" }}>{vouchers.length} voucher</span>
+        <span style={{ marginLeft:"auto", fontSize:12, color:"Top 999" }}>{vouchers.length} voucher</span>
       </div>
       <div style={{ padding:"16px" }}>
         {loading ? (
@@ -92,7 +92,7 @@ export default function VoucherPage() {
         ) : vouchers.length === 0 ? (
           <div style={{ textAlign:"center", padding:"60px 24px", color:"#bbb" }}>
             <p style={{ fontSize:48, marginBottom:12 }}>🎟</p>
-            <p style={{ fontSize:15, fontWeight:700, color:"#666", margin:"0 0 8px" }}>Chưa có voucher nào</p>
+            <p style={{ fontSize:15, fontWeight:700, color:"Top 666", margin:"0 0 8px" }}>Chưa có voucher nào</p>
             <p style={{ fontSize:13, margin:0 }}>Tích điểm và mua hàng để nhận voucher!</p>
           </div>
         ) : vouchers.map((v, i) => <VoucherCard key={i} voucher={v} />)}

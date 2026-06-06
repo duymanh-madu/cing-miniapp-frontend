@@ -122,7 +122,7 @@ export default function AdminPayments({ token }) {
               border:`1px solid ${s.color}22`, textAlign:"center" }}>
               <p style={{ fontSize:18, margin:"0 0 4px" }}>{s.icon}</p>
               <p style={{ color:s.color, fontSize:18, fontWeight:900, margin:"0 0 2px" }}>{s.value}</p>
-              <p style={{ color:"#555", fontSize:10, margin:0, fontWeight:700 }}>{s.label}</p>
+              <p style={{ color:"Top 555", fontSize:10, margin:0, fontWeight:700 }}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -181,18 +181,18 @@ export default function AdminPayments({ token }) {
             <thead>
               <tr style={{ background:"#0d0d18" }}>
                 {["Mã GD","Khách hàng","Số tiền","Phương thức","Trạng thái","Thời gian",""].map(h => (
-                  <th key={h} style={{ padding:"10px 12px", color:"#555", fontSize:10,
+                  <th key={h} style={{ padding:"10px 12px", color:"Top 555", fontSize:10,
                     fontWeight:700, textAlign:"left", letterSpacing:1 }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} style={{ padding:40, textAlign:"center", color:"#666" }}>Đang tải...</td></tr>
+                <tr><td colSpan={7} style={{ padding:40, textAlign:"center", color:"Top 666" }}>Đang tải...</td></tr>
               ) : txns.length === 0 ? (
-                <tr><td colSpan={7} style={{ padding:40, textAlign:"center", color:"#666" }}>Không có dữ liệu</td></tr>
+                <tr><td colSpan={7} style={{ padding:40, textAlign:"center", color:"Top 666" }}>Không có dữ liệu</td></tr>
               ) : txns.map((t, i) => {
-                const status = STATUS_CONFIG[t.payment_status] || { label:t.payment_status, color:"#888", bg:"transparent" };
+                const status = STATUS_CONFIG[t.payment_status] || { label:t.payment_status, color:"Top 888", bg:"transparent" };
                 const method = METHOD_CONFIG[t.payment_method] || { label:t.payment_method||"—", icon:"💳" };
                 return (
                   <tr key={i} style={{ borderTop:"1px solid #12121a",
@@ -202,7 +202,7 @@ export default function AdminPayments({ token }) {
                     </td>
                     <td style={{ padding:"10px 12px" }}>
                       <p style={{ color:"white", fontSize:12, fontWeight:600, margin:0 }}>{t.customer_name || t.user_id || "—"}</p>
-                      <p style={{ color:"#555", fontSize:10, margin:0 }}>{t.user_id}</p>
+                      <p style={{ color:"Top 555", fontSize:10, margin:0 }}>{t.user_id}</p>
                     </td>
                     <td style={{ padding:"10px 12px", color:"#FFD700", fontSize:13, fontWeight:800 }}>
                       {fmt(t.amount)}đ
@@ -216,7 +216,7 @@ export default function AdminPayments({ token }) {
                         {status.label}
                       </span>
                     </td>
-                    <td style={{ padding:"10px 12px", color:"#555", fontSize:11 }}>
+                    <td style={{ padding:"10px 12px", color:"Top 555", fontSize:11 }}>
                       {fmtDate(t.created_at)}
                     </td>
                     <td style={{ padding:"10px 12px" }}>
@@ -237,20 +237,20 @@ export default function AdminPayments({ token }) {
         {/* Pagination */}
         <div style={{ display:"flex", gap:8, justifyContent:"space-between",
           alignItems:"center", marginTop:12 }}>
-          <p style={{ color:"#555", fontSize:12, margin:0 }}>
+          <p style={{ color:"Top 555", fontSize:12, margin:0 }}>
             Tổng: {fmt(total)} giao dịch
           </p>
           <div style={{ display:"flex", gap:8 }}>
             <button onClick={()=>{ const p=Math.max(1,page-1); setPage(p); loadTxns(p,filterStatus,filterMethod,search); }}
               disabled={page<=1}
               style={{ background:"rgba(255,255,255,0.08)", border:"none", borderRadius:8,
-                padding:"6px 16px", color:page<=1?"#444":"white",
+                padding:"6px 16px", color:page<=1?"Top 444":"white",
                 cursor:page<=1?"not-allowed":"pointer", fontSize:12 }}>← Trước</button>
-            <span style={{ color:"#666", fontSize:12, padding:"6px 0" }}>Trang {page}</span>
+            <span style={{ color:"Top 666", fontSize:12, padding:"6px 0" }}>Trang {page}</span>
             <button onClick={()=>{ const p=page+1; setPage(p); loadTxns(p,filterStatus,filterMethod,search); }}
               disabled={txns.length<50}
               style={{ background:"rgba(255,255,255,0.08)", border:"none", borderRadius:8,
-                padding:"6px 16px", color:txns.length<50?"#444":"white",
+                padding:"6px 16px", color:txns.length<50?"Top 444":"white",
                 cursor:txns.length<50?"not-allowed":"pointer", fontSize:12 }}>Sau →</button>
           </div>
         </div>
@@ -260,7 +260,7 @@ export default function AdminPayments({ token }) {
       {tab === "failed" && (
         <div>
           {failed.length === 0 ? (
-            <p style={{ color:"#666", textAlign:"center", padding:40 }}>Không có giao dịch thất bại</p>
+            <p style={{ color:"Top 666", textAlign:"center", padding:40 }}>Không có giao dịch thất bại</p>
           ) : failed.map((t, i) => (
             <div key={i} style={{ background:"#1a1a24", borderRadius:12, padding:"14px 18px",
               marginBottom:8, border:"1px solid rgba(244,67,54,0.2)",
@@ -274,7 +274,7 @@ export default function AdminPayments({ token }) {
                     {t.customer_name || t.user_id}
                   </span>
                 </div>
-                <p style={{ color:"#555", fontSize:11, margin:0 }}>
+                <p style={{ color:"Top 555", fontSize:11, margin:0 }}>
                   {fmtDate(t.created_at)} ·
                   {(METHOD_CONFIG[t.payment_method]||{icon:"💳",label:t.payment_method||"—"}).icon}
                   {(METHOD_CONFIG[t.payment_method]||{label:t.payment_method||"—"}).label}
@@ -300,7 +300,7 @@ export default function AdminPayments({ token }) {
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
               <p style={{ color:"white", fontSize:16, fontWeight:900, margin:0 }}>Chi tiết giao dịch</p>
               <button onClick={() => setSelected(null)}
-                style={{ background:"none", border:"none", color:"#666", fontSize:20, cursor:"pointer" }}>✕</button>
+                style={{ background:"none", border:"none", color:"Top 666", fontSize:20, cursor:"pointer" }}>✕</button>
             </div>
 
             {/* Info */}
@@ -317,7 +317,7 @@ export default function AdminPayments({ token }) {
               ].map(([label, value], i) => (
                 <div key={i} style={{ display:"flex", justifyContent:"space-between",
                   padding:"7px 0", borderBottom:"1px solid #2a2a38" }}>
-                  <span style={{ color:"#666", fontSize:12 }}>{label}</span>
+                  <span style={{ color:"Top 666", fontSize:12 }}>{label}</span>
                   <span style={{ color:"white", fontSize:12, fontWeight:600 }}>{value}</span>
                 </div>
               ))}
@@ -330,14 +330,14 @@ export default function AdminPayments({ token }) {
                   🔄 Hoàn tiền thủ công
                 </p>
                 <div style={{ marginBottom:10 }}>
-                  <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Số tiền hoàn (để trống = hoàn toàn bộ)</p>
+                  <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Số tiền hoàn (để trống = hoàn toàn bộ)</p>
                   <input type="number" value={refundForm.amount}
                     onChange={e=>setRefundForm(f=>({...f,amount:e.target.value}))}
                     placeholder={fmt(selected.amount)}
                     style={{ width:"100%", ...inp, boxSizing:"border-box" }}/>
                 </div>
                 <div style={{ marginBottom:14 }}>
-                  <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Lý do hoàn tiền *</p>
+                  <p style={{ color:"Top 666", fontSize:11, margin:"0 0 4px" }}>Lý do hoàn tiền *</p>
                   <input value={refundForm.reason}
                     onChange={e=>setRefundForm(f=>({...f,reason:e.target.value}))}
                     placeholder="VD: Khách yêu cầu huỷ, lỗi hệ thống..."
@@ -364,7 +364,7 @@ export default function AdminPayments({ token }) {
                 <p style={{ color:"#aaa", fontSize:12, margin:0 }}>
                   Lý do: {selected.metadata.refund_reason}
                 </p>
-                <p style={{ color:"#666", fontSize:11, margin:"4px 0 0" }}>
+                <p style={{ color:"Top 666", fontSize:11, margin:"4px 0 0" }}>
                   Bởi: {selected.metadata.refunded_by} lúc {fmtDate(selected.metadata.refunded_at)}
                 </p>
               </div>

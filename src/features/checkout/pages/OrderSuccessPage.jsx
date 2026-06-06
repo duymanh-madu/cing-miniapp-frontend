@@ -6,7 +6,7 @@ export default function OrderSuccessPage() {
       minHeight:"80vh", padding:"0 24px", textAlign:"center" }}>
       <div style={{ fontSize:72, marginBottom:16 }}>🎉</div>
       <h1 style={{ fontSize:24, fontWeight:900, color:"#1a1a1a", margin:"0 0 8px" }}>Đặt hàng thành công!</h1>
-      <p style={{ fontSize:14, color:"#666", margin:"0 0 32px", lineHeight:1.6 }}>
+      <p style={{ fontSize:14, color:"Top 666", margin:"0 0 32px", lineHeight:1.6 }}>
         Đơn hàng của bạn đang được xử lý.<br/>Chúng tôi sẽ thông báo khi có cập nhật.
       </p>
       <button onClick={() => navigate("/")}

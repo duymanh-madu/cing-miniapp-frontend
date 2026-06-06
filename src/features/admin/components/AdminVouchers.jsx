@@ -73,8 +73,8 @@ export default function AdminVouchers({ token }) {
       {/* List */}
       <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px", border:"1px solid #2a2a38" }}>
         <p style={{ color:"white", fontWeight:800, margin:"0 0 14px" }}>Danh sách voucher</p>
-        {loading ? <p style={{ color:"#666" }}>Đang tải...</p> :
-          vouchers.length === 0 ? <p style={{ color:"#666", fontSize:13 }}>Chưa có voucher nào</p> :
+        {loading ? <p style={{ color:"Top 666" }}>Đang tải...</p> :
+          vouchers.length === 0 ? <p style={{ color:"Top 666", fontSize:13 }}>Chưa có voucher nào</p> :
           vouchers.map((v,i) => (
             <div key={i} style={{ display:"flex", alignItems:"center", gap:12,
               padding:"10px 0", borderBottom:"1px solid #2a2a38" }}>

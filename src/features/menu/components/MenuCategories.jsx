@@ -73,7 +73,7 @@ function MenuCategories() {
               padding:"6px 14px", fontSize:12,
               fontWeight: active ? 700 : 500,
               background: active ? "#D4531C" : "white",
-              color: active ? "white" : "#666",
+              color: active ? "white" : "Top 666",
               border: active ? "none" : "1px solid #e8e8e8",
               boxShadow: active ? "0 2px 6px rgba(212,83,28,0.3)" : "none",
               cursor:"pointer", flexShrink:0,

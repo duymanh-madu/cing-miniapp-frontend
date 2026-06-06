@@ -51,7 +51,7 @@ function drawPearlEmoji(id, size=144) {
     s.fillStyle='rgba(255,255,255,0.32)';s.fill();
   }
   function eye(cx,cy,iris){
-    s.beginPath();s.ellipse(cx*S,cy*S,S*.08,S*.09,0,0,Math.PI*2);s.fillStyle='#050508';s.fill();
+    s.beginPath();s.ellipse(cx*S,cy*S,S*.08,S*.09,0,0,Math.PI*2);s.fillStyle='Top 050508';s.fill();
     s.beginPath();s.ellipse(cx*S,cy*S,S*.055,S*.065,0,0,Math.PI*2);s.fillStyle=iris;s.fill();
     s.beginPath();s.ellipse((cx-.02)*S,(cy-.025)*S,S*.022,S*.018,0,0,Math.PI*2);s.fillStyle='white';s.globalAlpha=.9;s.fill();s.globalAlpha=1;
   }
@@ -75,7 +75,7 @@ function drawPearlEmoji(id, size=144) {
     s.fillStyle=col;s.globalAlpha=.75;s.fill();s.globalAlpha=1;
   }
   function spiral(cx,cy,col){
-    s.beginPath();s.arc(cx*S,cy*S,S*.1,0,Math.PI*2);s.fillStyle='#050508';s.fill();
+    s.beginPath();s.arc(cx*S,cy*S,S*.1,0,Math.PI*2);s.fillStyle='Top 050508';s.fill();
     for(let i=0;i<3;i++){s.beginPath();s.arc(cx*S,cy*S,S*(.03+i*.025),0,Math.PI*1.7);s.strokeStyle=col;s.lineWidth=1.5;s.globalAlpha=.8-i*.2;s.stroke();s.globalAlpha=1;}
   }
   function xEye(cx,cy,col){
@@ -155,7 +155,7 @@ function drawPearlEmoji(id, size=144) {
       bg('#0a0a1a','#05050d');
       s.beginPath();s.ellipse(S*.36,S*.3,S*.14,S*.08,-.3,0,Math.PI*2);s.fillStyle='rgba(255,255,255,0.06)';s.fill();
       [.32,.68].forEach(cx=>{
-        s.beginPath();s.ellipse(cx*S,.46*S,S*.075,S*.08,0,0,Math.PI*2);s.fillStyle='#050508';s.fill();
+        s.beginPath();s.ellipse(cx*S,.46*S,S*.075,S*.08,0,0,Math.PI*2);s.fillStyle='Top 050508';s.fill();
         s.beginPath();s.rect((cx-.09)*S,.38*S,S*.18,S*.06);s.fillStyle='#0d0d1e';s.fill();
         s.beginPath();s.ellipse(cx*S,.47*S,S*.04,S*.045,0,0,Math.PI*2);s.fillStyle='#1a2030';s.fill();
         s.beginPath();s.ellipse((cx-.015)*S,.455*S,S*.015,S*.012,0,0,Math.PI*2);s.fillStyle='rgba(200,240,255,0.4)';s.fill();
@@ -192,7 +192,7 @@ function drawPearlEmoji(id, size=144) {
       bg('#0a1a2e','#05050d');shine();
       // mắt nhìn lên
       [.32,.68].forEach(cx=>{
-        s.beginPath();s.ellipse(cx*S,.51*S,S*.09,S*.1,0,0,Math.PI*2);s.fillStyle='#050508';s.fill();
+        s.beginPath();s.ellipse(cx*S,.51*S,S*.09,S*.1,0,0,Math.PI*2);s.fillStyle='Top 050508';s.fill();
         s.beginPath();s.ellipse((cx-.04)*S,.45*S,S*.055,S*.065,0,0,Math.PI*2);s.fillStyle='#0a2a6a';s.fill();
         s.beginPath();s.ellipse((cx-.06)*S,.435*S,S*.022,S*.018,0,0,Math.PI*2);s.fillStyle='white';s.globalAlpha=.9;s.fill();s.globalAlpha=1;
       });
@@ -219,7 +219,7 @@ const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backen
 function ChessPiece({ type, color }) {
   const w = color === "w";
   const fill   = w ? "#FFFDE7" : "#1a1208";
-  const stroke = w ? "#555"    : "#000";
+  const stroke = w ? "Top 555"    : "Top 000";
   const hi     = w ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.08)";
 
   const pieces = {
@@ -317,7 +317,7 @@ const PIECES = {
   bK:"♚", bQ:"♛", bR:"♜", bB:"♝", bN:"♞", bP:"♟",
 };
 
-const PIECE_COLORS = { w:"#FFFDE7", b:"#212121" };
+const PIECE_COLORS = { w:"#FFFDE7", b:"Top 212121" };
 const PIECE_SHADOW = { w:"rgba(0,0,0,0.5)", b:"rgba(255,255,255,0.15)" };
 
 export default function ChessGame({ onExit, onFindMatch }) {
@@ -749,7 +749,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
       <div style={{ fontSize:60, marginBottom:8 }}>♟️</div>
       <h1 style={{ color:"#FFD700", fontSize:24, fontWeight:900, margin:"0 0 4px",
         textShadow:"0 0 20px rgba(255,215,0,0.5)" }}>CỜ VUA</h1>
-      <p style={{ color:"#888", fontSize:13, margin:"0 0 32px" }}>Đối kháng 1v1 realtime</p>
+      <p style={{ color:"Top 888", fontSize:13, margin:"0 0 32px" }}>Đối kháng 1v1 realtime</p>
 
       {msg && <div style={{ background:"rgba(255,152,0,0.15)", border:"1px solid #FF9800",
         color:"#FF9800", borderRadius:12, padding:"10px 16px",
@@ -758,7 +758,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
       <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16,
         padding:"20px", marginBottom:24, width:"100%", maxWidth:320,
         border:"1px solid rgba(255,255,255,0.1)" }}>
-        <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:2,
+        <p style={{ color:"Top 888", fontSize:11, fontWeight:700, letterSpacing:2,
           margin:"0 0 12px", textTransform:"uppercase" }}>Luật chơi</p>
         {[
           "♟ Tìm đối thủ tối đa 60 giây",
@@ -784,7 +784,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
         🏆 Bảng xếp hạng Kỳ thủ
       </button>
       <button onClick={onExit} style={{ background:"none", border:"none",
-        color:"#666", marginTop:14, fontSize:13, cursor:"pointer" }}>← Quay lại</button>
+        color:"Top 666", marginTop:14, fontSize:13, cursor:"pointer" }}>← Quay lại</button>
       {showLB && <ChessLeaderboard onClose={() => setShowLB(false)} />}
     </div>
   );
@@ -799,7 +799,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
         display:"inline-block" }}>♟️</div>
       <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
       <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 8px" }}>Đang tìm đối thủ...</h2>
-      <p style={{ color:"#888", fontSize:14, margin:"0 0 24px" }}>
+      <p style={{ color:"Top 888", fontSize:14, margin:"0 0 24px" }}>
         {searchTime < 60 ? `${searchTime}s / 60s` : "Sắp hết thời gian..."}
       </p>
       {/* Progress bar */}
@@ -810,7 +810,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
           width:`${(searchTime/60)*100}%`, transition:"width 1s linear" }}/>
       </div>
       <button onClick={cancelSearch} style={{ background:"rgba(255,255,255,0.08)",
-        border:"1px solid rgba(255,255,255,0.2)", color:"#888",
+        border:"1px solid rgba(255,255,255,0.2)", color:"Top 888",
         borderRadius:12, padding:"12px 32px", fontSize:14, cursor:"pointer" }}>
         Hủy tìm kiếm
       </button>
@@ -978,7 +978,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
                 minWidth:220,
               }}>
                 <p style={{ fontSize:40, margin:"0 0 8px" }}>💎</p>
-                <p style={{ color: tipResult.fromMe?"#1a0a00":"#003820", fontSize:20, fontWeight:900, margin:"0 0 4px",
+                <p style={{ color: tipResult.fromMe?"#1a0a00":"Top 003820", fontSize:20, fontWeight:900, margin:"0 0 4px",
                   textShadow:"0 1px 0 rgba(255,255,255,0.3)" }}>
                   {tipResult.fromMe ? `Bạn đã tặng ${tipResult.giftIcon||""} ${tipResult.giftName||tipResult.amount+" điểm"}` : `${tipResult.giftIcon||""} ${tipResult.giftName||tipResult.amount+" điểm"}`}
                 </p>
@@ -1069,7 +1069,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
               border:"1px solid rgba(255,215,0,0.2)", height:"40vh", display:"flex", flexDirection:"column" }}>
               <div style={{ padding:"12px 16px 8px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
                 <p style={{ color:"#FFD700", fontSize:13, fontWeight:800, margin:0 }}>💬 Chat trong ván</p>
-                <button onClick={() => setShowChat(false)} style={{ background:"none", border:"none", color:"#666", fontSize:18, cursor:"pointer" }}>✕</button>
+                <button onClick={() => setShowChat(false)} style={{ background:"none", border:"none", color:"Top 666", fontSize:18, cursor:"pointer" }}>✕</button>
               </div>
               <div style={{ flex:1, overflowY:"auto", padding:"8px 12px" }}>
                 {chatMessages.length === 0 && (
@@ -1156,14 +1156,14 @@ export default function ChessGame({ onExit, onFindMatch }) {
         <div style={{ fontSize:64, marginBottom:12 }}>
           {won?"🏆":draw?"🤝":"💀"}
         </div>
-        <h2 style={{ color: won?"#FFD700":draw?"#888":"#f44336",
+        <h2 style={{ color: won?"#FFD700":draw?"Top 888":"#f44336",
           fontSize:26, fontWeight:900, margin:"0 0 6px" }}>
           {won?"Chiến thắng!":draw?"Hòa cờ!":"Thất bại!"}
         </h2>
-        <p style={{ color:"#666", fontSize:14, margin:"0 0 8px" }}>{reasonText}</p>
+        <p style={{ color:"Top 666", fontSize:14, margin:"0 0 8px" }}>{reasonText}</p>
         {won && <p style={{ color:"#4CAF50", fontSize:13, margin:"0 0 24px",
           fontWeight:700 }}></p>}
-        {!won && !draw && <p style={{ color:"#888", fontSize:13, margin:"0 0 24px" }}>
+        {!won && !draw && <p style={{ color:"Top 888", fontSize:13, margin:"0 0 24px" }}>
           Cố gắng hơn ở ván tiếp theo!</p>}
 
         <div style={{ display:"flex", flexDirection:"column", gap:10,
@@ -1174,7 +1174,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
             ♟ Tìm ván mới
           </button>
           <button onClick={onExit} style={{ background:"none",
-            border:"1px solid #333", color:"#888",
+            border:"1px solid #333", color:"Top 888",
             borderRadius:14, padding:"12px", fontSize:14, cursor:"pointer" }}>
             ← Thoát
           </button>

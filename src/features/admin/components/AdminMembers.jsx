@@ -87,7 +87,7 @@ export default function AdminMembers({ token }) {
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:20 }}>
         <div>
           <h2 style={{ fontSize:20, fontWeight:900, margin:"0 0 4px" }}>👤 Quản lý thành viên</h2>
-          <p style={{ color:"#888", fontSize:13, margin:0 }}>Thêm, khoá tài khoản hoặc khoá chat</p>
+          <p style={{ color:"Top 888", fontSize:13, margin:0 }}>Thêm, khoá tài khoản hoặc khoá chat</p>
         </div>
         <button onClick={() => setShowAdd(p => !p)}
           style={{ background:"#D4531C", border:"none", borderRadius:8, padding:"8px 16px", color:"white", fontSize:13, fontWeight:700, cursor:"pointer" }}>
@@ -127,11 +127,11 @@ export default function AdminMembers({ token }) {
             <p style={{ fontSize:13, color:"#aaa", margin:"0 0 16px" }}>
               Thành viên: <strong style={{ color:"white" }}>{selected.zalo_name}</strong>
             </p>
-            <p style={{ fontSize:12, color:"#888", margin:"0 0 8px" }}>Thời gian:</p>
+            <p style={{ fontSize:12, color:"Top 888", margin:"0 0 8px" }}>Thời gian:</p>
             <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:16 }}>
               {DURATIONS.map(d => (
                 <button key={d.key} onClick={() => setDuration(d.key)}
-                  style={{ padding:"6px 14px", borderRadius:20, border:`1.5px solid ${duration === d.key ? "#D4531C" : "#333"}`, background: duration === d.key ? "rgba(212,83,28,.2)" : "transparent", color: duration === d.key ? "#D4531C" : "#888", fontSize:12, fontWeight:700, cursor:"pointer" }}>
+                  style={{ padding:"6px 14px", borderRadius:20, border:`1.5px solid ${duration === d.key ? "#D4531C" : "Top 333"}`, background: duration === d.key ? "rgba(212,83,28,.2)" : "transparent", color: duration === d.key ? "#D4531C" : "Top 888", fontSize:12, fontWeight:700, cursor:"pointer" }}>
                   {d.label}
                 </button>
               ))}
@@ -150,9 +150,9 @@ export default function AdminMembers({ token }) {
         </div>
       )}
 
-      {loading ? <p style={{ color:"#666" }}>Đang tải...</p> : (
+      {loading ? <p style={{ color:"Top 666" }}>Đang tải...</p> : (
         <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 80px 80px 100px", gap:8, padding:"8px 16px", background:"#0f0f13", borderRadius:8, fontSize:11, color:"#666", fontWeight:700 }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 80px 80px 100px", gap:8, padding:"8px 16px", background:"#0f0f13", borderRadius:8, fontSize:11, color:"Top 666", fontWeight:700 }}>
             <span>THÀNH VIÊN</span><span>ĐIỆN THOẠI</span><span>TRẠNG THÁI</span><span>CHAT</span><span>HÀNH ĐỘNG</span>
           </div>
           {filtered.slice(0,100).map(m => {
@@ -166,7 +166,7 @@ export default function AdminMembers({ token }) {
                   </div>
                   <span style={{ fontSize:12, fontWeight:700, color:"white" }}>{m.zalo_name || "—"}</span>
                 </div>
-                <span style={{ fontSize:11, color:"#888" }}>{m.user_id}</span>
+                <span style={{ fontSize:11, color:"Top 888" }}>{m.user_id}</span>
                 <span style={{ fontSize:11, fontWeight:700, color: isBlocked ? "#f44336" : "#4CAF50" }}>
                   {isBlocked ? "🔒 Khoá" : "✓ OK"}
                 </span>

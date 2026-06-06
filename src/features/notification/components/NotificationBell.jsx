@@ -80,7 +80,7 @@ export default function NotificationBell({ hidden = false }) {
             display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <p style={{ fontSize:14, fontWeight:800, margin:0 }}>🔔 Thông báo</p>
             <button onClick={clearAll}
-              style={{ background:"none", border:"none", fontSize:11, color:"#999", cursor:"pointer" }}>
+              style={{ background:"none", border:"none", fontSize:11, color:"Top 999", cursor:"pointer" }}>
               Xóa tất cả
             </button>
           </div>
@@ -96,7 +96,7 @@ export default function NotificationBell({ hidden = false }) {
                 <p style={{ fontSize:13, fontWeight:700, color:"#1a1a1a", margin:"0 0 3px" }}>
                   {n.title || "Thông báo"}
                 </p>
-                <p style={{ fontSize:12, color:"#666", margin:"0 0 4px", lineHeight:1.5 }}>
+                <p style={{ fontSize:12, color:"Top 666", margin:"0 0 4px", lineHeight:1.5 }}>
                   {n.message || ""}
                 </p>
                 <p style={{ fontSize:10, color:"#bbb", margin:0 }}>{fmt(n.created_at)}</p>

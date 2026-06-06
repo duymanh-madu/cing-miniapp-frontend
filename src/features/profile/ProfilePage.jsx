@@ -12,7 +12,7 @@ injectTierBadgeStyles();
 const fmt = n => new Intl.NumberFormat("vi-VN").format(n || 0);
 
 const TIER_THEME = {
-  member:        { header:"linear-gradient(160deg,#2c2c2a,#444441)", card:"rgba(255,255,255,.08)", border:"rgba(255,255,255,.1)",  text:"#f1efe8", sub:"#888780", accent:"#d3d1c7" },
+  member:        { header:"linear-gradient(160deg,#2c2c2a,#444441)", card:"rgba(255,255,255,.08)", border:"rgba(255,255,255,.1)",  text:"#f1efe8", sub:"Top 888780", accent:"#d3d1c7" },
   loyal:         { header:"linear-gradient(160deg,#04342c,#0f6e56)", card:"rgba(255,255,255,.09)", border:"rgba(159,225,203,.2)", text:"#e1f5ee", sub:"#9fe1cb", accent:"#5dcaa5" },
   silver:        { header:"linear-gradient(160deg,#042c53,#0c447c)", card:"rgba(255,255,255,.09)", border:"rgba(133,183,235,.2)", text:"#e6f1fb", sub:"#85b7eb", accent:"#378add" },
   gold:          { header:"linear-gradient(160deg,#412402,#854f0b)", card:"rgba(255,255,255,.09)", border:"rgba(250,199,117,.2)", text:"#faeeda", sub:"#fac775", accent:"#ef9f27" },
@@ -64,7 +64,7 @@ export default function ProfilePage() {
         || useAuthStore.getState().profile?.phone || myPhone;
       const senderPhone = (freshPhone || "").replace(/\D/g,"").replace(/^84/,"0");
       if (!senderPhone) { setGiftResult({ gift, success: false, error: "Không xác định được tài khoản" }); setGiftSending(false); return; }
-      const res = await apiClient.post("/chess/tip", {
+      const res = await apiClient.post("/game/chess/tip", {
         fromUserId: senderPhone,
         toUserId: resolvedPhone,
         amount: gift.points, charm: gift.charm,
@@ -113,14 +113,14 @@ export default function ProfilePage() {
 
   if (loading) return (
     <div style={{ minHeight:"100vh", background:"#0a0a0f", display:"flex", alignItems:"center", justifyContent:"center" }}>
-      <p style={{ color:"#555", fontSize:14 }}>Đang tải hồ sơ...</p>
+      <p style={{ color:"Top 555", fontSize:14 }}>Đang tải hồ sơ...</p>
     </div>
   );
 
   if (!resolvedPhone || !member) return (
     <div style={{ minHeight:"100vh", background:"#0a0a0f", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
       <p style={{ fontSize:48, margin:"0 0 12px" }}>👤</p>
-      <p style={{ fontSize:15, fontWeight:700, color:"#666" }}>Không tìm thấy hồ sơ</p>
+      <p style={{ fontSize:15, fontWeight:700, color:"Top 666" }}>Không tìm thấy hồ sơ</p>
       <button onClick={() => navigate(-1)} style={{ marginTop:16, padding:"10px 24px", borderRadius:12, border:"none", background:"#D4531C", color:"white", fontSize:14, fontWeight:700, cursor:"pointer" }}>← Quay lại</button>
     </div>
   );
