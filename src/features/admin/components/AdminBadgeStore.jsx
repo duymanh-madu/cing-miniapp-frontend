@@ -1,6 +1,3 @@
-import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
-injectTierBadgeStyles();
-
 const BADGE_STORE = [
   {
     key: "member", label: "Hội viên", icon: "🌱", stars: 0,
