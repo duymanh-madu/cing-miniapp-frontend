@@ -44,6 +44,37 @@ export default function ProfilePage() {
   const [hofRank, setHofRank] = useState(null); // null | "hof_1" | "hof_2" | "hof_3"
   const [primaryBadge, setPrimaryBadge] = useState(null); // null = auto (tier/champion/hof)
   const [showBadgePicker, setShowBadgePicker] = useState(false);
+  const [showGift, setShowGift] = useState(false);
+  const [giftSending, setGiftSending] = useState(false);
+  const [giftResult, setGiftResult] = useState(null);
+
+  const GIFTS = [
+    { id:"cafe_nau",    name:"Cà phê nâu",          icon:"☕", points:5,   charm:5   },
+    { id:"chanh_tuyet", name:"Chanh tuyết bạc hà",  icon:"🥤", points:10,  charm:10  },
+    { id:"olong_khoi",  name:"Ô long khói rang",     icon:"🍵", points:20,  charm:20  },
+    { id:"tra_sen",     name:"Trà sen vàng",         icon:"🪷", points:50,  charm:50  },
+    { id:"sua_tuoi",    name:"Sữa tươi nướng TCDD", icon:"🧋", points:100, charm:100 },
+  ];
+
+  const sendGift = async (gift) => {
+    setGiftSending(true);
+    try {
+      const myPhone = useAuthStore.getState().userId || useRuntimeCustomerIdentityStore.getState().identity?.phone;
+      const res = await apiClient.post("/chess/tip", {
+        fromUserId: myPhone?.replace(/\D/g,"")?.replace(/^84/,"0"),
+        toUserId: resolvedPhone,
+        amount: gift.points, charm: gift.charm,
+        giftId: gift.id, giftName: gift.name, giftIcon: gift.icon,
+      });
+      if (res.data?.success !== false) {
+        setGiftResult({ gift, success: true });
+        setTimeout(() => { setGiftResult(null); setShowGift(false); }, 3000);
+      }
+    } catch(e) {
+      setGiftResult({ gift, success: false, error: e.message });
+    }
+    setGiftSending(false);
+  };
   const [loading,  setLoading]  = useState(true);
 
   useEffect(() => {
@@ -235,9 +266,65 @@ export default function ProfilePage() {
             ))}
           </div>
         )}
+        {!isOwn && (
+          <button onClick={() => setShowGift(true)}
+            style={{ width:"100%", padding:"14px", borderRadius:14, border:"none", background:"linear-gradient(135deg,#8a0030,#cc0055,#ff2060)", color:"white", fontSize:14, fontWeight:900, cursor:"pointer", boxShadow:"0 4px 20px rgba(255,0,80,.4)", display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginTop:4 }}>
+            🎁 Tặng vật phẩm cho {member.name || "người này"}
+          </button>
+        )}
       </div>
 
       <style>{`@keyframes liveFlash{0%,100%{opacity:1}50%{opacity:.35}}`}</style>
+
+      {/* Gift Modal */}
+      {showGift && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.75)", zIndex:9999, display:"flex", alignItems:"flex-end" }}
+          onClick={() => { setShowGift(false); setGiftResult(null); }}>
+          <div style={{ background:"#0f0f18", borderRadius:"24px 24px 0 0", width:"100%", padding:"24px 20px 48px", border:"1px solid rgba(255,80,120,.2)" }}
+            onClick={e => e.stopPropagation()}>
+            {giftResult ? (
+              <div style={{ textAlign:"center", padding:"20px 0" }}>
+                <p style={{ fontSize:40 }}>{giftResult.success ? "🎉" : "❌"}</p>
+                <p style={{ fontSize:15, fontWeight:900, color: giftResult.success ? "#ff80a0" : "#f44336", margin:"8px 0 4px" }}>
+                  {giftResult.success ? `Đã tặng ${giftResult.gift.icon} ${giftResult.gift.name}!` : "Không đủ điểm"}
+                </p>
+                {giftResult.success && <p style={{ fontSize:12, color:"rgba(255,255,255,.5)", margin:0 }}>+{giftResult.gift.charm} điểm quyến rũ cho {member.name}</p>}
+              </div>
+            ) : (
+              <>
+                <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
+                  <div style={{ width:44, height:44, borderRadius:22, overflow:"hidden", background:"rgba(255,255,255,.1)", flexShrink:0 }}>
+                    {member.avatar ? <img src={member.avatar} style={{ width:"100%", height:"100%", objectFit:"cover" }}/> : <div style={{ width:"100%", height:"100%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>👤</div>}
+                  </div>
+                  <div>
+                    <p style={{ fontSize:16, fontWeight:900, color:"white", margin:0 }}>🎁 Tặng vật phẩm</p>
+                    <p style={{ fontSize:12, color:"rgba(255,255,255,.4)", margin:0 }}>cho {member.name} · Dùng điểm tích lũy</p>
+                  </div>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                  {GIFTS.map(g => (
+                    <button key={g.id} disabled={giftSending} onClick={() => sendGift(g)}
+                      style={{ padding:"12px 16px", borderRadius:12, border:"1px solid rgba(255,80,120,.2)", background:"rgba(255,255,255,.04)", color:"white", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"space-between", textAlign:"left" }}>
+                      <span style={{ display:"flex", alignItems:"center", gap:10 }}>
+                        <span style={{ fontSize:26 }}>{g.icon}</span>
+                        <span>
+                          <span style={{ display:"block", fontSize:13, fontWeight:800 }}>{g.name}</span>
+                          <span style={{ display:"block", fontSize:10, color:"rgba(255,255,255,.4)", marginTop:2 }}>✦ +{g.charm} điểm quyến rũ</span>
+                        </span>
+                      </span>
+                      <span style={{ color:"#ff80a0", fontSize:13, fontWeight:800, flexShrink:0 }}>{g.points} điểm →</span>
+                    </button>
+                  ))}
+                </div>
+                <button onClick={() => setShowGift(false)}
+                  style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:10, border:"1px solid rgba(255,255,255,.1)", background:"transparent", color:"rgba(255,255,255,.4)", cursor:"pointer", fontSize:13 }}>
+                  Huỷ
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
