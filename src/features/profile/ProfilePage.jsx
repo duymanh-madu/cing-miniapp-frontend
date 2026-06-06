@@ -182,11 +182,12 @@ export default function ProfilePage() {
       <div style={{ padding:"0 16px", marginTop:-20 }}>
 
         {/* Stats */}
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:14 }}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:8, marginBottom:14 }}>
           {[
-            { label:"Điểm tích lũy",  value:fmt(points),           icon:"⭐", accent:"#D4531C" },
-            { label:"Lần ghé thăm",   value:fmt(eatTimes),          icon:"🧋", accent:"#2196F3" },
-            { label:"Chi tiêu",       value:fmt(paymentAmount)+"đ", icon:"💰", accent:"#4CAF50" },
+            { label:"Điểm tích lũy",  value:fmt(points),              icon:"⭐", accent:"#D4531C" },
+            { label:"Điểm quyến rũ",  value:fmt(member.charmPoints||0),icon:"✨", accent:"#b090ff" },
+            { label:"Lần ghé thăm",   value:fmt(eatTimes),             icon:"🧋", accent:"#2196F3" },
+            { label:"Chi tiêu",       value:fmt(paymentAmount)+"đ",    icon:"💰", accent:"#4CAF50" },
           ].map((s,i) => (
             <div key={i} style={{ background:theme.card, borderRadius:16, padding:"16px 8px", textAlign:"center", border:`1px solid ${theme.border}`, backdropFilter:"blur(10px)" }}>
               <p style={{ fontSize:22, margin:"0 0 6px" }}>{s.icon}</p>

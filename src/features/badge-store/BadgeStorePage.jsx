@@ -32,29 +32,29 @@ function CharmBadgeCard({ b }) {
   const cfg = CHARM_CFG[b.key] || CHARM_CFG.idol;
   return (
     <div style={{ borderRadius:20, padding:"2.5px", background:cfg.border, backgroundSize:"400% 100%", animation:"royalBorder 1.8s linear infinite" }}>
-      <div style={{ borderRadius:18, padding:"20px 18px", background:cfg.inner, position:"relative", overflow:"hidden" }}>
+      <div style={{ borderRadius:18, padding:"18px 16px", background:cfg.inner, position:"relative", overflow:"hidden" }}>
         <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:"linear-gradient(90deg,transparent,rgba(255,255,255,.1),rgba(255,255,255,.2),rgba(255,255,255,.1),transparent)", animation:"tcScan 2.5s ease-in-out infinite", pointerEvents:"none" }}/>
         <div style={{ position:"absolute", inset:0, background:`radial-gradient(ellipse at 30% 50%,${cfg.color}15 0%,transparent 60%)`, pointerEvents:"none", borderRadius:18 }}/>
-        <div style={{ display:"flex", alignItems:"center", gap:16, position:"relative", zIndex:1 }}>
-          <div style={{ width:72, height:72, borderRadius:"50%", background:cfg.iconBg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:34, flexShrink:0, animation:cfg.glow }}>
+        <div style={{ display:"flex", alignItems:"center", gap:14, position:"relative", zIndex:1 }}>
+          <div style={{ width:68, height:68, borderRadius:"50%", background:cfg.iconBg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, flexShrink:0, animation:cfg.glow }}>
             {cfg.icon}
           </div>
-          <div style={{ flex:1 }}>
-            <div style={{ display:"inline-block", background:`${cfg.color}22`, borderRadius:20, padding:"2px 10px", marginBottom:6, border:`1px solid ${cfg.color}44` }}>
-              <span style={{ fontSize:9, fontWeight:800, color:cfg.color, letterSpacing:1.5 }}>{cfg.rank}</span>
+          <div style={{ flex:1, minWidth:0 }}>
+            <div style={{ background:`${cfg.color}22`, borderRadius:20, padding:"3px 10px", marginBottom:6, border:`1px solid ${cfg.color}44`, display:"inline-flex", alignItems:"center", maxWidth:"100%" }}>
+              <span style={{ fontSize:10, fontWeight:800, color:cfg.color, letterSpacing:.5, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{cfg.rank}</span>
             </div>
-            <p style={{ fontSize:19, fontWeight:900, color:cfg.color, margin:"0 0 5px", textShadow:`0 0 16px ${cfg.color}` }}>{b.label}</p>
+            <p style={{ fontSize:18, fontWeight:900, color:cfg.color, margin:"0 0 5px", textShadow:`0 0 16px ${cfg.color}`, whiteSpace:"nowrap" }}>{b.label}</p>
             <div style={{ display:"flex", gap:3 }}>
               {[1,2,3,4,5].map(i => (
-                <svg key={i} width="14" height="14" viewBox="0 0 12 12">
+                <svg key={i} width="13" height="13" viewBox="0 0 12 12">
                   <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill={cfg.color} stroke={cfg.color} strokeWidth=".5"/>
                 </svg>
               ))}
             </div>
           </div>
-          <div style={{ textAlign:"right", flexShrink:0 }}>
-            <p style={{ fontSize:10, color:"rgba(255,255,255,.3)", margin:"0 0 4px" }}>YÊU CẦU</p>
-            <p style={{ fontSize:13, fontWeight:900, color:cfg.color, margin:0 }}>{cfg.sub}</p>
+          <div style={{ textAlign:"right", flexShrink:0, paddingLeft:8 }}>
+            <p style={{ fontSize:9, color:"rgba(255,255,255,.35)", margin:"0 0 3px", letterSpacing:1, textTransform:"uppercase" }}>Yêu cầu</p>
+            <p style={{ fontSize:12, fontWeight:900, color:cfg.color, margin:0, whiteSpace:"nowrap" }}>{cfg.sub}</p>
           </div>
         </div>
       </div>

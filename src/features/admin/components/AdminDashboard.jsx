@@ -14,7 +14,6 @@ import AdminNotifications from './AdminNotifications';
 import AdminManagement from './AdminManagement';
 import AdminBadges from './AdminBadges';
 import AdminMembers from './AdminMembers';
-import AdminBadgeStore from './AdminBadgeStore';
 import AdminAnalytics from './AdminAnalytics';
 import AdminOrders from './AdminOrders';
 import AdminDelivery from './AdminDelivery';
@@ -40,7 +39,6 @@ const TABS = [
   { key:"management",   icon:"🔐", label:"Quản lý Admin" },
   { key:"badges_admin",  icon:"🏅", label:"Danh hiệu" },
   { key:"members_admin", icon:"👤", label:"Thành viên" },
-  { key:"badge_store",   icon:"💎", label:"Store danh hiệu" },
 ];
 
 export default function AdminDashboard({ auth }) {
@@ -102,7 +100,6 @@ export default function AdminDashboard({ auth }) {
         {tab==="management"    && <AdminManagement token={auth.token} />}
         {tab==="badges_admin"  && <AdminBadges token={auth.token} />}
         {tab==="members_admin" && <AdminMembers token={auth.token} />}
-        {tab==="badge_store"   && <AdminBadgeStore />}
       </div>
     </div>
   );
