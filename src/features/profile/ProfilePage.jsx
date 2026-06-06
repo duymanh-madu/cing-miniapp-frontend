@@ -163,27 +163,40 @@ export default function ProfilePage() {
 
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:14 }}>
           {/* Avatar */}
-          <div style={{ position:"relative" }}>
-            <div style={{ width:96, height:96, borderRadius:48, border:`2.5px solid ${theme.accent}`, overflow:"hidden", background:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:38, fontWeight:900, color:"white", boxShadow:`0 4px 24px rgba(0,0,0,.4), 0 0 0 1px ${theme.border}` }}>
-              {avatarUrl
-                ? <img src={avatarUrl} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
-                : displayName[0]?.toUpperCase()
-              }
-            </div>
-            {champion && (
-              <div style={{ position:"absolute", bottom:-8, left:"50%", transform:"translateX(-50%)", background:"linear-gradient(90deg,#8a6000,#ffd700,#c47a00)", borderRadius:10, padding:"2px 10px", border:"1.5px solid #ffd700", boxShadow:"0 0 12px rgba(255,210,0,.7)", whiteSpace:"nowrap" }}>
-                <span style={{ fontSize:9, fontWeight:900, color:"#120c00" }}>♟️ KIỆN TƯỚNG</span>
+          {(() => {
+            // Config nhãn danh hiệu theo activeBadge
+            const badgeLabel = activeBadge === "champion" ? { icon:"♟️", text:"KIỆN TƯỚNG", bg:"linear-gradient(90deg,#8a6000,#ffd700,#c47a00)", border:"#ffd700", shadow:"rgba(255,210,0,.7)", textColor:"#120c00" }
+              : activeBadge === "hof_1" ? { icon:"♦", text:"VƯƠNG GIẢ", bg:"linear-gradient(90deg,#3a0010,#cc0050,#ff2060)", border:"#ff2060", shadow:"rgba(255,0,80,.7)", textColor:"#ffe0ea" }
+              : activeBadge === "hof_2" ? { icon:"♦", text:"PHÚ HÀO", bg:"linear-gradient(90deg,#080030,#1840cc,#4060ee)", border:"#2050ee", shadow:"rgba(40,80,255,.7)", textColor:"#c0d8ff" }
+              : activeBadge === "hof_3" ? { icon:"♦", text:"ĐỊA CHỦ", bg:"linear-gradient(90deg,#001c0a,#0caa55,#30cc70)", border:"#0caa55", shadow:"rgba(20,180,80,.7)", textColor:"#a0ffcc" }
+              : activeBadge === "minh_tinh" ? { icon:"🌟", text:"MINH TINH", bg:"linear-gradient(90deg,#6a0020,#cc0055,#ff4090)", border:"#ff2060", shadow:"rgba(255,0,80,.6)", textColor:"#ffe0ea" }
+              : activeBadge === "ngoi_sao" ? { icon:"⭐", text:"NGÔI SAO", bg:"linear-gradient(90deg,#6a4a00,#c09000,#ffd700)", border:"#ffd700", shadow:"rgba(255,215,0,.6)", textColor:"#1a1000" }
+              : activeBadge === "idol" ? { icon:"✨", text:"IDOL", bg:"linear-gradient(90deg,#2a1060,#6040c0,#9060e0)", border:"#a080ff", shadow:"rgba(160,128,255,.6)", textColor:"#e0d0ff" }
+              : null;
+            return (
+              <div style={{ position:"relative" }}>
+                <div style={{ width:96, height:96, borderRadius:48, border:`2.5px solid ${theme.accent}`, overflow:"hidden", background:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:38, fontWeight:900, color:"white", boxShadow:`0 4px 24px rgba(0,0,0,.4), 0 0 0 1px ${theme.border}` }}>
+                  {avatarUrl
+                    ? <img src={avatarUrl} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
+                    : displayName[0]?.toUpperCase()
+                  }
+                </div>
+                {badgeLabel && (
+                  <div style={{ position:"absolute", bottom:-10, left:"50%", transform:"translateX(-50%)", background:badgeLabel.bg, borderRadius:10, padding:"3px 10px", border:`1.5px solid ${badgeLabel.border}`, boxShadow:`0 0 12px ${badgeLabel.shadow}`, whiteSpace:"nowrap" }}>
+                    <span style={{ fontSize:9, fontWeight:900, color:badgeLabel.textColor }}>{badgeLabel.icon} {badgeLabel.text}</span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            );
+          })()}
 
           {/* Tên */}
           <div style={{ textAlign:"center" }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:10 }}>
               <h1 style={{ color:"white", fontSize:24, fontWeight:900, margin:0, textShadow:"0 2px 8px rgba(0,0,0,.5)" }}>{displayName}</h1>
-              <TierBadge tierKey={tierKey} isChampion={champion} size="sm"/>
+              <TierBadge tierKey={activeBadge === "champion" ? tierKey : activeBadge} isChampion={activeBadge === "champion"} size="sm"/>
             </div>
-            <TierBadge tierKey={tierKey} isChampion={champion} size="md" showLabel={true}/>
+            <TierBadge tierKey={activeBadge === "champion" ? tierKey : activeBadge} isChampion={activeBadge === "champion"} size="md" showLabel={true}/>
           </div>
         </div>
       </div>
