@@ -67,13 +67,22 @@ export default function NotificationBellButton() {
             ) : notifications.map((n, i) => (
               <div key={i} style={{ padding:"12px 16px", borderBottom:"1px solid #f5f5f5",
                 background: n.read ? "white" : "#fff8f0" }}>
-                <p style={{ fontSize:13, fontWeight:700, color:"#1a1a1a", margin:"0 0 3px" }}>
-                  {n.title || "Thông báo"}
-                </p>
-                <p style={{ fontSize:12, color:"#666", margin:"0 0 4px", lineHeight:1.5 }}>
-                  {n.message || ""}
-                </p>
-                <p style={{ fontSize:10, color:"#bbb", margin:0 }}>{fmt(n.created_at)}</p>
+                <div style={{ display:"flex", alignItems:"flex-start", gap:10 }}>
+                  <span style={{ fontSize:20, flexShrink:0, marginTop:1 }}>
+                    {n.type==="gift_received" ? "🎁" : n.type==="system" ? "📢" : "🔔"}
+                  </span>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <p style={{ fontSize:13, fontWeight:700, color:"#1a1a1a", margin:"0 0 3px", lineHeight:1.4 }}>
+                      {n.title || "Thông báo"}
+                    </p>
+                    {n.message && (
+                      <p style={{ fontSize:12, color:"#666", margin:"0 0 4px", lineHeight:1.5 }}>
+                        {n.message}
+                      </p>
+                    )}
+                    <p style={{ fontSize:10, color:"#bbb", margin:0 }}>{fmt(n.created_at)}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
