@@ -26,6 +26,7 @@ export default function CommunityChat({ onClose }) {
   const myIdRef    = useRef("");
 
   const runtimePhone  = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const [chatLocked, setChatLocked] = React.useState(null); // null | Date object
   const runtimeName   = useRuntimeCustomerIdentityStore(s => s.identity?.fullName);
   const runtimeAvatar = useRuntimeCustomerIdentityStore(s => s.identity?.avatar);
   const profile       = useAuthStore(s => s.profile);
@@ -200,6 +201,7 @@ export default function CommunityChat({ onClose }) {
   }, [membershipData]);
 
   const sendChat = () => {
+    if (chatLocked && chatLocked > new Date()) return;
     if (!input.trim() || !sockRef.current?.connected) return;
     const info = getMyInfo();
     const uid  = myIdRef.current || info.phone || ("guest-" + Date.now());
@@ -344,18 +346,29 @@ export default function CommunityChat({ onClose }) {
       )}
 
       {/* Bottom */}
-      <div style={{ padding:"8px 16px calc(env(safe-area-inset-bottom,0px) + 8px)", background:"#0d0d18", borderTop:"1px solid rgba(255,255,255,0.06)", display:"flex", gap:8, alignItems:"center" }}>
-
-        <input value={input} onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key==="Enter" && sendChat()}
-          placeholder="Nhập tin nhắn..." maxLength={200}
-          style={{ flex:1, background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:20, padding:"10px 16px", color:"white", fontSize:13, outline:"none" }}/>
-        <button onClick={sendChat} disabled={!input.trim()}
-          style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer", flexShrink:0,
-            background: input.trim()?"#D4531C":"rgba(255,255,255,0.06)",
-            display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
-          ➤
-        </button>
+      <div style={{ padding:"8px 16px calc(env(safe-area-inset-bottom,0px) + 8px)", background:"#0d0d18", borderTop:"1px solid rgba(255,255,255,0.06)" }}>
+        {chatLocked && chatLocked > new Date() ? (
+          <div style={{ padding:"12px 16px", background:"rgba(244,67,54,.12)", borderRadius:12, border:"1px solid rgba(244,67,54,.35)", textAlign:"center" }}>
+            <p style={{ fontSize:13, fontWeight:800, color:"#f44336", margin:"0 0 4px" }}>🔇 Bạn đã bị khoá chat</p>
+            <p style={{ fontSize:11, color:"rgba(255,255,255,.5)", margin:"0 0 4px" }}>Lý do: Vi phạm nội quy cộng đồng</p>
+            <p style={{ fontSize:11, color:"rgba(255,255,255,.4)", margin:0 }}>
+              Mở khoá lúc: {chatLocked.toLocaleString("vi-VN", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" })}
+            </p>
+          </div>
+        ) : (
+          <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+            <input value={input} onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key==="Enter" && sendChat()}
+              placeholder="Nhập tin nhắn..." maxLength={200}
+              style={{ flex:1, background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:20, padding:"10px 16px", color:"white", fontSize:13, outline:"none" }}/>
+            <button onClick={sendChat} disabled={!input.trim()}
+              style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer", flexShrink:0,
+                background: input.trim()?"#D4531C":"rgba(255,255,255,0.06)",
+                display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
+              ➤
+            </button>
+          </div>
+        )}
       </div>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
     </div>
