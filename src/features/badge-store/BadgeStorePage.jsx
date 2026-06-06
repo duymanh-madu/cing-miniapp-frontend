@@ -14,6 +14,9 @@ const BADGES = [
   { key:"hof_1",         label:"Vương Giả",           condition:"Đứng Top 1 BXH Tiêu dùng Alltime · Danh hiệu thay đổi tức thì khi BXH thay đổi", category:"Đại Sảnh Danh Vọng", live:true },
   { key:"hof_2",         label:"Phú Hào",             condition:"Đứng Top 2 BXH Tiêu dùng Alltime · Danh hiệu thay đổi tức thì khi BXH thay đổi", category:"Đại Sảnh Danh Vọng", live:true },
   { key:"hof_3",         label:"Địa Chủ",             condition:"Đứng Top 3 BXH Tiêu dùng Alltime · Danh hiệu thay đổi tức thì khi BXH thay đổi", category:"Đại Sảnh Danh Vọng", live:true },
+  { key:"idol",          label:"Idol",                condition:"Tích lũy 5.000 điểm quyến rũ từ vật phẩm được tặng", category:"Danh hiệu quyến rũ", live:false },
+  { key:"ngoi_sao",      label:"Ngôi sao",            condition:"Tích lũy 10.000 điểm quyến rũ từ vật phẩm được tặng", category:"Danh hiệu quyến rũ", live:false },
+  { key:"minh_tinh",     label:"Minh tinh",           condition:"Tích lũy 20.000 điểm quyến rũ từ vật phẩm được tặng", category:"Danh hiệu quyến rũ", live:false },
 ];
 
 const CATEGORIES = ["Tất cả", "Hạng thành viên", "Hạng đối tác", "Danh hiệu Live", "Đại Sảnh Danh Vọng", "Danh hiệu quyến rũ"];
