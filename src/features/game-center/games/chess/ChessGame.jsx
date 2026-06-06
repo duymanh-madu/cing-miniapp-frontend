@@ -8,6 +8,15 @@ import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCusto
 import ChessLeaderboard from "./ChessLeaderboard";
 
 // Bộ emoji trân châu đen độc quyền — SVG data URIs
+
+const GIFTS = [
+  { id:"cafe_nau",    name:"Cà phê nâu",              icon:"☕", points:5,   charm:5,   grad:"linear-gradient(135deg,rgba(101,67,33,0.3),rgba(101,67,33,0.08))",  color:"#c8a060" },
+  { id:"chanh_tuyet", name:"Chanh tuyết bạc hà",      icon:"🥤", points:10,  charm:10,  grad:"linear-gradient(135deg,rgba(100,200,150,0.2),rgba(100,200,150,0.05))", color:"#60e090" },
+  { id:"olong_khoi",  name:"Ô long khói rang",         icon:"🍵", points:20,  charm:20,  grad:"linear-gradient(135deg,rgba(80,60,40,0.3),rgba(80,60,40,0.08))",   color:"#c09060" },
+  { id:"tra_sen",     name:"Trà sen vàng",             icon:"🪷", points:50,  charm:50,  grad:"linear-gradient(135deg,rgba(255,200,50,0.2),rgba(255,200,50,0.05))", color:"#ffd060" },
+  { id:"sua_tuoi",    name:"Sữa tươi nướng TCDD",     icon:"🧋", points:100, charm:100, grad:"linear-gradient(135deg,rgba(212,83,28,0.25),rgba(212,83,28,0.06))", color:"#D4531C" },
+];
+
 const PEARL_EMOJIS = [
   { id:'laugh',  label:'Cười vỡ bụng',      color:'#c8f0ff' },
   { id:'king',   label:'Nước đi của vua',    color:'#FFD700' },
@@ -470,10 +479,10 @@ export default function ChessGame({ onExit, onFindMatch }) {
       setTimeout(() => setFloatEmoji(null), 2500);
     });
 
-    s.on("chess:tip_received", ({ fromUserId, toUserId, amount }) => {
+    s.on("chess:tip_received", ({ fromUserId, toUserId, amount, giftId, giftName, giftIcon, charm }) => {
       const fromMe = fromUserId === userIdRef.current;
-      setTipResult({ amount, fromMe });
-      setTimeout(() => setTipResult(null), 3000);
+      setTipResult({ amount, charm, fromMe, giftId, giftName, giftIcon });
+      setTimeout(() => setTipResult(null), 4000);
     });
 
     // Chat
@@ -551,14 +560,18 @@ export default function ChessGame({ onExit, onFindMatch }) {
     setShowEmoji(false);
   };
 
-  const sendTip = (amount) => {
+  const sendTip = (gift) => {
     if (!gameIdRef.current) return;
     const opponentId = opponent?.userId || opponent?.id || "";
     sockRef.current?.emit("chess:tip", {
-      gameId: gameIdRef.current,
+      gameId:     gameIdRef.current,
       fromUserId: userIdRef.current,
-      toUserId: opponentId,
-      amount,
+      toUserId:   opponentId,
+      amount:     gift.points,
+      charm:      gift.charm,
+      giftId:     gift.id,
+      giftName:   gift.name,
+      giftIcon:   gift.icon,
     });
     setShowTip(false);
   };
@@ -967,10 +980,10 @@ export default function ChessGame({ onExit, onFindMatch }) {
                 <p style={{ fontSize:40, margin:"0 0 8px" }}>💎</p>
                 <p style={{ color: tipResult.fromMe?"#1a0a00":"#003820", fontSize:20, fontWeight:900, margin:"0 0 4px",
                   textShadow:"0 1px 0 rgba(255,255,255,0.3)" }}>
-                  {tipResult.fromMe ? `−${tipResult.amount} điểm` : `+${tipResult.amount} điểm`}
+                  {tipResult.fromMe ? `Bạn đã tặng ${tipResult.giftIcon||""} ${tipResult.giftName||tipResult.amount+" điểm"}` : `${tipResult.giftIcon||""} ${tipResult.giftName||tipResult.amount+" điểm"}`}
                 </p>
                 <p style={{ color: tipResult.fromMe?"rgba(26,10,0,0.7)":"rgba(0,56,32,0.8)", fontSize:12, fontWeight:700, margin:0 }}>
-                  {tipResult.fromMe ? "Bạn vừa tặng đối thủ" : "Đối thủ vừa tặng bạn"}
+                  {tipResult.fromMe ? "Đã gửi đến đối thủ" : "Đối thủ vừa tặng bạn"}
                 </p>
               </div>
             </div>
@@ -1019,26 +1032,26 @@ export default function ChessGame({ onExit, onFindMatch }) {
               style={{ background:"#0a0814", borderRadius:20, padding:"20px",
                 border:"1px solid rgba(255,215,0,0.2)", boxShadow:"0 8px 40px rgba(0,0,0,0.9)", minWidth:260 }}>
               <p style={{ color:"#FFD700", fontSize:14, fontWeight:900, margin:"0 0 4px", textAlign:"center" }}>
-                💎 Tặng điểm cho đối thủ
+                🎁 Tặng vật phẩm cho đối thủ
               </p>
               <p style={{ color:"rgba(255,150,0,0.7)", fontSize:10, margin:"0 0 14px", textAlign:"center", lineHeight:1.5 }}>
-                ⚠️ Điểm trừ từ tài khoản thật · Đối thủ nhận điểm có giá trị thật
+                Dùng điểm tích lũy · Đối thủ nhận điểm quyến rũ
               </p>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                {[
-                  { amount:5,   label:"5 điểm",   fx:"✨", grad:"linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))" },
-                  { amount:10,  label:"10 điểm",  fx:"⭐", grad:"linear-gradient(135deg,rgba(100,180,255,0.12),rgba(100,180,255,0.04))" },
-                  { amount:20,  label:"20 điểm",  fx:"🌟", grad:"linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,215,0,0.04))" },
-                  { amount:50,  label:"50 điểm",  fx:"💫", grad:"linear-gradient(135deg,rgba(255,150,0,0.2),rgba(255,150,0,0.05))" },
-                  { amount:100, label:"100 điểm", fx:"🔥", grad:"linear-gradient(135deg,rgba(212,83,28,0.3),rgba(212,83,28,0.08))" },
-                ].map(t => (
-                  <button key={t.amount} onClick={() => sendTip(t.amount)}
-                    style={{ background:t.grad, border:"1px solid rgba(255,255,255,0.1)",
-                      borderRadius:12, padding:"12px 16px", color:"white", fontSize:14,
+                {GIFTS.map(g => (
+                  <button key={g.id} onClick={() => sendTip(g)}
+                    style={{ background:g.grad, border:`1px solid ${g.color}33`,
+                      borderRadius:12, padding:"12px 16px", color:"white", fontSize:13,
                       fontWeight:700, cursor:"pointer", textAlign:"left",
                       display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                    <span>{t.fx} {t.label}</span>
-                    <span style={{ color:"rgba(255,255,255,0.3)", fontSize:11 }}>Tặng ngay →</span>
+                    <span style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <span style={{ fontSize:24 }}>{g.icon}</span>
+                      <span>
+                        <span style={{ display:"block", fontSize:13, fontWeight:800 }}>{g.name}</span>
+                        <span style={{ display:"block", fontSize:10, color:"rgba(255,255,255,.45)", marginTop:2 }}>✦ {g.charm} điểm quyến rũ cho đối thủ</span>
+                      </span>
+                    </span>
+                    <span style={{ color:g.color, fontSize:12, fontWeight:800, flexShrink:0 }}>{g.points} điểm →</span>
                   </button>
                 ))}
               </div>

@@ -16,7 +16,7 @@ const BADGES = [
   { key:"hof_3",         label:"Địa Chủ",             condition:"Đứng Top 3 BXH Tiêu dùng Alltime · Danh hiệu thay đổi tức thì khi BXH thay đổi", category:"Đại Sảnh Danh Vọng", live:true },
 ];
 
-const CATEGORIES = ["Tất cả", "Hạng thành viên", "Hạng đối tác", "Danh hiệu Live", "Đại Sảnh Danh Vọng"];
+const CATEGORIES = ["Tất cả", "Hạng thành viên", "Hạng đối tác", "Danh hiệu Live", "Đại Sảnh Danh Vọng", "Danh hiệu quyến rũ"];
 
 export default function BadgeStorePage() {
   const navigate = useNavigate();
@@ -50,12 +50,28 @@ export default function BadgeStorePage() {
       <div style={{ padding:"0 16px 16px", display:"flex", flexDirection:"column", gap:12 }}>
         {filtered.map(b => (
           <div key={b.key}>
-            {/* TierCard renders đúng 100% thiết kế gốc */}
+            {b.category === "Danh hiệu quyến rũ" ? (
+              <div style={{ borderRadius:20, padding:"2.5px", background: b.key==="minh_tinh" ? "linear-gradient(90deg,#ff6090,#ffb0d0,#fff,#ffb0d0,#ff6090)" : b.key==="ngoi_sao" ? "linear-gradient(90deg,#c0a000,#ffd700,#fff,#ffd700,#c0a000)" : "linear-gradient(90deg,#6040c0,#a080ff,#fff,#a080ff,#6040c0)", backgroundSize:"400% 100%", animation:"royalBorder 2s linear infinite" }}>
+                <div style={{ borderRadius:18, padding:"20px 18px", background: b.key==="minh_tinh" ? "linear-gradient(150deg,#12010a,#1e0210,#12010a)" : b.key==="ngoi_sao" ? "linear-gradient(150deg,#100e00,#1e1a00,#100e00)" : "linear-gradient(150deg,#080420,#0e0830,#080420)", position:"relative", overflow:"hidden" }}>
+                  <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:"linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)", animation:"tcScan 3s ease-in-out infinite", pointerEvents:"none" }}/>
+                  <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+                    <div style={{ width:68, height:68, borderRadius:"50%", background: b.key==="minh_tinh" ? "linear-gradient(135deg,#8a0030,#cc0055,#ff60a0,#ffb0d0)" : b.key==="ngoi_sao" ? "linear-gradient(135deg,#7a5000,#c09000,#ffd700,#ffe880)" : "linear-gradient(135deg,#3a2080,#6040c0,#a080ff,#d0c0ff)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, flexShrink:0, animation: b.key==="minh_tinh" ? "hofGlow1 2s ease-in-out infinite" : b.key==="ngoi_sao" ? "ktGlowCard 2s ease-in-out infinite" : "partnerGlowCard 2s ease-in-out infinite" }}>
+                      {b.key==="minh_tinh" ? "🌟" : b.key==="ngoi_sao" ? "⭐" : "✨"}
+                    </div>
+                    <div>
+                      <p style={{ fontSize:18, fontWeight:900, color: b.key==="minh_tinh" ? "#ff80b0" : b.key==="ngoi_sao" ? "#ffd700" : "#b090ff", margin:"0 0 4px", textShadow:`0 0 12px currentColor` }}>{b.label}</p>
+                      <p style={{ fontSize:10, color:"rgba(255,255,255,.4)", margin:"0 0 6px", letterSpacing:1 }}>DANH HIỆU QUYẾN RŨ</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
             <TierCard
               tierKey={b.isChampion ? "member" : b.key}
               isChampion={b.isChampion || false}
               tierName={b.label}
             />
+            )}
             {/* Điều kiện đạt được */}
             <div style={{ margin:"8px 4px 0", padding:"10px 14px", background:"rgba(255,255,255,.04)", borderRadius:10, border:"1px solid rgba(255,255,255,.08)", display:"flex", alignItems:"flex-start", gap:10 }}>
               {b.live && <span style={{ background:"rgba(255,0,0,.85)", borderRadius:4, padding:"2px 6px", fontSize:9, fontWeight:900, color:"#fff", flexShrink:0, marginTop:1 }}>LIVE</span>}

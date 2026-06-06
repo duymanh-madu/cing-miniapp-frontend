@@ -26,7 +26,8 @@ export default function CommunityChat({ onClose }) {
   const myIdRef    = useRef("");
 
   const runtimePhone  = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
-  const [chatLocked, setChatLocked] = useState(null); // null | Date object
+  const [chatLocked, setChatLocked] = useState(null);
+  React.useEffect(() => { injectTierBadgeStyles(); }, []); // null | Date object
   const runtimeName   = useRuntimeCustomerIdentityStore(s => s.identity?.fullName);
   const runtimeAvatar = useRuntimeCustomerIdentityStore(s => s.identity?.avatar);
   const profile       = useAuthStore(s => s.profile);
@@ -219,6 +220,15 @@ export default function CommunityChat({ onClose }) {
     emitWithRetry();
   }, [membershipData]);
 
+  // Charm badge helper
+  const getCharmBadge = (charmPoints) => {
+    if (!charmPoints) return null;
+    if (charmPoints >= 20000) return { label:"Minh tinh", color:"#ff80b0", bg:"linear-gradient(135deg,#8a0030,#cc0055)" };
+    if (charmPoints >= 10000) return { label:"Ngôi sao", color:"#ffd700", bg:"linear-gradient(135deg,#7a5000,#c09000)" };
+    if (charmPoints >= 5000)  return { label:"Idol", color:"#b090ff", bg:"linear-gradient(135deg,#3a2080,#6040c0)" };
+    return null;
+  };
+
   const sendChat = () => {
     if (chatLocked && chatLocked > new Date()) return;
     if (!input.trim() || !sockRef.current?.connected) return;
@@ -315,6 +325,12 @@ export default function CommunityChat({ onClose }) {
               cursor: /^(0|84)\d{8,10}$/.test(String(m.userId)) ? "pointer" : "default" }} onClick={() => {
                 if (/^(0|84)\d{8,10}$/.test(String(m.userId))) navigate(`/profile/${m.userId}`);
               }}>
+              {(() => {
+                const cb = getCharmBadge(m.charmPoints);
+                return cb ? (
+                  <span style={{ fontSize:9, fontWeight:900, padding:"1px 6px", borderRadius:8, background:cb.bg, color:cb.color, border:`1px solid ${cb.color}55`, whiteSpace:"nowrap" }}>{cb.label}</span>
+                ) : null;
+              })()}
               <p style={{ color:"#888", fontSize:10, margin:0, textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.15)" }}>{m.name}</p>
               <TierBadge tierKey={m.tierKey || "member"} size="sm"/>
               {championId && String(m.userId) === championId && (
