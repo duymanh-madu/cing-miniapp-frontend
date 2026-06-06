@@ -172,6 +172,59 @@ function StarRating({ stars, size = "sm" }) {
   );
 }
 
+
+function GemIconSm({ tierKey, size = 20 }) {
+  const s = size * 0.85;
+  if (tierKey === "hof_1") return (
+    <svg width={s} height={s} viewBox="0 0 48 52" style={{ overflow:"visible", filter:"drop-shadow(0 0 4px rgba(255,40,100,.9))" }}>
+      <defs>
+        <linearGradient id="gs1t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#fff0f3"/><stop offset="50%" stopColor="#ff80a0"/><stop offset="100%" stopColor="#880030"/></linearGradient>
+        <linearGradient id="gs1l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ff4080"/><stop offset="100%" stopColor="#3a0018"/></linearGradient>
+        <linearGradient id="gs1r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#ff90b0"/><stop offset="100%" stopColor="#550020"/></linearGradient>
+      </defs>
+      <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#cc0044" opacity=".5"/>
+      <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#gs1t)" opacity=".98"/>
+      <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#gs1l)" opacity=".88"/>
+      <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#gs1r)" opacity=".85"/>
+      <polygon points="12,36 36,36 28,48 20,48" fill="#440018" opacity=".88"/>
+      <polygon points="20,48 24,52 28,48" fill="#220010" opacity=".9"/>
+      <ellipse cx="22" cy="13" rx="7" ry="4" fill="white" opacity=".3"/>
+    </svg>
+  );
+  if (tierKey === "hof_2") return (
+    <svg width={s} height={s} viewBox="0 0 48 52" style={{ overflow:"visible", filter:"drop-shadow(0 0 4px rgba(60,120,255,.9))" }}>
+      <defs>
+        <linearGradient id="gs2t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#e8f0ff"/><stop offset="50%" stopColor="#90b8ff"/><stop offset="100%" stopColor="#0c1880"/></linearGradient>
+        <linearGradient id="gs2l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3060ee"/><stop offset="100%" stopColor="#040830"/></linearGradient>
+        <linearGradient id="gs2r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#70a0ff"/><stop offset="100%" stopColor="#080840"/></linearGradient>
+      </defs>
+      <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#1840cc" opacity=".5"/>
+      <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#gs2t)" opacity=".97"/>
+      <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#gs2l)" opacity=".85"/>
+      <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#gs2r)" opacity=".82"/>
+      <polygon points="12,36 36,36 28,48 20,48" fill="#0c1870" opacity=".88"/>
+      <polygon points="20,48 24,52 28,48" fill="#060c38" opacity=".9"/>
+      <ellipse cx="22" cy="13" rx="7" ry="4" fill="white" opacity=".28"/>
+    </svg>
+  );
+  return (
+    <svg width={s} height={s} viewBox="0 0 48 52" style={{ overflow:"visible", filter:"drop-shadow(0 0 4px rgba(30,200,100,.9))" }}>
+      <defs>
+        <linearGradient id="gs3t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#d0ffe8"/><stop offset="50%" stopColor="#70ee99"/><stop offset="100%" stopColor="#043820"/></linearGradient>
+        <linearGradient id="gs3l" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#18cc66"/><stop offset="100%" stopColor="#011a08"/></linearGradient>
+        <linearGradient id="gs3r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#60ee88"/><stop offset="100%" stopColor="#022810"/></linearGradient>
+      </defs>
+      <polygon points="10,20 38,20 44,28 38,36 10,36 4,28" fill="#0c8840" opacity=".5"/>
+      <polygon points="24,4 36,12 36,20 24,24 12,20 12,12" fill="url(#gs3t)" opacity=".97"/>
+      <polygon points="4,28 10,20 12,20 12,36 10,36" fill="url(#gs3l)" opacity=".85"/>
+      <polygon points="44,28 38,20 36,20 36,36 38,36" fill="url(#gs3r)" opacity=".82"/>
+      <polygon points="12,36 36,36 28,48 20,48" fill="#043820" opacity=".88"/>
+      <polygon points="20,48 24,52 28,48" fill="#021408" opacity=".9"/>
+      <ellipse cx="22" cy="13" rx="7" ry="4" fill="white" opacity=".25"/>
+    </svg>
+  );
+}
+
 export function TierBadge({ tierKey = "member", isChampion = false, size = "sm", showLabel = false }) {
   const isHOF = tierKey?.startsWith("hof_");
   const cfg = isHOF ? HOF_CONFIG[tierKey] : (isChampion ? CHAMPION_CONFIG : (TIER_CONFIG[tierKey] || TIER_CONFIG.member));
@@ -195,9 +248,10 @@ export function TierBadge({ tierKey = "member", isChampion = false, size = "sm",
         fontSize:       12,
         flexShrink:     0,
         border:         isRoyal ? "1.5px solid rgba(255,255,255,.3)" : `1px solid ${cfg.border}`,
-        animation:      isRoyal ? (isChampion ? "ktGlowSm 2s ease-in-out infinite" : tierKey === "diamond" ? "dGlowSm 2s ease-in-out infinite" : "pGlowSm 2s ease-in-out infinite") : "none",
+        animation:      isRoyal ? (isChampion ? "ktGlowSm 2s ease-in-out infinite" : tierKey === "diamond" ? "dGlowSm 2s ease-in-out infinite" : isHOF ? "hofGlowSm 2s ease-in-out infinite" : "pGlowSm 2s ease-in-out infinite") : "none",
+        overflow:       "visible",
       }}>
-        {cfg.icon}
+        {isHOF ? <GemIconSm tierKey={tierKey} size={22}/> : cfg.icon}
       </span>
     );
   }
@@ -255,10 +309,11 @@ export function TierBadge({ tierKey = "member", isChampion = false, size = "sm",
           justifyContent: "center",
           fontSize:     fontSize,
           boxShadow:    cfg.glow,
-          animation:    isChampion ? "ktGlow 2.2s ease-in-out infinite" : isHOF && tierKey === "hof_1" ? "hofGlow1 2s ease-in-out infinite" : isHOF ? "hofGlow2 2s ease-in-out infinite" : tierKey === "diamond" ? "diamondGlowBadge 2s ease-in-out infinite" : "partnerGlowBadge 2s ease-in-out infinite",
+          animation:    isChampion ? "ktGlow 2.2s ease-in-out infinite" : isHOF && tierKey === "hof_1" ? "hofGlow1 2s ease-in-out infinite" : isHOF && tierKey === "hof_2" ? "hofGlow2 2s ease-in-out infinite" : isHOF ? "hofGlow3 2s ease-in-out infinite" : tierKey === "diamond" ? "diamondGlowBadge 2s ease-in-out infinite" : "partnerGlowBadge 2s ease-in-out infinite",
           position:     "relative",
+          overflow:     "visible",
         }}>
-          {cfg.icon}
+          {isHOF ? <GemIconSm tierKey={tierKey} size={iconSize}/> : cfg.icon}
         </div>
       </div>
       {showLabel && (
