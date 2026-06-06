@@ -564,9 +564,21 @@ export default function ChessGame({ onExit, onFindMatch }) {
     const opponentId = opponent?.userId || opponent?.id || "";
     if (!opponentId || !userIdRef.current) return;
     setShowTip(false);
+    // Emit socket cho game server Mắt Bão handle
+    sockRef.current?.emit("chess:tip", {
+      gameId:     gameIdRef.current,
+      fromUserId: userIdRef.current,
+      toUserId:   opponentId,
+      amount:     gift.points,
+      charm:      gift.charm,
+      giftId:     gift.id,
+      giftName:   gift.name,
+      giftIcon:   gift.icon,
+    });
+    // Đồng thời gọi HTTP để trừ điểm + cộng charm + notification
     try {
       const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
-      await fetch(`${base}/game/chess/tip`, {
+      fetch(`${base}/game/chess/tip`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -580,7 +592,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
         }),
       });
     } catch(e) {
-      console.warn("[TIP]", e.message);
+      console.warn("[TIP HTTP]", e.message);
     }
   };
 
