@@ -641,7 +641,8 @@ export default function ChessGame({ onExit, onFindMatch }) {
   const sendTip = async (gift) => {
     playSound("gift_send");
     const opponentId = opponent?.userId || opponent?.id || "";
-    if (!opponentId || !userIdRef.current) return;
+    console.log("[TIP DEBUG] fromUserId:", userIdRef.current, "toUserId:", opponentId, "gift:", gift.points, "userPoints:", userPoints);
+    if (!opponentId || !userIdRef.current) { console.warn("[TIP] Missing IDs"); return; }
     if (userPoints < gift.points) {
       import("zmp-sdk").then(sdk => sdk.showToast?.({ text: `Không đủ điểm! Cần ${gift.points}, bạn có ${userPoints} điểm.`, duration: "long" })).catch(()=>{});
       return;
