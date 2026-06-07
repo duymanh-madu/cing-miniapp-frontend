@@ -291,7 +291,7 @@ export default function CommunityChat({ onClose }) {
           onClick={() => window.parent.postMessage({ type:"OPEN_OUT_APP", url:"https://www.facebook.com/groups/2210684146435472" }, "*")}
           style={{ background:"linear-gradient(135deg,#1877F2,#0a5dc2)", border:"none", borderRadius:10,
             padding:"6px 12px", color:"white", fontSize:11, fontWeight:800, cursor:"pointer",
-            display:"flex", alignItems:"center", gap:5, flexShrink:0,
+            display:"none", alignItems:"center", gap:5, flexShrink:0,
             boxShadow:"0 2px 8px rgba(24,119,242,0.4)",
             transition:"transform 0.15s ease, box-shadow 0.15s ease" }}>
           <span style={{ fontSize:13 }}>👥</span> Gia nhập
