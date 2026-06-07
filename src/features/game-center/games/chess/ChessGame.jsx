@@ -802,22 +802,16 @@ export default function ChessGame({ onExit, onFindMatch }) {
                     display:"flex", alignItems:"center", justifyContent:"center",
                     zIndex:2, pointerEvents:"none", userSelect:"none",
                   }}>
-                    <div style={{
-                      fontSize:"min(6.2vw,30px)",
-                      lineHeight:1,
-                      color: piece.color==="w" ? "#fff8e7" : "#1a0f00",
-                      textShadow: piece.color==="w"
-                        ? "0 -1px 0 rgba(255,255,255,0.8), 0 1px 0 rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.8), 0 3px 6px rgba(0,0,0,0.5), 1px 0 0 rgba(0,0,0,0.5), -1px 0 0 rgba(0,0,0,0.5)"
-                        : "0 -1px 0 rgba(255,255,255,0.15), 0 1px 0 rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.9), 0 3px 8px rgba(0,0,0,0.7)",
-                      filter: piece.color==="w"
-                        ? "drop-shadow(0 3px 3px rgba(0,0,0,0.9)) drop-shadow(0 1px 1px rgba(0,0,0,1))"
-                        : "drop-shadow(0 3px 4px rgba(0,0,0,0.9)) drop-shadow(0 1px 2px rgba(0,0,0,1))",
-                      transform: "translateY(-1px)",
-                      WebkitFontSmoothing:"antialiased",
-                    }}>
-                      {{"wK":"♔","wQ":"♕","wR":"♖","wB":"♗","wN":"♘","wP":"♙",
-                        "bK":"♚","bQ":"♛","bR":"♜","bB":"♝","bN":"♞","bP":"♟"}[pieceKey]}
-                    </div>
+                    <img
+                      src={`https://lichess1.org/assets/piece/maestro/${pieceKey}.svg`}
+                      alt={pieceKey}
+                      style={{
+                        width:"88%", height:"88%",
+                        objectFit:"contain",
+                        pointerEvents:"none",
+                        imageRendering:"crisp-edges",
+                      }}
+                    />
                   </div>
                 )}
 
