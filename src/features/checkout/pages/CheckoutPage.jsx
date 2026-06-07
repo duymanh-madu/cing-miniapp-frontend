@@ -589,14 +589,53 @@ export default function CheckoutPage(){
             </div>
           )}
           <div style={{height:1,background:"#f0f0f0",margin:"6px 0"}}/>
-          {/* ĐIỂM TÍCH LŨY — Đổi voucher để giảm giá */}
+          {/* ĐIỂM TÍCH LŨY — Dùng trực tiếp vào đơn */}
           {availablePoints > 0 && (
-            <div style={{marginBottom:8,padding:"10px 12px",background:"#f0fdf4",borderRadius:10,border:"1px solid #bbf7d0",display:"flex",alignItems:"center",gap:10}}>
-              <span style={{fontSize:20}}>🎟</span>
-              <div style={{flex:1}}>
-                <p style={{fontSize:12,fontWeight:700,color:"#059669",margin:"0 0 2px"}}>Bạn có {availablePoints} điểm tích lũy</p>
-                <p style={{fontSize:11,color:"#666",margin:0}}>Đổi điểm lấy voucher giảm giá tại mục <strong>Điểm tích lũy</strong></p>
+            <div style={{marginBottom:8,padding:"12px",background:"#f0fdf4",borderRadius:10,border:"1px solid #bbf7d0"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                <span style={{fontSize:18}}>🎟</span>
+                <div style={{flex:1}}>
+                  <p style={{fontSize:12,fontWeight:700,color:"#059669",margin:0}}>
+                    Dùng điểm tích lũy — Bạn có <strong>{availablePoints}</strong> điểm (= {fmt(availablePoints*1000)})
+                  </p>
+                </div>
               </div>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <input
+                  type="number"
+                  min={0}
+                  max={Math.min(availablePoints, Math.ceil((subtotal+shipFee-tierDiscount)/1000))}
+                  value={pointsToUse}
+                  onChange={e => {
+                    const max = Math.min(availablePoints, Math.ceil((subtotal+shipFee-tierDiscount)/1000));
+                    const val = Math.max(0, Math.min(Number(e.target.value)||0, max));
+                    setPointsToUse(val);
+                  }}
+                  placeholder="Nhập số điểm muốn dùng"
+                  style={{flex:1,padding:"8px 10px",borderRadius:8,border:"1px solid #bbf7d0",
+                    fontSize:13,outline:"none",background:"white"}}
+                />
+                <button onClick={() => {
+                  const max = Math.min(availablePoints, Math.ceil((subtotal+shipFee-tierDiscount)/1000));
+                  setPointsToUse(max);
+                }} style={{padding:"8px 12px",borderRadius:8,border:"none",
+                  background:"#059669",color:"white",fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>
+                  Dùng tối đa
+                </button>
+                {pointsToUse > 0 && (
+                  <button onClick={() => setPointsToUse(0)}
+                    style={{padding:"8px 10px",borderRadius:8,border:"1px solid #ccc",
+                      background:"white",color:"#666",fontSize:12,cursor:"pointer"}}>
+                    Bỏ
+                  </button>
+                )}
+              </div>
+              {pointsToUse > 0 && (
+                <p style={{fontSize:11,color:"#059669",margin:"6px 0 0",fontWeight:600}}>
+                  Giảm {fmt(pointsDiscount)} — Còn thanh toán: {fmt(total)}
+                  {total === 0 ? " 🎉 Thanh toán hoàn toàn bằng điểm!" : " qua MoMo"}
+                </p>
+              )}
             </div>
           )}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -610,7 +649,7 @@ export default function CheckoutPage(){
             background:(loading||shipStatus==="loading")?"#ddd":"#D4531C",
             color:"white",border:"none",fontSize:14,fontWeight:900,
             cursor:(loading||shipStatus==="loading")?"not-allowed":"pointer"}}>
-          {loading?"Đang xử lý...":"Thanh toán MoMo — "+fmt(total)}
+          {loading?"Đang xử lý...":total===0?"✅ Thanh toán bằng điểm — Miễn phí":"Thanh toán MoMo — "+fmt(total)}
         </button>
       </div>
     </div>
