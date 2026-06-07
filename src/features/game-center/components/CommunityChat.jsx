@@ -14,6 +14,7 @@ export default function CommunityChat({ onClose }) {
   const [voiceState, setVoiceState] = useState("idle");
   const [speaker,    setSpeaker]    = useState(null);
   const [tab,        setTab]        = useState("chat");
+  const [showRules, setShowRules] = useState(false);
   const [myId,       setMyId]       = useState("");
   const navigate = useNavigate();
 
