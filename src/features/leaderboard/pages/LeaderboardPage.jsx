@@ -288,6 +288,8 @@ export default function LeaderboardPage() {
           </div>
         )}
       </div>
+      </div>
+      <div style={{ flex:1, overflowY:"auto", paddingBottom:100 }}>
 
       {/* REWARDS */}
       {rewardsConfig[tab]?.enabled && rewardsConfig[tab]?.rewards?.length > 0 && (
