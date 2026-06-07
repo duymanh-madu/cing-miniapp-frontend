@@ -144,8 +144,29 @@ export default function CheckoutPage(){
       try {
         const zmpSdk = await import("zmp-sdk");
         const result = await zmpSdk.getLocation();
-        if (!result?.latitude || !result?.longitude) throw new Error("NO_LOCATION");
-        return { latitude: result.latitude, longitude: result.longitude };
+
+        // Thử latitude/longitude trực tiếp (deprecated nhưng vẫn hoạt động một số version)
+        if (result?.latitude && result?.longitude) {
+          return { latitude: parseFloat(result.latitude), longitude: parseFloat(result.longitude) };
+        }
+
+        // Nếu có token → gửi lên backend decode
+        if (result?.token) {
+          try {
+            const { default: apiClient } = await import("@/infra/api/apiClient");
+            const r = await apiClient.post("/shipping/decode-location", {
+              token: result.token,
+              amount: subtotal,
+            });
+            if (r.data?.success && r.data?.latitude && r.data?.longitude) {
+              return { latitude: r.data.latitude, longitude: r.data.longitude };
+            }
+          } catch(e) {
+            console.warn("[LOCATION] decode-location failed:", e.message);
+          }
+        }
+
+        throw new Error("NO_LOCATION");
       } catch(e) {
         // Fallback navigator.geolocation cho môi trường web/dev
         return new Promise((resolve, reject) => {
@@ -444,8 +465,14 @@ export default function CheckoutPage(){
                     try {
                       const zmpSdk = await import("zmp-sdk");
                       const result = await zmpSdk.getLocation();
-                      if (!result?.latitude || !result?.longitude) throw new Error("NO_LOCATION");
-                      coords = { latitude: result.latitude, longitude: result.longitude };
+                      if (result?.latitude && result?.longitude) {
+                        coords = { latitude: parseFloat(result.latitude), longitude: parseFloat(result.longitude) };
+                      } else if (result?.token) {
+                        const r = await apiClient.post("/shipping/decode-location", { token: result.token, amount: subtotal });
+                        if (r.data?.success && r.data?.latitude && r.data?.longitude) {
+                          coords = { latitude: r.data.latitude, longitude: r.data.longitude };
+                        } else throw new Error("NO_LOCATION");
+                      } else throw new Error("NO_LOCATION");
                     } catch(e) {
                       coords = await new Promise((resolve, reject) => {
                         if (!navigator.geolocation) { reject(new Error("NO_GEO")); return; }
