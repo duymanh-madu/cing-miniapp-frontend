@@ -258,7 +258,9 @@ export default function CheckoutPage(){
         shipping_fee:shipFee,
         shipping_distance:distKm?Math.round(distKm*10)/10:null,
         total_amount:total,
-        points_used: pointsToUse,
+        points_used:    pointsToUse,
+        tier_discount:  tierDiscount,
+        points_discount: pointsDiscount,
       };
       const orderRes = await apiClient.post("/orders/create", orderPayload);
       const orderId = orderRes.data?.data?.id || orderRes.data?.order?.id;
