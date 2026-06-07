@@ -257,7 +257,7 @@ export default function GameCenterPage() {
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom: challenge?.completed ? 10 : 0 }}>
           <div>
             <p style={{ color: challenge?.completed ? "#4CAF50" : "#FFD700", fontSize:11, fontWeight:800, margin:"0 0 4px", letterSpacing:2 }}>{challenge?.completed ? "✅ ĐÃ CÓ NGƯỜI NHẬN THƯỞNG" : "🎯 THÁCH THỨC HÔM NAY"}</p>
-            <p style={{ color:"white", fontSize:15, fontWeight:800, margin:"0 0 3px" }}>Đạt combo {challenge?.target_value || 100} trong game "Bay cùng trân châu"</p>
+            <p style={{ color:"white", fontSize:15, fontWeight:800, margin:"0 0 3px" }}>{challenge?.label || `Đạt combo ${challenge?.target_value || 100} trong game "Bay cùng trân châu"`}</p>
             <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, margin:0 }}>Phần thưởng: +{challenge?.reward_points || 50} điểm tích luỹ • Chỉ 1 người đầu tiên</p>
           </div>
           <div style={{ fontSize:36 }}>{challenge?.completed ? "🏆" : "🎯"}</div>

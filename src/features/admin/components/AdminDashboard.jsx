@@ -8,6 +8,7 @@ import AdminAppConfig from "./AdminAppConfig";
 import AdminLogs from "./AdminLogs";
 import AdminCDP from "./AdminCDP";
 import AdminAlltimeGames from './AdminAlltimeGames';
+import AdminDailyChallenge from './AdminDailyChallenge';
 import AdminMonitor from './AdminMonitor';
 import AdminLeaderboard from "./AdminLeaderboard";
 import AdminNotifications from './AdminNotifications';
@@ -32,6 +33,7 @@ const TABS = [
   { key:"notifications", icon:"🔔", label:"Thông báo" },
   { key:"monitor",       icon:"👁",  label:"Monitor" },
   { key:"alltime_games", icon:"🏅", label:"Alltime Games" },
+  { key:"daily_challenge", icon:"🎯", label:"Thách thức ngày" },
   { key:"orders_admin",  icon:"📦", label:"Đơn hàng" },
   { key:"delivery_admin", icon:"🚀", label:"Giao hàng" },
   { key:"payments_admin",icon:"💳", label:"Thanh toán" },
@@ -93,6 +95,7 @@ export default function AdminDashboard({ auth }) {
         {tab==="logs"      && <AdminLogs token={auth.token} />}
         {tab==="monitor"      && <AdminMonitor token={auth.token} />}
         {tab==="alltime_games" && <AdminAlltimeGames token={auth.token} />}
+        {tab==="daily_challenge" && <AdminDailyChallenge token={auth.token} />}
         {tab==="orders_admin"  && <AdminOrders token={auth.token} />}
         {tab==="delivery_admin" && <AdminDelivery token={auth.token} />}
         {tab==="payments_admin" && <AdminPayments token={auth.token} />}
