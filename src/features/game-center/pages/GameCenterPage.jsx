@@ -82,6 +82,7 @@ export default function GameCenterPage() {
   const [showChessLB, setShowChessLB]     = useState(false);
   const [showAlltimeLB, setShowAlltimeLB] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [challenges, setChallenges]       = useState([]);
   const [challenge, setChallenge]         = useState(null);
   const [missions,  setMissions]          = useState([]);
   const [gamePlays, setGamePlays]         = useState(null);
@@ -93,7 +94,16 @@ export default function GameCenterPage() {
 
   useEffect(() => {
     apiClient.get("/game/daily-challenge")
-      .then(r => setChallenge(r.data?.data))
+      .then(r => {
+        const data = r.data?.data;
+        if (Array.isArray(data)) {
+          setChallenges(data);
+          setChallenge(data[0] || null);
+        } else {
+          setChallenges(data ? [data] : []);
+          setChallenge(data || null);
+        }
+      })
       .catch(() => {});
   }, []);
 
