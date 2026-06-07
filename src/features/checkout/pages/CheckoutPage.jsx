@@ -171,6 +171,8 @@ export default function CheckoutPage(){
 
         throw new Error("NO_LOCATION");
       } catch(e) {
+        setDebugLocation({ raw: "zmp-sdk ERROR: " + (e?.message || JSON.stringify(e)), time: new Date().toISOString() });
+        console.log("[LOCATION] zmp-sdk catch:", e?.message, JSON.stringify(e));
         // Fallback navigator.geolocation cho môi trường web/dev
         return new Promise((resolve, reject) => {
           if (!navigator.geolocation) { reject(new Error("NO_GEO")); return; }
