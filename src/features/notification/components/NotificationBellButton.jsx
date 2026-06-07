@@ -1,7 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import useNotificationStore from "@/stores/notification/notificationStore";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
 export default function NotificationBellButton() {
+  const phone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+
+  // Load notifications từ Storage + DB khi mount hoặc khi có phone
+  useEffect(() => {
+    if (!phone || phone === "pending") return;
+    const p = phone.replace(/\D/g,"").replace(/^84/,"0");
+    if (p.length >= 9) useNotificationStore.getState().load(p);
+  }, [phone]);
+
   useEffect(() => {
     const handler = (e) => {
       const notif = e.detail;
