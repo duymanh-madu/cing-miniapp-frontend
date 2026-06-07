@@ -277,12 +277,12 @@ export default function CommunityChat({ onClose }) {
   const RULES_TEXT = [
     { type:"intro", text:"Gửi tất cả các \"Cing iu\"!" },
     { type:"body",  text:"Admin hiểu rằng nếu không có sự ủng hộ của các bạn, Cing Hu Tang Kinh Bắc sẽ không thể đi tới ngày hôm nay. Thay mặt tất cả nhân sự của nhà Cing Hu Tang Kinh Bắc, Admin xin gửi lời cảm ơn sâu sắc tới toàn thể \"Cing iu\" đã, đang và sẽ còn ủng hộ Cing Hu Tang Kinh Bắc!" },
-    { type:"body",  text:"Dự án này là tâm huyết đã ấp ủ từ rất lâu của chúng mình. Đây không phải là một app bình thường. Đây là nơi lắng nghe và vinh danh mọi sự ủng hộ của các bạn. Cũng là nơi để gắn kết cộng đồng \"Cing iu\" lại gần nhau hơn. Và cộng đồng nào thì cũng phải có nội quy thì mới bền lâu được, cộng đồng \"Cing iu\" nhà mình cũng không ngoại lệ:" },
-    { type:"rule",  num:1, text:'Không văng tục, chửi bậy trong nhóm chat cộng đồng "Cing iu" cũng như trong group cộng đồng.' },
+    { type:"body",  text:"Dự án này là tâm huyết đã ấp ủ từ rất lâu của chúng mình. Đây không phải là một app bình thường. Đây là nơi lắng nghe và vinh danh mọi sự ủng hộ của các bạn. Cũng là nơi để gắn kết cộng đồng \"Cing iu\" lại gần nhau hơn. Và cộng đồng nào thì cũng phải có nội quy thì mới bền lâu được, cộng đồng \"Cing iu\" nhà mình cũng không ngoại lệ, Admin xin phổ biến một số nội quy của cộng đồng để các \"Cing iu\" nắm được:" },
+    { type:"rule",  num:1, text:'Không văng tục, chửi bậy trong nhóm chat cộng đồng "Cing iu" cũng như trong group cộng đồng: "Những Cing iu vui tính của nhà Cing Hu Tang Kinh Bắc".' },
     { type:"rule",  num:2, text:'Không gây thù hằn giữa các cá nhân trong cộng đồng. Chúng ta là những "Cing iu" vui tính, game chơi thắng không kiêu, thua không cay cú.' },
-    { type:"rule",  num:3, text:'Không tuyên truyền những tôn giáo không chính thống, không làm những việc trái với pháp luật. Chúng ta là những công dân Việt Nam gương mẫu.' },
-    { type:"penalty", text:"Vi phạm lần 1: Cấm chat 1 ngày • Lần 2: 3 ngày • Lần 3: 7 ngày • Lần 4: 30 ngày • Lần 5: Vĩnh viễn" },
-    { type:"outro", text:'Admin hi vọng không phải cấm chat bất kỳ "Cing iu" nào. Hãy tham gia và thoải mái flex những kỹ năng chơi game đỉnh cao của mình nhé!' },
+    { type:"rule",  num:3, text:'Không tuyên truyền những tôn giáo không chính thống, không làm những việc trái với pháp luật. Chúng ta là những công dân Việt Nam gương mẫu. Chỉ làm những việc pháp luật cho phép.' },
+    { type:"penalty", text:"Vi phạm nội quy lần đầu sẽ bị cấm chat 1 ngày, vi phạm lần 2 sẽ bị cấm chat 3 ngày, vi phạm lần 3 sẽ bị cấm chat 7 ngày, vi phạm lần 4 sẽ bị cấm chat 30 ngày và vi phạm lần 5 sẽ bị cấm chat vĩnh viễn." },
+    { type:"outro", text:'Admin hi vọng không phải cấm chat bất kỳ "Cing iu" nào. Hãy tham gia vào group "Những Cing iu vui vẻ của nhà Cing Hu Tang Kinh Bắc" để được giao lưu, kết bạn và hơn hết là thoải mái flex những kỹ năng chơi game đỉnh cao của mình nhé các "Cing iu"!' },
     { type:"sign",  text:"Trân trọng! 🧋 Cing Hu Tang Kinh Bắc" },
   ];
 
