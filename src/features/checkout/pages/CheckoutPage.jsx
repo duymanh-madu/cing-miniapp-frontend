@@ -143,16 +143,19 @@ export default function CheckoutPage(){
     // navigator.geolocation bị block trong Zalo WebView
     const getLocation = async () => {
       try {
+        setDebugLocation({ raw: "Step 1: importing zmp-sdk...", time: new Date().toISOString() });
         const zmpSdk = await import("zmp-sdk");
+        setDebugLocation({ raw: "Step 2: zmp-sdk imported. Keys: " + Object.keys(zmpSdk).filter(k=>k.includes('oc')||k.includes('et')||k.includes('Lo')).join(','), time: new Date().toISOString() });
+        
         // Xin quyền userLocation trước khi gọi getLocation
         try {
+          setDebugLocation({ raw: "Step 3: calling authorize...", time: new Date().toISOString() });
           const authResult = await zmpSdk.authorize({ scopes: ["scope.userLocation"] });
-          setDebugLocation({ raw: "authorize OK: " + JSON.stringify(authResult), time: new Date().toISOString() });
-          console.log("[LOCATION] authorize result:", JSON.stringify(authResult));
+          setDebugLocation({ raw: "Step 4 authorize OK: " + JSON.stringify(authResult), time: new Date().toISOString() });
         } catch(authErr) {
-          setDebugLocation({ raw: "authorize error: " + (authErr?.message || JSON.stringify(authErr)), time: new Date().toISOString() });
-          console.log("[LOCATION] authorize error:", authErr?.message);
+          setDebugLocation({ raw: "Step 3 authorize ERROR: " + (authErr?.message || JSON.stringify(authErr)), time: new Date().toISOString() });
         }
+        setDebugLocation({ raw: "Step 5: calling getLocation...", time: new Date().toISOString() });
         const result = await zmpSdk.getLocation();
         console.log("[LOCATION] zmp-sdk result:", JSON.stringify(result));
         setDebugLocation({ raw: JSON.stringify(result), time: new Date().toISOString() });
