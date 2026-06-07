@@ -273,6 +273,18 @@ export default function CommunityChat({ onClose }) {
   const isMe = (uid) => uid === myId || uid === myIdRef.current;
   const speakerUser = users.find(u => u.userId === speaker);
 
+  const RULES_TEXT = [
+    { type:"intro", text:"Gửi tất cả các \"Cing iu\"!" },
+    { type:"body",  text:"Admin hiểu rằng nếu không có sự ủng hộ của các bạn, Cing Hu Tang Kinh Bắc sẽ không thể đi tới ngày hôm nay. Thay mặt tất cả nhân sự của nhà Cing Hu Tang Kinh Bắc, Admin xin gửi lời cảm ơn sâu sắc tới toàn thể \"Cing iu\" đã, đang và sẽ còn ủng hộ Cing Hu Tang Kinh Bắc!" },
+    { type:"body",  text:"Dự án này là tâm huyết đã ấp ủ từ rất lâu của chúng mình. Đây không phải là một app bình thường. Đây là nơi lắng nghe và vinh danh mọi sự ủng hộ của các bạn. Cũng là nơi để gắn kết cộng đồng \"Cing iu\" lại gần nhau hơn. Và cộng đồng nào thì cũng phải có nội quy thì mới bền lâu được, cộng đồng \"Cing iu\" nhà mình cũng không ngoại lệ:" },
+    { type:"rule",  num:1, text:'Không văng tục, chửi bậy trong nhóm chat cộng đồng "Cing iu" cũng như trong group cộng đồng.' },
+    { type:"rule",  num:2, text:'Không gây thù hằn giữa các cá nhân trong cộng đồng. Chúng ta là những "Cing iu" vui tính, game chơi thắng không kiêu, thua không cay cú.' },
+    { type:"rule",  num:3, text:'Không tuyên truyền những tôn giáo không chính thống, không làm những việc trái với pháp luật. Chúng ta là những công dân Việt Nam gương mẫu.' },
+    { type:"penalty", text:"Vi phạm lần 1: Cấm chat 1 ngày • Lần 2: 3 ngày • Lần 3: 7 ngày • Lần 4: 30 ngày • Lần 5: Vĩnh viễn" },
+    { type:"outro", text:'Admin hi vọng không phải cấm chat bất kỳ "Cing iu" nào. Hãy tham gia và thoải mái flex những kỹ năng chơi game đỉnh cao của mình nhé!' },
+    { type:"sign",  text:"Trân trọng! 🧋 Cing Hu Tang Kinh Bắc" },
+  ];
+
   return (
     <div style={{ position:"fixed", inset:0, zIndex:500, background:"#080810", display:"flex", flexDirection:"column" }}>
       <audio ref={audioRef} autoPlay style={{ display:"none" }}/>
@@ -295,6 +307,13 @@ export default function CommunityChat({ onClose }) {
             boxShadow:"0 2px 8px rgba(24,119,242,0.4)",
             transition:"transform 0.15s ease, box-shadow 0.15s ease" }}>
           <span style={{ fontSize:13 }}>👥</span> Gia nhập
+        </button>
+        <button onClick={() => setShowRules(true)}
+          style={{ background:"linear-gradient(135deg,#D4531C,#FF6B35)", border:"none", borderRadius:10,
+            padding:"6px 12px", color:"white", fontSize:11, fontWeight:800, cursor:"pointer",
+            display:"flex", alignItems:"center", gap:5, flexShrink:0,
+            boxShadow:"0 2px 8px rgba(212,83,28,0.4)" }}>
+          <span style={{ fontSize:13 }}>📜</span> Nội quy
         </button>
         <div style={{ display:"flex", gap:4 }}>
           {[{k:"chat",l:"💬 Chat"},{k:"users",l:`👥 ${users.length}`}].map(t => (
@@ -406,5 +425,75 @@ export default function CommunityChat({ onClose }) {
       </div>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
     </div>
+
+    {/* MODAL NỘI QUY */}
+    {showRules && (
+      <div onClick={() => setShowRules(false)}
+        style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(0,0,0,0.85)",
+          display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
+        <div onClick={e => e.stopPropagation()}
+          style={{ background:"linear-gradient(180deg,#1a0805,#0d0402)", width:"100%", maxWidth:500,
+            borderRadius:"24px 24px 0 0", maxHeight:"88vh", display:"flex", flexDirection:"column",
+            border:"1px solid rgba(212,83,28,0.3)", boxShadow:"0 -8px 40px rgba(0,0,0,0.9)" }}>
+
+          {/* Header */}
+          <div style={{ padding:"16px 20px 12px", borderBottom:"1px solid rgba(255,255,255,0.06)",
+            display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+              <div style={{ width:36, height:36, borderRadius:10, background:"linear-gradient(135deg,#D4531C,#FF6B35)",
+                display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>📜</div>
+              <div>
+                <p style={{ color:"#FFD700", fontSize:13, fontWeight:900, margin:0, letterSpacing:1 }}>NỘI QUY CỘNG ĐỒNG</p>
+                <p style={{ color:"#888", fontSize:10, margin:0 }}>Cing Hu Tang Kinh Bắc</p>
+              </div>
+            </div>
+            <button onClick={() => setShowRules(false)}
+              style={{ background:"rgba(255,255,255,0.06)", border:"none", color:"#aaa",
+                borderRadius:10, width:32, height:32, cursor:"pointer", fontSize:16,
+                display:"flex", alignItems:"center", justifyContent:"center" }}>✕</button>
+          </div>
+
+          {/* Content */}
+          <div style={{ overflowY:"auto", flex:1, padding:"16px 20px 32px" }}>
+            {RULES_TEXT.map((item, i) => {
+              if (item.type === "intro") return (
+                <p key={i} style={{ color:"#FFD700", fontSize:16, fontWeight:900, margin:"0 0 12px",
+                  textAlign:"center", letterSpacing:0.5 }}>{item.text}</p>
+              );
+              if (item.type === "body") return (
+                <p key={i} style={{ color:"rgba(255,255,255,0.8)", fontSize:13, lineHeight:1.7,
+                  margin:"0 0 14px", textAlign:"justify" }}>{item.text}</p>
+              );
+              if (item.type === "rule") return (
+                <div key={i} style={{ display:"flex", gap:12, marginBottom:12,
+                  background:"rgba(212,83,28,0.08)", borderRadius:12, padding:"12px 14px",
+                  border:"1px solid rgba(212,83,28,0.2)" }}>
+                  <div style={{ width:28, height:28, borderRadius:8, background:"linear-gradient(135deg,#D4531C,#FF6B35)",
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    color:"white", fontSize:13, fontWeight:900, flexShrink:0 }}>{item.num}</div>
+                  <p style={{ color:"rgba(255,255,255,0.85)", fontSize:13, lineHeight:1.6, margin:0 }}>{item.text}</p>
+                </div>
+              );
+              if (item.type === "penalty") return (
+                <div key={i} style={{ background:"rgba(244,67,54,0.08)", border:"1px solid rgba(244,67,54,0.25)",
+                  borderRadius:12, padding:"12px 14px", marginBottom:14 }}>
+                  <p style={{ color:"#FFD700", fontSize:11, fontWeight:800, margin:"0 0 6px", letterSpacing:1 }}>⚠️ HÌNH THỨC XỬ PHẠT</p>
+                  <p style={{ color:"rgba(255,180,180,0.9)", fontSize:12, lineHeight:1.7, margin:0 }}>{item.text}</p>
+                </div>
+              );
+              if (item.type === "outro") return (
+                <p key={i} style={{ color:"rgba(255,255,255,0.7)", fontSize:13, lineHeight:1.7,
+                  margin:"0 0 16px", textAlign:"justify", fontStyle:"italic" }}>{item.text}</p>
+              );
+              if (item.type === "sign") return (
+                <p key={i} style={{ color:"#D4531C", fontSize:14, fontWeight:900, margin:0,
+                  textAlign:"right", letterSpacing:0.5 }}>{item.text}</p>
+              );
+              return null;
+            })}
+          </div>
+        </div>
+      </div>
+    )}
   );
 }
