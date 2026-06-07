@@ -286,6 +286,7 @@ export default function CommunityChat({ onClose }) {
   ];
 
   return (
+    <>
     <div style={{ position:"fixed", inset:0, zIndex:500, background:"#080810", display:"flex", flexDirection:"column" }}>
       <audio ref={audioRef} autoPlay style={{ display:"none" }}/>
 
@@ -495,5 +496,6 @@ export default function CommunityChat({ onClose }) {
         </div>
       </div>
     )}
+    </>
   );
 }
