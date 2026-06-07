@@ -144,6 +144,7 @@ export default function CheckoutPage(){
       try {
         const zmpSdk = await import("zmp-sdk");
         const result = await zmpSdk.getLocation();
+        console.log("[LOCATION] zmp-sdk result:", JSON.stringify(result));
 
         // Thử latitude/longitude trực tiếp (deprecated nhưng vẫn hoạt động một số version)
         if (result?.latitude && result?.longitude) {
