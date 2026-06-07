@@ -77,7 +77,6 @@ export default function CheckoutPage(){
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
   const [pointsToUse, setPointsToUse] = useState(0);
-  const [debugLocation, setDebugLocation] = useState(null);
   const [momoPayUrl, setMomoPayUrl] = useState(null);
   const [momoQR, setMomoQR] = useState(null);
   const [momoDeeplink, setMomoDeeplink] = useState(null);
@@ -143,22 +142,14 @@ export default function CheckoutPage(){
     // navigator.geolocation bị block trong Zalo WebView
     const getLocation = async () => {
       try {
-        setDebugLocation({ raw: "Step 1: importing zmp-sdk...", time: new Date().toISOString() });
         const zmpSdk = await import("zmp-sdk");
-        setDebugLocation({ raw: "Step 2: zmp-sdk imported. Keys: " + Object.keys(zmpSdk).filter(k=>k.includes('oc')||k.includes('et')||k.includes('Lo')).join(','), time: new Date().toISOString() });
         
         // Xin quyền userLocation trước khi gọi getLocation
         try {
-          setDebugLocation({ raw: "Step 3: calling authorize...", time: new Date().toISOString() });
           const authResult = await zmpSdk.authorize({ scopes: ["scope.userLocation"] });
-          setDebugLocation({ raw: "Step 4 authorize OK: " + JSON.stringify(authResult), time: new Date().toISOString() });
         } catch(authErr) {
-          setDebugLocation({ raw: "Step 3 authorize ERROR: " + (authErr?.message || JSON.stringify(authErr)), time: new Date().toISOString() });
         }
-        setDebugLocation({ raw: "Step 5: calling getLocation...", time: new Date().toISOString() });
         const result = await zmpSdk.getLocation();
-        console.log("[LOCATION] zmp-sdk result:", JSON.stringify(result));
-        setDebugLocation({ raw: JSON.stringify(result), time: new Date().toISOString() });
 
         // Thử latitude/longitude trực tiếp (deprecated nhưng vẫn hoạt động một số version)
         if (result?.latitude && result?.longitude) {
@@ -183,8 +174,6 @@ export default function CheckoutPage(){
 
         throw new Error("NO_LOCATION");
       } catch(e) {
-        setDebugLocation({ raw: "zmp-sdk ERROR: " + (e?.message || JSON.stringify(e)), time: new Date().toISOString() });
-        console.log("[LOCATION] zmp-sdk catch:", e?.message, JSON.stringify(e));
         // Fallback navigator.geolocation cho môi trường web/dev
         return new Promise((resolve, reject) => {
           if (!navigator.geolocation) { reject(new Error("NO_GEO")); return; }
@@ -234,7 +223,6 @@ export default function CheckoutPage(){
         }
       })
       .catch(err => {
-        setDebugLocation({ raw: "OUTER CATCH: code=" + err?.code + " msg=" + err?.message + " full=" + JSON.stringify(err), time: new Date().toISOString() });
         if(err.code===1 || err.message==="NO_GEO" || err.message==="NO_LOCATION"){
           setShipFee(0);setShipStatus("denied");
           setLocMsg("Vui lòng cho phép truy cập vị trí để tính phí ship chính xác");
@@ -474,11 +462,6 @@ export default function CheckoutPage(){
         {orderType==="delivery"&&(
           <div style={{marginTop:10,padding:"10px 12px",background:"#f9f9f9",borderRadius:10}}>
             {shipStatus==="loading"&&<p style={{fontSize:12,color:"#999",margin:0}}>Đang lấy vị trí và tính phí ship...</p>}
-            {debugLocation&&(
-              <div style={{background:"#f0f0f0",border:"1px solid #ccc",borderRadius:8,padding:"8px 10px",margin:"6px 0",fontSize:10,wordBreak:"break-all",color:"#333"}}>
-                <strong>DEBUG GPS:</strong> {debugLocation.raw}
-              </div>
-            )}
 
 {shipStatus==="denied"&&(
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
