@@ -46,6 +46,7 @@ export default function AdminAppConfig({ token }) {
         free_shipping_threshold: config.free_shipping_threshold,
         max_delivery_distance: config.max_delivery_distance,
         shipping_fee_per_km: config.shipping_fee_per_km,
+        spend_per_play: config.spend_per_play,
         bank_name: config.bank_name,
         bank_account_number: config.bank_account_number,
         bank_account_name: config.bank_account_name,
@@ -146,6 +147,7 @@ export default function AdminAppConfig({ token }) {
       <Section title="Cấu hình giao hàng">
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
           <Field k="shipping_fee_per_km" label="Phí ship / km (đ)" type="number" />
+          <Field k="spend_per_play" label="Chi tiêu / lượt chơi (đ)" type="number" />
           <Field k="max_delivery_distance" label="Khoảng cách tối đa (km)" type="number" />
           <Field k="minimum_order_amount" label="Đơn tối thiểu (đ)" type="number" />
           <Field k="free_shipping_threshold" label="Miễn ship từ (đ)" type="number" />

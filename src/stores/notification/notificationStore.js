@@ -3,7 +3,7 @@ import { create } from "zustand";
 const STORAGE_KEY = "cing_notifs_v1";
 const TTL = 3 * 24 * 60 * 60 * 1000; // 3 ngày
 
-const API_BASE = "https://cing-backend-production.up.railway.app/api";
+const API_BASE = (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_BASE_URL) || "https://cing-backend-production.up.railway.app/api";
 
 async function loadFromStorage() {
   try {
