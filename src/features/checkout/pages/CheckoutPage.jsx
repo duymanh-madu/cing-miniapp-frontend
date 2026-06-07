@@ -234,6 +234,7 @@ export default function CheckoutPage(){
         }
       })
       .catch(err => {
+        setDebugLocation({ raw: "OUTER CATCH: code=" + err?.code + " msg=" + err?.message + " full=" + JSON.stringify(err), time: new Date().toISOString() });
         if(err.code===1 || err.message==="NO_GEO" || err.message==="NO_LOCATION"){
           setShipFee(0);setShipStatus("denied");
           setLocMsg("Vui lòng cho phép truy cập vị trí để tính phí ship chính xác");
