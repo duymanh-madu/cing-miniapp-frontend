@@ -144,6 +144,13 @@ export default function CheckoutPage(){
     const getLocation = async () => {
       try {
         const zmpSdk = await import("zmp-sdk");
+        // Xin quyền userLocation trước khi gọi getLocation
+        try {
+          await zmpSdk.authorize({ scopes: ["scope.userLocation"] });
+        } catch(authErr) {
+          setDebugLocation({ raw: "authorize error: " + (authErr?.message || JSON.stringify(authErr)), time: new Date().toISOString() });
+          console.log("[LOCATION] authorize error:", authErr?.message);
+        }
         const result = await zmpSdk.getLocation();
         console.log("[LOCATION] zmp-sdk result:", JSON.stringify(result));
         setDebugLocation({ raw: JSON.stringify(result), time: new Date().toISOString() });
