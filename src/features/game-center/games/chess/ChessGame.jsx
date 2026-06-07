@@ -6,6 +6,7 @@ import { Chess } from "chess.js";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import ChessLeaderboard from "./ChessLeaderboard";
+import { useMembership } from "@/features/home/hooks/useMembership";
 
 // Bộ emoji trân châu đen độc quyền — SVG data URIs
 
@@ -395,6 +396,8 @@ const PIECE_SHADOW = { w:"rgba(0,0,0,0.5)", b:"rgba(255,255,255,0.15)" };
 export default function ChessGame({ onExit, onFindMatch }) {
   const navigate = useNavigate();
   const profile  = useAuthStore(s => s.profile);
+  const { membership } = useMembership();
+  const userPoints = membership?.points || 0;
   const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
   
   const userId = (() => {
@@ -639,6 +642,10 @@ export default function ChessGame({ onExit, onFindMatch }) {
     playSound("gift_send");
     const opponentId = opponent?.userId || opponent?.id || "";
     if (!opponentId || !userIdRef.current) return;
+    if (userPoints < gift.points) {
+      import("zmp-sdk").then(sdk => sdk.showToast?.({ text: `Không đủ điểm! Cần ${gift.points}, bạn có ${userPoints} điểm.`, duration: "long" })).catch(()=>{});
+      return;
+    }
     setShowTip(false);
     // Hiển thị popup local ngay lập tức (không cần đợi server)
     setTipResult({ amount: gift.points, charm: gift.charm, fromMe: true, giftId: gift.id, giftName: gift.name, giftIcon: gift.icon });
@@ -1151,7 +1158,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
                         <span style={{ display:"block", fontSize:10, color:"rgba(255,255,255,.45)", marginTop:2 }}>✦ {g.charm} điểm quyến rũ cho đối thủ</span>
                       </span>
                     </span>
-                    <span style={{ color:g.color, fontSize:12, fontWeight:800, flexShrink:0 }}>{g.points} điểm →</span>
+                    <span style={{ color: userPoints >= g.points ? g.color : "#888", fontSize:12, fontWeight:800, flexShrink:0 }}>{g.points} điểm →</span>
                   </button>
                 ))}
               </div>
