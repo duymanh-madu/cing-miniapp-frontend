@@ -27,6 +27,16 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
   const profileId    = useAuthStore(s => s.profile?.id);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
 
+  const [spendPerPlay, setSpendPerPlay] = useState(20000);
+
+  useEffect(() => {
+    apiClient.get("/app-config/public")
+      .then(r => {
+        const val = r.data?.data?.spend_per_play;
+        if (val) setSpendPerPlay(val);
+      }).catch(() => {});
+  }, []);
+
   const fetchPlays = async () => {
     const phone = getPhone();
     if (!phone) { setLoading(false); return; }
@@ -102,7 +112,7 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <span>🧋</span>
-            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>Mỗi <b style={{color:"#FFD700"}}>20.000đ</b> chi tiêu → nhận thêm <b style={{color:"#FFD700"}}>1 lượt chơi</b></span>
+            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>Mỗi <b style={{color:"#FFD700"}}>{(spendPerPlay||20000).toLocaleString("vi-VN")}đ</b> chi tiêu → nhận thêm <b style={{color:"#FFD700"}}>1 lượt chơi</b></span>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <span>⚡</span>

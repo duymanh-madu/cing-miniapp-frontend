@@ -23,6 +23,15 @@ export default function AdminDailyChallenge({ token }) {
       .catch(console.error);
   }, []);
 
+  const reset = async () => {
+    if (!confirm("Xóa thách thức hôm nay? Config mới sẽ được áp dụng ngay.")) return;
+    try {
+      await apiClient.delete("/game/daily-challenge/reset", { headers: h });
+      setMsg("✅ Đã reset! Thách thức mới sẽ tạo tự động.");
+      setTimeout(() => setMsg(""), 3000);
+    } catch(e) { setMsg("❌ " + e.message); }
+  };
+
   const save = async () => {
     setSaving(true);
     try {
@@ -147,6 +156,13 @@ export default function AdminDailyChallenge({ token }) {
           border:"none", color:"white", borderRadius:12, padding:"14px",
           fontSize:14, fontWeight:900, cursor: saving ? "not-allowed" : "pointer" }}>
         {saving ? "Đang lưu..." : "💾 Lưu cấu hình"}
+      </button>
+
+      <button onClick={reset}
+        style={{ width:"100%", background:"rgba(244,67,54,0.1)", border:"1px solid rgba(244,67,54,0.3)",
+          color:"#f44336", borderRadius:12, padding:"12px",
+          fontSize:13, fontWeight:700, cursor:"pointer", marginTop:8 }}>
+        🔄 Reset thách thức hôm nay (áp dụng config mới ngay)
       </button>
     </div>
   );
