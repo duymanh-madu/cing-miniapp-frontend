@@ -162,6 +162,7 @@ export default function AlltimeLeaderboard({ onClose }) {
               <div style={{padding:"0 16px 20px"}}>
                 {currentGame.data.slice(3).map((e,i) => {
                   const isMe = String(e.user_id)===String(profile?.id||profile?.phone);
+                const handleClick = () => { if (!isMe && e.user_id) goProfile(e.user_id); };
                   return (
                     <div key={i} style={{display:"flex",alignItems:"center",gap:10,
                       padding:"9px 12px",borderRadius:10,marginBottom:3,

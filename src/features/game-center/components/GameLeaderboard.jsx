@@ -126,7 +126,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
             const isMe = phone && String(entry.user_id) === phone;
             const handleClick = () => { if (!isMe && entry.user_id) goProfile(entry.user_id); };
             return (
-              <div key={i} style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 20px", borderBottom:"1px solid rgba(255,255,255,0.04)", background: isMe ? "rgba(255,215,0,0.05)" : i < 3 ? "rgba(255,215,0,0.03)" : "transparent" }}>
+              <div key={i} onClick={handleClick} style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 20px", borderBottom:"1px solid rgba(255,255,255,0.04)", background: isMe ? "rgba(255,215,0,0.05)" : i < 3 ? "rgba(255,215,0,0.03)" : "transparent", cursor: isMe ? "default" : "pointer" }}>
                 <div style={{ width:32, textAlign:"center", flexShrink:0 }}>
                   {i < 3 ? <span style={{ fontSize:20 }}>{MEDAL[i]}</span> : <span style={{ color:"rgba(255,255,255,0.3)", fontSize:13, fontWeight:700 }}>{i+1}</span>}
                 </div>
