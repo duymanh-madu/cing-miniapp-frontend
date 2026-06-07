@@ -237,8 +237,9 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div style={{ minHeight:"100vh", background:"linear-gradient(180deg,#050310 0%,#0d0820 35%,#080514 70%,#050310 100%)", paddingBottom:100 }}>
-      <div style={{ position:"fixed", top:0, left:0, right:0, height:"var(--app-safe-top, 0px)", background:"#050310", zIndex:99 }} />
+    <div style={{ height:"100vh", display:"flex", flexDirection:"column", background:"linear-gradient(180deg,#050310 0%,#0d0820 35%,#080514 70%,#050310 100%)" }}>
+      <div style={{ position:"sticky", top:0, zIndex:10, background:"linear-gradient(180deg,#050310,#0d0820)" }}>
+      <div style={{ height:"var(--app-safe-top, 0px)", background:"#050310" }} />
 
       {resetNotif && (
         <div style={{ position:"fixed", top:"calc(env(safe-area-inset-top, 0px) + 56px)", left:16, right:16, zIndex:999, background:"linear-gradient(135deg,#D4531C,#ff6b35)", borderRadius:16, padding:"14px 18px", boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
@@ -381,6 +382,7 @@ export default function LeaderboardPage() {
           </div>
         </>
       )}
+      </div>
     </div>
   );
 }

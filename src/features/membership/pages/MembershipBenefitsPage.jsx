@@ -177,8 +177,9 @@ export default function MembershipBenefitsPage() {
       `}</style>
 
       {/* Header */}
-      <div style={{ position:"fixed", top:0, left:0, right:0, height:"env(safe-area-inset-top, 0px)", background:"#0a0514", zIndex:99 }} />
-      <div style={{ padding:"20px 16px 16px", paddingTop:"max(env(safe-area-inset-top, 0px) + 20px, 20px)", background:"linear-gradient(180deg,rgba(255,215,0,0.08),transparent)" }}>
+      <div style={{ position:"sticky", top:0, zIndex:10, background:"#0a0514" }}>
+      <div style={{ height:"env(safe-area-inset-top, 0px)", background:"#0a0514" }} />
+      <div style={{ padding:"20px 16px 16px", background:"linear-gradient(180deg,rgba(255,215,0,0.08),transparent)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
           <button onClick={()=>navigate(-1)} style={{ background:"rgba(255,255,255,0.08)",
             border:"1px solid rgba(255,255,255,0.1)", color:"white", borderRadius:12,
@@ -195,6 +196,8 @@ export default function MembershipBenefitsPage() {
           7 hạng thành viên · Đặc quyền riêng cho từng hạng
         </p>
       </div>
+      </div>
+      <div style={{ flex:1, overflowY:"auto", paddingBottom:100 }}>
 
       {/* Group divider: Hội viên */}
       <div style={{ margin:"8px 16px 12px", display:"flex", alignItems:"center", gap:10 }}>
@@ -336,6 +339,7 @@ export default function MembershipBenefitsPage() {
           💡 Hạng đối tác được xét duyệt theo chu kỳ tháng dựa trên tổng chi tiêu tích lũy.<br/>
           Điểm tích lũy sẽ được reset sau khi nhận hoa hồng vào ngày đầu tháng, có thể dùng điểm để order đồ, đổi lượt chơi game hoặc thay đổi thông tin hồ sơ.
         </p>
+      </div>
       </div>
     </div>
   );

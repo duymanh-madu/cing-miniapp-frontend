@@ -251,8 +251,9 @@ export default function AccountPage() {
   };
 
   return (
-    <div style={{ minHeight:"100vh", background:"#f5f5f5", paddingBottom:100 }}>
-      <div style={{ position:"fixed", top:0, left:0, right:0, height:"var(--app-safe-top, 0px)", background:"linear-gradient(135deg,#D4531C,#E8622A)", zIndex:99 }} />
+    <div style={{ height:"100vh", display:"flex", flexDirection:"column", background:"#f5f5f5" }}>
+      <div style={{ position:"sticky", top:0, zIndex:10 }}>
+      <div style={{ height:"var(--app-safe-top, 0px)", background:"linear-gradient(135deg,#D4531C,#E8622A)" }} />
 
       {toast && (
         <div style={{ position:"fixed", top:20, left:16, right:16, zIndex:200, background:"#1a1a1a", color:"white", borderRadius:14, padding:"14px 18px", fontSize:13, fontWeight:700, textAlign:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.3)" }}>
@@ -359,6 +360,7 @@ export default function AccountPage() {
       <div style={{ padding:"20px 16px", textAlign:"center" }}>
         <p style={{ fontSize:12, color:"#ccc", margin:0 }}>Cing Hu Tang Kinh Bắc</p>
         <p style={{ fontSize:11, color:"#ddd", margin:"4px 0 0" }}>576 Đường Trần Phú, Từ Sơn, Bắc Ninh</p>
+      </div>
       </div>
     </div>
   );
