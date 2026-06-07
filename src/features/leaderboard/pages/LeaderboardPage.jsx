@@ -146,16 +146,34 @@ export default function LeaderboardPage() {
     }).catch(() => {});
   }, []);
 
-  // Socket realtime
+  // Socket realtime + visibilitychange safety net
   useEffect(() => {
+    // Lắng nghe socket — retry đến khi connected
     let attempts = 0;
+    const handler = () => fetchData(currentTabRef.current);
     const attach = () => {
       const socket = getRuntimeSocket();
-      if (socket?.connected) { socket.on("leaderboard.updated", () => fetchData(currentTabRef.current)); return; }
-      if (attempts++ < 20) setTimeout(attach, 1000);
+      if (socket?.connected) {
+        socket.off("leaderboard.updated", handler); // tránh duplicate
+        socket.on("leaderboard.updated", handler);
+        return;
+      }
+      if (attempts++ < 30) setTimeout(attach, 1000);
     };
     attach();
-    return () => { getRuntimeSocket()?.off("leaderboard.updated"); };
+
+    // visibilitychange: fetch lại khi user quay lại app/tab
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        fetchData(currentTabRef.current);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      getRuntimeSocket()?.off("leaderboard.updated", handler);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, []);
 
   const fetchData = (period, from="", to="") => {
