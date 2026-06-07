@@ -239,7 +239,7 @@ export default function LeaderboardPage() {
   return (
     <div style={{ height:"100vh", display:"flex", flexDirection:"column", background:"linear-gradient(180deg,#050310 0%,#0d0820 35%,#080514 70%,#050310 100%)" }}>
       <div style={{ position:"sticky", top:0, zIndex:10, background:"linear-gradient(180deg,#050310,#0d0820)" }}>
-      <div style={{ height:"env(safe-area-inset-top, 0px)", background:"#050310" }} />
+
 
       {resetNotif && (
         <div style={{ position:"fixed", top:"calc(env(safe-area-inset-top, 0px) + 56px)", left:16, right:16, zIndex:999, background:"linear-gradient(135deg,#D4531C,#ff6b35)", borderRadius:16, padding:"14px 18px", boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
@@ -251,7 +251,7 @@ export default function LeaderboardPage() {
       {notification && <RankNotification msg={notification.msg} up={notification.up} onDone={() => setNotification(null)} />}
 
       {/* HEADER */}
-      <div style={{ background:"linear-gradient(180deg,rgba(255,215,0,0.07),transparent)", padding:"0 16px 0", paddingTop:"env(safe-area-inset-top, 0px)", borderBottom:"1px solid rgba(255,215,0,0.08)" }}>
+      <div style={{ background:"linear-gradient(180deg,rgba(255,215,0,0.07),transparent)", padding:"0 16px 0", paddingTop:"max(env(safe-area-inset-top,0px) + 8px, 48px)", borderBottom:"1px solid rgba(255,215,0,0.08)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
           <button onClick={() => navigate(-1)} style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", color:"white", borderRadius:12, width:38, height:38, cursor:"pointer", fontSize:18, display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
           <div style={{ flex:1, textAlign:"center" }}>

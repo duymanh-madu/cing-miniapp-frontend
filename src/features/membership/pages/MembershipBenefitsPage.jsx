@@ -178,8 +178,7 @@ export default function MembershipBenefitsPage() {
 
       {/* Header */}
       <div style={{ position:"sticky", top:0, zIndex:10, background:"#0a0514" }}>
-      <div style={{ height:"env(safe-area-inset-top, 0px)", background:"#0a0514" }} />
-      <div style={{ padding:"20px 16px 16px", background:"linear-gradient(180deg,rgba(255,215,0,0.08),transparent)" }}>
+      <div style={{ padding:"16px 16px 16px", paddingTop:"max(env(safe-area-inset-top,0px) + 12px, 52px)", background:"linear-gradient(180deg,rgba(255,215,0,0.08),transparent)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
           <button onClick={()=>navigate(-1)} style={{ background:"rgba(255,255,255,0.08)",
             border:"1px solid rgba(255,255,255,0.1)", color:"white", borderRadius:12,

@@ -264,8 +264,7 @@ export default function AccountPage() {
       )}
 
       <div style={{ position:"sticky", top:0, zIndex:10 }}>
-      <div style={{ height:"env(safe-area-inset-top, 0px)", background:"linear-gradient(135deg,#D4531C,#E8622A)" }} />
-      <div style={{ background:"linear-gradient(135deg,#D4531C,#E8622A)", padding:"20px 20px 24px" }}>
+      <div style={{ background:"linear-gradient(135deg,#D4531C,#E8622A)", padding:"20px 20px 24px", paddingTop:"max(env(safe-area-inset-top,0px) + 12px, 52px)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:16 }}>
           <div onClick={openEdit} style={{ position:"relative", cursor:"pointer", flexShrink:0 }}>
             {avatarUrl ? (

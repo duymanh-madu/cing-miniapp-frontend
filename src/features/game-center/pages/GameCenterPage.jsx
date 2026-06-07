@@ -253,9 +253,8 @@ export default function GameCenterPage() {
   return (
     <div style={{ height:"100vh", display:"flex", flexDirection:"column", background:"linear-gradient(180deg,#0a0a0f 0%,#12071a 50%,#0d0d1a 100%)" }}>
       <div style={{ position:"sticky", top:0, zIndex:10, background:"linear-gradient(180deg,#0a0a0f,#12071a)" }}>
-      <div style={{ height:"env(safe-area-inset-top, 0px)", background:"#0a0a0f" }} />
       {/* HEADER */}
-      <div style={{ padding:"24px 20px 16px", textAlign:"center" }}>
+      <div style={{ padding:"16px 20px 16px", paddingTop:"max(env(safe-area-inset-top,0px) + 12px, 52px)", textAlign:"center" }}>
         <p style={{ color:"rgba(255,215,0,0.6)", fontSize:11, letterSpacing:4, fontWeight:700, margin:"0 0 6px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
         <h1 style={{ color:"white", fontSize:28, fontWeight:900, margin:0, letterSpacing:2, textShadow:"0 0 40px rgba(255,215,0,0.3)" }}>GAME CENTER</h1>
         <button onClick={() => requireMember(() => setShowAlltimeLB(true))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"7px 14px", fontSize:12, fontWeight:800, cursor:"pointer", marginTop:8 }}>🏆 Kỷ lục alltime</button>
