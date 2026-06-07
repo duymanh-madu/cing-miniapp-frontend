@@ -252,8 +252,6 @@ export default function AccountPage() {
 
   return (
     <div style={{ height:"100vh", display:"flex", flexDirection:"column", background:"#f5f5f5" }}>
-      <div style={{ position:"sticky", top:0, zIndex:10 }}>
-      <div style={{ height:"var(--app-safe-top, 0px)", background:"linear-gradient(135deg,#D4531C,#E8622A)" }} />
 
       {toast && (
         <div style={{ position:"fixed", top:20, left:16, right:16, zIndex:200, background:"#1a1a1a", color:"white", borderRadius:14, padding:"14px 18px", fontSize:13, fontWeight:700, textAlign:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.3)" }}>
@@ -265,7 +263,9 @@ export default function AccountPage() {
         <EditProfileSheet userId={userId} currentName={name} currentAvatar={avatarUrl} cooldown={cooldown} onClose={() => setShowEdit(false)} onSaved={handleSaved}/>
       )}
 
-      <div style={{ background:"linear-gradient(135deg,#D4531C,#E8622A)", padding:"20px 20px 24px", paddingTop:"calc(env(safe-area-inset-top, 0px) + 8px)" }}>
+      <div style={{ position:"sticky", top:0, zIndex:10 }}>
+      <div style={{ height:"env(safe-area-inset-top, 0px)", background:"linear-gradient(135deg,#D4531C,#E8622A)" }} />
+      <div style={{ background:"linear-gradient(135deg,#D4531C,#E8622A)", padding:"20px 20px 24px" }}>
         <div style={{ display:"flex", alignItems:"center", gap:16 }}>
           <div onClick={openEdit} style={{ position:"relative", cursor:"pointer", flexShrink:0 }}>
             {avatarUrl ? (

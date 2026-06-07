@@ -253,7 +253,7 @@ export default function GameCenterPage() {
   return (
     <div style={{ height:"100vh", display:"flex", flexDirection:"column", background:"linear-gradient(180deg,#0a0a0f 0%,#12071a 50%,#0d0d1a 100%)" }}>
       <div style={{ position:"sticky", top:0, zIndex:10, background:"linear-gradient(180deg,#0a0a0f,#12071a)" }}>
-      <div style={{ height:"var(--app-safe-top, 0px)", background:"#0a0a0f" }} />
+      <div style={{ height:"env(safe-area-inset-top, 0px)", background:"#0a0a0f" }} />
       {/* HEADER */}
       <div style={{ padding:"24px 20px 16px", textAlign:"center" }}>
         <p style={{ color:"rgba(255,215,0,0.6)", fontSize:11, letterSpacing:4, fontWeight:700, margin:"0 0 6px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
