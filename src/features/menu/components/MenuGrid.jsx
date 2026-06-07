@@ -22,12 +22,12 @@ function Card({ item, onAdd }) {
               onError={e=>{ e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }}
               loading="lazy" />
             <div style={{ display:"none", position:"absolute", inset:0, background:HERMES, alignItems:"center", justifyContent:"center" }}>
-              <img src="/logo-cing.png" alt="" style={{ width:32, height:32, objectFit:"contain", filter:"brightness(0) invert(1)", opacity:.9 }} />
+              <img src="/logo-cing.png" alt="" style={{ width:56, height:56, objectFit:"contain", filter:"brightness(0) invert(1)", opacity:.9 }} />
             </div>
           </>
         ) : (
           <div style={{ width:"100%", height:"100%", background:HERMES, display:"flex", alignItems:"center", justifyContent:"center" }}>
-            <img src="/logo-cing.png" alt="" style={{ width:32, height:32, objectFit:"contain", filter:"brightness(0) invert(1)", opacity:.9 }} />
+            <img src="/logo-cing.png" alt="" style={{ width:56, height:56, objectFit:"contain", filter:"brightness(0) invert(1)", opacity:.9 }} />
           </div>
         )}
         {!ok && (

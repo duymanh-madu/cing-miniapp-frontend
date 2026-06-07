@@ -62,11 +62,15 @@ function MenuProductCard({
           items-center
           justify-center
           rounded-[24px]
-          bg-[#fff4e8]
-          text-[58px]
+          overflow-hidden
+          relative
         "
+        style={{ background: product.image ? "#fff4e8" : "#E8622A" }}
       >
-        {product.image}
+        {product.image
+          ? <span style={{ fontSize:58 }}>{product.image}</span>
+          : <img src="/logo-cing.png" alt="" style={{ width:80, height:80, objectFit:"contain", filter:"brightness(0) invert(1)", opacity:.95 }} />
+        }
       </div>
 
       {/* CONTENT */}

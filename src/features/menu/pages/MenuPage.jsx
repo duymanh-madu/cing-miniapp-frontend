@@ -30,10 +30,14 @@ export default function MenuPage() {
         padding:"14px 16px 0",
         position:"sticky", top:0, zIndex:10,
       }}>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
-          <h1 style={{ fontSize:20, fontWeight:900, color:"#1a1a1a", margin:"0 0 4px" }}>Menu</h1>
-          <p style={{ fontSize:11, color:"#888", margin:0, lineHeight:1.5 }}>Giá đã bao gồm thuế. Nếu quý khách muốn lấy hoá đơn VAT, vui lòng điền thêm <strong>Email + Mã số thuế</strong> ở phần ghi chú khi đặt hàng.</p>
-          <span style={{ fontSize:11, color:"#bbb" }}>Cing Hu Tang Kinh Bắc</span>
+        <div style={{ marginBottom:10 }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
+            <h1 style={{ fontSize:20, fontWeight:900, color:"#1a1a1a", margin:0 }}>Menu</h1>
+            <span style={{ fontSize:11, color:"#bbb" }}>Cing Hu Tang Kinh Bắc</span>
+          </div>
+          <p style={{ fontSize:11, color:"#888", margin:0, lineHeight:1.5 }}>
+            Giá đã bao gồm thuế. Quý khách muốn lấy hoá đơn VAT vui lòng điền <strong>Email + Mã số thuế</strong> vào phần ghi chú khi đặt hàng.
+          </p>
         </div>
         <div style={{
           display:"flex", alignItems:"center",
