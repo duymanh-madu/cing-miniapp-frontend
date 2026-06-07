@@ -794,20 +794,24 @@ export default function ChessGame({ onExit, onFindMatch }) {
                   <div style={{
                     position:"absolute", inset:0,
                     display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:"min(6.5vw,32px)",
-                    color: piece.color==="w" ? "#fffff0" : "#1a1208",
-                    textShadow: piece.color==="w"
-                      ? "0 0 2px #000, 0 1px 3px rgba(0,0,0,1), 1px 1px 0 #000, -1px -1px 0 #333"
-                      : "0 1px 2px rgba(255,255,255,0.2)",
-                    userSelect:"none", lineHeight:1,
-                    filter: piece.color==="w"
-                      ? "drop-shadow(0 2px 2px rgba(0,0,0,1))"
-                      : "drop-shadow(0 1px 2px rgba(0,0,0,0.7))",
-                    zIndex:2, pointerEvents:"none",
-                    WebkitFontSmoothing:"antialiased",
+                    zIndex:2, pointerEvents:"none", userSelect:"none",
                   }}>
-                    {{"wK":"♔","wQ":"♕","wR":"♖","wB":"♗","wN":"♘","wP":"♙",
-                      "bK":"♚","bQ":"♛","bR":"♜","bB":"♝","bN":"♞","bP":"♟"}[pieceKey]}
+                    <div style={{
+                      fontSize:"min(6.2vw,30px)",
+                      lineHeight:1,
+                      color: piece.color==="w" ? "#fff8e7" : "#1a0f00",
+                      textShadow: piece.color==="w"
+                        ? "0 -1px 0 rgba(255,255,255,0.8), 0 1px 0 rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.8), 0 3px 6px rgba(0,0,0,0.5), 1px 0 0 rgba(0,0,0,0.5), -1px 0 0 rgba(0,0,0,0.5)"
+                        : "0 -1px 0 rgba(255,255,255,0.15), 0 1px 0 rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.9), 0 3px 8px rgba(0,0,0,0.7)",
+                      filter: piece.color==="w"
+                        ? "drop-shadow(0 3px 3px rgba(0,0,0,0.9)) drop-shadow(0 1px 1px rgba(0,0,0,1))"
+                        : "drop-shadow(0 3px 4px rgba(0,0,0,0.9)) drop-shadow(0 1px 2px rgba(0,0,0,1))",
+                      transform: "translateY(-1px)",
+                      WebkitFontSmoothing:"antialiased",
+                    }}>
+                      {{"wK":"♔","wQ":"♕","wR":"♖","wB":"♗","wN":"♘","wP":"♙",
+                        "bK":"♚","bQ":"♛","bR":"♜","bB":"♝","bN":"♞","bP":"♟"}[pieceKey]}
+                    </div>
                   </div>
                 )}
 
@@ -1248,15 +1252,53 @@ export default function ChessGame({ onExit, onFindMatch }) {
   if (phase === "gameover") {
     const won  = gameOver?.winner === userId;
     const draw = !gameOver?.winner;
+    const isCheckmate = gameOver?.reason === "checkmate";
     const reasonText = {
-      checkmate:    "Chiếu hết",
-      resign:       "Đầu hàng",
-      disconnect:   "Đối thủ thoát",
-      stalemate:    "Hòa - Pat",
-      repetition:   "Hòa - Lặp nước",
-      insufficient: "Hòa - Thiếu quân",
+      checkmate:    won ? "Bạn đã chiếu hết đối thủ!" : "Bạn đã thua vì bị chiếu hết",
+      resign:       won ? "Đối thủ đã đầu hàng" : "Bạn đã đầu hàng",
+      disconnect:   won ? "Đối thủ đã thoát" : "Mất kết nối",
+      stalemate:    "Hòa cờ — Pat",
+      repetition:   "Hòa cờ — Lặp nước",
+      insufficient: "Hòa cờ — Thiếu quân",
     }[gameOver?.reason] || gameOver?.reason;
 
+    // Chiếu hết → giữ bàn cờ + overlay
+    if (isCheckmate) {
+      return (
+        <div style={{ background:"#1a0a0a", minHeight:"100vh",
+          display:"flex", flexDirection:"column", alignItems:"center",
+          justifyContent:"flex-start", paddingTop:20 }}>
+          {/* Overlay thông báo */}
+          <div style={{ width:"min(94vw,440px)", marginBottom:12,
+            background: won?"rgba(255,215,0,0.12)":"rgba(244,67,54,0.12)",
+            border: `1px solid ${won?"#FFD700":"#f44336"}`,
+            borderRadius:16, padding:"14px 16px", textAlign:"center" }}>
+            <div style={{ fontSize:40, marginBottom:6 }}>{won?"🏆":"💀"}</div>
+            <h2 style={{ color: won?"#FFD700":"#f44336",
+              fontSize:20, fontWeight:900, margin:"0 0 4px" }}>
+              {won?"Chiến thắng!":"Thất bại!"}
+            </h2>
+            <p style={{ color:"#ccc", fontSize:13, margin:"0 0 12px" }}>{reasonText}</p>
+            <div style={{ display:"flex", gap:8, justifyContent:"center" }}>
+              <button onClick={onExit} style={{ background:"rgba(255,255,255,0.1)",
+                border:"1px solid #444", color:"white", borderRadius:12,
+                padding:"10px 20px", fontSize:13, cursor:"pointer", fontWeight:700 }}>
+                ← Thoát
+              </button>
+              <button onClick={findMatch} style={{ background:"linear-gradient(135deg,#D4531C,#FF6B35)",
+                border:"none", color:"white", borderRadius:12,
+                padding:"10px 20px", fontSize:13, cursor:"pointer", fontWeight:700 }}>
+                ♟ Ván mới
+              </button>
+            </div>
+          </div>
+          {/* Bàn cờ vẫn hiển thị */}
+          {renderBoard()}
+        </div>
+      );
+    }
+
+    // Các trường hợp khác (resign, hòa, disconnect) → màn hình bình thường
     return (
       <div style={{ background:"linear-gradient(135deg,#1a0a0a,#2d1a0a,#1a0a0a)",
         minHeight:"100vh", display:"flex", flexDirection:"column",
@@ -1268,12 +1310,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
           fontSize:26, fontWeight:900, margin:"0 0 6px" }}>
           {won?"Chiến thắng!":draw?"Hòa cờ!":"Thất bại!"}
         </h2>
-        <p style={{ color:"#666", fontSize:14, margin:"0 0 8px" }}>{reasonText}</p>
-        {won && <p style={{ color:"#4CAF50", fontSize:13, margin:"0 0 24px",
-          fontWeight:700 }}></p>}
-        {!won && !draw && <p style={{ color:"#888", fontSize:13, margin:"0 0 24px" }}>
-          Cố gắng hơn ở ván tiếp theo!</p>}
-
+        <p style={{ color:"#aaa", fontSize:14, margin:"0 0 24px" }}>{reasonText}</p>
         <div style={{ display:"flex", flexDirection:"column", gap:10,
           width:"100%", maxWidth:280 }}>
           <button onClick={findMatch} style={{ background:"linear-gradient(135deg,#D4531C,#FF6B35)",
