@@ -137,17 +137,34 @@ export default function CheckoutPage(){
       return;
     }
     setShipStatus("loading");setLocMsg("");
-    if(!navigator.geolocation){
-      setShipFee(25000);setShipStatus("error");
-      setLocMsg("Trình duyệt không hỗ trợ GPS. Phí ship mặc định 25.000đ");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      async pos=>{
-        const km=calcDistKm(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG);
+
+    // zmp-sdk getLocation cho Zalo Mini App WebView
+    // navigator.geolocation bị block trong Zalo WebView
+    const getLocation = async () => {
+      try {
+        const zmpSdk = await import("zmp-sdk");
+        const result = await zmpSdk.getLocation();
+        if (!result?.latitude || !result?.longitude) throw new Error("NO_LOCATION");
+        return { latitude: result.latitude, longitude: result.longitude };
+      } catch(e) {
+        // Fallback navigator.geolocation cho môi trường web/dev
+        return new Promise((resolve, reject) => {
+          if (!navigator.geolocation) { reject(new Error("NO_GEO")); return; }
+          navigator.geolocation.getCurrentPosition(
+            pos => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+            err => reject(err),
+            { timeout: 10000, enableHighAccuracy: false }
+          );
+        });
+      }
+    };
+
+    getLocation()
+      .then(async coords => {
+        const km = calcDistKm(coords.latitude, coords.longitude, STORE_LAT, STORE_LNG);
         setDistKm(km);
         try {
-          const r = await apiClient.get(`/shipping/estimate?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&amount=${subtotal}`);
+          const r = await apiClient.get(`/shipping/estimate?lat=${coords.latitude}&lng=${coords.longitude}&amount=${subtotal}`);
           if(r.data?.success && r.data?.ship_fee !== null){
             const fee = r.data.ship_fee;
             if(fee===-1){
@@ -158,7 +175,6 @@ export default function CheckoutPage(){
               setLocMsg(`Khoảng cách: ${km.toFixed(1)} km`);
             }
           } else {
-            // Fallback tính thủ công
             const fee=calcShipFee(subtotal,km);
             if(fee===-1){
               setShipFee(0);setShipStatus("contact");
@@ -169,7 +185,6 @@ export default function CheckoutPage(){
             }
           }
         } catch(e){
-          // Fallback tính thủ công nếu iPos lỗi
           const fee=calcShipFee(subtotal,km);
           if(fee===-1){
             setShipFee(0);setShipStatus("contact");
@@ -179,19 +194,16 @@ export default function CheckoutPage(){
             setLocMsg(`Khoảng cách: ${km.toFixed(1)} km (ước tính)`);
           }
         }
-      },
-      err=>{
-        if(err.code===1){
-          // User từ chối GPS
+      })
+      .catch(err => {
+        if(err.code===1 || err.message==="NO_GEO" || err.message==="NO_LOCATION"){
           setShipFee(0);setShipStatus("denied");
           setLocMsg("Vui lòng cho phép truy cập vị trí để tính phí ship chính xác");
         } else {
           setShipFee(25000);setShipStatus("error");
           setLocMsg("Không lấy được vị trí. Áp dụng phí ship mặc định 25.000đ");
         }
-      },
-      {timeout:10000,enableHighAccuracy:false}
-    );
+      });
   },[orderType]);
 
   const total=Math.max(0, subtotal+shipFee-pointsDiscount-tierDiscount);
@@ -425,26 +437,40 @@ export default function CheckoutPage(){
 {shipStatus==="denied"&&(
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
                 <p style={{fontSize:11,color:"#f57c00",margin:0}}>{locMsg}</p>
-                <button onClick={()=>{
+                <button onClick={async ()=>{
                   setShipStatus("loading");
-                  navigator.geolocation.getCurrentPosition(
-                    async pos=>{
-                      const km=calcDistKm(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG);
-                      setDistKm(km);
-                      try {
-                        const r = await apiClient.get('/shipping/estimate?lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&amount='+subtotal);
-                        const fee = r.data?.ship_fee ?? calcShipFee(subtotal,km);
-                        if(fee===-1){ setShipFee(0);setShipStatus("contact");setLocMsg('Khoảng cách '+km.toFixed(1)+'km > 10km. Nhà hàng sẽ liên hệ báo phí ship.'); }
-                        else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
-                      } catch(e){
-                        const fee=calcShipFee(subtotal,km);
-                        if(fee===-1){ setShipFee(0);setShipStatus("contact");setLocMsg('Khoảng cách '+km.toFixed(1)+'km > 10km.'); }
-                        else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
-                      }
-                    },
-                    ()=>{ setShipFee(25000);setShipStatus("error");setLocMsg("Không lấy được vị trí. Phí ship mặc định 25.000đ"); },
-                    {timeout:10000}
-                  );
+                  try {
+                    let coords;
+                    try {
+                      const zmpSdk = await import("zmp-sdk");
+                      const result = await zmpSdk.getLocation();
+                      if (!result?.latitude || !result?.longitude) throw new Error("NO_LOCATION");
+                      coords = { latitude: result.latitude, longitude: result.longitude };
+                    } catch(e) {
+                      coords = await new Promise((resolve, reject) => {
+                        if (!navigator.geolocation) { reject(new Error("NO_GEO")); return; }
+                        navigator.geolocation.getCurrentPosition(
+                          pos => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+                          err => reject(err),
+                          { timeout: 10000 }
+                        );
+                      });
+                    }
+                    const km = calcDistKm(coords.latitude, coords.longitude, STORE_LAT, STORE_LNG);
+                    setDistKm(km);
+                    try {
+                      const r = await apiClient.get('/shipping/estimate?lat='+coords.latitude+'&lng='+coords.longitude+'&amount='+subtotal);
+                      const fee = r.data?.ship_fee ?? calcShipFee(subtotal,km);
+                      if(fee===-1){ setShipFee(0);setShipStatus("contact");setLocMsg('Khoảng cách '+km.toFixed(1)+'km > 10km. Nhà hàng sẽ liên hệ báo phí ship.'); }
+                      else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
+                    } catch(e){
+                      const fee=calcShipFee(subtotal,km);
+                      if(fee===-1){ setShipFee(0);setShipStatus("contact");setLocMsg('Khoảng cách '+km.toFixed(1)+'km > 10km.'); }
+                      else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
+                    }
+                  } catch(e){
+                    setShipFee(25000);setShipStatus("error");setLocMsg("Không lấy được vị trí. Phí ship mặc định 25.000đ");
+                  }
                 }} style={{fontSize:11,color:"#D4531C",fontWeight:700,background:"none",border:"1px solid #D4531C",borderRadius:6,padding:"4px 10px",cursor:"pointer",alignSelf:"flex-start"}}>
                   📍 Cho phép vị trí
                 </button>
