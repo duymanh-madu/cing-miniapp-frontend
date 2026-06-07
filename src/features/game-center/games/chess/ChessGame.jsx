@@ -9,6 +9,78 @@ import ChessLeaderboard from "./ChessLeaderboard";
 
 // Bộ emoji trân châu đen độc quyền — SVG data URIs
 
+// =====================================================
+// WEB AUDIO SOUNDS — nhẹ, tối đa 1-2s
+// =====================================================
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    if (type === "move") {
+      // Click nhẹ khi di chuyển quân
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      osc.frequency.setValueAtTime(300, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.08);
+      g.gain.setValueAtTime(0.25, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.start(); osc.stop(ctx.currentTime + 0.08);
+
+    } else if (type === "warning") {
+      // 3 beep ngắn cảnh báo còn 10s
+      [0, 0.2, 0.4].forEach(d => {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = "square";
+        o.frequency.setValueAtTime(660, ctx.currentTime + d);
+        g.gain.setValueAtTime(0.15, ctx.currentTime + d);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d + 0.12);
+        o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + 0.12);
+      });
+
+    } else if (type === "gift_receive") {
+      // Nhận quà: 3 nốt đi lên vui vẻ
+      const notes = [523, 659, 784];
+      notes.forEach((freq, i) => {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = "sine";
+        o.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+        g.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.12);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.2);
+        o.start(ctx.currentTime + i * 0.12);
+        o.stop(ctx.currentTime + i * 0.12 + 0.2);
+      });
+
+    } else if (type === "gift_send") {
+      // Gửi quà: 1 nốt nhẹ xác nhận
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = "sine";
+      o.frequency.setValueAtTime(784, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(1046, ctx.currentTime + 0.15);
+      g.gain.setValueAtTime(0.2, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      o.start(); o.stop(ctx.currentTime + 0.3);
+
+    } else if (type === "emoji") {
+      // Emoji: pop nhẹ
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = "sine";
+      o.frequency.setValueAtTime(440, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.05);
+      o.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      o.start(); o.stop(ctx.currentTime + 0.15);
+    }
+
+    setTimeout(() => ctx.close(), 2000);
+  } catch(e) {}
+}
+
 const GIFTS = [
   { id:"cafe_nau",    name:"Cà phê nâu",              icon:"☕", points:5,   charm:5,   grad:"linear-gradient(135deg,rgba(101,67,33,0.3),rgba(101,67,33,0.08))",  color:"#c8a060" },
   { id:"chanh_tuyet", name:"Chanh tuyết bạc hà",      icon:"🥤", points:10,  charm:10,  grad:"linear-gradient(135deg,rgba(100,200,150,0.2),rgba(100,200,150,0.05))", color:"#60e090" },
@@ -482,6 +554,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
     s.on("chess:tip_received", ({ fromUserId, toUserId, amount, giftId, giftName, giftIcon, charm }) => {
       const fromMe = fromUserId === userIdRef.current;
       setTipResult({ amount, charm, fromMe, giftId, giftName, giftIcon });
+      if (!fromMe) playSound("gift_receive");
       setTimeout(() => setTipResult(null), 4000);
     });
 
@@ -514,11 +587,13 @@ export default function ChessGame({ onExit, onFindMatch }) {
     setMoveTimer(30);
 
     if (myTurn) {
+      playSound("move");
       let move = 30;
       moveTimerRef.current = setInterval(() => {
         if (move > 1) {
           move--;
           setMoveTimer(move);
+          if (move === 10) playSound("warning");
         } else {
           // Hết 30s → dùng reserve
           myReserveRef.current = myReserveRef.current - 1;
@@ -556,11 +631,12 @@ export default function ChessGame({ onExit, onFindMatch }) {
 
   const sendEmoji = (emoji) => {
     if (!gameIdRef.current) return;
-    sockRef.current?.emit("chess:emoji", { gameId: gameIdRef.current, userId: userIdRef.current, emoji });
+    playSound("emoji"); sockRef.current?.emit("chess:emoji", { gameId: gameIdRef.current, userId: userIdRef.current, emoji });
     setShowEmoji(false);
   };
 
   const sendTip = async (gift) => {
+    playSound("gift_send");
     const opponentId = opponent?.userId || opponent?.id || "";
     if (!opponentId || !userIdRef.current) return;
     setShowTip(false);
