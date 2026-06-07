@@ -77,6 +77,7 @@ export default function CheckoutPage(){
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
   const [pointsToUse, setPointsToUse] = useState(0);
+  const [debugLocation, setDebugLocation] = useState(null);
   const [momoPayUrl, setMomoPayUrl] = useState(null);
   const [momoQR, setMomoQR] = useState(null);
   const [momoDeeplink, setMomoDeeplink] = useState(null);
@@ -145,6 +146,7 @@ export default function CheckoutPage(){
         const zmpSdk = await import("zmp-sdk");
         const result = await zmpSdk.getLocation();
         console.log("[LOCATION] zmp-sdk result:", JSON.stringify(result));
+        setDebugLocation({ raw: JSON.stringify(result), time: new Date().toISOString() });
 
         // Thử latitude/longitude trực tiếp (deprecated nhưng vẫn hoạt động một số version)
         if (result?.latitude && result?.longitude) {
@@ -457,6 +459,11 @@ export default function CheckoutPage(){
         {orderType==="delivery"&&(
           <div style={{marginTop:10,padding:"10px 12px",background:"#f9f9f9",borderRadius:10}}>
             {shipStatus==="loading"&&<p style={{fontSize:12,color:"#999",margin:0}}>Đang lấy vị trí và tính phí ship...</p>}
+            {debugLocation&&(
+              <div style={{background:"#f0f0f0",border:"1px solid #ccc",borderRadius:8,padding:"8px 10px",margin:"6px 0",fontSize:10,wordBreak:"break-all",color:"#333"}}>
+                <strong>DEBUG GPS:</strong> {debugLocation.raw}
+              </div>
+            )}
 
 {shipStatus==="denied"&&(
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
