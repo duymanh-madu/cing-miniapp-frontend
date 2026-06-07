@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
@@ -31,6 +32,8 @@ export default function GameLeaderboard({ gameKey, onClose }) {
   const [loading, setLoading] = useState(true);
 
   const profileId    = useAuthStore(s => s.profile?.id);
+  const navigate = useNavigate();
+  const goProfile = (uid) => { if (uid) navigate(`/profile/${uid}`); };
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
 
   const fetchData = async () => {
@@ -121,6 +124,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
           ) : data.map((entry, i) => {
             const phone = getPhone();
             const isMe = phone && String(entry.user_id) === phone;
+            const handleClick = () => { if (!isMe && entry.user_id) goProfile(entry.user_id); };
             return (
               <div key={i} style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 20px", borderBottom:"1px solid rgba(255,255,255,0.04)", background: isMe ? "rgba(255,215,0,0.05)" : i < 3 ? "rgba(255,215,0,0.03)" : "transparent" }}>
                 <div style={{ width:32, textAlign:"center", flexShrink:0 }}>

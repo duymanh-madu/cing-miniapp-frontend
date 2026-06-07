@@ -61,7 +61,12 @@ export default function NotificationSocketBridge() {
             });
           });
         });
-        socket.on("connect", () => { socket.off("notification.new", handler); socket.off("notification.broadcast", handler); attach(); });
+        socket.on("connect", () => {
+          socket.off("notification.new", handler);
+          socket.off("notification.broadcast", handler);
+          socket.off("notification:new");
+          attach();
+        });
         return;
       }
       if (attempts++ < 30) setTimeout(attach, 1000);

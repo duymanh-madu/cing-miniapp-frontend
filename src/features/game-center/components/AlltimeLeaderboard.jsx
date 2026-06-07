@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 
@@ -9,6 +10,8 @@ export default function AlltimeLeaderboard({ onClose }) {
   const [activeGame, setActiveGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const profile = useAuthStore(s => s.profile);
+  const navigate = useNavigate();
+  const goProfile = (uid) => { if (uid) navigate(`/profile/${uid}`); };
 
   useEffect(() => {
     apiClient.get("/game/leaderboard/alltime-games")
