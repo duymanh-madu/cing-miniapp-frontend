@@ -564,35 +564,39 @@ export default function ChessGame({ onExit, onFindMatch }) {
     const opponentId = opponent?.userId || opponent?.id || "";
     if (!opponentId || !userIdRef.current) return;
     setShowTip(false);
-    // Emit socket cho game server Mắt Bão handle
-    sockRef.current?.emit("chess:tip", {
-      gameId:     gameIdRef.current,
-      fromUserId: userIdRef.current,
-      toUserId:   opponentId,
-      amount:     gift.points,
-      charm:      gift.charm,
-      giftId:     gift.id,
-      giftName:   gift.name,
-      giftIcon:   gift.icon,
-    });
-    // Đồng thời gọi HTTP để trừ điểm + cộng charm + notification
+    // Hiển thị popup local ngay lập tức (không cần đợi server)
+    setTipResult({ amount: gift.points, charm: gift.charm, fromMe: true, giftId: gift.id, giftName: gift.name, giftIcon: gift.icon });
+    setTimeout(() => setTipResult(null), 4000);
+    // HTTP fire-and-forget — không block game
+    const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
+    fetch(`${base}/game/chess/tip`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fromUserId: userIdRef.current,
+        toUserId:   opponentId,
+        amount:     gift.points,
+        charm:      gift.charm,
+        giftId:     gift.id,
+        giftName:   gift.name,
+        giftIcon:   gift.icon,
+      }),
+    }).catch(e => console.warn("[TIP HTTP]", e.message));
+    // Giả lập để opponent thấy popup qua Railway socket
     try {
-      const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
-      fetch(`${base}/game/chess/tip`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const { getRuntimeSocket } = await import("@/runtime/socket/runtimeSocketClient");
+      const rs = getRuntimeSocket();
+      if (rs?.connected) {
+        rs.emit("chess:gift_notify", {
+          toUserId: opponentId,
           fromUserId: userIdRef.current,
-          toUserId:   opponentId,
-          amount:     gift.points,
-          charm:      gift.charm,
-          giftId:     gift.id,
-          giftName:   gift.name,
-          giftIcon:   gift.icon,
-        }),
-      });
-    } catch(e) {
-      console.warn("[TIP HTTP]", e.message);
+          giftIcon: gift.icon, giftName: gift.name, charm: gift.charm,
+        });
+      }
+    } catch(e) {}
+    // fake catch để không bị lỗi syntax
+    if (false) {
+      console.warn("[TIP HTTP]", "");
     }
   };
 
