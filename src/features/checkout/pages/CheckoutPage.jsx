@@ -238,6 +238,10 @@ export default function CheckoutPage(){
   async function handleOrder(){
     if(!name.trim()){setError("Vui lòng nhập họ tên");return;}
     if(orderType==="delivery"&&!address.trim()){setError("Vui lòng nhập địa chỉ giao hàng");return;}
+    if(total > 0 && total < 1000){
+      setError("Số tiền thanh toán MoMo tối thiểu 1.000đ. Vui lòng dùng thêm điểm để thanh toán hoàn toàn bằng điểm, hoặc giảm số điểm sử dụng.");
+      return;
+    }
     setLoading(true);setError("");
     try{
       const userId=profile?.id||profile?.userId||profile?.zalo_id||"guest-"+Date.now();
