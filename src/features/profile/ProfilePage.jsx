@@ -287,6 +287,7 @@ export default function ProfilePage() {
             const badgeLabel = charmHeader
               ? {
                   icon: charmHeader.icon,
+                  svgIcon: charmHeader.svgIcon,
                   text: CHARM_BADGE_META[activeBadge]?.label?.toUpperCase() || "",
                   bg: charmHeader.border,
                   border: charmHeader.color,
@@ -308,7 +309,14 @@ export default function ProfilePage() {
                 </div>
                 {badgeLabel && (
                   <div style={{ position:"absolute", bottom:-10, left:"50%", transform:"translateX(-50%)", background:badgeLabel.bg, borderRadius:10, padding:"3px 10px", border:`1.5px solid ${badgeLabel.border}`, boxShadow:`0 0 12px ${badgeLabel.shadow}`, whiteSpace:"nowrap" }}>
-                    <span style={{ fontSize:9, fontWeight:900, color:badgeLabel.textColor }}>{badgeLabel.icon} {badgeLabel.text}</span>
+                    <span style={{ fontSize:9, fontWeight:900, color:badgeLabel.textColor, display:"inline-flex", alignItems:"center", gap:4 }}>
+                      {badgeLabel.svgIcon ? (
+                        <svg viewBox="0 0 48 48" width="13" height="13" style={{ flexShrink:0 }}>
+                          {badgeLabel.svgIcon}
+                        </svg>
+                      ) : badgeLabel.icon}
+                      {badgeLabel.text}
+                    </span>
                   </div>
                 )}
               </div>
