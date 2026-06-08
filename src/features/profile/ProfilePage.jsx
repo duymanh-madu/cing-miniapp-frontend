@@ -289,10 +289,10 @@ export default function ProfilePage() {
                   icon: charmHeader.icon,
                   svgIcon: charmHeader.svgIcon,
                   text: CHARM_BADGE_META[activeBadge]?.label?.toUpperCase() || "",
-                  bg: charmHeader.border,
+                  bg: `${charmHeader.color}22`,
                   border: charmHeader.color,
-                  shadow: charmHeader.color,
-                  textColor: charmHeader.color,
+                  shadow: `${charmHeader.color}66`,
+                  textColor: "#fff",
                 }
               : activeBadge === "champion" ? { icon:"♟️", text:"KIỆN TƯỚNG", bg:"linear-gradient(90deg,#8a6000,#ffd700,#c47a00)", border:"#ffd700", shadow:"rgba(255,210,0,.7)", textColor:"#120c00" }
               : activeBadge === "hof_1" ? { icon:"♦", text:"VƯƠNG GIẢ", bg:"linear-gradient(90deg,#3a0010,#cc0050,#ff2060)", border:"#ff2060", shadow:"rgba(255,0,80,.7)", textColor:"#ffe0ea" }
@@ -311,11 +311,13 @@ export default function ProfilePage() {
                   <div style={{ position:"absolute", bottom:-10, left:"50%", transform:"translateX(-50%)", background:badgeLabel.bg, borderRadius:10, padding:"3px 10px", border:`1.5px solid ${badgeLabel.border}`, boxShadow:`0 0 12px ${badgeLabel.shadow}`, whiteSpace:"nowrap" }}>
                     <span style={{ fontSize:9, fontWeight:900, color:badgeLabel.textColor, display:"inline-flex", alignItems:"center", gap:4 }}>
                       {badgeLabel.svgIcon ? (
-                        <svg viewBox="0 0 48 48" width="13" height="13" style={{ flexShrink:0 }}>
+                        <svg viewBox="0 0 48 48" width="13" height="13" style={{ flexShrink:0, display:"block" }}>
                           {badgeLabel.svgIcon}
                         </svg>
-                      ) : badgeLabel.icon}
-                      {badgeLabel.text}
+                      ) : (
+                        <span>{badgeLabel.icon}</span>
+                      )}
+                      <span>{badgeLabel.text}</span>
                     </span>
                   </div>
                 )}
