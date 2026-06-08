@@ -2,17 +2,22 @@ import { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 
 const ALL_BADGES = [
-  { key:"member",        label:"Hội viên",             icon:"🌱", color:"#888780", desc:"Mặc định khi đăng ký" },
-  { key:"loyal",         label:"Hội viên thân thiết",  icon:"💚", color:"#1d9e75", desc:"Chi tiêu đủ điều kiện" },
-  { key:"silver",        label:"Hội viên bạc",         icon:"🥈", color:"#378add", desc:"Hạng bạc" },
-  { key:"gold",          label:"Hội viên vàng",        icon:"🥇", color:"#ef9f27", desc:"Hạng vàng" },
-  { key:"partner",       label:"Đối tác",              icon:"🤝", color:"#7f77dd", desc:"Đối tác thương hiệu" },
-  { key:"diamond",       label:"Kim cương",            icon:"💎", color:"#3a8adf", desc:"Đỉnh cao thành viên" },
-  { key:"loyal_partner", label:"Đối tác thân thiết",  icon:"👑", color:"#d4537e", desc:"Đối tác VIP" },
-  { key:"champion",      label:"Kiện tướng",           icon:"♟️", color:"#ffd700", desc:"Top 1 BXH Cờ vua (Live)" },
-  { key:"hof_1",         label:"Vương Giả",            icon:"♦️", color:"#ff80a0", desc:"Top 1 BXH Tiêu dùng Alltime (Live)" },
-  { key:"hof_2",         label:"Phú Hào",              icon:"♦️", color:"#80a0ff", desc:"Top 2 BXH Tiêu dùng Alltime (Live)" },
-  { key:"hof_3",         label:"Địa Chủ",              icon:"♦️", color:"#40ee80", desc:"Top 3 BXH Tiêu dùng Alltime (Live)" },
+  { key:"member", label:"Hội viên", icon:"🌱", color:"#888780", desc:"Mặc định khi đăng ký", type:"tier" },
+  { key:"loyal", label:"Hội viên thân thiết", icon:"💚", color:"#1d9e75", desc:"Chi tiêu đủ điều kiện", type:"tier" },
+  { key:"silver", label:"Hội viên bạc", icon:"🥈", color:"#378add", desc:"Hạng bạc", type:"tier" },
+  { key:"gold", label:"Hội viên vàng", icon:"🥇", color:"#ef9f27", desc:"Hạng vàng", type:"tier" },
+  { key:"diamond", label:"Kim cương", icon:"💎", color:"#3a8adf", desc:"Đỉnh cao thành viên", type:"tier" },
+  { key:"partner", label:"Đối tác", icon:"🤝", color:"#7f77dd", desc:"Đối tác thương hiệu", type:"tier" },
+  { key:"loyal_partner", label:"Đối tác thân thiết", icon:"👑", color:"#d4537e", desc:"Đối tác VIP", type:"tier" },
+
+  { key:"idol", label:"Idol", icon:"❤️", color:"#ff5c8a", desc:"Danh hiệu quyến rũ", type:"manual" },
+  { key:"ngoi_sao", label:"Ngôi sao", icon:"⭐", color:"#ffd54a", desc:"Danh hiệu quyến rũ", type:"manual" },
+  { key:"minh_tinh", label:"Minh tinh", icon:"🎬", color:"#b388ff", desc:"Danh hiệu quyến rũ", type:"manual" },
+
+  { key:"champion", label:"Kiện tướng", icon:"♟️", color:"#ffd700", desc:"Top 1 BXH Cờ vua (Live)", type:"live" },
+  { key:"hof_1", label:"Vương Giả", icon:"♦️", color:"#ff80a0", desc:"Top 1 BXH Tiêu dùng Alltime (Live)", type:"live" },
+  { key:"hof_2", label:"Phú Hào", icon:"♦️", color:"#80a0ff", desc:"Top 2 BXH Tiêu dùng Alltime (Live)", type:"live" },
+  { key:"hof_3", label:"Địa Chủ", icon:"♦️", color:"#40ee80", desc:"Top 3 BXH Tiêu dùng Alltime (Live)", type:"live" },
 ];
 
 export default function AdminBadges({ token }) {
