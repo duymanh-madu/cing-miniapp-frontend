@@ -7,6 +7,7 @@ import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import ChessLeaderboard from "./ChessLeaderboard";
 import { useMembership } from "@/features/home/hooks/useMembership";
+import apiClient from "@/infra/api/apiClient";
 import {
   CharmChatBadge,
   getHighestCharmBadge,
@@ -419,11 +420,13 @@ export default function ChessGame({ onExit, onFindMatch }) {
     return ""; // Không dùng UUID — phải là phone
   })();
   const userName = runtimeIdentity?.fullName || profile?.name || profile?.zalo_name || profile?.displayName || "Cing iu";
-  const myCharmBadgeKey = getHighestCharmBadge(
-    profile?.custom_badges ||
-    profile?.customBadges ||
-    profile?.badges ||
-    []
+  const [myCharmBadgeKey, setMyCharmBadgeKey] = useState(
+    getHighestCharmBadge(
+      profile?.custom_badges ||
+      profile?.customBadges ||
+      profile?.badges ||
+      []
+    )
   );
   const userAvatar = runtimeIdentity?.avatar || profile?.avatar || "";
 
@@ -633,6 +636,31 @@ export default function ChessGame({ onExit, onFindMatch }) {
     }
     return () => clearInterval(moveTimerRef.current);
   }, [chess, phase, myColor]);
+
+  useEffect(() => {
+    const phone = String(userId || runtimeIdentity?.phone || profile?.phone || "")
+      .replace(/\D/g, "")
+      .replace(/^84/, "0");
+
+    if (!phone) return;
+
+    let cancelled = false;
+
+    apiClient.get(`/profile-update/profile/${phone}`)
+      .then((res) => {
+        if (cancelled) return;
+
+        const badges = res?.data?.data?.custom_badges || [];
+        const badgeKey = getHighestCharmBadge(badges);
+
+        setMyCharmBadgeKey(badgeKey);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, runtimeIdentity?.phone, profile?.phone]);
 
   // Sync refs
   userIdRef.current = userId;
