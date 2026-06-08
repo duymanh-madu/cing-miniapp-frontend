@@ -6,6 +6,10 @@ import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { TierBadge } from "@/membership/components/TierBadge";
 import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
 import { useMembership } from "@/features/home/hooks/useMembership";
+import {
+  CharmChatBadge,
+  getHighestCharmBadge,
+} from "@/features/game-center/components/chat-badges";
 
 export default function CommunityChat({ onClose }) {
   const [messages,   setMessages]   = useState([]);
@@ -42,6 +46,8 @@ export default function CommunityChat({ onClose }) {
   })();
   const { data: membershipData } = useMembership(memberPhone);
   const myTierKey = membershipData?.tierKey || "member";
+  const [myCharmBadgeKey, setMyCharmBadgeKey] = useState(null);
+  const charmBadgeRef = useRef(null);
   const [championId, setChampionId] = useState("");
 
   // Fetch top 1 chess để hiển thị danh hiệu Kiện tướng
@@ -55,6 +61,34 @@ export default function CommunityChat({ onClose }) {
   useEffect(() => {
     tierKeyRef.current = myTierKey;
   }, [myTierKey]);
+
+  useEffect(() => {
+    const phone = String(memberPhone || "")
+      .replace(/\D/g, "")
+      .replace(/^84/, "0");
+
+    if (!phone) return;
+
+    let cancelled = false;
+    const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
+
+    fetch(`${base}/profile-update/profile/${phone}`)
+      .then(r => r.json())
+      .then(d => {
+        if (cancelled) return;
+
+        const badges = d?.data?.custom_badges || [];
+        const badgeKey = getHighestCharmBadge(badges);
+
+        charmBadgeRef.current = badgeKey;
+        setMyCharmBadgeKey(badgeKey);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memberPhone]);
 
   const getMyInfo = useCallback(() => {
     for (const src of [runtimePhone, profile?.phone]) {
@@ -80,7 +114,7 @@ export default function CommunityChat({ onClose }) {
       const uid = info.phone || ("guest-" + s.id);
       myIdRef.current = uid;
       setMyId(uid);
-      s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current });
+      s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current, charmBadgeKey: charmBadgeRef.current });
 
       s.on("community:history", (history) => {
       setMessages(history || []);
@@ -95,15 +129,15 @@ export default function CommunityChat({ onClose }) {
     s.on("community:users", (list) => {
       // Merge tierKey: nếu là chính mình thì dùng tierKeyRef.current (đúng hơn server)
       const merged = list.map(u =>
-        u.userId === myIdRef.current ? { ...u, tierKey: tierKeyRef.current || u.tierKey } : u
+        u.userId === myIdRef.current ? { ...u, tierKey: tierKeyRef.current || u.tierKey, charmBadgeKey: charmBadgeRef.current || u.charmBadgeKey } : u
       );
       setUsers(merged);
     });
     s.on("community:user_joined",  (u) => setUsers(prev => [...prev.filter(p=>p.userId!==u.userId), u]));
     s.on("community:user_updated", (u) => {
-      setUsers(prev => prev.map(p => p.userId===u.userId ? {...p, tierKey:u.tierKey} : p));
+      setUsers(prev => prev.map(p => p.userId===u.userId ? {...p, tierKey:u.tierKey, charmBadgeKey:u.charmBadgeKey} : p));
       // Cũng update tierKey trong messages
-      setMessages(prev => prev.map(m => m.userId===u.userId ? {...m, tierKey:u.tierKey} : m));
+      setMessages(prev => prev.map(m => m.userId===u.userId ? {...m, tierKey:u.tierKey, charmBadgeKey:u.charmBadgeKey} : m));
     });
     s.on("community:user_left",    (u) => setUsers(prev => prev.filter(p=>p.userId!==u.userId)));
     s.on("community:voice_start", ({userId}) => { setSpeaker(userId); if (userId !== myIdRef.current) setVoiceState("others_speaking"); });
@@ -183,7 +217,7 @@ export default function CommunityChat({ onClose }) {
     myIdRef.current = info.phone;
     setMyId(info.phone);
     setMyId(info.phone);
-    sockRef.current.emit("community:join", { userId: info.phone, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current });
+    sockRef.current.emit("community:join", { userId: info.phone, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current, charmBadgeKey: charmBadgeRef.current });
   }, [runtimePhone, getMyInfo]);
 
   // Re-emit khi avatar load xong — cập nhật avatar đúng cho tất cả client
@@ -194,6 +228,7 @@ export default function CommunityChat({ onClose }) {
       name:   runtimeName || profile?.name || "Cing iu",
       avatar: profile.avatar,
       tierKey: tierKeyRef.current,
+      charmBadgeKey: charmBadgeRef.current,
     });
   }, [profile?.avatar]);
 
@@ -208,10 +243,11 @@ export default function CommunityChat({ onClose }) {
           name:    info.name,
           avatar:  info.avatar,
           tierKey: myTierKey,
+          charmBadgeKey: charmBadgeRef.current,
         });
         // Tự update state local vì server dùng broadcast (không gửi lại cho chính mình)
         setUsers(prev => prev.map(u =>
-          u.userId === myIdRef.current ? { ...u, tierKey: myTierKey } : u
+          u.userId === myIdRef.current ? { ...u, tierKey: myTierKey, charmBadgeKey: charmBadgeRef.current || u.charmBadgeKey } : u
         ));
       } else if (attempts < 15) {
         setTimeout(() => emitWithRetry(attempts + 1), 800);
@@ -240,6 +276,8 @@ export default function CommunityChat({ onClose }) {
       avatar:  info.avatar,
       message: input.trim(),
       tierKey: tierKeyRef.current,
+      charmBadgeKey: charmBadgeRef.current,
+      charmBadgeKey: charmBadgeRef.current,
     });
     setInput("");
   };
@@ -351,7 +389,10 @@ export default function CommunityChat({ onClose }) {
                   <span style={{ fontSize:9, fontWeight:900, padding:"1px 6px", borderRadius:8, background:cb.bg, color:cb.color, border:`1px solid ${cb.color}55`, whiteSpace:"nowrap" }}>{cb.label}</span>
                 ) : null;
               })()}
-              <p style={{ color:"#888", fontSize:10, margin:0, textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.15)" }}>{m.name}</p>
+              <p style={{ color:"#888", fontSize:10, margin:0, textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", gap:4 }}>
+                {m.charmBadgeKey && <CharmChatBadge badgeKey={m.charmBadgeKey} compact={true}/>}
+                <span>{m.name}</span>
+              </p>
               <TierBadge tierKey={m.tierKey || "member"} size="sm"/>
               {championId && String(m.userId) === championId && (
                 <TierBadge tierKey="member" isChampion={true} size="sm"/>
@@ -386,7 +427,8 @@ export default function CommunityChat({ onClose }) {
                   }}>
                 <p style={{ color: isMe(u.userId)?"#FFD700":"white", fontSize:13, fontWeight:700, margin:0,
                   textDecoration: isMe(u.userId)?"none":"underline", textDecorationColor:"rgba(255,255,255,.2)" }}>
-                  {u.name}{isMe(u.userId)?" (bạn)":""}
+                  {u.charmBadgeKey && <CharmChatBadge badgeKey={u.charmBadgeKey} compact={true}/>}
+                  <span>{u.name}{isMe(u.userId)?" (bạn)":""}</span>
                 </p>
                 <TierBadge tierKey={u.tierKey || "member"} size="sm"/>
                 {championId && String(u.userId) === championId && (
