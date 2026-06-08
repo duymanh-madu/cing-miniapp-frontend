@@ -100,7 +100,10 @@ export default function ProfilePage() {
       // Merge avatar từ players table
       const playerAvatar = pRes?.data?.data?.avatar || null;
       const charmPoints = pRes?.data?.data?.charm_points || 0;
-      setMember({ ...memberData, avatar: playerAvatar, charmPoints });
+      const customBadges = Array.isArray(pRes?.data?.data?.custom_badges)
+        ? pRes.data.data.custom_badges
+        : [];
+      setMember({ ...memberData, avatar: playerAvatar, charmPoints, customBadges });
       const top = lbRes?.data?.data?.topWins?.[0] || lbRes?.data?.topWins?.[0];
       if (top) {
         const topPhone = String(top.user_id).replace(/\D/g,"").replace(/^84/,"0");
@@ -134,8 +137,16 @@ export default function ProfilePage() {
   );
 
   const tierKey = member.tierKey || "member";
-  // Theme theo danh hiệu chính được chọn
-  const activeBadge = primaryBadge || hofRank || (champion ? "champion" : tierKey);
+  const customBadges = Array.isArray(member.customBadges) ? member.customBadges : [];
+  const charmBadge =
+    customBadges.includes("minh_tinh") ? "minh_tinh" :
+    customBadges.includes("ngoi_sao") ? "ngoi_sao" :
+    customBadges.includes("idol") ? "idol" :
+    null;
+
+  // Theme theo danh hiệu chính được chọn.
+  // Priority: user selected -> HOF -> chess champion -> charm/admin badge -> CRM tier.
+  const activeBadge = primaryBadge || hofRank || (champion ? "champion" : charmBadge || tierKey);
   const theme = TIER_THEME[activeBadge] || TIER_THEME[tierKey] || TIER_THEME.member;
 
   // Nếu xem profile mình: dùng profile.name (custom) + profile.avatar (custom)
