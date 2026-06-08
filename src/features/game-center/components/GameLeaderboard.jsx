@@ -33,7 +33,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
 
   const profileId    = useAuthStore(s => s.profile?.id);
   const navigate = useNavigate();
-  const goProfile = (uid) => { if (uid) navigate(`/profile/${uid}`); };
+  const goProfile = (uid) => { if (uid) { onClose(); setTimeout(() => navigate(`/profile/${uid}`), 150); } };
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
 
   const fetchData = async () => {

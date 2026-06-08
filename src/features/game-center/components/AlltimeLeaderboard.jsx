@@ -11,7 +11,7 @@ export default function AlltimeLeaderboard({ onClose }) {
   const [loading, setLoading] = useState(true);
   const profile = useAuthStore(s => s.profile);
   const navigate = useNavigate();
-  const goProfile = (uid) => { if (uid) navigate(`/profile/${uid}`); };
+  const goProfile = (uid) => { if (uid) { onClose(); setTimeout(() => navigate(`/profile/${uid}`), 150); } };
 
   useEffect(() => {
     apiClient.get("/game/leaderboard/alltime-games")
