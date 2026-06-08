@@ -237,7 +237,7 @@ export default function ProfilePage() {
             ? <TierCard isChampion={true} firstVisit={member.firstVisit}/>
             : activeBadge?.startsWith("hof_")
             ? <TierCard tierKey={activeBadge} firstVisit={member.firstVisit}/>
-            : <TierCard tierKey={activeBadge} tierName={member.tierName} firstVisit={member.firstVisit}/>
+            : <TierCard tierKey={activeBadge} firstVisit={member.firstVisit}/>
           }
         </div>
 

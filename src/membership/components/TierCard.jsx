@@ -472,7 +472,7 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
             </div>
 
             <div>
-              <p style={{ color:cfg.nameColor, fontSize:18, fontWeight:900, margin:"0 0 6px" }}>{tierName || cfg.label}</p>
+              <p style={{ color:cfg.nameColor, fontSize:18, fontWeight:900, margin:"0 0 6px" }}>{["idol","ngoi_sao","minh_tinh","hof_1","hof_2","hof_3"].includes(tierKey) ? cfg.label : (tierName || cfg.label)}</p>
               <StarRow tierKey={tierKey}/>
               {firstVisit && (
                 <p style={{ color:cfg.subColor, fontSize:10, margin:"8px 0 0", opacity:.7 }}>
@@ -523,7 +523,7 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
           {cfg.icon}
         </div>
         <div>
-          <p style={{ color:cfg.nameColor, fontSize:17, fontWeight:900, margin:"0 0 6px" }}>{tierName || cfg.label}</p>
+          <p style={{ color:cfg.nameColor, fontSize:17, fontWeight:900, margin:"0 0 6px" }}>{["idol","ngoi_sao","minh_tinh","hof_1","hof_2","hof_3"].includes(tierKey) ? cfg.label : (tierName || cfg.label)}</p>
           <StarRow tierKey={tierKey}/>
           {firstVisit && (
             <p style={{ color:cfg.subColor, fontSize:10, margin:"8px 0 0", opacity:.7 }}>
