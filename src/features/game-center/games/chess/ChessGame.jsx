@@ -496,6 +496,10 @@ export default function ChessGame({ onExit, onFindMatch }) {
     });
 
     s.on("chess:moved", (data) => {
+      // Play once for every confirmed move from the server.
+      // This is more reliable than depending on turn-state transitions.
+      playSound("move");
+
       setChess(prev => {
         const c = new Chess(data.fen);
         return c;
@@ -596,7 +600,6 @@ export default function ChessGame({ onExit, onFindMatch }) {
     setMoveTimer(30);
 
     if (myTurn) {
-      playSound("move");
       let move = 30;
       moveTimerRef.current = setInterval(() => {
         if (move > 1) {
