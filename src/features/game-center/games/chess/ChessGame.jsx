@@ -7,6 +7,10 @@ import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import ChessLeaderboard from "./ChessLeaderboard";
 import { useMembership } from "@/features/home/hooks/useMembership";
+import {
+  CharmChatBadge,
+  getHighestCharmBadge,
+} from "@/features/game-center/components/chat-badges";
 
 // Bộ emoji trân châu đen độc quyền — SVG data URIs
 
@@ -415,6 +419,12 @@ export default function ChessGame({ onExit, onFindMatch }) {
     return ""; // Không dùng UUID — phải là phone
   })();
   const userName = runtimeIdentity?.fullName || profile?.name || profile?.zalo_name || profile?.displayName || "Cing iu";
+  const myCharmBadgeKey = getHighestCharmBadge(
+    profile?.custom_badges ||
+    profile?.customBadges ||
+    profile?.badges ||
+    []
+  );
   const userAvatar = runtimeIdentity?.avatar || profile?.avatar || "";
 
   const sockRef  = useRef(null);
@@ -634,6 +644,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
       gameId: gameIdRef.current,
       userId: userIdRef.current,
       name: userName,
+      charmBadgeKey: myCharmBadgeKey,
       message: chatInput.trim(),
     });
     setChatInput("");
@@ -1220,7 +1231,10 @@ export default function ChessGame({ onExit, onFindMatch }) {
                 {chatMessages.map((m, i) => (
                   <div key={i} style={{ marginBottom:8, display:"flex", flexDirection:"column",
                     alignItems: m.userId === userIdRef.current ? "flex-end" : "flex-start" }}>
-                    <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 2px" }}>{m.name}</p>
+                    <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 2px", display:"flex", alignItems:"center", gap:4 }}>
+                      {m.charmBadgeKey && <CharmChatBadge badgeKey={m.charmBadgeKey} compact={true}/>}
+                      <span>{m.name}</span>
+                    </p>
                     <div style={{ background: m.userId === userIdRef.current ? "#D4531C" : "rgba(255,255,255,0.1)",
                       borderRadius:12, padding:"6px 12px", maxWidth:"75%" }}>
                       <p style={{ color:"white", fontSize:13, margin:0 }}>{m.message}</p>
