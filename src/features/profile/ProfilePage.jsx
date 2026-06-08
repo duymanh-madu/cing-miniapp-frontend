@@ -280,13 +280,23 @@ export default function ProfilePage() {
           {/* Avatar */}
           {(() => {
             // Config nhãn danh hiệu theo activeBadge
-            const badgeLabel = activeBadge === "champion" ? { icon:"♟️", text:"KIỆN TƯỚNG", bg:"linear-gradient(90deg,#8a6000,#ffd700,#c47a00)", border:"#ffd700", shadow:"rgba(255,210,0,.7)", textColor:"#120c00" }
+            const charmHeader = ["idol","ngoi_sao","minh_tinh"].includes(activeBadge)
+              ? CHARM_CFG[activeBadge]
+              : null;
+
+            const badgeLabel = charmHeader
+              ? {
+                  icon: charmHeader.icon,
+                  text: CHARM_BADGE_META[activeBadge]?.label?.toUpperCase() || "",
+                  bg: charmHeader.border,
+                  border: charmHeader.color,
+                  shadow: charmHeader.color,
+                  textColor: charmHeader.color,
+                }
+              : activeBadge === "champion" ? { icon:"♟️", text:"KIỆN TƯỚNG", bg:"linear-gradient(90deg,#8a6000,#ffd700,#c47a00)", border:"#ffd700", shadow:"rgba(255,210,0,.7)", textColor:"#120c00" }
               : activeBadge === "hof_1" ? { icon:"♦", text:"VƯƠNG GIẢ", bg:"linear-gradient(90deg,#3a0010,#cc0050,#ff2060)", border:"#ff2060", shadow:"rgba(255,0,80,.7)", textColor:"#ffe0ea" }
               : activeBadge === "hof_2" ? { icon:"♦", text:"PHÚ HÀO", bg:"linear-gradient(90deg,#080030,#1840cc,#4060ee)", border:"#2050ee", shadow:"rgba(40,80,255,.7)", textColor:"#c0d8ff" }
               : activeBadge === "hof_3" ? { icon:"♦", text:"ĐỊA CHỦ", bg:"linear-gradient(90deg,#001c0a,#0caa55,#30cc70)", border:"#0caa55", shadow:"rgba(20,180,80,.7)", textColor:"#a0ffcc" }
-              : activeBadge === "minh_tinh" ? { icon:"🌟", text:"MINH TINH", bg:"linear-gradient(90deg,#6a0020,#cc0055,#ff4090)", border:"#ff2060", shadow:"rgba(255,0,80,.6)", textColor:"#ffe0ea" }
-              : activeBadge === "ngoi_sao" ? { icon:"⭐", text:"NGÔI SAO", bg:"linear-gradient(90deg,#6a4a00,#c09000,#ffd700)", border:"#ffd700", shadow:"rgba(255,215,0,.6)", textColor:"#1a1000" }
-              : activeBadge === "idol" ? { icon:"✨", text:"IDOL", bg:"linear-gradient(90deg,#2a1060,#6040c0,#9060e0)", border:"#a080ff", shadow:"rgba(160,128,255,.6)", textColor:"#e0d0ff" }
               : null;
             return (
               <div style={{ position:"relative" }}>
