@@ -72,6 +72,51 @@ const CHARM_CFG = {
   },
 };
 
+function CharmMiniBadge({ badgeKey, size = "sm", showLabel = false }) {
+  const meta = CHARM_BADGE_META[badgeKey] || CHARM_BADGE_META.idol;
+  const cfg = CHARM_CFG[badgeKey] || CHARM_CFG.idol;
+
+  const box = size === "md" ? 34 : 24;
+  const icon = size === "md" ? 22 : 15;
+  const font = size === "md" ? 14 : 9;
+
+  return (
+    <span style={{
+      display:"inline-flex",
+      alignItems:"center",
+      justifyContent:"center",
+      gap: showLabel ? 8 : 0,
+      color: cfg.color,
+      fontSize: font,
+      fontWeight: 900,
+      lineHeight: 1,
+      whiteSpace:"nowrap",
+    }}>
+      <span style={{
+        width: box,
+        height: box,
+        borderRadius:"50%",
+        background: cfg.iconBg,
+        display:"inline-flex",
+        alignItems:"center",
+        justifyContent:"center",
+        border:`1.5px solid ${cfg.color}`,
+        boxShadow:`0 0 10px ${cfg.color}66`,
+        flexShrink:0,
+      }}>
+        <svg viewBox="0 0 48 48" width={icon} height={icon} style={{ display:"block" }}>
+          {cfg.svgIcon}
+        </svg>
+      </span>
+      {showLabel && (
+        <span style={{ color: cfg.color, fontWeight:900 }}>
+          {meta.label}
+        </span>
+      )}
+    </span>
+  );
+}
+
 function CharmProfileCard({ badgeKey }) {
   const meta = CHARM_BADGE_META[badgeKey] || CHARM_BADGE_META.idol;
   const cfg = CHARM_CFG[badgeKey] || CHARM_CFG.idol;
@@ -364,9 +409,15 @@ export default function ProfilePage() {
           <div style={{ textAlign:"center" }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:10 }}>
               <h1 style={{ color:"white", fontSize:24, fontWeight:900, margin:0, textShadow:"0 2px 8px rgba(0,0,0,.5)" }}>{displayName}</h1>
-              <TierBadge tierKey={activeBadge === "champion" ? tierKey : activeBadge} isChampion={activeBadge === "champion"} size="sm"/>
+              {["idol","ngoi_sao","minh_tinh"].includes(activeBadge)
+                ? <CharmMiniBadge badgeKey={activeBadge} size="sm"/>
+                : <TierBadge tierKey={activeBadge === "champion" ? tierKey : activeBadge} isChampion={activeBadge === "champion"} size="sm"/>
+              }
             </div>
-            <TierBadge tierKey={activeBadge === "champion" ? tierKey : activeBadge} isChampion={activeBadge === "champion"} size="md" showLabel={true}/>
+            {["idol","ngoi_sao","minh_tinh"].includes(activeBadge)
+              ? <CharmMiniBadge badgeKey={activeBadge} size="md" showLabel={true}/>
+              : <TierBadge tierKey={activeBadge === "champion" ? tierKey : activeBadge} isChampion={activeBadge === "champion"} size="md" showLabel={true}/>
+            }
           </div>
         </div>
       </div>
