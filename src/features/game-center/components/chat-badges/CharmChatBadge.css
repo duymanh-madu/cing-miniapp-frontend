@@ -1,0 +1,321 @@
+.charm-chat-badge {
+  --badge-main: #b090ff;
+  --badge-light: #e0d0ff;
+  --badge-deep: #2a1060;
+  --badge-shadow: rgba(176, 144, 255, 0.62);
+  --badge-hot: rgba(255, 255, 255, 0.72);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 5px 0 2px;
+  line-height: 1;
+  isolation: isolate;
+  transform: translateY(-1px);
+}
+
+.charm-chat-badge__body {
+  position: relative;
+  z-index: 2;
+  height: 22px;
+  min-width: 58px;
+  padding: 0 9px 0 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--badge-light);
+  background:
+    linear-gradient(100deg, transparent 0%, rgba(255,255,255,.25) 45%, transparent 62%),
+    radial-gradient(circle at 22% 28%, rgba(255,255,255,.42), transparent 34%),
+    linear-gradient(135deg, var(--badge-deep), var(--badge-main) 55%, var(--badge-deep));
+  background-size: 220% 100%, 100% 100%, 100% 100%;
+  box-shadow:
+    0 0 7px var(--badge-shadow),
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 -1px 0 rgba(0,0,0,.35);
+  overflow: hidden;
+  animation: charmBadgeShine 3.2s ease-in-out infinite;
+}
+
+.charm-chat-badge__orb {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 34% 28%, #fff 0%, var(--badge-light) 20%, var(--badge-main) 48%, var(--badge-deep) 100%);
+  box-shadow:
+    0 0 8px var(--badge-shadow),
+    inset 0 0 5px rgba(255,255,255,.4);
+}
+
+.charm-chat-badge__orb-core {
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  text-shadow: 0 0 4px #fff, 0 0 8px var(--badge-light);
+}
+
+.charm-chat-badge__text {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.charm-chat-badge__label {
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .4px;
+  color: #fff;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 3px var(--badge-light),
+    0 1px 1px rgba(0,0,0,.55);
+  white-space: nowrap;
+}
+
+.charm-chat-badge__sub {
+  margin-top: 1px;
+  font-size: 7px;
+  font-weight: 800;
+  color: var(--badge-light);
+  opacity: .9;
+  white-space: nowrap;
+}
+
+.charm-chat-badge__shine {
+  position: absolute;
+  z-index: 1;
+  top: -35%;
+  bottom: -35%;
+  left: -40%;
+  width: 28%;
+  transform: rotate(18deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+  animation: charmBadgeSweep 2.8s ease-in-out infinite;
+}
+
+.charm-chat-badge__spark {
+  position: absolute;
+  z-index: 3;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px #fff, 0 0 10px var(--badge-light);
+  opacity: 0;
+  animation: charmSpark 2.4s ease-in-out infinite;
+}
+
+.charm-chat-badge__spark--1 { top: 3px; right: 10px; animation-delay: .1s; }
+.charm-chat-badge__spark--2 { bottom: 4px; right: 22px; animation-delay: .5s; }
+.charm-chat-badge__spark--3 { top: 5px; left: 25px; animation-delay: .9s; }
+.charm-chat-badge__spark--4 { bottom: 5px; left: 12px; animation-delay: 1.3s; }
+.charm-chat-badge__spark--5 { top: 2px; right: 34px; animation-delay: 1.7s; }
+
+.charm-chat-badge__wing {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 16px;
+  opacity: .96;
+  filter: drop-shadow(0 0 4px var(--badge-shadow));
+}
+
+.charm-chat-badge__wing::before,
+.charm-chat-badge__wing::after {
+  content: "";
+  position: absolute;
+  border-radius: 100% 10% 100% 10%;
+  background: linear-gradient(135deg, var(--badge-light), rgba(255,255,255,.1));
+}
+
+.charm-chat-badge__wing::before {
+  width: 12px;
+  height: 8px;
+  top: 2px;
+}
+
+.charm-chat-badge__wing::after {
+  width: 9px;
+  height: 6px;
+  top: 8px;
+}
+
+.charm-chat-badge__wing--left {
+  margin-right: -5px;
+  transform: rotate(-14deg);
+}
+
+.charm-chat-badge__wing--left::before,
+.charm-chat-badge__wing--left::after {
+  right: 0;
+  transform: skewX(-18deg);
+}
+
+.charm-chat-badge__wing--right {
+  margin-left: -5px;
+  transform: scaleX(-1) rotate(-14deg);
+}
+
+.charm-chat-badge__wing--right::before,
+.charm-chat-badge__wing--right::after {
+  right: 0;
+  transform: skewX(-18deg);
+}
+
+.charm-chat-badge__crown {
+  position: absolute;
+  z-index: 5;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ffe8a0;
+  font-size: 13px;
+  line-height: 1;
+  text-shadow:
+    0 0 5px #fff,
+    0 0 10px var(--badge-light),
+    0 1px 1px rgba(0,0,0,.5);
+}
+
+.charm-chat-badge__requirement {
+  margin-left: 4px;
+  font-size: 9px;
+  color: var(--badge-light);
+  font-weight: 900;
+  text-shadow: 0 0 4px var(--badge-shadow);
+}
+
+/* LEVEL 1 — Idol: đẹp nhẹ, tím mềm */
+.charm-chat-badge--idol {
+  --badge-main: #8d68ff;
+  --badge-light: #d8c8ff;
+  --badge-deep: #26105e;
+  --badge-shadow: rgba(141, 104, 255, .58);
+}
+
+/* LEVEL 2 — Ngôi Sao: cao hơn, sáng hơn, wing + star */
+.charm-chat-badge--ngoi-sao {
+  --badge-main: #ffd700;
+  --badge-light: #fff2a6;
+  --badge-deep: #6a4700;
+  --badge-shadow: rgba(255, 215, 0, .72);
+}
+
+.charm-chat-badge--ngoi-sao .charm-chat-badge__body {
+  height: 24px;
+  min-width: 78px;
+  padding-right: 11px;
+  border-width: 1.3px;
+  box-shadow:
+    0 0 10px rgba(255,215,0,.78),
+    0 0 20px rgba(255,180,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.52);
+}
+
+.charm-chat-badge--ngoi-sao .charm-chat-badge__orb {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+}
+
+.charm-chat-badge--ngoi-sao .charm-chat-badge__label {
+  font-size: 10.5px;
+}
+
+/* LEVEL 3 — Minh Tinh: cao cấp nhất, crown + wing + aura mạnh */
+.charm-chat-badge--minh-tinh {
+  --badge-main: #ff4f9a;
+  --badge-light: #ffd1e5;
+  --badge-deep: #640020;
+  --badge-shadow: rgba(255, 64, 144, .82);
+}
+
+.charm-chat-badge--minh-tinh .charm-chat-badge__body {
+  height: 27px;
+  min-width: 94px;
+  padding: 0 13px 0 6px;
+  border-width: 1.5px;
+  border-color: #ffd6e8;
+  box-shadow:
+    0 0 12px rgba(255,64,144,.9),
+    0 0 26px rgba(255,80,160,.52),
+    0 0 44px rgba(255,170,210,.18),
+    inset 0 1px 0 rgba(255,255,255,.62);
+  animation:
+    charmBadgeShine 2.2s ease-in-out infinite,
+    charmBadgePulse 1.8s ease-in-out infinite;
+}
+
+.charm-chat-badge--minh-tinh .charm-chat-badge__orb {
+  width: 20px;
+  height: 20px;
+  flex-basis: 20px;
+}
+
+.charm-chat-badge--minh-tinh .charm-chat-badge__label {
+  font-size: 11px;
+  letter-spacing: .6px;
+}
+
+.charm-chat-badge--minh-tinh .charm-chat-badge__wing {
+  width: 15px;
+  height: 18px;
+}
+
+.charm-chat-badge--minh-tinh .charm-chat-badge__spark {
+  width: 4px;
+  height: 4px;
+}
+
+@keyframes charmBadgeShine {
+  0%, 100% { background-position: 0% 50%, 0 0, 0 0; }
+  50% { background-position: 100% 50%, 0 0, 0 0; }
+}
+
+@keyframes charmBadgeSweep {
+  0% { left: -45%; opacity: 0; }
+  20% { opacity: .88; }
+  55% { opacity: .44; }
+  100% { left: 120%; opacity: 0; }
+}
+
+@keyframes charmSpark {
+  0%, 40%, 100% { opacity: 0; transform: scale(.3); }
+  55%, 70% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes charmBadgePulse {
+  0%, 100% { transform: translateY(-1px) scale(1); }
+  50% { transform: translateY(-1px) scale(1.035); }
+}
+
+@media (max-width: 390px) {
+  .charm-chat-badge__body {
+    min-width: 52px;
+    height: 20px;
+    padding-right: 7px;
+  }
+
+  .charm-chat-badge__label {
+    font-size: 9px;
+  }
+
+  .charm-chat-badge--ngoi-sao .charm-chat-badge__body {
+    min-width: 68px;
+  }
+
+  .charm-chat-badge--minh-tinh .charm-chat-badge__body {
+    min-width: 82px;
+  }
+}
