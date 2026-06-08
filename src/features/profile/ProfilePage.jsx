@@ -287,15 +287,22 @@ export default function ProfilePage() {
 
   const tierKey = member.tierKey || "member";
   const customBadges = Array.isArray(member.customBadges) ? member.customBadges : [];
-  const charmBadge =
-    customBadges.includes("minh_tinh") ? "minh_tinh" :
-    customBadges.includes("ngoi_sao") ? "ngoi_sao" :
-    customBadges.includes("idol") ? "idol" :
-    null;
+  const ownedBadges = [
+    tierKey,
+    ...customBadges,
+    ...(champion ? ["champion"] : []),
+    ...(hofRank ? [hofRank] : []),
+  ].filter(Boolean).filter((v, i, arr) => arr.indexOf(v) === i);
 
-  // Theme theo danh hiệu chính được chọn.
-  // Priority: user selected -> HOF -> chess champion -> charm/admin badge -> CRM tier.
-  const activeBadge = primaryBadge || hofRank || (champion ? "champion" : charmBadge || tierKey);
+  const fallbackBadge =
+    hofRank ||
+    (champion ? "champion" : null) ||
+    (customBadges.includes("minh_tinh") ? "minh_tinh" : null) ||
+    (customBadges.includes("ngoi_sao") ? "ngoi_sao" : null) ||
+    (customBadges.includes("idol") ? "idol" : null) ||
+    tierKey;
+
+  const activeBadge = ownedBadges.includes(primaryBadge) ? primaryBadge : fallbackBadge;
   const theme = TIER_THEME[activeBadge] || TIER_THEME[tierKey] || TIER_THEME.member;
 
   // Nếu xem profile mình: dùng profile.name (custom) + profile.avatar (custom)
@@ -309,6 +316,54 @@ export default function ProfilePage() {
   const points        = member.points || 0;
   const eatTimes      = member.eatTimes || 0;
   const paymentAmount = member.paymentAmount || 0;
+
+  const renderBadgeCard = (badgeKey) => {
+    if (["idol","ngoi_sao","minh_tinh"].includes(badgeKey)) {
+      return <CharmProfileCard badgeKey={badgeKey}/>;
+    }
+
+    if (badgeKey === "champion") {
+      return <TierCard isChampion={true} firstVisit={member.firstVisit}/>;
+    }
+
+    if (badgeKey?.startsWith("hof_")) {
+      return <TierCard tierKey={badgeKey} firstVisit={member.firstVisit}/>;
+    }
+
+    return <TierCard tierKey={badgeKey} tierName={badgeKey === tierKey ? member.tierName : undefined} firstVisit={member.firstVisit}/>;
+  };
+
+  const getBadgeOption = (badgeKey) => {
+    if (CHARM_BADGE_META[badgeKey]) {
+      const cfg = CHARM_CFG[badgeKey];
+      return {
+        key: badgeKey,
+        label: CHARM_BADGE_META[badgeKey].label,
+        sub: "Danh hiệu quyến rũ",
+        color: cfg?.color || "#b090ff",
+      };
+    }
+
+    if (badgeKey === "champion") {
+      return { key:"champion", label:"Kiện tướng", sub:"Top 1 Cờ vua · Live", color:"#ffd700" };
+    }
+
+    if (badgeKey?.startsWith("hof_")) {
+      return {
+        key: badgeKey,
+        label: badgeKey==="hof_1" ? "Vương Giả" : badgeKey==="hof_2" ? "Phú Hào" : "Địa Chủ",
+        sub: badgeKey==="hof_1" ? "Top 1 Alltime" : badgeKey==="hof_2" ? "Top 2 Alltime" : "Top 3 Alltime",
+        color: badgeKey==="hof_1" ? "#ff80a0" : badgeKey==="hof_2" ? "#80a0ff" : "#40ee80",
+      };
+    }
+
+    return {
+      key: badgeKey,
+      label: badgeKey === tierKey ? (member.tierName || "Hạng thành viên") : badgeKey,
+      sub: "Hạng thành viên",
+      color: TIER_THEME[badgeKey]?.accent || theme.accent || "#aaa",
+    };
+  };
 
   return (
     <div style={{ minHeight:"100vh", background:"#0a0a0f", paddingBottom:100 }}>
@@ -454,26 +509,26 @@ export default function ProfilePage() {
         </div>
 
         {/* CHỌN DANH HIỆU CHÍNH — chỉ chính chủ */}
-        {isOwn && (hofRank || champion) && (
+        {isOwn && ownedBadges.length > 1 && (
           <div style={{ marginBottom:14 }}>
             <button onClick={() => setShowBadgePicker(p => !p)}
               style={{ width:"100%", padding:"10px 16px", borderRadius:12, border:"1px solid rgba(255,255,255,.15)", background:"rgba(255,255,255,.06)", color:"rgba(255,255,255,.7)", fontSize:12, fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
               <span>🎖</span> Chọn danh hiệu hiển thị chính
               <span style={{ marginLeft:"auto", opacity:.5 }}>{showBadgePicker ? "▲" : "▼"}</span>
             </button>
+
             {showBadgePicker && (
               <div style={{ marginTop:8, background:"rgba(0,0,0,.4)", borderRadius:14, padding:12, border:"1px solid rgba(255,255,255,.1)" }}>
-                {[
-                  ...(hofRank ? [{ key:hofRank, label:hofRank==="hof_1"?"Vương Giả":hofRank==="hof_2"?"Phú Hào":"Địa Chủ", sub:hofRank==="hof_1"?"Top 1 Alltime · Ruby":hofRank==="hof_2"?"Top 2 Alltime · Sapphire":"Top 3 Alltime · Emerald", color:hofRank==="hof_1"?"#ff80a0":hofRank==="hof_2"?"#80a0ff":"#40ee80" }] : []),
-                  ...(champion ? [{ key:"champion", label:"Kiện tướng", sub:"Top 1 Cờ vua · Live", color:"#ffd700" }] : []),
-                  { key:tierKey, label:member.tierName||"Hạng thành viên", sub:"Hạng thành viên", color:theme.accent||"#aaa" },
-                ].map(opt => (
-                  <div key={opt.key} onClick={() => { setPrimaryBadge(opt.key === activeBadge ? null : opt.key); setShowBadgePicker(false); }}
+                {ownedBadges.map(getBadgeOption).map(opt => (
+                  <div key={opt.key} onClick={() => { setPrimaryBadge(opt.key); setShowBadgePicker(false); }}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 12px", borderRadius:10, marginBottom:6, cursor:"pointer", border:activeBadge===opt.key?`1.5px solid ${opt.color}`:"1px solid rgba(255,255,255,.1)", background:activeBadge===opt.key?"rgba(255,255,255,.08)":"transparent" }}>
-                    <TierBadge tierKey={opt.key==="champion"?tierKey:opt.key} isChampion={opt.key==="champion"} size="sm"/>
+                    {["idol","ngoi_sao","minh_tinh"].includes(opt.key)
+                      ? <CharmMiniBadge badgeKey={opt.key} size="sm"/>
+                      : <TierBadge tierKey={opt.key==="champion"?tierKey:opt.key} isChampion={opt.key==="champion"} size="sm"/>
+                    }
                     <div style={{ flex:1 }}>
-                      <p style={{ fontSize:13, fontWeight:800, color:opt.color, margin:0 }}>{opt.label}</p>
-                      <p style={{ fontSize:10, color:"rgba(255,255,255,.4)", margin:0 }}>{opt.sub}</p>
+                      <p style={{ color:"white", fontSize:13, fontWeight:800, margin:0 }}>{opt.label}</p>
+                      <p style={{ color:"rgba(255,255,255,.4)", fontSize:10, margin:"2px 0 0" }}>{opt.sub}</p>
                     </div>
                     {activeBadge===opt.key && <span style={{ color:opt.color, fontSize:16 }}>✓</span>}
                   </div>
@@ -483,22 +538,12 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* TẤT CẢ DANH HIỆU PHỤ — hiển thị dù là chính chủ hay người xem */}
-        {hofRank && activeBadge !== hofRank && (
-          <div style={{ marginBottom:14 }}>
-            <TierCard tierKey={hofRank} firstVisit={member.firstVisit}/>
+        {/* TẤT CẢ DANH HIỆU ĐANG SỞ HỮU */}
+        {ownedBadges.filter(b => b !== activeBadge).map(badgeKey => (
+          <div key={badgeKey} style={{ marginBottom:14 }}>
+            {renderBadgeCard(badgeKey)}
           </div>
-        )}
-        {champion && activeBadge !== "champion" && (
-          <div style={{ marginBottom:14 }}>
-            <TierCard isChampion={true} firstVisit={member.firstVisit}/>
-          </div>
-        )}
-        {activeBadge !== tierKey && (
-          <div style={{ marginBottom:14 }}>
-            <TierCard tierKey={tierKey} tierName={member.tierName} firstVisit={member.firstVisit}/>
-          </div>
-        )}
+        ))}
 
         {/* Actions */}
         {isOwn && (
