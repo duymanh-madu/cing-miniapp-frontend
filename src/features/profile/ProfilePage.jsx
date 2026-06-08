@@ -11,6 +11,110 @@ injectTierBadgeStyles();
 
 const fmt = n => new Intl.NumberFormat("vi-VN").format(n || 0);
 
+const CHARM_BADGE_META = {
+  idol: { key:"idol", label:"Idol" },
+  ngoi_sao: { key:"ngoi_sao", label:"Ngôi sao" },
+  minh_tinh: { key:"minh_tinh", label:"Minh tinh" },
+};
+
+const CHARM_CFG = {
+  minh_tinh: {
+    border:"linear-gradient(90deg,#6a0020,#cc0055,#ff60a0,#ffe0f0,#ff60a0,#cc0055,#6a0020)",
+    inner:"linear-gradient(155deg,#0a0005,#180008,#0a0005)",
+    iconBg:"radial-gradient(circle at 35% 35%,#ffb0d0 0%,#ee0055 35%,#880028 65%,#3a0010 100%)",
+    color:"#ff80b0",
+    glow:"hofGlow1 1.8s ease-in-out infinite",
+    icon:"🌟",
+    sub:"20.000 điểm quyến rũ",
+    rank:"Đỉnh cao quyến rũ",
+    svgIcon: (
+      <>
+        <polygon points="24,2 26.5,15 37,6 30,18 43,20 30,25 40,35 27,30 26,44 24,31 22,44 21,30 8,35 18,25 5,20 18,18 11,6 22,15" fill="#ff60a0" stroke="#cc0044" strokeWidth="0.8"/>
+        <polygon points="24,8 26,17 34,10 29,19 38,21 29,24 36,32 26,28 25,38 24,29 23,38 22,28 12,32 19,24 10,21 19,19 14,10 22,17" fill="#ffb0d0" opacity="0.7" stroke="none"/>
+        <circle cx="24" cy="24" r="5" fill="white" opacity="0.95"/>
+        <circle cx="24" cy="24" r="2.5" fill="#ff4090" opacity="0.8"/>
+      </>
+    ),
+  },
+  ngoi_sao: {
+    border:"linear-gradient(90deg,#6a4a00,#c09000,#ffd700,#fffacc,#ffd700,#c09000,#6a4a00)",
+    inner:"linear-gradient(155deg,#090700,#160e00,#090700)",
+    iconBg:"radial-gradient(circle at 35% 35%,#ffe880 0%,#d4a000 35%,#7a5000 65%,#2a1800 100%)",
+    color:"#ffd700",
+    glow:"ktGlowCard 2s ease-in-out infinite",
+    icon:"⭐",
+    sub:"10.000 điểm quyến rũ",
+    rank:"Ngôi sao tỏa sáng",
+    svgIcon: (
+      <>
+        <polygon points="24,3 29,17 44,17 32,26 37,40 24,31 11,40 16,26 4,17 19,17" fill="#ffd700" stroke="#c09000" strokeWidth="1"/>
+        <polygon points="24,8 28,18 39,18 30,24 34,35 24,28 14,35 18,24 9,18 20,18" fill="#fff5a0" opacity="0.7" stroke="none"/>
+        <circle cx="24" cy="24" r="4" fill="white" opacity="0.9"/>
+      </>
+    ),
+  },
+  idol: {
+    border:"linear-gradient(90deg,#2a1060,#6040c0,#a080ff,#e0d0ff,#a080ff,#6040c0,#2a1060)",
+    inner:"linear-gradient(155deg,#060318,#0e0628,#060318)",
+    iconBg:"radial-gradient(circle at 35% 35%,#d0c0ff 0%,#8060e0 35%,#3a2080 65%,#100840 100%)",
+    color:"#b090ff",
+    glow:"partnerGlowCard 2s ease-in-out infinite",
+    icon:"✨",
+    sub:"5.000 điểm quyến rũ",
+    rank:"Idol của cộng đồng",
+    svgIcon: (
+      <>
+        <polygon points="24,4 27,20 43,24 27,28 24,44 21,28 5,24 21,20" fill="#c0a0ff" stroke="#8060e0" strokeWidth="1"/>
+        <polygon points="24,10 26,20 37,24 26,28 24,38 22,28 11,24 22,20" fill="#e8d8ff" stroke="none" opacity="0.6"/>
+        <circle cx="24" cy="24" r="3" fill="white" opacity="0.9"/>
+      </>
+    ),
+  },
+};
+
+function CharmProfileCard({ badgeKey }) {
+  const meta = CHARM_BADGE_META[badgeKey] || CHARM_BADGE_META.idol;
+  const cfg = CHARM_CFG[badgeKey] || CHARM_CFG.idol;
+
+  return (
+    <div style={{ borderRadius:20, padding:"2.5px", background:cfg.border, backgroundSize:"400% 100%", animation:"royalBorder 1.8s linear infinite" }}>
+      <div style={{ borderRadius:18, padding:"18px 16px", background:cfg.inner, position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", top:0, bottom:0, left:"-60%", width:"50%", background:"linear-gradient(90deg,transparent,rgba(255,255,255,.1),rgba(255,255,255,.2),rgba(255,255,255,.1),transparent)", animation:"tcScan 2.5s ease-in-out infinite", pointerEvents:"none" }}/>
+        <div style={{ position:"absolute", inset:0, background:`radial-gradient(ellipse at 30% 50%,${cfg.color}15 0%,transparent 60%)`, pointerEvents:"none", borderRadius:18 }}/>
+        <div style={{ display:"flex", alignItems:"center", gap:14, position:"relative", zIndex:1 }}>
+          <div style={{ width:68, height:68, borderRadius:"50%", background:cfg.iconBg, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, animation:cfg.glow, position:"relative", overflow:"hidden" }}>
+            {cfg.svgIcon
+              ? <svg viewBox="0 0 48 48" width="40" height="40">{cfg.svgIcon}</svg>
+              : <span style={{ fontSize:32 }}>{cfg.icon}</span>
+            }
+            <div style={{ position:"absolute", inset:0, borderRadius:"50%", background:"radial-gradient(circle at 30% 25%, rgba(255,255,255,0.35) 0%, transparent 60%)" }}/>
+          </div>
+
+          <div style={{ flex:1, minWidth:0 }}>
+            <div style={{ background:`${cfg.color}22`, borderRadius:20, padding:"3px 10px", marginBottom:6, border:`1px solid ${cfg.color}44`, display:"inline-flex", alignItems:"center", maxWidth:"100%" }}>
+              <span style={{ fontSize:10, fontWeight:800, color:cfg.color, letterSpacing:.5, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{cfg.rank}</span>
+            </div>
+            <p style={{ fontSize:18, fontWeight:900, color:cfg.color, margin:"0 0 5px", textShadow:`0 0 16px ${cfg.color}`, whiteSpace:"nowrap" }}>{meta.label}</p>
+            <div style={{ display:"flex", gap:3 }}>
+              {[1,2,3,4,5].map(i => (
+                <svg key={i} width="13" height="13" viewBox="0 0 12 12">
+                  <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill={cfg.color} stroke={cfg.color} strokeWidth=".5"/>
+                </svg>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ textAlign:"right", flexShrink:0, paddingLeft:8 }}>
+            <p style={{ fontSize:9, color:"rgba(255,255,255,.35)", margin:"0 0 3px", letterSpacing:1, textTransform:"uppercase" }}>Yêu cầu</p>
+            <p style={{ fontSize:12, fontWeight:900, color:cfg.color, margin:0, whiteSpace:"nowrap" }}>{cfg.sub}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 const TIER_THEME = {
   member:        { header:"linear-gradient(160deg,#2c2c2a,#444441)", card:"rgba(255,255,255,.08)", border:"rgba(255,255,255,.1)",  text:"#f1efe8", sub:"#888780", accent:"#d3d1c7" },
   loyal:         { header:"linear-gradient(160deg,#04342c,#0f6e56)", card:"rgba(255,255,255,.09)", border:"rgba(159,225,203,.2)", text:"#e1f5ee", sub:"#9fe1cb", accent:"#5dcaa5" },
@@ -233,11 +337,13 @@ export default function ProfilePage() {
 
         {/* DANH HIỆU CHÍNH — theme của profile */}
         <div style={{ marginBottom:14 }}>
-          {activeBadge === "champion"
+          {["idol","ngoi_sao","minh_tinh"].includes(activeBadge)
+            ? <CharmProfileCard badgeKey={activeBadge}/>
+            : activeBadge === "champion"
             ? <TierCard isChampion={true} firstVisit={member.firstVisit}/>
             : activeBadge?.startsWith("hof_")
             ? <TierCard tierKey={activeBadge} firstVisit={member.firstVisit}/>
-            : <TierCard tierKey={activeBadge} firstVisit={member.firstVisit}/>
+            : <TierCard tierKey={activeBadge} tierName={member.tierName} firstVisit={member.firstVisit}/>
           }
         </div>
 
