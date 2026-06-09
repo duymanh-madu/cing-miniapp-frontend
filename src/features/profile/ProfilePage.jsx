@@ -417,50 +417,45 @@ export default function ProfilePage() {
                 {badgeLabel && (
                   <div style={{
                     position:"absolute",
-                    bottom:-12,
+                    bottom:-14,
                     left:"50%",
                     transform:"translateX(-50%)",
-                    background:badgeLabel.bg,
-                    borderRadius:12,
-                    padding:"4px 10px",
-                    border:`1.5px solid ${badgeLabel.border}`,
-                    boxShadow:`0 0 10px ${badgeLabel.shadow}`,
                     whiteSpace:"nowrap",
-                    minWidth:74,
                     display:"flex",
                     alignItems:"center",
                     justifyContent:"center",
+                    pointerEvents:"none",
                   }}>
-                    <span style={{
-                      fontSize:9,
-                      fontWeight:900,
-                      color:badgeLabel.textColor,
-                      display:"inline-flex",
-                      alignItems:"center",
-                      justifyContent:"center",
-                      gap:5,
-                      lineHeight:1,
-                    }}>
-                      {badgeLabel.svgIcon ? (
-                        <span style={{
-                          width:16,
-                          height:16,
-                          borderRadius:"50%",
-                          background:badgeLabel.iconBg,
-                          display:"inline-flex",
+                    {badgeLabel.useChatBadge
+                      ? <CharmChatBadge badgeKey={activeBadge} compact={true}/>
+                      : (
+                        <div style={{
+                          background:badgeLabel.bg,
+                          borderRadius:12,
+                          padding:"4px 10px",
+                          border:`1.5px solid ${badgeLabel.border}`,
+                          boxShadow:`0 0 10px ${badgeLabel.shadow}`,
+                          minWidth:74,
+                          display:"flex",
                           alignItems:"center",
                           justifyContent:"center",
-                          flexShrink:0,
                         }}>
-                          <svg viewBox="0 0 48 48" width="12" height="12" style={{ display:"block" }}>
-                            {badgeLabel.svgIcon}
-                          </svg>
-                        </span>
-                      ) : (
-                        <span>{badgeLabel.icon}</span>
-                      )}
-                      <span>{badgeLabel.text}</span>
-                    </span>
+                          <span style={{
+                            fontSize:9,
+                            fontWeight:900,
+                            color:badgeLabel.textColor,
+                            display:"inline-flex",
+                            alignItems:"center",
+                            justifyContent:"center",
+                            gap:5,
+                            lineHeight:1,
+                          }}>
+                            {badgeLabel.icon && <span>{badgeLabel.icon}</span>}
+                            {badgeLabel.text}
+                          </span>
+                        </div>
+                      )
+                    }
                   </div>
                 )}
               </div>
