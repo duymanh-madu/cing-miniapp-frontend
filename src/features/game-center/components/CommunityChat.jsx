@@ -117,12 +117,36 @@ export default function CommunityChat({ onClose }) {
       s.emit("community:join", { userId: uid, name: info.name, avatar: info.avatar, tierKey: tierKeyRef.current, charmBadgeKey: charmBadgeRef.current });
 
       s.on("community:history", (history) => {
-      setMessages(history || []);
+      const info = getMyInfo();
+      setMessages((history || []).map(m =>
+        m?.userId === myIdRef.current
+          ? {
+              ...m,
+              name: m?.name || info.name,
+              avatar: m?.avatar || info.avatar,
+              tierKey: m?.tierKey || tierKeyRef.current,
+              charmBadgeKey: m?.charmBadgeKey || charmBadgeRef.current,
+            }
+          : m
+      ));
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 100);
     });
 
     s.on("community:chat", (msg) => {
-      setMessages(prev => [...prev, msg]);
+      const info = getMyInfo();
+      const isMine = msg?.userId === myIdRef.current;
+
+      const normalized = isMine
+        ? {
+            ...msg,
+            name: msg?.name || info.name,
+            avatar: msg?.avatar || info.avatar,
+            tierKey: msg?.tierKey || tierKeyRef.current,
+            charmBadgeKey: msg?.charmBadgeKey || charmBadgeRef.current,
+          }
+        : msg;
+
+      setMessages(prev => [...prev, normalized]);
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 50);
     });
 
@@ -276,7 +300,6 @@ export default function CommunityChat({ onClose }) {
       avatar:  info.avatar,
       message: input.trim(),
       tierKey: tierKeyRef.current,
-      charmBadgeKey: charmBadgeRef.current,
       charmBadgeKey: charmBadgeRef.current,
     });
     setInput("");

@@ -586,7 +586,16 @@ export default function ChessGame({ onExit, onFindMatch }) {
 
     // Chat
     s.on("chess:chat", (data) => {
-      setChatMessages(prev => [...prev, data]);
+      const isMine = data?.userId === userIdRef.current;
+      const normalized = isMine
+        ? {
+            ...data,
+            name: data?.name || userName,
+            charmBadgeKey: data?.charmBadgeKey || myCharmBadgeKey,
+          }
+        : data;
+
+      setChatMessages(prev => [...prev, normalized]);
       setUnreadCount(prev => showChat ? 0 : prev + 1);
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior:"smooth" }), 50);
     });
