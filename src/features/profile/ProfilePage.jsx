@@ -390,6 +390,10 @@ export default function ProfilePage() {
             const badgeLabel = charmHeader
               ? {
                   text: CHARM_BADGE_META[activeBadge]?.label?.toUpperCase() || "",
+                  useChatBadge: true,
+                  bg: "transparent",
+                  border: "transparent",
+                  shadow: "none",
                   bg: charmHeader.inner,
                   border: charmHeader.color,
                   shadow: `${charmHeader.color}66`,
@@ -468,7 +472,7 @@ export default function ProfilePage() {
             <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:10 }}>
               <h1 style={{ color:"white", fontSize:24, fontWeight:900, margin:0, textShadow:"0 2px 8px rgba(0,0,0,.5)" }}>{displayName}</h1>
               {["idol","ngoi_sao","minh_tinh"].includes(activeBadge)
-                ? <CharmChatBadge badgeKey={activeBadge} compact={true}/>
+                ? <CharmMiniBadge badgeKey={activeBadge} size="sm"/>
                 : <TierBadge tierKey={activeBadge === "champion" ? tierKey : activeBadge} isChampion={activeBadge === "champion"} size="sm"/>
               }
             </div>
