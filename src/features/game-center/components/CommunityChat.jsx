@@ -366,7 +366,7 @@ export default function CommunityChat({ onClose }) {
           onClick={() => window.parent.postMessage({ type:"OPEN_OUT_APP", url:"https://www.facebook.com/groups/2210684146435472" }, "*")}
           style={{ background:"linear-gradient(135deg,#1877F2,#0a5dc2)", border:"none", borderRadius:10,
             padding:"6px 12px", color:"white", fontSize:11, fontWeight:800, cursor:"pointer",
-            display:"none", alignItems:"center", gap:5, flexShrink:0,
+            display:"none", alignItems:"center", gap:2, flexShrink:0,
             boxShadow:"0 2px 8px rgba(24,119,242,0.4)",
             transition:"transform 0.15s ease, box-shadow 0.15s ease" }}>
           <span style={{ fontSize:13 }}>👥</span> Gia nhập
@@ -374,7 +374,7 @@ export default function CommunityChat({ onClose }) {
         <button onClick={() => setShowRules(true)}
           style={{ background:"linear-gradient(135deg,#D4531C,#FF6B35)", border:"none", borderRadius:10,
             padding:"6px 12px", color:"white", fontSize:11, fontWeight:800, cursor:"pointer",
-            display:"flex", alignItems:"center", gap:5, flexShrink:0,
+            display:"flex", alignItems:"center", gap:2, flexShrink:0,
             boxShadow:"0 2px 8px rgba(212,83,28,0.4)" }}>
           <span style={{ fontSize:13 }}>📜</span> Nội quy
         </button>
@@ -402,7 +402,7 @@ export default function CommunityChat({ onClose }) {
           )}
           {messages.map((m, i) => (
             <div key={i} style={{ display:"flex", flexDirection:"column", alignItems: isMe(m.userId)?"flex-end":"flex-start" }}>
-              {<div style={{ display:"flex", alignItems:"center", gap:4, marginBottom:3, marginLeft:8,
+              {<div style={{ display:"flex", alignItems:"center", gap:2, marginBottom:3, marginLeft:8,
               cursor: /^(0|84)\d{8,10}$/.test(String(m.userId)) ? "pointer" : "default" }} onClick={() => {
                 if (/^(0|84)\d{8,10}$/.test(String(m.userId))) navigate(`/profile/${m.userId}`);
               }}>
@@ -421,7 +421,7 @@ export default function CommunityChat({ onClose }) {
                 <TierBadge tierKey="member" isChampion={true} size="sm"/>
               )}
             </div>}
-              <div style={{ display:"flex", alignItems:"flex-end", gap:6, flexDirection: isMe(m.userId)?"row-reverse":"row" }}>
+              <div style={{ display:"flex", alignItems:"flex-end", gap:2, flexDirection: isMe(m.userId)?"row-reverse":"row" }}>
                 {!isMe(m.userId) && (
                   <div style={{ width:28, height:28, borderRadius:14, background:"#1a1a2e", flexShrink:0, overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:900, color:"#666" }}>
                     {m.avatar ? <img src={m.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (m.name||"?")[0]}
@@ -438,13 +438,13 @@ export default function CommunityChat({ onClose }) {
       ) : (
         <div style={{ flex:1, overflowY:"auto", padding:"12px 16px" }}>
           {users.map((u, i) => (
-            <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:2, padding:"10px 0", borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
               <div style={{ width:36, height:36, borderRadius:18, background:"#1a1a2e", overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:900, color:"#666", position:"relative" }}>
                 {u.avatar ? <img src={u.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (u.name||"?")[0]}
                 <div style={{ position:"absolute", bottom:0, right:0, width:10, height:10, borderRadius:5, background:"#00c864", border:"2px solid #0d0d18" }}/>
               </div>
               <div>
-                <div style={{ display:"flex", alignItems:"center", gap:5, cursor: isMe(u.userId)?"default":"pointer" }}
+                <div style={{ display:"flex", alignItems:"center", gap:2, cursor: isMe(u.userId)?"default":"pointer" }}
                   onClick={() => {
                     if (!isMe(u.userId) && /^(0|84)\d{8,10}$/.test(String(u.userId))) navigate(`/profile/${u.userId}`);
                   }}>
@@ -476,7 +476,7 @@ export default function CommunityChat({ onClose }) {
             </p>
           </div>
         ) : (
-          <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+          <div style={{ display:"flex", gap:2, alignItems:"center" }}>
             <input value={input} onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key==="Enter" && sendChat()}
               placeholder="Nhập tin nhắn..." maxLength={200}
@@ -532,7 +532,7 @@ export default function CommunityChat({ onClose }) {
                   margin:"0 0 14px", textAlign:"justify" }}>{item.text}</p>
               );
               if (item.type === "rule") return (
-                <div key={i} style={{ display:"flex", gap:12, marginBottom:12,
+                <div key={i} style={{ display:"flex", gap:2, marginBottom:12,
                   background:"rgba(212,83,28,0.08)", borderRadius:12, padding:"12px 14px",
                   border:"1px solid rgba(212,83,28,0.2)" }}>
                   <div style={{ width:28, height:28, borderRadius:8, background:"linear-gradient(135deg,#D4531C,#FF6B35)",

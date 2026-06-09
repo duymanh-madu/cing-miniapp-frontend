@@ -6,6 +6,7 @@ import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCusto
 import { TierBadge } from "@/membership/components/TierBadge";
 import { TierCard } from "@/membership/components/TierCard";
 import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
+import CharmChatBadge from "@/features/game-center/components/chat-badges/CharmChatBadge";
 
 injectTierBadgeStyles();
 
@@ -467,12 +468,12 @@ export default function ProfilePage() {
             <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:10 }}>
               <h1 style={{ color:"white", fontSize:24, fontWeight:900, margin:0, textShadow:"0 2px 8px rgba(0,0,0,.5)" }}>{displayName}</h1>
               {["idol","ngoi_sao","minh_tinh"].includes(activeBadge)
-                ? <CharmMiniBadge badgeKey={activeBadge} size="sm"/>
+                ? <CharmChatBadge badgeKey={activeBadge} compact={true}/>
                 : <TierBadge tierKey={activeBadge === "champion" ? tierKey : activeBadge} isChampion={activeBadge === "champion"} size="sm"/>
               }
             </div>
             {["idol","ngoi_sao","minh_tinh"].includes(activeBadge)
-              ? <CharmMiniBadge badgeKey={activeBadge} size="md" showLabel={true}/>
+              ? <CharmChatBadge badgeKey={activeBadge} compact={true}/>
               : <TierBadge tierKey={activeBadge === "champion" ? tierKey : activeBadge} isChampion={activeBadge === "champion"} size="md" showLabel={true}/>
             }
           </div>
