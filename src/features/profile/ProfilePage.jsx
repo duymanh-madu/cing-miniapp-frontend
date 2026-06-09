@@ -408,7 +408,7 @@ export default function ProfilePage() {
               : null;
             return (
               <div style={{ position:"relative" }}>
-                <div style={{ width:96, height:96, borderRadius:48, position:"relative", zIndex:2, border:`2.5px solid ${theme.accent}`, overflow:"hidden", background:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:38, fontWeight:900, color:"white", boxShadow:`0 4px 24px rgba(0,0,0,.4), 0 0 0 1px ${theme.border}` }}>
+                <div style={{ width:96, height:96, borderRadius:48, position:"relative", zIndex:1, border:`2.5px solid ${theme.accent}`, overflow:"hidden", background:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:38, fontWeight:900, color:"white", boxShadow:`0 4px 24px rgba(0,0,0,.4), 0 0 0 1px ${theme.border}` }}>
                   {avatarUrl
                     ? <img src={avatarUrl} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
                     : displayName[0]?.toUpperCase()
@@ -427,7 +427,7 @@ export default function ProfilePage() {
                     pointerEvents:"none",
                   }}>
                     {badgeLabel.useChatBadge
-                      ? <div style={{transform:"translateX(-18px) scale(1.5)", transformOrigin:"center center"}}><CharmChatBadge badgeKey={activeBadge} compact={true}/></div>
+                      ? <div style={{transform:"scale(1.5)", transformOrigin:"center center"}}><CharmChatBadge badgeKey={activeBadge} compact={true}/></div>
                       : (
                         <div style={{
                           background:badgeLabel.bg,
