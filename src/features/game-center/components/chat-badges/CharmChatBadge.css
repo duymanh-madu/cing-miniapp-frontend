@@ -9,10 +9,10 @@
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
-  margin: 0 6px 0 0;
+  margin: 0 2px 0 0;
   line-height: 1;
   isolation: isolate;
-  transform: translateY(-1px) scale(.9);
+  transform: translateY(-1px) scale(.78);
   transform-origin: center;
 }
 
@@ -236,7 +236,7 @@
 
 .charm-chat-badge--minh-tinh .charm-chat-badge__body {
   height: 23px;
-  min-width: 88px;
+  min-width: 78px;
   padding: 0 10px 0 5px;
   border-width: 1.6px;
   box-shadow:
@@ -302,7 +302,7 @@
   }
 
   .charm-chat-badge--minh-tinh .charm-chat-badge__body {
-    min-width: 108px;
+    min-width: 92px;
   }
 
   .charm-chat-badge__label {
