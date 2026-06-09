@@ -88,6 +88,14 @@ export default function CharmChatBadge({
 
         <span className="charm-chat-badge__shine" />
 
+        {cfg.level === 3 && (
+          <span className="charm-chat-badge__mini-crowns" aria-hidden="true">
+            <span>♛</span>
+            <span>♕</span>
+            <span>♛</span>
+          </span>
+        )}
+
         {Array.from({ length: cfg.gems }).map((_, i) => (
           <span
             key={i}

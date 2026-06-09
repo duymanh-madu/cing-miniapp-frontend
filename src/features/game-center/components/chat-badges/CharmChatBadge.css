@@ -37,7 +37,7 @@
     inset 0 1px 0 rgba(255,255,255,.6),
     inset 0 -2px 0 rgba(0,0,0,.35);
   overflow: visible;
-  animation: charmBadgeShine 3s ease-in-out infinite;
+  animation: none;
 }
 
 .charm-chat-badge__body::before {
@@ -110,7 +110,7 @@
   width: 25%;
   transform: rotate(18deg);
   background: linear-gradient(90deg, transparent, rgba(255,255,255,.75), transparent);
-  animation: charmBadgeSweep 2.8s ease-in-out infinite;
+  display: none;
 }
 
 .charm-chat-badge__spark {
@@ -244,9 +244,7 @@
     0 0 54px rgba(255,190,220,.22),
     inset 0 1px 0 rgba(255,255,255,.72),
     inset 0 -2px 0 rgba(0,0,0,.35);
-  animation:
-    charmBadgeShine 2.1s ease-in-out infinite,
-    charmBadgePulse 1.8s ease-in-out infinite;
+  animation: charmBadgePulse 1.8s ease-in-out infinite;
 }
 
 .charm-chat-badge--minh-tinh .charm-chat-badge__orb {
@@ -308,5 +306,68 @@
 
   .charm-chat-badge__label {
     font-size: 10px;
+  }
+}
+
+
+.charm-chat-badge__mini-crowns {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.charm-chat-badge__mini-crowns span {
+  font-size: 8px;
+  line-height: 1;
+  color: #ffe7a0;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 8px rgba(255, 220, 130, .9),
+    0 0 14px rgba(255, 80, 160, .75);
+  animation: charmCrownTwinkle 1.45s ease-in-out infinite;
+}
+
+.charm-chat-badge__mini-crowns span:nth-child(1) {
+  transform: translateY(2px) rotate(-12deg);
+  animation-delay: 0s;
+  opacity: .78;
+}
+
+.charm-chat-badge__mini-crowns span:nth-child(2) {
+  font-size: 11px;
+  transform: translateY(-1px);
+  animation-delay: .18s;
+}
+
+.charm-chat-badge__mini-crowns span:nth-child(3) {
+  transform: translateY(2px) rotate(12deg);
+  animation-delay: .36s;
+  opacity: .78;
+}
+
+.charm-chat-badge--minh-tinh .charm-chat-badge__body::before {
+  background:
+    radial-gradient(circle at 35% 50%, rgba(255,255,255,.55), transparent 34%),
+    linear-gradient(90deg, transparent, rgba(255,170,220,.32), transparent);
+  opacity: .45;
+}
+
+@keyframes charmCrownTwinkle {
+  0%, 100% {
+    opacity: .55;
+    filter: brightness(1);
+    transform: translateY(2px) scale(.92);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.45);
+    transform: translateY(-1px) scale(1.08);
   }
 }
