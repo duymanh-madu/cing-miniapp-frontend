@@ -402,7 +402,7 @@ export default function CommunityChat({ onClose }) {
           )}
           {messages.map((m, i) => (
             <div key={i} style={{ display:"flex", flexDirection:"column", alignItems: isMe(m.userId)?"flex-end":"flex-start" }}>
-              {!isMe(m.userId) && <div style={{ display:"flex", alignItems:"center", gap:4, marginBottom:3, marginLeft:8,
+              {<div style={{ display:"flex", alignItems:"center", gap:4, marginBottom:3, marginLeft:8,
               cursor: /^(0|84)\d{8,10}$/.test(String(m.userId)) ? "pointer" : "default" }} onClick={() => {
                 if (/^(0|84)\d{8,10}$/.test(String(m.userId))) navigate(`/profile/${m.userId}`);
               }}>
