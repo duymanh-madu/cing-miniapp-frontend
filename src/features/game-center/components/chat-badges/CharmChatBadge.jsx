@@ -4,7 +4,7 @@ import "./CharmChatBadge.css";
 const CHARM_CHAT_BADGES = {
   idol: {
     label: "Idol",
-    shortLabel: "IDOL",
+    shortLabel: "Idol",
     level: 1,
     requirement: 5000,
     className: "charm-chat-badge--idol",
@@ -15,7 +15,7 @@ const CHARM_CHAT_BADGES = {
   },
   ngoi_sao: {
     label: "Ngôi Sao",
-    shortLabel: "STAR",
+    shortLabel: "Ngôi Sao",
     level: 2,
     requirement: 10000,
     className: "charm-chat-badge--ngoi-sao",
@@ -26,7 +26,7 @@ const CHARM_CHAT_BADGES = {
   },
   minh_tinh: {
     label: "Minh Tinh",
-    shortLabel: "QUEEN",
+    shortLabel: "Minh Tinh",
     level: 3,
     requirement: 20000,
     className: "charm-chat-badge--minh-tinh",
