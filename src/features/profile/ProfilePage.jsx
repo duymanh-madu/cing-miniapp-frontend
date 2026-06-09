@@ -407,7 +407,7 @@ export default function ProfilePage() {
               : activeBadge === "hof_3" ? { icon:"♦", text:"ĐỊA CHỦ", bg:"linear-gradient(90deg,#001c0a,#0caa55,#30cc70)", border:"#0caa55", shadow:"rgba(20,180,80,.7)", textColor:"#a0ffcc" }
               : null;
             return (
-              <div style={{ position:"relative", width:96, height:112, overflow:"visible", isolation:"isolate" }}>
+              <div style={{ position:"relative", width:96, height:96, overflow:"visible", isolation:"isolate" }}>
                 <div style={{ width:96, height:96, borderRadius:48, position:"relative", zIndex:1, border:`2.5px solid ${theme.accent}`, overflow:"hidden", background:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:38, fontWeight:900, color:"white", boxShadow:`0 4px 24px rgba(0,0,0,.4), 0 0 0 1px ${theme.border}` }}>
                   {avatarUrl
                     ? <img src={avatarUrl} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
