@@ -249,6 +249,8 @@ export default function ProfilePage() {
       // Merge avatar từ players table
       const playerAvatar = pRes?.data?.data?.avatar || null;
       const charmPoints = pRes?.data?.data?.charm_points || 0;
+      const selectedBadge = pRes?.data?.data?.selected_badge || null;
+      if (selectedBadge) setPrimaryBadge(selectedBadge);
       const customBadges = Array.isArray(pRes?.data?.data?.custom_badges)
         ? pRes.data.data.custom_badges
         : [];
@@ -520,7 +522,15 @@ export default function ProfilePage() {
             {showBadgePicker && (
               <div style={{ marginTop:8, background:"rgba(0,0,0,.4)", borderRadius:14, padding:12, border:"1px solid rgba(255,255,255,.1)" }}>
                 {ownedBadges.map(getBadgeOption).map(opt => (
-                  <div key={opt.key} onClick={() => { setPrimaryBadge(opt.key); setShowBadgePicker(false); }}
+                  <div key={opt.key} onClick={() => {
+                      setPrimaryBadge(opt.key);
+                      setShowBadgePicker(false);
+                      if (isOwn && resolvedPhone) {
+                        apiClient.patch(`/profile-update/profile/${resolvedPhone}/preferences`, {
+                          selected_badge: opt.key,
+                        }).catch(() => {});
+                      }
+                    }}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 12px", borderRadius:10, marginBottom:6, cursor:"pointer", border:activeBadge===opt.key?`1.5px solid ${opt.color}`:"1px solid rgba(255,255,255,.1)", background:activeBadge===opt.key?"rgba(255,255,255,.08)":"transparent" }}>
                     {["idol","ngoi_sao","minh_tinh"].includes(opt.key)
                       ? <CharmMiniBadge badgeKey={opt.key} size="sm"/>
