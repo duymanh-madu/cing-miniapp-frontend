@@ -9,10 +9,10 @@
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
-  margin: 0 -4px 0 0;
+  margin: 0 -12px 0 0;
   line-height: 1;
   isolation: isolate;
-  transform: translateY(-1px) scale(.68);
+  transform: translateY(-1px) scale(.62);
   transform-origin: center;
 }
 

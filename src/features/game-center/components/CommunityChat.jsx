@@ -356,7 +356,7 @@ export default function CommunityChat({ onClose }) {
       <div style={{ padding:"calc(env(safe-area-inset-top,0px) + 12px) 16px 12px", background:"#0d0d18", borderBottom:"1px solid rgba(255,215,0,0.15)", display:"flex", alignItems:"center", gap:12 }}>
         <button onClick={onClose} style={{ background:"none", border:"none", color:"#888", fontSize:22, cursor:"pointer" }}>←</button>
         <div style={{ flex:1 }}>
-          <p style={{ color:"#FFD700", fontSize:15, fontWeight:900, margin:0 }}>💬 Cộng đồng "Cing iu"</p>
+          <p style={{ color:"#FFD700", fontSize:15, fontWeight:1000, margin:0 }}>💬 Cộng đồng "Cing iu"</p>
           <p style={{ color:"#555", fontSize:11, margin:0 }}>{users.length} người đang online</p>
         </div>
         <button
@@ -409,7 +409,7 @@ export default function CommunityChat({ onClose }) {
               {(() => {
                 const cb = getCharmBadge(m.charmPoints);
                 return cb ? (
-                  <span style={{ fontSize:9, fontWeight:900, padding:"1px 6px", borderRadius:8, background:cb.bg, color:cb.color, border:`1px solid ${cb.color}55`, whiteSpace:"nowrap" }}>{cb.label}</span>
+                  <span style={{ fontSize:9, fontWeight:1000, padding:"1px 6px", borderRadius:8, background:cb.bg, color:cb.color, border:`1px solid ${cb.color}55`, whiteSpace:"nowrap" }}>{cb.label}</span>
                 ) : null;
               })()}
               <p style={{ color:"#888", fontSize:10, margin:0, textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", gap:4 }}>
@@ -423,7 +423,7 @@ export default function CommunityChat({ onClose }) {
             </div>}
               <div style={{ display:"flex", alignItems:"flex-end", gap:4, flexDirection: isMe(m.userId)?"row-reverse":"row" }}>
                 {!isMe(m.userId) && (
-                  <div style={{ width:28, height:28, borderRadius:14, background:"#1a1a2e", flexShrink:0, overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:900, color:"#666" }}>
+                  <div style={{ width:28, height:28, borderRadius:14, background:"#1a1a2e", flexShrink:0, overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:1000, color:"#666" }}>
                     {m.avatar ? <img src={m.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (m.name||"?")[0]}
                   </div>
                 )}
@@ -439,7 +439,7 @@ export default function CommunityChat({ onClose }) {
         <div style={{ flex:1, overflowY:"auto", padding:"12px 16px" }}>
           {users.map((u, i) => (
             <div key={i} style={{ display:"flex", alignItems:"center", gap:4, padding:"10px 0", borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
-              <div style={{ width:36, height:36, borderRadius:18, background:"#1a1a2e", overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:900, color:"#666", position:"relative" }}>
+              <div style={{ width:36, height:36, borderRadius:18, background:"#1a1a2e", overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:1000, color:"#666", position:"relative" }}>
                 {u.avatar ? <img src={u.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (u.name||"?")[0]}
                 <div style={{ position:"absolute", bottom:0, right:0, width:10, height:10, borderRadius:5, background:"#00c864", border:"2px solid #0d0d18" }}/>
               </div>
@@ -510,7 +510,7 @@ export default function CommunityChat({ onClose }) {
               <div style={{ width:36, height:36, borderRadius:10, background:"linear-gradient(135deg,#D4531C,#FF6B35)",
                 display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>📜</div>
               <div>
-                <p style={{ color:"#FFD700", fontSize:13, fontWeight:900, margin:0, letterSpacing:1 }}>NỘI QUY CỘNG ĐỒNG</p>
+                <p style={{ color:"#FFD700", fontSize:13, fontWeight:1000, margin:0, letterSpacing:1 }}>NỘI QUY CỘNG ĐỒNG</p>
                 <p style={{ color:"#888", fontSize:10, margin:0 }}>Cing Hu Tang Kinh Bắc</p>
               </div>
             </div>
@@ -524,7 +524,7 @@ export default function CommunityChat({ onClose }) {
           <div style={{ overflowY:"auto", flex:1, padding:"16px 20px 32px" }}>
             {RULES_TEXT.map((item, i) => {
               if (item.type === "intro") return (
-                <p key={i} style={{ color:"#FFD700", fontSize:16, fontWeight:900, margin:"0 0 12px",
+                <p key={i} style={{ color:"#FFD700", fontSize:16, fontWeight:1000, margin:"0 0 12px",
                   textAlign:"center", letterSpacing:0.5 }}>{item.text}</p>
               );
               if (item.type === "body") return (
@@ -537,7 +537,7 @@ export default function CommunityChat({ onClose }) {
                   border:"1px solid rgba(212,83,28,0.2)" }}>
                   <div style={{ width:28, height:28, borderRadius:8, background:"linear-gradient(135deg,#D4531C,#FF6B35)",
                     display:"flex", alignItems:"center", justifyContent:"center",
-                    color:"white", fontSize:13, fontWeight:900, flexShrink:0 }}>{item.num}</div>
+                    color:"white", fontSize:13, fontWeight:1000, flexShrink:0 }}>{item.num}</div>
                   <p style={{ color:"rgba(255,255,255,0.85)", fontSize:13, lineHeight:1.6, margin:0 }}>{item.text}</p>
                 </div>
               );
@@ -553,7 +553,7 @@ export default function CommunityChat({ onClose }) {
                   margin:"0 0 16px", textAlign:"justify", fontStyle:"italic" }}>{item.text}</p>
               );
               if (item.type === "sign") return (
-                <p key={i} style={{ color:"#D4531C", fontSize:14, fontWeight:900, margin:0,
+                <p key={i} style={{ color:"#D4531C", fontSize:14, fontWeight:1000, margin:0,
                   textAlign:"right", letterSpacing:0.5 }}>{item.text}</p>
               );
               return null;
