@@ -252,6 +252,7 @@ export default function CheckoutPage(){
         user_id:userId,
         customer_name:name.trim(),
         shipping_address:address.trim(),
+        note: note || "",
         payment_method:"momo",
         payment_status:"pending",
         status_code:"pending_payment",
@@ -290,6 +291,7 @@ export default function CheckoutPage(){
             customer_name: name.trim(),
             customer_phone: deductPhone,
             shipping_address: address.trim(),
+            note: note || "",
             shipping_fee: shipFee,
             items: items.map(i=>({
               item_id: i.id,
@@ -326,6 +328,7 @@ export default function CheckoutPage(){
           shipping_address: address.trim(),
           shipping_fee: shipFee,
           points_used: pointsToUse,
+          note: note || "",
         },
         shipping_address: address.trim(),
         order_id: orderId,
