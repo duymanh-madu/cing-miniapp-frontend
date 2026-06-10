@@ -1,3 +1,4 @@
+import SystemRoleBadge from "@/components/system-badges/SystemRoleBadge";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
@@ -587,4 +588,18 @@ export default function CommunityChat({ onClose }) {
     )}
     </>
   );
+
+  useEffect(() => {
+    const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
+    fetch(`${base}/admin/auth/system-badges`)
+      .then(r => r.json())
+      .then(r => setSystemBadges(r?.data || {}))
+      .catch(() => {});
+  }, []);
+
+  const getSystemBadge = (uid) => {
+    const id = String(uid || "").replace(/\D/g, "").replace(/^84/, "0");
+    return systemBadges?.[id]?.badge || null;
+  };
+
 }
