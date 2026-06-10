@@ -38,7 +38,7 @@ export default function ChessLeaderboard({ onClose }) {
   })();
 
   const goProfile = (uid) => {
-    if (uid && uid !== myPhone) { onClose(); setTimeout(() => navigate(`/profile/${uid}`), 150); }
+    if (uid) { onClose(); setTimeout(() => navigate(`/profile/${uid}`), 150); }
   };
 
   const fetchData = () => {
@@ -182,11 +182,11 @@ export default function ChessLeaderboard({ onClose }) {
               const isMe = e.user_id === myPhone;
               const val  = tab === "wins" ? e.wins : e.best_streak;
               return (
-                <div key={i} onClick={() => !isMe && goProfile(e.user_id)}
+                <div key={i} onClick={() => goProfile(e.user_id)}
                   style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 16px",
                     borderBottom:"1px solid rgba(255,255,255,0.04)",
                     background: isMe ? "rgba(212,83,28,0.08)" : "transparent",
-                    cursor: isMe ? "default" : "pointer" }}>
+                    cursor:"pointer" }}>
                   <span style={{ color:"rgba(255,255,255,0.3)", fontSize:13, fontWeight:700,
                     width:28, textAlign:"center", flexShrink:0 }}>{i+4}</span>
                   <div style={{ width:36, height:36, borderRadius:18, flexShrink:0, overflow:"hidden",

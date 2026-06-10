@@ -197,11 +197,11 @@ export default function GameLeaderboard({ gameKey, onClose }) {
             {rest.map((entry, i) => {
               const isMe = phone && String(entry.user_id) === phone;
               return (
-                <div key={i} onClick={() => { if (!isMe && entry.user_id) goProfile(entry.user_id); }}
+                <div key={i} onClick={() => goProfile(entry.user_id)}
                   style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 16px",
                     borderBottom:"1px solid rgba(255,255,255,0.04)",
                     background: isMe ? "rgba(255,215,0,0.06)" : "transparent",
-                    cursor: isMe ? "default" : "pointer" }}>
+                    cursor:"pointer" }}>
                   <span style={{ color:"rgba(255,255,255,0.3)", fontSize:13, fontWeight:700, width:28, textAlign:"center", flexShrink:0 }}>{i+4}</span>
                   <div style={{ width:36, height:36, borderRadius:18, flexShrink:0, overflow:"hidden",
                     background:"linear-gradient(135deg,#1a0a2e,#2d1254)",

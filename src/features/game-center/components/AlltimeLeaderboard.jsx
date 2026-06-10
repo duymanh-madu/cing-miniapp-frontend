@@ -120,7 +120,7 @@ export default function AlltimeLeaderboard({ onClose }) {
 
                 {/* Hạng 2 */}
                 {top3[1] && (
-                  <div onClick={() => String(top3[1].user_id)!==myId && goProfile(top3[1].user_id)}
+                  <div onClick={() => goProfile(top3[1].user_id)}
                     style={{ flex:1, textAlign:"center", cursor:"pointer", paddingBottom:0 }}>
                     <div style={{ width:58, height:58, borderRadius:29, margin:"0 auto 6px",
                       border:"2px solid #C0C0C0", overflow:"hidden",
@@ -145,7 +145,7 @@ export default function AlltimeLeaderboard({ onClose }) {
                 )}
 
                 {/* Hạng 1 */}
-                <div onClick={() => String(top3[0].user_id)!==myId && goProfile(top3[0].user_id)}
+                <div onClick={() => goProfile(top3[0].user_id)}
                   style={{ flex:1, textAlign:"center", cursor:"pointer", transform:"translateY(-20px)" }}>
                   <div style={{fontSize:26,marginBottom:4,filter:"drop-shadow(0 0 8px rgba(255,215,0,0.8))"}}>👑</div>
                   <div style={{ width:76, height:76, borderRadius:38, margin:"0 auto 6px",
@@ -174,7 +174,7 @@ export default function AlltimeLeaderboard({ onClose }) {
 
                 {/* Hạng 3 */}
                 {top3[2] && (
-                  <div onClick={() => String(top3[2].user_id)!==myId && goProfile(top3[2].user_id)}
+                  <div onClick={() => goProfile(top3[2].user_id)}
                     style={{ flex:1, textAlign:"center", cursor:"pointer" }}>
                     <div style={{ width:58, height:58, borderRadius:29, margin:"0 auto 6px",
                       border:"2px solid #CD7F32", overflow:"hidden",
@@ -211,11 +211,11 @@ export default function AlltimeLeaderboard({ onClose }) {
             {rest.map((e, i) => {
               const isMe = String(e.user_id) === String(myId);
               return (
-                <div key={i} onClick={() => !isMe && goProfile(e.user_id)}
+                <div key={i} onClick={() => goProfile(e.user_id)}
                   style={{ display:"flex", alignItems:"center", gap:12,
                     padding:"10px 16px", borderBottom:"1px solid rgba(255,255,255,0.04)",
                     background: isMe ? "rgba(212,83,28,0.08)" : "transparent",
-                    cursor: isMe ? "default" : "pointer" }}>
+                    cursor:"pointer" }}>
                   <span style={{ color:"rgba(255,255,255,0.3)", fontSize:13, fontWeight:700,
                     width:28, textAlign:"center", flexShrink:0 }}>{e.rank}</span>
                   <div style={{ width:36, height:36, borderRadius:18, flexShrink:0,
