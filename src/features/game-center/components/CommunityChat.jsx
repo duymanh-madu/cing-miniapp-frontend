@@ -414,7 +414,18 @@ export default function CommunityChat({ onClose }) {
               })()}
               <p style={{ color:"#888", fontSize:10, margin:0, textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", gap:4 }}>
                 {m.charmBadgeKey && <CharmChatBadge badgeKey={m.charmBadgeKey} compact={true}/>}
-                <span>{m.name}</span>
+                <span style={{
+                  color:"#f4f4f6",
+                  fontSize:15,
+                  fontWeight:900,
+                  textShadow:"0 1px 5px rgba(0,0,0,.85)",
+                  maxWidth:86,
+                  overflow:"hidden",
+                  textOverflow:"ellipsis",
+                  whiteSpace:"nowrap",
+                  display:"inline-block",
+                  verticalAlign:"middle"
+                }}>{m.name}</span>
               </p>
               <TierBadge tierKey={m.tierKey || "member"} size="sm"/>
               {championId && String(m.userId) === championId && (
@@ -451,7 +462,19 @@ export default function CommunityChat({ onClose }) {
                 <p style={{ color: isMe(u.userId)?"#FFD700":"white", fontSize:13, fontWeight:700, margin:0,
                   textDecoration: isMe(u.userId)?"none":"underline", textDecorationColor:"rgba(255,255,255,.2)" }}>
                   {u.charmBadgeKey && <CharmChatBadge badgeKey={u.charmBadgeKey} compact={true}/>}
-                  <span>{u.name}{isMe(u.userId)?" (bạn)":""}</span>
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (/^(0|84)\d{8,10}$/.test(String(u.userId))) navigate(`/profile/${u.userId}`);
+                    }}
+                    style={{
+                      color:isMe(u.userId)?"#FFD700":"#f4f4f6",
+                      fontSize:16,
+                      fontWeight:950,
+                      textShadow:"0 1px 6px rgba(0,0,0,.9)",
+                      cursor:/^(0|84)\d{8,10}$/.test(String(u.userId)) ? "pointer" : "default"
+                    }}
+                  >{u.name}{isMe(u.userId)?" (bạn)":""}</span>
                 </p>
                 <TierBadge tierKey={u.tierKey || "member"} size="sm"/>
                 {championId && String(u.userId) === championId && (
