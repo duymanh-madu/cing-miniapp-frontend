@@ -131,7 +131,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
         ) : (
           <>
             {/* Top 3 podium */}
-            {top3.length >= 3 && (
+            {top3.length >= 1 && (
               <div style={{ padding:"24px 16px 16px", display:"flex", alignItems:"flex-end",
                 justifyContent:"center", gap:12 }}>
                 {/* Hạng 2 */}

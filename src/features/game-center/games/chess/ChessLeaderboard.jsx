@@ -60,6 +60,7 @@ export default function ChessLeaderboard({ onClose }) {
   const list = tab === "wins" ? (data?.topWins||[]) : (data?.topStreak||[]);
   const top3 = list.slice(0,3);
   const rest = list.slice(3);
+  const myEntry = list.find(e => e.user_id === myPhone);
 
   return (
     <div style={{ position:"fixed", inset:0, zIndex:200,
@@ -94,6 +95,20 @@ export default function ChessLeaderboard({ onClose }) {
             }}>{t.label}</button>
           ))}
         </div>
+
+        {/* Hạng của bạn */}
+        {myEntry && (
+          <div style={{ margin:"0 16px 12px", padding:"8px 14px",
+            background:"rgba(212,83,28,0.12)", border:"1px solid rgba(212,83,28,0.3)",
+            borderRadius:12, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <span style={{ color:"rgba(255,255,255,0.5)", fontSize:12 }}>Hạng của bạn</span>
+            <span style={{ color:"#D4531C", fontSize:14, fontWeight:900 }}>
+              #{myEntry.rank} · {tab==="wins" ? `${myEntry.wins} trận thắng` : `Chuỗi ${myEntry.best_streak}`}
+            </span>
+          </div>
+        )}
+
+        <div style={{ height:1, background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.15),transparent)", margin:"0 16px" }}/>
       </div>
 
       {/* Content */}
