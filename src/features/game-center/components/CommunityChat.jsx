@@ -16,6 +16,7 @@ export default function CommunityChat({ onClose }) {
   const [messages,   setMessages]   = useState([]);
   const [input,      setInput]      = useState("");
   const [users,      setUsers]      = useState([]);
+  const [systemBadges, setSystemBadges] = useState({});
   const [voiceState, setVoiceState] = useState("idle");
   const [speaker,    setSpeaker]    = useState(null);
   const [tab,        setTab]        = useState("chat");
@@ -86,7 +87,20 @@ export default function CommunityChat({ onClose }) {
       })
       .catch(() => {});
 
-    return () => {
+    useEffect(() => {
+    const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
+    fetch(`${base}/admin/auth/system-badges`)
+      .then(r => r.json())
+      .then(r => setSystemBadges(r?.data || {}))
+      .catch(() => {});
+  }, []);
+
+  const getSystemBadge = (uid) => {
+    const id = String(uid || "").replace(/\D/g, "").replace(/^84/, "0");
+    return systemBadges?.[id]?.badge || null;
+  };
+
+  return () => {
       cancelled = true;
     };
   }, [memberPhone]);
@@ -588,18 +602,5 @@ export default function CommunityChat({ onClose }) {
     )}
     </>
   );
-
-  useEffect(() => {
-    const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
-    fetch(`${base}/admin/auth/system-badges`)
-      .then(r => r.json())
-      .then(r => setSystemBadges(r?.data || {}))
-      .catch(() => {});
-  }, []);
-
-  const getSystemBadge = (uid) => {
-    const id = String(uid || "").replace(/\D/g, "").replace(/^84/, "0");
-    return systemBadges?.[id]?.badge || null;
-  };
 
 }
