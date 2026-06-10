@@ -15,7 +15,7 @@ export default function AdminMembers({ token }) {
   const [newName, setNewName] = useState("");
 
   useEffect(() => {
-    apiClient.get("/admin/monitor/members-list", { headers:{ Authorization:`Bearer ${token}` } })
+    apiClient.get("/admin/monitor/members-list?activated_only=true", { headers:{ Authorization:`Bearer ${token}` } })
       .then(r => setMembers(r.data?.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -159,14 +159,28 @@ export default function AdminMembers({ token }) {
             const isBlocked = m.is_blocked;
             const chatLocked = m.chat_locked_until && new Date(m.chat_locked_until) > new Date();
             return (
-              <div key={m.user_id} style={{ display:"grid", gridTemplateColumns:"1fr 1fr 80px 80px 100px", gap:8, padding:"10px 16px", background:"#1a1a24", borderRadius:10, border:"1px solid #2a2a38", alignItems:"center" }}>
+              <div key={m.user_id} style={{ background:"#1a1a24", borderRadius:10, border:"1px solid #2a2a38", padding:"12px 16px" }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 80px 80px 100px", gap:8, alignItems:"center" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                  <div style={{ width:30, height:30, borderRadius:"50%", background:"#2a2a38", display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, flexShrink:0, overflow:"hidden" }}>
-                    {m.zalo_avatar ? <img src={m.zalo_avatar} style={{ width:30, height:30, objectFit:"cover" }}/> : "👤"}
+                  <div style={{ width:36, height:36, borderRadius:"50%", background:"#2a2a38", display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, flexShrink:0, overflow:"hidden", border:"2px solid #333" }}>
+                    {m.zalo_avatar ? <img src={m.zalo_avatar} style={{ width:36, height:36, objectFit:"cover" }}/> : "👤"}
                   </div>
-                  <span style={{ fontSize:12, fontWeight:700, color:"white" }}>{m.zalo_name || "—"}</span>
+                  <div>
+                    <p style={{ fontSize:12, fontWeight:800, color:"white", margin:0 }}>{m.zalo_name || "—"}</p>
+                    <p style={{ fontSize:10, color:"#FFD700", margin:0, fontWeight:700 }}>
+                      {{"member":"🌱 Hội viên","loyal":"💚 Thân thiết","silver":"🥈 Bạc","gold":"🥇 Vàng","diamond":"💎 Kim cương","partner":"🤝 Đối tác","loyal_partner":"👑 Đối tác VIP"}[m.crm_tier] || "🌱 Hội viên"}
+                    </p>
+                  </div>
                 </div>
-                <span style={{ fontSize:11, color:"#888" }}>{m.user_id}</span>
+                <div>
+                  <p style={{ fontSize:11, color:"#888", margin:"0 0 2px" }}>{m.user_id}</p>
+                  <p style={{ fontSize:10, color:"#4CAF50", margin:0, fontWeight:700 }}>
+                    💰 {(m.crm_spend_alltime||0).toLocaleString("vi-VN")}đ alltime
+                  </p>
+                  <p style={{ fontSize:10, color:"#aaa", margin:0 }}>
+                    📅 {(m.crm_spend_monthly||0).toLocaleString("vi-VN")}đ tháng này
+                  </p>
+                </div>
                 <span style={{ fontSize:11, fontWeight:700, color: isBlocked ? "#f44336" : "#4CAF50" }}>
                   {isBlocked ? "🔒 Khoá" : "✓ OK"}
                 </span>
@@ -191,6 +205,14 @@ export default function AdminMembers({ token }) {
                       </button>
                     </>
                   )}
+                </div>
+                </div>
+                {/* Identity badges */}
+                <div style={{ display:"flex", gap:6, marginTop:8, flexWrap:"wrap" }}>
+                  {m.charm_points > 0 && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:10, background:"rgba(255,128,176,0.15)", color:"#ff80b0", border:"1px solid rgba(255,128,176,0.3)", fontWeight:700 }}>✨ {(m.charm_points||0).toLocaleString()} charm</span>}
+                  {m.total_points > 0 && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:10, background:"rgba(255,215,0,0.1)", color:"#FFD700", border:"1px solid rgba(255,215,0,0.3)", fontWeight:700 }}>⭐ {(m.total_points||0).toLocaleString()} điểm</span>}
+                  {m.game_plays > 0 && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:10, background:"rgba(33,150,243,0.1)", color:"#64b5f6", border:"1px solid rgba(33,150,243,0.3)", fontWeight:700 }}>🎮 {m.game_plays} lượt</span>}
+                  {m.member_activated && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:10, background:"rgba(76,175,80,0.1)", color:"#4CAF50", border:"1px solid rgba(76,175,80,0.3)", fontWeight:700 }}>✅ Đã kích hoạt</span>}
                 </div>
               </div>
             );
