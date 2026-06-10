@@ -251,8 +251,7 @@ export default function GameCenterPage() {
   }
 
   return (
-    <div style={{ height:"100vh", display:"flex", flexDirection:"column", background:"linear-gradient(180deg,#0a0a0f 0%,#12071a 50%,#0d0d1a 100%)" }}>
-      <div style={{ position:"sticky", top:0, zIndex:10, background:"linear-gradient(180deg,#0a0a0f,#12071a)" }}>
+    <div style={{ minHeight:"100vh", background:"linear-gradient(180deg,#0a0a0f 0%,#12071a 50%,#0d0d1a 100%)", paddingBottom:100 }}>
       {/* HEADER */}
       <div style={{ padding:"16px 20px 16px", paddingTop:"max(env(safe-area-inset-top,0px) + 12px, 52px)", textAlign:"center" }}>
         <p style={{ color:"rgba(255,215,0,0.6)", fontSize:11, letterSpacing:4, fontWeight:700, margin:"0 0 6px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
@@ -260,8 +259,7 @@ export default function GameCenterPage() {
         <button onClick={() => requireMember(() => setShowAlltimeLB(true))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"7px 14px", fontSize:12, fontWeight:800, cursor:"pointer", marginTop:8 }}>🏆 Kỷ lục alltime</button>
         <p style={{ color:"rgba(255,255,255,0.3)", fontSize:12, margin:"6px 0 0" }}>Nơi các Cing iu thoả sức so tài</p>
       </div>
-      </div>
-      <div style={{ flex:1, overflowY:"auto", paddingBottom:100 }}>
+
 
       {/* DAILY CHALLENGE */}
       {MemberPrompt}
@@ -404,7 +402,6 @@ export default function GameCenterPage() {
       )}
       {/* Community Chat Button — draggable */}
       <DraggableChatButton onClick={() => requireMember(() => setShowChat(true))} />
-      </div>
     </div>
   );
 }

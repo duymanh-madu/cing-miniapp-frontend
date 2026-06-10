@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
+import { useNavigate } from "react-router-dom";
 
 function getPhone() {
   const sources = [
@@ -25,6 +26,7 @@ export default function ChessLeaderboard({ onClose }) {
   const [loading, setLoading] = useState(true);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const profilePhone = useAuthStore(s => s.profile?.phone);
+  const navigate = useNavigate();
 
   const myPhone = (() => {
     for (const src of [runtimePhone, profilePhone]) {
@@ -34,6 +36,10 @@ export default function ChessLeaderboard({ onClose }) {
     }
     return "";
   })();
+
+  const goProfile = (uid) => {
+    if (uid && uid !== myPhone) { onClose(); setTimeout(() => navigate(`/profile/${uid}`), 150); }
+  };
 
   const fetchData = () => {
     setLoading(true);
@@ -51,118 +57,159 @@ export default function ChessLeaderboard({ onClose }) {
     return () => s.disconnect();
   }, []);
 
-  const list   = tab === "wins" ? data?.topWins : data?.topStreak;
-  const myEntry = list?.find(e => String(e.user_id) === myPhone);
-  const myRank  = myEntry?.rank;
+  const list = tab === "wins" ? (data?.topWins||[]) : (data?.topStreak||[]);
+  const top3 = list.slice(0,3);
+  const rest = list.slice(3);
 
   return (
-    <>
-      <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.85)", zIndex:100 }}/>
-      <div style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:101,
-        background:"linear-gradient(180deg,#0d0d14,#080810)",
-        borderRadius:"24px 24px 0 0", maxHeight:"88vh",
-        display:"flex", flexDirection:"column",
-        border:"1px solid rgba(255,215,0,0.15)" }}>
+    <div style={{ position:"fixed", inset:0, zIndex:200,
+      background:"linear-gradient(180deg,#050208 0%,#0d0520 50%,#050208 100%)",
+      display:"flex", flexDirection:"column" }}>
 
-        <div style={{ width:40, height:4, background:"rgba(255,255,255,0.15)", borderRadius:2, margin:"12px auto 4px" }}/>
-
-        {/* Header */}
-        <div style={{ padding:"12px 20px 0", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
-            <div>
-              <p style={{ color:"#FFD700", fontSize:10, fontWeight:800, margin:"0 0 2px", letterSpacing:3 }}>BẢNG XẾP HẠNG</p>
-              <p style={{ color:"white", fontSize:17, fontWeight:900, margin:0 }}>♟ Kỳ thủ cờ vua</p>
-            </div>
-            <button onClick={onClose} style={{ background:"rgba(255,255,255,0.08)", border:"none", color:"white", borderRadius:10, width:32, height:32, cursor:"pointer", fontSize:16 }}>✕</button>
+      {/* Header */}
+      <div style={{ background:"linear-gradient(180deg,#050208,#0d0520)", flexShrink:0,
+        paddingTop:"max(env(safe-area-inset-top,0px) + 8px, 48px)",
+        paddingBottom:0, borderBottom:"1px solid rgba(255,215,0,0.1)" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12, padding:"0 16px 12px" }}>
+          <button onClick={onClose} style={{ background:"rgba(255,255,255,0.06)",
+            border:"1px solid rgba(255,255,255,0.1)", color:"white",
+            borderRadius:12, width:38, height:38, cursor:"pointer", fontSize:18,
+            display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
+          <div style={{ flex:1, textAlign:"center" }}>
+            <p style={{ color:"rgba(255,215,0,0.6)", fontSize:10, fontWeight:800,
+              letterSpacing:3, margin:"0 0 2px", textTransform:"uppercase" }}>BXH CỜ VUA</p>
+            <h1 style={{ color:"white", fontSize:18, fontWeight:900, margin:0 }}>Kỳ thủ cờ vua ♟️</h1>
           </div>
-
-          {/* Tabs */}
-          <div style={{ display:"flex", gap:8, paddingBottom:12 }}>
-            {[
-              { key:"wins",   label:"🏆 Thắng nhiều nhất" },
-              { key:"streak", label:"🔥 Chuỗi thắng dài nhất" },
-            ].map(t => (
-              <button key={t.key} onClick={() => setTab(t.key)} style={{
-                flex:1, padding:"8px", borderRadius:10,
-                border: tab===t.key ? "none" : "1px solid rgba(255,255,255,0.1)",
-                background: tab===t.key ? "linear-gradient(135deg,#8B6914,#FFD700)" : "rgba(255,255,255,0.04)",
-                color: tab===t.key ? "#1a0a00" : "#888",
-                fontSize:11, fontWeight:tab===t.key?900:500, cursor:"pointer"
-              }}>{t.label}</button>
-            ))}
-          </div>
-
-          {/* My rank */}
-          {myRank && myEntry && (
-            <div style={{ marginBottom:12, padding:"10px 14px", background:"rgba(212,83,28,0.12)", borderRadius:12, border:"1px solid rgba(212,83,28,0.3)", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-              <div>
-                <p style={{ color:"rgba(255,255,255,0.5)", fontSize:10, margin:"0 0 2px" }}>Hạng của bạn</p>
-                <p style={{ color:"white", fontSize:13, fontWeight:800, margin:0 }}>{myEntry.name}</p>
-              </div>
-              <div style={{ textAlign:"right" }}>
-                <p style={{ color:"#D4531C", fontSize:20, fontWeight:900, margin:0 }}>#{myRank}</p>
-                <p style={{ color:"rgba(255,255,255,0.3)", fontSize:10, margin:0 }}>
-                  {tab==="wins" ? `${myEntry.wins} thắng` : `${myEntry.best_streak} chuỗi`}
-                </p>
-              </div>
-            </div>
-          )}
+          <div style={{ width:38 }}/>
         </div>
 
-        {/* List */}
-        <div style={{ overflowY:"auto", flex:1, WebkitOverflowScrolling:"touch", padding:"12px 16px 20px" }}>
-          {loading ? (
-            <p style={{ color:"#666", textAlign:"center", padding:40 }}>Đang tải...</p>
-          ) : !list?.length ? (
-            <div style={{ textAlign:"center", padding:40 }}>
-              <p style={{ fontSize:36, margin:"0 0 8px" }}>♟</p>
-              <p style={{ color:"#666" }}>Chưa có dữ liệu. Hãy chơi để xếp hạng!</p>
-            </div>
-          ) : list.map((entry, i) => {
-            const isMe = myPhone && String(entry.user_id) === myPhone;
-            return (
-              <div key={i} style={{
-                display:"flex", alignItems:"center", gap:10,
-                padding:"10px 14px", borderRadius:12, marginBottom:6,
-                background: isMe ? "rgba(212,83,28,0.08)" : i<3 ? (i===0?"rgba(255,215,0,0.08)":i===1?"rgba(192,192,192,0.05)":"rgba(205,127,50,0.05)") : "rgba(255,255,255,0.02)",
-                border: `1px solid ${isMe?"rgba(212,83,28,0.3)":i<3?(i===0?"rgba(255,215,0,0.25)":i===1?"rgba(192,192,192,0.15)":"rgba(205,127,50,0.15)"):"rgba(255,255,255,0.04)"}`,
-              }}>
-                <span style={{ fontSize:i<3?20:13, width:28, textAlign:"center",
-                  color:i===0?"#FFD700":i===1?"#C0C0C0":i===2?"#CD7F32":"rgba(255,255,255,0.3)", fontWeight:700 }}>
-                  {i<3 ? MEDAL[i] : `Top ${i+1}`}
-                </span>
-                <div style={{ width:34, height:34, borderRadius:17, flexShrink:0, overflow:"hidden",
-                  background:"linear-gradient(135deg,#1a0a2e,#2d1254)",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  fontSize:14, fontWeight:900, color:"rgba(255,255,255,0.4)" }}>
-                  {entry.avatar
-                    ? <img src={entry.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                    : (entry.name||"?")[0]?.toUpperCase()}
-                </div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <p style={{ color:isMe?"#FFD700":"white", fontSize:13, fontWeight:700, margin:0,
-                    overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
-                    {entry.name}{isMe?" (bạn)":""}
-                  </p>
-                  <p style={{ color:"#666", fontSize:10, margin:0 }}>
-                    {tab==="wins"
-                      ? `${entry.total_games} trận · ${entry.winRate}% thắng`
-                      : `${entry.total_games} trận · chuỗi hiện tại ${entry.current_streak}`}
-                  </p>
-                </div>
-                <div style={{ textAlign:"right" }}>
-                  <p style={{ color:i===0?"#FFD700":i===1?"#C0C0C0":i===2?"#CD7F32":"rgba(255,215,0,0.6)", fontSize:16, fontWeight:900, margin:0 }}>
-                    {tab==="wins" ? entry.wins : entry.best_streak}
-                  </p>
-                  <p style={{ color:"rgba(255,255,255,0.25)", fontSize:9, margin:0 }}>
-                    {tab==="wins" ? "thắng" : "liên tiếp"}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
+        {/* Tabs */}
+        <div style={{ display:"flex", gap:8, padding:"0 16px 12px" }}>
+          {[{k:"wins",label:"🏆 Thắng nhiều nhất"},{k:"streak",label:"🔥 Chuỗi thắng dài nhất"}].map(t => (
+            <button key={t.k} onClick={() => setTab(t.k)} style={{
+              flex:1, padding:"8px", borderRadius:12, border:"none", cursor:"pointer",
+              background: tab===t.k ? "linear-gradient(135deg,#D4531C,#ff6b35)" : "rgba(255,255,255,0.06)",
+              color:"white", fontSize:12, fontWeight: tab===t.k ? 900 : 500,
+              boxShadow: tab===t.k ? "0 4px 12px rgba(212,83,28,0.4)" : "none",
+            }}>{t.label}</button>
+          ))}
         </div>
       </div>
-    </>
+
+      {/* Content */}
+      <div style={{ flex:1, overflowY:"auto", WebkitOverflowScrolling:"touch" }}>
+        {loading ? (
+          <div style={{ padding:"60px", textAlign:"center", color:"rgba(255,255,255,0.3)" }}>Đang tải...</div>
+        ) : list.length === 0 ? (
+          <div style={{ padding:"60px 24px", textAlign:"center", color:"rgba(255,255,255,0.3)" }}>
+            <div style={{ fontSize:48, marginBottom:12 }}>♟️</div>
+            <p>Chưa có dữ liệu. Hãy chơi để xếp hạng!</p>
+          </div>
+        ) : (
+          <>
+            {/* Podium top 3 */}
+            {top3.length >= 1 && (
+              <div style={{ padding:"24px 16px 16px", display:"flex", alignItems:"flex-end",
+                justifyContent:"center", gap:10 }}>
+
+                {/* Hạng 2 */}
+                {top3[1] && (
+                  <div onClick={() => goProfile(top3[1].user_id)}
+                    style={{ flex:1, textAlign:"center", cursor:"pointer" }}>
+                    <div style={{ width:58, height:58, borderRadius:29, margin:"0 auto 6px",
+                      border:"2px solid #C0C0C0", overflow:"hidden",
+                      background:"linear-gradient(135deg,#333,#777)",
+                      boxShadow:"0 0 12px rgba(192,192,192,0.3)" }}>
+                      {top3[1].avatar
+                        ? <img src={top3[1].avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                        : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#C0C0C0",fontSize:22,fontWeight:900}}>{(top3[1].name||"?")[0]}</div>}
+                    </div>
+                    <p style={{fontSize:11,color:"#C0C0C0",fontWeight:800,margin:"0 0 3px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:85,marginLeft:"auto",marginRight:"auto"}}>{top3[1].name||"?"}</p>
+                    <div style={{background:"rgba(192,192,192,0.12)",borderRadius:8,padding:"3px 8px",display:"inline-block",border:"1px solid rgba(192,192,192,0.25)"}}>
+                      <span style={{color:"#C0C0C0",fontSize:11,fontWeight:900}}>🥈 {tab==="wins"?top3[1].wins:top3[1].best_streak}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hạng 1 */}
+                <div onClick={() => goProfile(top3[0].user_id)}
+                  style={{ flex:1, textAlign:"center", cursor:"pointer", transform:"translateY(-20px)" }}>
+                  <div style={{fontSize:26,marginBottom:4,filter:"drop-shadow(0 0 8px rgba(255,215,0,0.8))"}}>👑</div>
+                  <div style={{ width:76, height:76, borderRadius:38, margin:"0 auto 6px",
+                    border:"3px solid #FFD700", overflow:"hidden",
+                    background:"linear-gradient(135deg,#5a3a00,#c09000)",
+                    boxShadow:"0 0 24px rgba(255,215,0,0.6), 0 0 48px rgba(255,215,0,0.2)" }}>
+                    {top3[0].avatar
+                      ? <img src={top3[0].avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                      : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#FFD700",fontSize:28,fontWeight:900}}>{(top3[0].name||"?")[0]}</div>}
+                  </div>
+                  <p style={{fontSize:13,color:"#FFD700",fontWeight:900,margin:"0 0 4px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:95,marginLeft:"auto",marginRight:"auto",textShadow:"0 0 8px rgba(255,215,0,0.6)"}}>{top3[0].name||"?"}</p>
+                  <div style={{background:"rgba(255,215,0,0.15)",borderRadius:8,padding:"4px 12px",display:"inline-block",border:"1px solid rgba(255,215,0,0.4)",boxShadow:"0 0 10px rgba(255,215,0,0.2)"}}>
+                    <span style={{color:"#FFD700",fontSize:13,fontWeight:900}}>🥇 {tab==="wins"?top3[0].wins:top3[0].best_streak}</span>
+                  </div>
+                </div>
+
+                {/* Hạng 3 */}
+                {top3[2] && (
+                  <div onClick={() => goProfile(top3[2].user_id)}
+                    style={{ flex:1, textAlign:"center", cursor:"pointer" }}>
+                    <div style={{ width:58, height:58, borderRadius:29, margin:"0 auto 6px",
+                      border:"2px solid #CD7F32", overflow:"hidden",
+                      background:"linear-gradient(135deg,#3a2000,#7a5020)",
+                      boxShadow:"0 0 12px rgba(205,127,50,0.3)" }}>
+                      {top3[2].avatar
+                        ? <img src={top3[2].avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                        : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#CD7F32",fontSize:22,fontWeight:900}}>{(top3[2].name||"?")[0]}</div>}
+                    </div>
+                    <p style={{fontSize:11,color:"#CD7F32",fontWeight:800,margin:"0 0 3px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:85,marginLeft:"auto",marginRight:"auto"}}>{top3[2].name||"?"}</p>
+                    <div style={{background:"rgba(205,127,50,0.12)",borderRadius:8,padding:"3px 8px",display:"inline-block",border:"1px solid rgba(205,127,50,0.25)"}}>
+                      <span style={{color:"#CD7F32",fontSize:11,fontWeight:900}}>🥉 {tab==="wins"?top3[2].wins:top3[2].best_streak}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Divider */}
+            <div style={{display:"flex",alignItems:"center",gap:10,padding:"0 16px 12px"}}>
+              <div style={{flex:1,height:1,background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.2))"}}/>
+              <span style={{color:"rgba(255,215,0,0.5)",fontSize:10,fontWeight:800,letterSpacing:2}}>TOP 4-100</span>
+              <div style={{flex:1,height:1,background:"linear-gradient(90deg,rgba(255,215,0,0.2),transparent)"}}/>
+            </div>
+
+            {/* Rest */}
+            {rest.map((e, i) => {
+              const isMe = e.user_id === myPhone;
+              const val  = tab === "wins" ? e.wins : e.best_streak;
+              return (
+                <div key={i} onClick={() => !isMe && goProfile(e.user_id)}
+                  style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 16px",
+                    borderBottom:"1px solid rgba(255,255,255,0.04)",
+                    background: isMe ? "rgba(212,83,28,0.08)" : "transparent",
+                    cursor: isMe ? "default" : "pointer" }}>
+                  <span style={{ color:"rgba(255,255,255,0.3)", fontSize:13, fontWeight:700,
+                    width:28, textAlign:"center", flexShrink:0 }}>{i+4}</span>
+                  <div style={{ width:36, height:36, borderRadius:18, flexShrink:0, overflow:"hidden",
+                    background: isMe ? "linear-gradient(135deg,#D4531C,#ff6b35)" : "linear-gradient(135deg,#1a0a2e,#2d1254)",
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:14, fontWeight:900, color: isMe?"white":"rgba(255,255,255,0.4)" }}>
+                    {e.avatar ? <img src={e.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (e.name||"?")[0]?.toUpperCase()}
+                  </div>
+                  <p style={{ flex:1, color: isMe?"#FFD700":"white", fontSize:13,
+                    fontWeight: isMe?800:600, margin:0,
+                    overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
+                    {e.name||"Ẩn danh"}{isMe?" (bạn)":""}
+                  </p>
+                  <span style={{ color: isMe?"#D4531C":"rgba(255,215,0,0.6)", fontSize:13, fontWeight:900, flexShrink:0 }}>
+                    {val} {tab==="wins"?"trận":"chuỗi"}
+                  </span>
+                </div>
+              );
+            })}
+            <div style={{height:40}}/>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
