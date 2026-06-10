@@ -23,12 +23,17 @@ function calcShipFee(sub, km, tiers) {
   if (km >= 10) return -1; // ngoài vùng → liên hệ
   if (km < 2)   return 0;  // gần → miễn phí
 
-  // Dùng shipping_tiers từ config nếu có
+  // Dùng shipping_tiers từ config — match theo cả km VÀ giá trị đơn
   if (tiers && tiers.length > 0) {
-    const tier = tiers.find(t => sub >= (t.min_order||0) && sub <= (t.max_order||999999999));
+    const tier = tiers.find(t =>
+      km  >= (t.min_km    ?? 0)         &&
+      km  <  (t.max_km    ?? 10)        &&
+      sub >= (t.min_order ?? 0)         &&
+      sub <= (t.max_order ?? 999999999)
+    );
     if (tier) {
       const fee = (tier.base_fee||0) + (tier.fee_per_km||0) * km;
-      return Math.round(fee / 1000) * 1000; // làm tròn 1000đ
+      return Math.round(fee / 1000) * 1000;
     }
   }
 

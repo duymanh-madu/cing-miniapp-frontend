@@ -188,10 +188,19 @@ export default function AdminAppConfig({ token }) {
 
 function ShippingTiersConfig({ config, upd }) {
   const tiers = config.shipping_tiers || [
-    { min_order: 0,      max_order: 99999,   fee_per_km: 5000,  base_fee: 15000, label: 'Dưới 100k' },
-    { min_order: 100000, max_order: 199999,   fee_per_km: 4000,  base_fee: 10000, label: '100k - 199k' },
-    { min_order: 200000, max_order: 499999,   fee_per_km: 3000,  base_fee: 5000,  label: '200k - 499k' },
-    { min_order: 500000, max_order: 999999999, fee_per_km: 0,    base_fee: 0,     label: 'Từ 500k' },
+    { min_km: 0, max_km: 3,  min_order: 0,      max_order: 99999,    base_fee: 15000, fee_per_km: 0, label: '<3km, <100k' },
+    { min_km: 0, max_km: 3,  min_order: 100000, max_order: 999999999, base_fee: 10000, fee_per_km: 0, label: '<3km, ≥100k' },
+    { min_km: 3, max_km: 5,  min_order: 0,      max_order: 99999,    base_fee: 25000, fee_per_km: 0, label: '3-5km, <100k' },
+    { min_km: 3, max_km: 5,  min_order: 100000, max_order: 199999,   base_fee: 15000, fee_per_km: 0, label: '3-5km, 100-200k' },
+    { min_km: 3, max_km: 5,  min_order: 200000, max_order: 999999999, base_fee: 0,    fee_per_km: 0, label: '3-5km, ≥200k' },
+    { min_km: 5, max_km: 8,  min_order: 0,      max_order: 99999,    base_fee: 35000, fee_per_km: 0, label: '5-8km, <100k' },
+    { min_km: 5, max_km: 8,  min_order: 100000, max_order: 199999,   base_fee: 30000, fee_per_km: 0, label: '5-8km, 100-200k' },
+    { min_km: 5, max_km: 8,  min_order: 200000, max_order: 499999,   base_fee: 20000, fee_per_km: 0, label: '5-8km, 200-500k' },
+    { min_km: 5, max_km: 8,  min_order: 500000, max_order: 999999999, base_fee: 0,    fee_per_km: 0, label: '5-8km, ≥500k' },
+    { min_km: 8, max_km: 10, min_order: 0,      max_order: 99999,    base_fee: 50000, fee_per_km: 0, label: '8-10km, <100k' },
+    { min_km: 8, max_km: 10, min_order: 100000, max_order: 199999,   base_fee: 35000, fee_per_km: 0, label: '8-10km, 100-200k' },
+    { min_km: 8, max_km: 10, min_order: 200000, max_order: 499999,   base_fee: 25000, fee_per_km: 0, label: '8-10km, 200-500k' },
+    { min_km: 8, max_km: 10, min_order: 500000, max_order: 999999999, base_fee: 0,    fee_per_km: 0, label: '8-10km, ≥500k' },
   ];
 
   const updateTier = (i, field, val) => {
@@ -201,7 +210,7 @@ function ShippingTiersConfig({ config, upd }) {
   };
 
   const addTier = () => {
-    upd('shipping_tiers', [...tiers, { min_order:0, max_order:999999999, fee_per_km:3000, base_fee:10000, label:'Mức mới' }]);
+    upd('shipping_tiers', [...tiers, { min_km:0, max_km:10, min_order:0, max_order:999999999, fee_per_km:0, base_fee:10000, label:'Mức mới' }]);
   };
 
   const removeTier = (i) => {
@@ -226,11 +235,13 @@ function ShippingTiersConfig({ config, upd }) {
               border:'1px solid #ff6b6b', color:'#ff6b6b', borderRadius:6,
               padding:'6px 10px', fontSize:11, cursor:'pointer' }}>🗑</button>
           </div>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:8 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr 1fr', gap:8 }}>
             {[
+              ['min_km',     'Km từ'],
+              ['max_km',     'Km đến'],
               ['min_order',  'Đơn từ (đ)'],
               ['max_order',  'Đơn đến (đ)'],
-              ['base_fee',   'Phí cơ bản (đ)'],
+              ['base_fee',   'Phí ship (đ)'],
               ['fee_per_km', 'Phí / km (đ)'],
             ].map(([field, label]) => (
               <div key={field}>
