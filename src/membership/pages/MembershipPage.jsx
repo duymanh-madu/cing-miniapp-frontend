@@ -139,14 +139,14 @@ export default function MembershipPage() {
 
             {[
               {
-                icon:"🎟",
-                title:"Đổi điểm lấy voucher",
-                desc:"1 điểm = 1.000đ giảm giá. Voucher dùng được cả online lẫn tại quán.",
-                action:"Đổi ngay",
-                path:null,
-                actionKey:"exchange_voucher",
-                color:"#059669",
-                bg:"#f0fdf4",
+                icon:"🛍",
+                title:"Dùng điểm khi đặt hàng",
+                desc:"1 điểm = 1.000đ. Dùng điểm trực tiếp khi thanh toán để giảm tiền đơn hàng.",
+                action:"Đặt hàng ngay",
+                path:"/menu",
+                actionKey:"order_with_points",
+                color:"#D4531C",
+                bg:"#fff7f0",
               },
               {
                 icon:"🎮",

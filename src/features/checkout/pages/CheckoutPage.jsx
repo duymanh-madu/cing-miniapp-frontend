@@ -227,8 +227,8 @@ export default function CheckoutPage(){
           setShipFee(0);setShipStatus("denied");
           setLocMsg("Vui lòng cho phép truy cập vị trí để tính phí ship chính xác");
         } else {
-          setShipFee(25000);setShipStatus("error");
-          setLocMsg("Không lấy được vị trí. Áp dụng phí ship mặc định 25.000đ");
+          setShipFee(0);setShipStatus("contact");
+          setLocMsg("Cửa hàng sẽ liên hệ lại để tính phí ship cụ thể.");
         }
       });
   },[orderType]);
@@ -508,7 +508,7 @@ export default function CheckoutPage(){
                       else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
                     }
                   } catch(e){
-                    setShipFee(25000);setShipStatus("error");setLocMsg("Không lấy được vị trí. Phí ship mặc định 25.000đ");
+                    setShipFee(0);setShipStatus("contact");setLocMsg("Cửa hàng sẽ liên hệ lại để tính phí ship cụ thể.");
                   }
                 }} style={{fontSize:11,color:"#D4531C",fontWeight:700,background:"none",border:"1px solid #D4531C",borderRadius:6,padding:"4px 10px",cursor:"pointer",alignSelf:"flex-start"}}>
                   📍 Cho phép vị trí
