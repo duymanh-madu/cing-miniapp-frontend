@@ -87,7 +87,12 @@ export default function CommunityChat({ onClose }) {
       })
       .catch(() => {});
 
-    useEffect(() => {
+  return () => {
+      cancelled = true;
+    };
+  }, [memberPhone]);
+
+  useEffect(() => {
     const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
     fetch(`${base}/admin/auth/system-badges`)
       .then(r => r.json())
@@ -99,11 +104,6 @@ export default function CommunityChat({ onClose }) {
     const id = String(uid || "").replace(/\D/g, "").replace(/^84/, "0");
     return systemBadges?.[id]?.badge || null;
   };
-
-  return () => {
-      cancelled = true;
-    };
-  }, [memberPhone]);
 
   const getMyInfo = useCallback(() => {
     for (const src of [runtimePhone, profile?.phone]) {
