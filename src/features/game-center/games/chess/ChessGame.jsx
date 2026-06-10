@@ -429,7 +429,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
       []
     )
   );
-  const userAvatar = runtimeIdentity?.avatar || profile?.avatar || "";
+  const userAvatar = profile?.avatar || runtimeIdentity?.avatar || "";
 
   const sockRef  = useRef(null);
   const [phase,  setPhase]  = useState("lobby"); // lobby | searching | playing | gameover
@@ -752,11 +752,11 @@ export default function ChessGame({ onExit, onFindMatch }) {
     // Nếu có callback từ parent — check lượt chơi trước
     if (onFindMatch && !onFindMatch()) return; // onFindMatch trả false = hết lượt
     if (!userId) return;
-    // Lấy tên mới nhất từ runtime store tại thời điểm bấm
-    const rtName = useRuntimeCustomerIdentityStore.getState().identity?.fullName;
+    // Profile display_name/avatar là source of truth.
+    // Runtime/Zalo chỉ fallback khi profile chưa có dữ liệu.
     const rtAvatar = useRuntimeCustomerIdentityStore.getState().identity?.avatar;
-    const name = rtName || userName;
-    const avatar = rtAvatar || userAvatar;
+    const name = userName;
+    const avatar = userAvatar || rtAvatar || "";
     sockRef.current?.emit("chess:find", { userId, name, avatar });
   }, [userId, userName, userAvatar]);
 
