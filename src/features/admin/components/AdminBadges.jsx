@@ -20,6 +20,18 @@ const ALL_BADGES = [
   { key:"hof_3", label:"Địa Chủ", icon:"♦️", color:"#40ee80", desc:"Top 3 BXH Tiêu dùng Alltime (Live)", type:"live" },
 ];
 
+
+const resolvePlayerName = (p) =>
+  p?.display_name ||
+  p?.zalo_name ||
+  p?.user_id ||
+  "—";
+
+const resolvePlayerAvatar = (p) =>
+  p?.avatar ||
+  p?.zalo_avatar ||
+  "";
+
 export default function AdminBadges({ token }) {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,9 +47,14 @@ export default function AdminBadges({ token }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = players.filter(p =>
-    p.user_id?.includes(search) || p.zalo_name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = players.filter(p => {
+    const keyword = search.toLowerCase().trim();
+    if (!keyword) return true;
+    return (
+      String(p.user_id || "").includes(search) ||
+      resolvePlayerName(p).toLowerCase().includes(keyword)
+    );
+  });
 
   const handleToggleBadge = async (player, badgeKey) => {
     setSaving(true);
@@ -103,10 +120,10 @@ export default function AdminBadges({ token }) {
               onClick={() => setSelected(selected?.user_id === p.user_id ? null : p)}>
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ width:36, height:36, borderRadius:"50%", background:"#2a2a38", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, flexShrink:0 }}>
-                  {p.zalo_avatar ? <img src={p.zalo_avatar} style={{ width:36, height:36, borderRadius:"50%", objectFit:"cover" }}/> : "👤"}
+                  {resolvePlayerAvatar(p) ? <img src={resolvePlayerAvatar(p)} alt="" style={{ width:36, height:36, borderRadius:"50%", objectFit:"cover" }}/> : "👤"}
                 </div>
                 <div style={{ flex:1 }}>
-                  <p style={{ fontSize:13, fontWeight:700, color:"white", margin:0 }}>{p.zalo_name || p.user_id}</p>
+                  <p style={{ fontSize:13, fontWeight:700, color:"white", margin:0 }}>{resolvePlayerName(p)}</p>
                   <p style={{ fontSize:11, color:"#666", margin:0 }}>{p.user_id}</p>
                 </div>
                 <div style={{ display:"flex", gap:4, flexWrap:"wrap", justifyContent:"flex-end" }}>

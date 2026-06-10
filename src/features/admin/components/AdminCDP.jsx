@@ -4,6 +4,18 @@ import ZbsTemplateManager from "./ZbsTemplateManager";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
+
+const resolveUserName = (u) =>
+  u?.display_name ||
+  u?.zalo_name ||
+  u?.user_id ||
+  "?";
+
+const resolveUserAvatar = (u) =>
+  u?.avatar ||
+  u?.zalo_avatar ||
+  "";
+
 export default function AdminCDP({ token }) {
   const [segments, setSegments]     = useState([]);
   const [selected, setSelected]     = useState(null);
@@ -337,13 +349,17 @@ export default function AdminCDP({ token }) {
                             background:"rgba(212,83,28,0.2)",
                             display:"flex", alignItems:"center", justifyContent:"center",
                             fontSize:12, color:"#D4531C", fontWeight:800, flexShrink:0 }}>
-                            {(u.zalo_name || u.user_id || "?")[0]?.toUpperCase()}
+                            {resolveUserAvatar(u) ? (
+                              <img src={resolveUserAvatar(u)} alt="" style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:14}}/>
+                            ) : (
+                              resolveUserName(u)[0]?.toUpperCase()
+                            )}
                           </div>
                           <div style={{ minWidth:0 }}>
                             <p style={{ color:"white", fontSize:11, fontWeight:700,
                               margin:0, overflow:"hidden", whiteSpace:"nowrap",
                               textOverflow:"ellipsis" }}>
-                              {u.zalo_name || u.user_id}
+                              {resolveUserName(u)}
                             </p>
                             <p style={{ color:"#666", fontSize:10, margin:0 }}>
                               {fmt(u.crm_spend_alltime)} · {u.crm_orders_alltime} đơn
