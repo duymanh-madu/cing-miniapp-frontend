@@ -50,6 +50,7 @@ export default function AdminAppConfig({ token }) {
         bank_name: config.bank_name,
         bank_account_number: config.bank_account_number,
         bank_account_name: config.bank_account_name,
+        shipping_tiers: config.shipping_tiers || [],
       };
       await apiClient.put("/app-config/1", payload, { headers: h });
       setMsg("✅ Đã lưu cấu hình!");
