@@ -11,15 +11,16 @@ export default function AdminMembers({ token }) {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [showAdd, setShowAdd] = useState(false);
+  const [activatedOnly, setActivatedOnly] = useState(true);
   const [newPhone, setNewPhone] = useState("");
   const [newName, setNewName] = useState("");
 
   useEffect(() => {
-    apiClient.get("/admin/monitor/members-list?activated_only=true", { headers:{ Authorization:`Bearer ${token}` } })
+    apiClient.get(`/admin/monitor/members-list?activated_only=${activatedOnly}`, { headers:{ Authorization:`Bearer ${token}` } })
       .then(r => setMembers(r.data?.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [activatedOnly]);
 
   const filtered = members.filter(p =>
     p.user_id?.includes(search) || p.zalo_name?.toLowerCase().includes(search.toLowerCase())
