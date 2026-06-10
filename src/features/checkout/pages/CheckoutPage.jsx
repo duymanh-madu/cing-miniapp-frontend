@@ -400,7 +400,7 @@ export default function CheckoutPage(){
   );
 
   return(
-    <div style={{background:"#f5f5f5",minHeight:"100vh",paddingBottom:250}}>
+    <div style={{background:"#f5f5f5",minHeight:"100vh",paddingBottom:340}}>
 
       {/* HEADER */}
       <div style={{background:"white",padding:"14px 16px",display:"flex",alignItems:"center",
