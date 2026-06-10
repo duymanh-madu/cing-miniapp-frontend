@@ -114,9 +114,20 @@ export default function AdminMembers({ token }) {
 
       {msg && <div style={{ background:"rgba(212,83,28,.2)", border:"1px solid #D4531C", borderRadius:8, padding:"8px 14px", marginBottom:16, fontSize:13 }}>{msg}</div>}
 
-      <input value={search} onChange={e => setSearch(e.target.value)}
-        placeholder="Tìm theo tên hoặc số điện thoại..."
-        style={{ width:"100%", marginBottom:16, background:"#1a1a24", border:"1px solid #333", borderRadius:8, padding:"8px 12px", color:"white", fontSize:13, boxSizing:"border-box" }}/>
+      <div style={{ display:"flex", gap:8, marginBottom:12, alignItems:"center" }}>
+        <input value={search} onChange={e => setSearch(e.target.value)}
+          placeholder="Tìm theo tên hoặc số điện thoại..."
+          style={{ flex:1, background:"#1a1a24", border:"1px solid #333", borderRadius:8, padding:"8px 12px", color:"white", fontSize:13, boxSizing:"border-box" }}/>
+        <button onClick={() => setActivatedOnly(!activatedOnly)} style={{
+          background: activatedOnly ? "rgba(76,175,80,0.15)" : "rgba(255,152,0,0.15)",
+          border: `1px solid ${activatedOnly ? "#4CAF50" : "#ff9800"}`,
+          color: activatedOnly ? "#4CAF50" : "#ff9800",
+          borderRadius:8, padding:"8px 12px", fontSize:11, fontWeight:700,
+          cursor:"pointer", whiteSpace:"nowrap", flexShrink:0
+        }}>
+          {activatedOnly ? "✅ Đã kích hoạt" : "👥 Tất cả"}
+        </button>
+      </div>
 
       {/* Confirm action modal */}
       {action && selected && (
