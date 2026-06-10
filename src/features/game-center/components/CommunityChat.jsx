@@ -429,6 +429,7 @@ export default function CommunityChat({ onClose }) {
               })()}
               <p style={{ color:"#888", fontSize:10, margin:0, textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", gap:4 }}>
                 {m.charmBadgeKey && <CharmChatBadge badgeKey={m.charmBadgeKey} compact={true}/>}
+                {getSystemBadge(m.userId) && <SystemRoleBadge badge={getSystemBadge(m.userId)} />}
                 <span style={{
                   color:"#f4f4f6",
                   fontSize:15,
@@ -477,6 +478,7 @@ export default function CommunityChat({ onClose }) {
                 <p style={{ color: isMe(u.userId)?"#FFD700":"white", fontSize:13, fontWeight:700, margin:0,
                   textDecoration: isMe(u.userId)?"none":"underline", textDecorationColor:"rgba(255,255,255,.2)" }}>
                   {u.charmBadgeKey && <CharmChatBadge badgeKey={u.charmBadgeKey} compact={true}/>}
+                  {getSystemBadge(u.userId) && <SystemRoleBadge badge={getSystemBadge(u.userId)} />}
                   <span
                     onClick={(e) => {
                       e.stopPropagation();
