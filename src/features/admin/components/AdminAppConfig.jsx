@@ -226,7 +226,7 @@ function ShippingTiersConfig({ config, upd }) {
         <div key={i} style={{ background:'#12121a', borderRadius:10, padding:'14px',
           marginBottom:10, border:'1px solid #333' }}>
           <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
-            <input value={tier.label} onChange={e => {
+            <input value={tier.label || ""} onChange={e => {
               const updated = [...tiers]; updated[i] = { ...updated[i], label: e.target.value };
               upd('shipping_tiers', updated);
             }} placeholder='Tên mức' style={{ flex:1, background:'#2a2a38', border:'1px solid #444',
