@@ -89,25 +89,12 @@ export async function bootstrapRuntime() {
   // Expose identity store cho socket client
   (window as any).__runtimeIdentityStore = useRuntimeCustomerIdentityStore;
 
-  // Mirror identityStore → authStore (single source of truth)
+  // Không mirror runtime/Zalo name/avatar vào authStore.
+  // Profile name/avatar sau khi user đổi đang được lưu server-side:
+  // - players.zalo_name
+  // - players.avatar
+  // Runtime/Zalo chỉ dùng cho activation/fallback ban đầu, không được ghi đè profile đã đổi.
   const { default: useAuthStore } = await import("@/stores/auth/authStore");
-  useRuntimeCustomerIdentityStore.subscribe((state: any) => {
-    const fullName = state.identity?.fullName;
-    const avatar   = state.identity?.avatar;
-    if (!fullName || fullName === "Khách hàng") return;
-    const profile = useAuthStore.getState().profile;
-    if (!profile) {
-      return;
-    }
-    if (profile.name !== fullName || (avatar && profile.avatar !== avatar)) {
-      useAuthStore.getState().updateProfile({
-        ...profile,
-        name:        fullName,
-        displayName: fullName,
-        avatar:      avatar || profile.avatar,
-      });
-    }
-  });
 
   // Subscribe để emit user:online khi phone được resolve
   useRuntimeCustomerIdentityStore.subscribe((state: any) => {
