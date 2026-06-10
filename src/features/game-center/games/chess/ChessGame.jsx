@@ -419,7 +419,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
     }
     return ""; // Không dùng UUID — phải là phone
   })();
-  const userName = runtimeIdentity?.fullName || profile?.name || profile?.zalo_name || profile?.displayName || "Cing iu";
+  const userName = profile?.name || profile?.displayName || runtimeIdentity?.fullName || profile?.zalo_name || "Cing iu";
   const [myCharmBadgeKey, setMyCharmBadgeKey] = useState(
     getHighestCharmBadge(
       profile?.custom_badges ||
@@ -509,14 +509,16 @@ export default function ChessGame({ onExit, onFindMatch }) {
     });
 
     s.on("chess:moved", (data) => {
-      // Play once for every confirmed move from the server.
-      // This is more reliable than depending on turn-state transitions.
-      playSound("move");
+      const movedByMe = String(data?.userId || data?.fromUserId || data?.playerId || "") === String(userIdRef.current || userId || "");
 
-      setChess(prev => {
-        const c = new Chess(data.fen);
-        return c;
-      });
+      const nextBoard = new Chess(data.fen);
+      const nextTurnIsMine = nextBoard.turn() === myColor;
+
+      if (!movedByMe && nextTurnIsMine) {
+        playSound("move");
+      }
+
+      setChess(nextBoard);
       setLastMove(data.lastMove);
       setInCheck(data.inCheck);
       setSelected(null);
