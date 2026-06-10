@@ -407,8 +407,8 @@ export default function ProfilePage() {
               : activeBadge === "hof_3" ? { icon:"♦", text:"ĐỊA CHỦ", bg:"linear-gradient(90deg,#001c0a,#0caa55,#30cc70)", border:"#0caa55", shadow:"rgba(20,180,80,.7)", textColor:"#a0ffcc" }
               : null;
             return (
-              <div style={{ position:"relative", width:96, height:96, overflow:"visible", isolation:"isolate" }}>
-                <div style={{ width:96, height:96, borderRadius:48, position:"relative", zIndex:1, border:`2.5px solid ${theme.accent}`, overflow:"hidden", background:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:38, fontWeight:900, color:"white", boxShadow:`0 4px 24px rgba(0,0,0,.4), 0 0 0 1px ${theme.border}` }}>
+              <div style={{ position:"relative" }}>
+                <div style={{ width:96, height:96, borderRadius:48, border:`2.5px solid ${theme.accent}`, overflow:"hidden", background:"rgba(255,255,255,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:38, fontWeight:900, color:"white", boxShadow:`0 4px 24px rgba(0,0,0,.4), 0 0 0 1px ${theme.border}` }}>
                   {avatarUrl
                     ? <img src={avatarUrl} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
                     : displayName[0]?.toUpperCase()
@@ -417,45 +417,47 @@ export default function ProfilePage() {
                 {badgeLabel && (
                   <div style={{
                     position:"absolute",
-                    bottom:-14,
+                    bottom:-12,
                     left:"50%",
                     transform:"translateX(-50%)",
+                    zIndex:50,
                     whiteSpace:"nowrap",
                     display:"flex",
                     alignItems:"center",
                     justifyContent:"center",
                     pointerEvents:"none",
                   }}>
-                    {badgeLabel.useChatBadge
-                      ? <div style={{position:"relative", zIndex:100000, transform:"scale(1.5)", transformOrigin:"center center"}}><CharmChatBadge badgeKey={activeBadge} compact={true}/></div>
-                      : (
-                        <div style={{
-                          background:badgeLabel.bg,
-                          borderRadius:12,
-                          padding:"4px 10px",
-                          border:`1.5px solid ${badgeLabel.border}`,
-                          boxShadow:`0 0 10px ${badgeLabel.shadow}`,
-                          minWidth:74,
-                          display:"flex",
+                    {badgeLabel.useChatBadge ? (
+                      <div className="profile-avatar-charm-badge">
+                        <CharmChatBadge badgeKey={activeBadge} compact={true}/>
+                      </div>
+                    ) : (
+                      <div style={{
+                        background:badgeLabel.bg,
+                        borderRadius:12,
+                        padding:"4px 10px",
+                        border:`1.5px solid ${badgeLabel.border}`,
+                        boxShadow:`0 0 10px ${badgeLabel.shadow}`,
+                        minWidth:74,
+                        display:"flex",
+                        alignItems:"center",
+                        justifyContent:"center",
+                      }}>
+                        <span style={{
+                          fontSize:9,
+                          fontWeight:900,
+                          color:badgeLabel.textColor,
+                          display:"inline-flex",
                           alignItems:"center",
                           justifyContent:"center",
+                          gap:5,
+                          lineHeight:1,
                         }}>
-                          <span style={{
-                            fontSize:9,
-                            fontWeight:900,
-                            color:badgeLabel.textColor,
-                            display:"inline-flex",
-                            alignItems:"center",
-                            justifyContent:"center",
-                            gap:5,
-                            lineHeight:1,
-                          }}>
-                            {badgeLabel.icon && <span>{badgeLabel.icon}</span>}
-                            {badgeLabel.text}
-                          </span>
-                        </div>
-                      )
-                    }
+                          {badgeLabel.icon && <span>{badgeLabel.icon}</span>}
+                          {badgeLabel.text}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -576,6 +578,25 @@ export default function ProfilePage() {
         )}
       </div>
 
+      <style>{`
+        .profile-avatar-charm-badge{
+          position: relative;
+          z-index: 99;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transform: scale(1.5);
+          transform-origin: center center;
+        }
+        .profile-avatar-charm-badge .charm-chat-badge{
+          margin: 0 !important;
+          transform: none !important;
+        }
+        .profile-avatar-charm-badge .charm-chat-badge--compact{
+          margin: 0 !important;
+          transform: none !important;
+        }
+      `}</style>
       <style>{`@keyframes liveFlash{0%,100%{opacity:1}50%{opacity:.35}}`}</style>
 
       {/* Gift Modal */}
