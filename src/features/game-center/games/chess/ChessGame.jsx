@@ -679,6 +679,10 @@ export default function ChessGame({ onExit, onFindMatch }) {
   // Send chat
   const sendChat = () => {
     if (!chatInput.trim() || !gameIdRef.current) return;
+    if (chatInput.trim().length > 50) {
+      alert("Tin nhắn tối đa 50 ký tự");
+      return;
+    }
     sockRef.current?.emit("chess:chat", {
       gameId: gameIdRef.current,
       userId: userIdRef.current,
@@ -1283,9 +1287,9 @@ export default function ChessGame({ onExit, onFindMatch }) {
                 <div ref={chatEndRef}/>
               </div>
               <div style={{ padding:"8px 12px 24px", display:"flex", gap:8, borderTop:"1px solid rgba(255,255,255,0.06)" }}>
-                <input value={chatInput} onChange={e => setChatInput(e.target.value)}
+                <input value={chatInput} onChange={e => setChatInput(e.target.value.slice(0,50))}
                   onKeyDown={e => e.key === "Enter" && sendChat()}
-                  placeholder="Nhập tin nhắn..." maxLength={100}
+                  placeholder="Nhập tin nhắn..." maxLength={50}
                   style={{ flex:1, background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)",
                     borderRadius:10, padding:"8px 12px", color:"white", fontSize:13, outline:"none" }}/>
                 <button onClick={sendChat} disabled={!chatInput.trim()}

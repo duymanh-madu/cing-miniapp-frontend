@@ -419,7 +419,7 @@ export default function CommunityChat({ onClose }) {
                   fontSize:15,
                   fontWeight:900,
                   textShadow:"0 1px 5px rgba(0,0,0,.85)",
-                  maxWidth:86,
+                  maxWidth:150,
                   overflow:"hidden",
                   textOverflow:"ellipsis",
                   whiteSpace:"nowrap",

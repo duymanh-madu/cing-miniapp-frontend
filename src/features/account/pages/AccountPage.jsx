@@ -78,7 +78,14 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
     setSaving(true); setError("");
     try {
       const body = { use_points: blocked ? usePoints : false };
-      if (nameChanged) body.display_name  = name.trim();
+      if (nameChanged) {
+        const finalName = name.trim();
+        if (finalName.length > 20) {
+          alert("Tên hiển thị tối đa 20 ký tự");
+          return;
+        }
+        body.display_name = finalName;
+      }
       if (avaChanged)  body.avatar_base64 = avatarB64;
       const res = await apiClient.post(`/profile-update/save/${userId}`, body);
       if (!res.data?.success) throw new Error(res.data?.error);
@@ -138,10 +145,10 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
 
         <div style={{ marginBottom:20 }}>
           <p style={{ fontSize:12, fontWeight:700, color:"#666", margin:"0 0 8px" }}>TÊN HIỂN THỊ</p>
-          <input value={name} onChange={e => setName(e.target.value)} maxLength={30} disabled={blocked && !usePoints}
+          <input value={name} onChange={e => setName(e.target.value.slice(0,20))} maxLength={20} disabled={blocked && !usePoints}
             placeholder="Nhập tên hiển thị..."
             style={{ width:"100%", padding:"14px 16px", borderRadius:14, border:"1.5px solid #e0e0e0", fontSize:15, fontWeight:600, outline:"none", boxSizing:"border-box", background: (blocked && !usePoints) ? "#f5f5f5" : "#fafafa", color:"#1a1a1a", opacity: (blocked && !usePoints) ? 0.5 : 1 }}/>
-          <p style={{ fontSize:11, color:"#ccc", margin:"4px 0 0", textAlign:"right" }}>{name.length}/30</p>
+          <p style={{ fontSize:11, color:"#ccc", margin:"4px 0 0", textAlign:"right" }}>{name.length}/20</p>
         </div>
 
         {error && <p style={{ color:"#e53935", fontSize:12, margin:"0 0 12px", textAlign:"center" }}>{error}</p>}
