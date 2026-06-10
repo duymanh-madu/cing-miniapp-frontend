@@ -585,7 +585,7 @@ export default function ProfilePage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          transform: scale(1.5);
+          transform: scale(1.25);
           transform-origin: center center;
         }
         .profile-avatar-charm-badge .charm-chat-badge{
