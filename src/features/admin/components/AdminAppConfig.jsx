@@ -144,13 +144,10 @@ export default function AdminAppConfig({ token }) {
         <Toggle k="popup_enabled" label="💬 Popup thông báo" />
       </Section>
 
-      <Section title="Cấu hình giao hàng">
+      <Section title="Cấu hình game">
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-          <Field k="shipping_fee_per_km" label="Phí ship / km (đ)" type="number" />
           <Field k="spend_per_play" label="Chi tiêu / lượt chơi (đ)" type="number" />
-          <Field k="max_delivery_distance" label="Khoảng cách tối đa (km)" type="number" />
           <Field k="minimum_order_amount" label="Đơn tối thiểu (đ)" type="number" />
-          <Field k="free_shipping_threshold" label="Miễn ship từ (đ)" type="number" />
         </div>
       </Section>
 

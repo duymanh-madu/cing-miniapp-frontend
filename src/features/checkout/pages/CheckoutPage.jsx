@@ -19,9 +19,20 @@ function calcDistKm(lat1,lng1,lat2,lng2){
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
-function calcShipFee(sub,km){
-  if(km>=10) return -1;
-  if(km<2)   return 0;
+function calcShipFee(sub, km, tiers) {
+  if (km >= 10) return -1; // ngoài vùng → liên hệ
+  if (km < 2)   return 0;  // gần → miễn phí
+
+  // Dùng shipping_tiers từ config nếu có
+  if (tiers && tiers.length > 0) {
+    const tier = tiers.find(t => sub >= (t.min_order||0) && sub <= (t.max_order||999999999));
+    if (tier) {
+      const fee = (tier.base_fee||0) + (tier.fee_per_km||0) * km;
+      return Math.round(fee / 1000) * 1000; // làm tròn 1000đ
+    }
+  }
+
+  // Fallback hardcode nếu chưa có config
   if(km<3)   return sub>=200000?0:sub>=100000?10000:15000;
   if(km<5)   return sub>=200000?0:sub>=100000?15000:25000;
   if(km<8)   return sub>=500000?0:sub>=200000?20000:sub>=100000?30000:35000;
@@ -70,6 +81,15 @@ export default function CheckoutPage(){
   const [phone,setPhone]=useState(profile?.phone||"");
   const [address,setAddress]=useState("");
   const [note,setNote]=useState("");
+  const [shippingTiers, setShippingTiers] = useState(null);
+
+  useEffect(() => {
+    apiClient.get("/app-config/public")
+      .then(r => {
+        const tiers = r.data?.data?.shipping_tiers;
+        if (tiers?.length) setShippingTiers(tiers);
+      }).catch(() => {});
+  }, []);
   const [shipFee,setShipFee]=useState(0);
   const [shipStatus,setShipStatus]=useState("idle"); // idle|loading|done|error|contact
   const [distKm,setDistKm]=useState(null);
@@ -197,7 +217,7 @@ export default function CheckoutPage(){
               setLocMsg(`Khoảng cách: ${km.toFixed(1)} km`);
             }
           } else {
-            const fee=calcShipFee(subtotal,km);
+            const fee=calcShipFee(subtotal, km, shippingTiers);
             if(fee===-1){
               setShipFee(0);setShipStatus("contact");
               setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
@@ -207,7 +227,7 @@ export default function CheckoutPage(){
             }
           }
         } catch(e){
-          const fee=calcShipFee(subtotal,km);
+          const fee=calcShipFee(subtotal, km, shippingTiers);
           if(fee===-1){
             setShipFee(0);setShipStatus("contact");
             setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
@@ -500,11 +520,11 @@ export default function CheckoutPage(){
                     setDistKm(km);
                     try {
                       const r = await apiClient.get('/shipping/estimate?lat='+coords.latitude+'&lng='+coords.longitude+'&amount='+subtotal);
-                      const fee = r.data?.ship_fee ?? calcShipFee(subtotal,km);
+                      const fee = r.data?.ship_fee ?? calcShipFee(subtotal, km, shippingTiers);
                       if(fee===-1){ setShipFee(0);setShipStatus("contact");setLocMsg('Khoảng cách '+km.toFixed(1)+'km > 10km. Nhà hàng sẽ liên hệ báo phí ship.'); }
                       else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
                     } catch(e){
-                      const fee=calcShipFee(subtotal,km);
+                      const fee=calcShipFee(subtotal, km, shippingTiers);
                       if(fee===-1){ setShipFee(0);setShipStatus("contact");setLocMsg('Khoảng cách '+km.toFixed(1)+'km > 10km.'); }
                       else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
                     }
