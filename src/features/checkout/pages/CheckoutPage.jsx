@@ -89,14 +89,9 @@ export default function CheckoutPage(){
     const attach = () => {
       const socket = getRuntimeSocket();
       if (socket?.connected) {
-        socket.on("payment.success", (data) => {
-          // Chỉ xử lý nếu đúng user hoặc không có user_id filter
-          const myPhone = (runtimePhone || profile?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
-          const eventUserId = String(data?.payload?.user_id || "");
-          if (!eventUserId || eventUserId === myPhone || eventUserId === profile?.id) {
-            clearCart();
-            navigate("/order-success");
-          }
+        socket.on("payment.success", () => {
+          clearCart();
+          navigate("/order-success");
         });
         return;
       }
