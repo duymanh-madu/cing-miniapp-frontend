@@ -427,7 +427,7 @@ export default function ProfilePage() {
                     pointerEvents:"none",
                   }}>
                     {badgeLabel.useChatBadge
-                      ? <div style={{transform:"scale(1.5)", transformOrigin:"center center"}}><CharmChatBadge badgeKey={activeBadge} compact={true}/></div>
+                      ? <div style={{position:"relative", zIndex:100000, transform:"scale(1.5)", transformOrigin:"center center"}}><CharmChatBadge badgeKey={activeBadge} compact={true}/></div>
                       : (
                         <div style={{
                           background:badgeLabel.bg,
