@@ -1,3 +1,4 @@
+import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import React, { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
@@ -153,7 +154,7 @@ export default function GameCenterPage() {
   const handleGameOver = async ({ bestCombo, score }) => {
     const phone      = getPhone();
     const userId     = phone || useAuthStore.getState().profile?.id || "";
-    const playerName = useAuthStore.getState().profile?.name || profile?.name || "Cing iu";
+    const playerName = resolveProfileName(useAuthStore.getState().profile || profile, "Cing iu");
     const gameKey    = activeGame || "black-pearl-rush";
     const finalScore = score || bestCombo || 0;
 

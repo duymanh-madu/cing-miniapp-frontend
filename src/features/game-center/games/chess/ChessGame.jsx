@@ -1,3 +1,4 @@
+import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -419,7 +420,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
     }
     return ""; // Không dùng UUID — phải là phone
   })();
-  const userName = profile?.custom_name || profile?.name || profile?.displayName || runtimeIdentity?.fullName || profile?.zalo_name || "Cing iu";
+  const userName = resolveProfileName(profile, runtimeIdentity?.fullName || "Cing iu");
   const [myCharmBadgeKey, setMyCharmBadgeKey] = useState(
     getHighestCharmBadge(
       profile?.custom_badges ||
@@ -552,7 +553,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               game_key: "chess", user_id: uid, score,
-              player_name: profile?.name || userName,
+              player_name: resolveProfileName(profile, userName),
               avatar: profile?.avatar || userAvatar,
             }),
           }).catch(() => {});

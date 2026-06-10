@@ -1,3 +1,4 @@
+import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import RealtimeStatusBadge from '../system/RealtimeStatusBadge';
 import NotificationBellButton from '@/features/notification/components/NotificationBellButton';
 import useAuthStore from '@/stores/auth/authStore';
@@ -6,7 +7,7 @@ import useRealtimeCustomerStore from '@/stores/customer/customerRuntimeStore';
 function HomeHero() {
   const authProfile     = useAuthStore(s => s.profile);
   const customerProfile = useRealtimeCustomerStore(s => s.profile);
-  const displayName     = authProfile?.name || authProfile?.displayName || customerProfile?.name || 'Khách';
+  const displayName     = resolveProfileName(authProfile || customerProfile, 'Khách');
   const hour            = new Date().getHours();
   const greeting        = hour < 12 ? 'Chào buổi sáng' : hour < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
 

@@ -1,3 +1,4 @@
+import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import SystemRoleBadge from "@/components/system-badges/SystemRoleBadge";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -111,11 +112,11 @@ export default function CommunityChat({ onClose }) {
       const n = src.replace(/\D/g,"").replace(/^84/,"0");
       if (n.length >= 9) return {
         phone: n,
-        name:  profile?.custom_name || profile?.name || profile?.displayName || runtimeName || "Cing iu",
+        name:  resolveProfileName(profile, runtimeName || "Cing iu"),
         avatar: profile?.avatar || runtimeAvatar || "",
       };
     }
-    return { phone: "", name: profile?.custom_name || profile?.name || profile?.displayName || runtimeName || "Cing iu", avatar: profile?.avatar || runtimeAvatar || "" };
+    return { phone: "", name: resolveProfileName(profile, runtimeName || "Cing iu"), avatar: profile?.avatar || runtimeAvatar || "" };
   }, [runtimePhone, runtimeName, runtimeAvatar, profile]);
 
   useEffect(() => {
@@ -264,7 +265,7 @@ export default function CommunityChat({ onClose }) {
     if (!profile?.avatar || !sockRef.current?.connected || !myIdRef.current) return;
     sockRef.current.emit("community:join", {
       userId: myIdRef.current,
-      name:   profile?.custom_name || profile?.name || profile?.displayName || runtimeName || "Cing iu",
+      name:   resolveProfileName(profile, runtimeName || "Cing iu"),
       avatar: profile.avatar,
       tierKey: tierKeyRef.current,
       charmBadgeKey: charmBadgeRef.current,

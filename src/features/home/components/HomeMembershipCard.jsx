@@ -1,3 +1,4 @@
+import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMembership } from "../hooks/useMembership";
@@ -139,7 +140,7 @@ export default function HomeMembershipCard() {
     setSubmittedPhone(clean);
   };
   const { data: membership, isLoading } = useMembership(submittedPhone || phone);
-  const displayName = profile?.name || profile?.displayName || membership?.name || "Hội viên"; // custom name ưu tiên
+  const displayName = resolveProfileName(profile, membership?.name || "Hội viên"); // custom name ưu tiên
 
   const tierRaw = membership?.tierName || membership?.tierKey || realtimeTier || "member";
   // Uu tien tierKey neu da biet (chinh xac hon)

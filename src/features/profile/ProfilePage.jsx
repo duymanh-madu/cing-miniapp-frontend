@@ -1,3 +1,4 @@
+import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
@@ -311,7 +312,7 @@ export default function ProfilePage() {
   // Nếu xem profile mình: dùng profile.name (custom) + profile.avatar (custom)
   // Nếu xem profile người khác: dùng member.name + member.avatar từ API
   const displayName = isOwn
-    ? (profile?.name || profile?.displayName || member.name || "Cing iu")
+    ? (resolveProfileName(profile, member.display_name || member.zalo_name || member.name || "Cing iu"))
     : (member.name || "Cing iu");
   const avatarUrl = isOwn
     ? (profile?.avatar || null)

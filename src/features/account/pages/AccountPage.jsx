@@ -1,3 +1,4 @@
+import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/stores/auth/authStore";
@@ -179,7 +180,7 @@ export default function AccountPage() {
   const [bdSaving,   setBdSaving]   = useState(false);
   const [bdMsg,      setBdMsg]      = useState("");
 
-  const name      = profile?.name || profile?.displayName || "Khách";
+  const name      = resolveProfileName(profile, "Khách");
   const avatarUrl = profile?.avatar || null;
   const phone     = (() => {
     for (const src of [runtimePhone, profile?.phone]) {

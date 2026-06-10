@@ -1,3 +1,4 @@
+import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import GameLoader from "@/game-system/loaders/GameLoader";
 import { useSearchParams } from "react-router-dom";
 import useAuthStore from "@/stores/auth/authStore";
@@ -25,7 +26,7 @@ export default function GamePage() {
     const phone      = getPhone();
     const profile    = useAuthStore.getState().profile;
     const userId     = phone || profile?.id || "";
-    const playerName = profile?.name || "Cing iu";
+    const playerName = resolveProfileName(profile, "Cing iu");
     const finalScore = score || bestCombo || 0;
     if (!userId || !finalScore) return;
 
