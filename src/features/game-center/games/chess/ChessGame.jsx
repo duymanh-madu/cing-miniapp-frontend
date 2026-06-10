@@ -419,7 +419,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
     }
     return ""; // Không dùng UUID — phải là phone
   })();
-  const userName = profile?.name || profile?.displayName || runtimeIdentity?.fullName || profile?.zalo_name || "Cing iu";
+  const userName = profile?.custom_name || profile?.name || profile?.displayName || runtimeIdentity?.fullName || profile?.zalo_name || "Cing iu";
   const [myCharmBadgeKey, setMyCharmBadgeKey] = useState(
     getHighestCharmBadge(
       profile?.custom_badges ||
