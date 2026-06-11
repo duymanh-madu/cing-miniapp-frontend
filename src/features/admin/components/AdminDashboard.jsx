@@ -19,6 +19,7 @@ import AdminAnalytics from './AdminAnalytics';
 import AdminOrders from './AdminOrders';
 import AdminDelivery from './AdminDelivery';
 import AdminPayments from './AdminPayments';
+import AdminSystemHealth from './AdminSystemHealth';
 
 const TABS = [
   { key:"stats",     icon:"📊", label:"Tổng quan" },
@@ -37,6 +38,7 @@ const TABS = [
   { key:"orders_admin",  icon:"📦", label:"Đơn hàng" },
   { key:"delivery_admin", icon:"🚀", label:"Giao hàng" },
   { key:"payments_admin",icon:"💳", label:"Thanh toán" },
+  { key:"system_health",icon:"🛡", label:"System Health" },
   { key:"analytics_pro", icon:"📈", label:"Analytics" },
   { key:"management",   icon:"🔐", label:"Quản lý Admin" },
   { key:"badges_admin",  icon:"🏅", label:"Danh hiệu" },
@@ -99,6 +101,7 @@ export default function AdminDashboard({ auth }) {
         {tab==="orders_admin"  && <AdminOrders token={auth.token} />}
         {tab==="delivery_admin" && <AdminDelivery token={auth.token} />}
         {tab==="payments_admin" && <AdminPayments token={auth.token} />}
+        {tab==="system_health" && <AdminSystemHealth token={auth.token} />}
         {tab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
         {tab==="management"    && <AdminManagement token={auth.token} />}
         {tab==="badges_admin"  && <AdminBadges token={auth.token} />}
