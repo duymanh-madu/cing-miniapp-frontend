@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 
 const POPUP_KEY = "cing_popup_seen_";
@@ -6,6 +7,7 @@ const POPUP_KEY = "cing_popup_seen_";
 export default function AppPopup() {
   const [popup, setPopup] = useState(null);
   const [visible, setVisible] = useState(false);
+  const navigate = useNavigate();
   const [animOut, setAnimOut] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
@@ -103,7 +105,14 @@ export default function AppPopup() {
           {/* Button */}
           {popup.popup_button_text && (
             <button onClick={() => {
-              if (popup.popup_button_link) window.open(popup.popup_button_link, "_blank");
+              if (popup.popup_button_link) {
+                const link = popup.popup_button_link;
+                if (link.startsWith("http://") || link.startsWith("https://")) {
+                  window.open(link, "_blank");
+                } else {
+                  navigate(link);
+                }
+              }
               close();
             }} style={{
               width:"100%", background:"linear-gradient(135deg,#D4531C,#FF6B35)",
