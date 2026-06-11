@@ -147,7 +147,7 @@ export default function ChessLeaderboard({ onClose }) {
                 )}
 
                 {/* Hạng 1 */}
-                <div onClick={() => goProfile(top3[0].user_id)}
+                {top3[0] && <div onClick={() => goProfile(top3[0].user_id)}
                   style={{ flex:1, textAlign:"center", cursor:"pointer", transform:"translateY(-20px)" }}>
                   <div style={{fontSize:26,marginBottom:4,filter:"drop-shadow(0 0 8px rgba(255,215,0,0.8))"}}>👑</div>
                   <div style={{ width:76, height:76, borderRadius:38, margin:"0 auto 6px",
@@ -162,7 +162,7 @@ export default function ChessLeaderboard({ onClose }) {
                   <div style={{background:"rgba(255,215,0,0.15)",borderRadius:8,padding:"4px 12px",display:"inline-block",border:"1px solid rgba(255,215,0,0.4)",boxShadow:"0 0 10px rgba(255,215,0,0.2)"}}>
                     <span style={{color:"#FFD700",fontSize:13,fontWeight:900}}>🥇 {tab==="wins"?top3[0].wins:top3[0].best_streak}</span>
                   </div>
-                </div>
+                </div>}
 
                 {/* Hạng 3 */}
                 {top3[2] && (
