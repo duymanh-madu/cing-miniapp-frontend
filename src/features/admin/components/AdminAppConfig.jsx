@@ -38,6 +38,7 @@ export default function AdminAppConfig({ token }) {
         popup_content: config.popup_content,
         popup_button_text: config.popup_button_text,
         popup_button_link: config.popup_button_link,
+        popup_image_url: config.popup_image_url,
         custom_leaderboard_name: config.custom_leaderboard_name,
         custom_leaderboard_from: config.custom_leaderboard_from,
         custom_leaderboard_to: config.custom_leaderboard_to,
@@ -157,6 +158,7 @@ export default function AdminAppConfig({ token }) {
         <Field k="popup_content" label="Nội dung" />
         <Field k="popup_button_text" label="Text nút bấm" />
         <Field k="popup_button_link" label="Link nút bấm" />
+        <Field k="popup_image_url" label="URL ảnh banner (tùy chọn)" />
       </Section>
 
       <Section title="Bảng xếp hạng tùy chỉnh">
