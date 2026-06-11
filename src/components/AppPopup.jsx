@@ -17,7 +17,9 @@ export default function AppPopup() {
         const cfg = r.data?.data;
         if (!cfg?.popup_enabled || !cfg?.popup_title) return;
         // Mỗi popup_title khác nhau chỉ show 1 lần
-        const key = POPUP_KEY + btoa(cfg.popup_title).slice(0,16);
+        // Key thay đổi khi bất kỳ field nào thay đổi
+        const keyStr = [cfg.popup_title, cfg.popup_content, cfg.popup_button_link, cfg.popup_image_url].join("|");
+        const key = POPUP_KEY + keyStr.length + "_" + keyStr.split("").reduce((a,c)=>a+c.charCodeAt(0),0);
         if (sessionStorage.getItem(key)) return;
         sessionStorage.setItem(key, "1");
         setPopup(cfg);
