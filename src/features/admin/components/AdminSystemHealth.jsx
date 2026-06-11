@@ -126,10 +126,14 @@ export default function AdminSystemHealth({ token }) {
   const [health, setHealth] = useState(null);
   const [crmStats, setCrmStats] = useState(null);
   const [iposStats, setIposStats] = useState(null);
+  const [notificationStats, setNotificationStats] = useState(null);
   const [crmJobs, setCrmJobs] = useState([]);
   const [iposJobs, setIposJobs] = useState([]);
+  const [notificationJobs, setNotificationJobs] = useState([]);
+  const [deadJobs, setDeadJobs] = useState([]);
   const [crmStatus, setCrmStatus] = useState("");
   const [iposStatus, setIposStatus] = useState("");
+  const [notificationStatus, setNotificationStatus] = useState("");
   const [phone, setPhone] = useState("");
   const [msg, setMsg] = useState("");
   const h = { Authorization:`Bearer ${token}` };
@@ -137,12 +141,15 @@ export default function AdminSystemHealth({ token }) {
   const showMsg = t => { setMsg(t); setTimeout(() => setMsg(""), 3500); };
 
   const load = async () => {
-    const [healthRes, crmStatsRes, crmJobsRes, iposStatsRes, iposJobsRes] = await Promise.all([
+    const [healthRes, crmStatsRes, crmJobsRes, iposStatsRes, iposJobsRes, notificationStatsRes, notificationJobsRes, deadJobsRes] = await Promise.all([
       apiClient.get("/admin/system/health", { headers:h }),
       apiClient.get("/admin/system/crm-recovery/stats", { headers:h }),
       apiClient.get(`/admin/system/crm-recovery/jobs?limit=50${crmStatus ? `&status=${crmStatus}` : ""}`, { headers:h }),
       apiClient.get("/admin/system/ipos-recovery/stats", { headers:h }),
       apiClient.get(`/admin/system/ipos-recovery/jobs?limit=50${iposStatus ? `&status=${iposStatus}` : ""}`, { headers:h }),
+      apiClient.get("/admin/system/notification-recovery/stats", { headers:h }),
+      apiClient.get(`/admin/system/notification-recovery/jobs?limit=50${notificationStatus ? `&status=${notificationStatus}` : ""}`, { headers:h }),
+      apiClient.get("/admin/system/notification-recovery/dead-jobs?limit=50", { headers:h }),
     ]);
 
     setHealth(healthRes.data?.data);
@@ -150,11 +157,14 @@ export default function AdminSystemHealth({ token }) {
     setCrmJobs(crmJobsRes.data?.data || []);
     setIposStats(iposStatsRes.data?.data);
     setIposJobs(iposJobsRes.data?.data || []);
+    setNotificationStats(notificationStatsRes.data?.data);
+    setNotificationJobs(notificationJobsRes.data?.data || []);
+    setDeadJobs(deadJobsRes.data?.data || []);
   };
 
   useEffect(() => {
     load().catch(e => showMsg("❌ " + (e.response?.data?.error || e.message)));
-  }, [crmStatus, iposStatus]);
+  }, [crmStatus, iposStatus, notificationStatus]);
 
   const runCrmWorker = async () => {
     try {
@@ -214,6 +224,38 @@ export default function AdminSystemHealth({ token }) {
     } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
   };
 
+  const retryNotificationJob = async id => {
+    try {
+      await apiClient.post(`/admin/system/notification-recovery/retry/${id}`, {}, { headers:h });
+      showMsg("✅ Đã retry notification job");
+      load();
+    } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
+  };
+
+  const retryNotificationFailed = async () => {
+    try {
+      const r = await apiClient.post("/admin/system/notification-recovery/retry-failed", {}, { headers:h });
+      showMsg(`✅ Đã retry ${r.data?.count || 0} notification job lỗi`);
+      load();
+    } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
+  };
+
+  const releaseNotificationStuck = async () => {
+    try {
+      await apiClient.post("/admin/system/notification-recovery/release-stuck", {}, { headers:h });
+      showMsg("✅ Đã release stuck notification jobs");
+      load();
+    } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
+  };
+
+  const cleanupNotification = async () => {
+    try {
+      const r = await apiClient.post("/admin/system/notification-recovery/cleanup", {}, { headers:h });
+      showMsg(`✅ Đã dọn ${r.data?.deleted || 0} notification job cũ`);
+      load();
+    } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
+  };
+
   const cleanupCrm = async () => {
     try {
       const r = await apiClient.post("/admin/system/crm-recovery/cleanup", {}, { headers:h });
@@ -241,7 +283,7 @@ export default function AdminSystemHealth({ token }) {
         </div>
       )}
 
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:14, marginBottom:20 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:14, marginBottom:20 }}>
         <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
           <p style={{ color:"white", fontSize:14, fontWeight:900, margin:"0 0 12px" }}>⚙️ Health Checks</p>
           {Object.entries(health?.checks || {}).map(([k,v]) => {
@@ -257,9 +299,10 @@ export default function AdminSystemHealth({ token }) {
 
         <RecoveryStats title="CRM Recovery" icon="🧩" stats={crmStats} />
         <RecoveryStats title="iPOS Recovery" icon="📦" stats={iposStats} />
+        <RecoveryStats title="Notification Recovery" icon="🔔" stats={notificationStats} />
       </div>
 
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:20 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:14, marginBottom:20 }}>
         <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
           <p style={{ color:"white", fontSize:14, fontWeight:900, margin:"0 0 12px" }}>🧩 CRM Recovery Actions</p>
           <div style={{ display:"flex", gap:8, marginBottom:10 }}>
@@ -282,6 +325,18 @@ export default function AdminSystemHealth({ token }) {
           <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
             <button onClick={runIposWorker} style={{ background:"rgba(33,150,243,.15)", border:"1px solid #2196F3", color:"#2196F3", borderRadius:8, padding:"8px 12px", fontWeight:800, cursor:"pointer" }}>▶ Run iPOS</button>
             <button onClick={retryIposFailed} style={{ background:"rgba(255,152,0,.15)", border:"1px solid #FF9800", color:"#FF9800", borderRadius:8, padding:"8px 12px", fontWeight:800, cursor:"pointer" }}>↻ Retry iPOS failed</button>
+          </div>
+        </div>
+
+        <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
+          <p style={{ color:"white", fontSize:14, fontWeight:900, margin:"0 0 12px" }}>🔔 Notification Recovery Actions</p>
+          <p style={{ color:"#777", fontSize:12, margin:"0 0 10px", lineHeight:1.5 }}>
+            Theo dõi notification queue và dead letter jobs.
+          </p>
+          <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+            <button onClick={releaseNotificationStuck} style={{ background:"rgba(33,150,243,.15)", border:"1px solid #2196F3", color:"#2196F3", borderRadius:8, padding:"8px 12px", fontWeight:800, cursor:"pointer" }}>🔓 Release stuck</button>
+            <button onClick={retryNotificationFailed} style={{ background:"rgba(255,152,0,.15)", border:"1px solid #FF9800", color:"#FF9800", borderRadius:8, padding:"8px 12px", fontWeight:800, cursor:"pointer" }}>↻ Retry failed</button>
+            <button onClick={cleanupNotification} style={{ background:"rgba(255,255,255,.06)", border:"1px solid #333", color:"#aaa", borderRadius:8, padding:"8px 12px", fontWeight:800, cursor:"pointer" }}>🧹 Cleanup</button>
           </div>
         </div>
       </div>
@@ -315,6 +370,37 @@ export default function AdminSystemHealth({ token }) {
             </select>
           </div>
           <JobsTable title="iPOS Jobs" jobs={iposJobs} type="ipos" onRetry={retryIposJob} />
+        </div>
+
+        <div>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", margin:"0 0 8px" }}>
+            <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0 }}>🔔 Notification Recovery Jobs</p>
+            <select value={notificationStatus} onChange={e=>setNotificationStatus(e.target.value)}
+              style={{ background:"#0d0d18", border:"1px solid #333", color:"white", borderRadius:8, padding:"7px 10px" }}>
+              <option value="">Tất cả</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+          <JobsTable title="Notification Jobs" jobs={notificationJobs.map(j => ({
+            ...j,
+            status: j.job_status,
+            source: j.delivery_channel,
+            phone: j.notification_id,
+          }))} type="crm" onRetry={retryNotificationJob} />
+        </div>
+
+        <div>
+          <p style={{ color:"white", fontSize:14, fontWeight:900, margin:"0 0 8px" }}>☠️ Notification Dead Jobs</p>
+          <JobsTable title="Dead Letter Jobs" jobs={deadJobs.map(j => ({
+            ...j,
+            status: "failed",
+            source: j.delivery_channel,
+            phone: j.notification_id,
+            processed_at: j.created_at,
+          }))} type="crm" onRetry={()=>{}} />
         </div>
       </div>
     </div>
