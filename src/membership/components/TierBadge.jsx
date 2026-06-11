@@ -209,7 +209,7 @@ function StarRating({ stars, size = "sm" }) {
 }
 
 
-function GemIconSm({ tierKey, size = 20 }) {
+export function GemIconSm({ tierKey, size = 20 }) {
   const s = size * 0.85;
   if (tierKey === "hof_1") return (
     <svg width={s} height={s} viewBox="0 0 48 52" style={{ overflow:"visible", filter:"drop-shadow(0 0 4px rgba(255,40,100,.9))" }}>

@@ -4,7 +4,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
-import { TierBadge } from "@/membership/components/TierBadge";
+import { TierBadge, GemIconSm } from "@/membership/components/TierBadge";
 import { TierCard } from "@/membership/components/TierCard";
 import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
 import CharmChatBadge from "@/features/game-center/components/chat-badges/CharmChatBadge";
@@ -403,9 +403,9 @@ export default function ProfilePage() {
                   svgIcon: charmHeader.svgIcon,
                 }
               : activeBadge === "champion" ? { icon:"♟️", text:"KIỆN TƯỚNG", bg:"linear-gradient(90deg,#8a6000,#ffd700,#c47a00)", border:"#ffd700", shadow:"rgba(255,210,0,.7)", textColor:"#120c00" }
-              : activeBadge === "hof_1" ? { icon:"♦", text:"VƯƠNG GIẢ", bg:"linear-gradient(90deg,#3a0010,#cc0050,#ff2060)", border:"#ff2060", shadow:"rgba(255,0,80,.7)", textColor:"#ffe0ea" }
-              : activeBadge === "hof_2" ? { icon:"♦", text:"PHÚ HÀO", bg:"linear-gradient(90deg,#080030,#1840cc,#4060ee)", border:"#2050ee", shadow:"rgba(40,80,255,.7)", textColor:"#c0d8ff" }
-              : activeBadge === "hof_3" ? { icon:"♦", text:"ĐỊA CHỦ", bg:"linear-gradient(90deg,#001c0a,#0caa55,#30cc70)", border:"#0caa55", shadow:"rgba(20,180,80,.7)", textColor:"#a0ffcc" }
+              : activeBadge === "hof_1" ? { icon:null, svgHof:"hof_1", text:"VƯƠNG GIẢ", bg:"linear-gradient(90deg,#3a0010,#cc0050,#ff2060)", border:"#ff2060", shadow:"rgba(255,0,80,.7)", textColor:"#ffe0ea" }
+              : activeBadge === "hof_2" ? { icon:null, svgHof:"hof_2", text:"PHÚ HÀO", bg:"linear-gradient(90deg,#080030,#1840cc,#4060ee)", border:"#2050ee", shadow:"rgba(40,80,255,.7)", textColor:"#c0d8ff" }
+              : activeBadge === "hof_3" ? { icon:null, svgHof:"hof_3", text:"ĐỊA CHỦ", bg:"linear-gradient(90deg,#001c0a,#0caa55,#30cc70)", border:"#0caa55", shadow:"rgba(20,180,80,.7)", textColor:"#a0ffcc" }
               : null;
             return (
               <div style={{ position:"relative" }}>
@@ -454,7 +454,7 @@ export default function ProfilePage() {
                           gap:5,
                           lineHeight:1,
                         }}>
-                          {badgeLabel.icon && <span>{badgeLabel.icon}</span>}
+                          {badgeLabel.svgHof ? <GemIconSm tierKey={badgeLabel.svgHof} size={14}/> : badgeLabel.icon && <span>{badgeLabel.icon}</span>}
                           {badgeLabel.text}
                         </span>
                       </div>
