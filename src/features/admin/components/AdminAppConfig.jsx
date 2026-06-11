@@ -143,7 +143,6 @@ export default function AdminAppConfig({ token }) {
         <Toggle k="voucher_enabled" label="🎟 Voucher" />
         <Toggle k="delivery_enabled" label="🚀 Giao hàng" />
         <Toggle k="banner_enabled" label="🖼 Banner quảng cáo" />
-        <Toggle k="popup_enabled" label="💬 Popup thông báo" />
       </Section>
 
       <Section title="Cấu hình game">
@@ -154,11 +153,42 @@ export default function AdminAppConfig({ token }) {
       </Section>
 
       <Section title="Popup thông báo">
-        <Field k="popup_title" label="Tiêu đề popup" />
-        <Field k="popup_content" label="Nội dung" />
-        <Field k="popup_button_text" label="Text nút bấm" />
-        <Field k="popup_button_link" label="Link nút bấm" />
-        <Field k="popup_image_url" label="URL ảnh banner (tùy chọn)" />
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12,
+          padding:"10px 14px", background: config.popup_enabled ? "rgba(76,175,80,0.1)" : "rgba(255,255,255,0.04)",
+          borderRadius:10, border:`1px solid ${config.popup_enabled ? "rgba(76,175,80,0.3)" : "rgba(255,255,255,0.08)"}` }}>
+          <div>
+            <p style={{ color:"white", fontSize:13, fontWeight:700, margin:0 }}>
+              {config.popup_enabled ? "✅ Popup đang bật" : "⭕ Popup đang tắt"}
+            </p>
+            <p style={{ color:"#666", fontSize:11, margin:"2px 0 0" }}>
+              {config.popup_enabled ? "Khách sẽ thấy popup khi mở app" : "Popup không hiển thị"}
+            </p>
+          </div>
+          <Toggle k="popup_enabled" label="" />
+        </div>
+        {config.popup_enabled && (
+          <>
+            <Field k="popup_title" label="Tiêu đề popup" />
+            <Field k="popup_content" label="Nội dung" />
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+              <Field k="popup_button_text" label="Text nút bấm" />
+              <Field k="popup_button_link" label="Link nút bấm" />
+            </div>
+            <div style={{ marginTop:8, padding:"10px 14px", background:"rgba(255,255,255,0.03)",
+              borderRadius:10, border:"1px solid rgba(255,255,255,0.08)" }}>
+              <p style={{ color:"#888", fontSize:11, margin:"0 0 8px", fontWeight:700 }}>🖼 Ảnh banner (tùy chọn)</p>
+              <Field k="popup_image_url" label="URL ảnh banner" />
+              {config.popup_image_url && (
+                <img src={config.popup_image_url} alt="preview"
+                  style={{ width:"100%", borderRadius:8, marginTop:8, maxHeight:160, objectFit:"cover" }}
+                  onError={e => e.target.style.display="none"}/>
+              )}
+              <p style={{ color:"#555", fontSize:10, margin:"6px 0 0" }}>
+                Upload ảnh lên imgbb.com hoặc cloudinary rồi paste URL vào đây
+              </p>
+            </div>
+          </>
+        )}
       </Section>
 
       <Section title="Bảng xếp hạng tùy chỉnh">
