@@ -26,7 +26,21 @@ export default function AdminLeaderboard({ token }) {
 
   useEffect(() => {
     apiClient.get("/admin/leaderboard/config", { headers: h })
-      .then(r => setConfig(r.data?.data || defaultConfig()))
+      .then(r => {
+        const def = defaultConfig();
+        const db = r.data?.data || {};
+        // Deep merge — đảm bảo luôn có đủ keys
+        const merged = {
+          spending: { ...def.spending, ...(db.spending||{}) },
+          games: { ...def.games, ...(db.games||{}) },
+          chess: { ...def.chess, ...(db.chess||{}) },
+        };
+        // Đảm bảo từng game key tồn tại
+        Object.keys(def.games).forEach(k => {
+          if (!merged.games[k]) merged.games[k] = def.games[k];
+        });
+        setConfig(merged);
+      })
       .catch(() => setConfig(defaultConfig()))
       .finally(() => setLoading(false));
   }, []);
