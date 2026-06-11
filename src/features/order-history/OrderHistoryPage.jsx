@@ -6,6 +6,71 @@ import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCusto
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
+const ORDER_STATUS = {
+  pending_payment: { label:"Chờ thanh toán", icon:"⏳", color:"#FF9800" },
+  confirmed:       { label:"Đã xác nhận",    icon:"✅", color:"#4CAF50" },
+  processing:      { label:"Đang chuẩn bị",  icon:"👨‍🍳", color:"#2196F3" },
+  ready:           { label:"Sẵn sàng",       icon:"📦", color:"#9C27B0" },
+  delivering:      { label:"Đang giao",       icon:"🛵", color:"#FF5722" },
+  completed:       { label:"Hoàn thành",      icon:"🎉", color:"#4CAF50" },
+  cancelled:       { label:"Đã huỷ",          icon:"❌", color:"#f44336" },
+};
+
+const DELIVERY_STATUS = {
+  assigned:   { label:"Đã gán shipper",  icon:"👤", color:"#2196F3" },
+  picked_up:  { label:"Đã lấy hàng",    icon:"📦", color:"#FF9800" },
+  delivering: { label:"Đang giao",       icon:"🛵", color:"#FF5722" },
+  delivered:  { label:"Đã giao",         icon:"✅", color:"#4CAF50" },
+  failed:     { label:"Giao thất bại",   icon:"❌", color:"#f44336" },
+  completed:  { label:"Hoàn thành",      icon:"🎉", color:"#4CAF50" },
+  cancelled:  { label:"Đã huỷ",          icon:"❌", color:"#f44336" },
+};
+
+function DeliveryTracker({ order }) {
+  if (!order.delivery && !order.order_status) return null;
+  const ds = order.delivery ? DELIVERY_STATUS[order.delivery.status] : null;
+  const os = ORDER_STATUS[order.order_status];
+  if (!ds && !os) return null;
+
+  return (
+    <div style={{ margin:"10px 16px", padding:"12px 14px",
+      background: ds ? "rgba(255,87,34,0.06)" : "rgba(76,175,80,0.06)",
+      borderRadius:12, border:`1px solid ${ds ? "rgba(255,87,34,0.2)" : "rgba(76,175,80,0.2)"}` }}>
+      {/* Order status */}
+      {os && (
+        <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom: ds ? 8 : 0 }}>
+          <span style={{ fontSize:16 }}>{os.icon}</span>
+          <div>
+            <p style={{ fontSize:12, fontWeight:800, color:os.color, margin:0 }}>{os.label}</p>
+            <p style={{ fontSize:10, color:"#999", margin:0 }}>Trạng thái đơn hàng</p>
+          </div>
+        </div>
+      )}
+      {/* Delivery tracking */}
+      {ds && (
+        <div style={{ borderTop: os ? "1px solid rgba(0,0,0,0.06)" : "none",
+          paddingTop: os ? 8 : 0 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <span style={{ fontSize:16 }}>{ds.icon}</span>
+            <div style={{ flex:1 }}>
+              <p style={{ fontSize:12, fontWeight:800, color:ds.color, margin:0 }}>{ds.label}</p>
+              {order.delivery.shipper_name && (
+                <p style={{ fontSize:11, color:"#666", margin:"2px 0 0" }}>
+                  🛵 {order.delivery.shipper_name}
+                  {order.delivery.shipper_phone && ` · ${order.delivery.shipper_phone}`}
+                </p>
+              )}
+              {order.delivery.note && (
+                <p style={{ fontSize:10, color:"#999", margin:"2px 0 0" }}>📝 {order.delivery.note}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function fmtDate(str) {
   if (!str) return "";
   const d = new Date(str.replace(" ", "T"));
@@ -61,6 +126,7 @@ function OrderCard({ order }) {
           <p style={{ fontSize:10, color:"#bbb", margin:0 }}>{expanded ? "▲ Thu gọn" : "▼ Chi tiết"}</p>
         </div>
       </div>
+      <DeliveryTracker order={order} />
       {expanded && (
         <div style={{ borderTop:"1px solid #f5f5f5", padding:"12px 16px" }}>
           {order.items?.length > 0 ? (
