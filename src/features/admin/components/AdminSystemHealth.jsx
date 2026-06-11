@@ -25,6 +25,137 @@ const jobColor = status =>
   status === "processing" ? "#2196F3" :
   "#FF9800";
 
+const checkLabel = key => ({
+  database: "Database",
+  redis: "Redis",
+  crm_recovery: "CRM Recovery",
+  ipos_recovery: "iPOS Recovery",
+  notification_recovery: "Notification Recovery",
+  socket_runtime: "Socket Runtime",
+}[key] || key);
+
+const checkIcon = key => ({
+  database: "🗄️",
+  redis: "🧠",
+  crm_recovery: "🧩",
+  ipos_recovery: "📦",
+  notification_recovery: "🔔",
+  socket_runtime: "🔌",
+}[key] || "⚙️");
+
+function calcReadinessScore(checks = {}) {
+  const values = Object.values(checks);
+  if (values.length === 0) return 0;
+
+  const total = values.reduce((sum, v) => {
+    if (v.status === "healthy") return sum + 100;
+    if (v.status === "warning") return sum + 60;
+    return sum + 0;
+  }, 0);
+
+  return Math.round(total / values.length);
+}
+
+function ProductionReadinessCard({ health }) {
+  const checks = health?.checks || {};
+  const score = calcReadinessScore(checks);
+  const overall = health?.overall_status || "unknown";
+  const overallCfg =
+    overall === "healthy"
+      ? { text:"PRODUCTION READY", color:"#4CAF50", icon:"🚀" }
+      : overall === "warning"
+        ? { text:"WARNING", color:"#FF9800", icon:"⚠️" }
+        : { text:"CRITICAL", color:"#f44336", icon:"🚨" };
+
+  const updatedAt = health?.timestamp
+    ? new Date(health.timestamp).toLocaleString("vi-VN", {
+        timeZone:"Asia/Ho_Chi_Minh",
+        hour:"2-digit",
+        minute:"2-digit",
+        second:"2-digit",
+        day:"2-digit",
+        month:"2-digit",
+      })
+    : "—";
+
+  const onlineUsers =
+    checks.socket_runtime?.online_users ??
+    Number(String(checks.socket_runtime?.detail || "").match(/\d+/)?.[0] || 0);
+
+  return (
+    <div style={{
+      background:"linear-gradient(135deg,rgba(76,175,80,.12),rgba(212,83,28,.10))",
+      border:`1px solid ${overallCfg.color}55`,
+      borderRadius:18,
+      padding:18,
+      marginBottom:20,
+      boxShadow:`0 0 32px ${overallCfg.color}18`
+    }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:16, marginBottom:14 }}>
+        <div>
+          <p style={{ color:overallCfg.color, fontSize:11, fontWeight:900, letterSpacing:2, margin:"0 0 6px" }}>
+            {overallCfg.icon} {overallCfg.text}
+          </p>
+          <h3 style={{ color:"white", fontSize:22, fontWeight:950, margin:"0 0 4px" }}>
+            Production Readiness
+          </h3>
+          <p style={{ color:"#888", fontSize:12, margin:0 }}>
+            Last check: {updatedAt} · Online users: {onlineUsers}
+          </p>
+        </div>
+
+        <div style={{
+          width:96,
+          height:96,
+          borderRadius:48,
+          background:"#0d0d18",
+          border:`4px solid ${overallCfg.color}`,
+          display:"flex",
+          flexDirection:"column",
+          alignItems:"center",
+          justifyContent:"center",
+          flexShrink:0
+        }}>
+          <p style={{ color:overallCfg.color, fontSize:28, fontWeight:950, margin:0 }}>{score}</p>
+          <p style={{ color:"#777", fontSize:10, fontWeight:800, margin:0 }}>/100</p>
+        </div>
+      </div>
+
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(6,1fr)", gap:10 }}>
+        {Object.entries(checks).map(([key, value]) => {
+          const b = badge(value.status);
+          return (
+            <div key={key} style={{
+              background:"#0d0d18",
+              border:"1px solid #252536",
+              borderRadius:12,
+              padding:10,
+              minHeight:76
+            }}>
+              <p style={{ color:"white", fontSize:17, margin:"0 0 6px" }}>{checkIcon(key)}</p>
+              <p style={{ color:"#aaa", fontSize:11, fontWeight:800, margin:"0 0 5px", lineHeight:1.2 }}>
+                {checkLabel(key)}
+              </p>
+              <span style={{
+                display:"inline-block",
+                background:b.bg,
+                color:b.color,
+                borderRadius:6,
+                padding:"3px 7px",
+                fontSize:10,
+                fontWeight:900
+              }}>
+                {b.text}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
 function StatCard({ label, value, color }) {
   return (
     <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
@@ -282,6 +413,8 @@ export default function AdminSystemHealth({ token }) {
           {msg}
         </div>
       )}
+
+      <ProductionReadinessCard health={health} />
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:14, marginBottom:20 }}>
         <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
