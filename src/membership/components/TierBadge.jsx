@@ -358,7 +358,7 @@ export function TierBadge({ tierKey = "member", isChampion = false, size = "sm",
             <p style={{ color: cfg.color, fontSize: pillFontSize + 3, fontWeight:900, margin:0 }}>{cfg.label}</p>
             {(isChampion || isHOF) && (
               <span style={{ background: isHOF ? "rgba(255,255,255,.15)" : "rgba(255,0,0,.85)", borderRadius:4, padding:"1px 5px", fontSize:8, fontWeight:900, color: isHOF ? cfg.color : "#fff", animation:"liveFlash 1.2s ease-in-out infinite", border: isHOF ? `1px solid ${cfg.border}` : "none" }}>
-                {isHOF ? `#${cfg.rank} ALLTIME` : "LIVE"}
+                {isHOF ? `Top ${cfg.rank} Alltime` : "LIVE"}
               </span>
             )}
           </div>
