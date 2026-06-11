@@ -12,7 +12,8 @@ const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
 const MENU_ITEMS = [
   { icon:"👤", label:"Hồ sơ của tôi",      path:"/profile",     desc:"Xem trang hồ sơ cá nhân" },
-  { icon:"📦", label:"Lịch sử đơn hàng",  path:"/orders",      desc:"Xem các đơn đã đặt" },
+  { icon:"🛵", label:"Đơn hàng của tôi",   path:"/my-orders",   desc:"Theo dõi đơn đang xử lý" },
+  { icon:"📦", label:"Lịch sử đơn hàng",  path:"/orders",      desc:"Xem các đơn đã hoàn thành" },
   { icon:"🎟", label:"Voucher của tôi",    path:"/voucher",     desc:"Ưu đãi và mã giảm giá" },
   { icon:"⭐", label:"Điểm tích lũy",      path:"/loyalty",     desc:"Xem điểm và đổi quà" },
   { icon:"🎮", label:"Lượt chơi game",     path:"/game-plays",  desc:"Lịch sử lượt chơi game" },
