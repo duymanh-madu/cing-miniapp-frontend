@@ -308,7 +308,7 @@ export function TierBadge({ tierKey = "member", isChampion = false, size = "sm",
           fontSize:     fontSize,
           flexShrink:   0,
         }}>
-          {cfg.icon}
+          {isHOF ? <GemIconSm tierKey={tierKey} size={fontSize}/> : cfg.icon}
         </div>
         {showLabel && (
           <div>
