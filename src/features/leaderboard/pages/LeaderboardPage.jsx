@@ -128,12 +128,13 @@ export default function LeaderboardPage() {
   const [rewardsConfig, setRewardsConfig] = useState({});
   const [customRange,   setCustomRange]   = useState({ from:"", to:"" });
   const [showCustom,    setShowCustom]    = useState(false);
+  const [customEnabled, setCustomEnabled] = useState(true);
   const [customTabName, setCustomTabName] = useState("Tùy chỉnh");
   const prevRankRef    = useRef(null);
   const currentTabRef  = useRef(tab);
   currentTabRef.current = tab;
 
-  const TABS = [...DEFAULT_TABS, { id:"custom", label: customTabName }];
+  const TABS = customEnabled ? [...DEFAULT_TABS, { id:"custom", label: customTabName }] : DEFAULT_TABS;
 
   // App config — 1 lần duy nhất
   useEffect(() => {
@@ -143,6 +144,8 @@ export default function LeaderboardPage() {
       setRewardsConfig(lbCfg.spending || {});
       if (cfg.custom_leaderboard_name) setCustomTabName(cfg.custom_leaderboard_name);
       if (cfg.custom_leaderboard_from) setCustomRange({ from: cfg.custom_leaderboard_from, to: cfg.custom_leaderboard_to || "" });
+      // Ẩn tab custom nếu admin tắt
+      if (lbCfg.spending?.custom?.enabled === false) setCustomEnabled(false);
     }).catch(() => {});
   }, []);
 
