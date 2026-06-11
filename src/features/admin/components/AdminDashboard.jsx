@@ -49,7 +49,14 @@ export default function AdminDashboard({ auth }) {
   const [tab, setTab] = useState("stats");
 
   return (
-    <div style={{ minHeight:"100vh", background:"#0f0f13", display:"flex" }}>
+    <div
+  style={{
+    height:"100vh",
+    background:"#0f0f13",
+    display:"flex",
+    overflow:"hidden"
+  }}
+>
       {/* SIDEBAR */}
       <div style={{ width:220, background:"#1a1a24", borderRight:"1px solid #2a2a38",
         display:"flex", flexDirection:"column", position:"fixed", height:"100vh", zIndex:10, overflowY:"auto" }}>
@@ -84,7 +91,17 @@ export default function AdminDashboard({ auth }) {
       </div>
 
       {/* CONTENT */}
-      <div style={{ marginLeft:220, flex:1, padding:"24px", minHeight:"100vh" }}>
+      <div
+  style={{
+    marginLeft:220,
+    flex:1,
+    padding:"24px",
+    minHeight:"100vh",
+    overflowY:"auto",
+    overflowX:"hidden",
+    paddingBottom:"120px"
+  }}
+>
         {tab==="stats"     && <AdminStats token={auth.token} />}
         {tab==="missions"  && <AdminMissions token={auth.token} />}
         {tab==="notifications" && <AdminNotifications token={auth.token} />}
