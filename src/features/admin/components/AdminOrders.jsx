@@ -24,6 +24,12 @@ const PAYMENT_METHODS = {
   points:        { label:"Đổi điểm",     icon:"⭐" },
 };
 
+const IPOS_STATUS = {
+  success: { label:"Đã sync iPOS", color:"#4CAF50", bg:"rgba(76,175,80,.15)" },
+  failed:  { label:"Lỗi iPOS",     color:"#f44336", bg:"rgba(244,67,54,.15)" },
+  pending: { label:"Chờ sync",     color:"#FF9800", bg:"rgba(255,152,0,.15)" },
+};
+
 const inp = { background:"#0d0d18", border:"1px solid #2a2a38", borderRadius:8,
   padding:"8px 12px", color:"white", fontSize:13, outline:"none" };
 
@@ -43,6 +49,7 @@ export default function AdminOrders({ token }) {
   const [cancelForm, setCancelForm] = useState({ reason:"" });
   const [statusNote, setStatusNote] = useState("");
   const [updating, setUpdating] = useState(false);
+  const [retryingIpos, setRetryingIpos] = useState(false);
   const [msg, setMsg]           = useState("");
   const [autoRefresh, setAutoRefresh] = useState(false);
   const h = { Authorization: `Bearer ${token}` };
@@ -133,6 +140,30 @@ export default function AdminOrders({ token }) {
       loadOrders(page, filterStatus, filterMethod, search, filterDateFrom, filterDateTo);
     } catch(e) { showMsg("❌ " + (e.response?.data?.message || e.message)); }
     finally { setUpdating(false); }
+  };
+
+  const retryIpos = async () => {
+    if (!selected) return;
+    setRetryingIpos(true);
+
+    try {
+      const res = await apiClient.put(
+        `/admin/orders/retry-ipos/${selected.id}`,
+        {},
+        { headers:h }
+      );
+
+      showMsg(res.data?.success ? "✅ Retry iPOS thành công" : "❌ Retry iPOS thất bại");
+
+      const detail = await apiClient.get(`/admin/orders/detail/${selected.id}`, { headers:h });
+      setSelected(detail.data?.data);
+
+      loadOrders(page, filterStatus, filterMethod, search, filterDateFrom, filterDateTo);
+    } catch(e) {
+      showMsg("❌ " + (e.response?.data?.message || e.response?.data?.error || e.message));
+    } finally {
+      setRetryingIpos(false);
+    }
   };
 
   const statusCfg = (s) => STATUS_CONFIG[s] || { label:s, color:"#888", bg:"transparent", next:[] };
@@ -228,7 +259,7 @@ export default function AdminOrders({ token }) {
         <table style={{ width:"100%", borderCollapse:"collapse" }}>
           <thead>
             <tr style={{ background:"#0d0d18" }}>
-              {["Mã đơn","Khách hàng","Tổng tiền","Thanh toán","Trạng thái","Thời gian",""].map(h=>(
+              {["Mã đơn","Khách hàng","Tổng tiền","Thanh toán","iPOS","Trạng thái","Thời gian",""].map(h=>(
                 <th key={h} style={{ padding:"10px 12px", color:"#555", fontSize:10, fontWeight:700, textAlign:"left", letterSpacing:1 }}>{h}</th>
               ))}
             </tr>
@@ -256,6 +287,17 @@ export default function AdminOrders({ token }) {
                   </td>
                   <td style={{ padding:"10px 12px", color:"#aaa", fontSize:12 }}>
                     {pm.icon} {pm.label}
+                  </td>
+                  <td style={{ padding:"10px 12px" }}>
+                    {(() => {
+                      const cfg = IPOS_STATUS[o.pos_sync_status || "pending"] || IPOS_STATUS.pending;
+                      return (
+                        <span style={{ background:cfg.bg, color:cfg.color,
+                          borderRadius:6, padding:"3px 8px", fontSize:11, fontWeight:700 }}>
+                          {cfg.label}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td style={{ padding:"10px 12px" }}>
                     <span style={{ background:sc.bg, color:sc.color,
@@ -322,6 +364,8 @@ export default function AdminOrders({ token }) {
                 ["Số điện thoại", selected.customer_phone||"—"],
                 ["Tổng tiền",     fmt(selected.total_amount)+"đ"],
                 ["Thanh toán",    (PAYMENT_METHODS[selected.payment_method]||{icon:"💳",label:selected.payment_method||"—"}).icon+" "+(PAYMENT_METHODS[selected.payment_method]||{label:selected.payment_method||"—"}).label],
+                ["iPOS",          (IPOS_STATUS[selected.pos_sync_status || "pending"] || IPOS_STATUS.pending).label],
+                ["iPOS Sync",     selected.pos_synced_at ? fmtDate(selected.pos_synced_at) : "Chưa sync"],
                 ["Địa chỉ",       selected.shipping_address||"Tại quán"],
                 ["Thời gian",     fmtDate(selected.created_at)],
               ].map(([label,value],i) => (
