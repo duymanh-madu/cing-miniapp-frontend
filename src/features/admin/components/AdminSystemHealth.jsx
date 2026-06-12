@@ -32,6 +32,7 @@ const checkLabel = key => ({
   ipos_recovery: "iPOS Recovery",
   notification_recovery: "Notification Recovery",
   socket_runtime: "Socket Runtime",
+  zalo_oa: "Zalo OA",
 }[key] || key);
 
 const checkIcon = key => ({
@@ -41,6 +42,7 @@ const checkIcon = key => ({
   ipos_recovery: "📦",
   notification_recovery: "🔔",
   socket_runtime: "🔌",
+  zalo_oa: "💬",
 }[key] || "⚙️");
 
 function calcReadinessScore(checks = {}) {
