@@ -176,6 +176,41 @@ function StatCard({ label, value, color }) {
   );
 }
 
+
+function LoyaltyIntegrityCard({ data }) {
+  const status = data?.status || "healthy";
+  const b = badge(status);
+
+  return (
+    <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16, marginBottom:20 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+        <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0 }}>💎 Loyalty Integrity</p>
+        <span style={{ background:b.bg, color:b.color, borderRadius:6, padding:"4px 8px", fontSize:11, fontWeight:900 }}>
+          {b.text}
+        </span>
+      </div>
+
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:10 }}>
+        <StatCard label="Checked Users" value={data?.checked_users} color="#2196F3" />
+        <StatCard label="Mismatch Users" value={data?.mismatch_users} color={data?.mismatch_users ? "#f44336" : "#4CAF50"} />
+        <StatCard label="Samples" value={data?.sample?.length || 0} color="#FF9800" />
+      </div>
+
+      {data?.sample?.length > 0 && (
+        <div style={{ background:"#0d0d18", border:"1px solid #333", borderRadius:10, padding:10 }}>
+          {data.sample.slice(0,5).map(x => (
+            <div key={x.user_id} style={{ display:"flex", justifyContent:"space-between", padding:"6px 0", borderBottom:"1px solid #222" }}>
+              <span style={{ color:"#aaa", fontSize:12 }}>{x.user_id}</span>
+              <span style={{ color:"#f44336", fontSize:12, fontWeight:900 }}>Diff {x.diff}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function TransactionIntegrityCard({ data, onRun }) {
   const status = data?.status || "healthy";
   const b = badge(status);
@@ -317,6 +352,7 @@ export default function AdminSystemHealth({ token }) {
   const [iposStats, setIposStats] = useState(null);
   const [notificationStats, setNotificationStats] = useState(null);
   const [transactionIntegrity, setTransactionIntegrity] = useState(null);
+  const [loyaltyIntegrity, setLoyaltyIntegrity] = useState(null);
   const [crmJobs, setCrmJobs] = useState([]);
   const [iposJobs, setIposJobs] = useState([]);
   const [notificationJobs, setNotificationJobs] = useState([]);
@@ -331,7 +367,7 @@ export default function AdminSystemHealth({ token }) {
   const showMsg = t => { setMsg(t); setTimeout(() => setMsg(""), 3500); };
 
   const load = async () => {
-    const [healthRes, crmStatsRes, crmJobsRes, iposStatsRes, iposJobsRes, notificationStatsRes, notificationJobsRes, deadJobsRes, txIntegrityRes] = await Promise.all([
+    const [healthRes, crmStatsRes, crmJobsRes, iposStatsRes, iposJobsRes, notificationStatsRes, notificationJobsRes, deadJobsRes, txIntegrityRes, loyaltyIntegrityRes] = await Promise.all([
       apiClient.get("/admin/system/health", { headers:h }),
       apiClient.get("/admin/system/crm-recovery/stats", { headers:h }),
       apiClient.get(`/admin/system/crm-recovery/jobs?limit=50${crmStatus ? `&status=${crmStatus}` : ""}`, { headers:h }),
@@ -341,6 +377,7 @@ export default function AdminSystemHealth({ token }) {
       apiClient.get(`/admin/system/notification-recovery/jobs?limit=50${notificationStatus ? `&status=${notificationStatus}` : ""}`, { headers:h }),
       apiClient.get("/admin/system/notification-recovery/dead-jobs?limit=50", { headers:h }),
       apiClient.get("/admin/system/transaction-integrity", { headers:h }),
+      apiClient.get("/admin/system/loyalty-integrity", { headers:h }),
     ]);
 
     setHealth(healthRes.data?.data);
@@ -352,6 +389,7 @@ export default function AdminSystemHealth({ token }) {
     setNotificationJobs(notificationJobsRes.data?.data || []);
     setDeadJobs(deadJobsRes.data?.data || []);
     setTransactionIntegrity(txIntegrityRes.data?.data);
+    setLoyaltyIntegrity(loyaltyIntegrityRes.data?.data);
   };
 
   useEffect(() => {
@@ -489,6 +527,8 @@ export default function AdminSystemHealth({ token }) {
       <div style={{ marginBottom:20 }}>
         <TransactionIntegrityCard data={transactionIntegrity} onRun={runTransactionIntegrity} />
       </div>
+
+      <LoyaltyIntegrityCard data={loyaltyIntegrity} />
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:14, marginBottom:20 }}>
         <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
