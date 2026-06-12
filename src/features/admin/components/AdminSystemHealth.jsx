@@ -34,6 +34,7 @@ const checkLabel = key => ({
   socket_runtime: "Socket Runtime",
   zalo_oa: "Zalo OA",
   webhook_dedup: "Webhook Dedup",
+  ipos_activity: "iPOS Activity",
 }[key] || key);
 
 const checkIcon = key => ({
@@ -45,6 +46,7 @@ const checkIcon = key => ({
   socket_runtime: "🔌",
   zalo_oa: "💬",
   webhook_dedup: "🔁",
+  ipos_activity: "📡",
 }[key] || "⚙️");
 
 function calcReadinessScore(checks = {}) {
