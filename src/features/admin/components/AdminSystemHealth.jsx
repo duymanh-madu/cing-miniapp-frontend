@@ -165,6 +165,53 @@ function StatCard({ label, value, color }) {
   );
 }
 
+function TransactionIntegrityCard({ data, onRun }) {
+  const status = data?.status || "healthy";
+  const b = badge(status);
+
+  return (
+    <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+        <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0 }}>🛡 Transaction Integrity</p>
+        <span style={{ background:b.bg, color:b.color, borderRadius:6, padding:"4px 8px", fontSize:11, fontWeight:900 }}>
+          {b.text}
+        </span>
+      </div>
+
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:10 }}>
+        <StatCard label="Paid hôm nay" value={data?.paid_orders_today} color="#2196F3" />
+        <StatCard label="Missing CRM" value={data?.missing_crm} color={data?.missing_crm ? "#f44336" : "#4CAF50"} />
+        <StatCard label="Missing iPOS" value={data?.missing_ipos} color={data?.missing_ipos ? "#f44336" : "#4CAF50"} />
+      </div>
+
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:10 }}>
+        <div style={{ background:"#0d0d18", border:"1px solid #252536", borderRadius:10, padding:10 }}>
+          <p style={{ color:"#666", fontSize:10, fontWeight:800, margin:"0 0 4px" }}>CRM Synced</p>
+          <p style={{ color:"#aaa", fontSize:16, fontWeight:900, margin:0 }}>{fmt(data?.crm_synced)}</p>
+        </div>
+        <div style={{ background:"#0d0d18", border:"1px solid #252536", borderRadius:10, padding:10 }}>
+          <p style={{ color:"#666", fontSize:10, fontWeight:800, margin:"0 0 4px" }}>iPOS Synced</p>
+          <p style={{ color:"#aaa", fontSize:16, fontWeight:900, margin:0 }}>{fmt(data?.ipos_synced)}</p>
+        </div>
+      </div>
+
+      <button onClick={onRun} style={{
+        background:"rgba(33,150,243,.15)",
+        border:"1px solid #2196F3",
+        color:"#2196F3",
+        borderRadius:8,
+        padding:"8px 12px",
+        fontWeight:800,
+        cursor:"pointer",
+        width:"100%"
+      }}>
+        ▶ Run Integrity Check
+      </button>
+    </div>
+  );
+}
+
+
 function RecoveryStats({ title, icon, stats }) {
   return (
     <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
@@ -258,6 +305,7 @@ export default function AdminSystemHealth({ token }) {
   const [crmStats, setCrmStats] = useState(null);
   const [iposStats, setIposStats] = useState(null);
   const [notificationStats, setNotificationStats] = useState(null);
+  const [transactionIntegrity, setTransactionIntegrity] = useState(null);
   const [crmJobs, setCrmJobs] = useState([]);
   const [iposJobs, setIposJobs] = useState([]);
   const [notificationJobs, setNotificationJobs] = useState([]);
@@ -272,7 +320,7 @@ export default function AdminSystemHealth({ token }) {
   const showMsg = t => { setMsg(t); setTimeout(() => setMsg(""), 3500); };
 
   const load = async () => {
-    const [healthRes, crmStatsRes, crmJobsRes, iposStatsRes, iposJobsRes, notificationStatsRes, notificationJobsRes, deadJobsRes] = await Promise.all([
+    const [healthRes, crmStatsRes, crmJobsRes, iposStatsRes, iposJobsRes, notificationStatsRes, notificationJobsRes, deadJobsRes, txIntegrityRes] = await Promise.all([
       apiClient.get("/admin/system/health", { headers:h }),
       apiClient.get("/admin/system/crm-recovery/stats", { headers:h }),
       apiClient.get(`/admin/system/crm-recovery/jobs?limit=50${crmStatus ? `&status=${crmStatus}` : ""}`, { headers:h }),
@@ -281,6 +329,7 @@ export default function AdminSystemHealth({ token }) {
       apiClient.get("/admin/system/notification-recovery/stats", { headers:h }),
       apiClient.get(`/admin/system/notification-recovery/jobs?limit=50${notificationStatus ? `&status=${notificationStatus}` : ""}`, { headers:h }),
       apiClient.get("/admin/system/notification-recovery/dead-jobs?limit=50", { headers:h }),
+      apiClient.get("/admin/system/transaction-integrity", { headers:h }),
     ]);
 
     setHealth(healthRes.data?.data);
@@ -291,6 +340,7 @@ export default function AdminSystemHealth({ token }) {
     setNotificationStats(notificationStatsRes.data?.data);
     setNotificationJobs(notificationJobsRes.data?.data || []);
     setDeadJobs(deadJobsRes.data?.data || []);
+    setTransactionIntegrity(txIntegrityRes.data?.data);
   };
 
   useEffect(() => {
@@ -387,6 +437,15 @@ export default function AdminSystemHealth({ token }) {
     } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
   };
 
+  const runTransactionIntegrity = async () => {
+    try {
+      const r = await apiClient.post("/admin/system/transaction-integrity/run", {}, { headers:h });
+      const d = r.data?.data;
+      showMsg(`✅ Integrity: CRM thiếu ${d?.missing_crm || 0}, iPOS thiếu ${d?.missing_ipos || 0}`);
+      load();
+    } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
+  };
+
   const cleanupCrm = async () => {
     try {
       const r = await apiClient.post("/admin/system/crm-recovery/cleanup", {}, { headers:h });
@@ -415,6 +474,10 @@ export default function AdminSystemHealth({ token }) {
       )}
 
       <ProductionReadinessCard health={health} />
+
+      <div style={{ marginBottom:20 }}>
+        <TransactionIntegrityCard data={transactionIntegrity} onRun={runTransactionIntegrity} />
+      </div>
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:14, marginBottom:20 }}>
         <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
