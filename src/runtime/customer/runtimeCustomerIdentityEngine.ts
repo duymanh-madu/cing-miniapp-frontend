@@ -1,4 +1,4 @@
-import { requestPhonePermission } from "./runtimeCustomerPermissionEngine";
+import { requestPhonePermission, getZaloUserInfo } from "./runtimeCustomerPermissionEngine";
 import { verifyOAFollowStatus } from "./runtimeCustomerFollowEngine";
 import { activateCustomerMembership } from "./runtimeCustomerActivationEngine";
 import { runtimeLogger } from "@/runtime/logger/runtimeLogger";
@@ -126,9 +126,9 @@ export async function initializeCustomerIdentityEngine() {
     }
 
     // Có phone → activate
-    const [phoneGranted, oaVerified] = await Promise.all([
+    const [phoneGranted, zaloUserInfo] = await Promise.all([
       requestPhonePermission().catch(() => store.phoneGranted || null),
-      Promise.resolve(true),
+      getZaloUserInfo().catch(() => null),
     ]);
 
     store.setPermissionState({ phoneGranted, oaFollowed: true });
@@ -144,11 +144,35 @@ export async function initializeCustomerIdentityEngine() {
     }
 
     const profile = await hydrateCustomerProfile().catch(() => ({ customerId: "", fullName: "" }));
-    store.setIdentity({ customerId: profile.customerId || "", fullName: profile.fullName || "", memberActivated: true });
+
+    if (zaloUserInfo?.id && typeof phoneGranted === "string" && phoneGranted.length >= 9) {
+      try {
+        await activateMiniAppUser({
+          zaloUserId:   zaloUserInfo.id,
+          name:         zaloUserInfo.name || profile.fullName || "",
+          avatar:       zaloUserInfo.avatar || "",
+          phone:        phoneGranted,
+          phoneGranted: true,
+          oaFollowed:   true,
+          activated:    true,
+          source:       "zalo-miniapp",
+        });
+      } catch(e) {
+        console.warn("[IDENTITY] activateMiniAppUser (zaloUserId sync) failed:", e);
+      }
+    }
+
+    store.setIdentity({
+      customerId: profile.customerId || "",
+      fullName: profile.fullName || zaloUserInfo?.name || "",
+      avatar: zaloUserInfo?.avatar || (store.identity as any)?.avatar || "",
+      zaloUserId: zaloUserInfo?.id || (store.identity as any)?.zaloUserId || "",
+      memberActivated: true,
+    } as any);
     store.setProfileHydrated(true);
     store.setActivationStatus("activated");
     try {
-      const uid = (store.identity as any)?.zaloUserId || "";
+      const uid = zaloUserInfo?.id || (store.identity as any)?.zaloUserId || "";
       if (uid) localStorage.setItem("__zalo_uid", uid);
       const ph = (store.identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
       if (ph && ph.length >= 9 && ph !== "pending") localStorage.setItem("__user_phone", ph);

@@ -17,7 +17,7 @@ export async function requestPhonePermission(): Promise<string | null> {
   }
 }
 
-export async function getZaloUserInfo(): Promise<{ name?: string; avatar?: string } | null> {
+export async function getZaloUserInfo(): Promise<{ name?: string; avatar?: string; id?: string } | null> {
   try {
     const isZalo = typeof window !== "undefined" &&
       (window.__ZALO_MINI_APP__ || navigator.userAgent.includes("ZaloApp"));
@@ -29,6 +29,7 @@ export async function getZaloUserInfo(): Promise<{ name?: string; avatar?: strin
       return {
         name:   result?.userInfo?.name   || undefined,
         avatar: result?.userInfo?.avatar || undefined,
+        id:     result?.userInfo?.id     || undefined,
       };
     }
     return null;
