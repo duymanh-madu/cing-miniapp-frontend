@@ -16,7 +16,7 @@ export default function AdminPlayers({ token }) {
     if (!search) return;
     setLoading(true); setMsg("");
     try {
-      const res = await apiClient.get(`/membership/${search.replace(/\D/g,"")}`, { headers: h });
+      const res = await apiClient.get(`/admin/players/search?q=${encodeURIComponent(search.trim())}`, { headers: h });
       setPlayer(res.data?.data);
     } catch(e) { setMsg("❌ Không tìm thấy"); }
     finally { setLoading(false); }
@@ -33,7 +33,7 @@ export default function AdminPlayers({ token }) {
       setMsg(`✅ Đã ${amount > 0 ? "cộng" : "trừ"} ${Math.abs(amount)} điểm`);
       setReason("");
       // Refresh player
-      const res = await apiClient.get(`/membership/${phone}`, { headers: h });
+      const res = await apiClient.get(`/admin/players/search?q=${encodeURIComponent(phone)}`, { headers: h });
       setPlayer(res.data?.data);
     } catch(e) {
       setMsg("❌ " + (e.response?.data?.message || e.message));
@@ -70,10 +70,12 @@ export default function AdminPlayers({ token }) {
               display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, fontWeight:900, color:"white", flexShrink:0 }}>
               {player.avatar
                 ? <img src={player.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"50%"}}/>
-                : (player.name||"?")[0]?.toUpperCase()}
+                : (player.display_name || player.name || player.zalo_name || "?")[0]?.toUpperCase()}
             </div>
             <div style={{ flex:1 }}>
-              <p style={{ color:"white", fontSize:18, fontWeight:900, margin:"0 0 3px" }}>{player.name}</p>
+              <p style={{ color:"white", fontSize:18, fontWeight:900, margin:"0 0 3px" }}>
+                {player.display_name || player.name || player.zalo_name || player.phone}
+              </p>
               <p style={{ color:"#888", fontSize:12, margin:"0 0 6px" }}>{player.phone}</p>
               <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
                 <span style={{ background:"rgba(212,83,28,0.2)", color:"#D4531C",
