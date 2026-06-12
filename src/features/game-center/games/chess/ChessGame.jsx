@@ -514,14 +514,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
     });
 
     s.on("chess:moved", (data) => {
-      const movedByMe = String(data?.userId || data?.fromUserId || data?.playerId || "") === String(userIdRef.current || userId || "");
-
       const nextBoard = new Chess(data.fen);
-      const nextTurnIsMine = nextBoard.turn() === myColor;
-
-      if (!movedByMe && nextTurnIsMine) {
-        playSound("move");
-      }
 
       setChess(nextBoard);
       setLastMove(data.lastMove);
@@ -620,6 +613,18 @@ export default function ChessGame({ onExit, onFindMatch }) {
     }
     return () => clearInterval(timerRef.current);
   }, [phase]);
+
+  // Phát âm thanh "đến lượt bạn" — derived từ chess.turn(), không phụ thuộc socket event
+  // → không bao giờ miss kể cả khi socket lag/reload
+  const wasMyTurnRef = useRef(false);
+  useEffect(() => {
+    if (phase !== "playing") return;
+    const myTurn = chess.turn() === myColor;
+    if (myTurn && !wasMyTurnRef.current) {
+      playSound("move");
+    }
+    wasMyTurnRef.current = myTurn;
+  }, [chess, myColor, phase]);
 
   // Move timer 30s + reserve 60s
   useEffect(() => {
