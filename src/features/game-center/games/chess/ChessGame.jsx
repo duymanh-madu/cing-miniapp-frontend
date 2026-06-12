@@ -711,50 +711,27 @@ export default function ChessGame({ onExit, onFindMatch }) {
     setShowEmoji(false);
   };
 
-  const sendTip = async (gift) => {
-    playSound("gift_send");
+  const sendTip = (gift) => {
     const opponentId = opponent?.userId || opponent?.id || "";
-    console.log("[TIP DEBUG] fromUserId:", userIdRef.current, "toUserId:", opponentId, "gift:", gift.points, "userPoints:", userPoints);
-    if (!opponentId || !userIdRef.current) { console.warn("[TIP] Missing IDs"); return; }
+    if (!opponentId || !userIdRef.current || !gameIdRef.current) { console.warn("[TIP] Missing IDs"); return; }
     if (userPoints < gift.points) {
       import("zmp-sdk").then(sdk => sdk.showToast?.({ text: `Không đủ điểm! Cần ${gift.points}, bạn có ${userPoints} điểm.`, duration: "long" })).catch(()=>{});
       return;
     }
+    playSound("gift_send");
     setShowTip(false);
-    // Hiển thị popup local ngay lập tức (không cần đợi server)
-    setTipResult({ amount: gift.points, charm: gift.charm, fromMe: true, giftId: gift.id, giftName: gift.name, giftIcon: gift.icon });
-    setTimeout(() => setTipResult(null), 4000);
-    // HTTP fire-and-forget — không block game
-    const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
-    fetch(`${base}/game/chess/tip`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fromUserId: userIdRef.current,
-        toUserId:   opponentId,
-        amount:     gift.points,
-        charm:      gift.charm,
-        giftId:     gift.id,
-        giftName:   gift.name,
-        giftIcon:   gift.icon,
-      }),
-    }).catch(e => console.warn("[TIP HTTP]", e.message));
-    // Giả lập để opponent thấy popup qua Railway socket
-    try {
-      const { getRuntimeSocket } = await import("@/runtime/socket/runtimeSocketClient");
-      const rs = getRuntimeSocket();
-      if (rs?.connected) {
-        rs.emit("chess:gift_notify", {
-          toUserId: opponentId,
-          fromUserId: userIdRef.current,
-          giftIcon: gift.icon, giftName: gift.name, charm: gift.charm,
-        });
-      }
-    } catch(e) {}
-    // fake catch để không bị lỗi syntax
-    if (false) {
-      console.warn("[TIP HTTP]", "");
-    }
+    // Emit qua socket Mắt Bão — server relay HTTP tới Railway (trừ điểm + cộng charm)
+    // và broadcast chess:tip_received tới cả 2 player trong room (đã có listener xử lý popup)
+    sockRef.current?.emit("chess:tip", {
+      gameId:     gameIdRef.current,
+      fromUserId: userIdRef.current,
+      toUserId:   opponentId,
+      amount:     gift.points,
+      charm:      gift.charm,
+      giftId:     gift.id,
+      giftName:   gift.name,
+      giftIcon:   gift.icon,
+    });
   };
 
   const findMatch = useCallback(() => {
