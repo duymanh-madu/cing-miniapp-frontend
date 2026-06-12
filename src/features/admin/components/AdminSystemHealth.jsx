@@ -33,6 +33,7 @@ const checkLabel = key => ({
   notification_recovery: "Notification Recovery",
   socket_runtime: "Socket Runtime",
   zalo_oa: "Zalo OA",
+  webhook_dedup: "Webhook Dedup",
 }[key] || key);
 
 const checkIcon = key => ({
@@ -43,6 +44,7 @@ const checkIcon = key => ({
   notification_recovery: "🔔",
   socket_runtime: "🔌",
   zalo_oa: "💬",
+  webhook_dedup: "🔁",
 }[key] || "⚙️");
 
 function calcReadinessScore(checks = {}) {
