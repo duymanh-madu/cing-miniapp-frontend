@@ -7,6 +7,7 @@ import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import CommunityChat from "../components/CommunityChat";
 import { getAllGames } from "@/games/registry/gameRegistry";
 import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
+import { setGamePlaying } from "@/runtime/game/gamePlayState";
 import { trackGameStart, trackGameStop } from "@/runtime/tracking/gameTracking";
 import { useMemberRequired } from "@/hooks/useMemberRequired";
 import GameLeaderboard from "../components/GameLeaderboard";
@@ -79,6 +80,16 @@ export default function GameCenterPage() {
   const games = getAllGames();
   const [activeGame, setActiveGame]       = useState(null);
   const [playingChess, setPlayingChess]   = useState(false);
+
+  useEffect(() => {
+    setGamePlaying(playingChess || !!activeGame);
+    return () => setGamePlaying(false);
+  }, [playingChess, activeGame]);
+
+  useEffect(() => {
+    setGamePlaying(playingChess || !!activeGame);
+    return () => setGamePlaying(false);
+  }, [playingChess, activeGame]);
   const [showBoard, setShowBoard]         = useState(null);
   const [showChessLB, setShowChessLB]     = useState(false);
   const [showAlltimeLB, setShowAlltimeLB] = useState(false);

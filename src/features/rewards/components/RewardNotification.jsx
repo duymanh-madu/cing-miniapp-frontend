@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import apiClient from "@/infra/api/apiClient";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
+import { isGamePlaying } from "@/runtime/game/gamePlayState";
 
 export function ChallengeWonPopup() {
   const [data, setData] = useState(null);
@@ -14,6 +15,7 @@ export function ChallengeWonPopup() {
   useEffect(() => {
     const show = (detail) => {
       if (shownRef.current) return;
+      if (isGamePlaying()) return;
       shownRef.current = true;
       setData(detail);
       if (timerRef.current) clearTimeout(timerRef.current);
