@@ -23,7 +23,9 @@ export default function ZaloOAGate() {
     navigator.userAgent.includes("Zalo") ||
     navigator.userAgent.includes("zalo")
   );
-  const shouldShow = status === "blocked" && !oaFollowed && !isAdmin;
+  // Chỉ hiện khi user ĐÃ ACTIVATED (có phone, đã chủ động kích hoạt member)
+  // và chưa follow OA — không chặn guest hoặc do lỗi kỹ thuật ngẫu nhiên (status=blocked)
+  const shouldShow = status === "activated" && !oaFollowed && !isAdmin;
   if (!shouldShow) return null;
 
   const handleFollow = async () => {
