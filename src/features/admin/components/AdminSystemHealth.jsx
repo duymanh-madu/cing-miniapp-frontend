@@ -155,7 +155,7 @@ function ProductionReadinessCard({ health }) {
               }}>
                 {b.text}
               </span>
-              {key === "zalo_oa" && value.detail && (
+              {value.detail && (
                 <p style={{ color:"#777", fontSize:9, margin:"5px 0 0", lineHeight:1.3 }}>
                   {value.detail}
                 </p>
