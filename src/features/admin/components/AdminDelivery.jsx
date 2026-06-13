@@ -84,6 +84,7 @@ export default function AdminDelivery({ token }) {
     const id = setInterval(() => {
       loadStats();
       loadDeliveries(filterStatus, search);
+      loadReadyOrders();
     }, 15000);
     return () => clearInterval(id);
   }, [autoRefresh, filterStatus, search]);
@@ -103,6 +104,7 @@ export default function AdminDelivery({ token }) {
       setSelected(prev => prev ? { ...prev, status: newStatus } : null);
       loadStats();
       loadDeliveries(filterStatus, search);
+      loadReadyOrders();
     } catch(e) { showMsg("❌ " + (e.response?.data?.message || e.message)); }
     finally { setUpdating(false); }
   };
