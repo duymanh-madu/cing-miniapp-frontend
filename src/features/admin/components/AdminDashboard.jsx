@@ -2,7 +2,6 @@ import { useState } from "react";
 import AdminStats from "./AdminStats";
 import AdminMissions from "./AdminMissions";
 import AdminGames from "./AdminGames";
-import AdminVouchers from "./AdminVouchers";
 import AdminPlayers from "./AdminPlayers";
 import AdminAppConfig from "./AdminAppConfig";
 import AdminLogs from "./AdminLogs";
@@ -25,7 +24,6 @@ const TABS = [
   { key:"stats",     icon:"📊", label:"Tổng quan" },
   { key:"missions",  icon:"🎯", label:"Nhiệm vụ" },
   { key:"games",     icon:"🎮", label:"Games" },
-  { key:"vouchers",  icon:"🎟", label:"Voucher" },
   { key:"players",   icon:"👥", label:"Người chơi" },
   { key:"appconfig", icon:"⚙️", label:"Cấu hình App" },
   { key:"cdp",       icon:"📡", label:"CDP" },
@@ -106,7 +104,6 @@ export default function AdminDashboard({ auth }) {
         {tab==="missions"  && <AdminMissions token={auth.token} />}
         {tab==="notifications" && <AdminNotifications token={auth.token} />}
         {tab==="games"     && <AdminGames token={auth.token} />}
-        {tab==="vouchers"  && <AdminVouchers token={auth.token} />}
         {tab==="players"   && <AdminPlayers token={auth.token} />}
         {tab==="appconfig" && <AdminAppConfig token={auth.token} />}
         {tab==="cdp"       && <AdminCDP token={auth.token} />}
