@@ -3,13 +3,10 @@ import apiClient from "@/infra/api/apiClient";
 
 const TABS = [
   { key:"all",            label:"Tất cả",          icon:"📋" },
-  { key:"orders",         label:"Đơn hàng",         icon:"🧋" },
-  { key:"points",         label:"Điểm tích lũy",    icon:"💎" },
-  { key:"payments",       label:"Thanh toán",        icon:"💳" },
+  { key:"points",         label:"Điểm bonus",       icon:"💎" },
   { key:"games",          label:"Game",              icon:"🎮" },
   { key:"plays_bought",   label:"Mua lượt chơi",     icon:"🎯" },
-  { key:"plays_earned",   label:"Lượt chơi từ ĐH",  icon:"🎁" },
-  { key:"plays_given",    label:"Tặng lượt chơi",   icon:"🎀" },
+  { key:"plays_given",    label:"Tặng lượt chơi",   icon:"🎁" },
   { key:"rewards",        label:"Nhận quà BXH",      icon:"🏆" },
   { key:"profile_changes",label:"Thay đổi hồ sơ",   icon:"👤" },
 ];
@@ -23,30 +20,41 @@ function fmtDate(str) {
 }
 
 function getStyle(item) {
-  if (item._type==="order")          return { color:"#D4531C", bg:"rgba(212,83,28,0.1)",  icon:"🧋" };
-  if (item._type==="payment")        return { color:"#2E7D32", bg:"rgba(46,125,50,0.1)",  icon:"💳" };
   if (item._type==="game")           return { color:"#1565C0", bg:"rgba(21,101,192,0.1)", icon:"🎮" };
-  if (item._type==="points")         return { color:"#7B1FA2", bg:"rgba(123,31,162,0.1)", icon:"💎" };
+  if (item._type==="points")         return { color:"#7B1FA2", bg:"rgba(123,31,162,0.1)", icon: item.amount>0?"⭐":"💸" };
   if (item._type==="plays_bought")   return { color:"#FF9800", bg:"rgba(255,152,0,0.1)",  icon:"🎯" };
-  if (item._type==="plays_earned")   return { color:"#4CAF50", bg:"rgba(76,175,80,0.1)",  icon:"🎁" };
-  if (item._type==="plays_given")    return { color:"#e879f9", bg:"rgba(232,121,249,0.1)",icon:"🎀" };
+  if (item._type==="plays_given")    return item.source==="admin"
+    ? { color:"#e879f9", bg:"rgba(232,121,249,0.1)",icon:"🎀" }
+    : { color:"#4CAF50", bg:"rgba(76,175,80,0.1)",  icon:"🎁" };
   if (item._type==="reward")         return { color:"#FFD700", bg:"rgba(255,215,0,0.1)",  icon:"🏆" };
   if (item._type==="profile_change") return { color:"#607D8B", bg:"rgba(96,125,139,0.1)",icon:"👤" };
   return { color:"#999", bg:"rgba(0,0,0,0.05)", icon:"📋" };
 }
 
+const FIELD_LABEL = {
+  "name": "tên hiển thị",
+  "avatar": "ảnh đại diện",
+  "name+avatar": "tên hiển thị và ảnh đại diện",
+};
+
 function getTitle(item) {
   const id = item.customer_phone || item.user_id || "?";
   const name = item.customer_name || item.player_name || id;
-  if (item._type==="order")   return `${name} — Đơn ${item.order_code||item.id} — ${fmt(item.total_amount)}đ`;
-  if (item._type==="payment") return `${name} — ${fmt(item.amount)}đ (${item.payment_status||""})`;
   if (item._type==="game")    return `${name} — ${item.game_key} — điểm ${fmt(item.score)}`;
-  if (item._type==="points")  return `${id} — ${item.reason||item.event_name} — ${item.amount>0?"+":""}${item.amount} điểm`;
+  if (item._type==="points")  return `${id} — ${item.reason||item.event_name} — ${item.amount>0?"+":""}${item.amount} điểm ${item.newTotal!=null?`(còn ${item.new_total} điểm)`:""}`;
   if (item._type==="plays_bought")  return `${id} — Mua ${item.amount} lượt (${item.points_used||0} điểm)`;
-  if (item._type==="plays_earned")  return `${id} — +${item.amount} lượt từ đơn hàng`;
-  if (item._type==="plays_given")   return `${id} — Admin tặng ${item.amount} lượt`;
+  if (item._type==="plays_given") {
+    if (item.source === "admin") {
+      return `Admin "${item.admin||"admin"}" tặng ${id} ${item.amount>0?"+":""}${item.amount} lượt (còn ${item.new_total ?? "?"} lượt)`;
+    }
+    return `${id} nhận ${item.amount} lượt — ${item.reason||"Thưởng từ chi tiêu"} (còn ${item.new_total ?? "?"} lượt)`;
+  }
   if (item._type==="reward")        return `${item.player_name||id} — Nhận ${item.points} điểm (${item.board||""} ${item.rank?"#"+item.rank:""})`;
-  if (item._type==="profile_change") return `${id} — Cập nhật ${item.field||"hồ sơ"}`;
+  if (item._type==="profile_change") {
+    const fieldLabel = FIELD_LABEL[item.field] || item.field || "hồ sơ";
+    const pointsNote = item.points_used > 0 ? ` (tốn ${item.points_used} điểm)` : " (miễn phí)";
+    return `${id} đã đổi ${fieldLabel}${pointsNote}`;
+  }
   return JSON.stringify(item).slice(0,80);
 }
 
