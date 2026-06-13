@@ -333,29 +333,35 @@ export default function AccountPage() {
           {MENU_ITEMS.map((item, idx) => (
             <div key={idx} onClick={() => {
               if (item.action === "chat_admin") {
-                import("zmp-sdk").then((sdk) => {
-                  const toast = (msg) => sdk.showToast?.({ text: msg, duration: "long" }).catch(()=>{});
-                  toast("[DEBUG] openChat=" + typeof sdk.openChat + " openWebview=" + typeof sdk.openWebview);
-                  if (typeof sdk.openChat !== "function") {
-                    if (typeof sdk.openWebview === "function") {
-                      sdk.openWebview({ url: "https://zalo.me/4341283871868668950" }).catch(e => toast("[DEBUG] openWebview err: " + (e?.message||JSON.stringify(e))));
+                (async () => {
+                  try {
+                    const sdk = await import("zmp-sdk");
+                    alert("[DEBUG] SDK loaded ok. openChat=" + typeof sdk.openChat + " openWebview=" + typeof sdk.openWebview + " showToast=" + typeof sdk.showToast);
+                    if (typeof sdk.openChat !== "function") {
+                      if (typeof sdk.openWebview === "function") {
+                        try { await sdk.openWebview({ url: "https://zalo.me/4341283871868668950" }); }
+                        catch(e) { alert("[DEBUG] openWebview err: " + JSON.stringify(e, Object.getOwnPropertyNames(e||{}))); }
+                      }
+                      return;
                     }
-                    return;
+                    try {
+                      await sdk.openChat({
+                        type: "oa",
+                        id: "4341283871868668950",
+                        message: "Xin chào Cing Hu Tang! Tôi cần hỗ trợ."
+                      });
+                    } catch(e) {
+                      alert("[DEBUG] openChat err: " + JSON.stringify(e, Object.getOwnPropertyNames(e||{})));
+                      if (typeof sdk.openWebview === "function") {
+                        try { await sdk.openWebview({ url: "https://zalo.me/4341283871868668950" }); }
+                        catch(e2) { alert("[DEBUG] openWebview2 err: " + JSON.stringify(e2, Object.getOwnPropertyNames(e2||{}))); }
+                      }
+                    }
+                  } catch(e) {
+                    alert("[DEBUG] import err: " + JSON.stringify(e, Object.getOwnPropertyNames(e||{})));
+                    window.open("https://zalo.me/4341283871868668950", "_blank");
                   }
-                  sdk.openChat({
-                    type: "oa",
-                    id: "4341283871868668950",
-                    message: "Xin chào Cing Hu Tang! Tôi cần hỗ trợ."
-                  }).catch((e) => {
-                    toast("[DEBUG] openChat err: " + (e?.message || JSON.stringify(e)));
-                    if (typeof sdk.openWebview === "function") {
-                      sdk.openWebview({ url: "https://zalo.me/4341283871868668950" }).catch(e2 => toast("[DEBUG] openWebview2 err: " + (e2?.message||JSON.stringify(e2))));
-                    }
-                  });
-                }).catch((e) => {
-                  alert("[DEBUG] zmp-sdk import err: " + (e?.message || JSON.stringify(e)));
-                  window.open("https://zalo.me/4341283871868668950", "_blank");
-                });
+                })();
               } else if (item.path) {
                 navigate(item.path);
               }
