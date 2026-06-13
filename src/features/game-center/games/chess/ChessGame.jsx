@@ -1,4 +1,5 @@
 import { resolveProfileName } from "@/utils/profile/profileDisplay";
+import { TierBadge } from "@/membership/components/TierBadge";
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -19,9 +20,22 @@ import {
 // =====================================================
 // WEB AUDIO SOUNDS — nhẹ, tối đa 1-2s
 // =====================================================
+// Singleton AudioContext — tránh tạo mới mỗi lần phát âm thanh,
+// vì browser giới hạn số AudioContext sống đồng thời (gây mất âm thanh sau vài lần gọi)
+let _sharedAudioCtx = null;
+function getAudioContext() {
+  if (!_sharedAudioCtx) {
+    _sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (_sharedAudioCtx.state === "suspended") {
+    _sharedAudioCtx.resume().catch(()=>{});
+  }
+  return _sharedAudioCtx;
+}
+
 function playSound(type) {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioContext();
 
     if (type === "move") {
       // Tiếng gõ quân cờ rõ ràng + vang nhẹ
@@ -405,6 +419,14 @@ const PIECES = {
 const PIECE_COLORS = { w:"#FFFDE7", b:"#212121" };
 const PIECE_SHADOW = { w:"rgba(0,0,0,0.5)", b:"rgba(255,255,255,0.15)" };
 
+function getCharmBadge(charmPoints) {
+  if (!charmPoints) return null;
+  if (charmPoints >= 20000) return { label:"Minh tinh", color:"#ff80b0", bg:"linear-gradient(135deg,#8a0030,#cc0055)" };
+  if (charmPoints >= 10000) return { label:"Ngôi sao", color:"#ffd700", bg:"linear-gradient(135deg,#7a5000,#c09000)" };
+  if (charmPoints >= 5000)  return { label:"Idol", color:"#b090ff", bg:"linear-gradient(135deg,#3a2080,#6040c0)" };
+  return null;
+}
+
 export default function ChessGame({ onExit, onFindMatch }) {
   const navigate = useNavigate();
   const profile  = useAuthStore(s => s.profile);
@@ -421,6 +443,8 @@ export default function ChessGame({ onExit, onFindMatch }) {
     return ""; // Không dùng UUID — phải là phone
   })();
   const userName = resolveProfileName(profile, runtimeIdentity?.fullName || "Cing iu");
+  const myTierKey = membership?.tierKey || "member";
+  const [myCharmPoints, setMyCharmPoints] = useState(0);
   const [myCharmBadgeKey, setMyCharmBadgeKey] = useState(
     getHighestCharmBadge(
       profile?.custom_badges ||
@@ -461,6 +485,10 @@ export default function ChessGame({ onExit, onFindMatch }) {
   const [showChat,     setShowChat]     = useState(false);
   const [showEmoji,    setShowEmoji]    = useState(false);
   const [showTip,      setShowTip]      = useState(false);
+  const [tipError,     setTipError]     = useState("");
+  const [showOpponentProfile, setShowOpponentProfile] = useState(false);
+  const [opponentProfile, setOpponentProfile] = useState(null);
+  const [opponentProfileLoading, setOpponentProfileLoading] = useState(false);
   const [floatEmoji,   setFloatEmoji]   = useState(null); // {emoji, fromMe}
   const [tipResult,    setTipResult]    = useState(null); // {amount, fromMe}
   const [unreadCount,  setUnreadCount]  = useState(0);
@@ -592,6 +620,8 @@ export default function ChessGame({ onExit, onFindMatch }) {
             ...data,
             name: data?.name || userName,
             charmBadgeKey: data?.charmBadgeKey || myCharmBadgeKey,
+            charmPoints: data?.charmPoints ?? myCharmPoints,
+            tierKey: data?.tierKey || myTierKey,
           }
         : data;
 
@@ -670,6 +700,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
     apiClient.get(`/profile-update/profile/${phone}`)
       .then((res) => {
         if (cancelled) return;
+        setMyCharmPoints(Number(res.data?.data?.charm_points || 0));
 
         const badges = res?.data?.data?.custom_badges || [];
         const badgeKey = getHighestCharmBadge(badges);
@@ -698,6 +729,8 @@ export default function ChessGame({ onExit, onFindMatch }) {
       userId: userIdRef.current,
       name: userName,
       charmBadgeKey: myCharmBadgeKey,
+      charmPoints: myCharmPoints,
+      tierKey: myTierKey,
       message: chatInput.trim(),
     });
     setChatInput("");
@@ -713,9 +746,15 @@ export default function ChessGame({ onExit, onFindMatch }) {
 
   const sendTip = (gift) => {
     const opponentId = opponent?.userId || opponent?.id || "";
-    if (!opponentId || !userIdRef.current || !gameIdRef.current) { console.warn("[TIP] Missing IDs"); return; }
+    if (!opponentId || !userIdRef.current || !gameIdRef.current) {
+      console.warn("[TIP] Missing IDs");
+      setTipError("Không thể tặng lúc này, vui lòng thử lại");
+      setTimeout(() => setTipError(""), 2500);
+      return;
+    }
     if (userPoints < gift.points) {
-      import("zmp-sdk").then(sdk => sdk.showToast?.({ text: `Không đủ điểm! Cần ${gift.points}, bạn có ${userPoints} điểm.`, duration: "long" })).catch(()=>{});
+      setTipError(`Không đủ điểm! Cần ${gift.points}, bạn có ${userPoints} điểm.`);
+      setTimeout(() => setTipError(""), 2500);
       return;
     }
     playSound("gift_send");
@@ -1002,7 +1041,16 @@ export default function ChessGame({ onExit, onFindMatch }) {
               </div>}
         </div>
         <div style={{ flex:1, cursor: opponent?.userId ? "pointer" : "default" }}
-          onClick={() => opponent?.userId && navigate(`/profile/${opponent.userId}`)}>
+          onClick={() => {
+            if (!opponent?.userId) return;
+            setShowOpponentProfile(true);
+            setOpponentProfile(null);
+            setOpponentProfileLoading(true);
+            apiClient.get(`/profile-update/profile/${opponent.userId}`)
+              .then(r => setOpponentProfile(r.data?.data || null))
+              .catch(() => setOpponentProfile(null))
+              .finally(() => setOpponentProfileLoading(false));
+          }}>
           <p style={{ color:"white", fontSize:14, fontWeight:800, margin:"0 0 2px",
             textDecoration: opponent?.userId ? "underline" : "none",
             textDecorationColor:"rgba(255,255,255,.2)" }}>
@@ -1207,6 +1255,77 @@ export default function ChessGame({ onExit, onFindMatch }) {
         )}
 
         {/* Tip picker */}
+        {showOpponentProfile && opponent && (
+          <div onClick={() => setShowOpponentProfile(false)}
+            style={{ position:"fixed", inset:0, zIndex:9991, background:"rgba(0,0,0,0.7)",
+              display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <div onClick={e => e.stopPropagation()}
+              style={{ background:"#0a0814", borderRadius:20, padding:"24px",
+                border:"1px solid rgba(255,215,0,0.2)", boxShadow:"0 8px 40px rgba(0,0,0,0.9)",
+                minWidth:240, textAlign:"center" }}>
+              <div style={{ width:72, height:72, borderRadius:"50%", margin:"0 auto 12px",
+                overflow:"hidden", border:"2px solid rgba(255,215,0,0.3)" }}>
+                {opponent?.avatar
+                  ? <img src={opponent.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                  : <div style={{width:"100%",height:"100%",background:"linear-gradient(135deg,#333,#555)",
+                      display:"flex",alignItems:"center",justifyContent:"center",
+                      color:"white",fontSize:28,fontWeight:900}}>
+                      {(opponent?.name||"?")[0]?.toUpperCase()}
+                    </div>}
+              </div>
+              <p style={{ color:"white", fontSize:16, fontWeight:900, margin:"0 0 4px" }}>
+                {opponentProfile?.display_name || opponentProfile?.zalo_name || opponent?.name || "Đối thủ"}
+              </p>
+              <p style={{ color: myColor==="w"?"#aaa":"#FFD700", fontSize:12, margin:"0 0 14px", fontWeight:600 }}>
+                {myColor==="w"?"♚ Đang chơi quân Đen":"♔ Đang chơi quân Trắng"}
+              </p>
+
+              {opponentProfileLoading ? (
+                <p style={{ color:"#888", fontSize:12, margin:"0 0 16px" }}>Đang tải...</p>
+              ) : opponentProfile ? (
+                <>
+                  <div style={{ display:"flex", justifyContent:"center", gap:20, marginBottom:14 }}>
+                    <div>
+                      <p style={{ color:"#FFD700", fontSize:18, fontWeight:900, margin:"0 0 2px" }}>
+                        {Math.round(opponentProfile.total_points || 0)}
+                      </p>
+                      <p style={{ color:"#888", fontSize:10, margin:0 }}>⭐ Điểm tích lũy</p>
+                    </div>
+                    <div>
+                      <p style={{ color:"#ff6b9d", fontSize:18, fontWeight:900, margin:"0 0 2px" }}>
+                        {Math.round(opponentProfile.charm_points || 0)}
+                      </p>
+                      <p style={{ color:"#888", fontSize:10, margin:0 }}>✦ Điểm quyến rũ</p>
+                    </div>
+                  </div>
+
+                  {Array.isArray(opponentProfile.custom_badges) && opponentProfile.custom_badges.length > 0 && (
+                    <div style={{ display:"flex", flexWrap:"wrap", gap:6, justifyContent:"center", marginBottom:16 }}>
+                      {opponentProfile.custom_badges.map((b, i) => (
+                        <span key={i} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)",
+                          borderRadius:8, padding:"4px 10px", fontSize:11, color:"#FFD700", fontWeight:700 }}>
+                          {typeof b === "string" ? b : (b?.name || b?.label || "")}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {(!opponentProfile.custom_badges || opponentProfile.custom_badges.length === 0) && (
+                    <p style={{ color:"#666", fontSize:11, margin:"0 0 16px" }}>Chưa có danh hiệu nào</p>
+                  )}
+                </>
+              ) : (
+                <p style={{ color:"#666", fontSize:12, margin:"0 0 16px" }}>Không tải được thông tin</p>
+              )}
+
+              <button onClick={() => setShowOpponentProfile(false)}
+                style={{ width:"100%", background:"rgba(255,215,0,0.15)", border:"1px solid #FFD700",
+                  borderRadius:10, color:"#FFD700", cursor:"pointer", fontSize:13, fontWeight:700, padding:"10px" }}>
+                Đóng
+              </button>
+            </div>
+          </div>
+        )}
+
         {showTip && (
           <div onClick={() => setShowTip(false)}
             style={{ position:"fixed", inset:0, zIndex:9991, background:"rgba(0,0,0,0.7)",
@@ -1220,6 +1339,12 @@ export default function ChessGame({ onExit, onFindMatch }) {
               <p style={{ color:"rgba(255,150,0,0.7)", fontSize:10, margin:"0 0 14px", textAlign:"center", lineHeight:1.5 }}>
                 Dùng điểm tích lũy · Đối thủ nhận điểm quyến rũ
               </p>
+              {tipError && (
+                <p style={{ color:"#ff6b6b", fontSize:12, fontWeight:700, margin:"0 0 10px",
+                  textAlign:"center", background:"rgba(255,107,107,0.1)", borderRadius:8, padding:"8px" }}>
+                  {tipError}
+                </p>
+              )}
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                 {GIFTS.map(g => (
                   <button key={g.id} onClick={() => sendTip(g)}
@@ -1261,9 +1386,16 @@ export default function ChessGame({ onExit, onFindMatch }) {
                 {chatMessages.map((m, i) => (
                   <div key={i} style={{ marginBottom:8, display:"flex", flexDirection:"column",
                     alignItems: m.userId === userIdRef.current ? "flex-end" : "flex-start" }}>
-                    <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 2px", display:"flex", alignItems:"center", gap:4 }}>
+                    <p style={{ color:"rgba(255,255,255,0.4)", fontSize:10, margin:"0 0 2px", display:"flex", alignItems:"center", gap:4, flexWrap:"wrap" }}>
+                      {(() => {
+                        const cb = getCharmBadge(m.charmPoints);
+                        return cb ? (
+                          <span style={{ fontSize:9, fontWeight:1000, padding:"1px 6px", borderRadius:8, background:cb.bg, color:cb.color, border:`1px solid ${cb.color}55`, whiteSpace:"nowrap" }}>{cb.label}</span>
+                        ) : null;
+                      })()}
                       {m.charmBadgeKey && <CharmChatBadge badgeKey={m.charmBadgeKey} compact={true}/>}
                       <span>{m.name}</span>
+                      <TierBadge tierKey={m.tierKey || "member"} size="sm"/>
                     </p>
                     <div style={{ background: m.userId === userIdRef.current ? "#D4531C" : "rgba(255,255,255,0.1)",
                       borderRadius:12, padding:"6px 12px", maxWidth:"75%" }}>
