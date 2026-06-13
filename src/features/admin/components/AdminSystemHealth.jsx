@@ -35,6 +35,7 @@ const checkLabel = key => ({
   zalo_oa: "Zalo OA",
   webhook_dedup: "Webhook Dedup",
   ipos_activity: "iPOS Activity",
+  game_server: "Game Server (Mắt Bão)",
 }[key] || key);
 
 const checkIcon = key => ({
@@ -47,6 +48,7 @@ const checkIcon = key => ({
   zalo_oa: "💬",
   webhook_dedup: "🔁",
   ipos_activity: "📡",
+  game_server: "♟️",
 }[key] || "⚙️");
 
 function calcReadinessScore(checks = {}) {
