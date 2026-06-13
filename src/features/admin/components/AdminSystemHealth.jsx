@@ -177,7 +177,7 @@ function StatCard({ label, value, color }) {
 }
 
 
-function LoyaltyIntegrityCard({ data }) {
+function LoyaltyIntegrityCard({ data, onRun, running }) {
   const status = data?.status || "healthy";
   const b = badge(status);
 
@@ -197,7 +197,7 @@ function LoyaltyIntegrityCard({ data }) {
       </div>
 
       {data?.sample?.length > 0 && (
-        <div style={{ background:"#0d0d18", border:"1px solid #333", borderRadius:10, padding:10 }}>
+        <div style={{ background:"#0d0d18", border:"1px solid #333", borderRadius:10, padding:10, marginBottom:10 }}>
           {data.sample.slice(0,5).map(x => (
             <div key={x.user_id} style={{ display:"flex", justifyContent:"space-between", padding:"6px 0", borderBottom:"1px solid #222" }}>
               <span style={{ color:"#aaa", fontSize:12 }}>{x.user_id}</span>
@@ -206,6 +206,20 @@ function LoyaltyIntegrityCard({ data }) {
           ))}
         </div>
       )}
+
+      <button onClick={onRun} disabled={running} style={{
+        background:"rgba(33,150,243,.15)",
+        border:"1px solid #2196F3",
+        color:"#2196F3",
+        borderRadius:8,
+        padding:"8px 12px",
+        fontWeight:800,
+        cursor: running ? "default" : "pointer",
+        width:"100%",
+        opacity: running ? 0.6 : 1,
+      }}>
+        {running ? "Đang kiểm tra..." : "▶ Run Integrity Check"}
+      </button>
     </div>
   );
 }
@@ -353,6 +367,7 @@ export default function AdminSystemHealth({ token }) {
   const [notificationStats, setNotificationStats] = useState(null);
   const [transactionIntegrity, setTransactionIntegrity] = useState(null);
   const [loyaltyIntegrity, setLoyaltyIntegrity] = useState(null);
+  const [loyaltyRunning, setLoyaltyRunning] = useState(false);
   const [crmJobs, setCrmJobs] = useState([]);
   const [iposJobs, setIposJobs] = useState([]);
   const [notificationJobs, setNotificationJobs] = useState([]);
@@ -495,6 +510,17 @@ export default function AdminSystemHealth({ token }) {
     } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
   };
 
+  const runLoyaltyIntegrity = async () => {
+    setLoyaltyRunning(true);
+    try {
+      const r = await apiClient.get("/admin/system/loyalty-integrity", { headers:h });
+      const d = r.data?.data;
+      setLoyaltyIntegrity(d);
+      showMsg(`✅ Loyalty: ${d?.mismatch_users || 0} mismatch / ${d?.checked_users || 0} users`);
+    } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
+    setLoyaltyRunning(false);
+  };
+
   const cleanupCrm = async () => {
     try {
       const r = await apiClient.post("/admin/system/crm-recovery/cleanup", {}, { headers:h });
@@ -528,7 +554,7 @@ export default function AdminSystemHealth({ token }) {
         <TransactionIntegrityCard data={transactionIntegrity} onRun={runTransactionIntegrity} />
       </div>
 
-      <LoyaltyIntegrityCard data={loyaltyIntegrity} />
+      <LoyaltyIntegrityCard data={loyaltyIntegrity} onRun={runLoyaltyIntegrity} running={loyaltyRunning} />
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:14, marginBottom:20 }}>
         <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
