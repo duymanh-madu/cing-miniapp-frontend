@@ -336,14 +336,6 @@ export default function AccountPage() {
                 (async () => {
                   try {
                     const sdk = await import("zmp-sdk");
-                    alert("[DEBUG] SDK loaded ok. openChat=" + typeof sdk.openChat + " openWebview=" + typeof sdk.openWebview + " showToast=" + typeof sdk.showToast);
-                    if (typeof sdk.openChat !== "function") {
-                      if (typeof sdk.openWebview === "function") {
-                        try { await sdk.openWebview({ url: "https://zalo.me/4341283871868668950" }); }
-                        catch(e) { alert("[DEBUG] openWebview err: " + JSON.stringify(e, Object.getOwnPropertyNames(e||{}))); }
-                      }
-                      return;
-                    }
                     try {
                       await sdk.openChat({
                         type: "oa",
@@ -351,14 +343,13 @@ export default function AccountPage() {
                         message: "Xin chào Cing Hu Tang! Tôi cần hỗ trợ."
                       });
                     } catch(e) {
-                      alert("[DEBUG] openChat err: " + JSON.stringify(e, Object.getOwnPropertyNames(e||{})));
                       if (typeof sdk.openWebview === "function") {
-                        try { await sdk.openWebview({ url: "https://zalo.me/4341283871868668950" }); }
-                        catch(e2) { alert("[DEBUG] openWebview2 err: " + JSON.stringify(e2, Object.getOwnPropertyNames(e2||{}))); }
+                        await sdk.openWebview({ url: "https://zalo.me/4341283871868668950" }).catch(()=>{});
+                      } else {
+                        window.open("https://zalo.me/4341283871868668950", "_blank");
                       }
                     }
                   } catch(e) {
-                    alert("[DEBUG] import err: " + JSON.stringify(e, Object.getOwnPropertyNames(e||{})));
                     window.open("https://zalo.me/4341283871868668950", "_blank");
                   }
                 })();
