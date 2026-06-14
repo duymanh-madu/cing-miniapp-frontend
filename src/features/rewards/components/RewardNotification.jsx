@@ -115,11 +115,40 @@ export function ChallengeWonPopup() {
 
 export function LeaderboardResetPopup() {
   const [msg, setMsg] = useState(null);
+  const resetBufferRef = useRef([]);
+  const resetFlushRef = useRef(null);
+
   useEffect(() => {
-    const handler = (e) => setMsg(e.detail?.message || "BXH đã được reset!");
+    const handler = (e) => {
+      if (isGamePlaying()) return;
+
+      const detail = e.detail || {};
+      const type = detail.type || detail.period || "weekly";
+      const priority = { weekly: 1, monthly: 2, yearly: 3 }[type] || 99;
+
+      resetBufferRef.current.push({
+        priority,
+        message: detail.message || "BXH đã được reset!"
+      });
+
+      if (resetFlushRef.current) clearTimeout(resetFlushRef.current);
+
+      resetFlushRef.current = setTimeout(() => {
+        const items = [...resetBufferRef.current].sort((a,b) => a.priority - b.priority);
+        resetBufferRef.current = [];
+
+        const body = items.map(i => i.message).filter(Boolean).join("\n\n");
+        if (body) setMsg(body);
+      }, 1800);
+    };
+
     window.addEventListener("leaderboard_reset", handler);
-    return () => window.removeEventListener("leaderboard_reset", handler);
+    return () => {
+      window.removeEventListener("leaderboard_reset", handler);
+      if (resetFlushRef.current) clearTimeout(resetFlushRef.current);
+    };
   }, []);
+
   if (!msg) return null;
   return createPortal(
     <div style={{ position:"fixed", inset:0, zIndex:9000, display:"flex", alignItems:"center",

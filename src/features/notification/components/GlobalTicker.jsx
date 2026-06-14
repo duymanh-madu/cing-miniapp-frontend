@@ -7,6 +7,8 @@ export default function GlobalTicker() {
   const [queue, setQueue]     = useState([]);
   const [current, setCurrent] = useState(null);
   const timerRef = useRef(null);
+  const resetBufferRef = useRef([]);
+  const resetFlushRef = useRef(null);
 
   const addMessage = (msg) => {
     setQueue(q => {
@@ -24,6 +26,21 @@ export default function GlobalTicker() {
     return () => clearTimeout(timerRef.current);
   }, [queue, current]);
 
+  const addLeaderboardResetMessage = (type, msg) => {
+    const priority = { weekly: 1, monthly: 2, yearly: 3 };
+    resetBufferRef.current.push({ type, msg, priority: priority[type] || 99 });
+
+    if (resetFlushRef.current) clearTimeout(resetFlushRef.current);
+
+    resetFlushRef.current = setTimeout(() => {
+      const items = [...resetBufferRef.current].sort((a,b) => a.priority - b.priority);
+      resetBufferRef.current = [];
+
+      const body = items.map(i => i.msg).filter(Boolean).join("\n");
+      if (body) addMessage("🔄 Tổng kết reset BXH:\n" + body);
+    }, 1800);
+  };
+
   useEffect(() => {
     let attached = false;
 
@@ -34,9 +51,9 @@ export default function GlobalTicker() {
         const msg = data?.notification?.message || data?.message || "";
         if (msg) addMessage(msg);
       });
-      socket.on("leaderboard.weekly_reset",  (d) => addMessage("🔄 Reset BXH tuần! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
-      socket.on("leaderboard.monthly_reset", (d) => addMessage("🔄 Reset BXH tháng! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
-      socket.on("leaderboard.yearly_reset",  (d) => addMessage("🔄 Reset BXH năm! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
+      socket.on("leaderboard.weekly_reset",  (d) => addLeaderboardResetMessage("weekly",  d?.message || "BXH tuần đã reset. Top 3 vui lòng vào nhận thưởng 🎁"));
+      socket.on("leaderboard.monthly_reset", (d) => addLeaderboardResetMessage("monthly", d?.message || "BXH tháng đã reset. Top 3 vui lòng vào nhận thưởng 🎁"));
+      socket.on("leaderboard.yearly_reset",  (d) => addLeaderboardResetMessage("yearly",  d?.message || "BXH năm đã reset. Top 3 vui lòng vào nhận thưởng 🎁"));
       socket.on("challenge.won", (d) => {
         const payload = d?.payload || d;
         const name = payload?.winner_name || "Một thành viên";
