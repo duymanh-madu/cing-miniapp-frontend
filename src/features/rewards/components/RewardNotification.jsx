@@ -190,6 +190,15 @@ export function PendingRewardsBadge() {
       const res = await apiClient.post(`/game/rewards/claim/${reward.id}`, { userId: phone });
       if (res.data?.success) {
         setRewards(prev => prev.filter(r => r.id !== reward.id));
+
+        window.dispatchEvent(new CustomEvent("reward_claimed", {
+          detail: { phone, pointsAdded: reward.points }
+        }));
+
+        window.dispatchEvent(new CustomEvent("membership_points_updated", {
+          detail: { phone, pointsAdded: reward.points }
+        }));
+
         alert(`🎉 Nhận thưởng thành công! +${reward.points} điểm`);
       }
     } catch(e) {}
