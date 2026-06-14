@@ -184,22 +184,12 @@ export function PendingRewardsBadge() {
     };
   }, [phone]);
 
-  const queryClient = useQueryClient();
-
   const claim = async (reward) => {
     setClaiming(reward.id);
     try {
       const res = await apiClient.post(`/game/rewards/claim/${reward.id}`, { userId: phone });
       if (res.data?.success) {
         setRewards(prev => prev.filter(r => r.id !== reward.id));
-
-        await queryClient.invalidateQueries({ queryKey: ["membership", phone] });
-        await queryClient.refetchQueries({ queryKey: ["membership", phone] });
-
-        window.dispatchEvent(new CustomEvent("membership_points_updated", {
-          detail: { phone, pointsAdded: reward.points }
-        }));
-
         alert(`🎉 Nhận thưởng thành công! +${reward.points} điểm`);
       }
     } catch(e) {}
