@@ -1,5 +1,6 @@
 import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import { TierBadge } from "@/membership/components/TierBadge";
+import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -396,7 +397,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
     return ""; // Không dùng UUID — phải là phone
   })();
 
-  const { membership } = useMembership(userId);
+  const { data: membership } = useMembership(userId);
   const userPoints = membership?.points || 0;
   const userName = resolveProfileName(profile, runtimeIdentity?.fullName || "Cing iu");
   const myTierKey = membership?.tierKey || "member";
@@ -414,6 +415,9 @@ export default function ChessGame({ onExit, onFindMatch }) {
     profile?.zalo_avatar ||
     runtimeIdentity?.avatar ||
     "";
+
+  // Inject TierBadge styles (cần cho TierBadge render đúng)
+  injectTierBadgeStyles();
 
   const sockRef  = useRef(null);
   const [phase,  setPhase]  = useState("lobby"); // lobby | searching | playing | gameover
@@ -1241,9 +1245,12 @@ export default function ChessGame({ onExit, onFindMatch }) {
               <p style={{ color:"white", fontSize:16, fontWeight:900, margin:"0 0 4px" }}>
                 {opponentProfile?.display_name || opponentProfile?.zalo_name || opponent?.name || "Đối thủ"}
               </p>
-              <p style={{ color: myColor==="w"?"#aaa":"#FFD700", fontSize:12, margin:"0 0 14px", fontWeight:600 }}>
+              <p style={{ color: myColor==="w"?"#aaa":"#FFD700", fontSize:12, margin:"0 0 8px", fontWeight:600 }}>
                 {myColor==="w"?"♚ Đang chơi quân Đen":"♔ Đang chơi quân Trắng"}
               </p>
+              <div style={{ display:"flex", justifyContent:"center", marginBottom:14 }}>
+                <TierBadge tierKey={opponentProfile?.crm_tier?.toLowerCase?.()?.replace?.(/\s+/g,'_') || opponent?.tierKey || "member"} size="md" showLabel={true}/>
+              </div>
 
               {opponentProfileLoading ? (
                 <p style={{ color:"#888", fontSize:12, margin:"0 0 16px" }}>Đang tải...</p>
@@ -1264,18 +1271,37 @@ export default function ChessGame({ onExit, onFindMatch }) {
                     </div>
                   </div>
 
+                  {/* Charm badge */}
+                  {opponentProfile.charm_points > 0 && (() => {
+                    const cb = getCharmBadge(opponentProfile.charm_points);
+                    return cb ? (
+                      <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
+                        <span style={{ fontSize:11, fontWeight:900, padding:"3px 12px", borderRadius:10,
+                          background:cb.bg, color:cb.color, border:`1px solid ${cb.color}55` }}>{cb.label}</span>
+                      </div>
+                    ) : null;
+                  })()}
+                  {opponentProfile.charmBadgeKey && (
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
+                      <CharmChatBadge badgeKey={opponentProfile.charmBadgeKey} compact={false}/>
+                    </div>
+                  )}
+                  {/* Custom danh hiệu */}
                   {Array.isArray(opponentProfile.custom_badges) && opponentProfile.custom_badges.length > 0 && (
                     <div style={{ display:"flex", flexWrap:"wrap", gap:6, justifyContent:"center", marginBottom:16 }}>
-                      {opponentProfile.custom_badges.map((b, i) => (
-                        <span key={i} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)",
-                          borderRadius:8, padding:"4px 10px", fontSize:11, color:"#FFD700", fontWeight:700 }}>
-                          {typeof b === "string" ? b : (b?.name || b?.label || "")}
-                        </span>
-                      ))}
+                      {opponentProfile.custom_badges.map((b, i) => {
+                        const label = typeof b === "string" ? b : (b?.name || b?.label || b?.title || "");
+                        return label ? (
+                          <span key={i} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)",
+                            borderRadius:8, padding:"4px 10px", fontSize:11, color:"#FFD700", fontWeight:700 }}>
+                            {label}
+                          </span>
+                        ) : null;
+                      })}
                     </div>
                   )}
                   {(!opponentProfile.custom_badges || opponentProfile.custom_badges.length === 0) && (
-                    <p style={{ color:"#666", fontSize:11, margin:"0 0 16px" }}>Chưa có danh hiệu nào</p>
+                    <p style={{ color:"#666", fontSize:11, margin:"0 0 8px" }}>Chưa có danh hiệu nào</p>
                   )}
                 </>
               ) : (
@@ -1387,14 +1413,14 @@ export default function ChessGame({ onExit, onFindMatch }) {
 
       {/* Action buttons — nằm ngang dưới bàn cờ */}
       <div style={{ position:"relative", display:"flex", gap:10, justifyContent:"center", padding:"8px 0 16px", zIndex:200, pointerEvents:"all" }}>
-        <button onClick={() => { setShowEmoji(v => !v); setShowTip(false); setShowChat(false); }}
+        <button onClick={() => { unlockChessAudio(); setShowEmoji(v => !v); setShowTip(false); setShowChat(false); }}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
             background: showEmoji?"#FF9632":"rgba(255,150,50,0.85)",
             display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
             boxShadow:"0 4px 12px rgba(0,0,0,0.4)" }}>
           😄
         </button>
-        <button onClick={() => { setShowTip(v => !v); setShowEmoji(false); setShowChat(false); }}
+        <button onClick={() => { unlockChessAudio(); setShowTip(v => !v); setShowEmoji(false); setShowChat(false); }}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
             background: showTip?"#FFD700":"rgba(255,215,0,0.85)",
             display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
