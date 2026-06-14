@@ -4,18 +4,21 @@ import { createPortal } from "react-dom";
 import apiClient from "@/infra/api/apiClient";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
-import { isGamePlaying } from "@/runtime/game/gamePlayState";
+import { isGamePlaying, subscribeGamePlaying } from "@/runtime/game/gamePlayState";
 
 export function ChallengeWonPopup() {
   const [data, setData] = useState(null);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const timerRef = useRef(null);
   const shownRef = useRef(false);
+  const pendingRef = useRef([]);
 
   useEffect(() => {
     const show = (detail) => {
-      if (shownRef.current) return;
-      if (isGamePlaying()) return;
+      if (shownRef.current || isGamePlaying()) {
+        pendingRef.current.push(detail);
+        return;
+      }
       shownRef.current = true;
       setData(detail);
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -46,7 +49,15 @@ export function ChallengeWonPopup() {
     };
     attachSocket();
 
+    const unsubscribeGame = subscribeGamePlaying((playing) => {
+      if (!playing && !shownRef.current && pendingRef.current.length > 0) {
+        const next = pendingRef.current.shift();
+        show(next);
+      }
+    });
+
     return () => {
+      unsubscribeGame?.();
       window.removeEventListener("challenge_won", windowHandler);
       socketRef?.off?.("challenge.won");
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -120,8 +131,6 @@ export function LeaderboardResetPopup() {
 
   useEffect(() => {
     const handler = (e) => {
-      if (isGamePlaying()) return;
-
       const detail = e.detail || {};
       const type = detail.type || detail.period || "weekly";
       const priority = { weekly: 1, monthly: 2, yearly: 3 }[type] || 99;
@@ -138,13 +147,29 @@ export function LeaderboardResetPopup() {
         resetBufferRef.current = [];
 
         const body = items.map(i => i.message).filter(Boolean).join("\n\n");
-        if (body) setMsg(body);
+        if (!body) return;
+        if (isGamePlaying()) {
+          resetBufferRef.current.push({ priority: 99, message: body });
+          return;
+        }
+        setMsg(body);
       }, 1800);
     };
 
     window.addEventListener("leaderboard_reset", handler);
+
+    const unsubscribeGame = subscribeGamePlaying((playing) => {
+      if (!playing && !msg && resetBufferRef.current.length > 0) {
+        const items = [...resetBufferRef.current].sort((a,b) => a.priority - b.priority);
+        resetBufferRef.current = [];
+        const body = items.map(i => i.message).filter(Boolean).join("\n\n");
+        if (body) setMsg(body);
+      }
+    });
+
     return () => {
       window.removeEventListener("leaderboard_reset", handler);
+      unsubscribeGame?.();
       if (resetFlushRef.current) clearTimeout(resetFlushRef.current);
     };
   }, []);
