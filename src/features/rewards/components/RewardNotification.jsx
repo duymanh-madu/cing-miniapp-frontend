@@ -125,9 +125,23 @@ export function ChallengeWonPopup() {
 }
 
 export function LeaderboardResetPopup() {
+  const STORAGE_KEY = "cing_leaderboard_reset_popup";
   const [msg, setMsg] = useState(null);
   const resetBufferRef = useRef([]);
   const resetFlushRef = useRef(null);
+
+  const persistResetPopup = (message) => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        message,
+        createdAt: Date.now()
+      }));
+    } catch(e) {}
+  };
+
+  const clearPersistedResetPopup = () => {
+    try { sessionStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  };
 
   useEffect(() => {
     const handler = (e) => {
@@ -148,6 +162,7 @@ export function LeaderboardResetPopup() {
 
         const body = items.map(i => i.message).filter(Boolean).join("\n\n");
         if (!body) return;
+        persistResetPopup(body);
         if (isGamePlaying()) {
           resetBufferRef.current.push({ priority: 99, message: body });
           return;
@@ -158,12 +173,32 @@ export function LeaderboardResetPopup() {
 
     window.addEventListener("leaderboard_reset", handler);
 
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        const fresh = Date.now() - Number(saved?.createdAt || 0) < 10 * 60 * 1000;
+        if (fresh && saved?.message) {
+          if (isGamePlaying()) {
+            resetBufferRef.current.push({ priority: 99, message: saved.message });
+          } else {
+            setMsg(saved.message);
+          }
+        } else {
+          clearPersistedResetPopup();
+        }
+      }
+    } catch(e) {}
+
     const unsubscribeGame = subscribeGamePlaying((playing) => {
       if (!playing && !msg && resetBufferRef.current.length > 0) {
         const items = [...resetBufferRef.current].sort((a,b) => a.priority - b.priority);
         resetBufferRef.current = [];
         const body = items.map(i => i.message).filter(Boolean).join("\n\n");
-        if (body) setMsg(body);
+        if (body) {
+          persistResetPopup(body);
+          setMsg(body);
+        }
       }
     });
 
@@ -178,7 +213,7 @@ export function LeaderboardResetPopup() {
   return createPortal(
     <div style={{ position:"fixed", inset:0, zIndex:9000, display:"flex", alignItems:"center",
       justifyContent:"center", background:"rgba(0,0,0,0.75)", padding:24 }}
-      onClick={() => setMsg(null)}>
+      onClick={() => { clearPersistedResetPopup(); setMsg(null); }}>
       <div onClick={e => e.stopPropagation()}
         style={{ background:"linear-gradient(135deg,#0d0a08,#1a1208)", borderRadius:20,
           border:"2px solid rgba(255,215,0,0.4)", padding:24, maxWidth:320, width:"100%",
@@ -191,7 +226,7 @@ export function LeaderboardResetPopup() {
           marginBottom:16, border:"1px solid rgba(255,215,0,0.15)" }}>
           <p style={{ color:"rgba(255,255,255,0.8)", fontSize:12, margin:0, lineHeight:1.7, whiteSpace:"pre-line" }}>{msg}</p>
         </div>
-        <button onClick={() => setMsg(null)}
+        <button onClick={() => { clearPersistedResetPopup(); setMsg(null); }}
           style={{ width:"100%", padding:"12px", background:"linear-gradient(135deg,#D4531C,#FF6B35)",
             border:"none", borderRadius:12, color:"white", fontSize:14, fontWeight:800, cursor:"pointer" }}>
           Đã hiểu 🎁
