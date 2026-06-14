@@ -206,6 +206,7 @@ export function PendingRewardsBadge() {
   };
 
   if (rewards.length === 0) return null;
+  if (isGamePlaying()) return null;
 
   return (
     <>
