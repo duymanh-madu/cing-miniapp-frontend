@@ -32,6 +32,8 @@ export function useMembership(overridePhone = "") {
       const socket = getRuntimeSocket();
       if (socket && socket.connected) {
         socket.on("user.updated", handler);
+        socket.on("membership.points", handler);
+        socket.on("membership.updated", handler);
         return true;
       }
       if (attempts++ < 30) {
@@ -45,6 +47,8 @@ export function useMembership(overridePhone = "") {
       const socket = getRuntimeSocket();
       if (socket && handlerRef.current) {
         socket.off("user.updated", handlerRef.current);
+        socket.off("membership.points", handlerRef.current);
+        socket.off("membership.updated", handlerRef.current);
       }
     };
   }, [phone, queryClient]);
