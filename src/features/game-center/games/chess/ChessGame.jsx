@@ -750,7 +750,6 @@ export default function ChessGame({ onExit, onFindMatch }) {
   };
 
   const findMatch = useCallback(() => {
-    unlockChessAudio(); // Unlock audio từ user gesture (click "Tìm trận")
     // Nếu có callback từ parent — check lượt chơi trước
     if (onFindMatch && !onFindMatch()) return; // onFindMatch trả false = hết lượt
     if (!userId) return;
@@ -1431,14 +1430,14 @@ export default function ChessGame({ onExit, onFindMatch }) {
 
       {/* Action buttons — nằm ngang dưới bàn cờ */}
       <div style={{ position:"relative", display:"flex", gap:10, justifyContent:"center", padding:"8px 0 16px", zIndex:200, pointerEvents:"all" }}>
-        <button onClick={() => { unlockChessAudio(); setShowEmoji(v => !v); setShowTip(false); setShowChat(false); }}
+        <button onClick={() => { setShowEmoji(v => !v); setShowTip(false); setShowChat(false); }}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
             background: showEmoji?"#FF9632":"rgba(255,150,50,0.85)",
             display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
             boxShadow:"0 4px 12px rgba(0,0,0,0.4)" }}>
           😄
         </button>
-        <button onClick={() => { unlockChessAudio(); setShowTip(v => !v); setShowEmoji(false); setShowChat(false); }}
+        <button onClick={() => { setShowTip(v => !v); setShowEmoji(false); setShowChat(false); }}
           style={{ width:44, height:44, borderRadius:22, border:"none", cursor:"pointer",
             background: showTip?"#FFD700":"rgba(255,215,0,0.85)",
             display:"flex", alignItems:"center", justifyContent:"center", fontSize:20,
