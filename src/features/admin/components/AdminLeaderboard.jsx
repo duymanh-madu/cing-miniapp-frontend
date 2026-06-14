@@ -131,7 +131,7 @@ export default function AdminLeaderboard({ token }) {
             style={{ background:"rgba(255,152,0,0.15)", border:"1px solid #FF9800",
               color:"#FF9800", borderRadius:10, padding:"10px 16px",
               fontWeight:800, cursor:"pointer", fontSize:12 }}>
-            🔄 Reset tuần ngay
+            🎁 Reset tuần + tạo quà chờ nhận
           </button>
           <button onClick={save} disabled={saving}
             style={{ background:"#D4531C", border:"none", color:"white",
@@ -186,7 +186,7 @@ export default function AdminLeaderboard({ token }) {
                         color: isEnabled ? "#FFD700" : "#444",
                         borderRadius:8, padding:"6px 12px", fontSize:11,
                         fontWeight:700, cursor: isEnabled ? "pointer" : "default" }}>
-                      {distributing === "spending" + p.key ? "Đang phát..." : "🎁 Phát thưởng"}
+                      {distributing === "spending" + p.key ? "Đang phát..." : "⚡ Cộng điểm trực tiếp"}
                     </button>
                   )}
                   <button onClick={() => toggleEnabled("spending", p.key)}
@@ -258,7 +258,7 @@ export default function AdminLeaderboard({ token }) {
                       color: isEnabled ? "#FFD700" : "#444",
                       borderRadius:8, padding:"6px 12px", fontSize:11,
                       fontWeight:700, cursor: isEnabled ? "pointer" : "default" }}>
-                    {distributing === "game" + g.key ? "Đang phát..." : "🎁 Phát thưởng"}
+                    {distributing === "game" + g.key ? "Đang phát..." : "⚡ Cộng điểm trực tiếp"}
                   </button>
                   <button onClick={() => resetGame(g.key)}
                     disabled={resetting === g.key}
