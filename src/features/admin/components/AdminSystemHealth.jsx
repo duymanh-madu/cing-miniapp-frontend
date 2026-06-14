@@ -179,7 +179,7 @@ function StatCard({ label, value, color }) {
 }
 
 
-function LoyaltyIntegrityCard({ data, onRun, running }) {
+function LoyaltyIntegrityCard({ data, onRun, running, onAccept, onRevoke }) {
   const status = data?.status || "healthy";
   const b = badge(status);
 
@@ -201,9 +201,25 @@ function LoyaltyIntegrityCard({ data, onRun, running }) {
       {data?.sample?.length > 0 && (
         <div style={{ background:"#0d0d18", border:"1px solid #333", borderRadius:10, padding:10, marginBottom:10 }}>
           {data.sample.slice(0,5).map(x => (
-            <div key={x.user_id} style={{ display:"flex", justifyContent:"space-between", padding:"6px 0", borderBottom:"1px solid #222" }}>
-              <span style={{ color:"#aaa", fontSize:12 }}>{x.user_id}</span>
-              <span style={{ color:"#f44336", fontSize:12, fontWeight:900 }}>Diff {x.diff}</span>
+            <div key={x.user_id} style={{ padding:"8px 0", borderBottom:"1px solid #222" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+                <span style={{ color:"#aaa", fontSize:12 }}>{x.user_id}</span>
+                <span style={{ color:"#f44336", fontSize:12, fontWeight:900 }}>
+                  Diff {x.diff > 0 ? "+" : ""}{x.diff} ({x.current_points} vs expected {x.expected_points})
+                </span>
+              </div>
+              <div style={{ display:"flex", gap:6 }}>
+                <button onClick={() => onAccept(x)}
+                  style={{ flex:1, background:"rgba(76,175,80,0.15)", border:"1px solid #4CAF50",
+                    color:"#4CAF50", borderRadius:6, padding:"4px 8px", fontSize:11, fontWeight:700, cursor:"pointer" }}>
+                  ✅ Chấp nhận ({x.current_points} đ)
+                </button>
+                <button onClick={() => onRevoke(x)}
+                  style={{ flex:1, background:"rgba(244,67,54,0.15)", border:"1px solid #f44336",
+                    color:"#f44336", borderRadius:6, padding:"4px 8px", fontSize:11, fontWeight:700, cursor:"pointer" }}>
+                  ↩ Thu hồi ({x.expected_points} đ)
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -556,7 +572,28 @@ export default function AdminSystemHealth({ token }) {
         <TransactionIntegrityCard data={transactionIntegrity} onRun={runTransactionIntegrity} />
       </div>
 
-      <LoyaltyIntegrityCard data={loyaltyIntegrity} onRun={runLoyaltyIntegrity} running={loyaltyRunning} />
+      <LoyaltyIntegrityCard
+        data={loyaltyIntegrity}
+        onRun={runLoyaltyIntegrity}
+        running={loyaltyRunning}
+        onAccept={async (x) => {
+          try {
+            await apiClient.post("/admin/system/loyalty-integrity/accept",
+              { user_id: x.user_id, current_points: x.current_points }, { headers:h });
+            showMsg("✅ Đã chấp nhận " + x.user_id + " → " + x.current_points + " điểm");
+            runLoyaltyIntegrity();
+          } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
+        }}
+        onRevoke={async (x) => {
+          if (!window.confirm("Thu hồi " + Math.abs(x.diff) + " điểm của " + x.user_id + "? Không thể hoàn tác.")) return;
+          try {
+            await apiClient.post("/admin/system/loyalty-integrity/revoke",
+              { user_id: x.user_id, expected_points: x.expected_points }, { headers:h });
+            showMsg("↩ Đã thu hồi " + x.user_id + " → " + x.expected_points + " điểm");
+            runLoyaltyIntegrity();
+          } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
+        }}
+      />
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:14, marginBottom:20 }}>
         <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, padding:16 }}>
