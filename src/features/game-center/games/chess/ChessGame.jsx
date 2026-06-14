@@ -774,6 +774,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
 
   // Click ô cờ
   const handleSquareClick = useCallback((sq) => {
+    unlockChessAudio(); // unlock ngay từ lần click ô cờ đầu tiên
     if (phase !== "playing") return;
     if (chess.turn() !== myColor) return; // không phải lượt mình
 
