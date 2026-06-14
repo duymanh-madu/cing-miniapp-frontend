@@ -28,10 +28,15 @@ let _audioCtx = null;
 const _audioBuffers = {};
 let _audioUnlocked = false;
 
-async function unlockChessAudio() {
-  if (_audioUnlocked) return;
+// Tạo AudioContext ngay trong gesture (sync), load buffer async sau
+// Zalo WebView yêu cầu AudioContext được tạo trong synchronous gesture handler
+function unlockChessAudio() {
+  if (_audioCtx) return; // đã tạo rồi
   try {
     _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Resume nếu bị suspend
+    if (_audioCtx.state === "suspended") _audioCtx.resume().catch(()=>{});
+    // Load buffers async sau khi context đã tạo
     const files = {
       move:         "/sounds/move-sound.mp3",
       capture:      "/sounds/An-quan-sound.mp3",
@@ -41,14 +46,13 @@ async function unlockChessAudio() {
       gift_send:    "/sounds/champ-sound.mp3",
       emoji:        "/sounds/emoji-sound.mp3",
     };
-    await Promise.all(Object.entries(files).map(async ([k, url]) => {
+    Promise.all(Object.entries(files).map(async ([k, url]) => {
       try {
         const res = await fetch(url);
         const buf = await res.arrayBuffer();
         _audioBuffers[k] = await _audioCtx.decodeAudioData(buf);
       } catch(e) {}
-    }));
-    _audioUnlocked = true;
+    })).then(() => { _audioUnlocked = true; }).catch(()=>{});
   } catch(e) {}
 }
 
@@ -670,8 +674,12 @@ export default function ChessGame({ onExit, onFindMatch }) {
         if (cancelled) return;
         setMyCharmPoints(Number(res.data?.data?.charm_points || 0));
 
-        const badges = res?.data?.data?.custom_badges || [];
-        const badgeKey = getHighestCharmBadge(badges);
+        // selected_badge = badge quyến rũ user đã chọn (field DB thật)
+        // Fallback: chat_charm_badge → tính từ custom_badges → charm_points
+        const d = res?.data?.data || {};
+        const badgeKey = d.selected_badge || d.chat_charm_badge
+          || getHighestCharmBadge(d.custom_badges || [])
+          || (d.charm_points >= 20000 ? "minh_tinh" : d.charm_points >= 10000 ? "ngoi_sao" : d.charm_points >= 5000 ? "idol" : null);
 
         setMyCharmBadgeKey(badgeKey);
       })
@@ -1016,7 +1024,16 @@ export default function ChessGame({ onExit, onFindMatch }) {
             setOpponentProfile(null);
             setOpponentProfileLoading(true);
             apiClient.get(`/profile-update/profile/${opponent.userId}`)
-              .then(r => setOpponentProfile(r.data?.data || null))
+              .then(r => {
+              const d = r.data?.data || null;
+              if (d) {
+                // Tính charmBadgeKey cho opponent từ selected_badge/chat_charm_badge
+                d._charmBadgeKey = d.selected_badge || d.chat_charm_badge
+                  || getHighestCharmBadge(d.custom_badges || [])
+                  || (d.charm_points >= 20000 ? "minh_tinh" : d.charm_points >= 10000 ? "ngoi_sao" : d.charm_points >= 5000 ? "idol" : null);
+              }
+              setOpponentProfile(d);
+            })
               .catch(() => setOpponentProfile(null))
               .finally(() => setOpponentProfileLoading(false));
           }}>
@@ -1281,9 +1298,9 @@ export default function ChessGame({ onExit, onFindMatch }) {
                       </div>
                     ) : null;
                   })()}
-                  {opponentProfile.charmBadgeKey && (
+                  {(opponentProfile.selected_badge || opponentProfile.chat_charm_badge) && (
                     <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
-                      <CharmChatBadge badgeKey={opponentProfile.charmBadgeKey} compact={false}/>
+                      <CharmChatBadge badgeKey={opponentProfile.selected_badge || opponentProfile.chat_charm_badge} compact={false}/>
                     </div>
                   )}
                   {/* Custom danh hiệu */}
