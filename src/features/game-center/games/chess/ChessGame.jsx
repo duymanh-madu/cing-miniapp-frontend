@@ -20,91 +20,46 @@ import {
 // =====================================================
 // WEB AUDIO SOUNDS — nhẹ, tối đa 1-2s
 // =====================================================
-// Singleton AudioContext — tránh tạo mới mỗi lần phát âm thanh,
-// vì browser giới hạn số AudioContext sống đồng thời (gây mất âm thanh sau vài lần gọi)
-let _sharedAudioCtx = null;
-function getAudioContext() {
-  if (!_sharedAudioCtx) {
-    _sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (_sharedAudioCtx.state === "suspended") {
-    _sharedAudioCtx.resume().catch(()=>{});
-  }
-  return _sharedAudioCtx;
+// AUDIO SYSTEM — file-based, pattern giống BlackPearlRush
+// unlock 1 lần từ user gesture → buffer tất cả → zero-latency khi play
+// =====================================================
+let _audioCtx = null;
+const _audioBuffers = {};
+let _audioUnlocked = false;
+
+async function unlockChessAudio() {
+  if (_audioUnlocked) return;
+  try {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const files = {
+      move:         "/sounds/move-sound.mp3",
+      capture:      "/sounds/An-quan-sound.mp3",
+      check:        "/sounds/chess-sound.mp3",
+      warning:      "/sounds/chess-sound.mp3",
+      gift_receive: "/sounds/champ-sound.mp3",
+      gift_send:    "/sounds/champ-sound.mp3",
+      emoji:        "/sounds/emoji-sound.mp3",
+    };
+    await Promise.all(Object.entries(files).map(async ([k, url]) => {
+      try {
+        const res = await fetch(url);
+        const buf = await res.arrayBuffer();
+        _audioBuffers[k] = await _audioCtx.decodeAudioData(buf);
+      } catch(e) {}
+    }));
+    _audioUnlocked = true;
+  } catch(e) {}
 }
 
 function playSound(type) {
+  if (!_audioUnlocked || !_audioCtx || !_audioBuffers[type]) return;
   try {
-    const ctx = getAudioContext();
-
-    if (type === "move") {
-      // Tiếng gõ quân cờ rõ ràng + vang nhẹ
-      const o1 = ctx.createOscillator(); const g1 = ctx.createGain();
-      o1.connect(g1); g1.connect(ctx.destination);
-      o1.type = "triangle";
-      o1.frequency.setValueAtTime(900, ctx.currentTime);
-      o1.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.12);
-      g1.gain.setValueAtTime(0.5, ctx.currentTime);
-      g1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-      o1.start(); o1.stop(ctx.currentTime + 0.12);
-      const o2 = ctx.createOscillator(); const g2 = ctx.createGain();
-      o2.connect(g2); g2.connect(ctx.destination);
-      o2.type = "sine";
-      o2.frequency.setValueAtTime(350, ctx.currentTime + 0.04);
-      g2.gain.setValueAtTime(0.2, ctx.currentTime + 0.04);
-      g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-      o2.start(ctx.currentTime + 0.04); o2.stop(ctx.currentTime + 0.35);
-
-    } else if (type === "warning") {
-      // 3 beep dồn dập to hơn
-      [0, 0.22, 0.44].forEach((d, i) => {
-        const o = ctx.createOscillator(); const g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        o.type = "square";
-        o.frequency.setValueAtTime(880 + i*100, ctx.currentTime + d);
-        g.gain.setValueAtTime(0.35, ctx.currentTime + d);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d + 0.16);
-        o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + 0.16);
-      });
-
-    } else if (type === "gift_receive") {
-      // Nhạc chuông trang trọng 5 nốt
-      [523, 659, 784, 1046, 784].forEach((freq, i) => {
-        const o = ctx.createOscillator(); const g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        o.type = "sine";
-        o.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.14);
-        g.gain.setValueAtTime(0.35, ctx.currentTime + i * 0.14);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.14 + 0.28);
-        o.start(ctx.currentTime + i * 0.14);
-        o.stop(ctx.currentTime + i * 0.14 + 0.28);
-      });
-
-    } else if (type === "gift_send") {
-      // 2 nốt xác nhận ngọt ngào
-      [[659, 0], [784, 0.18]].forEach(([freq, d]) => {
-        const o = ctx.createOscillator(); const g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        o.type = "sine";
-        o.frequency.setValueAtTime(freq, ctx.currentTime + d);
-        g.gain.setValueAtTime(0.28, ctx.currentTime + d);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d + 0.28);
-        o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + 0.28);
-      });
-
-    } else if (type === "emoji") {
-      const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.type = "sine";
-      o.frequency.setValueAtTime(523, ctx.currentTime);
-      o.frequency.exponentialRampToValueAtTime(784, ctx.currentTime + 0.08);
-      o.frequency.exponentialRampToValueAtTime(523, ctx.currentTime + 0.1);
-      g.gain.setValueAtTime(0.15, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-      o.start(); o.stop(ctx.currentTime + 0.15);
-    }
-
-    setTimeout(() => ctx.close(), 2000);
+    const src = _audioCtx.createBufferSource();
+    src.buffer = _audioBuffers[type];
+    const gain = _audioCtx.createGain();
+    gain.gain.value = 0.65;
+    src.connect(gain); gain.connect(_audioCtx.destination);
+    src.start(0);
   } catch(e) {}
 }
 
@@ -430,10 +385,8 @@ function getCharmBadge(charmPoints) {
 export default function ChessGame({ onExit, onFindMatch }) {
   const navigate = useNavigate();
   const profile  = useAuthStore(s => s.profile);
-  const { membership } = useMembership();
-  const userPoints = membership?.points || 0;
   const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
-  
+
   const userId = (() => {
     for (const src of [runtimeIdentity?.phone, profile?.phone]) {
       if (!src || src === "pending") continue;
@@ -442,6 +395,9 @@ export default function ChessGame({ onExit, onFindMatch }) {
     }
     return ""; // Không dùng UUID — phải là phone
   })();
+
+  const { membership } = useMembership(userId);
+  const userPoints = membership?.points || 0;
   const userName = resolveProfileName(profile, runtimeIdentity?.fullName || "Cing iu");
   const myTierKey = membership?.tierKey || "member";
   const [myCharmPoints, setMyCharmPoints] = useState(0);
@@ -544,7 +500,15 @@ export default function ChessGame({ onExit, onFindMatch }) {
     s.on("chess:moved", (data) => {
       const nextBoard = new Chess(data.fen);
 
-      setChess(nextBoard);
+      // Phát âm thanh: ăn quân > chiếu tướng
+      // "move" (đến lượt) do wasMyTurnRef effect xử lý riêng cho người đang chơi
+      setChess(prev => {
+        const toSquare = data.lastMove?.to;
+        const wasCapture = toSquare && prev?.get(toSquare) != null;
+        if (data.inCheck) playSound("check");
+        else if (wasCapture) playSound("capture");
+        return nextBoard;
+      });
       setLastMove(data.lastMove);
       setInCheck(data.inCheck);
       setSelected(null);
@@ -774,6 +738,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
   };
 
   const findMatch = useCallback(() => {
+    unlockChessAudio(); // Unlock audio từ user gesture (click "Tìm trận")
     // Nếu có callback từ parent — check lượt chơi trước
     if (onFindMatch && !onFindMatch()) return; // onFindMatch trả false = hết lượt
     if (!userId) return;
@@ -782,7 +747,7 @@ export default function ChessGame({ onExit, onFindMatch }) {
     const rtAvatar = useRuntimeCustomerIdentityStore.getState().identity?.avatar;
     const name = userName;
     const avatar = userAvatar || rtAvatar || "";
-    sockRef.current?.emit("chess:find", { userId, name, avatar });
+    sockRef.current?.emit("chess:find", { userId, name, avatar, tierKey: myTierKey });
   }, [userId, userName, userAvatar]);
 
   const cancelSearch = useCallback(() => {
