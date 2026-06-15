@@ -1298,28 +1298,32 @@ export default function ChessGame({ onExit, onFindMatch }) {
                       </div>
                     ) : null;
                   })()}
-                  {(opponentProfile.selected_badge || opponentProfile.chat_charm_badge) && (
-                    <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
-                      <CharmChatBadge badgeKey={opponentProfile.selected_badge || opponentProfile.chat_charm_badge} compact={false}/>
+                  {(opponentProfile.selected_badge || opponentProfile.chat_charm_badge || opponentProfile._charmBadgeKey) && (
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:14, transform:"scale(1.6)", transformOrigin:"center" }}>
+                      <CharmChatBadge badgeKey={opponentProfile.selected_badge || opponentProfile.chat_charm_badge || opponentProfile._charmBadgeKey} compact={false}/>
                     </div>
                   )}
                   {/* Custom danh hiệu */}
-                  {Array.isArray(opponentProfile.custom_badges) && opponentProfile.custom_badges.length > 0 && (
-                    <div style={{ display:"flex", flexWrap:"wrap", gap:6, justifyContent:"center", marginBottom:16 }}>
-                      {opponentProfile.custom_badges.map((b, i) => {
-                        const label = typeof b === "string" ? b : (b?.name || b?.label || b?.title || "");
-                        return label ? (
-                          <span key={i} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)",
-                            borderRadius:8, padding:"4px 10px", fontSize:11, color:"#FFD700", fontWeight:700 }}>
-                            {label}
-                          </span>
-                        ) : null;
-                      })}
-                    </div>
-                  )}
-                  {(!opponentProfile.custom_badges || opponentProfile.custom_badges.length === 0) && (
-                    <p style={{ color:"#666", fontSize:11, margin:"0 0 8px" }}>Chưa có danh hiệu nào</p>
-                  )}
+                  {(() => {
+                    const CHARM_KEYS = ["idol","ngoi_sao","minh_tinh"];
+                    const displayBadges = (opponentProfile.custom_badges||[]).filter(b => {
+                      const label = typeof b === "string" ? b : (b?.name||b?.label||b?.title||"");
+                      return label && !CHARM_KEYS.includes(label);
+                    });
+                    return displayBadges.length > 0 ? (
+                      <div style={{ display:"flex", flexWrap:"wrap", gap:6, justifyContent:"center", marginBottom:16 }}>
+                        {displayBadges.map((b, i) => {
+                          const label = typeof b === "string" ? b : (b?.name||b?.label||b?.title||"");
+                          return (
+                            <span key={i} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)",
+                              borderRadius:8, padding:"4px 10px", fontSize:11, color:"#FFD700", fontWeight:700 }}>
+                              {label}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    ) : null;
+                  })()}
                 </>
               ) : (
                 <p style={{ color:"#666", fontSize:12, margin:"0 0 16px" }}>Không tải được thông tin</p>
