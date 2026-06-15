@@ -241,10 +241,10 @@ export function PendingRewardsBadge() {
   const [rewards, setRewards] = useState([]);
   const [show, setShow] = useState(false);
   useEffect(() => {
-  if (rewards.length === 0) {
-    setShow(false);
-  }
-}, [rewards]);
+    if (rewards.length === 0) {
+      setShow(false);
+    }
+  }, [rewards]);
   const [claiming, setClaiming] = useState(null);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
 
@@ -301,7 +301,12 @@ export function PendingRewardsBadge() {
           detail: { phone, pointsAdded: reward.points }
         }));
 
-        alert(`🎉 Nhận thưởng thành công! +${reward.points} điểm`);
+        setShow(false);
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("cing_toast", {
+            detail: { message: `🎉 Nhận thưởng thành công! +${reward.points} điểm` }
+          }));
+        }, 50);
       }
     } catch(e) {}
     setClaiming(null);
