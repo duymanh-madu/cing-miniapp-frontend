@@ -41,7 +41,7 @@ function unlockChessAudio() {
       move:         "/sounds/move-sound.mp3",
       capture:      "/sounds/An-quan-sound.mp3",
       check:        "/sounds/chess-sound.mp3",
-      warning:      "/sounds/chess-sound.mp3",
+      warning:      "/sounds/timesup-sound.mp3",
       gift_receive: "/sounds/champ-sound.mp3",
       gift_send:    "/sounds/champ-sound.mp3",
       emoji:        "/sounds/emoji-sound.mp3",
