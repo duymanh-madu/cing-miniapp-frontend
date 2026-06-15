@@ -85,11 +85,6 @@ export default function GameCenterPage() {
     setGamePlaying(playingChess || !!activeGame);
     return () => setGamePlaying(false);
   }, [playingChess, activeGame]);
-
-  useEffect(() => {
-    setGamePlaying(playingChess || !!activeGame);
-    return () => setGamePlaying(false);
-  }, [playingChess, activeGame]);
   const [showBoard, setShowBoard]         = useState(null);
   const [showChessLB, setShowChessLB]     = useState(false);
   const [showAlltimeLB, setShowAlltimeLB] = useState(false);
