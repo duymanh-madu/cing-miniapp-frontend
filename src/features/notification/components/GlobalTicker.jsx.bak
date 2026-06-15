@@ -1,0 +1,83 @@
+import { useState, useEffect, useRef } from "react";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
+
+const TICKER_DURATION = 30000;
+
+export default function GlobalTicker() {
+  const [queue, setQueue]     = useState([]);
+  const [current, setCurrent] = useState(null);
+  const timerRef = useRef(null);
+
+  const addMessage = (msg) => {
+    setQueue(q => {
+      const next = [...q, { id: Date.now() + Math.random(), msg }];
+      return next.slice(-3);
+    });
+  };
+
+  useEffect(() => {
+    if (current || queue.length === 0) return;
+    const [next, ...rest] = queue;
+    setCurrent(next);
+    setQueue(rest);
+    timerRef.current = setTimeout(() => setCurrent(null), TICKER_DURATION);
+    return () => clearTimeout(timerRef.current);
+  }, [queue, current]);
+
+  useEffect(() => {
+    let attached = false;
+
+    const attachListeners = (socket) => {
+      if (attached) return;
+      attached = true;
+      socket.on("notification.broadcast", (data) => {
+        const msg = data?.notification?.message || data?.message || "";
+        if (msg) addMessage(msg);
+      });
+      socket.on("leaderboard.weekly_reset",  (d) => addMessage("🔄 Reset BXH tuần! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
+      socket.on("leaderboard.monthly_reset", (d) => addMessage("🔄 Reset BXH tháng! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
+      socket.on("leaderboard.yearly_reset",  (d) => addMessage("🔄 Reset BXH năm! " + (d?.message || "Top 3 vui lòng vào nhận thưởng 🎁")));
+      socket.on("challenge.won", (d) => {
+        const payload = d?.payload || d;
+        const name = payload?.winner_name || "Một thành viên";
+        const pts  = payload?.reward_points || 0;
+        addMessage("🏆 Chúc mừng " + name + " đã xuất sắc hoàn thành thách thức ngày! +" + pts + " điểm 🎉");
+      });
+      // Re-attach khi reconnect
+      socket.on("connect", () => { attached = false; attachListeners(socket); });
+    };
+
+    let attempts = 0;
+    let interval = setInterval(() => {
+      const socket = getRuntimeSocket();
+      if (!socket) { if (attempts++ > 40) clearInterval(interval); return; }
+      clearInterval(interval);
+      // Attach ngay — socket.on hoạt động dù chưa connected
+      attachListeners(socket);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!current) return null;
+
+  return (
+    <div key={current.id} style={{
+      position:"fixed", top:"calc(env(safe-area-inset-top, 0px) + 56px)", left:0, right:0, zIndex:99999,
+      background:"linear-gradient(90deg,#1a0a00,#2a1400,#1a0a00)",
+      borderBottom:"1px solid rgba(255,180,0,0.3)",
+      overflow:"hidden", height:32,
+      display:"flex", alignItems:"center",
+    }}>
+      <style>{`@keyframes tickerScroll${current.id.toString().replace('.','')}{0%{transform:translateX(100vw)}100%{transform:translateX(-200%)}}`}</style>
+      <div
+        onAnimationEnd={() => setCurrent(null)}
+        style={{
+          whiteSpace:"nowrap",
+          animation:("tickerScroll" + current.id.toString().replace('.','') + " " + TICKER_DURATION + "ms linear 1"),
+          color:"#FFD700", fontSize:12, fontWeight:700, paddingLeft:16,
+        }}>
+        {current.msg}
+      </div>
+    </div>
+  );
+}
