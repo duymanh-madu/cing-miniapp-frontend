@@ -33,7 +33,36 @@ export default function MenuPage() {
         <div style={{ marginBottom:10 }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
             <h1 style={{ fontSize:20, fontWeight:900, color:"#1a1a1a", margin:0 }}>Menu</h1>
-            <span style={{ fontSize:11, color:"#bbb" }}>Cing Hu Tang Kinh Bắc</span>
+            <div
+  style={{
+    display:"flex",
+    flexDirection:"column",
+    alignItems:"flex-end",
+  }}
+>
+  <span
+    style={{
+      fontSize:16,
+      fontWeight:800,
+      color:"#D4531C",
+      lineHeight:1.1,
+    }}
+  >
+    Cing Hu Tang Kinh Bắc
+  </span>
+
+  <span
+    style={{
+      fontSize:11,
+      fontWeight:600,
+      color:"#888",
+      letterSpacing:"0.5px",
+      marginTop:2,
+    }}
+  >
+    Milk Tea • Coffee & More
+  </span>
+</div>
           </div>
           <p style={{ fontSize:11, color:"#888", margin:0, lineHeight:1.5 }}>
             Giá đã bao gồm thuế. Quý khách muốn lấy hoá đơn VAT vui lòng điền <strong>Email + Mã số thuế</strong> vào phần ghi chú khi đặt hàng.
