@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
@@ -21,6 +21,12 @@ export function useMemberRequired() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [debugLogs, setDebugLogs] = useState<any[]>(getMemberDebugLogs());
+
+  useEffect(() => {
+    const handler = () => setDebugLogs(getMemberDebugLogs());
+    window.addEventListener("member_activation_debug", handler);
+    return () => window.removeEventListener("member_activation_debug", handler);
+  }, []);
 
   const requireMember = (callback?: () => void) => {
     if (isActivated) {
