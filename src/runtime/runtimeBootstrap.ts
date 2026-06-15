@@ -2,7 +2,6 @@ import { initializeRuntimeSocket, getRuntimeSocket } from "./socket/runtimeSocke
 import { initializeRealtimeOrchestrator }    from "./realtime/runtimeRealtimeOrchestrator";
 import { initializeRuntimeStores }           from "../core/store/runtimeStoreOrchestrator";
 import { initializeRuntimeSession }          from "./session/runtimeSessionOrchestrator";
-import { initializeCustomerIdentityRuntime } from "./customer/runtimeCustomerIdentityOrchestrator";
 import { useRuntimeCustomerIdentityStore }   from "./customer/runtimeCustomerIdentityStore";
 
 /**
@@ -78,7 +77,6 @@ export async function bootstrapRuntime() {
   await initializeRuntimeStores();
 
   // 4. Chạy Zalo identity engine
-  await initializeCustomerIdentityRuntime();
 
   // 4b removed — subscriber handles identity→authStore mirror
 
