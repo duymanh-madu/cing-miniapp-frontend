@@ -93,14 +93,20 @@ export function useMemberRequired() {
           Kích hoạt tài khoản thành viên
         </h2>
 
-        <p style={{ color:"rgba(255,255,255,0.68)", fontSize:14, margin:"0 0 18px", lineHeight:1.65 }}>
-          Tính năng này yêu cầu kích hoạt tài khoản thành viên để:
-          \n• Lưu điểm thưởng
-          \n• Tham gia bảng xếp hạng
-          \n• Nhận quà tặng
-          \n• Bảo vệ tài khoản khỏi gian lận
-          \n\nTrong quá trình kích hoạt, hệ thống có thể yêu cầu xác thực thông tin tài khoản Zalo theo chính sách nền tảng.
-        </p>
+        <div style={{ color:"rgba(255,255,255,0.68)", fontSize:14, margin:"0 0 22px", lineHeight:1.65, textAlign:"left" }}>
+          <p style={{ margin:"0 0 10px", textAlign:"center" }}>
+            Tính năng này yêu cầu kích hoạt tài khoản thành viên để:
+          </p>
+          <ul style={{ margin:"0 auto 12px", paddingLeft:22, maxWidth:300 }}>
+            <li>Lưu điểm thưởng</li>
+            <li>Tham gia bảng xếp hạng</li>
+            <li>Nhận quà tặng</li>
+            <li>Bảo vệ tài khoản khỏi gian lận</li>
+          </ul>
+          <p style={{ margin:0, textAlign:"center" }}>
+            Trong quá trình kích hoạt, hệ thống có thể yêu cầu xác thực thông tin tài khoản Zalo theo chính sách nền tảng.
+          </p>
+        </div>
 
         {error && (
           <p style={{ color:"#ff6b6b", fontSize:13, lineHeight:1.5, margin:"0 0 16px" }}>
