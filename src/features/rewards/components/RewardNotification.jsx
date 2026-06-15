@@ -240,6 +240,11 @@ export function LeaderboardResetPopup() {
 export function PendingRewardsBadge() {
   const [rewards, setRewards] = useState([]);
   const [show, setShow] = useState(false);
+  useEffect(() => {
+  if (rewards.length === 0) {
+    setShow(false);
+  }
+}, [rewards]);
   const [claiming, setClaiming] = useState(null);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
 
@@ -278,7 +283,15 @@ export function PendingRewardsBadge() {
     try {
       const res = await apiClient.post(`/game/rewards/claim/${reward.id}`, { userId: phone });
       if (res.data?.success) {
-        setRewards(prev => prev.filter(r => r.id !== reward.id));
+        setRewards(prev => {
+  const next = prev.filter(r => r.id !== reward.id);
+
+  if (next.length === 0) {
+    setShow(false);
+  }
+
+  return next;
+});
 
         window.dispatchEvent(new CustomEvent("reward_claimed", {
           detail: { phone, pointsAdded: reward.points }
