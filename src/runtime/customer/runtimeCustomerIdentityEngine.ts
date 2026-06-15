@@ -6,8 +6,10 @@ import { hydrateCustomerProfile } from "./runtimeCustomerProfileHydrator";
 import { useRuntimeCustomerIdentityStore } from "./runtimeCustomerIdentityStore";
 import { activateMiniAppUser } from "@/zalo/activation/activationApi";
 
-function normalizePhone(phone: any) {
-  return String(phone || "").replace(/\D/g, "").replace(/^84/, "0");
+function normalizePhone(phone: unknown) {
+  const n = String(phone || "").replace(/\D/g, "");
+  if (!n) return "";
+  return n.startsWith("84") ? "0" + n.slice(2) : n;
 }
 
 export async function initializeCustomerIdentityEngine() {
@@ -19,19 +21,19 @@ export async function initializeCustomerIdentityEngine() {
     store.setActivationStatus("checking");
     runtimeLogger.info("RUNTIME", "[IDENTITY] User-triggered member activation starting");
 
-    const [phoneGranted, zaloUserInfo] = await Promise.all([
-      requestPhonePermission().catch(() => null),
-      getZaloUserInfo().catch(() => null),
-    ]);
-
-    const phone = normalizePhone(phoneGranted);
+    const phoneRaw = await requestPhonePermission().catch(() => null);
+    const phone = normalizePhone(phoneRaw);
 
     if (!phone || phone === "pending" || phone.length < 9) {
       store.setPermissionState({ phoneGranted: false, oaFollowed: false });
-      store.setActivationStatus("guest" as any);
+      store.setIdentity({ phone: "", phoneGranted: false, oaFollowed: false } as any);
       store.setProfileHydrated(true);
+      store.setActivationStatus("guest" as any);
       return;
     }
+
+    store.setIdentity({ phone, phoneGranted: true } as any);
+    store.setPermissionState({ phoneGranted: true });
 
     let oaFollowed = await verifyOAFollowStatus().catch(() => false);
 
@@ -42,12 +44,13 @@ export async function initializeCustomerIdentityEngine() {
     if (!oaFollowed) {
       store.setPermissionState({ phoneGranted: true, oaFollowed: false });
       store.setIdentity({ phone, phoneGranted: true, oaFollowed: false } as any);
-      store.setActivationStatus("guest" as any);
       store.setProfileHydrated(true);
+      store.setActivationStatus("guest" as any);
       return;
     }
 
     store.setPermissionState({ phoneGranted: true, oaFollowed: true });
+    store.setIdentity({ phone, phoneGranted: true, oaFollowed: true } as any);
 
     const activated = await activateCustomerMembership({
       phoneGranted: phone,
@@ -55,12 +58,12 @@ export async function initializeCustomerIdentityEngine() {
     }).catch(() => false);
 
     if (!activated) {
-      store.setIdentity({ phone, phoneGranted: true, oaFollowed: true } as any);
-      store.setActivationStatus("guest" as any);
       store.setProfileHydrated(true);
+      store.setActivationStatus("guest" as any);
       return;
     }
 
+    const zaloUserInfo = await getZaloUserInfo().catch(() => null);
     const profile = await hydrateCustomerProfile().catch(() => ({
       customerId: "",
       fullName: "",
@@ -71,22 +74,23 @@ export async function initializeCustomerIdentityEngine() {
     const fullName = zaloUserInfo?.name || profile.fullName || currentIdentity?.fullName || "";
     const avatar = zaloUserInfo?.avatar || currentIdentity?.avatar || "";
 
-    if (zaloUserId) {
-      try {
-        await activateMiniAppUser({
-          zaloUserId,
-          name: fullName,
-          avatar,
-          phone,
-          phoneGranted: true,
-          oaFollowed: true,
-          activated: true,
-          source: "zalo-miniapp",
-          birthday: currentIdentity?.birthday || "",
-        });
-      } catch (e) {
-        console.warn("[IDENTITY] activateMiniAppUser sync failed:", e);
-      }
+    try {
+      await activateMiniAppUser({
+        zaloUserId,
+        name: fullName,
+        avatar,
+        phone,
+        phoneGranted: true,
+        oaFollowed: true,
+        activated: true,
+        source: "zalo-miniapp",
+        birthday: currentIdentity?.birthday || "",
+      });
+    } catch (e) {
+      console.warn("[IDENTITY] activateMiniAppUser sync failed:", e);
+      store.setProfileHydrated(true);
+      store.setActivationStatus("guest" as any);
+      return;
     }
 
     store.setIdentity({
@@ -112,8 +116,8 @@ export async function initializeCustomerIdentityEngine() {
   } catch (err) {
     console.warn("[IDENTITY] initializeCustomerIdentityEngine failed gracefully:", err);
     try {
-      store.setActivationStatus("guest" as any);
       store.setProfileHydrated(true);
+      store.setActivationStatus("guest" as any);
     } catch (e) {}
   }
 }
