@@ -43,8 +43,6 @@ export function useMemberRequired() {
   const refreshDebug = () => setDebugLogs(getMemberDebugLogs());
 
   const handleActivate = async () => {
-    alert("DEBUG: Đã bấm nút Tiếp tục");
-    setError("DEBUG: Đã bấm nút Tiếp tục");
     setLoading(true);
 
     try {
