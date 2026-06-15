@@ -1,3 +1,4 @@
+import { memberDebugLog } from "@/utils/debug/memberActivationDebug";
 export async function requestPhonePermission(): Promise<string | null> {
   try {
     const isZalo =
@@ -10,6 +11,7 @@ export async function requestPhonePermission(): Promise<string | null> {
       );
 
     if (!isZalo) {
+      memberDebugLog("Không nhận diện được môi trường Zalo Mini App", { ua: navigator.userAgent, zaloFlag: (window as any).__ZALO_MINI_APP__ });
       console.warn("[PHONE] Not in Zalo Mini App environment");
       return null;
     }
@@ -23,10 +25,12 @@ export async function requestPhonePermission(): Promise<string | null> {
     } else if (typeof (zmpSdk as any).getPhoneNumber === "function") {
       result = await (zmpSdk as any).getPhoneNumber();
     } else {
+      memberDebugLog("Không tìm thấy API xin số điện thoại trong zmp-sdk", Object.keys(zmpSdk || {}));
       console.warn("[PHONE] No phone API found in zmp-sdk");
       return null;
     }
 
+    memberDebugLog("Kết quả SDK xin số điện thoại", result);
     console.log("[PHONE] SDK result:", result);
 
     return (
@@ -42,6 +46,7 @@ export async function requestPhonePermission(): Promise<string | null> {
       null
     );
   } catch (e) {
+    memberDebugLog("Lỗi requestPhonePermission", { error: String(e?.message || e) });
     console.warn("[PHONE] requestPhonePermission failed:", e);
     return null;
   }

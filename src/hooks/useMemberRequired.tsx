@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
 import { initializeCustomerIdentityEngine } from "@/runtime/customer/runtimeCustomerIdentityEngine";
+import { getMemberDebugLogs, clearMemberDebugLogs } from "@/utils/debug/memberActivationDebug";
 
 export function useMemberRequired() {
   const activationStatus = useRuntimeCustomerIdentityStore(s => s.activationStatus);
@@ -19,6 +20,7 @@ export function useMemberRequired() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [debugLogs, setDebugLogs] = useState<any[]>(getMemberDebugLogs());
 
   const requireMember = (callback?: () => void) => {
     if (isActivated) {
@@ -26,9 +28,13 @@ export function useMemberRequired() {
       return true;
     }
     setError("");
+    clearMemberDebugLogs();
+    setDebugLogs([]);
     setShowPrompt(true);
     return false;
   };
+
+  const refreshDebug = () => setDebugLogs(getMemberDebugLogs());
 
   const handleActivate = async () => {
     setLoading(true);
@@ -36,6 +42,7 @@ export function useMemberRequired() {
 
     try {
       await initializeCustomerIdentityEngine();
+      refreshDebug();
 
       const state = useRuntimeCustomerIdentityStore.getState();
       const status = state.activationStatus;
@@ -46,9 +53,11 @@ export function useMemberRequired() {
         return;
       }
 
-      setError("Chưa kích hoạt được. Vui lòng kiểm tra đã cho phép số điện thoại và theo dõi OA.");
+      setError("Chưa kích hoạt được. Xem log debug bên dưới.");
+      refreshDebug();
     } catch (e: any) {
       setError(e?.message || "Không thể kích hoạt thành viên. Vui lòng thử lại.");
+      refreshDebug();
     } finally {
       setLoading(false);
     }
@@ -80,6 +89,30 @@ export function useMemberRequired() {
           <p style={{ color:"#ff6b6b", fontSize:13, lineHeight:1.5, margin:"0 0 16px" }}>
             {error}
           </p>
+        )}
+
+
+        {debugLogs.length > 0 && (
+          <div style={{
+            margin:"0 0 16px",
+            padding:"10px",
+            borderRadius:10,
+            background:"rgba(0,0,0,0.35)",
+            border:"1px solid rgba(255,255,255,0.12)",
+            maxHeight:160,
+            overflowY:"auto",
+            textAlign:"left"
+          }}>
+            <p style={{ color:"#FFD700", fontSize:12, fontWeight:800, margin:"0 0 8px" }}>
+              Debug kích hoạt
+            </p>
+            {debugLogs.map((l, i) => (
+              <div key={i} style={{ color:"#ddd", fontSize:11, lineHeight:1.45, marginBottom:6 }}>
+                <b>{l.time}</b> — {l.message}
+                {l.data && <pre style={{ whiteSpace:"pre-wrap", margin:"4px 0 0", color:"#aaa" }}>{l.data}</pre>}
+              </div>
+            ))}
+          </div>
         )}
 
         <button
