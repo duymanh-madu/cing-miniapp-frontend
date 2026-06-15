@@ -3,6 +3,7 @@ import { initializeRealtimeOrchestrator }    from "./realtime/runtimeRealtimeOrc
 import { initializeRuntimeStores }           from "../core/store/runtimeStoreOrchestrator";
 import { initializeRuntimeSession }          from "./session/runtimeSessionOrchestrator";
 import { useRuntimeCustomerIdentityStore }   from "./customer/runtimeCustomerIdentityStore";
+import registerMenuRealtime from "@/features/menu/realtime/registerMenuRealtime";
 
 /**
  * Đọc params từ URL do cing-zalo-shell inject:
@@ -75,6 +76,7 @@ export async function bootstrapRuntime() {
   // 5. Socket + Realtime
   initializeRuntimeSocket();
   await initializeRealtimeOrchestrator();
+  try { registerMenuRealtime(); } catch(e) { console.warn("[MENU] register realtime failed", e); }
 
   // Expose identity store cho socket client
   (window as any).__runtimeIdentityStore = useRuntimeCustomerIdentityStore;

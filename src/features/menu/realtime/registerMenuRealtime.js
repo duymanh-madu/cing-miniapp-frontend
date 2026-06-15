@@ -1,78 +1,45 @@
-import { on }
-  from "@/realtime/realtimeEventRouter";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 
-import MENU_REALTIME_EVENTS
-  from "./menuRealtimeEvents";
-
-import useMenuStore
-  from "@/features/menu/store/menuStore";
+let registered = false;
 
 function registerMenuRealtime() {
+  if (registered) return () => {};
+  registered = true;
 
-  const unsubscribers =
-    [];
-
-  unsubscribers.push(
-
-    on(
-
-      MENU_REALTIME_EVENTS
-        .MENU_UPDATED,
-
-      (
-        product
-      ) => {
-
-        useMenuStore
-          .getState()
-          .upsertProduct(
-            product
-          );
-
-      }
-
-    )
-
-  );
-
-  unsubscribers.push(
-
-    on(
-
-      MENU_REALTIME_EVENTS
-        .MENU_DELETED,
-
-      (
-        payload
-      ) => {
-
-        useMenuStore
-          .getState()
-          .removeProduct(
-            payload?.id
-          );
-
-      }
-
-    )
-
-  );
-
-  return () => {
-
-    unsubscribers.forEach(
-      (
-        unsubscribe
-      ) => {
-
-        unsubscribe();
-
-      }
-    );
-
+  const refreshMenu = (payload) => {
+    try {
+      window.dispatchEvent(new CustomEvent("menu_refresh_requested", {
+        detail: {
+          source: "realtime",
+          payload,
+          at: Date.now()
+        }
+      }));
+    } catch(e) {}
   };
 
+  const attach = () => {
+    const socket = getRuntimeSocket();
+
+    if (!socket?.on) {
+      setTimeout(attach, 1000);
+      return;
+    }
+
+    socket.on("menu.updated", refreshMenu);
+    socket.on("menu.created", refreshMenu);
+    socket.on("menu.deleted", refreshMenu);
+  };
+
+  attach();
+
+  return () => {
+    const socket = getRuntimeSocket();
+    socket?.off?.("menu.updated", refreshMenu);
+    socket?.off?.("menu.created", refreshMenu);
+    socket?.off?.("menu.deleted", refreshMenu);
+    registered = false;
+  };
 }
 
-export default
-  registerMenuRealtime;
+export default registerMenuRealtime;
