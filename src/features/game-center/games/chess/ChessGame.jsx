@@ -528,34 +528,8 @@ export default function ChessGame({ onExit, onFindMatch }) {
       setPhase("gameover");
       clearInterval(timerRef.current);
       clearInterval(moveTimerRef.current);
-      // Save score
-      try {
-        const sources = [
-          useRuntimeCustomerIdentityStore?.getState()?.identity?.phone,
-          profile?.phone,
-        ];
-        let uid = "";
-        for (const src of sources) {
-          if (!src || src === "pending") continue;
-          const n = src.replace(/\D/g,"").replace(/^84/,"0");
-          if (n.length >= 9) { uid = n; break; }
-        }
-        if (!uid) uid = profile?.id || "";
-        if (uid) {
-          const won  = data?.winner === userId;
-          const draw = !data?.winner;
-          const score = won ? 3 : draw ? 1 : 0;
-          fetch((import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api") + "/game/score", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              game_key: "chess", user_id: uid, score,
-              player_name: resolveProfileName(profile, userName),
-              avatar: profile?.avatar || userAvatar,
-            }),
-          }).catch(() => {});
-        }
-      } catch(e) {}
+      // Chess leaderboard dùng chess_stats từ game server.
+      // Không ghi game_scores 3/1/0 nữa.
     });
 
     s.on("chess:timeout", () => {
