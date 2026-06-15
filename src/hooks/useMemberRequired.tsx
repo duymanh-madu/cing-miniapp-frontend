@@ -90,12 +90,16 @@ export function useMemberRequired() {
         <div style={{ fontSize:56, marginBottom:12 }}>🎮</div>
 
         <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 10px" }}>
-          Kích hoạt thành viên
+          Kích hoạt tài khoản thành viên
         </h2>
 
         <p style={{ color:"rgba(255,255,255,0.68)", fontSize:14, margin:"0 0 18px", lineHeight:1.65 }}>
-          Tính năng này cần xác thực số điện thoại và theo dõi OA để lưu điểm, xếp hạng,
-          nhận quà và bảo vệ tài khoản khỏi gian lận.
+          Tính năng này yêu cầu kích hoạt tài khoản thành viên để:
+          \n• Lưu điểm thưởng
+          \n• Tham gia bảng xếp hạng
+          \n• Nhận quà tặng
+          \n• Bảo vệ tài khoản khỏi gian lận
+          \n\nTrong quá trình kích hoạt, hệ thống có thể yêu cầu xác thực thông tin tài khoản Zalo theo chính sách nền tảng.
         </p>
 
         {error && (
