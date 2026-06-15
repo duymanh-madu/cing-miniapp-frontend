@@ -13,6 +13,15 @@ export function ChallengeWonPopup() {
   const shownRef = useRef(false);
   const pendingRef = useRef([]);
 
+  const closeChallengePopup = () => {
+    setData(null);
+    shownRef.current = false;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
   useEffect(() => {
     const show = (detail) => {
       if (shownRef.current || isGamePlaying()) {
@@ -83,7 +92,7 @@ export function ChallengeWonPopup() {
   return createPortal(
     <div style={{ position:"fixed", inset:0, zIndex:9500, display:"flex", alignItems:"center",
       justifyContent:"center", background:"rgba(0,0,0,0.8)", padding:24 }}
-      onClick={() => setData(null)}>
+      onClick={closeChallengePopup}>
       <div onClick={e => e.stopPropagation()}
         style={{ background:"linear-gradient(135deg,#0d0a08,#1a1208)", borderRadius:20,
           border:`2px solid ${isWinner?"rgba(255,215,0,0.6)":"rgba(212,83,28,0.4)"}`,
@@ -112,7 +121,7 @@ export function ChallengeWonPopup() {
             </p>
           </>
         )}
-        <button onClick={() => setData(null)}
+        <button onClick={closeChallengePopup}
           style={{ background: isWinner?"linear-gradient(135deg,#FFD700,#FF6B35)":"linear-gradient(135deg,#D4531C,#FF6B35)",
             border:"none", borderRadius:12, padding:"11px 32px",
             color: isWinner?"#1a0800":"white", fontSize:14, fontWeight:800, cursor:"pointer" }}>
@@ -141,6 +150,16 @@ export function LeaderboardResetPopup() {
 
   const clearPersistedResetPopup = () => {
     try { sessionStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  };
+
+  const closeLeaderboardResetPopup = () => {
+    clearPersistedResetPopup();
+    resetBufferRef.current = [];
+    if (resetFlushRef.current) {
+      clearTimeout(resetFlushRef.current);
+      resetFlushRef.current = null;
+    }
+    setMsg(null);
   };
 
   useEffect(() => {
@@ -213,7 +232,7 @@ export function LeaderboardResetPopup() {
   return createPortal(
     <div style={{ position:"fixed", inset:0, zIndex:9000, display:"flex", alignItems:"center",
       justifyContent:"center", background:"rgba(0,0,0,0.75)", padding:24 }}
-      onClick={() => { clearPersistedResetPopup(); setMsg(null); }}>
+      onClick={closeLeaderboardResetPopup}>
       <div onClick={e => e.stopPropagation()}
         style={{ background:"linear-gradient(135deg,#0d0a08,#1a1208)", borderRadius:20,
           border:"2px solid rgba(255,215,0,0.4)", padding:24, maxWidth:320, width:"100%",
@@ -226,7 +245,7 @@ export function LeaderboardResetPopup() {
           marginBottom:16, border:"1px solid rgba(255,215,0,0.15)" }}>
           <p style={{ color:"rgba(255,255,255,0.8)", fontSize:12, margin:0, lineHeight:1.7, whiteSpace:"pre-line" }}>{msg}</p>
         </div>
-        <button onClick={() => { clearPersistedResetPopup(); setMsg(null); }}
+        <button onClick={closeLeaderboardResetPopup}
           style={{ width:"100%", padding:"12px", background:"linear-gradient(135deg,#D4531C,#FF6B35)",
             border:"none", borderRadius:12, color:"white", fontSize:14, fontWeight:800, cursor:"pointer" }}>
           Đã hiểu 🎁
@@ -292,6 +311,8 @@ export function PendingRewardsBadge() {
 
   return next;
 });
+
+        setShow(false);
 
         window.dispatchEvent(new CustomEvent("reward_claimed", {
           detail: { phone, pointsAdded: reward.points }
