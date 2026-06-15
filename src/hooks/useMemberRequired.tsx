@@ -18,26 +18,37 @@ export function useMemberRequired() {
   const isActivated = activationStatus === "activated" || hasPhone;
   const [showPrompt, setShowPrompt] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const requireMember = (callback?: () => void) => {
     if (isActivated) {
       callback?.();
       return true;
     }
+    setError("");
     setShowPrompt(true);
     return false;
   };
 
   const handleActivate = async () => {
     setLoading(true);
+    setError("");
+
     try {
       await initializeCustomerIdentityEngine();
-      const status = useRuntimeCustomerIdentityStore.getState().activationStatus;
-      if (status === "activated") {
+
+      const state = useRuntimeCustomerIdentityStore.getState();
+      const status = state.activationStatus;
+      const phone = String(state.identity?.phone || "").replace(/\D/g, "");
+
+      if (status === "activated" || phone.length >= 9) {
         setShowPrompt(false);
+        return;
       }
-    } catch (e) {
-      console.warn("[MEMBER] activation failed:", e);
+
+      setError("Chưa kích hoạt được. Vui lòng kiểm tra đã cho phép số điện thoại và theo dõi OA.");
+    } catch (e: any) {
+      setError(e?.message || "Không thể kích hoạt thành viên. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -55,13 +66,21 @@ export function useMemberRequired() {
           width:"100%", maxWidth:480, textAlign:"center", border:"1px solid rgba(255,215,0,0.2)" }}
       >
         <div style={{ fontSize:56, marginBottom:12 }}>🎮</div>
+
         <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 10px" }}>
           Kích hoạt thành viên
         </h2>
-        <p style={{ color:"rgba(255,255,255,0.68)", fontSize:14, margin:"0 0 28px", lineHeight:1.65 }}>
+
+        <p style={{ color:"rgba(255,255,255,0.68)", fontSize:14, margin:"0 0 18px", lineHeight:1.65 }}>
           Tính năng này cần xác thực số điện thoại và theo dõi OA để lưu điểm, xếp hạng,
           nhận quà và bảo vệ tài khoản khỏi gian lận.
         </p>
+
+        {error && (
+          <p style={{ color:"#ff6b6b", fontSize:13, lineHeight:1.5, margin:"0 0 16px" }}>
+            {error}
+          </p>
+        )}
 
         <button
           onClick={handleActivate}
