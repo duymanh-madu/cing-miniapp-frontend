@@ -1,53 +1,53 @@
 import { memberDebugLog } from "@/utils/debug/memberActivationDebug";
 
-function extractPhoneFromSdkResult(result: any): string | null {
-  return (
-    result?.number ||
-    result?.phoneNumber ||
-    result?.phone ||
-    result?.token ||
-    result?.phoneToken ||
-    result?.data?.number ||
-    result?.data?.phoneNumber ||
-    result?.data?.phone ||
-    result?.data?.token ||
-    result?.data?.phoneToken ||
-    null
-  );
-}
+export type PhonePermissionResult = {
+  phone: string;
+  phoneToken: string;
+  miniAccessToken: string;
+};
 
-export async function requestPhonePermission(): Promise<string | null> {
+export async function requestPhonePermission(): Promise<PhonePermissionResult | null> {
   try {
-    const zmpSdk: any = await import("zmp-sdk");
+    const apis: any = await import("zmp-sdk/apis");
 
-    memberDebugLog("Đã load zmp-sdk", {
-      keys: Object.keys(zmpSdk || {}),
-      ua: typeof navigator !== "undefined" ? navigator.userAgent : "",
-      zaloFlag: typeof window !== "undefined" ? (window as any).__ZALO_MINI_APP__ : undefined,
-    });
+    memberDebugLog("Đã load zmp-sdk/apis", Object.keys(apis || {}));
 
-    let result: any = null;
-
-    if (typeof zmpSdk.requestPhoneNumber === "function") {
-      memberDebugLog("Gọi zmpSdk.requestPhoneNumber");
-      result = await zmpSdk.requestPhoneNumber();
-    } else if (typeof zmpSdk.getPhoneNumber === "function") {
-      memberDebugLog("Gọi zmpSdk.getPhoneNumber");
-      result = await zmpSdk.getPhoneNumber();
-    } else if (typeof zmpSdk.default?.requestPhoneNumber === "function") {
-      memberDebugLog("Gọi zmpSdk.default.requestPhoneNumber");
-      result = await zmpSdk.default.requestPhoneNumber();
-    } else if (typeof zmpSdk.default?.getPhoneNumber === "function") {
-      memberDebugLog("Gọi zmpSdk.default.getPhoneNumber");
-      result = await zmpSdk.default.getPhoneNumber();
-    } else {
-      memberDebugLog("Không tìm thấy API xin số điện thoại trong zmp-sdk", Object.keys(zmpSdk || {}));
+    if (typeof apis.getPhoneNumber !== "function") {
+      memberDebugLog("Không tìm thấy getPhoneNumber trong zmp-sdk/apis", Object.keys(apis || {}));
       return null;
     }
 
-    memberDebugLog("Kết quả SDK xin số điện thoại", result);
+    const phoneResult: any = await apis.getPhoneNumber();
+    memberDebugLog("Kết quả getPhoneNumber", phoneResult);
 
-    return extractPhoneFromSdkResult(result);
+    const phoneToken =
+      phoneResult?.token ||
+      phoneResult?.data?.token ||
+      "";
+
+    let miniAccessToken = "";
+
+    if (typeof apis.getAccessToken === "function") {
+      const accessResult: any = await apis.getAccessToken();
+      memberDebugLog("Kết quả getAccessToken", accessResult);
+
+      miniAccessToken =
+        accessResult?.accessToken ||
+        accessResult?.access_token ||
+        accessResult?.token ||
+        "";
+    }
+
+    if (!phoneToken) {
+      memberDebugLog("Không lấy được phone token từ getPhoneNumber");
+      return null;
+    }
+
+    return {
+      phone: "",
+      phoneToken,
+      miniAccessToken,
+    };
   } catch (e: any) {
     memberDebugLog("Lỗi requestPhonePermission", {
       error: String(e?.message || e),
@@ -59,17 +59,14 @@ export async function requestPhonePermission(): Promise<string | null> {
 
 export async function getZaloUserInfo(): Promise<{ name?: string; avatar?: string; id?: string } | null> {
   try {
-    const zmpSdk: any = await import("zmp-sdk");
+    const apis: any = await import("zmp-sdk/apis");
 
-    let result: any = null;
-
-    if (typeof zmpSdk.getUserInfo === "function") {
-      result = await zmpSdk.getUserInfo({ avatarType: "large" });
-    } else if (typeof zmpSdk.default?.getUserInfo === "function") {
-      result = await zmpSdk.default.getUserInfo({ avatarType: "large" });
-    } else {
+    if (typeof apis.getUserInfo !== "function") {
       return null;
     }
+
+    const result: any = await apis.getUserInfo({ avatarType: "large" });
+    memberDebugLog("Kết quả getUserInfo", result);
 
     return {
       name: result?.userInfo?.name || result?.name || undefined,
