@@ -43,6 +43,8 @@ export default function AdminGames({ token }) {
 
   const currentGame = games.find(g => g.game_key === activeGame);
   const currentScores = scores[activeGame] || [];
+  const isChessWins = activeGame === "chess-wins";
+  const isChessStreak = activeGame === "chess-streak";
 
   return (
     <div>
@@ -127,9 +129,31 @@ export default function AdminGames({ token }) {
                       <p style={{ color:"white", fontSize:13, fontWeight:700, margin:0 }}>{s.player_name}</p>
                       <p style={{ color:"#666", fontSize:11, margin:0 }}>{s.user_id}</p>
                     </div>
-                    <p style={{ color:"#FFD700", fontSize:14, fontWeight:900, margin:0 }}>
-                      {(s.score||0).toLocaleString()} điểm
-                    </p>
+                    <div style={{ textAlign:"right", minWidth:120 }}>
+                      {isChessWins ? (
+                        <>
+                          <div style={{ color:"#FFD700", fontSize:14, fontWeight:900 }}>
+                            {s.wins || 0} thắng
+                          </div>
+                          <div style={{ color:"#888", fontSize:11 }}>
+                            {s.winRate || 0}% tỷ lệ thắng
+                          </div>
+                        </>
+                      ) : isChessStreak ? (
+                        <>
+                          <div style={{ color:"#FFD700", fontSize:14, fontWeight:900 }}>
+                            {s.best_streak || 0} trận
+                          </div>
+                          <div style={{ color:"#888", fontSize:11 }}>
+                            Chuỗi hiện tại: {s.current_streak || 0}
+                          </div>
+                        </>
+                      ) : (
+                        <div style={{ color:"#FFD700", fontSize:14, fontWeight:900 }}>
+                          {(s.score || 0).toLocaleString()} điểm
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
