@@ -1,38 +1,50 @@
-const isZaloMiniApp = () => {
-  if (typeof window === "undefined") return false;
-  if (window.__ZALO_MINI_APP__) return true;
-  if (navigator.userAgent.includes("ZaloApp")) return true;
-  if (typeof (window as any).ZaloJavaScriptInterface !== "undefined") return true;
-  try { if (sessionStorage.getItem("zalo_source") === "zalo-miniapp") return true; } catch(e) {}
-  return false;
-};
+const OA_ID =
+  (import.meta as any).env?.VITE_ZALO_OA_ID ||
+  (import.meta as any).env?.VITE_OA_ID ||
+  "";
+
+async function loadApis() {
+  try {
+    return await import("zmp-sdk/apis");
+  } catch {
+    return await import("zmp-sdk");
+  }
+}
 
 export async function verifyOAFollowStatus(): Promise<boolean> {
   try {
-    if (!isZaloMiniApp()) return false;
-    const zmpSdk = await import("zmp-sdk");
-    if (typeof zmpSdk?.getFollowStatus === "function") {
-      const result = await zmpSdk.getFollowStatus();
-      return result?.isFollowing ?? false;
+    const apis: any = await loadApis();
+
+    if (typeof apis.getFollowStatus === "function") {
+      const result = await apis.getFollowStatus();
+      return !!(result?.isFollowing || result?.followed || result?.status === "followed");
     }
+
     return false;
-  } catch(e) {
-    console.warn("[OA] verifyOAFollowStatus failed:", e);
+  } catch {
     return false;
   }
 }
 
 export async function requestOAFollow(): Promise<boolean> {
   try {
-    if (!isZaloMiniApp()) return false;
-    const zmpSdk = await import("zmp-sdk");
-    if (typeof zmpSdk?.requestFollow === "function") {
-      const result = await zmpSdk.requestFollow();
-      return result?.isFollowing ?? false;
+    const apis: any = await loadApis();
+
+    if (typeof apis.followOA === "function") {
+      const result = OA_ID
+        ? await apis.followOA({ id: OA_ID })
+        : await apis.followOA();
+
+      return !!(result?.isFollowing || result?.followed || result?.success !== false);
     }
+
+    if (typeof apis.requestFollow === "function") {
+      const result = await apis.requestFollow();
+      return !!(result?.isFollowing || result?.followed || result?.success !== false);
+    }
+
     return false;
-  } catch(e) {
-    console.warn("[OA] requestOAFollow failed:", e);
+  } catch {
     return false;
   }
 }

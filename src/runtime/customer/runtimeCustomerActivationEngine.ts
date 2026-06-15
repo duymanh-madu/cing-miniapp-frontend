@@ -9,8 +9,7 @@ type ActivateCustomerMembershipInput = {
 export async function activateCustomerMembership(input: ActivateCustomerMembershipInput) {
   const hasPhone =
     input.phoneGranted === true ||
-    (typeof input.phoneGranted === "string" &&
-      input.phoneGranted.replace(/\D/g, "").length >= 9);
+    (typeof input.phoneGranted === "string" && input.phoneGranted.length > 0);
 
   const eligible = isEligibleForMembership({
     phoneGranted: hasPhone,

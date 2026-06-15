@@ -1,9 +1,8 @@
 import { requestPhonePermission, getZaloUserInfo } from "./runtimeCustomerPermissionEngine";
 import { verifyOAFollowStatus, requestOAFollow } from "./runtimeCustomerFollowEngine";
-import { runtimeLogger } from "@/runtime/logger/runtimeLogger";
+import { activateCustomerMembership } from "./runtimeCustomerActivationEngine";
 import { useRuntimeCustomerIdentityStore } from "./runtimeCustomerIdentityStore";
 import { activateMiniAppUser } from "@/zalo/activation/activationApi";
-import { memberDebugLog } from "@/utils/debug/memberActivationDebug";
 
 function normalizePhone(phone: unknown) {
   const n = String(phone || "").replace(/\D/g, "");
@@ -18,32 +17,30 @@ export async function initializeCustomerIdentityEngine() {
 
   try {
     store.setActivationStatus("checking");
-    memberDebugLog("Bắt đầu kích hoạt thành viên");
-    runtimeLogger.info("RUNTIME", "[IDENTITY] User-triggered member activation starting");
 
     const phoneGrant = await requestPhonePermission();
-    memberDebugLog("phoneGrant nhận được", phoneGrant);
 
     if (!phoneGrant?.phoneToken) {
-      store.setPermissionState({ phoneGranted: false, oaFollowed: false });
-      store.setProfileHydrated(true);
-      store.setActivationStatus("guest" as any);
-      return;
+      throw new Error("Bạn cần đồng ý cấp quyền số điện thoại để kích hoạt thành viên.");
     }
 
-    let oaFollowed = await verifyOAFollowStatus().catch(() => false);
-    memberDebugLog("Trạng thái follow OA", { oaFollowed });
+    let oaFollowed = await verifyOAFollowStatus();
 
     if (!oaFollowed) {
-      oaFollowed = await requestOAFollow().catch(() => false);
-      memberDebugLog("Kết quả request follow OA", { oaFollowed });
+      oaFollowed = await requestOAFollow();
     }
 
     if (!oaFollowed) {
-      store.setPermissionState({ phoneGranted: true, oaFollowed: false });
-      store.setProfileHydrated(true);
-      store.setActivationStatus("guest" as any);
-      return;
+      throw new Error("Bạn cần theo dõi Zalo OA để lưu điểm, nhận quà và sử dụng tính năng thành viên.");
+    }
+
+    const localEligible = await activateCustomerMembership({
+      phoneGranted: phoneGrant.phoneToken,
+      oaFollowed: true,
+    });
+
+    if (!localEligible) {
+      throw new Error("Tài khoản chưa đủ điều kiện kích hoạt thành viên.");
     }
 
     const zaloUserInfo = await getZaloUserInfo().catch(() => null);
@@ -52,13 +49,6 @@ export async function initializeCustomerIdentityEngine() {
     const zaloUserId = zaloUserInfo?.id || currentIdentity?.zaloUserId || "";
     const fullName = zaloUserInfo?.name || currentIdentity?.fullName || "";
     const avatar = zaloUserInfo?.avatar || currentIdentity?.avatar || "";
-
-    memberDebugLog("Gọi backend activateMiniAppUser", {
-      zaloUserId,
-      fullName,
-      hasPhoneToken: !!phoneGrant.phoneToken,
-      hasMiniAccessToken: !!phoneGrant.miniAccessToken,
-    });
 
     const result = await activateMiniAppUser({
       zaloUserId,
@@ -76,7 +66,10 @@ export async function initializeCustomerIdentityEngine() {
 
     const resolvedPhone = normalizePhone(result?.phone || phoneGrant.phone);
 
-    store.setPermissionState({ phoneGranted: true, oaFollowed: true });
+    store.setPermissionState({
+      phoneGranted: true,
+      oaFollowed: true,
+    });
 
     store.setIdentity({
       customerId: result?.customerId || "",
@@ -95,14 +88,10 @@ export async function initializeCustomerIdentityEngine() {
     try {
       if (zaloUserId) localStorage.setItem("__zalo_uid", zaloUserId);
       if (resolvedPhone) localStorage.setItem("__user_phone", resolvedPhone);
-    } catch (e) {}
-
-    memberDebugLog("Kích hoạt thành viên thành công", { phone: resolvedPhone, zaloUserId });
+    } catch {}
   } catch (err: any) {
-    memberDebugLog("Lỗi tổng initializeCustomerIdentityEngine", {
-      error: String(err?.message || err),
-    });
     store.setProfileHydrated(true);
     store.setActivationStatus("guest" as any);
+    throw err;
   }
 }

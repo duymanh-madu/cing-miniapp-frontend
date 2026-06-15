@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
 import { initializeCustomerIdentityEngine } from "@/runtime/customer/runtimeCustomerIdentityEngine";
-import { getMemberDebugLogs, clearMemberDebugLogs } from "@/utils/debug/memberActivationDebug";
 
 export function useMemberRequired() {
   const activationStatus = useRuntimeCustomerIdentityStore(s => s.activationStatus);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const profilePhone = useAuthStore(s => s.profile?.phone);
+
+  const pendingCallbackRef = useRef<null | (() => void)>(null);
 
   const hasPhone = (() => {
     const p = runtimePhone || profilePhone || "";
@@ -17,37 +18,29 @@ export function useMemberRequired() {
   })();
 
   const isActivated = activationStatus === "activated" || hasPhone;
+
   const [showPrompt, setShowPrompt] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [debugLogs, setDebugLogs] = useState<any[]>(getMemberDebugLogs());
-
-  useEffect(() => {
-    const handler = () => setDebugLogs(getMemberDebugLogs());
-    window.addEventListener("member_activation_debug", handler);
-    return () => window.removeEventListener("member_activation_debug", handler);
-  }, []);
 
   const requireMember = (callback?: () => void) => {
     if (isActivated) {
       callback?.();
       return true;
     }
+
+    pendingCallbackRef.current = callback || null;
     setError("");
-    clearMemberDebugLogs();
-    setDebugLogs([]);
     setShowPrompt(true);
     return false;
   };
 
-  const refreshDebug = () => setDebugLogs(getMemberDebugLogs());
-
   const handleActivate = async () => {
     setLoading(true);
+    setError("");
 
     try {
       await initializeCustomerIdentityEngine();
-      refreshDebug();
 
       const state = useRuntimeCustomerIdentityStore.getState();
       const status = state.activationStatus;
@@ -55,14 +48,15 @@ export function useMemberRequired() {
 
       if (status === "activated" || phone.length >= 9) {
         setShowPrompt(false);
+        const cb = pendingCallbackRef.current;
+        pendingCallbackRef.current = null;
+        cb?.();
         return;
       }
 
-      setError("Chưa kích hoạt được. Xem log debug bên dưới.");
-      refreshDebug();
+      setError("Chưa kích hoạt được thành viên. Vui lòng thử lại.");
     } catch (e: any) {
       setError(e?.message || "Không thể kích hoạt thành viên. Vui lòng thử lại.");
-      refreshDebug();
     } finally {
       setLoading(false);
     }
@@ -70,14 +64,28 @@ export function useMemberRequired() {
 
   const MemberPrompt = showPrompt ? createPortal(
     <div
-      style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.82)", zIndex:9999,
-        display:"flex", alignItems:"flex-end", justifyContent:"center" }}
+      style={{
+        position:"fixed",
+        inset:0,
+        background:"rgba(0,0,0,0.82)",
+        zIndex:9999,
+        display:"flex",
+        alignItems:"flex-end",
+        justifyContent:"center"
+      }}
       onClick={() => setShowPrompt(false)}
     >
       <div
         onClick={e => e.stopPropagation()}
-        style={{ background:"#1a1a24", borderRadius:"24px 24px 0 0", padding:"32px 24px 48px",
-          width:"100%", maxWidth:480, textAlign:"center", border:"1px solid rgba(255,215,0,0.2)" }}
+        style={{
+          background:"#1a1a24",
+          borderRadius:"24px 24px 0 0",
+          padding:"32px 24px 48px",
+          width:"100%",
+          maxWidth:480,
+          textAlign:"center",
+          border:"1px solid rgba(255,215,0,0.2)"
+        }}
       >
         <div style={{ fontSize:56, marginBottom:12 }}>🎮</div>
 
@@ -96,44 +104,37 @@ export function useMemberRequired() {
           </p>
         )}
 
-
-        {debugLogs.length > 0 && (
-          <div style={{
-            margin:"0 0 16px",
-            padding:"10px",
-            borderRadius:10,
-            background:"rgba(0,0,0,0.35)",
-            border:"1px solid rgba(255,255,255,0.12)",
-            maxHeight:160,
-            overflowY:"auto",
-            textAlign:"left"
-          }}>
-            <p style={{ color:"#FFD700", fontSize:12, fontWeight:800, margin:"0 0 8px" }}>
-              Debug kích hoạt
-            </p>
-            {debugLogs.map((l, i) => (
-              <div key={i} style={{ color:"#ddd", fontSize:11, lineHeight:1.45, marginBottom:6 }}>
-                <b>{l.time}</b> — {l.message}
-                {l.data && <pre style={{ whiteSpace:"pre-wrap", margin:"4px 0 0", color:"#aaa" }}>{l.data}</pre>}
-              </div>
-            ))}
-          </div>
-        )}
-
         <button
           onClick={handleActivate}
           disabled={loading}
-          style={{ width:"100%", padding:"16px", borderRadius:14, border:"none",
+          style={{
+            width:"100%",
+            padding:"16px",
+            borderRadius:14,
+            border:"none",
             background: loading ? "#333" : "linear-gradient(135deg,#D4531C,#E8622A)",
-            color:"white", fontSize:16, fontWeight:800, cursor: loading ? "default" : "pointer" }}
+            color:"white",
+            fontSize:16,
+            fontWeight:800,
+            cursor: loading ? "default" : "pointer"
+          }}
         >
           {loading ? "Đang kích hoạt..." : "📱 Tiếp tục"}
         </button>
 
         <button
           onClick={() => setShowPrompt(false)}
-          style={{ width:"100%", marginTop:12, padding:"12px", borderRadius:14,
-            border:"1px solid #333", background:"none", color:"#888", fontSize:14, cursor:"pointer" }}
+          style={{
+            width:"100%",
+            marginTop:12,
+            padding:"12px",
+            borderRadius:14,
+            border:"1px solid #333",
+            background:"none",
+            color:"#888",
+            fontSize:14,
+            cursor:"pointer"
+          }}
         >
           Để sau
         </button>
