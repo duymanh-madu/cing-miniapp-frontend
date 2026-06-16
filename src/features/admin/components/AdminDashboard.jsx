@@ -56,14 +56,14 @@ export default function AdminDashboard({ auth }) {
 >
       {/* SIDEBAR */}
       <div style={{ width:220, background:"#1a1a24", borderRight:"1px solid #2a2a38",
-        display:"flex", flexDirection:"column", position:"sticky", top:0, height:"100vh", zIndex:10, overflowY:"auto" }}>
+        display:"flex", flexDirection:"column", position:"sticky", top:0, height:"100dvh", zIndex:10, overflow:"hidden" }}>
         <div style={{ padding:"24px 20px 16px", borderBottom:"1px solid #2a2a38" }}>
           <p style={{ color:"#D4531C", fontSize:10, fontWeight:800,
             letterSpacing:3, margin:"0 0 4px" }}>CING HU TANG</p>
           <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0 }}>Admin Panel</p>
           <p style={{ color:"#666", fontSize:11, margin:"4px 0 0" }}>{auth.admin?.username}</p>
         </div>
-        <nav style={{ flex:1, padding:"12px 0" }}>
+        <nav style={{ flex:1, padding:"12px 0", overflowY:"auto", overflowX:"hidden", minHeight:0 }}>
           {TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               style={{ width:"100%", display:"flex", alignItems:"center", gap:10,
@@ -77,7 +77,7 @@ export default function AdminDashboard({ auth }) {
             </button>
           ))}
         </nav>
-        <div style={{ padding:"16px 20px", borderTop:"1px solid #2a2a38" }}>
+        <div style={{ padding:"12px 20px calc(env(safe-area-inset-bottom, 0px) + 16px)", borderTop:"1px solid #2a2a38", flexShrink:0, background:"#1a1a24" }}>
           <button onClick={auth.logout}
             style={{ width:"100%", background:"rgba(255,80,80,0.1)",
               border:"1px solid rgba(255,80,80,0.2)", borderRadius:8,
