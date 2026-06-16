@@ -339,8 +339,8 @@ export default function AdminLeaderboard({ token }) {
               ) : (
                 topRows.map(r => (
                   <div key={`${r.rank}-${r.user_id}`} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 20px", borderBottom:"1px solid #1f1f28" }}>
-                    <div style={{ width:48, color:r.rank <= 3 ? "#FFD700" : "#888", fontWeight:900 }}>
-                      ${r.rank === 1 ? "🥇 Top 1" : r.rank === 2 ? "🥈 Top 2" : r.rank === 3 ? "🥉 Top 3" : `Top ${r.rank}`}
+                    <div style={{ minWidth:90, color:r.rank <= 3 ? "#FFD700" : "#888", fontWeight:900, whiteSpace:"nowrap" }}>
+                      {r.rank === 1 ? "🥇 Top 1" : r.rank === 2 ? "🥈 Top 2" : r.rank === 3 ? "🥉 Top 3" : `Top ${r.rank}`}
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ color:"white", fontWeight:800 }}>{r.player_name || "Cing iu"}</div>
