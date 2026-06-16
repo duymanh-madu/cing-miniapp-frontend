@@ -28,43 +28,60 @@ function PageTracker() {
   const runtimeAvatar = useRuntimeCustomerIdentityStore(s => s.identity?.avatar);
 
   const getPhone = () => {
-    const p = (runtimePhone||"").replace(/\D/g,"").replace(/^84/,"0");
+    const p = (runtimePhone || "").replace(/\D/g, "").replace(/^84/, "0");
     return p.length >= 9 && p !== "pending" ? p : null;
   };
 
-  // Emit user:online khi phone ready
   useEffect(() => {
     const phone = getPhone();
     if (!phone) return;
+
     let attempts = 0;
     const tryEmit = () => {
       const socket = getRuntimeSocket();
+
       if (socket?.connected) {
-        socket.emit("user:online", { userId: phone, name: runtimeName||"", avatar: runtimeAvatar||"" });
+        socket.emit("user:online", {
+          userId: phone,
+          name: runtimeName || "",
+          avatar: runtimeAvatar || "",
+        });
         console.log("[TRACKER] user:online emitted for", phone);
       } else if (attempts++ < 20) {
         setTimeout(tryEmit, 1000);
       }
     };
+
     tryEmit();
   }, [runtimePhone]);
 
-  // Emit user:page + user:online khi route thay đổi
   useEffect(() => {
     const phone = getPhone();
     if (!phone) return;
+
     const pageName = PAGE_NAMES[location.pathname] || location.pathname;
     let attempts = 0;
+
     const tryEmit = () => {
       const socket = getRuntimeSocket();
+
       if (socket?.connected) {
-        // Emit cả 2 — đảm bảo user luôn trong onlineMap
-        socket.emit("user:online", { userId: phone, name: runtimeName||"", avatar: runtimeAvatar||"" });
-        socket.emit("user:page", { userId: phone, page: pageName, action: "" });
+        socket.emit("user:online", {
+          userId: phone,
+          name: runtimeName || "",
+          avatar: runtimeAvatar || "",
+        });
+
+        socket.emit("user:page", {
+          userId: phone,
+          page: pageName,
+          action: "",
+        });
       } else if (attempts++ < 10) {
         setTimeout(tryEmit, 1000);
       }
     };
+
     tryEmit();
   }, [location.pathname, runtimePhone]);
 
@@ -72,28 +89,54 @@ function PageTracker() {
 }
 
 const lazyCache = {};
+
 function getLazy(loader, key) {
-  if (!lazyCache[key]) lazyCache[key] = lazy(loader);
+  if (!lazyCache[key]) {
+    lazyCache[key] = lazy(loader);
+  }
+
   return lazyCache[key];
 }
 
 function AuthRequired({ children }) {
   const authenticated = useAuthStore(s => s.authenticated);
+
   if (!authenticated) {
     return (
-      <div style={{ display:"flex", flexDirection:"column", alignItems:"center",
-        justifyContent:"center", minHeight:"70vh", padding:"24px", textAlign:"center" }}>
+      <div style={{
+        display:"flex",
+        flexDirection:"column",
+        alignItems:"center",
+        justifyContent:"center",
+        minHeight:"70vh",
+        padding:"24px",
+        textAlign:"center"
+      }}>
         <div style={{ fontSize:64, marginBottom:16 }}>🔐</div>
-        <h2 style={{ fontSize:20, fontWeight:900, color:"#1a1a1a", margin:"0 0 8px" }}>
+
+        <h2 style={{
+          fontSize:20,
+          fontWeight:900,
+          color:"#1a1a1a",
+          margin:"0 0 8px"
+        }}>
           Cần đăng nhập
         </h2>
-        <p style={{ fontSize:14, color:"#666", margin:"0 0 24px", lineHeight:1.6 }}>
+
+        <p style={{
+          fontSize:14,
+          color:"#666",
+          margin:"0 0 24px",
+          lineHeight:1.6
+        }}>
           Vui lòng đăng nhập qua Zalo<br/>để truy cập tính năng này
         </p>
+
         <Navigate to="/" replace />
       </div>
     );
   }
+
   return children;
 }
 
@@ -104,23 +147,34 @@ export default function AppRouter() {
       <LeaderboardResetPopup />
       <ChallengeWonPopup />
       <PendingRewardsBadge />
+
       <HashRouter>
-      <PageTracker />
-      <AppLayout>
-        <Suspense fallback={<AppLoadingScreen />}>
-          <Routes>
-            {routeManifest.map(route => {
-              const Component = getLazy(route.loader, route.key);
-              const element = route.requireAuth
-                ? <AuthRequired><Component /></AuthRequired>
-                : <Component />;
-              return <Route key={route.key} path={route.path} element={element} />;
-            })}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </AppLayout>
-    </HashRouter>
+        <PageTracker />
+
+        <AppLayout>
+          <Suspense fallback={<AppLoadingScreen />}>
+            <Routes>
+              {routeManifest.map(route => {
+                const Component = getLazy(route.loader, route.key);
+
+                const element = route.requireAuth
+                  ? <AuthRequired><Component /></AuthRequired>
+                  : <Component />;
+
+                return (
+                  <Route
+                    key={route.key}
+                    path={route.path}
+                    element={element}
+                  />
+                );
+              })}
+
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </AppLayout>
+      </HashRouter>
     </>
   );
 }
