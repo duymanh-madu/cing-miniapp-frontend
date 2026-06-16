@@ -5,14 +5,17 @@ import FloatingCart from "@/features/cart/FloatingCart";
 
 function AppLayout({ children }) {
   const location = useLocation();
-  const isShipperPortal = location.pathname.startsWith("/shipper/");
+
+  const isUtilityRoute =
+    location.pathname.startsWith("/shipper/") ||
+    location.pathname.startsWith("/admin");
 
   return (
     <AppContainer>
       {children}
 
-      {!isShipperPortal && <FloatingCart />}
-      {!isShipperPortal && <BottomNavigation />}
+      {!isUtilityRoute && <FloatingCart />}
+      {!isUtilityRoute && <BottomNavigation />}
     </AppContainer>
   );
 }
