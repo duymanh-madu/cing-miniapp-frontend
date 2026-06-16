@@ -17,6 +17,7 @@ export const routeManifest = [
   { key:"badge-store",   path:"/badge-store",    loader:() => import("@/features/badge-store/BadgeStorePage") },
   { key:"profile",       path:"/profile/:userId", loader:() => import("@/features/profile/ProfilePage") },
   { key:"my-profile",    path:"/profile",         loader:() => import("@/features/profile/ProfilePage") },
+  { key:"shipper-portal", path:"/shipper/:token", loader:() => import("@/features/shipper/pages/ShipperPortalPage") },
 ];
 export const routeMap = Object.fromEntries(routeManifest.map(r => [r.key, r]));
 // Sat Jun  6 09:20:55 +07 2026
