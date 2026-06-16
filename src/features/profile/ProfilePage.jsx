@@ -392,9 +392,6 @@ export default function ProfilePage() {
               ? {
                   text: CHARM_BADGE_META[activeBadge]?.label?.toUpperCase() || "",
                   useChatBadge: true,
-                  bg: "transparent",
-                  border: "transparent",
-                  shadow: "none",
                   bg: charmHeader.inner,
                   border: charmHeader.color,
                   shadow: `${charmHeader.color}66`,
