@@ -49,15 +49,14 @@ export default function AdminDashboard({ auth }) {
   return (
     <div
   style={{
-    height:"100vh",
+    minHeight:"100vh",
     background:"#0f0f13",
-    display:"flex",
-    overflow:"hidden"
+    display:"flex"
   }}
 >
       {/* SIDEBAR */}
       <div style={{ width:220, background:"#1a1a24", borderRight:"1px solid #2a2a38",
-        display:"flex", flexDirection:"column", position:"fixed", height:"100vh", zIndex:10, overflowY:"auto" }}>
+        display:"flex", flexDirection:"column", position:"sticky", top:0, height:"100vh", zIndex:10, overflowY:"auto" }}>
         <div style={{ padding:"24px 20px 16px", borderBottom:"1px solid #2a2a38" }}>
           <p style={{ color:"#D4531C", fontSize:10, fontWeight:800,
             letterSpacing:3, margin:"0 0 4px" }}>CING HU TANG</p>
@@ -91,7 +90,7 @@ export default function AdminDashboard({ auth }) {
       {/* CONTENT */}
       <div
   style={{
-    marginLeft:220,
+    marginLeft:0,
     flex:1,
     padding:"24px",
     minHeight:"100vh",
