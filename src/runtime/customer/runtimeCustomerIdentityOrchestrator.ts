@@ -8,15 +8,5 @@ import {
 } from "./runtimeCustomerIdentityEngine";
 
 export async function initializeCustomerIdentityRuntime() {
-
-  runtimeLogger.info("RUNTIME", 
-    "[IDENTITY] Initializing customer identity runtime"
-  );
-
-  await initializeCustomerIdentityEngine();
-
-  runtimeLogger.info("RUNTIME", 
-    "[IDENTITY] Customer identity runtime ready"
-  );
-
+  return;
 }
