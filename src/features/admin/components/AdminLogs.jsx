@@ -49,11 +49,35 @@ function getTitle(item) {
     }
     return `${id} nhận ${item.amount} lượt — ${item.reason||"Thưởng từ chi tiêu"} (còn ${item.new_total ?? "?"} lượt)`;
   }
-  if (item._type==="reward")        return `${item.player_name||id} — Nhận ${item.points} điểm (${item.board||""} ${item.rank?"#"+item.rank:""})`;
+  if (item._type==="reward") {
+    const points = item.points ?? item.amount ?? item.event_data?.points ?? item.event_data?.amount ?? 0;
+    const reason = item.reason || item.event_data?.reason || "Nhận thưởng bảng xếp hạng";
+    const board  = item.board || item.event_data?.board || item.event_data?.game_key || item.event_data?.period || "";
+    const rank   = item.rank || item.event_data?.rank || "";
+    const rankText = rank ? `Top ${rank}` : "";
+    const meta = [board, rankText].filter(Boolean).join(" · ");
+    return `${item.player_name || id} — Nhận ${fmt(points)} điểm — ${reason}${meta ? ` (${meta})` : ""}`;
+  }
+
   if (item._type==="profile_change") {
-    const fieldLabel = FIELD_LABEL[item.field] || item.field || "hồ sơ";
+    const data = item.event_data || {};
+    const changes = [];
+
+    if (data.old_name && data.new_name && data.old_name !== data.new_name) {
+      changes.push(`Tên: "${data.old_name}" → "${data.new_name}"`);
+    }
+
+    if (data.avatar_changed) {
+      changes.push("Đổi ảnh đại diện");
+    }
+
+    if (changes.length === 0) {
+      const fieldLabel = FIELD_LABEL[item.field] || item.field || "hồ sơ";
+      changes.push(`Đổi ${fieldLabel}`);
+    }
+
     const pointsNote = item.points_used > 0 ? ` (tốn ${item.points_used} điểm)` : " (miễn phí)";
-    return `${id} đã đổi ${fieldLabel}${pointsNote}`;
+    return `${id} — ${changes.join(" | ")}${pointsNote}`;
   }
   return JSON.stringify(item).slice(0,80);
 }
