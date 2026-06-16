@@ -63,7 +63,7 @@ export default function AdminDashboard({ auth }) {
           <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0 }}>Admin Panel</p>
           <p style={{ color:"#666", fontSize:11, margin:"4px 0 0" }}>{auth.admin?.username}</p>
         </div>
-        <nav style={{ flex:1, padding:"12px 0" }}>
+        <nav style={{ flex:1, padding:"12px 0 76px", overflowY:"auto", overflowX:"hidden", minHeight:0 }}>
           {TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               style={{ width:"100%", display:"flex", alignItems:"center", gap:10,
@@ -77,7 +77,17 @@ export default function AdminDashboard({ auth }) {
             </button>
           ))}
         </nav>
-        <div style={{ padding:"12px 20px calc(env(safe-area-inset-bottom, 0px) + 16px)", borderTop:"1px solid #2a2a38", flexShrink:0, background:"#1a1a24" }}>
+        <div style={{
+          position:"fixed",
+          left:0,
+          bottom:0,
+          width:220,
+          boxSizing:"border-box",
+          padding:"12px 20px calc(env(safe-area-inset-bottom, 0px) + 16px)",
+          borderTop:"1px solid #2a2a38",
+          background:"#1a1a24",
+          zIndex:30
+        }}>
           <button onClick={auth.logout}
             style={{ width:"100%", background:"rgba(255,80,80,0.1)",
               border:"1px solid rgba(255,80,80,0.2)", borderRadius:8,
