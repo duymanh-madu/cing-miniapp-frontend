@@ -374,8 +374,16 @@ export default function CheckoutPage(){
           setError("Đang xác nhận thanh toán...");
         },
         fail: (err) => {
-          console.warn("[ZALO CHECKOUT] createOrder failed:", err);
-          const detail = err?.message || err?.msg || err?.error || JSON.stringify(err || {});
+          console.error("[ZALO CHECKOUT FULL ERROR]", err);
+          console.error("[ZALO CHECKOUT JSON]", JSON.stringify(err, null, 2));
+
+          const detail =
+            err?.message ||
+            err?.msg ||
+            err?.error ||
+            JSON.stringify(err || {});
+
+          alert(detail);
           setError("Checkout SDK lỗi: " + detail);
         },
       });
