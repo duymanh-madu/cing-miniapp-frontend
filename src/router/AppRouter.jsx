@@ -4,7 +4,7 @@ import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { LeaderboardResetPopup, PendingRewardsBadge, ChallengeWonPopup } from "@/features/rewards/components/RewardNotification";
 import NotificationSocketBridge from "@/features/notification/components/NotificationSocketBridge";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
-import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "@/layouts/AppLayout";
 import AppLoadingScreen from "@/app/AppLoadingScreen";
 import { routeManifest } from "@/app/routeManifest";
@@ -148,7 +148,7 @@ export default function AppRouter() {
       <ChallengeWonPopup />
       <PendingRewardsBadge />
 
-      <HashRouter>
+      <BrowserRouter>
         <PageTracker />
 
         <AppLayout>
@@ -174,7 +174,7 @@ export default function AppRouter() {
             </Routes>
           </Suspense>
         </AppLayout>
-      </HashRouter>
+      </BrowserRouter>
     </>
   );
 }
