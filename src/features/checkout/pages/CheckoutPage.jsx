@@ -364,11 +364,11 @@ export default function CheckoutPage(){
       console.log("[ZALO ORDER]", zaloOrder);
       
       await Payment.createOrder({
-        desc: zaloOrder.description || "Thanh toán đơn hàng",
+        desc: zaloOrder.desc || zaloOrder.description || "Thanh toán đơn hàng",
         item: zaloOrder.item || [],
         amount: Number(zaloOrder.amount || total),
-        method: "momo",
-        extradata: zaloOrder.extraData || "",
+        method: zaloOrder.method || JSON.stringify({ id: "MOMO", isCustom: false }),
+        extradata: zaloOrder.extradata || zaloOrder.extraData || "",
         mac: zaloOrder.mac,
         success: async () => {
           setError("Đang xác nhận thanh toán...");
