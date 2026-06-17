@@ -6,6 +6,7 @@ import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
+import QRCode from "qrcode";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
@@ -101,11 +102,14 @@ export default function CheckoutPage(){
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
   const [pointsToUse, setPointsToUse] = useState(0);
-  const [checkoutTxn, setCheckoutTxn] = useState(null);
+  const [momoPayUrl, setMomoPayUrl] = useState(null);
+  const [momoQR, setMomoQR] = useState(null);
+  const [momoDeeplink, setMomoDeeplink] = useState(null);
+  const [momoOrderId,  setMomoOrderId]  = useState(null);
 
   // Lắng nghe payment.success từ socket — realtime, không poll
   useEffect(() => {
-    if (!checkoutTxn) return;
+    if (!momoPayUrl) return;
     let attempts = 0;
     const attach = () => {
       const socket = getRuntimeSocket();
@@ -120,7 +124,7 @@ export default function CheckoutPage(){
     };
     attach();
     return () => { getRuntimeSocket()?.off("payment.success"); };
-  }, [checkoutTxn]);
+  }, [momoPayUrl]);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const memberPhone = (() => {
     for (const src of [runtimePhone, profile?.phone]) {
@@ -261,9 +265,7 @@ export default function CheckoutPage(){
     setLoading(true);setError("");
     try{
       const userId=profile?.id||profile?.userId||profile?.zalo_id||"guest-"+Date.now();
-      const profilePhone = String(profile?.phone || profile?.phoneNumber || "").replace(/\D/g, "").replace(/^84/, "0");
-      const submittedPhone = String(phone || "").replace(/\D/g, "").replace(/^84/, "0");
-      const customerPhone = profilePhone || submittedPhone;
+      const phone=(profile?.phone||profile?.phoneNumber||"").replace(/\D/g,"");
 
       // 1. Tao don hang
       const orderPayload={
@@ -332,8 +334,8 @@ export default function CheckoutPage(){
       const paymentRes = await apiClient.post("/payments/create-session", {
         user_id: userId,
         customer_name: name.trim(),
-        customer_phone: customerPhone,
-        payment_provider: "zalo_checkout",
+        customer_phone: phone,
+        payment_provider: "momo",
         payment_method: "momo",
         total_amount: total,
         subtotal,
@@ -342,7 +344,7 @@ export default function CheckoutPage(){
         cart_snapshot: {
           items,
           customer_name: name.trim(),
-          customer_phone: customerPhone,
+          customer_phone: phone,
           shipping_address: address.trim(),
           shipping_fee: shipFee,
           points_used: pointsToUse,
@@ -355,41 +357,20 @@ export default function CheckoutPage(){
         order_id: orderId,
       });
 
-      const zaloOrder = paymentRes.data?.zaloOrder;
-      const txCode = paymentRes.data?.payment?.transaction_code || zaloOrder?.orderId || "";
-      if (!zaloOrder || !txCode) throw new Error("Không tạo được đơn Checkout SDK");
+      const payUrl       = paymentRes.data?.paymentUrl;
+      const deeplinkMini = paymentRes.data?.payment?.deeplinkMiniApp || paymentRes.data?.payment?.deeplink;
+      if(!payUrl) throw new Error("Không lấy được link thanh toán MoMo");
 
-      setCheckoutTxn(txCode);
-
-      const { Payment } = await import("zmp-sdk/apis");
-
-      console.log("[ZALO ORDER]", zaloOrder);
-      
-      await Payment.createOrder({
-        desc: zaloOrder.desc || zaloOrder.description || "Thanh toán đơn hàng",
-        item: zaloOrder.item || [],
-        amount: Number(zaloOrder.amount || total),
-        method: zaloOrder.method || JSON.stringify({ id: "MOMO", isCustom: false }),
-        extradata: zaloOrder.extradata || zaloOrder.extraData || "",
-        mac: zaloOrder.mac,
-        success: async () => {
-          setError("Đang xác nhận thanh toán...");
-        },
-        fail: (err) => {
-          console.error("[ZALO CHECKOUT FULL ERROR]", err);
-          console.error("[ZALO CHECKOUT JSON]", JSON.stringify(err, null, 2));
-
-          const detail =
-            err?.message ||
-            err?.msg ||
-            err?.error ||
-            JSON.stringify(err || {});
-
-          alert(detail);
-          setError("Checkout SDK lỗi: " + detail);
-        },
-      });
-
+      // Generate QR từ deeplinkMiniApp (user scan bằng app MoMo)
+      const qrTarget = deeplinkMini || payUrl;
+      try {
+        const qrImg = await QRCode.toDataURL(qrTarget, { width: 280, margin: 2 });
+        setMomoQR(qrImg);
+      } catch(e) {}
+      setMomoDeeplink(deeplinkMini);
+      setMomoPayUrl(payUrl);
+      const txCode = paymentRes.data?.payment?.transaction_code || paymentRes.data?.transactionCode || "";
+      setMomoOrderId(txCode);
       setLoading(false);
       return;
     }catch(e){
@@ -399,6 +380,38 @@ export default function CheckoutPage(){
       setLoading(false);
     }
   }
+
+  // Hiển thị màn MoMo payment sau khi tạo session
+  if (momoPayUrl) return (
+    <div style={{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"white", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, zIndex:1000 }}>
+      <div style={{ background:"white", borderRadius:20, padding:28, width:"100%", maxWidth:360, textAlign:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.08)" }}>
+        <div style={{ fontSize:48, marginBottom:8 }}>💜</div>
+        <h2 style={{ fontSize:17, fontWeight:900, color:"#1a1a1a", margin:"0 0 4px" }}>Thanh toán MoMo</h2>
+        <p style={{ fontSize:13, fontWeight:700, color:"#ae2070", margin:"0 0 12px" }}>{fmt(total)}</p>
+
+        {momoQR && (
+          <div style={{ marginBottom:16 }}>
+            <img src={momoQR} alt="MoMo QR" style={{ width:220, height:220, borderRadius:12, border:"2px solid #ae2070" }}/>
+            <p style={{ fontSize:11, color:"#666", margin:"8px 0 0", lineHeight:1.5 }}>
+              Mở app MoMo → Quét mã QR để thanh toán
+            </p>
+          </div>
+        )}
+
+        <button onClick={() => {
+          window.parent.postMessage({ type: "OPEN_OUT_APP", url: momoPayUrl }, "*");
+        }} style={{ width:"100%", padding:"13px", background:"#ae2070", color:"white", border:"none", borderRadius:14, fontSize:14, fontWeight:800, cursor:"pointer", marginBottom:10 }}>
+          💜 Mở trang MoMo
+        </button>
+        <button onClick={() => setMomoPayUrl(null)} style={{ width:"100%", padding:"12px", background:"none", color:"#999", border:"1px solid #e0e0e0", borderRadius:14, fontSize:13, cursor:"pointer" }}>
+          ← Quay lại
+        </button>
+        <p style={{ fontSize:11, color:"#aaa", margin:"12px 0 0", lineHeight:1.6 }}>
+          Sau khi thanh toán xong, quay lại app để xem đơn hàng
+        </p>
+      </div>
+    </div>
+  );
 
   if(!items.length) return(
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
@@ -561,8 +574,8 @@ export default function CheckoutPage(){
         <div style={{display:"flex",alignItems:"center",gap:12,padding:"6px 0"}}>
           <span style={{fontSize:24}}>💜</span>
           <div style={{flex:1}}>
-            <p style={{fontSize:13,fontWeight:700,color:"#1a1a1a",margin:0}}>MoMo qua Zalo Checkout</p>
-            <p style={{fontSize:11,color:"#999",margin:0}}>Thanh toán an toàn qua Checkout SDK</p>
+            <p style={{fontSize:13,fontWeight:700,color:"#1a1a1a",margin:0}}>MoMo</p>
+            <p style={{fontSize:11,color:"#999",margin:0}}>Ví điện tử MoMo</p>
           </div>
           <div style={{width:20,height:20,borderRadius:"50%",background:"#D4531C",
             display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -666,7 +679,7 @@ export default function CheckoutPage(){
             background:(loading||shipStatus==="loading")?"#ddd":"#D4531C",
             color:"white",border:"none",fontSize:14,fontWeight:900,
             cursor:(loading||shipStatus==="loading")?"not-allowed":"pointer"}}>
-          {loading?"Đang xử lý...":total===0?"✅ Thanh toán bằng điểm — Miễn phí":"Thanh toán qua Zalo Checkout — "+fmt(total)}
+          {loading?"Đang xử lý...":total===0?"✅ Thanh toán bằng điểm — Miễn phí":"Thanh toán MoMo — "+fmt(total)}
         </button>
       </div>
     </div>
