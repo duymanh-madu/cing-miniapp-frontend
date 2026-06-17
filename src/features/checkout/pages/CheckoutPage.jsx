@@ -102,8 +102,18 @@ export default function CheckoutPage(){
   const [error,setError]=useState("");
   const [pointsToUse, setPointsToUse] = useState(0);
   const [checkoutTxn, setCheckoutTxn] = useState(null);
+  const [checkoutDebug, setCheckoutDebug] = useState("");
 
   // Lắng nghe payment.success từ socket — realtime, không poll
+  const debugCheckout = async (label, data) => {
+    const text = label + ": " + JSON.stringify(data || {}, null, 2);
+    console.log(text);
+    setCheckoutDebug(text);
+    try {
+      await apiClient.post("/payments/zalo/debug", { label, data });
+    } catch {}
+  };
+
   useEffect(() => {
     if (!checkoutTxn) return;
     let attempts = 0;
@@ -365,15 +375,14 @@ export default function CheckoutPage(){
 
       console.log("[ZALO ORDER]", zaloOrder);
 
-      console.log("SDK VERSION TEST");
-console.log("PAYLOAD", {
-  desc: zaloOrder.desc,
-  item: zaloOrder.item,
-  amount: Number(zaloOrder.amount || total),
-  method: zaloOrder.method,
-  extradata: zaloOrder.extradata,
-  mac: zaloOrder.mac,
-});
+      await debugCheckout("ZALO SDK PAYLOAD", {
+        desc: zaloOrder.desc,
+        item: zaloOrder.item,
+        amount: Number(zaloOrder.amount || total),
+        method: zaloOrder.method,
+        extradata: zaloOrder.extradata,
+        mac: zaloOrder.mac,
+      });
       
       await Payment.createOrder({
         desc: zaloOrder.desc || zaloOrder.description || "Thanh toán đơn hàng",
@@ -385,9 +394,10 @@ console.log("PAYLOAD", {
         success: async () => {
           setError("Đang xác nhận thanh toán...");
         },
-        fail: (err) => {
+        fail: async (err) => {
           console.error("[ZALO CHECKOUT FULL ERROR]", err);
           console.error("[ZALO CHECKOUT JSON]", JSON.stringify(err, null, 2));
+          await debugCheckout("ZALO CHECKOUT ERROR", err);
 
           const detail =
             err?.message ||
