@@ -123,7 +123,9 @@ export default function AdminDashboard({ auth }) {
           <p style={{ color:"#D4531C", fontSize:10, fontWeight:800,
             letterSpacing:3, margin:"0 0 4px" }}>CING HU TANG</p>
           <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0 }}>Admin Panel</p>
-          <p style={{ color:"#666", fontSize:11, margin:"4px 0 0" }}>{auth.admin?.username}</p>
+          <p style={{ color:"#666", fontSize:11, margin:"4px 0 0" }}>
+            {auth.admin?.username} — role: {role || "none"}
+          </p>
           <p style={{ color:"#D4531C", fontSize:10, fontWeight:800, margin:"6px 0 0", textTransform:"uppercase" }}>{role}</p>
         </div>
         <nav style={{ flex:1, padding:"12px 0 76px", overflowY:"auto", overflowX:"hidden", minHeight:0 }}>
