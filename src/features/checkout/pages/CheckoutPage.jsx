@@ -265,7 +265,9 @@ export default function CheckoutPage(){
     setLoading(true);setError("");
     try{
       const userId=profile?.id||profile?.userId||profile?.zalo_id||"guest-"+Date.now();
-      const phone=(profile?.phone||profile?.phoneNumber||"").replace(/\D/g,"");
+      const profilePhone = String(profile?.phone || profile?.phoneNumber || "").replace(/\D/g, "").replace(/^84/, "0");
+      const submittedPhone = String(phone || "").replace(/\D/g, "").replace(/^84/, "0");
+      const customerPhone = profilePhone || submittedPhone;
 
       // 1. Tao don hang
       const orderPayload={
@@ -334,7 +336,7 @@ export default function CheckoutPage(){
       const paymentRes = await apiClient.post("/payments/create-session", {
         user_id: userId,
         customer_name: name.trim(),
-        customer_phone: phone,
+        customer_phone: customerPhone,
         payment_provider: "momo",
         payment_method: "momo",
         total_amount: total,
@@ -344,7 +346,7 @@ export default function CheckoutPage(){
         cart_snapshot: {
           items,
           customer_name: name.trim(),
-          customer_phone: phone,
+          customer_phone: customerPhone,
           shipping_address: address.trim(),
           shipping_fee: shipFee,
           points_used: pointsToUse,
