@@ -141,6 +141,26 @@ export default function AdminDelivery({ token }) {
     <div>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
         <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:0 }}>🚀 Quản lý giao hàng</h2>
+        {lastShipperUrl && (
+  <button
+    onClick={() => {
+      navigator.clipboard.writeText(lastShipperUrl);
+      showMsg("✅ Đã copy link shipper");
+    }}
+    style={{
+      background:"rgba(33,150,243,0.15)",
+      border:"1px solid #2196F3",
+      borderRadius:10,
+      color:"#2196F3",
+      padding:"10px 14px",
+      fontSize:12,
+      fontWeight:800,
+      cursor:"pointer"
+    }}
+  >
+    📋 Copy link shipper
+  </button>
+)}
         <div style={{ display:"flex", gap:8 }}>
           <button onClick={() => setAutoRefresh(v=>!v)} style={{
             background:autoRefresh?"rgba(76,175,80,0.2)":"rgba(255,255,255,0.07)",
