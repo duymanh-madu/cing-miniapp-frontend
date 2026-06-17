@@ -47,7 +47,7 @@ export default function GlobalTicker() {
     const attachListeners = (socket) => {
       if (attached) return;
       attached = true;
-      socket.on("notification.broadcast", (data) => {
+      const handleNotificationTicker = (data) => {
         const payload = data?.payload || data || {};
         const msg =
           payload?.ticker?.message ||
@@ -56,7 +56,10 @@ export default function GlobalTicker() {
           data?.message ||
           "";
         if (msg) addMessage(msg);
-      });
+      };
+
+      socket.on("notification.broadcast", handleNotificationTicker);
+      socket.on("notification.new", handleNotificationTicker);
       socket.on("leaderboard.weekly_reset",  (d) => addLeaderboardResetMessage("weekly",  d?.message || "BXH tuần đã reset. Top 3 vui lòng vào nhận thưởng 🎁"));
       socket.on("leaderboard.monthly_reset", (d) => addLeaderboardResetMessage("monthly", d?.message || "BXH tháng đã reset. Top 3 vui lòng vào nhận thưởng 🎁"));
       socket.on("leaderboard.yearly_reset",  (d) => addLeaderboardResetMessage("yearly",  d?.message || "BXH năm đã reset. Top 3 vui lòng vào nhận thưởng 🎁"));
