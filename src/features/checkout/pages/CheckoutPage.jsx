@@ -373,7 +373,8 @@ export default function CheckoutPage(){
         },
         fail: (err) => {
           console.warn("[ZALO CHECKOUT] createOrder failed:", err);
-          setError(err?.message || "Không mở được Checkout SDK");
+          const detail = err?.message || err?.msg || err?.error || JSON.stringify(err || {});
+          setError("Checkout SDK lỗi: " + detail);
         },
       });
 
