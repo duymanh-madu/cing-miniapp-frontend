@@ -363,13 +363,20 @@ export default function CheckoutPage(){
 
       console.log("[ZALO ORDER]", zaloOrder);
       
-      await Payment.createOrder({
+      const createOrderPayload = {
         desc: zaloOrder.desc || zaloOrder.description || "Thanh toán đơn hàng",
         item: zaloOrder.item || [],
         amount: Number(zaloOrder.amount || total),
-        method: zaloOrder.method || JSON.stringify({ id: "MOMO", isCustom: false }),
         extradata: zaloOrder.extradata || zaloOrder.extraData || "",
         mac: zaloOrder.mac,
+      };
+
+      if (zaloOrder.method) {
+        createOrderPayload.method = zaloOrder.method;
+      }
+
+      await Payment.createOrder({
+        ...createOrderPayload,
         success: async () => {
           setError("Đang xác nhận thanh toán...");
         },
