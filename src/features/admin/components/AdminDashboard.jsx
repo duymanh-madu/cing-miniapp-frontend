@@ -20,7 +20,7 @@ import AdminDelivery from './AdminDelivery';
 import AdminPayments from './AdminPayments';
 import AdminSystemHealth from './AdminSystemHealth';
 
-const TABS = [
+const ALL_TABS = [
   { key:"stats",     icon:"📊", label:"Tổng quan" },
   { key:"missions",  icon:"🎯", label:"Nhiệm vụ" },
   { key:"games",     icon:"🎮", label:"Games" },
@@ -43,8 +43,70 @@ const TABS = [
   { key:"members_admin", icon:"👤", label:"Thành viên" },
 ];
 
+const ROLE_TABS = {
+  super_admin: ALL_TABS.map(t => t.key),
+
+  manager: [
+    "stats",
+    "missions",
+    "games",
+    "players",
+    "leaderboard_admin",
+    "logs",
+    "notifications",
+    "monitor",
+    "alltime_games",
+    "daily_challenge",
+    "orders_admin",
+    "delivery_admin",
+    "payments_admin",
+    "analytics_pro",
+    "badges_admin",
+    "members_admin",
+  ],
+
+  staff: [
+    "stats",
+    "orders_admin",
+    "delivery_admin",
+    "members_admin",
+  ],
+
+  delivery: [
+    "stats",
+    "orders_admin",
+    "delivery_admin",
+  ],
+
+  marketing: [
+    "stats",
+    "notifications",
+    "leaderboard_admin",
+    "logs",
+    "analytics_pro",
+    "badges_admin",
+  ],
+
+  viewer: [
+    "stats",
+    "logs",
+    "monitor",
+  ],
+};
+
+function getAllowedTabs(role) {
+  const normalizedRole = String(role || "").toLowerCase();
+
+  // Phase 1 mềm: role lạ / chưa có role thì vẫn full quyền để tránh tự khóa admin hiện tại.
+  const allowedKeys = ROLE_TABS[normalizedRole] || ROLE_TABS.super_admin;
+
+  return ALL_TABS.filter(t => allowedKeys.includes(t.key));
+}
+
 export default function AdminDashboard({ auth }) {
-  const [tab, setTab] = useState("stats");
+  const role = auth.admin?.role || "super_admin";
+  const TABS = getAllowedTabs(role);
+  const [tab, setTab] = useState(TABS[0]?.key || "stats");
 
   return (
     <div
@@ -62,6 +124,7 @@ export default function AdminDashboard({ auth }) {
             letterSpacing:3, margin:"0 0 4px" }}>CING HU TANG</p>
           <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0 }}>Admin Panel</p>
           <p style={{ color:"#666", fontSize:11, margin:"4px 0 0" }}>{auth.admin?.username}</p>
+          <p style={{ color:"#D4531C", fontSize:10, fontWeight:800, margin:"6px 0 0", textTransform:"uppercase" }}>{role}</p>
         </div>
         <nav style={{ flex:1, padding:"12px 0 76px", overflowY:"auto", overflowX:"hidden", minHeight:0 }}>
           {TABS.map(t => (
