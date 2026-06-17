@@ -39,6 +39,7 @@ export default function AdminDelivery({ token }) {
   const [searchInput, setSearchInput] = useState("");
   const [selected, setSelected]     = useState(null);
   const [assignForm, setAssignForm] = useState({ order_id:"", shipper_name:"", shipper_phone:"", note:"" });
+  const [lastShipperUrl, setLastShipperUrl] = useState("");
   const [showAssign, setShowAssign] = useState(false);
   const [updating, setUpdating]     = useState(false);
   const [msg, setMsg]               = useState("");
@@ -116,7 +117,14 @@ export default function AdminDelivery({ token }) {
     setUpdating(true);
     try {
       const res = await apiClient.post("/admin/delivery/assign", assignForm, { headers:h });
-      showMsg("✅ " + res.data?.message);
+      const url = res.data?.shipper_url || "";
+      setLastShipperUrl(url);
+
+      if (url && navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url).catch(() => {});
+      }
+
+      showMsg("✅ " + res.data?.message + (url ? " — đã copy link shipper" : ""));
       setShowAssign(false);
       setAssignForm({ order_id:"", shipper_name:"", shipper_phone:"", note:"" });
       loadStats();
