@@ -261,9 +261,9 @@ export default function CheckoutPage(){
     setLoading(true);setError("");
     try{
       const userId=profile?.id||profile?.userId||profile?.zalo_id||"guest-"+Date.now();
-      const submittedPhone = String(phone || "").replace(/\D/g, "").replace(/^84/, "0");
       const profilePhone = String(profile?.phone || profile?.phoneNumber || "").replace(/\D/g, "").replace(/^84/, "0");
-      const customerPhone = submittedPhone || profilePhone;
+      const submittedPhone = String(phone || "").replace(/\D/g, "").replace(/^84/, "0");
+      const customerPhone = profilePhone || submittedPhone;
 
       // 1. Tao don hang
       const orderPayload={
