@@ -48,7 +48,13 @@ export default function GlobalTicker() {
       if (attached) return;
       attached = true;
       socket.on("notification.broadcast", (data) => {
-        const msg = data?.notification?.message || data?.message || "";
+        const payload = data?.payload || data || {};
+        const msg =
+          payload?.ticker?.message ||
+          payload?.notification?.message ||
+          data?.notification?.message ||
+          data?.message ||
+          "";
         if (msg) addMessage(msg);
       });
       socket.on("leaderboard.weekly_reset",  (d) => addLeaderboardResetMessage("weekly",  d?.message || "BXH tuần đã reset. Top 3 vui lòng vào nhận thưởng 🎁"));
