@@ -364,16 +364,6 @@ export default function CheckoutPage(){
       const { Payment } = await import("zmp-sdk/apis");
 
       console.log("[ZALO ORDER]", zaloOrder);
-
-      console.log("SDK VERSION TEST");
-console.log("PAYLOAD", {
-  desc: zaloOrder.desc,
-  item: zaloOrder.item,
-  amount: Number(zaloOrder.amount || total),
-  method: zaloOrder.method,
-  extradata: zaloOrder.extradata,
-  mac: zaloOrder.mac,
-});
       
       await Payment.createOrder({
         desc: zaloOrder.desc || zaloOrder.description || "Thanh toán đơn hàng",
