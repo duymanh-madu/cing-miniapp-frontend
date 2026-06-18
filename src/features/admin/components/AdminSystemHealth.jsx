@@ -587,7 +587,16 @@ export default function AdminSystemHealth({ token }) {
     <div>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
         <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:0 }}>🛡 System Health</h2>
-        <button onClick={load} style={{ background:"#D4531C", border:"none", borderRadius:8, color:"white", padding:"8px 14px", fontWeight:800, cursor:"pointer" }}>
+        <button onClick={async () => {
+  try {
+    console.log("[SYSTEM HEALTH] refresh clicked");
+    await load();
+    showMsg("✅ Đã làm mới System Health");
+  } catch (e) {
+    console.error(e);
+    showMsg("❌ " + (e.response?.data?.error || e.message));
+  }
+}} style={{ background:"#D4531C", border:"none", borderRadius:8, color:"white", padding:"8px 14px", fontWeight:800, cursor:"pointer" }}>
           🔄 Làm mới
         </button>
       </div>
