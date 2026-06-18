@@ -322,7 +322,7 @@ function RecoveryStats({ title, icon, stats }) {
   );
 }
 
-function JobsTable({ title, jobs, type, onRetry }) {
+function JobsTable({ title, jobs, type, onRetry, onAccept, onRemove }) {
   return (
     <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, overflow:"hidden" }}>
       <div style={{ padding:14, borderBottom:"1px solid #2a2a38" }}>
@@ -354,14 +354,34 @@ function JobsTable({ title, jobs, type, onRetry }) {
               <td style={{ padding:"10px", color:"#666", fontSize:11 }}>{fmtDate(j.created_at)}</td>
               <td style={{ padding:"10px", color:"#666", fontSize:11 }}>{fmtDate(j.processed_at)}</td>
               <td style={{ padding:"10px" }}>
-                {j.status==="failed" && (
-                  <button onClick={()=>onRetry(j.id)}
-                    style={{ background:"rgba(255,152,0,.15)", border:"1px solid #FF9800",
-                      color:"#FF9800", borderRadius:6, padding:"5px 8px",
-                      cursor:"pointer", fontSize:11, fontWeight:800 }}>
-                    Retry
-                  </button>
-                )}
+                <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                  {j.status==="failed" && (
+                    <button onClick={()=>onRetry(j.id)}
+                      style={{ background:"rgba(255,152,0,.15)", border:"1px solid #FF9800",
+                        color:"#FF9800", borderRadius:6, padding:"5px 8px",
+                        cursor:"pointer", fontSize:11, fontWeight:800 }}>
+                      Retry
+                    </button>
+                  )}
+
+                  {type === "ipos" && ["pending","failed","processing"].includes(j.status) && (
+                    <>
+                      <button onClick={()=>onAccept && onAccept(j.id)}
+                        style={{ background:"rgba(76,175,80,.15)", border:"1px solid #4CAF50",
+                          color:"#4CAF50", borderRadius:6, padding:"5px 8px",
+                          cursor:"pointer", fontSize:11, fontWeight:800 }}>
+                        Accept
+                      </button>
+
+                      <button onClick={()=>onRemove && onRemove(j.id)}
+                        style={{ background:"rgba(244,67,54,.15)", border:"1px solid #f44336",
+                          color:"#f44336", borderRadius:6, padding:"5px 8px",
+                          cursor:"pointer", fontSize:11, fontWeight:800 }}>
+                        Remove
+                      </button>
+                    </>
+                  )}
+                </div>
               </td>
             </tr>
           ))}
@@ -467,6 +487,22 @@ export default function AdminSystemHealth({ token }) {
     try {
       await apiClient.post(`/admin/system/ipos-recovery/retry/${id}`, {}, { headers:h });
       showMsg("✅ Đã retry iPOS job");
+      load();
+    } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
+  };
+
+  const acceptIposJob = async id => {
+    try {
+      await apiClient.post(`/admin/system/ipos-recovery/${id}/accept`, {}, { headers:h });
+      showMsg("✅ Đã chấp nhận iPOS job");
+      load();
+    } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
+  };
+
+  const removeIposJob = async id => {
+    try {
+      await apiClient.post(`/admin/system/ipos-recovery/${id}/remove`, {}, { headers:h });
+      showMsg("✅ Đã loại bỏ iPOS job");
       load();
     } catch(e) { showMsg("❌ " + (e.response?.data?.error || e.message)); }
   };
@@ -681,7 +717,14 @@ export default function AdminSystemHealth({ token }) {
               <option value="failed">Failed</option>
             </select>
           </div>
-          <JobsTable title="iPOS Jobs" jobs={iposJobs} type="ipos" onRetry={retryIposJob} />
+          <JobsTable
+            title="iPOS Jobs"
+            jobs={iposJobs}
+            type="ipos"
+            onRetry={retryIposJob}
+            onAccept={acceptIposJob}
+            onRemove={removeIposJob}
+          />
         </div>
 
         <div>
