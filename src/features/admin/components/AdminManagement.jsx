@@ -7,6 +7,7 @@ const ROLES = [
   { value: "cashier",     label: "Thu ngân",    color: "#2196F3", icon: "💳" },
   { value: "kitchen",     label: "Bếp",         color: "#FF9800", icon: "👨‍🍳" },
   { value: "shipper",     label: "Shipper",     color: "#4CAF50", icon: "🚀" },
+  { value: "delivery_admin", label: "Admin Ship", color: "#00C853", icon: "🚚" },
   { value: "marketing",   label: "Marketing",   color: "#9C27B0", icon: "📢" },
 ];
 
@@ -16,6 +17,7 @@ const ROLE_PERMISSIONS = {
   cashier:     ["Xem dashboard", "Quản lý đơn hàng", "Xem thanh toán"],
   kitchen:     ["Xem đơn hàng", "Cập nhật trạng thái bếp"],
   shipper:     ["Xem giao hàng", "Cập nhật giao hàng"],
+  delivery_admin: ["Quản lý đơn hàng", "Gán shipper", "Cập nhật trạng thái giao hàng", "Copy link shipper"],
   marketing:   ["Xem dashboard", "Analytics", "Chiến dịch", "Thông báo"],
 };
 

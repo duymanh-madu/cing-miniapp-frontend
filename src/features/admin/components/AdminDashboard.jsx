@@ -78,6 +78,11 @@ const ROLE_TABS = {
     "delivery_admin",
   ],
 
+  delivery_admin: [
+    "orders_admin",
+    "delivery_admin",
+  ],
+
   marketing: [
     "stats",
     "notifications",
