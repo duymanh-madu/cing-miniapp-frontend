@@ -375,6 +375,7 @@ export default function CheckoutPage(){
           desc: zaloOrder.desc,
           mac: zaloOrder.mac,
           extradata: zaloOrder.extradata,
+          method: zaloOrder.method,
           fail: (err) => {
             alert("[ZALO_CREATE_ORDER_FAIL] " + JSON.stringify(err, null, 2));
             console.error("[ZALO_CREATE_ORDER_FAIL]", err);
