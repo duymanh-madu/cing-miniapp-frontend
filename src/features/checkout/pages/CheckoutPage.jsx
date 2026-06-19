@@ -140,6 +140,56 @@ export default function CheckoutPage(){
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
   const [pointsToUse, setPointsToUse] = useState(0);
+  const pendingCheckoutKey = "cing_pending_checkout_transaction";
+
+  // Resume sau khi Zalo/MoMo trả app về checkout mà socket listener bị mất context.
+  useEffect(() => {
+    const transactionCode = sessionStorage.getItem(pendingCheckoutKey);
+    if (!transactionCode) return;
+
+    let cancelled = false;
+
+    const resumePaidCheckout = async () => {
+      try {
+        const res = await apiClient.get(`/orders/by-transaction/${encodeURIComponent(transactionCode)}`);
+        const order = res.data?.data || res.data?.order || res.data;
+
+        if (cancelled || !order) return;
+
+        const status = String(order.payment_status || order.status || order.order_status || "").toLowerCase();
+        const hasOrderCode = !!(order.order_code || order.code || order.id);
+
+        if (
+          hasOrderCode &&
+          (
+            status.includes("paid") ||
+            status.includes("success") ||
+            status.includes("completed") ||
+            status.includes("confirmed") ||
+            status === ""
+          )
+        ) {
+          sessionStorage.removeItem(pendingCheckoutKey);
+          clearCart();
+          navigate("/order-success", { replace: true });
+        }
+      } catch (err) {
+        console.warn("[CHECKOUT_RESUME] pending transaction not ready yet", {
+          transactionCode,
+          message: err?.message,
+        });
+      }
+    };
+
+    resumePaidCheckout();
+    const timer = setInterval(resumePaidCheckout, 1500);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, []);
+
   // Lắng nghe payment.success từ socket — realtime, không poll
   useEffect(() => {
     let attempts = 0;
@@ -147,6 +197,7 @@ export default function CheckoutPage(){
       const socket = getRuntimeSocket();
       if (socket?.connected) {
         socket.on("payment.success", () => {
+          sessionStorage.removeItem(pendingCheckoutKey);
           clearCart();
           navigate("/order-success");
         });
@@ -393,6 +444,18 @@ export default function CheckoutPage(){
 
       const zaloOrder = paymentRes.data?.zaloOrder;
       if (!zaloOrder) throw new Error("Không lấy được dữ liệu Zalo Checkout");
+
+      const pendingTransactionCode =
+        paymentRes.data?.transaction_code ||
+        paymentRes.data?.transactionCode ||
+        paymentRes.data?.data?.transaction_code ||
+        paymentRes.data?.data?.transactionCode ||
+        zaloOrder?.transaction_code ||
+        zaloOrder?.transactionCode;
+
+      if (pendingTransactionCode) {
+        sessionStorage.setItem(pendingCheckoutKey, pendingTransactionCode);
+      }
 
       try {
         await requestZaloCheckoutFromShell({
