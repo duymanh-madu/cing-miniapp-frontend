@@ -362,7 +362,6 @@ export default function CheckoutPage(){
         desc: zaloOrder.desc,
         mac: zaloOrder.mac,
         extradata: zaloOrder.extradata,
-        method: zaloOrder.method,
       });
 
       return;
