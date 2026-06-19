@@ -367,6 +367,17 @@ export default function CheckoutPage(){
 
       return;
     }catch(e){
+      console.error("ZALO_CHECKOUT_ERROR", e);
+
+      try {
+        alert(JSON.stringify({
+          message: e?.message,
+          code: e?.code,
+          error: e?.error,
+          data: e?.data
+        }, null, 2));
+      } catch {}
+
       const msg=e?.response?.data?.error||e?.response?.data?.message||e?.message||"Đặt hàng thất bại. Vui lòng thử lại.";
       setError(msg);
     }finally{
