@@ -368,26 +368,31 @@ export default function CheckoutPage(){
         mac: zaloOrder.mac,
       });
 
-      alert(JSON.stringify({
-        runtime_APP_ID: window.APP_ID,
-        runtime_zAppID: window.zAppID,
-        backend_appId: zaloOrder.appId,
-      }, null, 2));
-
-      await CheckoutSDK.createOrder({
-        amount: zaloOrder.amount,
-        item: zaloOrder.item,
-        desc: zaloOrder.desc,
-        mac: zaloOrder.mac,
-        extradata: zaloOrder.extradata,
-        fail: (err) => {
-          alert("[ZALO_CREATE_ORDER_FAIL] " + JSON.stringify(err, null, 2));
-          console.error("[ZALO_CREATE_ORDER_FAIL]", err);
-        },
-        success: (data) => {
-          console.log("[ZALO_CREATE_ORDER_SUCCESS]", data);
-        },
-      });
+      try {
+        await CheckoutSDK.createOrder({
+          amount: zaloOrder.amount,
+          item: zaloOrder.item,
+          desc: zaloOrder.desc,
+          mac: zaloOrder.mac,
+          extradata: zaloOrder.extradata,
+          fail: (err) => {
+            alert("[ZALO_CREATE_ORDER_FAIL] " + JSON.stringify(err, null, 2));
+            console.error("[ZALO_CREATE_ORDER_FAIL]", err);
+          },
+          success: (data) => {
+            console.log("[ZALO_CREATE_ORDER_SUCCESS]", data);
+          },
+        });
+      } catch (sdkErr) {
+        alert("[ZALO_CREATE_ORDER_CATCH] " + JSON.stringify({
+          message: sdkErr?.message,
+          code: sdkErr?.code,
+          data: sdkErr?.data,
+          raw: sdkErr,
+        }, null, 2));
+        console.error("[ZALO_CREATE_ORDER_CATCH]", sdkErr);
+        throw sdkErr;
+      }
 
       return;
     }catch(e){
