@@ -404,12 +404,6 @@ export default function CheckoutPage(){
           method: zaloOrder.method,
         });
       } catch (sdkErr) {
-        alert("[ZALO_CREATE_ORDER_CATCH] " + JSON.stringify({
-          message: sdkErr?.message,
-          code: sdkErr?.code,
-          data: sdkErr?.data,
-          raw: sdkErr,
-        }, null, 2));
         console.error("[ZALO_CREATE_ORDER_CATCH]", sdkErr);
         throw sdkErr;
       }
@@ -419,12 +413,6 @@ export default function CheckoutPage(){
       console.error("ZALO_CHECKOUT_ERROR", e);
 
       try {
-        alert(JSON.stringify({
-          message: e?.message,
-          code: e?.code,
-          error: e?.error,
-          data: e?.data
-        }, null, 2));
       } catch {}
 
       const msg=e?.response?.data?.error||e?.response?.data?.message||e?.message||"Đặt hàng thất bại. Vui lòng thử lại.";
