@@ -52,6 +52,12 @@ const STATUS_CONFIG = {
   },
 };
 
+const ORDER_TYPE_CONFIG = {
+  delivery: { label: "Giao hàng", icon: "🛵", color: "#FF9800", bg: "rgba(255,152,0,0.15)" },
+  pickup: { label: "Khách đến lấy", icon: "🛍", color: "#00BCD4", bg: "rgba(0,188,212,0.15)" },
+  dine_in: { label: "Tại quán", icon: "🍵", color: "#4CAF50", bg: "rgba(76,175,80,0.15)" },
+};
+
 const NEXT_STATUS = {
   assigned: ["picked_up", "cancelled"],
   picked_up: ["delivering", "cancelled"],
@@ -118,10 +124,95 @@ function getOrderCode(delivery) {
   return delivery?.orders?.order_code || delivery?.order_code || delivery?.order_id?.slice?.(0, 8) || "—";
 }
 
+function getOrderItems(order) {
+  return Array.isArray(order?.items) ? order.items : [];
+}
+
+function getOrderType(order) {
+  return order?.order_type || (order?.shipping_address ? "delivery" : "pickup");
+}
+
+function renderOrderItems(order) {
+  const items = getOrderItems(order);
+
+  if (!items.length) {
+    return (
+      <p style={{ color: "#666", fontSize: 11, margin: "8px 0 0" }}>
+        Chưa có chi tiết món
+      </p>
+    );
+  }
+
+  return (
+    <div style={{ display: "grid", gap: 6, marginTop: 8 }}>
+      {items.map((item, index) => {
+        const name =
+          item.displayName ||
+          item.name ||
+          item.item_name ||
+          item.raw?.name ||
+          item.itemName ||
+          "Món";
+
+        const qty = Number(item.qty || item.quantity || 1);
+        const price = Number(item.price || item.unit_price || item.amount || 0);
+        const toppings = Array.isArray(item.toppings) ? item.toppings : [];
+        const customizations = Array.isArray(item.customizations) ? item.customizations : [];
+        const note = item.note || "";
+
+        return (
+          <div
+            key={`${name}-${index}`}
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: 8,
+              padding: 8,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+              <span style={{ color: "white", fontSize: 12, fontWeight: 800 }}>
+                {name}
+              </span>
+              <span style={{ color: "#D4531C", fontSize: 12, fontWeight: 900 }}>
+                x{qty}
+              </span>
+            </div>
+
+            <p style={{ color: "#aaa", fontSize: 11, margin: "4px 0 0" }}>
+              {fmt(price)}đ · Thành tiền: {fmt(price * qty)}đ
+            </p>
+
+            {toppings.length > 0 && (
+              <p style={{ color: "#888", fontSize: 10, margin: "4px 0 0" }}>
+                Topping: {toppings.map(t => t.displayName || t.name || String(t)).join(", ")}
+              </p>
+            )}
+
+            {customizations.length > 0 && (
+              <p style={{ color: "#888", fontSize: 10, margin: "4px 0 0" }}>
+                Tuỳ chỉnh: {customizations.map(c => c.label || c.name || String(c)).join(", ")}
+              </p>
+            )}
+
+            {note && (
+              <p style={{ color: "#888", fontSize: 10, margin: "4px 0 0" }}>
+                Ghi chú: {note}
+              </p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function AdminDelivery({ token }) {
   const [stats, setStats] = useState(null);
   const [deliveries, setDeliveries] = useState([]);
   const [readyOrders, setReadyOrders] = useState([]);
+  const [pickupOrders, setPickupOrders] = useState([]);
+  const [dineInOrders, setDineInOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("active");
   const [filterStatus, setFilterStatus] = useState("");
@@ -209,11 +300,27 @@ export default function AdminDelivery({ token }) {
     }
   }, [headers]);
 
+  const loadFulfillmentOrders = useCallback(async () => {
+    try {
+      const [pickupRes, dineInRes] = await Promise.all([
+        apiClient.get("/admin/delivery/fulfillment-orders?type=pickup&limit=100", { headers }),
+        apiClient.get("/admin/delivery/fulfillment-orders?type=dine_in&limit=100", { headers }),
+      ]);
+
+      setPickupOrders(pickupRes.data?.data || []);
+      setDineInOrders(dineInRes.data?.data || []);
+    } catch {
+      setPickupOrders([]);
+      setDineInOrders([]);
+    }
+  }, [headers]);
+
   const refreshAll = useCallback(() => {
     loadStats();
     loadDeliveries(filterStatus, search);
     loadReadyOrders();
-  }, [filterStatus, loadDeliveries, loadReadyOrders, loadStats, search]);
+    loadFulfillmentOrders();
+  }, [filterStatus, loadDeliveries, loadFulfillmentOrders, loadReadyOrders, loadStats, search]);
 
   useEffect(() => {
     refreshAll();
@@ -292,6 +399,11 @@ export default function AdminDelivery({ token }) {
     () => deliveries.filter((delivery) => !["completed", "cancelled"].includes(getDeliveryStatus(delivery))),
     [deliveries],
   );
+
+  const fulfillmentDisplay =
+    tab === "pickup" ? pickupOrders :
+    tab === "dine_in" ? dineInOrders :
+    null;
 
   const displayList = tab === "active" ? activeDeliveries : deliveries;
 
@@ -372,6 +484,22 @@ export default function AdminDelivery({ token }) {
 
       <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
         <button
+          onClick={() => setTab("needs_shipper")}
+          style={{
+            background: tab === "needs_shipper" ? "#D4531C" : "rgba(255,255,255,0.07)",
+            border: "none",
+            borderRadius: 20,
+            padding: "6px 14px",
+            color: tab === "needs_shipper" ? "white" : "#aaa",
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          ⚠ Cần gán shipper ({readyOrders.length})
+        </button>
+
+        <button
           onClick={() => setTab("active")}
           style={{
             background: tab === "active" ? "#D4531C" : "rgba(255,255,255,0.07)",
@@ -385,6 +513,38 @@ export default function AdminDelivery({ token }) {
           }}
         >
           🛵 Đang giao ({activeDeliveries.length})
+        </button>
+
+        <button
+          onClick={() => setTab("pickup")}
+          style={{
+            background: tab === "pickup" ? "#D4531C" : "rgba(255,255,255,0.07)",
+            border: "none",
+            borderRadius: 20,
+            padding: "6px 14px",
+            color: tab === "pickup" ? "white" : "#aaa",
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          🛍 Khách đến lấy ({pickupOrders.length})
+        </button>
+
+        <button
+          onClick={() => setTab("dine_in")}
+          style={{
+            background: tab === "dine_in" ? "#D4531C" : "rgba(255,255,255,0.07)",
+            border: "none",
+            borderRadius: 20,
+            padding: "6px 14px",
+            color: tab === "dine_in" ? "white" : "#aaa",
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          🍵 Tại quán ({dineInOrders.length})
         </button>
 
         <button
@@ -446,7 +606,82 @@ export default function AdminDelivery({ token }) {
         </div>
       )}
 
-      {loading ? (
+      {tab === "needs_shipper" ? (
+        readyOrders.length === 0 ? (
+          <p style={{ color: "#666", textAlign: "center", padding: 40 }}>Không có đơn cần gán shipper</p>
+        ) : readyOrders.map((order) => (
+          <div
+            key={order.id}
+            style={{ background: "#1a1a24", borderRadius: 14, padding: "16px 18px", marginBottom: 10, border: "1px solid rgba(255,152,0,0.22)" }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+              <div>
+                <p style={{ color: "#FF9800", fontSize: 12, fontWeight: 900, margin: "0 0 4px" }}>
+                  ⚠ Cần gán shipper · {order.order_code}
+                </p>
+                <p style={{ color: "white", fontSize: 13, fontWeight: 800, margin: 0 }}>
+                  {order.customer_name || "Khách"} · {order.customer_phone || "—"}
+                </p>
+                <p style={{ color: "#888", fontSize: 11, margin: "5px 0 0" }}>
+                  📍 {order.shipping_address || "—"}
+                </p>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <p style={{ color: "#D4531C", fontSize: 15, fontWeight: 900, margin: 0 }}>
+                  {fmt(order.total_amount)}đ
+                </p>
+                <button
+                  onClick={() => {
+                    setAssignForm((form) => ({ ...form, order_id: order.id }));
+                    setShowAssign(true);
+                  }}
+                  style={{ ...primaryButton, marginTop: 8 }}
+                >
+                  + Gán shipper
+                </button>
+              </div>
+            </div>
+            {renderOrderItems(order)}
+          </div>
+        ))
+      ) : fulfillmentDisplay ? (
+        fulfillmentDisplay.length === 0 ? (
+          <p style={{ color: "#666", textAlign: "center", padding: 40 }}>Không có dữ liệu</p>
+        ) : fulfillmentDisplay.map((order) => {
+          const typeConfig = ORDER_TYPE_CONFIG[getOrderType(order)] || ORDER_TYPE_CONFIG.pickup;
+          return (
+            <div
+              key={order.id}
+              style={{ background: "#1a1a24", borderRadius: 14, padding: "16px 18px", marginBottom: 10, border: `1px solid ${typeConfig.color}22` }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div>
+                  <p style={{ color: typeConfig.color, fontSize: 12, fontWeight: 900, margin: "0 0 4px" }}>
+                    {typeConfig.icon} {typeConfig.label} · {order.order_code}
+                  </p>
+                  <p style={{ color: "white", fontSize: 13, fontWeight: 800, margin: 0 }}>
+                    {order.customer_name || "Khách"} · {order.customer_phone || "—"}
+                  </p>
+                  <p style={{ color: "#888", fontSize: 11, margin: "5px 0 0" }}>
+                    Trạng thái: {order.status || "—"} · {fmtDate(order.created_at)}
+                  </p>
+                  {order.note && (
+                    <p style={{ color: "#888", fontSize: 11, margin: "5px 0 0" }}>
+                      Ghi chú: {order.note}
+                    </p>
+                  )}
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <p style={{ color: "#D4531C", fontSize: 15, fontWeight: 900, margin: 0 }}>
+                    {fmt(order.total_amount)}đ
+                  </p>
+                </div>
+              </div>
+              {renderOrderItems(order)}
+            </div>
+          );
+        })
+      ) : loading ? (
         <p style={{ color: "#666", textAlign: "center", padding: 40 }}>Đang tải...</p>
       ) : displayList.length === 0 ? (
         <p style={{ color: "#666", textAlign: "center", padding: 40 }}>Không có dữ liệu</p>
@@ -492,6 +727,8 @@ export default function AdminDelivery({ token }) {
                     </div>
                   )}
                 </div>
+
+                {order && renderOrderItems(order)}
 
                 {shipperUrl && (
                   <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }} onClick={(event) => event.stopPropagation()}>
@@ -591,6 +828,13 @@ export default function AdminDelivery({ token }) {
                   <span style={{ color: "white", fontSize: 12, fontWeight: 600, maxWidth: 280, textAlign: "right" }}>{value}</span>
                 </div>
               ))}
+            </div>
+
+            <div style={{ background: "#12121a", borderRadius: 12, padding: 14, marginBottom: 14 }}>
+              <p style={{ color: "white", fontSize: 13, fontWeight: 900, margin: "0 0 10px" }}>
+                🧾 Chi tiết món
+              </p>
+              {renderOrderItems(selected.orders)}
             </div>
 
             {(selected.shipper_url || selected.shipperUrl) && (
