@@ -359,7 +359,7 @@ export default function CommunityChat({ onClose }) {
     { type:"rule",  num:2, text:'Không gây thù hằn giữa các cá nhân trong cộng đồng. Chúng ta là những "Cing iu" vui tính, game chơi thắng không kiêu, thua không cay cú.' },
     { type:"rule",  num:3, text:'Không tuyên truyền những tôn giáo không chính thống, không làm những việc trái với pháp luật. Chúng ta là những công dân Việt Nam gương mẫu. Chỉ làm những việc pháp luật cho phép.' },
     { type:"penalty", text:"Vi phạm nội quy lần đầu sẽ bị cấm chat 1 ngày, vi phạm lần 2 sẽ bị cấm chat 3 ngày, vi phạm lần 3 sẽ bị cấm chat 7 ngày, vi phạm lần 4 sẽ bị cấm chat 30 ngày và vi phạm lần 5 sẽ bị cấm chat vĩnh viễn." },
-    { type:"outro", text:'Admin hi vọng không phải cấm chat bất kỳ "Cing iu" nào. Hãy tham gia vào group "Những Cing iu vui vẻ của nhà Cing Hu Tang Kinh Bắc" để được giao lưu, kết bạn và hơn hết là thoải mái flex những kỹ năng chơi game đỉnh cao của mình nhé các "Cing iu"!' },
+    { type:"outro", text:'Admin hi vọng không phải cấm chat bất kỳ "Cing iu" nào. Hãy cùng xây dựng cộng đồng "Cing iu" văn minh, vui vẻ và tích cực ngay trong Mini App của Cing Hu Tang Kinh Bắc nhé các "Cing iu"!' },
     { type:"sign",  text:"Trân trọng! 🧋 Cing Hu Tang Kinh Bắc" },
   ];
 
@@ -375,18 +375,6 @@ export default function CommunityChat({ onClose }) {
           <p style={{ color:"#FFD700", fontSize:15, fontWeight:1000, margin:0 }}>💬 Cộng đồng "Cing iu"</p>
           <p style={{ color:"#555", fontSize:11, margin:0 }}>{users.length} người đang online</p>
         </div>
-        <button
-          onPointerDown={e => { e.currentTarget.style.transform="scale(0.93)"; e.currentTarget.style.boxShadow="0 0 16px rgba(24,119,242,0.7)"; }}
-          onPointerUp={e => { e.currentTarget.style.transform="scale(1)"; e.currentTarget.style.boxShadow="0 2px 8px rgba(24,119,242,0.4)"; }}
-          onPointerLeave={e => { e.currentTarget.style.transform="scale(1)"; e.currentTarget.style.boxShadow="0 2px 8px rgba(24,119,242,0.4)"; }}
-          onClick={() => window.parent.postMessage({ type:"OPEN_OUT_APP", url:"https://www.facebook.com/groups/2210684146435472" }, "*")}
-          style={{ background:"linear-gradient(135deg,#1877F2,#0a5dc2)", border:"none", borderRadius:10,
-            padding:"6px 12px", color:"white", fontSize:11, fontWeight:800, cursor:"pointer",
-            display:"none", alignItems:"center", gap:0, flexShrink:0,
-            boxShadow:"0 2px 8px rgba(24,119,242,0.4)",
-            transition:"transform 0.15s ease, box-shadow 0.15s ease" }}>
-          <span style={{ fontSize:13 }}>👥</span> Gia nhập
-        </button>
         <button onClick={() => setShowRules(true)}
           style={{ background:"linear-gradient(135deg,#D4531C,#FF6B35)", border:"none", borderRadius:10,
             padding:"6px 12px", color:"white", fontSize:11, fontWeight:800, cursor:"pointer",
