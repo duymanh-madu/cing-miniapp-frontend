@@ -356,6 +356,18 @@ export default function CheckoutPage(){
       const zaloOrder = paymentRes.data?.zaloOrder;
       if (!zaloOrder) throw new Error("Không lấy được dữ liệu Zalo Checkout");
 
+      console.log("[ZALO_CHECKOUT_DEBUG]", {
+        runtime_APP_ID: window.APP_ID,
+        runtime_zAppID: window.zAppID,
+        backend_appId: zaloOrder.appId,
+        amount: zaloOrder.amount,
+        item: zaloOrder.item,
+        desc: zaloOrder.desc,
+        extradata: zaloOrder.extradata,
+        method: zaloOrder.method,
+        mac: zaloOrder.mac,
+      });
+
       await createOrder({
         amount: zaloOrder.amount,
         item: zaloOrder.item,
