@@ -396,6 +396,8 @@ export default function CheckoutPage(){
             customer_name: name.trim(),
             customer_phone: deductPhone,
             shipping_address: address.trim(),
+        order_type: orderType,
+        orderType,
             note: note || "",
             shipping_fee: shipFee,
             items: items.map(i=>({
@@ -431,6 +433,8 @@ export default function CheckoutPage(){
           customer_name: name.trim(),
           customer_phone: customerPhone,
           shipping_address: address.trim(),
+        order_type: orderType,
+        orderType,
           shipping_fee: shipFee,
           points_used: pointsToUse,
           note: note || "",
@@ -439,6 +443,8 @@ export default function CheckoutPage(){
           subtotal,
         },
         shipping_address: address.trim(),
+        order_type: orderType,
+        orderType,
         order_id: orderId,
       });
 
