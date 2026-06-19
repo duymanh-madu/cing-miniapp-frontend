@@ -380,6 +380,13 @@ export default function CheckoutPage(){
         desc: zaloOrder.desc,
         mac: zaloOrder.mac,
         extradata: zaloOrder.extradata,
+        fail: (err) => {
+          alert("[ZALO_CREATE_ORDER_FAIL] " + JSON.stringify(err, null, 2));
+          console.error("[ZALO_CREATE_ORDER_FAIL]", err);
+        },
+        success: (data) => {
+          console.log("[ZALO_CREATE_ORDER_SUCCESS]", data);
+        },
       });
 
       return;
