@@ -392,6 +392,18 @@ export default function CheckoutPage(){
         };
       }
 
+      alert("[ZALO_RUNTIME_ENV] " + JSON.stringify({
+        href: window.location.href,
+        hostname: window.location.hostname,
+        pathname: window.location.pathname,
+        search: window.location.search,
+        APP_ID: window.APP_ID,
+        zAppID: window.zAppID,
+        APP_ENV: window.APP_ENV,
+        APP_VERSION: window.APP_VERSION,
+        userAgent: navigator.userAgent,
+      }, null, 2));
+
       try {
         await CheckoutSDK.createOrder({
           amount: zaloOrder.amount,
