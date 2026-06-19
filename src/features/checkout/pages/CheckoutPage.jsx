@@ -368,25 +368,6 @@ export default function CheckoutPage(){
         mac: zaloOrder.mac,
       });
 
-      let selectedPaymentMethod = null;
-
-      try {
-        selectedPaymentMethod = await CheckoutSDK.selectPaymentMethod({
-          channels: [{ method: "MOMO" }],
-          selectedMethod: { method: "MOMO", subMethod: "" },
-        });
-        alert("[ZALO_SELECT_PAYMENT_METHOD] " + JSON.stringify(selectedPaymentMethod, null, 2));
-        console.log("[ZALO_SELECT_PAYMENT_METHOD]", selectedPaymentMethod);
-      } catch (methodErr) {
-        alert("[ZALO_SELECT_PAYMENT_METHOD_CATCH] " + JSON.stringify({
-          message: methodErr?.message,
-          code: methodErr?.code,
-          data: methodErr?.data,
-          raw: methodErr,
-        }, null, 2));
-        console.error("[ZALO_SELECT_PAYMENT_METHOD_CATCH]", methodErr);
-      }
-
       try {
         await CheckoutSDK.createOrder({
           amount: zaloOrder.amount,
