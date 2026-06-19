@@ -368,6 +368,30 @@ export default function CheckoutPage(){
         mac: zaloOrder.mac,
       });
 
+      if (!window.__ZALO_CHECKOUT_FETCH_DEBUG__) {
+        window.__ZALO_CHECKOUT_FETCH_DEBUG__ = true;
+        const originalFetch = window.fetch.bind(window);
+
+        window.fetch = async (...fetchArgs) => {
+          const req = fetchArgs[0];
+          const url = typeof req === "string" ? req : req?.url || "";
+
+          const res = await originalFetch(...fetchArgs);
+
+          if (String(url).includes("payment-mini.zalo.me/api/order/create")) {
+            try {
+              const rawText = await res.clone().text();
+              alert("[ZALO_CREATE_ORDER_RAW_RESPONSE] " + rawText.slice(0, 3000));
+              console.log("[ZALO_CREATE_ORDER_RAW_RESPONSE]", rawText);
+            } catch (debugErr) {
+              alert("[ZALO_CREATE_ORDER_RAW_RESPONSE_ERROR] " + String(debugErr?.message || debugErr));
+            }
+          }
+
+          return res;
+        };
+      }
+
       try {
         await CheckoutSDK.createOrder({
           amount: zaloOrder.amount,
