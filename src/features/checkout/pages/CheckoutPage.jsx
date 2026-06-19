@@ -362,14 +362,12 @@ export default function CheckoutPage(){
         desc: zaloOrder.desc,
         mac: zaloOrder.mac,
         extradata: zaloOrder.extradata,
-        method: typeof zaloOrder.method === "string"
-          ? JSON.parse(zaloOrder.method)
-          : zaloOrder.method,
+        method: zaloOrder.method,
       });
 
       return;
     }catch(e){
-      const msg=e?.response?.data?.error||e?.response?.data?.message||"Đặt hàng thất bại. Vui lòng thử lại.";
+      const msg=e?.response?.data?.error||e?.response?.data?.message||e?.message||"Đặt hàng thất bại. Vui lòng thử lại.";
       setError(msg);
     }finally{
       setLoading(false);
