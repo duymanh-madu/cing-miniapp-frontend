@@ -368,6 +368,12 @@ export default function CheckoutPage(){
         mac: zaloOrder.mac,
       });
 
+      alert(JSON.stringify({
+        runtime_APP_ID: window.APP_ID,
+        runtime_zAppID: window.zAppID,
+        backend_appId: zaloOrder.appId,
+      }, null, 2));
+
       await createOrder({
         amount: zaloOrder.amount,
         item: zaloOrder.item,
