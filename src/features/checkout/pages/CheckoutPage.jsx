@@ -6,7 +6,7 @@ import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
-import { createOrder } from "zmp-sdk";
+import { CheckoutSDK } from "zmp-sdk/apis";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
@@ -374,7 +374,7 @@ export default function CheckoutPage(){
         backend_appId: zaloOrder.appId,
       }, null, 2));
 
-      await createOrder({
+      await CheckoutSDK.createOrder({
         amount: zaloOrder.amount,
         item: zaloOrder.item,
         desc: zaloOrder.desc,
