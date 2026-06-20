@@ -9,7 +9,7 @@ import {
  * API CLIENT
  * =====================================================
  * Environment governed.
- * Development keeps localhost via .env.development.
+ * Development uses local environment values via ignored .env files.
  * Production must use VITE_API_BASE_URL.
  * =====================================================
  */
