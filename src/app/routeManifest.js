@@ -20,5 +20,3 @@ export const routeManifest = [
   { key:"shipper-portal", path:"/shipper/:token", loader:() => import("@/features/shipper/pages/ShipperPortalPage") },
 ];
 export const routeMap = Object.fromEntries(routeManifest.map(r => [r.key, r]));
-// Sat Jun  6 09:20:55 +07 2026
-// Sat Jun  6 09:23:21 +07 2026
