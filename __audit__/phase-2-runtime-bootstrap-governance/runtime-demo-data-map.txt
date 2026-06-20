@@ -1,4 +1,0 @@
-src/features/auth/authService.js:8: * - Frontend must never seed fake guest users.
-src/runtime/runtimeBootstrap.ts:205:     * - Runtime bootstrap must not seed fake customer data.
-src/admin/providers/AdminRuntimeProvider.jsx:30: * - no fake data
-src/modules/membership-card/runtimeMembershipCardHydrator.ts:15: * - No demo/fake membership card data.

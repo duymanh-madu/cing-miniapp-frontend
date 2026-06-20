@@ -1,6 +1,0 @@
-src/zalo/follow/followOARuntime.js:5:class FollowOARuntime {
-src/zalo/follow/followOARuntime.js:46:const followOARuntime =
-src/zalo/follow/followOARuntime.js:47:  new FollowOARuntime();
-src/zalo/follow/followOARuntime.js:50:  followOARuntime;
-src/zalo/activation/services/activationService.js:5:import followOARuntime from "@/zalo/follow/followOARuntime";
-src/zalo/activation/services/activationService.js:26:      await followOARuntime

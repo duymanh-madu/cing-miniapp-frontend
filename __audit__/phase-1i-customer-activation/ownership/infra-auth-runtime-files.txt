@@ -1,7 +1,0 @@
-src/infra/auth/useAuthenticated.js
-src/infra/auth/useSession.js
-src/infra/auth/bootstrapAuth.js
-src/infra/auth/logout.js
-src/infra/auth/index.js
-src/infra/auth/authSession.js
-src/infra/auth/authService.js
