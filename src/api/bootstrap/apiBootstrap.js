@@ -8,16 +8,10 @@ export function bootstrapApiLayer() {
 
     onReconnect() {
 
-      console.log(
-        "🌐 Network reconnected"
-      );
 
     },
 
   });
 
-  console.log(
-    "🚀 API layer booted"
-  );
 
 }

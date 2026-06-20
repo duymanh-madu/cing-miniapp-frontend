@@ -46,7 +46,6 @@ function PageTracker() {
           name: runtimeName || "",
           avatar: runtimeAvatar || "",
         });
-        console.log("[TRACKER] user:online emitted for", phone);
       } else if (attempts++ < 20) {
         setTimeout(tryEmit, 1000);
       }

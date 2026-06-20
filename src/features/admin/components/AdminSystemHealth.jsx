@@ -589,8 +589,7 @@ export default function AdminSystemHealth({ token }) {
         <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:0 }}>🛡 System Health</h2>
         <button onClick={async () => {
   try {
-    console.log("[SYSTEM HEALTH] refresh clicked");
-    await load();
+        await load();
     showMsg("✅ Đã làm mới System Health");
   } catch (e) {
     console.error(e);

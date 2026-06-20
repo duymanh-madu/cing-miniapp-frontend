@@ -13,7 +13,6 @@ export default function MenuPage() {
   // Realtime menu update từ window events (set bởi NotificationBell)
   useEffect(() => {
     const onRefresh = () => {
-      console.log("[MENU] Window event: refresh");
       queryClient.invalidateQueries({ queryKey: ["menu"] });
     };
     window.addEventListener("menu:refresh", onRefresh);

@@ -15,10 +15,6 @@ class StartupMetricsRuntime {
       performance.now() -
       this.startedAt;
 
-    console.log(
-      "startup_duration",
-      duration
-    );
 
   }
 

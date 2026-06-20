@@ -61,13 +61,6 @@ class GameRealtimeRuntime {
           payload
         ) => {
 
-          console.log(
-
-            "[GAME REALTIME] LEADERBOARD",
-
-            payload
-
-          );
 
         }
 
@@ -85,13 +78,6 @@ class GameRealtimeRuntime {
           payload
         ) => {
 
-          console.log(
-
-            "[GAME REALTIME EVENT]",
-
-            payload
-
-          );
 
         }
 

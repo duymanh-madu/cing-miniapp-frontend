@@ -21,7 +21,6 @@ class LeaderboardEngine {
 
     const normalized = this.normalize(entries);
 
-    console.log("[LEADERBOARD] UPDATE:", normalized);
 
     leaderboardStore.getState().setEntries(normalized);
   }

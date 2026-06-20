@@ -3,17 +3,5 @@ import {
 } from "./runtimeStoreRegistry";
 
 export function initializeRuntimeStores() {
-
-  console.log(
-    "[STORE] Initializing runtime stores"
-  );
-
-  console.log(
-    runtimeStoreRegistry
-  );
-
-  console.log(
-    "[STORE] Runtime stores ready"
-  );
-
+  // Runtime stores are initialized by their modules/subscribers.
 }

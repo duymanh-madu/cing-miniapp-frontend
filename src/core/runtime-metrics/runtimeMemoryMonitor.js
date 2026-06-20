@@ -200,9 +200,6 @@ class RuntimeMemoryMonitor {
     this.initialized =
       true;
 
-    console.log(
-      "[MEMORY MONITOR] INITIALIZED"
-    );
 
   }
 
@@ -261,9 +258,6 @@ class RuntimeMemoryMonitor {
     this.initialized =
       false;
 
-    console.log(
-      "[MEMORY MONITOR] DESTROYED"
-    );
 
   }
 
