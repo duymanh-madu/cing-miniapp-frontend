@@ -1,4 +1,5 @@
 import { createSession } from "@/infra/auth/authSession";
+import useAuthStore from "@/stores/auth";
 
 const BACKEND_URL =
   (import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api");
@@ -47,16 +48,46 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
   const data = json.data || json;
 
   if (data.accessToken || data.access_token) {
+    const resolvedPhone =
+      data.customer?.phone ||
+      (input.phone !== "pending" ? input.phone : "") ||
+      "";
+
+    const existingProfile =
+      useAuthStore.getState().profile;
+
+    const existingPhone =
+      String(existingProfile?.phone || "")
+        .replace(/\D/g, "")
+        .replace(/^84/, "0");
+
+    const normalizedResolvedPhone =
+      String(resolvedPhone || "")
+        .replace(/\D/g, "")
+        .replace(/^84/, "0");
+
+    const canReuseExistingProfile =
+      existingProfile &&
+      existingPhone &&
+      normalizedResolvedPhone &&
+      existingPhone === normalizedResolvedPhone;
+
+    const backendName =
+      (data.customer?.fullName && data.customer?.fullName !== "Khách hàng"
+        ? data.customer.fullName
+        : null) ||
+      (data.customer?.name && data.customer?.name !== "Khách hàng"
+        ? data.customer.name
+        : null);
+
     createSession({
       accessToken:  data.accessToken  || data.access_token,
       refreshToken: data.refreshToken || data.refresh_token || null,
       profile: {
-        id:     data.customer?.id     || data.customer?.zalo_id || "",
-        name:   (data.customer?.fullName && data.customer?.fullName !== 'Khách hàng' ? data.customer?.fullName : null)
-                || (data.customer?.name && data.customer?.name !== 'Khách hàng' ? data.customer?.name : null)
-                || input.name || "",
-        phone:  data.customer?.phone  || (input.phone !== "pending" ? input.phone : "") || "",
-        avatar: data.customer?.avatar || input.avatar || "",
+        id:     data.customer?.id || data.customer?.zalo_id || existingProfile?.id || "",
+        name:   backendName || (canReuseExistingProfile ? existingProfile?.name : "") || input.name || "",
+        phone:  resolvedPhone,
+        avatar: data.customer?.avatar || (canReuseExistingProfile ? existingProfile?.avatar : "") || input.avatar || "",
       },
     });
   }
