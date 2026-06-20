@@ -86,8 +86,6 @@ export async function bootstrapRuntime() {
   // - players.zalo_name
   // - players.avatar
   // Runtime/Zalo chỉ dùng cho activation/fallback ban đầu, không được ghi đè profile đã đổi.
-  const { default: useAuthStore } = await import("@/stores/auth/authStore");
-
   // Subscribe để emit user:online khi phone được resolve
   useRuntimeCustomerIdentityStore.subscribe((state: any) => {
     const phone = (state.identity?.phone || "").replace(/\D/g,"").replace(/^84/,"0");
