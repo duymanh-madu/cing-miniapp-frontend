@@ -1,3 +1,4 @@
+import apiLogger from "@/infra/api/apiLogger";
 import {
   getMemberVouchers,
   getAvailableVouchers,
@@ -132,7 +133,7 @@ function handleServiceError({
       error
     );
 
-  console.error(
+  apiLogger.error(
     `❌ ${operation.toUpperCase()} FAILED`,
     {
 
@@ -186,7 +187,7 @@ fetchMemberVouchers({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🎟️ FETCH MEMBER VOUCHERS",
       buildServiceMetadata({
 
@@ -270,7 +271,7 @@ fetchMemberVouchers({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 MEMBER VOUCHERS READY",
       buildServiceMetadata({
 
@@ -380,7 +381,7 @@ fetchAvailableVouchers({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 AVAILABLE VOUCHERS READY",
       buildServiceMetadata({
 
@@ -472,7 +473,7 @@ fetchClaimedVouchers({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 CLAIMED VOUCHERS READY",
       buildServiceMetadata({
 
@@ -564,7 +565,7 @@ fetchVoucherDetail({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 VOUCHER DETAIL READY",
       buildServiceMetadata({
 

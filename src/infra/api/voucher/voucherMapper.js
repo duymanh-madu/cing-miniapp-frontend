@@ -1,3 +1,4 @@
+import apiLogger from "@/infra/api/apiLogger";
 /**
  * =========================================================
  * VOUCHER STATUS
@@ -819,7 +820,7 @@ normalizeVoucherResponse(
     )
   ) {
 
-    console.warn(
+    apiLogger.warn(
       "⚠️ INVALID VOUCHER RESPONSE",
       response
     );
@@ -864,7 +865,7 @@ normalizeVoucherResponse(
    * =======================================================
    */
 
-  console.log(
+  apiLogger.log(
     "🎟️ VOUCHERS NORMALIZED",
     {
 

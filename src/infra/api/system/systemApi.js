@@ -1,3 +1,4 @@
+import apiLogger from "@/infra/api/apiLogger";
 import httpClient from "@/api/client/httpClient";
 
 import {
@@ -112,7 +113,7 @@ async function safeRequest({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ SYSTEM API ERROR",
       {
 

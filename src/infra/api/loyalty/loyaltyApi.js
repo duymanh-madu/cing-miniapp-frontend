@@ -1,3 +1,4 @@
+import apiLogger from "@/infra/api/apiLogger";
 import httpClient from "@/api/client/httpClient";
 
 /**
@@ -151,7 +152,7 @@ getMembershipDetail({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 MEMBERSHIP DETAIL FETCHED",
       {
         userId:
@@ -179,7 +180,7 @@ getMembershipDetail({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ MEMBERSHIP DETAIL ERROR",
       {
 
@@ -306,7 +307,7 @@ getMemberTransactions({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 MEMBER TRANSACTIONS FETCHED",
       {
 
@@ -345,7 +346,7 @@ getMemberTransactions({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ MEMBER TRANSACTIONS ERROR",
       {
 
@@ -431,7 +432,7 @@ getLoyaltyLeaderboard({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 LOYALTY LEADERBOARD FETCHED",
       {
 
@@ -463,7 +464,7 @@ getLoyaltyLeaderboard({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ LOYALTY LEADERBOARD ERROR",
       {
 

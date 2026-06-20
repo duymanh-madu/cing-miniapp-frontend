@@ -1,3 +1,4 @@
+import apiLogger from "@/infra/api/apiLogger";
 import {
   getCampaigns,
 } from "./campaignApi";
@@ -337,7 +338,7 @@ fetchCampaigns({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 CAMPAIGN SERVICE SUCCESS",
       {
 
@@ -363,7 +364,7 @@ fetchCampaigns({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ CAMPAIGN SERVICE ERROR",
       {
 

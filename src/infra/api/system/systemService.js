@@ -1,3 +1,4 @@
+import apiLogger from "@/infra/api/apiLogger";
 import {
 
   getHealthCheck,
@@ -189,7 +190,7 @@ bootstrapSystem({
     SYSTEM_BOOT_PHASES
       .INITIALIZING;
 
-  console.log(
+  apiLogger.log(
     "🚀 SYSTEM BOOTSTRAP START"
   );
 
@@ -397,7 +398,7 @@ bootstrapSystem({
       : SYSTEM_BOOT_PHASES
           .READY;
 
-    console.log(
+    apiLogger.log(
       "🟢 SYSTEM BOOTSTRAP COMPLETE",
       {
 
@@ -499,7 +500,7 @@ bootstrapSystem({
       Date.now() -
       startedAt;
 
-    console.error(
+    apiLogger.error(
       "❌ SYSTEM BOOTSTRAP FAILED",
       {
 

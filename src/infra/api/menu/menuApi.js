@@ -1,3 +1,4 @@
+import apiLogger from "@/infra/api/apiLogger";
 import httpClient from "@/api/client/httpClient";
 
 /**
@@ -177,7 +178,7 @@ getMenuItems({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 MENU FETCH SUCCESS",
       {
 
@@ -227,7 +228,7 @@ getMenuItems({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ MENU FETCH ERROR",
       {
 

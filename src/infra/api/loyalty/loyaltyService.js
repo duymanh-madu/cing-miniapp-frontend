@@ -1,3 +1,4 @@
+import apiLogger from "@/infra/api/apiLogger";
 import {
 
   getMembershipDetail,
@@ -222,7 +223,7 @@ fetchMembership({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 MEMBERSHIP FETCHED",
       {
 
@@ -245,7 +246,7 @@ fetchMembership({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ FETCH MEMBERSHIP ERROR",
       {
 
@@ -369,7 +370,7 @@ fetchTransactions({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 TRANSACTIONS FETCHED",
       {
 
@@ -410,7 +411,7 @@ fetchTransactions({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ FETCH TRANSACTIONS ERROR",
       {
 
@@ -516,7 +517,7 @@ fetchLeaderboard({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 LEADERBOARD FETCHED",
       {
 
@@ -536,7 +537,7 @@ fetchLeaderboard({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ FETCH LEADERBOARD ERROR",
       {
 

@@ -1,3 +1,4 @@
+import apiLogger from "@/infra/api/apiLogger";
 import httpClient from "@/api/client/httpClient";
 
 /**
@@ -444,7 +445,7 @@ getCampaigns({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 CAMPAIGNS FETCHED",
       {
 
@@ -468,7 +469,7 @@ getCampaigns({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ GET CAMPAIGNS ERROR",
       {
 

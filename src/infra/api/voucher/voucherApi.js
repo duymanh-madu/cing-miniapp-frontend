@@ -1,3 +1,4 @@
+import apiLogger from "@/infra/api/apiLogger";
 import httpClient from "@/api/client/httpClient";
 
 import {
@@ -193,7 +194,7 @@ async function safeGetRequest({
      * =====================================================
      */
 
-    console.log(
+    apiLogger.log(
       "🟢 MENU API SUCCESS",
       buildRequestMetadata({
 
@@ -231,7 +232,7 @@ async function safeGetRequest({
      * =====================================================
      */
 
-    console.error(
+    apiLogger.error(
       "❌ MENU API ERROR",
       {
 
