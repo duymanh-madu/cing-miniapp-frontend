@@ -18,6 +18,13 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
 
+  esbuild: {
+    drop:
+      process.env.NODE_ENV === "production"
+        ? ["console", "debugger"]
+        : [],
+  },
+
   plugins: [
 
     react(),
