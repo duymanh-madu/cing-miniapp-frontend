@@ -6,6 +6,8 @@ import {
 
 import useAuthStore from "@/stores/auth";
 
+import sessionHydrator from "@/core/session/sessionHydrator";
+
 export function createSession({
   accessToken,
   refreshToken,
@@ -37,6 +39,9 @@ export function createSession({
 export function destroySession() {
 
   clearAuthStorage();
+
+  sessionHydrator
+    .clear();
 
   useAuthStore
     .getState()
