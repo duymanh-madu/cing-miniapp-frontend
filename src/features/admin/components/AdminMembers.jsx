@@ -12,6 +12,86 @@ const resolveMemberAvatar = (m) =>
   m?.zalo_avatar ||
   "";
 
+const normalizeMemberTierKey = (value) => {
+  const raw = String(value || "").trim();
+  const lower = raw.toLowerCase();
+
+  if (!lower) return "";
+
+  if (
+    lower === "loyal_partner" ||
+    lower === "loyal-partner" ||
+    lower === "loyal partner" ||
+    lower.includes("đối tác thân thiết") ||
+    lower.includes("doi tac than thiet") ||
+    lower.includes("partner thân thiết") ||
+    lower.includes("partner than thiet")
+  ) {
+    return "loyal_partner";
+  }
+
+  if (
+    lower === "partner" ||
+    lower.includes("đối tác") ||
+    lower.includes("doi tac")
+  ) {
+    return "partner";
+  }
+
+  if (lower === "diamond" || lower.includes("kim cương") || lower.includes("kim cuong")) return "diamond";
+  if (lower === "gold" || lower.includes("vàng") || lower.includes("vang")) return "gold";
+  if (lower === "silver" || lower.includes("bạc") || lower.includes("bac")) return "silver";
+  if (lower === "loyal" || lower.includes("thân thiết") || lower.includes("than thiet")) return "loyal";
+  if (lower === "member" || lower.includes("hội viên") || lower.includes("hoi vien")) return "member";
+
+  return lower;
+};
+
+const resolveMemberBadgeTierKey = (m) => {
+  const badges = Array.isArray(m?.custom_badges)
+    ? m.custom_badges
+    : Array.isArray(m?.badges)
+      ? m.badges
+      : [];
+
+  const normalizedBadges = badges.map(normalizeMemberTierKey);
+
+  if (normalizedBadges.includes("loyal_partner")) return "loyal_partner";
+  if (normalizedBadges.includes("partner")) return "partner";
+
+  return "";
+};
+
+const resolveMemberTierKey = (m) =>
+  resolveMemberBadgeTierKey(m) ||
+  normalizeMemberTierKey(
+    m?.crm_tier ||
+    m?.tierKey ||
+    m?.tier_key ||
+    m?.tier ||
+    m?.member_tier ||
+    m?.membership_tier ||
+    m?.membership_type_key ||
+    m?.membership_type ||
+    m?.crm_tier_name ||
+    m?.tierName ||
+    m?.tier_name
+  );
+
+const MEMBER_TIER_LABELS = {
+  member: "🌱 Hội viên",
+  loyal: "💚 Hội viên thân thiết",
+  silver: "🥈 Hội viên bạc",
+  gold: "🥇 Hội viên vàng",
+  diamond: "💎 Hội viên kim cương",
+  partner: "🤝 Đối tác",
+  loyal_partner: "👑 Đối tác thân thiết",
+};
+
+const resolveMemberTierLabel = (m) =>
+  MEMBER_TIER_LABELS[resolveMemberTierKey(m)] || "🌱 Hội viên";
+
+
 export default function AdminMembers({ token }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -257,7 +337,7 @@ export default function AdminMembers({ token }) {
                     <div>
                       <p style={{ fontSize: 12, fontWeight: 800, color: "white", margin: 0 }}>{memberName}</p>
                       <p style={{ fontSize: 10, color: "#FFD700", margin: 0, fontWeight: 700 }}>
-                        {{"member":"🌱 Hội viên","loyal":"💚 Thân thiết","silver":"🥈 Bạc","gold":"🥇 Vàng","diamond":"💎 Kim cương","partner":"🤝 Đối tác","loyal_partner":"👑 Đối tác VIP"}[m.crm_tier] || "🌱 Hội viên"}
+                        {resolveMemberTierLabel(m)}
                       </p>
                     </div>
                   </div>
