@@ -62,8 +62,7 @@ const resolveMemberBadgeTierKey = (m) => {
   return "";
 };
 
-const resolveMemberTierKey = (m) =>
-  resolveMemberBadgeTierKey(m) ||
+const resolveMemberPrimaryTierKey = (m) =>
   normalizeMemberTierKey(
     m?.display_tier ||
     m?.displayTier ||
@@ -79,6 +78,10 @@ const resolveMemberTierKey = (m) =>
     m?.tierName ||
     m?.tier_name
   );
+
+const resolveMemberTierKey = (m) =>
+  resolveMemberPrimaryTierKey(m) ||
+  resolveMemberBadgeTierKey(m);
 
 const MEMBER_TIER_LABELS = {
   member: "🌱 Hội viên",
