@@ -11,8 +11,8 @@ function useMenuCategories() {
     const cats = new Set();
     data.forEach(p => {
       if (p.category) {
-        /* Chuyen THQ -> Special */
-        const cat = p.category === "THQ" ? "Special" : p.category;
+        /* Chuyen THQ/Special -> Trà hoa quả, giữ DUK là Special */
+        const cat = (p.category === "THQ" || p.category === "Special") ? "Trà hoa quả" : p.category;
         cats.add(cat);
       }
     });

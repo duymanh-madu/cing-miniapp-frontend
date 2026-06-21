@@ -10,7 +10,7 @@ export function useMenuProducts() {
     if (!selectedCategory || selectedCategory === "all") return data;
 
     return data.filter(p => {
-      const cat = p.category === "THQ" ? "Special" : p.category;
+      const cat = (p.category === "THQ" || p.category === "Special") ? "Trà hoa quả" : p.category;
       return cat === selectedCategory;
     });
   }, [data, selectedCategory]);

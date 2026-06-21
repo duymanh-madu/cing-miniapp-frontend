@@ -34,7 +34,7 @@ const LABEL_MAP = {
   "ITEM_TYPE-N622":"Bánh ngọt",
   "HQ":            "Hoa quả tươi",
   "DUK":           "Special",
-  "Special":       "Special",
+  "Special":       "Trà hoa quả",
   "THQ":           null,  // an di - chuyen sang Special
 };
 
@@ -42,9 +42,9 @@ function MenuCategories() {
   const { categories, selectedCategory, setCategory } = useMenuCategories();
   const safe = Array.isArray(categories) ? categories : [];
 
-  /* Map THQ -> Special, bo null */
+  /* Map THQ/Special -> Trà hoa quả, giữ DUK là Special */
   const mapped = safe
-    .map(cat => cat === "THQ" ? "Special" : cat)
+    .map(cat => (cat === "THQ" || cat === "Special") ? "Trà hoa quả" : cat)
     .filter(cat => LABEL_MAP[cat] !== null && LABEL_MAP[cat] !== undefined);
 
   /* Sap xep theo thu tu yeu cau */
@@ -67,7 +67,7 @@ function MenuCategories() {
         const label = LABEL_MAP[cat] || cat;
         return (
           <button key={cat}
-            onClick={() => setCategory(cat === "Special" ? "Special" : cat)}
+            onClick={() => setCategory(cat)}
             style={{
               whiteSpace:"nowrap", borderRadius:20,
               padding:"6px 14px", fontSize:12,
