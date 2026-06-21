@@ -81,7 +81,7 @@ export default function BadgeStorePage() {
         <button onClick={() => navigate(-1)} style={{ background:"none", border:"none", fontSize:22, cursor:"pointer", color:"white" }}>←</button>
         <div>
           <h1 style={{ fontSize:18, fontWeight:900, margin:0, color:"white" }}>💎 Store Danh Hiệu</h1>
-          <p style={{ fontSize:11, color:"rgba(255,255,255,.4)", margin:0 }}>11 danh hiệu · Cách thức đạt được</p>
+          <p style={{ fontSize:11, color:"rgba(255,255,255,.4)", margin:0 }}>{BADGES.length} danh hiệu · Cách thức đạt được</p>
         </div>
       </div>
 
