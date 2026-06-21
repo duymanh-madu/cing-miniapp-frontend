@@ -65,6 +65,8 @@ const resolveMemberBadgeTierKey = (m) => {
 const resolveMemberTierKey = (m) =>
   resolveMemberBadgeTierKey(m) ||
   normalizeMemberTierKey(
+    m?.display_tier ||
+    m?.displayTier ||
     m?.crm_tier ||
     m?.tierKey ||
     m?.tier_key ||
