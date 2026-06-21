@@ -16,7 +16,7 @@ const CATEGORY_ORDER = [
   "ITEM_TYPE-N622",
   "HQ",
   "DUK",
-  "Special",
+  "Trà hoa quả",
 ];
 
 const LABEL_MAP = {
@@ -35,7 +35,8 @@ const LABEL_MAP = {
   "HQ":            "Hoa quả tươi",
   "DUK":           "Special",
   "Special":       "Trà hoa quả",
-  "THQ":           null,  // an di - chuyen sang Special
+  "Trà hoa quả":   "Trà hoa quả",
+  "THQ":           null,  // an di - chuyen sang Tra hoa qua
 };
 
 function MenuCategories() {
