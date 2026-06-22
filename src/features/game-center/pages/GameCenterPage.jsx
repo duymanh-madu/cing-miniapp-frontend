@@ -32,74 +32,55 @@ function getPhone() {
 
 function DraggableChatButton({ onClick }) {
   const [pos, setPos] = React.useState({ x: window.innerWidth - 68, y: window.innerHeight - 140 });
-  const dragging = React.useRef(false);
-  const startPos = React.useRef(null);
-  const moved = React.useRef(false);
+  const dragging  = React.useRef(false);
+  const startPos  = React.useRef(null);
+  const moved     = React.useRef(false);
+  const touchUsed = React.useRef(false);
 
-  const onPointerDown = (e) => {
-    dragging.current = true;
-    moved.current = false;
-    startPos.current = { x: e.clientX - pos.x, y: e.clientY - pos.y };
-    try { e.currentTarget.setPointerCapture(e.pointerId); } catch(err) {}
-  };
-  const onPointerMove = (e) => {
-    if (!dragging.current) return;
-    moved.current = true;
-    const nx = Math.max(0, Math.min(window.innerWidth - 52, e.clientX - startPos.current.x));
-    const ny = Math.max(0, Math.min(window.innerHeight - 52, e.clientY - startPos.current.y));
-    setPos({ x: nx, y: ny });
-  };
-  const onPointerUp = (e) => {
-    dragging.current = false;
-    if (!moved.current) onClick();
-  };
-
-  // Touch fallback cho Android
-  const touchStart = React.useRef(null);
   const onTouchStart = (e) => {
+    touchUsed.current = true;
     const t = e.touches[0];
-    touchStart.current = { x: t.clientX, y: t.clientY };
     dragging.current = true;
-    moved.current = false;
+    moved.current    = false;
     startPos.current = { x: t.clientX - pos.x, y: t.clientY - pos.y };
   };
   const onTouchMove = (e) => {
     if (!dragging.current) return;
     const t = e.touches[0];
-    const dx = Math.abs(t.clientX - (touchStart.current?.x || 0));
-    const dy = Math.abs(t.clientY - (touchStart.current?.y || 0));
-    if (dx > 8 || dy > 8) {
-      moved.current = true;
-      const nx = Math.max(0, Math.min(window.innerWidth - 52, t.clientX - startPos.current.x));
-      const ny = Math.max(0, Math.min(window.innerHeight - 52, t.clientY - startPos.current.y));
-      setPos({ x: nx, y: ny });
-    }
+    const nx = Math.max(0, Math.min(window.innerWidth - 52, t.clientX - startPos.current.x));
+    const ny = Math.max(0, Math.min(window.innerHeight - 52, t.clientY - startPos.current.y));
+    if (Math.abs(nx - pos.x) > 5 || Math.abs(ny - pos.y) > 5) moved.current = true;
+    setPos({ x: nx, y: ny });
+    e.preventDefault();
   };
   const onTouchEnd = (e) => {
-    e.preventDefault();
     dragging.current = false;
-    if (!moved.current) onClick();
+    if (!moved.current) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+  const handleClick = () => {
+    if (touchUsed.current) { touchUsed.current = false; return; }
+    onClick();
   };
 
   return (
     <div
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
+      onClick={handleClick}
       style={{ position:"fixed", left:pos.x, top:pos.y, zIndex:9999,
-        width:52, height:52, borderRadius:26, cursor:"grab",
+        width:52, height:52, borderRadius:26,
         background:"linear-gradient(135deg,#D4531C,#FF6B35)",
         display:"flex", alignItems:"center", justifyContent:"center",
         fontSize:22, boxShadow:"0 4px 16px rgba(212,83,28,0.5)",
-        userSelect:"none", touchAction:"manipulation" }}>
+        userSelect:"none", touchAction:"none", cursor:"pointer" }}>
       💬
     </div>
   );
 }
-
 function showToast(msg) {
   import("zmp-sdk").then(sdk => {
     sdk.showToast?.({ text: msg, duration: "long" });
