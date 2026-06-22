@@ -2,6 +2,7 @@ export type PhonePermissionResult = {
   phone: string;
   phoneToken: string;
   miniAccessToken: string;
+  zaloUserInfo?: { id: string; name: string; avatar: string };
 };
 
 function requestPhonePermissionFromShell(): Promise<PhonePermissionResult> {
@@ -19,7 +20,7 @@ function requestPhonePermissionFromShell(): Promise<PhonePermissionResult> {
       window.removeEventListener("message", handler);
       if (!data.success) { reject(new Error(data.error || "Zalo từ chối cấp quyền.")); return; }
       if (!data.phoneToken) { reject(new Error("Shell không trả phoneToken.")); return; }
-      resolve({ phone: data.phone || "", phoneToken: data.phoneToken, miniAccessToken: data.miniAccessToken || "" });
+      resolve({ phone: data.phone || "", phoneToken: data.phoneToken, miniAccessToken: data.miniAccessToken || "", zaloUserInfo: data.zaloUserInfo || undefined });
     }
     window.addEventListener("message", handler);
     window.parent.postMessage({ type: "REQUEST_ZALO_PHONE_PERMISSION", requestId }, "*");
@@ -64,7 +65,16 @@ export async function requestPhonePermission(): Promise<PhonePermissionResult | 
   }
 }
 
+// Cache userInfo từ phone permission result
+let _cachedUserInfo: { id: string; name: string; avatar: string } | null = null;
+
+export function setCachedZaloUserInfo(info: { id: string; name: string; avatar: string }) {
+  _cachedUserInfo = info;
+}
+
 export async function getZaloUserInfo(): Promise<{ name?: string; avatar?: string; id?: string } | null> {
+  if (_cachedUserInfo?.id) return _cachedUserInfo;
+  // Fallback: request qua shell
   try {
     const result: any = await new Promise((resolve, reject) => {
       const requestId = `userinfo_${Date.now()}`;
@@ -80,7 +90,10 @@ export async function getZaloUserInfo(): Promise<{ name?: string; avatar?: strin
       window.addEventListener("message", handler);
       window.parent.postMessage({ type: "REQUEST_ZALO_USER_INFO", requestId }, "*");
     });
-    if (result?.id) return { id: result.id, name: result.name, avatar: result.avatar };
+    if (result?.id) {
+      _cachedUserInfo = { id: result.id, name: result.name || "", avatar: result.avatar || "" };
+      return _cachedUserInfo;
+    }
   } catch {}
   return null;
 }

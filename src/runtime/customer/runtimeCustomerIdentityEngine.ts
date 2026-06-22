@@ -1,4 +1,4 @@
-import { requestPhonePermission, getZaloUserInfo } from "./runtimeCustomerPermissionEngine";
+import { requestPhonePermission, getZaloUserInfo, setCachedZaloUserInfo } from "./runtimeCustomerPermissionEngine";
 import { verifyOAFollowStatus, requestOAFollow } from "./runtimeCustomerFollowEngine";
 import { activateCustomerMembership } from "./runtimeCustomerActivationEngine";
 import { useRuntimeCustomerIdentityStore } from "./runtimeCustomerIdentityStore";
@@ -43,6 +43,10 @@ export async function initializeCustomerIdentityEngine() {
       throw new Error("Tài khoản chưa đủ điều kiện kích hoạt thành viên.");
     }
 
+    // Cache userInfo từ phone permission nếu có
+    if (phoneGrant?.zaloUserInfo?.id) {
+      setCachedZaloUserInfo(phoneGrant.zaloUserInfo);
+    }
     const zaloUserInfo = await getZaloUserInfo().catch(() => null);
     const currentIdentity = store.identity as any;
 
