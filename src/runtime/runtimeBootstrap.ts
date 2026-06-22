@@ -57,11 +57,27 @@ function hydrateIdentityFromUrlParams() {
   }
 }
 
+async function requestShellBootData(): Promise<any> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      window.removeEventListener("message", handler);
+      resolve(null); // timeout → tiếp tục không có data
+    }, 3000);
+    function handler(e: MessageEvent) {
+      if (e.data?.type !== "SHELL_BOOT_DATA") return;
+      clearTimeout(timer);
+      window.removeEventListener("message", handler);
+      resolve(e.data);
+    }
+    window.addEventListener("message", handler);
+    window.parent.postMessage({ type: "REQUEST_SHELL_BOOT_DATA" }, "*");
+  });
+}
+
 export async function bootstrapRuntime() {
 
-  // 1. Đọc SHELL_BOOT_DATA từ cache (được set trong main.tsx trước React mount)
-  const shellBootData = (window as any).__shellBootData;
-  alert("[BOOT] shellBootData: " + JSON.stringify(shellBootData));
+  // 1. Request boot data từ shell (zalo_id, phone_token, mini_access_token)
+  const shellBootData = await requestShellBootData();
   if (shellBootData?.zaloId) {
     try {
       const store = useRuntimeCustomerIdentityStore.getState();
@@ -77,7 +93,7 @@ export async function bootstrapRuntime() {
     } catch(e) {}
   }
 
-  // 1b. Đọc params từ shell trước tiên (fallback)
+  // 1b. Fallback: đọc params từ URL
   hydrateIdentityFromUrlParams();
 
 
