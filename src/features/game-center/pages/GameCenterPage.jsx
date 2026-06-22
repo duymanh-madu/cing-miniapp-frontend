@@ -40,7 +40,7 @@ function DraggableChatButton({ onClick }) {
     dragging.current = true;
     moved.current = false;
     startPos.current = { x: e.clientX - pos.x, y: e.clientY - pos.y };
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch(err) {}
   };
   const onPointerMove = (e) => {
     if (!dragging.current) return;
@@ -54,11 +54,34 @@ function DraggableChatButton({ onClick }) {
     if (!moved.current) onClick();
   };
 
+  // Touch fallback cho Android
+  const onTouchStart = (e) => {
+    dragging.current = true;
+    moved.current = false;
+    const t = e.touches[0];
+    startPos.current = { x: t.clientX - pos.x, y: t.clientY - pos.y };
+  };
+  const onTouchMove = (e) => {
+    if (!dragging.current) return;
+    moved.current = true;
+    const t = e.touches[0];
+    const nx = Math.max(0, Math.min(window.innerWidth - 52, t.clientX - startPos.current.x));
+    const ny = Math.max(0, Math.min(window.innerHeight - 52, t.clientY - startPos.current.y));
+    setPos({ x: nx, y: ny });
+  };
+  const onTouchEnd = () => {
+    dragging.current = false;
+    if (!moved.current) onClick();
+  };
+
   return (
     <div
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
       style={{ position:"fixed", left:pos.x, top:pos.y, zIndex:9999,
         width:52, height:52, borderRadius:26, cursor:"grab",
         background:"linear-gradient(135deg,#D4531C,#FF6B35)",
