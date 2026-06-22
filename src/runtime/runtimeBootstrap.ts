@@ -61,6 +61,7 @@ export async function bootstrapRuntime() {
 
   // 1. Đọc SHELL_BOOT_DATA từ cache (được set trong main.tsx trước React mount)
   const shellBootData = (window as any).__shellBootData;
+  alert("[BOOT] shellBootData: " + JSON.stringify(shellBootData));
   if (shellBootData?.zaloId) {
     try {
       const store = useRuntimeCustomerIdentityStore.getState();
