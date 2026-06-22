@@ -102,7 +102,7 @@ export async function getZaloUserInfo(): Promise<{ name?: string; avatar?: strin
   try {
     const result: any = await new Promise((resolve, reject) => {
       const requestId = `userinfo_${Date.now()}`;
-      const timer = setTimeout(() => { window.removeEventListener("message", handler); reject(new Error("timeout")); }, 5000);
+      const timer = setTimeout(() => { window.removeEventListener("message", handler); reject(new Error("timeout")); }, 15000);
       function handler(e: MessageEvent) {
         const data = e.data;
         if (!data || data.type !== "ZALO_USER_INFO_RESULT") return;
