@@ -248,11 +248,16 @@ export default function AccountPage() {
   };
 
   const handleSaved = ({ name: newName, avatarUrl: newAvatar, pointsUsed }) => {
-    // Chỉ update identityStore — subscriber tự mirror sang authStore
     try {
       useRuntimeCustomerIdentityStore.getState().setIdentity({
         fullName: newName,
         avatar:   newAvatar || profile?.avatar || "",
+      });
+      updateProfile({
+        ...profile,
+        display_name: newName,
+        name:         newName,
+        avatar:       newAvatar || profile?.avatar || "",
       });
     } catch(e) {}
     setToast(pointsUsed > 0 ? `Đã lưu! Trừ ${pointsUsed} điểm 🎉` : "Cập nhật hồ sơ thành công! ✅");
