@@ -63,6 +63,8 @@ export async function bootstrapRuntime() {
   hydrateIdentityFromUrlParams();
 
 
+  // DEBUG
+  alert("[BOOT] URL: " + window.location.search + " | zalo_id: " + new URLSearchParams(window.location.search).get("zalo_id"));
   // 2. Restore session từ localStorage
   await initializeRuntimeSession();
 
