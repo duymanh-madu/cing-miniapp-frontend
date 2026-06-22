@@ -262,6 +262,18 @@ export default function AccountPage() {
     } catch(e) {}
     setToast(pointsUsed > 0 ? `Đã lưu! Trừ ${pointsUsed} điểm 🎉` : "Cập nhật hồ sơ thành công! ✅");
     setTimeout(() => setToast(""), 3000);
+    // Refresh cooldown và points sau khi lưu
+    if (phone) {
+      apiClient.get(`/profile-update/status/${phone}`).then(r => {
+        if (r.data?.success) setCooldown(r.data.data);
+      }).catch(() => {});
+    }
+    // Refresh cooldown và points sau khi lưu
+    if (phone) {
+      apiClient.get(`/profile-update/status/${phone}`).then(r => {
+        if (r.data?.success) setCooldown(r.data.data);
+      }).catch(() => {});
+    }
   };
 
   return (
