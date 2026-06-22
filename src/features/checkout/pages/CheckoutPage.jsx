@@ -288,10 +288,12 @@ export default function CheckoutPage(){
       }
 
       window.addEventListener("message", handler);
-      // Lấy miniAccessToken từ store để gửi kèm khi decode location
-      const { useRuntimeCustomerIdentityStore } = await import("@/runtime/customer/runtimeCustomerIdentityStore");
-      const identity = useRuntimeCustomerIdentityStore.getState().identity;
-      const _miniAccessToken = (identity)?.miniAccessToken || "";
+      // Lấy miniAccessToken từ identity store (sync)
+      let _miniAccessToken = "";
+      try {
+        const { useRuntimeCustomerIdentityStore } = require("@/runtime/customer/runtimeCustomerIdentityStore");
+        _miniAccessToken = useRuntimeCustomerIdentityStore.getState().identity?.miniAccessToken || "";
+      } catch(e) {}
       window.parent.postMessage({ type: "REQUEST_ZALO_LOCATION", requestId, miniAccessToken: _miniAccessToken }, "*");
     });
 
