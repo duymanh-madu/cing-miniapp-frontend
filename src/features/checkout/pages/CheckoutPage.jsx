@@ -272,7 +272,7 @@ export default function CheckoutPage(){
         // Có token → decode qua backend
         if (data.token) {
           import("@/infra/api/apiClient").then(({ default: apiClient }) => {
-            apiClient.post("/shipping/decode-location", { token: data.token, amount: subtotal })
+            apiClient.post("/shipping/decode-location", { token: data.token, amount: subtotal, miniAccessToken: data.miniAccessToken || "" })
               .then(r => {
                 if (r.data?.success && r.data?.latitude && r.data?.longitude) {
                   resolve({ latitude: r.data.latitude, longitude: r.data.longitude });
@@ -288,7 +288,11 @@ export default function CheckoutPage(){
       }
 
       window.addEventListener("message", handler);
-      window.parent.postMessage({ type: "REQUEST_ZALO_LOCATION", requestId }, "*");
+      // Lấy miniAccessToken từ store để gửi kèm khi decode location
+      const { useRuntimeCustomerIdentityStore } = await import("@/runtime/customer/runtimeCustomerIdentityStore");
+      const identity = useRuntimeCustomerIdentityStore.getState().identity;
+      const _miniAccessToken = (identity)?.miniAccessToken || "";
+      window.parent.postMessage({ type: "REQUEST_ZALO_LOCATION", requestId, miniAccessToken: _miniAccessToken }, "*");
     });
 
     getLocation()
