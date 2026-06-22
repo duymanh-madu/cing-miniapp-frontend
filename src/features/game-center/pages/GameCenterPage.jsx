@@ -87,7 +87,7 @@ function DraggableChatButton({ onClick }) {
         background:"linear-gradient(135deg,#D4531C,#FF6B35)",
         display:"flex", alignItems:"center", justifyContent:"center",
         fontSize:22, boxShadow:"0 4px 16px rgba(212,83,28,0.5)",
-        userSelect:"none", touchAction:"none" }}>
+        userSelect:"none", touchAction:"manipulation" }}>
       💬
     </div>
   );
