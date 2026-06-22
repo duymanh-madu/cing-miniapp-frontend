@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
 function getPhone() {
@@ -36,6 +37,25 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
         if (val) setSpendPerPlay(val);
       }).catch(() => {});
   }, []);
+
+  // Lắng nghe event membership.points để refresh điểm ngay
+  useEffect(() => {
+    let attempts = 0;
+    const attach = () => {
+      const socket = getRuntimeSocket();
+      if (socket && socket.connected) {
+        socket.on("membership.points", fetchPlays);
+        return true;
+      }
+      if (attempts++ < 20) setTimeout(attach, 1000);
+      return false;
+    };
+    attach();
+    return () => {
+      const socket = getRuntimeSocket();
+      if (socket) socket.off("membership.points", fetchPlays);
+    };
+  }, [runtimePhone, profileId]);
 
   const fetchPlays = async () => {
     const phone = getPhone();
