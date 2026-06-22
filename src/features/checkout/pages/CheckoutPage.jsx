@@ -241,53 +241,55 @@ export default function CheckoutPage(){
     }
     setShipStatus("loading");setLocMsg("");
 
-    // zmp-sdk getLocation cho Zalo Mini App WebView
-    // navigator.geolocation bị block trong Zalo WebView
-    const getLocation = async () => {
-      try {
-        const zmpSdk = await import("zmp-sdk");
-        
-        // Xin quyền userLocation trước khi gọi getLocation
-        try {
-          const authResult = await zmpSdk.authorize({ scopes: ["scope.userLocation"] });
-        } catch(authErr) {
-        }
-        const result = await zmpSdk.getLocation();
-
-        // Thử latitude/longitude trực tiếp (deprecated nhưng vẫn hoạt động một số version)
-        if (result?.latitude && result?.longitude) {
-          return { latitude: parseFloat(result.latitude), longitude: parseFloat(result.longitude) };
-        }
-
-        // Nếu có token → gửi lên backend decode
-        if (result?.token) {
-          try {
-            const { default: apiClient } = await import("@/infra/api/apiClient");
-            const r = await apiClient.post("/shipping/decode-location", {
-              token: result.token,
-              amount: subtotal,
-            });
-            if (r.data?.success && r.data?.latitude && r.data?.longitude) {
-              return { latitude: r.data.latitude, longitude: r.data.longitude };
-            }
-          } catch(e) {
-            console.warn("[LOCATION] decode-location failed:", e.message);
-          }
-        }
-
-        throw new Error("NO_LOCATION");
-      } catch(e) {
-        // Fallback navigator.geolocation cho môi trường web/dev
-        return new Promise((resolve, reject) => {
-          if (!navigator.geolocation) { reject(new Error("NO_GEO")); return; }
+    // Bridge location qua shell (giống phone permission)
+    const getLocation = () => new Promise((resolve, reject) => {
+      const requestId = `loc_${Date.now()}`;
+      const timer = setTimeout(() => {
+        window.removeEventListener("message", handler);
+        // Fallback navigator.geolocation
+        if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             pos => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-            err => reject(err),
+            () => reject(new Error("Không lấy được vị trí. Vui lòng cho phép truy cập định vị.")),
             { timeout: 10000, enableHighAccuracy: false }
           );
-        });
+        } else {
+          reject(new Error("Thiết bị không hỗ trợ định vị."));
+        }
+      }, 10000);
+
+      function handler(e) {
+        const data = e.data;
+        if (!data || data.type !== "ZALO_LOCATION_RESULT") return;
+        if (data.requestId && data.requestId !== requestId) return;
+        clearTimeout(timer);
+        window.removeEventListener("message", handler);
+        if (!data.success) { reject(new Error(data.error || "Không lấy được vị trí.")); return; }
+        if (data.latitude && data.longitude) {
+          resolve({ latitude: parseFloat(data.latitude), longitude: parseFloat(data.longitude) });
+          return;
+        }
+        // Có token → decode qua backend
+        if (data.token) {
+          import("@/infra/api/apiClient").then(({ default: apiClient }) => {
+            apiClient.post("/shipping/decode-location", { token: data.token, amount: subtotal })
+              .then(r => {
+                if (r.data?.success && r.data?.latitude && r.data?.longitude) {
+                  resolve({ latitude: r.data.latitude, longitude: r.data.longitude });
+                } else {
+                  reject(new Error("Không decode được vị trí."));
+                }
+              })
+              .catch(() => reject(new Error("Không decode được vị trí.")));
+          });
+          return;
+        }
+        reject(new Error("Không lấy được vị trí."));
       }
-    };
+
+      window.addEventListener("message", handler);
+      window.parent.postMessage({ type: "REQUEST_ZALO_LOCATION", requestId }, "*");
+    });
 
     getLocation()
       .then(async coords => {
