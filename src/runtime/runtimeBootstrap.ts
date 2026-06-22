@@ -57,14 +57,32 @@ function hydrateIdentityFromUrlParams() {
   }
 }
 
+// Lắng nghe SHELL_BOOT_DATA từ shell — chạy ngay khi module load
+window.addEventListener("message", (e) => {
+  const data = e.data;
+  if (!data || data.type !== "SHELL_BOOT_DATA") return;
+  console.log("[BOOT] Received SHELL_BOOT_DATA:", data.zaloId);
+  try {
+    const store = useRuntimeCustomerIdentityStore.getState();
+    if (data.zaloId) {
+      store.setIdentity({
+        zaloUserId: data.zaloId,
+        fullName: data.name || "",
+        avatar: data.avatar || "",
+        phoneToken: data.phoneToken || "",
+        miniAccessToken: data.miniAccessToken || "",
+        phoneGranted: !!data.phoneToken,
+      } as any);
+    }
+  } catch(e) {}
+});
+
 export async function bootstrapRuntime() {
 
   // 1. Đọc params từ shell trước tiên
   hydrateIdentityFromUrlParams();
 
 
-  // DEBUG
-  alert("[BOOT] URL: " + window.location.search + " | zalo_id: " + new URLSearchParams(window.location.search).get("zalo_id"));
   // 2. Restore session từ localStorage
   await initializeRuntimeSession();
 
