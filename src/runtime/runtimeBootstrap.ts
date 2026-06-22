@@ -59,17 +59,32 @@ function hydrateIdentityFromUrlParams() {
 
 async function requestShellBootData(): Promise<any> {
   return new Promise((resolve) => {
-    const timer = setTimeout(() => {
+    // Chờ SHELL_READY trước, sau đó mới request — giống flow follow OA
+    const totalTimer = setTimeout(() => {
       window.removeEventListener("message", handler);
-      resolve(null); // timeout → tiếp tục không có data
-    }, 3000);
+      resolve(null);
+    }, 8000);
+
     function handler(e: MessageEvent) {
-      if (e.data?.type !== "SHELL_BOOT_DATA") return;
-      clearTimeout(timer);
-      window.removeEventListener("message", handler);
-      resolve(e.data);
+      const data = e.data;
+      if (!data) return;
+
+      if (data.type === "SHELL_READY") {
+        // Shell sẵn sàng → request boot data
+        window.parent.postMessage({ type: "REQUEST_SHELL_BOOT_DATA" }, "*");
+        return;
+      }
+
+      if (data.type === "SHELL_BOOT_DATA") {
+        clearTimeout(totalTimer);
+        window.removeEventListener("message", handler);
+        resolve(data);
+      }
     }
+
     window.addEventListener("message", handler);
+
+    // Cũng gửi request ngay — phòng trường hợp SHELL_READY đã qua rồi
     window.parent.postMessage({ type: "REQUEST_SHELL_BOOT_DATA" }, "*");
   });
 }
