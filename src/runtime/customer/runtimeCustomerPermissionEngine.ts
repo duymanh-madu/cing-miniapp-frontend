@@ -29,13 +29,10 @@ function waitForShell(): Promise<void> {
 }
 
 function requestPhonePermissionFromShell(): Promise<PhonePermissionResult> {
-  return new Promise(async (resolve, reject) => {
-    await waitForShell();
+  return new Promise((resolve, reject) => {
     const requestId = `phone_req_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    const timer = setTimeout(() => {
-      window.removeEventListener("message", handler);
-      reject(new Error("__SHELL_TIMEOUT__"));
-    }, 10000);
+
+    // Đăng ký listener TRƯỚC — tránh miss message từ shell
     function handler(e: MessageEvent) {
       const data = e.data;
       if (!data || data.type !== "ZALO_PHONE_PERMISSION_RESULT") return;
@@ -47,7 +44,15 @@ function requestPhonePermissionFromShell(): Promise<PhonePermissionResult> {
       resolve({ phone: data.phone || "", phoneToken: data.phoneToken, miniAccessToken: data.miniAccessToken || "", zaloUserInfo: data.zaloUserInfo || undefined });
     }
     window.addEventListener("message", handler);
+
+    // Gửi request sau khi listener đã sẵn sàng
     window.parent.postMessage({ type: "REQUEST_ZALO_PHONE_PERMISSION", requestId }, "*");
+
+    // Timeout 8s — đủ cho getPhoneNumber() chạy xong
+    const timer = setTimeout(() => {
+      window.removeEventListener("message", handler);
+      reject(new Error("__SHELL_TIMEOUT__"));
+    }, 8000);
   });
 }
 
