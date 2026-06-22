@@ -11,28 +11,55 @@ export async function requestPhonePermission(): Promise<PhonePermissionResult | 
     throw new Error("Thiết bị chưa hỗ trợ API lấy số điện thoại.");
   }
 
-  const phoneResult: any = await apis.getPhoneNumber();
+  let miniAccessToken = "";
+
+  try {
+    if (typeof apis.getAccessToken === "function") {
+      const accessResult: any = await apis.getAccessToken();
+
+      miniAccessToken =
+        accessResult?.accessToken ||
+        accessResult?.access_token ||
+        accessResult?.token ||
+        accessResult?.data?.accessToken ||
+        accessResult?.data?.access_token ||
+        accessResult?.data?.token ||
+        "";
+    }
+  } catch (e: any) {
+    console.warn("[ACTIVATION] getAccessToken failed:", e?.message || e);
+  }
+
+  let phoneResult: any = null;
+
+  try {
+    phoneResult = await apis.getPhoneNumber();
+  } catch (e: any) {
+    console.warn("[ACTIVATION] getPhoneNumber failed:", e?.message || e);
+    throw new Error(
+      e?.message && e.message !== "Unknown error. Please try again later."
+        ? e.message
+        : "Không lấy được quyền số điện thoại từ Zalo. Vui lòng đóng Mini App, mở lại trong Zalo và thử lại."
+    );
+  }
 
   const phoneToken =
     phoneResult?.token ||
     phoneResult?.data?.token ||
     phoneResult?.phoneToken ||
     phoneResult?.data?.phoneToken ||
+    phoneResult?.phone_token ||
+    phoneResult?.data?.phone_token ||
     "";
 
-  let miniAccessToken = "";
-
-  if (typeof apis.getAccessToken === "function") {
-    const accessResult: any = await apis.getAccessToken();
-    miniAccessToken =
-      accessResult?.accessToken ||
-      accessResult?.access_token ||
-      accessResult?.token ||
-      "";
+  if (!phoneToken) {
+    console.warn("[ACTIVATION] Missing phone token:", phoneResult);
+    throw new Error("Bạn chưa cấp quyền số điện thoại hoặc Zalo chưa trả token số điện thoại.");
   }
 
-  if (!phoneToken) {
-    throw new Error("Bạn chưa cấp quyền số điện thoại.");
+  if (!miniAccessToken) {
+    console.warn("[ACTIVATION] Missing mini access token");
+    throw new Error("Không lấy được access token Mini App từ Zalo. Vui lòng mở lại app trong Zalo và thử lại.");
   }
 
   return {
