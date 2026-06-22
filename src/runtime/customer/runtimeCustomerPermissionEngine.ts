@@ -66,16 +66,21 @@ export async function requestPhonePermission(): Promise<PhonePermissionResult | 
 
 export async function getZaloUserInfo(): Promise<{ name?: string; avatar?: string; id?: string } | null> {
   try {
-    const apis: any = await import("zmp-sdk/apis" as any);
-    if (typeof apis.getUserInfo === "function") {
-      const result: any = await apis.getUserInfo({ avatarType: "large" });
-      return { name: result?.userInfo?.name || result?.name, avatar: result?.userInfo?.avatar || result?.avatar, id: result?.userInfo?.id || result?.id };
-    }
+    const result: any = await new Promise((resolve, reject) => {
+      const requestId = `userinfo_${Date.now()}`;
+      const timer = setTimeout(() => { window.removeEventListener("message", handler); reject(new Error("timeout")); }, 5000);
+      function handler(e: MessageEvent) {
+        const data = e.data;
+        if (!data || data.type !== "ZALO_USER_INFO_RESULT") return;
+        if (data.requestId && data.requestId !== requestId) return;
+        clearTimeout(timer);
+        window.removeEventListener("message", handler);
+        resolve(data);
+      }
+      window.addEventListener("message", handler);
+      window.parent.postMessage({ type: "REQUEST_ZALO_USER_INFO", requestId }, "*");
+    });
+    if (result?.id) return { id: result.id, name: result.name, avatar: result.avatar };
   } catch {}
-  try {
-    const sdk: any = await import("zmp-sdk" as any);
-    if (typeof sdk.getUserInfo !== "function") return null;
-    const result: any = await callMaybeCallbackApi(sdk.getUserInfo, { avatarType: "large" });
-    return { name: result?.userInfo?.name || result?.name, avatar: result?.userInfo?.avatar || result?.avatar, id: result?.userInfo?.id || result?.id };
-  } catch { return null; }
+  return null;
 }
