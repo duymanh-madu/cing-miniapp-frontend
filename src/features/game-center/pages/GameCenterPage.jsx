@@ -55,21 +55,28 @@ function DraggableChatButton({ onClick }) {
   };
 
   // Touch fallback cho Android
+  const touchStart = React.useRef(null);
   const onTouchStart = (e) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
     dragging.current = true;
     moved.current = false;
-    const t = e.touches[0];
     startPos.current = { x: t.clientX - pos.x, y: t.clientY - pos.y };
   };
   const onTouchMove = (e) => {
     if (!dragging.current) return;
-    moved.current = true;
     const t = e.touches[0];
-    const nx = Math.max(0, Math.min(window.innerWidth - 52, t.clientX - startPos.current.x));
-    const ny = Math.max(0, Math.min(window.innerHeight - 52, t.clientY - startPos.current.y));
-    setPos({ x: nx, y: ny });
+    const dx = Math.abs(t.clientX - (touchStart.current?.x || 0));
+    const dy = Math.abs(t.clientY - (touchStart.current?.y || 0));
+    if (dx > 8 || dy > 8) {
+      moved.current = true;
+      const nx = Math.max(0, Math.min(window.innerWidth - 52, t.clientX - startPos.current.x));
+      const ny = Math.max(0, Math.min(window.innerHeight - 52, t.clientY - startPos.current.y));
+      setPos({ x: nx, y: ny });
+    }
   };
-  const onTouchEnd = () => {
+  const onTouchEnd = (e) => {
+    e.preventDefault();
     dragging.current = false;
     if (!moved.current) onClick();
   };
