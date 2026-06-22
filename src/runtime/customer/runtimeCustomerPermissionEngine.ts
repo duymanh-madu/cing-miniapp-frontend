@@ -4,29 +4,13 @@ export type PhonePermissionResult = {
   miniAccessToken: string;
 };
 
-function isZaloShellContext(): boolean {
-  // DEBUG
-  const _href = window.location.href;
-  const _search = window.location.search;
-  const _hash = window.location.hash;
-  console.log("[DEBUG URL]", { href: _href, search: _search, hash: _hash });
-  alert("[DEBUG] href=" + _href + " search=" + _search);
-  try {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("source") === "zalo-miniapp";
-  } catch {
-    return false;
-  }
-}
-
 function requestPhonePermissionFromShell(): Promise<PhonePermissionResult> {
   return new Promise((resolve, reject) => {
     const requestId = `phone_req_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    const TIMEOUT_MS = 15000;
     const timer = setTimeout(() => {
       window.removeEventListener("message", handler);
-      reject(new Error("Zalo shell không phản hồi. Vui lòng đóng app và mở lại trong Zalo."));
-    }, TIMEOUT_MS);
+      reject(new Error("__SHELL_TIMEOUT__"));
+    }, 5000);
     function handler(e: MessageEvent) {
       const data = e.data;
       if (!data || data.type !== "ZALO_PHONE_PERMISSION_RESULT") return;
@@ -45,11 +29,9 @@ function requestPhonePermissionFromShell(): Promise<PhonePermissionResult> {
 function pickAccessToken(result: any): string {
   return result?.accessToken || result?.access_token || result?.token || result?.data?.accessToken || result?.data?.access_token || result?.data?.token || "";
 }
-
 function pickPhoneToken(result: any): string {
   return result?.token || result?.data?.token || result?.phoneToken || result?.data?.phoneToken || result?.phone_token || result?.data?.phone_token || result?.numberToken || result?.data?.numberToken || "";
 }
-
 async function callMaybeCallbackApi(fn: any, args: any = {}) {
   if (typeof fn !== "function") return null;
   try { const direct = await fn(args); if (direct) return direct; } catch (e) { throw e; }
@@ -57,7 +39,6 @@ async function callMaybeCallbackApi(fn: any, args: any = {}) {
     try { fn({ ...args, success: resolve, fail: reject }); } catch (e) { reject(e); }
   });
 }
-
 async function requestPhonePermissionDirect(): Promise<PhonePermissionResult> {
   let miniAccessToken = "";
   for (const mod of ["zmp-sdk/apis", "zmp-sdk"]) {
@@ -73,12 +54,14 @@ async function requestPhonePermissionDirect(): Promise<PhonePermissionResult> {
 }
 
 export async function requestPhonePermission(): Promise<PhonePermissionResult | null> {
-  if (isZaloShellContext()) {
-    console.log("[ACTIVATION] Zalo shell context → bridge to shell");
-    return requestPhonePermissionFromShell();
+  try {
+    return await requestPhonePermissionFromShell();
+  } catch (err: any) {
+    if (err?.message === "__SHELL_TIMEOUT__") {
+      return requestPhonePermissionDirect();
+    }
+    throw err;
   }
-  console.log("[ACTIVATION] Standalone context → direct zmp-sdk");
-  return requestPhonePermissionDirect();
 }
 
 export async function getZaloUserInfo(): Promise<{ name?: string; avatar?: string; id?: string } | null> {
