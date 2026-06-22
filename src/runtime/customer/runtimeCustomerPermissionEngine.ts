@@ -5,6 +5,12 @@ export type PhonePermissionResult = {
 };
 
 function isZaloShellContext(): boolean {
+  // DEBUG
+  const _href = window.location.href;
+  const _search = window.location.search;
+  const _hash = window.location.hash;
+  console.log("[DEBUG URL]", { href: _href, search: _search, hash: _hash });
+  alert("[DEBUG] href=" + _href + " search=" + _search);
   try {
     const params = new URLSearchParams(window.location.search);
     return params.get("source") === "zalo-miniapp";
