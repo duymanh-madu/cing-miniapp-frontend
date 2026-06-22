@@ -57,29 +57,26 @@ function hydrateIdentityFromUrlParams() {
   }
 }
 
-// Lắng nghe SHELL_BOOT_DATA từ shell — chạy ngay khi module load
-window.addEventListener("message", (e) => {
-  const data = e.data;
-  if (!data || data.type !== "SHELL_BOOT_DATA") return;
-  console.log("[BOOT] Received SHELL_BOOT_DATA:", data.zaloId);
-  try {
-    const store = useRuntimeCustomerIdentityStore.getState();
-    if (data.zaloId) {
-      store.setIdentity({
-        zaloUserId: data.zaloId,
-        fullName: data.name || "",
-        avatar: data.avatar || "",
-        phoneToken: data.phoneToken || "",
-        miniAccessToken: data.miniAccessToken || "",
-        phoneGranted: !!data.phoneToken,
-      } as any);
-    }
-  } catch(e) {}
-});
-
 export async function bootstrapRuntime() {
 
-  // 1. Đọc params từ shell trước tiên
+  // 1. Đọc SHELL_BOOT_DATA từ cache (được set trong main.tsx trước React mount)
+  const shellBootData = (window as any).__shellBootData;
+  if (shellBootData?.zaloId) {
+    try {
+      const store = useRuntimeCustomerIdentityStore.getState();
+      store.setIdentity({
+        zaloUserId: shellBootData.zaloId,
+        fullName: shellBootData.name || "",
+        avatar: shellBootData.avatar || "",
+        phoneToken: shellBootData.phoneToken || "",
+        miniAccessToken: shellBootData.miniAccessToken || "",
+        phoneGranted: !!shellBootData.phoneToken,
+      } as any);
+      console.log("[BOOT] Shell boot data applied:", shellBootData.zaloId);
+    } catch(e) {}
+  }
+
+  // 1b. Đọc params từ shell trước tiên (fallback)
   hydrateIdentityFromUrlParams();
 
 
