@@ -5,13 +5,37 @@ export type PhonePermissionResult = {
   zaloUserInfo?: { id: string; name: string; avatar: string };
 };
 
+// Track shell ready state
+let _shellReady = false;
+let _shellReadyCallbacks: (() => void)[] = [];
+
+window.addEventListener("message", (e) => {
+  if (e.data?.type === "SHELL_READY") {
+    _shellReady = true;
+    _shellReadyCallbacks.forEach(cb => cb());
+    _shellReadyCallbacks = [];
+  }
+});
+
+function waitForShell(): Promise<void> {
+  if (_shellReady) return Promise.resolve();
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      _shellReady = true; // assume ready after 3s
+      resolve();
+    }, 3000);
+    _shellReadyCallbacks.push(() => { clearTimeout(timer); resolve(); });
+  });
+}
+
 function requestPhonePermissionFromShell(): Promise<PhonePermissionResult> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    await waitForShell();
     const requestId = `phone_req_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     const timer = setTimeout(() => {
       window.removeEventListener("message", handler);
       reject(new Error("__SHELL_TIMEOUT__"));
-    }, 5000);
+    }, 10000);
     function handler(e: MessageEvent) {
       const data = e.data;
       if (!data || data.type !== "ZALO_PHONE_PERMISSION_RESULT") return;
