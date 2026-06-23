@@ -478,7 +478,9 @@ export default function CommunityChat({ onClose }) {
                       fontSize:16,
                       fontWeight:950,
                       textShadow:"0 1px 6px rgba(0,0,0,.9)",
-                      cursor:/^(0|84)\d{8,10}$/.test(String(u.userId)) ? "pointer" : "default"
+                      cursor:/^(0|84)\d{8,10}$/.test(String(u.userId)) ? "pointer" : "default",
+                      marginLeft:6,
+                      marginRight:8,
                     }}
                   >{u.name}{isMe(u.userId)?" (bạn)":""}</span>
                 </p>
