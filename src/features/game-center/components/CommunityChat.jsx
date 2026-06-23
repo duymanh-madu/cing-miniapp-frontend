@@ -467,7 +467,7 @@ export default function CommunityChat({ onClose }) {
                 <p style={{ color: isMe(u.userId)?"#FFD700":"white", fontSize:13, fontWeight:700, margin:0,
                   textDecoration: isMe(u.userId)?"none":"underline", textDecorationColor:"rgba(255,255,255,.2)" }}>
                   {u.charmBadgeKey && <CharmChatBadge badgeKey={u.charmBadgeKey} compact={true}/>}
-                  {getSystemBadge(u.userId) && <SystemRoleBadge badge={getSystemBadge(u.userId)} />}
+                  {getSystemBadge(u.userId) && <span style={{ marginRight:6 }}><SystemRoleBadge badge={getSystemBadge(u.userId)} /></span>}
                   <span
                     onClick={(e) => {
                       e.stopPropagation();
