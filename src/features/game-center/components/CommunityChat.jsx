@@ -372,7 +372,7 @@ export default function CommunityChat({ onClose }) {
       <div style={{ padding:"calc(env(safe-area-inset-top,0px) + 12px) 16px 12px", background:"#0d0d18", borderBottom:"1px solid rgba(255,215,0,0.15)", display:"flex", alignItems:"center", gap:12 }}>
         <button onClick={onClose} style={{ background:"none", border:"none", color:"#888", fontSize:22, cursor:"pointer" }}>←</button>
         <div style={{ flex:1 }}>
-          <p style={{ color:"#FFD700", fontSize:15, fontWeight:1000, margin:0 }}>💬 Cộng đồng "Cing iu"</p>
+          <p style={{ color:"#FFD700", fontSize:15, fontWeight:1000, margin:0, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>Cộng đồng "Cing iu"</p>
           <p style={{ color:"#555", fontSize:11, margin:0 }}>{users.length} người đang online</p>
         </div>
         <button onClick={() => setShowRules(true)}

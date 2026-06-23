@@ -55,6 +55,7 @@ export default function SystemRoleBadge({ badge }) {
         overflow:"hidden",
         animation:"systemRolePulse 2.4s ease-in-out infinite",
         flexShrink:0,
+        verticalAlign:"middle",
       }}>
         <span style={{ fontSize:10 }}>{cfg.icon}</span>
         <span>{cfg.label}</span>
