@@ -63,15 +63,19 @@ export default function MembershipPage() {
           method: p.payment_method,
           label: "Thanh toán đơn hàng (App)",
         }));
-        const iposItems = (d.ipos?.logs || []).map(l => ({
-          id: l.id || l.tran_id,
-          date: l.create_date || l.tran_date,
-          amount: Number(l.amount || l.bill_amount || 0),
-          type: "ipos",
-          source: "ipos",
-          label: l.note || l.type_name || "Giao dịch tại quán",
-          points: l.point_change || l.point || 0,
-        }));
+        const iposItems = (d.ipos?.logs || []).map(l => {
+          // Phân tách đúng nguồn: APP_CINGHUTANG = qua app, còn lại = tại quán
+          const isAppOrder = (l.channels || []).some(c => c.name === "APP_CINGHUTANG");
+          return {
+            id: l.id || l.tran_id,
+            date: l.create_date || l.tran_date,
+            amount: Number(l.amount || l.bill_amount || 0),
+            type: "ipos",
+            source: isAppOrder ? "app" : "ipos",
+            label: isAppOrder ? "Đặt hàng qua App" : (l.note || l.type_name || "Giao dịch tại quán"),
+            points: Math.round((Number(l.point_change || l.point || 0)) * 10) / 10,
+          };
+        });
         const merged = [...appItems, ...iposItems]
           .sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
         setHistory(merged);
