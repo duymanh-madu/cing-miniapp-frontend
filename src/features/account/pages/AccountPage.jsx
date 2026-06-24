@@ -67,7 +67,7 @@ function EditProfileSheet({ userId, currentName, currentAvatar, currentEmail, co
   const avaChanged   = !!avatarB64;
   const emailChanged = email.trim() !== (currentEmail || "").trim();
   const hasChange    = nameChanged || avaChanged || emailChanged;
-  const btnDisabled  = saving || (blocked && !usePoints) || !hasChange;
+  const btnDisabled  = saving || (!hasChange) || (blocked && !usePoints && !emailChanged);
 
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
