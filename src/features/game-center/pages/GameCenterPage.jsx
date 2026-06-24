@@ -155,7 +155,17 @@ export default function GameCenterPage() {
       const socket = getRuntimeSocket();
       if (socket?.connected) {
         socket.on("challenge.won", (data) => {
-          setChallenge(prev => prev ? { ...prev, completed: true, winner_name: data?.payload?.winner_name } : prev);
+          // Update tất cả challenges khi có người nhận thưởng
+          const wonPayload = data?.payload || data;
+          setChallenges(prev => prev.map(c =>
+            c.game_key === wonPayload?.game_key
+              ? { ...c, completed: true, winner_name: wonPayload?.winner_name, winner_user_id: wonPayload?.winner_user_id }
+              : c
+          ));
+          setChallenge(prev => prev?.game_key === wonPayload?.game_key
+            ? { ...prev, completed: true, winner_name: wonPayload?.winner_name, winner_user_id: wonPayload?.winner_user_id }
+            : prev
+          );
           // Popup toàn server
           window.dispatchEvent(new CustomEvent("challenge_won", { detail: data?.payload }));
         });
