@@ -52,8 +52,9 @@ function fmtDate(isoStr) {
   return isoStr;
 }
 
-function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClose, onSaved }) {
+function EditProfileSheet({ userId, currentName, currentAvatar, currentEmail, cooldown, onClose, onSaved }) {
   const [name, setName]         = useState(currentName || "");
+  const [email, setEmail]       = useState(currentEmail || "");
   const [preview, setPreview]   = useState(currentAvatar || null);
   const [avatarB64, setB64]     = useState(null);
   const [saving, setSaving]     = useState(false);
@@ -64,7 +65,8 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
   const blocked      = !cooldown.can_change_free;
   const nameChanged  = name.trim() !== currentName;
   const avaChanged   = !!avatarB64;
-  const hasChange    = nameChanged || avaChanged;
+  const emailChanged = email.trim() !== (currentEmail || "").trim();
+  const hasChange    = nameChanged || avaChanged || emailChanged;
   const btnDisabled  = saving || (blocked && !usePoints) || !hasChange;
 
   const handleFile = async (e) => {
@@ -79,7 +81,7 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
     if (!name.trim()) { setError("Tên không được để trống"); return; }
     setSaving(true); setError("");
     try {
-      const body = { use_points: blocked ? usePoints : false };
+      const body = { use_points: blocked ? usePoints : false, email: email.trim() || null };
       if (nameChanged) {
         const finalName = name.trim();
         if (finalName.length > 20) {
@@ -151,6 +153,18 @@ function EditProfileSheet({ userId, currentName, currentAvatar, cooldown, onClos
             placeholder="Nhập tên hiển thị..."
             style={{ width:"100%", padding:"14px 16px", borderRadius:14, border:"1.5px solid #e0e0e0", fontSize:15, fontWeight:600, outline:"none", boxSizing:"border-box", background: (blocked && !usePoints) ? "#f5f5f5" : "#fafafa", color:"#1a1a1a", opacity: (blocked && !usePoints) ? 0.5 : 1 }}/>
           <p style={{ fontSize:11, color:"#ccc", margin:"4px 0 0", textAlign:"right" }}>{name.length}/20</p>
+        </div>
+
+        <div style={{ marginBottom:20 }}>
+          <p style={{ fontSize:12, fontWeight:700, color:"#666", margin:"0 0 8px" }}>EMAIL</p>
+          <input
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            type="email"
+            placeholder="example@email.com"
+            style={{ width:"100%", padding:"14px 16px", borderRadius:14, border:"1.5px solid #e0e0e0", fontSize:14, outline:"none", boxSizing:"border-box", background:"#fafafa", color:"#1a1a1a" }}
+          />
+          <p style={{ fontSize:11, color:"#FF6B35", margin:"6px 0 0" }}>📧 Nhập email để nhận những chương trình khuyến mại của chúng mình sớm nhất nha!</p>
         </div>
 
         {error && <p style={{ color:"#e53935", fontSize:12, margin:"0 0 12px", textAlign:"center" }}>{error}</p>}
@@ -286,7 +300,7 @@ export default function AccountPage() {
       )}
 
       {showEdit && cooldown && userId && (
-        <EditProfileSheet userId={userId} currentName={name} currentAvatar={avatarUrl} cooldown={cooldown} onClose={() => setShowEdit(false)} onSaved={handleSaved}/>
+        <EditProfileSheet userId={userId} currentName={name} currentAvatar={avatarUrl} currentEmail={profile?.email || ""} cooldown={cooldown} onClose={() => setShowEdit(false)} onSaved={handleSaved}/>
       )}
 
       <div style={{ position:"sticky", top:0, zIndex:10 }}>
