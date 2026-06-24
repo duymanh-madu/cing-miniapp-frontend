@@ -48,10 +48,45 @@ export function ChallengeWonPopup() {
       const socket = getRuntimeSocket();
       if (socket?.connected) {
         socketRef = socket;
-        socket.on("challenge.won", (d) => {
+        const challengeWonHandler = (d) => {
           const payload = d?.payload || d;
           show(payload);
-        });
+        };
+
+        const dailyChallengeRewardHandler = (d) => {
+          const payload = d?.payload || d;
+          const popup = payload?.popup || {};
+          const notification = payload?.notification || {};
+
+          if (popup?.type !== "daily_challenge_reward" && notification?.type !== "daily_challenge_reward") {
+            return;
+          }
+
+          const currentPhone = (() => {
+            const src =
+              useRuntimeCustomerIdentityStore.getState().identity?.phone ||
+              useAuthStore.getState().profile?.phone ||
+              "";
+            const n = String(src || "").replace(/\D/g, "").replace(/^84/, "0");
+            return n.length >= 9 ? n : "";
+          })();
+
+          show({
+            winner_user_id: currentPhone,
+            winner_name: "Bạn",
+            winner_avatar: "",
+            reward_points: popup?.reward_points || payload?.reward_points || 0,
+            game_key: popup?.game_key || payload?.game_key || "chess",
+            message: notification?.message || payload?.message || "",
+            winner_only: true,
+            delay_if_in_game: true,
+          });
+        };
+
+        socket.on("challenge.won", challengeWonHandler);
+        socket.on("notification.broadcast", dailyChallengeRewardHandler);
+        socket.__challengeWonHandler = challengeWonHandler;
+        socket.__dailyChallengeRewardHandler = dailyChallengeRewardHandler;
       } else if (attempts < 20) {
         setTimeout(() => attachSocket(attempts + 1), 1000);
       }
@@ -68,7 +103,8 @@ export function ChallengeWonPopup() {
     return () => {
       unsubscribeGame?.();
       window.removeEventListener("challenge_won", windowHandler);
-      socketRef?.off?.("challenge.won");
+      if (socketRef?.__challengeWonHandler) socketRef.off("challenge.won", socketRef.__challengeWonHandler);
+      if (socketRef?.__dailyChallengeRewardHandler) socketRef.off("notification.broadcast", socketRef.__dailyChallengeRewardHandler);
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
