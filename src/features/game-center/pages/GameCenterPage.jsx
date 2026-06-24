@@ -211,15 +211,6 @@ export default function GameCenterPage() {
         });
         if (res.data?.success) {
           showToast("🏆 " + res.data.message);
-          // Hiện popup cho winner
-          const ph = getPhone();
-          window.dispatchEvent(new CustomEvent("challenge_won", { detail: {
-            winner_user_id: ph,
-            winner_name:    playerName,
-            winner_avatar:  useAuthStore.getState().profile?.avatar || "",
-            reward_points:  res.data.reward_points || 0,
-            game_key:       gameKey,
-          }}));
         }
       } catch(e) {}
     }
