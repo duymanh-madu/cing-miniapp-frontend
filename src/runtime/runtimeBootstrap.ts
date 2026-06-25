@@ -28,6 +28,63 @@ function getStoredRuntimePhone() {
   }
 }
 
+function getPersistedAuthSession() {
+  try {
+    const rawSession = localStorage.getItem("cing_session");
+    const session = rawSession ? JSON.parse(rawSession) : null;
+
+    return {
+      session,
+      accessToken:
+        session?.accessToken ||
+        localStorage.getItem("cing_access_token") ||
+        null,
+      refreshToken:
+        session?.refreshToken ||
+        localStorage.getItem("cing_refresh_token") ||
+        null,
+    };
+  } catch {
+    return {
+      session: null,
+      accessToken: null,
+      refreshToken: null,
+    };
+  }
+}
+
+function syncAuthStoreAfterSilentRestore(profile: any) {
+  const { session, accessToken, refreshToken } = getPersistedAuthSession();
+
+  const nextProfile = {
+    ...(session?.profile || {}),
+    ...profile,
+  };
+
+  if (accessToken) {
+    useAuthStore.getState().setSession({
+      accessToken,
+      refreshToken,
+      profile: nextProfile,
+    });
+
+    try {
+      localStorage.setItem("cing_session", JSON.stringify({
+        ...(session || {}),
+        accessToken,
+        refreshToken,
+        profile: nextProfile,
+      }));
+    } catch {}
+
+    return;
+  }
+
+  // Fallback: giữ profile nếu token chưa persist kịp,
+  // nhưng không giả authenticated khi chưa có accessToken.
+  useAuthStore.getState().updateProfile(nextProfile);
+}
+
 async function restoreActivatedMemberFromShellToken() {
   try {
     const store = useRuntimeCustomerIdentityStore.getState();
@@ -105,7 +162,7 @@ async function restoreActivatedMemberFromShellToken() {
         identity.avatar ||
         "";
 
-      useAuthStore.getState().updateProfile({
+      syncAuthStoreAfterSilentRestore({
         id: restoredPhone,
         phone: restoredPhone,
         name: displayName,
