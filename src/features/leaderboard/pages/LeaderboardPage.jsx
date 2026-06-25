@@ -130,9 +130,11 @@ export default function LeaderboardPage() {
   const [showCustom,    setShowCustom]    = useState(false);
   const [customEnabled, setCustomEnabled] = useState(true);
   const [customTabName, setCustomTabName] = useState("Tùy chỉnh");
-  const prevRankRef    = useRef(null);
-  const currentTabRef  = useRef(tab);
+  const prevRankRef      = useRef(null);
+  const currentTabRef    = useRef(tab);
+  const currentRankIdRef = useRef("");
   currentTabRef.current = tab;
+  currentRankIdRef.current = validPhone || profile?.id || "";
 
   const TABS = customEnabled ? [...DEFAULT_TABS, { id:"custom", label: customTabName }] : DEFAULT_TABS;
 
@@ -153,7 +155,51 @@ export default function LeaderboardPage() {
   useEffect(() => {
     // Lắng nghe socket — retry đến khi connected
     let attempts = 0;
-    const handler = () => fetchData(currentTabRef.current);
+
+    const handler = (payload) => {
+      if (payload?.type === "game") return;
+
+      if (
+        payload?.type === "spending" &&
+        payload?.period === currentTabRef.current &&
+        Array.isArray(payload?.leaderboard)
+      ) {
+        const rows = payload.leaderboard;
+        setData(rows);
+
+        const rankId = currentRankIdRef.current;
+        if (rankId) {
+          const idx = rows.findIndex(r => String(r.user_id) === String(rankId));
+
+          if (idx >= 0) {
+            const nextRank = idx + 1;
+            const prevRank = prevRankRef.current;
+            const totalSpent = rows[idx]?.total_spent || rows[idx]?.total_spent_all_time || 0;
+
+            if (prevRank !== null && prevRank !== nextRank) {
+              if (nextRank < prevRank) {
+                setNotification({ msg:`Bạn vừa thăng từ hạng #${prevRank} lên hạng #${nextRank}! 🔥`, up:true });
+              } else {
+                setNotification({ msg:`Bạn vừa tụt từ hạng #${prevRank} xuống hạng #${nextRank}`, up:false });
+              }
+            }
+
+            prevRankRef.current = nextRank;
+            setMyRank({
+              ...rows[idx],
+              rank: nextRank,
+              total: rows.length,
+              total_spent: totalSpent,
+            });
+          }
+        }
+
+        return;
+      }
+
+      fetchData(currentTabRef.current);
+    };
+
     const attach = () => {
       const socket = getRuntimeSocket();
       if (socket?.connected) {
