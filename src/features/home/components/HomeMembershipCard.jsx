@@ -126,7 +126,10 @@ function mapTierKey(raw) {
 export default function HomeMembershipCard() {
   const navigate = useNavigate();
   const profile = useAuthStore(s => s.profile);
-  const phone = profile?.phone || profile?.phoneNumber || profile?.mobile || "";
+  const runtimePhone = useRuntimeCustomerIdentityStore
+    ? useRuntimeCustomerIdentityStore(s => s.identity?.phone || "")
+    : "";
+  const phone = (profile?.phone || profile?.phoneNumber || profile?.mobile || runtimePhone || "").replace(/\D/g,"").replace(/^84/,"0");
 
   const realtimePoints = useRealtimeCustomerStore(s => s.profile?.points ?? null);
   const realtimeTier   = useRealtimeCustomerStore(s => s.profile?.tier?.toLowerCase?.() ?? null);
