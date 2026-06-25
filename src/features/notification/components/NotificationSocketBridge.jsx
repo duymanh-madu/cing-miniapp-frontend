@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
 
 export default function NotificationSocketBridge() {
   const phone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const [popup, setPopup] = useState(null);
 
   // Fetch DB notifications khi user login — dù offline vẫn nhận được
   useEffect(() => {
@@ -43,10 +45,35 @@ export default function NotificationSocketBridge() {
         const handler = (data) => {
           const notif = data?.payload?.notification || data?.notification || data;
           if (!notif?.title && !notif?.message) return;
-          // Ghi thẳng vào store — không cần component listener
+
           import("@/stores/notification/notificationStore").then(({ default: store }) => {
             store.getState().addNotification(notif);
           });
+
+          const popupTypes = new Set([
+            "payment_success",
+            "after_hours_order",
+            "points_added",
+            "plays_added",
+            "mission_completed",
+            "CAMPAIGN_BROADCAST",
+            "MISSION_COMPLETED",
+          ]);
+
+          const shouldPopup =
+            notif?.popup === true ||
+            data?.payload?.popup ||
+            popupTypes.has(notif?.type) ||
+            popupTypes.has(notif?.template_key);
+
+          if (shouldPopup) {
+            setPopup({
+              title: notif.title || "Thông báo",
+              message: notif.message || "",
+              created_at: notif.created_at || new Date().toISOString(),
+            });
+            setTimeout(() => setPopup(null), 6500);
+          }
         };
         socket.on("notification.new", handler);
         socket.on("notification.broadcast", handler);
@@ -73,5 +100,30 @@ export default function NotificationSocketBridge() {
     };
     attach();
   }, []);
-  return null;
+  return popup ? createPortal(
+    <div
+      onClick={() => setPopup(null)}
+      style={{
+        position: "fixed",
+        left: 16,
+        right: 16,
+        top: "calc(env(safe-area-inset-top, 0px) + 74px)",
+        zIndex: 100000,
+        borderRadius: 18,
+        padding: "14px 16px",
+        background: "linear-gradient(135deg,#1b1208,#2a1400)",
+        border: "1px solid rgba(255,215,0,0.35)",
+        boxShadow: "0 14px 42px rgba(0,0,0,0.45)",
+        color: "white",
+      }}
+    >
+      <div style={{ fontSize: 14, fontWeight: 900, marginBottom: 4, color: "#FFD700" }}>
+        {popup.title}
+      </div>
+      <div style={{ fontSize: 13, lineHeight: 1.45, color: "rgba(255,255,255,0.82)" }}>
+        {popup.message}
+      </div>
+    </div>,
+    document.body
+  ) : null;
 }
