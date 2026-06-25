@@ -118,6 +118,37 @@ export async function bootstrapRuntime() {
   // 3. Khởi tạo stores
   await initializeRuntimeStores();
 
+  // 3b. Restore activated member identity from persisted auth/session.
+  // Do not call Zalo phone permission again if we already have a valid phone.
+  try {
+    const rawSession = localStorage.getItem("cing_session");
+    const session = rawSession ? JSON.parse(rawSession) : null;
+    const storedPhone = String(
+      session?.profile?.phone ||
+      localStorage.getItem("__user_phone") ||
+      ""
+    ).replace(/\D/g, "").replace(/^84/, "0");
+
+    if (storedPhone && storedPhone !== "pending" && storedPhone.length >= 9) {
+      const store = useRuntimeCustomerIdentityStore.getState();
+      store.setIdentity({
+        customerId: session?.profile?.id || storedPhone,
+        fullName: session?.profile?.name || "",
+        phone: storedPhone,
+        avatar: session?.profile?.avatar || "",
+        phoneGranted: true,
+        oaFollowed: true,
+        memberActivated: true,
+      } as any);
+      store.setPermissionState({ phoneGranted: true, oaFollowed: true });
+      store.setActivationStatus("activated");
+      store.setProfileHydrated(true);
+    }
+  } catch(e) {
+    console.warn("[BOOT] restore persisted member failed:", e);
+  }
+
+
   // 4. Chạy Zalo identity engine
 
   // 4b removed — subscriber handles identity→authStore mirror

@@ -8,6 +8,7 @@ import {
 } from "./authStorage";
 
 import useAuthStore from "@/stores/auth";
+import sessionHydrator from "@/core/session/sessionHydrator";
 
 export function bootstrapAuth() {
 
@@ -26,6 +27,13 @@ export function bootstrapAuth() {
 
   }
 
+  let persisted = null;
+  try {
+    persisted = JSON.parse(localStorage.getItem("cing_session") || "null");
+  } catch {}
+
+  const profile = persisted?.profile || null;
+
   useAuthStore
     .getState()
     .setSession({
@@ -34,10 +42,18 @@ export function bootstrapAuth() {
 
       refreshToken,
 
-      profile:
-        null,
+      profile,
 
     });
+
+  try {
+    const phone = String(profile?.phone || localStorage.getItem("__user_phone") || "")
+      .replace(/\D/g, "")
+      .replace(/^84/, "0");
+    if (phone && phone !== "pending" && phone.length >= 9) {
+      localStorage.setItem("__user_phone", phone);
+    }
+  } catch {}
 
   runtimeLogger.info("AUTH", 
     "🟢 AUTH RESTORED"

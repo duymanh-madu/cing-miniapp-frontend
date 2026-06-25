@@ -22,17 +22,23 @@ export function createSession({
     refreshToken
   );
 
+  const session = {
+    accessToken,
+    refreshToken,
+    profile,
+  };
+
+  try {
+    sessionHydrator.persist(session);
+    const phone = String(profile?.phone || "").replace(/\D/g, "").replace(/^84/, "0");
+    if (phone && phone !== "pending" && phone.length >= 9) {
+      localStorage.setItem("__user_phone", phone);
+    }
+  } catch {}
+
   useAuthStore
     .getState()
-    .setSession({
-
-      accessToken,
-
-      refreshToken,
-
-      profile,
-
-    });
+    .setSession(session);
 
 }
 
