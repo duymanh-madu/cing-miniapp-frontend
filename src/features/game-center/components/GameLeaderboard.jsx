@@ -35,33 +35,78 @@ export default function GameLeaderboard({ gameKey, onClose }) {
   const navigate    = useNavigate();
   const goProfile   = (uid) => { if (uid) { onClose(); setTimeout(() => navigate(`/profile/${uid}`), 150); } };
 
-  const fetchData = async () => {
-    setLoading(true);
+  const updateMyRankFromRows = (rows = []) => {
+    const phone = getPhone();
+    const rankId = phone || profileId;
+    if (!rankId) return;
+
+    const idx = rows.findIndex(r => String(r.user_id) === String(rankId));
+    if (idx >= 0) {
+      setMyRank({
+        rank: idx + 1,
+        total: rows.length,
+        score: rows[idx]?.score ?? rows[idx]?.value ?? 0,
+      });
+    }
+  };
+
+  const fetchData = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     try {
       const r = await apiClient.get(`/leaderboard/top-games/${gameKey}`);
-      setData(r.data?.data || []);
+      const rows = r.data?.data || [];
+      setData(rows);
+      updateMyRankFromRows(rows);
+
       if (r.data?.rewards?.length) setRewards(r.data.rewards);
+
       const phone = getPhone();
       const rankId = phone || profileId;
-      if (rankId) {
+      if (rankId && !silent) {
         apiClient.get(`/leaderboard/user-game-rank/${rankId}/${gameKey}`)
           .then(r2 => setMyRank(r2.data?.data)).catch(() => {});
       }
-    } catch(e) { setData([]); }
-    finally { setLoading(false); }
+    } catch(e) {
+      if (!silent) setData([]);
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  };
+
+  const applyRealtimeLeaderboard = (payload) => {
+    if (payload?.type && payload.type !== "game") return;
+    if (payload?.game_key && payload.game_key !== gameKey) return;
+    if (payload?.scope && payload.scope !== "weekly") return;
+
+    if (Array.isArray(payload?.leaderboard)) {
+      setData(payload.leaderboard);
+      updateMyRankFromRows(payload.leaderboard);
+      return;
+    }
+
+    fetchData({ silent: true });
   };
 
   useEffect(() => {
     fetchData();
+
     let attempts = 0;
     const attach = () => {
       const socket = getRuntimeSocket();
-      if (socket?.connected) { socket.on("leaderboard.updated", fetchData); return; }
+      if (socket?.connected) {
+        socket.off("leaderboard.updated", applyRealtimeLeaderboard);
+        socket.on("leaderboard.updated", applyRealtimeLeaderboard);
+        return;
+      }
       if (attempts++ < 20) setTimeout(attach, 1000);
     };
+
     attach();
-    return () => { getRuntimeSocket()?.off("leaderboard.updated", fetchData); };
-  }, [gameKey]);
+
+    return () => {
+      getRuntimeSocket()?.off("leaderboard.updated", applyRealtimeLeaderboard);
+    };
+  }, [gameKey, profileId]);
 
   const phone = getPhone();
   const top3  = data.slice(0, 3);

@@ -153,7 +153,10 @@ export default function LeaderboardPage() {
   useEffect(() => {
     // Lắng nghe socket — retry đến khi connected
     let attempts = 0;
-    const handler = () => fetchData(currentTabRef.current);
+    const handler = (payload) => {
+      if (payload?.type === "game") return;
+      fetchData(currentTabRef.current);
+    };
     const attach = () => {
       const socket = getRuntimeSocket();
       if (socket?.connected) {
