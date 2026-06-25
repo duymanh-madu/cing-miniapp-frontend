@@ -90,6 +90,18 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
         avatar: data.customer?.avatar || (canReuseExistingProfile ? existingProfile?.avatar : "") || input.avatar || "",
       },
     });
+
+    try {
+      if (resolvedPhone && resolvedPhone !== "pending") {
+        window.parent?.postMessage({
+          type: "CACHE_MEMBER_IDENTITY",
+          phone: resolvedPhone,
+          zaloId: input.zaloUserId || data.customer?.zalo_id || data.customer?.zalo_user_id || "",
+          name: backendName || input.name || "",
+          avatar: data.customer?.avatar || input.avatar || "",
+        }, "*");
+      }
+    } catch {}
   }
 
   return {

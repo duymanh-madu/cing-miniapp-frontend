@@ -286,23 +286,39 @@ export async function bootstrapRuntime() {
 
   // 1. Request boot data từ shell (zalo_id, phone_token, mini_access_token)
   const shellBootData = await requestShellBootData();
-  if (shellBootData?.zaloId) {
+  if (shellBootData?.zaloId || shellBootData?.phone) {
     try {
       const store = useRuntimeCustomerIdentityStore.getState();
+      const shellPhone = normalizeRuntimePhone((shellBootData as any)?.phone || "");
+
       store.setIdentity({
-        zaloUserId: shellBootData.zaloId,
+        zaloUserId: shellBootData.zaloId || "",
         fullName: shellBootData.name || "",
         avatar: shellBootData.avatar || "",
+        phone: shellPhone,
         phoneToken: shellBootData.phoneToken || "",
         miniAccessToken: shellBootData.miniAccessToken || "",
-        phoneGranted: !!shellBootData.phoneToken,
+        phoneGranted: !!(shellPhone || shellBootData.phoneToken),
+        memberActivated: !!shellPhone,
       } as any);
 
-      if (shellBootData.phoneToken && shellBootData.miniAccessToken) {
+      if (shellPhone) {
+        try {
+          localStorage.setItem("__user_phone", shellPhone);
+        } catch {}
+
+        store.setPermissionState({ phoneGranted: true, oaFollowed: true });
+        store.setActivationStatus("activated");
+        store.setProfileHydrated(true);
+      } else if (shellBootData.phoneToken && shellBootData.miniAccessToken) {
         store.setActivationStatus("checking");
       }
 
-      console.log("[BOOT] Shell boot data applied:", shellBootData.zaloId);
+      console.log("[BOOT] Shell boot data applied:", {
+        zaloId: shellBootData.zaloId || "",
+        hasPhone: !!shellPhone,
+        cachedMember: !!(shellBootData as any)?.cachedMember,
+      });
     } catch(e) {}
   }
 
