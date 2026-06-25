@@ -248,15 +248,33 @@ export default function ProfilePage() {
       apiClient.get(`/profile-update/profile/${resolvedPhone}`).catch(() => null),
     ]).then(([mRes, lbRes, atRes, pRes]) => {
       const memberData = mRes?.data?.data || {};
-      // Merge avatar từ players table
-      const playerAvatar = pRes?.data?.data?.avatar || null;
-      const charmPoints = pRes?.data?.data?.charm_points || 0;
-      const selectedBadge = pRes?.data?.data?.selected_badge || null;
+      // Merge display profile từ players table — nguồn chuẩn cho UI
+      const playerProfile = pRes?.data?.data || {};
+      const playerDisplayName =
+        playerProfile.display_name ||
+        playerProfile.zalo_name ||
+        playerProfile.name ||
+        null;
+      const playerAvatar =
+        playerProfile.display_avatar ||
+        playerProfile.avatar ||
+        playerProfile.zalo_avatar ||
+        null;
+      const charmPoints = playerProfile.charm_points || 0;
+      const selectedBadge = playerProfile.selected_badge || null;
       if (selectedBadge) setPrimaryBadge(selectedBadge);
       const customBadges = Array.isArray(pRes?.data?.data?.custom_badges)
         ? pRes.data.data.custom_badges
         : [];
-      setMember({ ...memberData, avatar: playerAvatar, charmPoints, customBadges });
+      setMember({
+        ...memberData,
+        display_name: playerDisplayName,
+        name: playerDisplayName || memberData.name,
+        avatar: playerAvatar,
+        display_avatar: playerAvatar,
+        charmPoints,
+        customBadges,
+      });
       const top = lbRes?.data?.data?.topWins?.[0] || lbRes?.data?.topWins?.[0];
       if (top) {
         const topPhone = String(top.user_id).replace(/\D/g,"").replace(/^84/,"0");
@@ -311,12 +329,8 @@ export default function ProfilePage() {
 
   // Nếu xem profile mình: dùng profile.name (custom) + profile.avatar (custom)
   // Nếu xem profile người khác: dùng member.name + member.avatar từ API
-  const displayName = isOwn
-    ? (resolveProfileName(profile, member.display_name || member.zalo_name || member.name || "Cing iu"))
-    : (member.name || "Cing iu");
-  const avatarUrl = isOwn
-    ? (profile?.avatar || null)
-    : (member.avatar || null);
+  const displayName = resolveProfileName(member, resolveProfileName(profile, "Cing iu"));
+  const avatarUrl = member.display_avatar || member.avatar || profile?.display_avatar || profile?.avatar || null;
   const points        = member.points || 0;
   const eatTimes      = member.eatTimes || 0;
   const paymentAmount = member.paymentAmount || 0;

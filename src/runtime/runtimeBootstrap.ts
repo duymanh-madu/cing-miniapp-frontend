@@ -4,6 +4,8 @@ import { initializeRuntimeStores }           from "../core/store/runtimeStoreOrc
 import { initializeRuntimeSession }          from "./session/runtimeSessionOrchestrator";
 import { useRuntimeCustomerIdentityStore }   from "./customer/runtimeCustomerIdentityStore";
 import registerMenuRealtime from "@/features/menu/realtime/registerMenuRealtime";
+import useAuthStore from "@/stores/auth/authStore";
+import apiClient from "@/infra/api/apiClient";
 
 /**
  * Đọc params từ URL do cing-zalo-shell inject:
@@ -143,6 +145,56 @@ export async function bootstrapRuntime() {
       store.setPermissionState({ phoneGranted: true, oaFollowed: true });
       store.setActivationStatus("activated");
       store.setProfileHydrated(true);
+
+      try {
+        const profileRes = await apiClient.get(`/profile-update/profile/${storedPhone}`);
+        const serverProfile = profileRes?.data?.data || {};
+        const displayName =
+          serverProfile.display_name ||
+          serverProfile.zalo_name ||
+          serverProfile.name ||
+          session?.profile?.name ||
+          "";
+        const displayAvatar =
+          serverProfile.display_avatar ||
+          serverProfile.avatar ||
+          serverProfile.zalo_avatar ||
+          session?.profile?.avatar ||
+          "";
+
+        const normalizedProfile = {
+          ...(session?.profile || {}),
+          id: session?.profile?.id || storedPhone,
+          phone: storedPhone,
+          name: displayName,
+          display_name: displayName,
+          displayName,
+          avatar: displayAvatar,
+          display_avatar: displayAvatar,
+          zalo_name: serverProfile.zalo_name || "",
+          zalo_avatar: serverProfile.zalo_avatar || "",
+        };
+
+        useAuthStore.getState().updateProfile(normalizedProfile);
+
+        localStorage.setItem("cing_session", JSON.stringify({
+          ...(session || {}),
+          accessToken: session?.accessToken,
+          refreshToken: session?.refreshToken,
+          profile: normalizedProfile,
+        }));
+
+        store.setIdentity({
+          fullName: displayName,
+          avatar: displayAvatar,
+          phone: storedPhone,
+          phoneGranted: true,
+          oaFollowed: true,
+          memberActivated: true,
+        } as any);
+      } catch(e) {
+        console.warn("[BOOT] hydrate display profile failed:", e);
+      }
     }
   } catch(e) {
     console.warn("[BOOT] restore persisted member failed:", e);

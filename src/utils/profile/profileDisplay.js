@@ -11,8 +11,8 @@ export function resolveProfileName(profile, fallback = "Cing iu") {
 
 export function resolveProfileAvatar(profile, fallback = "") {
   return (
-    profile?.avatar ||
     profile?.display_avatar ||
+    profile?.avatar ||
     profile?.zalo_avatar ||
     fallback
   );
