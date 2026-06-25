@@ -6,6 +6,136 @@ import { useRuntimeCustomerIdentityStore }   from "./customer/runtimeCustomerIde
 import registerMenuRealtime from "@/features/menu/realtime/registerMenuRealtime";
 import useAuthStore from "@/stores/auth/authStore";
 import apiClient from "@/infra/api/apiClient";
+import { activateMiniAppUser } from "@/zalo/activation/activationApi";
+
+function normalizeRuntimePhone(value: unknown) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (!digits || digits === "pending") return "";
+  return digits.startsWith("84") ? "0" + digits.slice(2) : digits;
+}
+
+function getStoredRuntimePhone() {
+  try {
+    const rawSession = localStorage.getItem("cing_session");
+    const session = rawSession ? JSON.parse(rawSession) : null;
+    return normalizeRuntimePhone(
+      session?.profile?.phone ||
+      localStorage.getItem("__user_phone") ||
+      ""
+    );
+  } catch {
+    return "";
+  }
+}
+
+async function restoreActivatedMemberFromShellToken() {
+  try {
+    const store = useRuntimeCustomerIdentityStore.getState();
+    const identity = (store.identity || {}) as any;
+
+    const existingPhone = normalizeRuntimePhone(identity.phone || getStoredRuntimePhone());
+    if (existingPhone) return false;
+
+    const phoneToken = identity.phoneToken || "";
+    const miniAccessToken = identity.miniAccessToken || "";
+    const zaloUserId = identity.zaloUserId || "";
+
+    if (!zaloUserId || !phoneToken || !miniAccessToken) return false;
+
+    console.log("[BOOT] Attempt silent iOS member restore from shell token:", zaloUserId);
+
+    const result = await activateMiniAppUser({
+      zaloUserId,
+      name: identity.fullName || "",
+      avatar: identity.avatar || "",
+      phone: "",
+      phoneToken,
+      miniAccessToken,
+      phoneGranted: true,
+      oaFollowed: true,
+      activated: true,
+      source: "zalo-miniapp-ios-restore",
+      birthday: identity.birthday || "",
+    });
+
+    const restoredPhone = normalizeRuntimePhone(result?.phone);
+    if (!restoredPhone) return false;
+
+    store.setPermissionState({
+      phoneGranted: true,
+      oaFollowed: true,
+    });
+
+    store.setIdentity({
+      customerId: result?.customerId || restoredPhone,
+      zaloUserId,
+      fullName: result?.fullName || identity.fullName || "",
+      avatar: result?.avatar || identity.avatar || "",
+      phone: restoredPhone,
+      phoneToken,
+      miniAccessToken,
+      phoneGranted: true,
+      oaFollowed: true,
+      memberActivated: true,
+    } as any);
+
+    store.setActivationStatus("activated");
+    store.setProfileHydrated(true);
+
+    try {
+      localStorage.setItem("__zalo_uid", zaloUserId);
+      localStorage.setItem("__user_phone", restoredPhone);
+    } catch {}
+
+    try {
+      const profileRes = await apiClient.get(`/profile-update/profile/${restoredPhone}`);
+      const serverProfile = profileRes?.data?.data || {};
+      const displayName =
+        serverProfile.display_name ||
+        serverProfile.zalo_name ||
+        serverProfile.name ||
+        result?.fullName ||
+        identity.fullName ||
+        "";
+      const displayAvatar =
+        serverProfile.display_avatar ||
+        serverProfile.avatar ||
+        serverProfile.zalo_avatar ||
+        result?.avatar ||
+        identity.avatar ||
+        "";
+
+      useAuthStore.getState().updateProfile({
+        id: restoredPhone,
+        phone: restoredPhone,
+        name: displayName,
+        display_name: displayName,
+        displayName,
+        avatar: displayAvatar,
+        display_avatar: displayAvatar,
+        zalo_name: serverProfile.zalo_name || "",
+        zalo_avatar: serverProfile.zalo_avatar || "",
+      } as any);
+
+      store.setIdentity({
+        fullName: displayName,
+        avatar: displayAvatar,
+        phone: restoredPhone,
+        phoneGranted: true,
+        oaFollowed: true,
+        memberActivated: true,
+      } as any);
+    } catch(e) {
+      console.warn("[BOOT] silent restore display profile failed:", e);
+    }
+
+    console.log("[BOOT] Silent iOS member restore success:", restoredPhone);
+    return true;
+  } catch(e) {
+    console.warn("[BOOT] silent iOS member restore failed:", e);
+    return false;
+  }
+}
 
 /**
  * Đọc params từ URL do cing-zalo-shell inject:
@@ -113,6 +243,12 @@ export async function bootstrapRuntime() {
   // 1b. Fallback: đọc params từ URL
   hydrateIdentityFromUrlParams();
 
+  // 1c. iOS Zalo WebView restore:
+  // Khi iOS mất localStorage/session sau khi thoát Zalo vào lại,
+  // shell vẫn có thể trả phoneToken/miniAccessToken. Dùng token này
+  // để silent login/restore member, không bật prompt active lại.
+  await restoreActivatedMemberFromShellToken();
+
 
   // 2. Restore session từ localStorage
   await initializeRuntimeSession();
@@ -125,11 +261,7 @@ export async function bootstrapRuntime() {
   try {
     const rawSession = localStorage.getItem("cing_session");
     const session = rawSession ? JSON.parse(rawSession) : null;
-    const storedPhone = String(
-      session?.profile?.phone ||
-      localStorage.getItem("__user_phone") ||
-      ""
-    ).replace(/\D/g, "").replace(/^84/, "0");
+    const storedPhone = getStoredRuntimePhone();
 
     if (storedPhone && storedPhone !== "pending" && storedPhone.length >= 9) {
       const store = useRuntimeCustomerIdentityStore.getState();
