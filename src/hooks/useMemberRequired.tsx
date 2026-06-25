@@ -14,6 +14,12 @@ export function useMemberRequired() {
   const profilePhone = useAuthStore(s => s.profile?.phone);
 
   const pendingCallbackRef = useRef<null | (() => void)>(null);
+  const [bootGraceDone, setBootGraceDone] = useState(false);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setBootGraceDone(true), 8000);
+    return () => window.clearTimeout(t);
+  }, []);
 
   const hasPhone = (() => {
     const p = runtimePhone || profilePhone || "";
@@ -22,14 +28,23 @@ export function useMemberRequired() {
   })();
 
   const hasSilentRestoreToken = !!(phoneToken && miniAccessToken);
+
   const isRestoringMember =
     activationStatus === "checking" ||
-    (!profileHydrated && hasSilentRestoreToken);
+    (!profileHydrated && hasSilentRestoreToken) ||
+    (!bootGraceDone && hasSilentRestoreToken && !hasPhone);
 
-  const isActivated =
+  const isActuallyActivated =
     activationStatus === "activated" ||
     memberActivated ||
     hasPhone;
+
+  // Important:
+  // LeaderboardPage/GameCenterPage dùng isActivated để quyết định render màn active.
+  // Trong lúc iOS silent login đang chạy, coi là active tạm thời để không bắt active lại.
+  const isActivated =
+    isActuallyActivated ||
+    isRestoringMember;
 
   const [showPrompt, setShowPrompt] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,8 +64,22 @@ export function useMemberRequired() {
     }
   }, [isActivated, showPrompt]);
 
+  useEffect(() => {
+    if (!isActuallyActivated) return;
+
+    if (showPrompt) {
+      setShowPrompt(false);
+    }
+
+    const cb = pendingCallbackRef.current;
+    if (cb) {
+      pendingCallbackRef.current = null;
+      cb();
+    }
+  }, [isActuallyActivated, showPrompt]);
+
   const requireMember = (callback?: () => void) => {
-    if (isActivated) {
+    if (isActuallyActivated) {
       callback?.();
       return true;
     }
@@ -58,9 +87,9 @@ export function useMemberRequired() {
     pendingCallbackRef.current = callback || null;
     setError("");
 
-    // iOS Zalo WebView có thể mất localStorage khi thoát Zalo vào lại.
-    // Trong lúc bootstrap đang silent restore bằng phoneToken/miniAccessToken,
-    // không bật prompt active để tránh bắt user active lại dù backend đã login OK.
+    // iOS Zalo WebView: sau khi thoát hẳn Zalo vào lại,
+    // /auth/zalo/login có thể mất vài giây để restore phone.
+    // Không bật prompt active trong giai đoạn restore này.
     if (isRestoringMember) {
       return false;
     }
