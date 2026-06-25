@@ -5,6 +5,7 @@ import { useMembership } from "../hooks/useMembership";
 import { useEffect, useRef } from "react";
 import useAuthStore from "@/stores/auth/authStore";
 import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
+import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
 /* ── Barcode 1D dung JsBarcode (Code128 chuan ISO) ── */
 function Barcode({ value, width = 120, height = 40 }) {
