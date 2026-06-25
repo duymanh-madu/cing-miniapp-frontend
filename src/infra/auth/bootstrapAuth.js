@@ -8,7 +8,6 @@ import {
 } from "./authStorage";
 
 import useAuthStore from "@/stores/auth";
-import sessionHydrator from "@/core/session/sessionHydrator";
 
 export function bootstrapAuth() {
 
