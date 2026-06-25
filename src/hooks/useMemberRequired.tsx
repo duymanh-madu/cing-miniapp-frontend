@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
@@ -7,6 +7,10 @@ import { initializeCustomerIdentityEngine } from "@/runtime/customer/runtimeCust
 export function useMemberRequired() {
   const activationStatus = useRuntimeCustomerIdentityStore(s => s.activationStatus);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const phoneToken = useRuntimeCustomerIdentityStore(s => (s.identity as any)?.phoneToken);
+  const miniAccessToken = useRuntimeCustomerIdentityStore(s => (s.identity as any)?.miniAccessToken);
+  const profileHydrated = useRuntimeCustomerIdentityStore(s => s.profileHydrated);
+  const memberActivated = useRuntimeCustomerIdentityStore(s => s.memberActivated);
   const profilePhone = useAuthStore(s => s.profile?.phone);
 
   const pendingCallbackRef = useRef<null | (() => void)>(null);
@@ -17,11 +21,33 @@ export function useMemberRequired() {
     return p.replace(/\D/g, "").length >= 9;
   })();
 
-  const isActivated = activationStatus === "activated" || hasPhone;
+  const hasSilentRestoreToken = !!(phoneToken && miniAccessToken);
+  const isRestoringMember =
+    activationStatus === "checking" ||
+    (!profileHydrated && hasSilentRestoreToken);
+
+  const isActivated =
+    activationStatus === "activated" ||
+    memberActivated ||
+    hasPhone;
 
   const [showPrompt, setShowPrompt] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!isActivated) return;
+
+    if (showPrompt) {
+      setShowPrompt(false);
+    }
+
+    const cb = pendingCallbackRef.current;
+    if (cb) {
+      pendingCallbackRef.current = null;
+      cb();
+    }
+  }, [isActivated, showPrompt]);
 
   const requireMember = (callback?: () => void) => {
     if (isActivated) {
@@ -31,6 +57,14 @@ export function useMemberRequired() {
 
     pendingCallbackRef.current = callback || null;
     setError("");
+
+    // iOS Zalo WebView có thể mất localStorage khi thoát Zalo vào lại.
+    // Trong lúc bootstrap đang silent restore bằng phoneToken/miniAccessToken,
+    // không bật prompt active để tránh bắt user active lại dù backend đã login OK.
+    if (isRestoringMember) {
+      return false;
+    }
+
     setShowPrompt(true);
     return false;
   };

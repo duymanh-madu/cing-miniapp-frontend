@@ -180,6 +180,10 @@ function hydrateIdentityFromUrlParams() {
       oaFollowed: oaFollowed,
     } as any);
 
+    if (!phone && phoneToken && miniAccessToken) {
+      store.setActivationStatus("checking");
+    }
+
     // Xóa params khỏi URL sau khi đọc — tránh lộ thông tin
     const cleanUrl = window.location.pathname + window.location.hash;
     window.history.replaceState({}, "", cleanUrl);
@@ -236,6 +240,11 @@ export async function bootstrapRuntime() {
         miniAccessToken: shellBootData.miniAccessToken || "",
         phoneGranted: !!shellBootData.phoneToken,
       } as any);
+
+      if (shellBootData.phoneToken && shellBootData.miniAccessToken) {
+        store.setActivationStatus("checking");
+      }
+
       console.log("[BOOT] Shell boot data applied:", shellBootData.zaloId);
     } catch(e) {}
   }
