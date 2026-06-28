@@ -270,7 +270,10 @@ export default function GameCenterPage() {
           onGameStart={() => {
             const ph = getPhone();
             if (ph) {
-              apiClient.post("/game/use-play", { user_id: ph }).catch(e => console.warn("[GAME] use-play:", e.message));
+              apiClient.post("/game/use-play", {
+                user_id: ph,
+                game_name: game?.displayName || activeGame || "game",
+              }).catch(e => console.warn("[GAME] use-play:", e.message));
               setGamePlays(prev => prev !== null ? Math.max(0, prev - 1) : null);
             }
           }}
@@ -385,7 +388,9 @@ export default function GameCenterPage() {
                 <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>{game.displayName || game.name}</p>
                 {game.status==="LIVE" && <span style={{ background:"rgba(0,255,100,0.15)", color:"#00ff64", fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8, letterSpacing:1 }}>LIVE</span>}
               </div>
-              <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>Thử thách phản xạ — ghi điểm cao nhất</p>
+              <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>
+                {game.description || "Thử thách phản xạ — ghi điểm cao nhất"}
+              </p>
               <div style={{ display:"flex", gap:8 }}>
                 <button onClick={() => handlePlayGame(game.id)} style={{ background:"linear-gradient(135deg,#D4531C,#ff6b35)", color:"white", border:"none", borderRadius:10, padding:"8px 18px", fontSize:12, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 15px rgba(212,83,28,0.4)" }}>Chơi ngay</button>
                 <button onClick={() => requireMember(() => setShowBoard(game.id))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
