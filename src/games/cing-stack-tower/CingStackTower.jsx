@@ -373,11 +373,10 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         showMessage(`PERFECT x${game.combo} +${gained}`, 950);
         emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 24, "#ffd700");
       } else if (excellent) {
-        game.combo += 1;
-        game.bestCombo = Math.max(game.bestCombo, game.combo);
-        gained = 52 + game.floor * 6 + Math.min(180, game.combo * 9);
+        game.combo = 0;
+        gained = 52 + game.floor * 6;
         playSound("combo", 0.78);
-        showMessage(`CHUẨN x${game.combo} +${gained}`, 850);
+        showMessage(`CHUẨN +${gained}`, 850);
         emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 16, "#ffb000");
       } else if (good) {
         game.combo = 0;
