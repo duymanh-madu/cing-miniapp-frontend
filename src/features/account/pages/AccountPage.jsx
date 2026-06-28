@@ -366,17 +366,48 @@ export default function AccountPage() {
               if (item.action === "chat_admin") {
                 (async () => {
                   const oaId = import.meta.env.VITE_ZALO_OA_ID || "4341283871868668950";
+                  const message = "Xin chào Cing Hu Tang! Tôi cần hỗ trợ.";
                   const fallbackUrl = `https://zalo.me/${oaId}`;
+                  const requestId = `oa_chat_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
                   try {
-                    const { openChat } = await import("zmp-sdk/apis");
-                    await openChat({
-                      type: "oa",
-                      id: oaId,
-                      message: "Xin chào Cing Hu Tang! Tôi cần hỗ trợ.",
+                    const openedByShell = await new Promise((resolve) => {
+                      let settled = false;
+
+                      const finish = (value) => {
+                        if (settled) return;
+                        settled = true;
+                        window.removeEventListener("message", onMessage);
+                        clearTimeout(timer);
+                        resolve(value);
+                      };
+
+                      const onMessage = (event) => {
+                        const payload = event.data || {};
+                        if (
+                          payload.type === "ZALO_OPEN_OA_CHAT_RESULT" &&
+                          payload.requestId === requestId
+                        ) {
+                          finish(Boolean(payload.success));
+                        }
+                      };
+
+                      const timer = setTimeout(() => finish(false), 3500);
+                      window.addEventListener("message", onMessage);
+
+                      window.parent?.postMessage({
+                        type: "REQUEST_ZALO_OPEN_OA_CHAT",
+                        requestId,
+                        oaId,
+                        message,
+                      }, "*");
                     });
+
+                    if (!openedByShell) {
+                      window.location.href = fallbackUrl;
+                    }
                   } catch (e) {
-                    console.warn("[ACCOUNT] open OA chat failed, fallback to zalo.me:", e);
+                    console.warn("[ACCOUNT] request OA chat via shell failed:", e);
                     window.location.href = fallbackUrl;
                   }
                 })();
