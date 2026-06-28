@@ -37,12 +37,16 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     ctx.scale(DPR, DPR);
 
     const ROUND_TIME = 120000;
-    const SAFE_TOP = Math.max(120, Math.floor(H * 0.16));
+    // Keep gameplay below header/HUD. The crane starts under the controls.
+    const SAFE_TOP = Math.max(286, Math.floor(H * 0.255));
     const GROUND_Y = H - 74;
-    const BLOCK = Math.max(58, Math.min(76, Math.floor(W * 0.17)));
+    const BLOCK = Math.max(62, Math.min(74, Math.floor(W * 0.168)));
     const FACE = BLOCK;
-    const DEPTH = Math.round(BLOCK * 0.22);
-    const DROP_GRAVITY = 0.72;
+    const DEPTH = Math.round(BLOCK * 0.26);
+    const PIVOT_Y = SAFE_TOP - 46;
+    const ROPE_LENGTH = Math.max(96, Math.min(136, Math.floor(H * 0.13)));
+    const DROP_GRAVITY = 0.58;
+    const AIR_DRAG_X = 0.996;
     const HIT_TOLERANCE = BLOCK * 0.68;
     const COLLAPSE_TOLERANCE = BLOCK * 0.84;
 
@@ -99,7 +103,8 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         tower: [base],
         falling: null,
         cranePhase: 0,
-        craneSpeed: 0.018,
+        // Pendulum speed is intentionally slower than classic stack games.
+        craneSpeed: 0.0046,
         dropCount: 0,
       };
     }
@@ -120,19 +125,42 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       return Math.max(0, SAFE_TOP - visibleTop);
     }
 
-    function craneX(now) {
+    function pendulumState(now) {
       const floor = Math.max(0, game.floor);
-      const amp = Math.max(74, Math.min(W * 0.38, W * 0.31 + floor * 1.2));
-      const speed = game.craneSpeed + Math.min(0.016, floor * 0.0009);
-      return W / 2 + Math.sin(now * speed + game.cranePhase) * amp - BLOCK / 2;
+      const maxAngle = Math.max(0.34, 0.58 - Math.min(0.14, floor * 0.004));
+      const speed = game.craneSpeed + Math.min(0.0028, floor * 0.00008);
+      const t = now * speed + game.cranePhase;
+      const angle = Math.sin(t) * maxAngle;
+      const angularVelocity = Math.cos(t) * maxAngle * speed;
+
+      const pivotX = W / 2;
+      const pivotY = PIVOT_Y;
+      const cx = pivotX + Math.sin(angle) * ROPE_LENGTH;
+      const cy = pivotY + Math.cos(angle) * ROPE_LENGTH;
+
+      return {
+        pivotX,
+        pivotY,
+        cx,
+        cy,
+        angle,
+        angularVelocity,
+        x: cx - BLOCK / 2,
+        y: cy - BLOCK / 2 - cameraY(),
+        vx: angularVelocity * ROPE_LENGTH * Math.cos(angle) * 16.5,
+        vy: Math.max(0, -angularVelocity * ROPE_LENGTH * Math.sin(angle) * 2.2),
+      };
     }
 
     function spawnFalling(now) {
       if (game.falling || game.ended) return;
-      game.falling = cloneBlock(craneX(now), SAFE_TOP + 52 - cameraY(), {
+      const swing = pendulumState(now);
+      game.falling = cloneBlock(swing.x, swing.y, {
         dropping: false,
+        vx: 0,
         vy: 0,
         swingAt: now,
+        swingAngle: swing.angle,
       });
     }
 
@@ -325,8 +353,13 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       }
 
       if (!game.falling.dropping) {
+        const swing = pendulumState(now);
+        game.falling.x = swing.x;
+        game.falling.y = swing.y;
+        game.falling.vx = swing.vx;
+        game.falling.vy = swing.vy;
         game.falling.dropping = true;
-        game.falling.vy = 0;
+        game.falling.rot = swing.angle * 0.18;
       }
     }
 
@@ -342,12 +375,17 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
       if (game.falling) {
         if (!game.falling.dropping) {
-          game.falling.x = craneX(now);
-          game.falling.y = SAFE_TOP + 52 - cameraY();
-          game.falling.rot = Math.sin(now * 0.006) * 0.035;
+          const swing = pendulumState(now);
+          game.falling.x = swing.x;
+          game.falling.y = swing.y;
+          game.falling.rot = swing.angle * 0.18;
+          game.falling.swingAngle = swing.angle;
         } else {
           game.falling.vy += DROP_GRAVITY;
+          game.falling.x += game.falling.vx;
           game.falling.y += game.falling.vy;
+          game.falling.vx *= AIR_DRAG_X;
+          game.falling.rot += game.falling.vx * 0.0009;
 
           const hitY = targetY();
           if (game.falling.y >= hitY) {
@@ -388,85 +426,138 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     function drawCingCube(block, camY, active = false) {
       const x = block.x;
       const y = block.y + camY;
-      const s = block.size || BLOCK;
+      const size = block.size || BLOCK;
       const d = DEPTH;
 
       ctx.save();
-      ctx.translate(x + s / 2, y + s / 2);
+      ctx.translate(x + size / 2, y + size / 2);
       ctx.rotate(block.rot || 0);
-      ctx.translate(-s / 2, -s / 2);
+      ctx.translate(-size / 2, -size / 2);
 
-      ctx.fillStyle = active ? "#ff8a00" : "#ff7900";
-      roundRect(0, 0, s, s, 10);
-      ctx.fill();
+      ctx.shadowColor = "rgba(43,22,11,.34)";
+      ctx.shadowBlur = active ? 18 : 10;
+      ctx.shadowOffsetY = active ? 10 : 6;
 
-      ctx.fillStyle = active ? "#ffb347" : "#ff9d20";
+      const frontGrad = ctx.createLinearGradient(0, 0, size, size);
+      frontGrad.addColorStop(0, active ? "#ff9c1a" : "#ff8810");
+      frontGrad.addColorStop(0.55, "#ff7400");
+      frontGrad.addColorStop(1, "#e95700");
+
+      const topGrad = ctx.createLinearGradient(0, -d, size + d, 0);
+      topGrad.addColorStop(0, "#ffc05a");
+      topGrad.addColorStop(0.55, "#ff9d18");
+      topGrad.addColorStop(1, "#e96600");
+
+      const sideGrad = ctx.createLinearGradient(size, 0, size + d, size);
+      sideGrad.addColorStop(0, "#c84405");
+      sideGrad.addColorStop(1, "#7c2506");
+
+      // Top face.
+      ctx.fillStyle = topGrad;
       ctx.beginPath();
       ctx.moveTo(d, -d);
-      ctx.lineTo(s + d, -d);
-      ctx.lineTo(s, 0);
+      ctx.lineTo(size + d, -d);
+      ctx.lineTo(size, 0);
       ctx.lineTo(0, 0);
       ctx.closePath();
       ctx.fill();
 
-      ctx.fillStyle = "#9f350b";
+      // Right face.
+      ctx.fillStyle = sideGrad;
       ctx.beginPath();
-      ctx.moveTo(s, 0);
-      ctx.lineTo(s + d, -d);
-      ctx.lineTo(s + d, s - d);
-      ctx.lineTo(s, s);
+      ctx.moveTo(size, 0);
+      ctx.lineTo(size + d, -d);
+      ctx.lineTo(size + d, size - d);
+      ctx.lineTo(size, size);
       ctx.closePath();
       ctx.fill();
 
-      ctx.strokeStyle = "rgba(43,22,11,.92)";
-      ctx.lineWidth = 2;
-      roundRect(0, 0, s, s, 10);
+      // Front face.
+      ctx.fillStyle = frontGrad;
+      roundRect(0, 0, size, size, 12);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+
+      // Strong cartoon/Tower-Bloxx style outline.
+      ctx.strokeStyle = "rgba(43,22,11,.96)";
+      ctx.lineWidth = 3;
+      roundRect(0, 0, size, size, 12);
       ctx.stroke();
 
-      ctx.strokeStyle = "rgba(43,22,11,.74)";
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(43,22,11,.82)";
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(d, -d);
-      ctx.moveTo(s, 0);
-      ctx.lineTo(s + d, -d);
-      ctx.moveTo(s, s);
-      ctx.lineTo(s + d, s - d);
+      ctx.moveTo(size, 0);
+      ctx.lineTo(size + d, -d);
+      ctx.moveTo(size, size);
+      ctx.lineTo(size + d, size - d);
       ctx.stroke();
 
-      const pad = Math.round(s * 0.16);
-      const logoSize = s - pad * 2;
+      // Subtle bevels/highlights.
+      ctx.strokeStyle = "rgba(255,255,255,.32)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(9, 8);
+      ctx.lineTo(size - 12, 8);
+      ctx.moveTo(8, 11);
+      ctx.lineTo(8, size - 16);
+      ctx.stroke();
 
-      if (logoReady) {
-        ctx.save();
-        roundRect(pad, pad, logoSize, logoSize, 8);
-        ctx.clip();
+      ctx.fillStyle = "rgba(255,255,255,.08)";
+      roundRect(7, 7, size - 14, Math.max(18, size * 0.24), 8);
+      ctx.fill();
 
-        ctx.fillStyle = "rgba(255,245,228,.96)";
-        ctx.fillRect(pad, pad, logoSize, logoSize);
+      // Logo panel: orange base, bigger logo, no fake white square.
+      const panelPad = Math.round(size * 0.115);
+      const panelSize = size - panelPad * 2;
+      const panelX = panelPad;
+      const panelY = panelPad;
 
-        const ratio = Math.min(logoSize / logoImg.width, logoSize / logoImg.height);
-        const iw = logoImg.width * ratio;
-        const ih = logoImg.height * ratio;
-        ctx.drawImage(
-          logoImg,
-          pad + (logoSize - iw) / 2,
-          pad + (logoSize - ih) / 2,
-          iw,
-          ih
+      ctx.save();
+      roundRect(panelX, panelY, panelSize, panelSize, 11);
+      ctx.clip();
+
+      const panelGrad = ctx.createLinearGradient(panelX, panelY, panelX + panelSize, panelY + panelSize);
+      panelGrad.addColorStop(0, "#ff9a13");
+      panelGrad.addColorStop(1, "#ff6f00");
+      ctx.fillStyle = panelGrad;
+      ctx.fillRect(panelX, panelY, panelSize, panelSize);
+
+      if (logoReady && logoImg.width && logoImg.height) {
+        const logoScale = Math.min(
+          (panelSize * 1.22) / logoImg.width,
+          (panelSize * 1.22) / logoImg.height
         );
-        ctx.restore();
+        const iw = logoImg.width * logoScale;
+        const ih = logoImg.height * logoScale;
+        const ix = panelX + (panelSize - iw) / 2;
+        const iy = panelY + (panelSize - ih) / 2;
+
+        ctx.globalCompositeOperation = "multiply";
+        ctx.drawImage(logoImg, ix, iy, iw, ih);
+        ctx.globalCompositeOperation = "source-over";
       } else {
         ctx.fillStyle = "#111";
-        ctx.font = `900 ${Math.floor(s * 0.22)}px Arial`;
+        ctx.font = `900 ${Math.floor(size * 0.24)}px Arial`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("Cing", s / 2, s / 2);
+        ctx.fillText("Cing", size / 2, size / 2);
       }
+      ctx.restore();
+
+      ctx.strokeStyle = "rgba(43,22,11,.86)";
+      ctx.lineWidth = 2;
+      roundRect(panelX, panelY, panelSize, panelSize, 11);
+      ctx.stroke();
 
       if (block.perfect) {
-        ctx.strokeStyle = "rgba(255,255,255,.72)";
-        ctx.lineWidth = 3;
-        roundRect(5, 5, s - 10, s - 10, 8);
+        ctx.strokeStyle = "rgba(255,235,120,.95)";
+        ctx.lineWidth = 4;
+        roundRect(5, 5, size - 10, size - 10, 10);
         ctx.stroke();
       }
 
@@ -476,26 +567,60 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     function drawCrane(now, camY) {
       if (!game.started || game.ended || !game.falling || game.falling.dropping) return;
 
-      const block = game.falling;
-      const hookX = block.x + BLOCK / 2;
-      const hookY = block.y + camY - DEPTH - 14;
+      const swing = pendulumState(now);
+      const hookX = swing.cx;
+      const hookY = swing.cy + camY - BLOCK / 2 - DEPTH - 8;
 
       ctx.save();
-      ctx.strokeStyle = "rgba(43,22,11,.64)";
+
+      // Crane rail.
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "rgba(43,22,11,.68)";
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - 94, PIVOT_Y);
+      ctx.lineTo(W / 2 + 94, PIVOT_Y);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(255,255,255,.18)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - 86, PIVOT_Y - 2);
+      ctx.lineTo(W / 2 + 86, PIVOT_Y - 2);
+      ctx.stroke();
+
+      // Pivot wheel.
+      ctx.fillStyle = "#3a2417";
+      ctx.beginPath();
+      ctx.arc(swing.pivotX, swing.pivotY, 11, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#6b4229";
+      ctx.beginPath();
+      ctx.arc(swing.pivotX, swing.pivotY, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rope.
+      ctx.strokeStyle = "rgba(43,22,11,.78)";
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.moveTo(hookX, SAFE_TOP + 22);
+      ctx.moveTo(swing.pivotX, swing.pivotY);
       ctx.lineTo(hookX, hookY);
+      ctx.stroke();
+
+      // Hook.
+      ctx.strokeStyle = "rgba(43,22,11,.9)";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(hookX, hookY);
+      ctx.quadraticCurveTo(hookX + 10, hookY + 12, hookX + 2, hookY + 23);
       ctx.stroke();
 
       ctx.fillStyle = "#2b160b";
       ctx.beginPath();
-      ctx.arc(hookX, hookY, 6, 0, Math.PI * 2);
+      ctx.arc(hookX, hookY, 5, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = "rgba(43,22,11,.72)";
-      roundRect(hookX - 44, SAFE_TOP + 16, 88, 10, 5);
-      ctx.fill();
       ctx.restore();
     }
 
@@ -757,7 +882,7 @@ function Hud({ ui }) {
     <div
       style={{
         position:"absolute",
-        top:"max(env(safe-area-inset-top,0px) + 142px, 174px)",
+        top:"max(env(safe-area-inset-top,0px) + 154px, 186px)",
         left:14,
         right:14,
         zIndex:35,
