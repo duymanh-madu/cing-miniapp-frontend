@@ -18,6 +18,34 @@ const GAMES = [
 
 const fmt = n => new Intl.NumberFormat("vi-VN").format(Number(n || 0));
 
+function getGameEntries(config) {
+  const gamesConfig = config?.games || {};
+  const merged = [];
+  const seen = new Set();
+
+  GAMES.forEach(game => {
+    const cfg = gamesConfig[game.key] || {};
+    merged.push({
+      key: game.key,
+      label: cfg.display_name || game.label,
+      icon: cfg.icon || game.icon,
+    });
+    seen.add(game.key);
+  });
+
+  Object.keys(gamesConfig).sort().forEach(key => {
+    if (seen.has(key)) return;
+    const cfg = gamesConfig[key] || {};
+    merged.push({
+      key,
+      label: cfg.display_name || key,
+      icon: cfg.icon || "🎮",
+    });
+  });
+
+  return merged;
+}
+
 function renderValue(row) {
   const label = row.value_label || row.score_label || "";
   const value = row.value ?? row.score ?? row.wins ?? row.best_streak ?? 0;
@@ -236,7 +264,7 @@ export default function AdminLeaderboard({ token }) {
       <div>
         <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:2, margin:"0 0 12px", textTransform:"uppercase" }}>🎮 Bảng xếp hạng game</p>
 
-        {GAMES.map(g => {
+        {getGameEntries(config).map(g => {
           const gc = config?.games?.[g.key] || {};
           const isEnabled = gc.enabled;
           const isChess = g.key === "chess-wins" || g.key === "chess-streak";

@@ -44,7 +44,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     const FACE = BLOCK;
     const DEPTH = Math.round(BLOCK * 0.26);
     const PIVOT_Y = SAFE_TOP - 46;
-    const ROPE_LENGTH = Math.max(138, Math.min(196, Math.floor(H * 0.19)));
+    const ROPE_LENGTH = Math.max(276, Math.min(392, Math.floor(H * 0.38)));
     const DROP_GRAVITY = 0.58;
     const AIR_DRAG_X = 0.996;
     const HIT_TOLERANCE = BLOCK * 0.68;
