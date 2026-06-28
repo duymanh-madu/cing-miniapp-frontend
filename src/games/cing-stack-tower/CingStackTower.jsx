@@ -75,6 +75,66 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     for (let i = 0; i < 64; i++) SHAKE_TABLE[i] = (Math.random() - 0.5) * 2;
     let shakeIndex = 0;
 
+    let audioCtx = null;
+    const audioBuffers = {};
+    let audioUnlocked = false;
+    let audioLoading = false;
+
+    function unlockAudio() {
+      if (audioUnlocked || audioLoading) {
+        if (audioCtx?.state === "suspended") audioCtx.resume().catch(() => {});
+        return;
+      }
+
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+
+        audioLoading = true;
+        audioCtx = new AudioContextClass();
+        if (audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+
+        const files = {
+          combo: "/sounds/combo-sound.mp3",
+          perfect: "/sounds/perfect-sound.mp3",
+          fall: "/sounds/fall-sound.mp3",
+        };
+
+        Promise.all(Object.entries(files).map(async ([key, url]) => {
+          const res = await fetch(url, { cache: "force-cache" });
+          const arr = await res.arrayBuffer();
+          audioBuffers[key] = await audioCtx.decodeAudioData(arr);
+        }))
+          .then(() => {
+            audioUnlocked = true;
+            audioLoading = false;
+          })
+          .catch(() => {
+            audioLoading = false;
+          });
+      } catch {
+        audioLoading = false;
+      }
+    }
+
+    function playSound(name, volume = 0.82) {
+      if (!audioUnlocked || !audioCtx || !audioBuffers[name]) return;
+
+      try {
+        if (audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+
+        const source = audioCtx.createBufferSource();
+        const gain = audioCtx.createGain();
+
+        source.buffer = audioBuffers[name];
+        gain.gain.value = volume;
+
+        source.connect(gain);
+        gain.connect(audioCtx.destination);
+        source.start(0);
+      } catch {}
+    }
+
     function cloneBlock(x, y, extra = {}) {
       return {
         x,
@@ -261,6 +321,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     }
 
     function collapseTower() {
+      playSound("fall", 0.9);
       const penalty = Math.min(game.score, 36 + game.floor * 5 + game.combo * 4);
       game.score = Math.max(0, game.score - penalty);
       game.combo = 0;
@@ -308,22 +369,26 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         game.bestCombo = Math.max(game.bestCombo, game.combo);
         gained = 80 + game.floor * 8 + Math.min(360, game.combo * game.combo * 8);
         block.perfect = true;
+        playSound("perfect", 0.88);
         showMessage(`PERFECT x${game.combo} +${gained}`, 950);
         emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 24, "#ffd700");
       } else if (excellent) {
         game.combo += 1;
         game.bestCombo = Math.max(game.bestCombo, game.combo);
         gained = 52 + game.floor * 6 + Math.min(180, game.combo * 9);
+        playSound("combo", 0.78);
         showMessage(`CHUẨN x${game.combo} +${gained}`, 850);
         emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 16, "#ffb000");
       } else if (good) {
         game.combo = 0;
         gained = 28 + game.floor * 4;
+        playSound("combo", 0.72);
         showMessage(`ỔN +${gained}`, 750);
         emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 8, "#ff8a00");
       } else {
         game.combo = 0;
         gained = 12 + game.floor * 2;
+        playSound("combo", 0.64);
         game.stability -= Math.round((absOffset / BLOCK) * 30);
         game.shake = Math.max(game.shake, 12);
         showMessage(`LỆCH +${gained}`, 850);
@@ -343,6 +408,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     }
 
     function tap() {
+      unlockAudio();
       const now = performance.now();
 
       if (game.ended) {
@@ -763,6 +829,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       cancelAnimationFrame(rafRef.current);
       canvas.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("visibilitychange", onVisibility);
+      if (audioCtx) audioCtx.close().catch(() => {});
     };
   }, []);
 
