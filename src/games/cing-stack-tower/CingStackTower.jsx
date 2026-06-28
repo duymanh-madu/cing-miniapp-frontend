@@ -13,7 +13,13 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
-  const [ui, setUi] = useState({ score: 0, combo: 0, timeLeft: 120, level: 0, ended: false });
+  const [ui, setUi] = useState({
+    score: 0,
+    combo: 0,
+    timeLeft: 120,
+    floor: 0,
+    ended: false,
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -30,37 +36,52 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     canvas.style.height = H + "px";
     ctx.scale(DPR, DPR);
 
-    const BLOCK_H = Math.max(42, Math.min(56, Math.floor(H * 0.065)));
-    const BASE_Y = H - 96;
     const ROUND_TIME = 120000;
+    const SAFE_TOP = Math.max(120, Math.floor(H * 0.16));
+    const GROUND_Y = H - 74;
+    const BLOCK = Math.max(58, Math.min(76, Math.floor(W * 0.17)));
+    const FACE = BLOCK;
+    const DEPTH = Math.round(BLOCK * 0.22);
+    const DROP_GRAVITY = 0.72;
+    const HIT_TOLERANCE = BLOCK * 0.68;
+    const COLLAPSE_TOLERANCE = BLOCK * 0.84;
+
+    const logoImg = new Image();
+    logoImg.src = "/logo-cing.png";
+    let logoReady = false;
+    logoImg.onload = () => { logoReady = true; };
 
     const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-    bgGrad.addColorStop(0, "#fff3df");
-    bgGrad.addColorStop(0.55, "#f3d8b2");
-    bgGrad.addColorStop(1, "#120a08");
+    bgGrad.addColorStop(0, "#fff5e4");
+    bgGrad.addColorStop(0.52, "#f5dcb7");
+    bgGrad.addColorStop(1, "#3a2417");
+
+    const particles = [];
+    const MAX_PARTICLES = 110;
 
     const SHAKE_TABLE = new Float32Array(64);
     for (let i = 0; i < 64; i++) SHAKE_TABLE[i] = (Math.random() - 0.5) * 2;
     let shakeIndex = 0;
 
-    const particles = [];
-    const MAX_PARTICLES = 90;
-
-    function makeCurrent(stackLen, w) {
-      const speed = 2.25 + Math.min(7.25, stackLen * 0.18);
-      const fromLeft = stackLen % 2 === 0;
+    function cloneBlock(x, y, extra = {}) {
       return {
-        x: fromLeft ? -w - 30 : W + 30,
-        y: BASE_Y - (stackLen + 1) * BLOCK_H,
-        w,
-        h: BLOCK_H,
-        vx: fromLeft ? speed : -speed,
+        x,
+        y,
+        size: BLOCK,
+        rot: 0,
+        settled: false,
+        perfect: false,
+        ...extra,
       };
     }
 
-    function freshGame() {
-      const baseW = Math.min(188, W * 0.48);
-      const baseX = W / 2 - baseW / 2;
+    function makeGame() {
+      const baseX = Math.round(W / 2 - BLOCK / 2);
+      const base = cloneBlock(baseX, GROUND_Y - BLOCK, {
+        settled: true,
+        base: true,
+      });
+
       return {
         started: false,
         ended: false,
@@ -70,33 +91,72 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         score: 0,
         combo: 0,
         bestCombo: 0,
-        level: 0,
+        floor: 0,
+        stability: 100,
         shake: 0,
         message: "",
-        stack: [{ x: baseX, y: BASE_Y, w: baseW, h: BLOCK_H, base: true, perfect: true }],
-        current: makeCurrent(0, baseW),
+        messageUntil: 0,
+        tower: [base],
+        falling: null,
+        cranePhase: 0,
+        craneSpeed: 0.018,
+        dropCount: 0,
       };
     }
 
-    const game = freshGame();
+    const game = makeGame();
     gameRef.current = game;
 
-    function resetGame() {
-      const next = freshGame();
+    function topBlock() {
+      return game.tower[game.tower.length - 1];
+    }
+
+    function targetY() {
+      return GROUND_Y - BLOCK * (game.tower.length + 1);
+    }
+
+    function cameraY() {
+      const visibleTop = targetY();
+      return Math.max(0, SAFE_TOP - visibleTop);
+    }
+
+    function craneX(now) {
+      const floor = Math.max(0, game.floor);
+      const amp = Math.max(74, Math.min(W * 0.38, W * 0.31 + floor * 1.2));
+      const speed = game.craneSpeed + Math.min(0.016, floor * 0.0009);
+      return W / 2 + Math.sin(now * speed + game.cranePhase) * amp - BLOCK / 2;
+    }
+
+    function spawnFalling(now) {
+      if (game.falling || game.ended) return;
+      game.falling = cloneBlock(craneX(now), SAFE_TOP + 52 - cameraY(), {
+        dropping: false,
+        vy: 0,
+        swingAt: now,
+      });
+    }
+
+    function resetRoundOnly() {
+      const next = makeGame();
       Object.keys(game).forEach(k => delete game[k]);
       Object.assign(game, next);
       particles.length = 0;
       setLeaderboardData([]);
-      setUi({ score: 0, combo: 0, timeLeft: 120, level: 0, ended: false });
+      setUi({ score: 0, combo: 0, timeLeft: 120, floor: 0, ended: false });
     }
 
-    function emitParticles(x, y, n, color = "#ffb000") {
+    function showMessage(text, ms = 900) {
+      game.message = text;
+      game.messageUntil = performance.now() + ms;
+    }
+
+    function emitParticles(x, y, n, color = "#ff8a00") {
       for (let i = 0; i < n && particles.length < MAX_PARTICLES; i++) {
         particles.push({
           x,
           y,
           vx: (Math.random() - 0.5) * 7,
-          vy: (Math.random() - 0.8) * 7,
+          vy: (Math.random() - 0.85) * 7,
           life: 1,
           size: 2 + Math.random() * 4,
           color,
@@ -106,17 +166,18 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
     function syncUi(force = false) {
       const now = performance.now();
-      if (!force && now - scoreThrottleRef.current < 180) return;
+      if (!force && now - scoreThrottleRef.current < 160) return;
       scoreThrottleRef.current = now;
+
       const timeLeft = game.started
         ? Math.max(0, Math.ceil((ROUND_TIME - (now - game.startAt)) / 1000))
         : 120;
 
       setUi({
-        score: game.score,
+        score: Math.max(0, Math.floor(game.score)),
         combo: game.combo,
         timeLeft,
-        level: Math.max(0, game.stack.length - 1),
+        floor: game.floor,
         ended: game.ended,
       });
     }
@@ -138,114 +199,179 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       game.ended = true;
       game.started = false;
       game.submitted = true;
-      game.message = reason === "timeout" ? "HẾT GIỜ" : "KẾT THÚC";
+      showMessage(reason === "timeout" ? "HẾT GIỜ" : "KẾT THÚC", 2000);
       syncUi(true);
 
       if (onGameOver) {
         onGameOver({
           bestCombo: game.bestCombo,
           score: Math.max(0, Math.floor(game.score)),
-          level: Math.max(0, game.stack.length - 1),
+          floor: game.floor,
         });
       }
 
       fetchLeaderboardSoon();
     }
 
-    function collapsePenalty() {
-      const penalty = Math.min(game.score, 28 + game.level * 4 + game.combo * 3);
+    function collapseTower() {
+      const penalty = Math.min(game.score, 36 + game.floor * 5 + game.combo * 4);
       game.score = Math.max(0, game.score - penalty);
       game.combo = 0;
-      game.level = 0;
-      game.shake = 18;
-      game.message = `Đổ tháp -${penalty}`;
-      emitParticles(W / 2, BASE_Y - 70, 34, "#2b160b");
+      game.stability = 100;
+      game.shake = 22;
+      game.dropCount += 1;
 
-      const baseW = Math.min(188, W * 0.48);
-      game.stack = [{ x: W / 2 - baseW / 2, y: BASE_Y, w: baseW, h: BLOCK_H, base: true, perfect: true }];
-      game.current = makeCurrent(0, baseW);
+      showMessage(`ĐỔ THÁP -${penalty}`, 1100);
+      emitParticles(W / 2, GROUND_Y - cameraY() - 60, 42, "#2b160b");
+
+      const baseX = Math.round(W / 2 - BLOCK / 2);
+      game.tower = [
+        cloneBlock(baseX, GROUND_Y - BLOCK, {
+          settled: true,
+          base: true,
+        }),
+      ];
+      game.floor = 0;
+      game.falling = null;
       syncUi(true);
     }
 
-    function placeBlock() {
-      if (!game.started || game.ended) return;
+    function settleBlock(block) {
+      const below = topBlock();
+      const offset = block.x - below.x;
+      const absOffset = Math.abs(offset);
 
-      const prev = game.stack[game.stack.length - 1];
-      const cur = game.current;
-
-      const left = Math.max(prev.x, cur.x);
-      const right = Math.min(prev.x + prev.w, cur.x + cur.w);
-      const overlap = right - left;
-
-      if (overlap <= Math.max(10, cur.w * 0.12)) {
-        collapsePenalty();
+      if (absOffset > COLLAPSE_TOLERANCE) {
+        collapseTower();
         return;
       }
 
-      const prevCenter = prev.x + prev.w / 2;
-      const curCenter = cur.x + cur.w / 2;
-      const offset = Math.abs(prevCenter - curCenter);
-      const perfect = offset <= 3.5;
-      const accuracy = Math.max(0, Math.min(1, overlap / cur.w));
+      block.y = targetY();
+      block.settled = true;
+      block.dropping = false;
+
+      const perfect = absOffset <= 4;
+      const excellent = absOffset <= BLOCK * 0.14;
+      const good = absOffset <= BLOCK * 0.34;
+
+      let gained = 0;
 
       if (perfect) {
         game.combo += 1;
         game.bestCombo = Math.max(game.bestCombo, game.combo);
+        gained = 80 + game.floor * 8 + Math.min(360, game.combo * game.combo * 8);
+        block.perfect = true;
+        showMessage(`PERFECT x${game.combo} +${gained}`, 950);
+        emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 24, "#ffd700");
+      } else if (excellent) {
+        game.combo += 1;
+        game.bestCombo = Math.max(game.bestCombo, game.combo);
+        gained = 52 + game.floor * 6 + Math.min(180, game.combo * 9);
+        showMessage(`CHUẨN x${game.combo} +${gained}`, 850);
+        emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 16, "#ffb000");
+      } else if (good) {
+        game.combo = 0;
+        gained = 28 + game.floor * 4;
+        showMessage(`ỔN +${gained}`, 750);
+        emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 8, "#ff8a00");
       } else {
         game.combo = 0;
+        gained = 12 + game.floor * 2;
+        game.stability -= Math.round((absOffset / BLOCK) * 30);
+        game.shake = Math.max(game.shake, 12);
+        showMessage(`LỆCH +${gained}`, 850);
       }
 
-      game.level += 1;
-
-      const heightScore = 12 + game.level * 3;
-      const accuracyScore = Math.round(accuracy * 18);
-      const comboBonus = perfect ? 24 + Math.min(260, game.combo * game.combo * 2) : 0;
-      const gained = heightScore + accuracyScore + comboBonus;
-
       game.score += gained;
-      game.message = perfect ? `PERFECT COMBO x${game.combo} +${gained}` : `+${gained}`;
+      game.floor += 1;
+      game.tower.push(block);
+      game.falling = null;
 
-      const nextW = perfect ? cur.w : overlap;
-      const block = {
-        x: perfect ? prev.x : left,
-        y: cur.y,
-        w: nextW,
-        h: BLOCK_H,
-        perfect,
-      };
+      if (game.stability <= 28 || absOffset > HIT_TOLERANCE) {
+        collapseTower();
+        return;
+      }
 
-      game.stack.push(block);
-      emitParticles(block.x + block.w / 2, block.y + BLOCK_H / 2, perfect ? 18 : 8, perfect ? "#ffd700" : "#ff8a00");
-
-      game.current = makeCurrent(game.stack.length - 1, Math.max(54, nextW));
       syncUi(true);
     }
 
     function tap() {
+      const now = performance.now();
+
       if (game.ended) {
         if (onRestart) {
           const allowed = onRestart();
           if (allowed === false) return;
         }
-        resetGame();
+        resetRoundOnly();
         return;
       }
 
       if (!game.started) {
         if (onGameStart) onGameStart();
         game.started = true;
-        game.startAt = performance.now();
-        game.lastAt = game.startAt;
-        game.message = "Canh chuẩn 100% để giữ combo";
+        game.startAt = now;
+        game.lastAt = now;
+        game.cranePhase = Math.random() * Math.PI * 2;
+        showMessage("TAP ĐỂ THẢ KHỐI", 900);
+        spawnFalling(now);
         syncUi(true);
         return;
       }
 
-      placeBlock();
+      if (!game.falling) {
+        spawnFalling(now);
+        return;
+      }
+
+      if (!game.falling.dropping) {
+        game.falling.dropping = true;
+        game.falling.vy = 0;
+      }
     }
 
-    function drawRoundedRect(x, y, w, h, r) {
-      const rr = Math.min(r, h / 2, w / 2);
+    function update(now) {
+      if (game.started && !game.ended && now - game.startAt >= ROUND_TIME) {
+        finishRound("timeout");
+        return;
+      }
+
+      if (game.started && !game.ended && !game.falling) {
+        spawnFalling(now);
+      }
+
+      if (game.falling) {
+        if (!game.falling.dropping) {
+          game.falling.x = craneX(now);
+          game.falling.y = SAFE_TOP + 52 - cameraY();
+          game.falling.rot = Math.sin(now * 0.006) * 0.035;
+        } else {
+          game.falling.vy += DROP_GRAVITY;
+          game.falling.y += game.falling.vy;
+
+          const hitY = targetY();
+          if (game.falling.y >= hitY) {
+            settleBlock(game.falling);
+          }
+        }
+      }
+
+      game.shake *= 0.84;
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.15;
+        p.life -= 0.028;
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+
+      syncUi(false);
+    }
+
+    function roundRect(x, y, w, h, r) {
+      const rr = Math.min(r, w / 2, h / 2);
       ctx.beginPath();
       ctx.moveTo(x + rr, y);
       ctx.lineTo(x + w - rr, y);
@@ -259,108 +385,118 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       ctx.closePath();
     }
 
-    function drawCingCube(block, cameraY, active = false) {
+    function drawCingCube(block, camY, active = false) {
       const x = block.x;
-      const y = block.y + cameraY;
-      const w = block.w;
-      const h = block.h;
-      const d = Math.min(18, h * 0.34);
+      const y = block.y + camY;
+      const s = block.size || BLOCK;
+      const d = DEPTH;
 
       ctx.save();
+      ctx.translate(x + s / 2, y + s / 2);
+      ctx.rotate(block.rot || 0);
+      ctx.translate(-s / 2, -s / 2);
 
-      ctx.fillStyle = active ? "#ff8a00" : "#ff7100";
-      drawRoundedRect(x, y, w, h, 10);
+      ctx.fillStyle = active ? "#ff8a00" : "#ff7900";
+      roundRect(0, 0, s, s, 10);
       ctx.fill();
 
-      ctx.fillStyle = active ? "#ffb13b" : "#ff9a1f";
+      ctx.fillStyle = active ? "#ffb347" : "#ff9d20";
       ctx.beginPath();
-      ctx.moveTo(x + d, y - d);
-      ctx.lineTo(x + w + d, y - d);
-      ctx.lineTo(x + w, y);
-      ctx.lineTo(x, y);
+      ctx.moveTo(d, -d);
+      ctx.lineTo(s + d, -d);
+      ctx.lineTo(s, 0);
+      ctx.lineTo(0, 0);
       ctx.closePath();
       ctx.fill();
 
-      ctx.fillStyle = "#9d330b";
+      ctx.fillStyle = "#9f350b";
       ctx.beginPath();
-      ctx.moveTo(x + w, y);
-      ctx.lineTo(x + w + d, y - d);
-      ctx.lineTo(x + w + d, y + h - d);
-      ctx.lineTo(x + w, y + h);
+      ctx.moveTo(s, 0);
+      ctx.lineTo(s + d, -d);
+      ctx.lineTo(s + d, s - d);
+      ctx.lineTo(s, s);
       ctx.closePath();
       ctx.fill();
 
-      ctx.strokeStyle = "rgba(43,22,11,.85)";
+      ctx.strokeStyle = "rgba(43,22,11,.92)";
       ctx.lineWidth = 2;
-      drawRoundedRect(x, y, w, h, 10);
+      roundRect(0, 0, s, s, 10);
       ctx.stroke();
 
-      const cx = x + w / 2;
-      const cy = y + h / 2;
-
-      ctx.fillStyle = "#111";
-      ctx.font = `900 ${Math.max(14, Math.min(22, w * 0.18))}px Arial`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("Cing", cx, cy - 3);
-
-      ctx.strokeStyle = "#111";
-      ctx.lineWidth = 2;
-      const cupW = Math.min(24, w * 0.18);
-      const cupX = cx - cupW / 2;
-      const cupY = cy + h * 0.16;
+      ctx.strokeStyle = "rgba(43,22,11,.74)";
       ctx.beginPath();
-      ctx.roundRect?.(cupX, cupY, cupW, 13, 3);
-      if (ctx.roundRect) ctx.stroke();
-      else {
-        ctx.rect(cupX, cupY, cupW, 13);
-        ctx.stroke();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(d, -d);
+      ctx.moveTo(s, 0);
+      ctx.lineTo(s + d, -d);
+      ctx.moveTo(s, s);
+      ctx.lineTo(s + d, s - d);
+      ctx.stroke();
+
+      const pad = Math.round(s * 0.16);
+      const logoSize = s - pad * 2;
+
+      if (logoReady) {
+        ctx.save();
+        roundRect(pad, pad, logoSize, logoSize, 8);
+        ctx.clip();
+
+        ctx.fillStyle = "rgba(255,245,228,.96)";
+        ctx.fillRect(pad, pad, logoSize, logoSize);
+
+        const ratio = Math.min(logoSize / logoImg.width, logoSize / logoImg.height);
+        const iw = logoImg.width * ratio;
+        const ih = logoImg.height * ratio;
+        ctx.drawImage(
+          logoImg,
+          pad + (logoSize - iw) / 2,
+          pad + (logoSize - ih) / 2,
+          iw,
+          ih
+        );
+        ctx.restore();
+      } else {
+        ctx.fillStyle = "#111";
+        ctx.font = `900 ${Math.floor(s * 0.22)}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Cing", s / 2, s / 2);
       }
-      ctx.beginPath();
-      ctx.moveTo(cx, cupY);
-      ctx.lineTo(cx + 4, cupY - 15);
-      ctx.stroke();
 
-      if (block.perfect && !block.base) {
-        ctx.fillStyle = "rgba(255,255,255,.42)";
-        ctx.fillRect(x + 10, y + 8, Math.max(16, w * 0.28), 4);
+      if (block.perfect) {
+        ctx.strokeStyle = "rgba(255,255,255,.72)";
+        ctx.lineWidth = 3;
+        roundRect(5, 5, s - 10, s - 10, 8);
+        ctx.stroke();
       }
 
       ctx.restore();
     }
 
-    function update(now) {
-      if (!game.started || game.ended) return;
+    function drawCrane(now, camY) {
+      if (!game.started || game.ended || !game.falling || game.falling.dropping) return;
 
-      if (now - game.startAt >= ROUND_TIME) {
-        finishRound("timeout");
-        return;
-      }
+      const block = game.falling;
+      const hookX = block.x + BLOCK / 2;
+      const hookY = block.y + camY - DEPTH - 14;
 
-      const cur = game.current;
-      cur.x += cur.vx;
+      ctx.save();
+      ctx.strokeStyle = "rgba(43,22,11,.64)";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(hookX, SAFE_TOP + 22);
+      ctx.lineTo(hookX, hookY);
+      ctx.stroke();
 
-      const depth = Math.min(20, cur.h * 0.34);
-      if (cur.vx > 0 && cur.x > W - cur.w - depth - 16) {
-        cur.x = W - cur.w - depth - 16;
-        cur.vx *= -1;
-      } else if (cur.vx < 0 && cur.x < 16) {
-        cur.x = 16;
-        cur.vx *= -1;
-      }
+      ctx.fillStyle = "#2b160b";
+      ctx.beginPath();
+      ctx.arc(hookX, hookY, 6, 0, Math.PI * 2);
+      ctx.fill();
 
-      game.shake *= 0.84;
-
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.18;
-        p.life -= 0.028;
-        if (p.life <= 0) particles.splice(i, 1);
-      }
-
-      syncUi(false);
+      ctx.fillStyle = "rgba(43,22,11,.72)";
+      roundRect(hookX - 44, SAFE_TOP + 16, 88, 10, 5);
+      ctx.fill();
+      ctx.restore();
     }
 
     function draw(now) {
@@ -372,35 +508,41 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       if (game.shake > 0.5) {
         const s = game.shake | 0;
         shakeIndex = (shakeIndex + 1) & 63;
-        ctx.translate((SHAKE_TABLE[shakeIndex] * s) | 0, (SHAKE_TABLE[(shakeIndex + 32) & 63] * s) | 0);
+        ctx.translate(
+          (SHAKE_TABLE[shakeIndex] * s) | 0,
+          (SHAKE_TABLE[(shakeIndex + 32) & 63] * s) | 0
+        );
       }
 
-      ctx.fillStyle = "rgba(255,255,255,.18)";
-      for (let i = 0; i < 9; i++) {
-        const bx = (i * 73 + (now * 0.012)) % (W + 90) - 70;
-        ctx.fillRect(bx, 120 + (i % 4) * 74, 44 + (i % 3) * 16, 5);
+      ctx.fillStyle = "rgba(255,255,255,.22)";
+      for (let i = 0; i < 10; i++) {
+        const bx = (i * 104 + now * 0.012) % (W + 100) - 80;
+        ctx.fillRect(bx, 170 + (i % 5) * 70, 68, 7);
       }
 
-      const topIndex = game.stack.length - 1;
-      const cameraY = Math.max(0, (topIndex - 5) * BLOCK_H);
+      const camY = cameraY();
 
-      ctx.fillStyle = "#2b160b";
-      ctx.fillRect(0, BASE_Y + BLOCK_H + cameraY - 4, W, H);
+      drawCrane(now, camY);
 
-      for (let i = 0; i < game.stack.length; i++) {
-        const block = game.stack[i];
-        const y = block.y + cameraY;
-        if (y < -80 || y > H + 80) continue;
-        drawCingCube(block, cameraY, false);
+      ctx.fillStyle = "#2b1207";
+      ctx.fillRect(0, GROUND_Y + camY, W, H);
+
+      for (let i = 0; i < game.tower.length; i++) {
+        const b = game.tower[i];
+        const yy = b.y + camY;
+        if (yy < -100 || yy > H + 120) continue;
+        drawCingCube(b, camY, false);
       }
 
-      if (!game.ended) drawCingCube(game.current, cameraY, true);
+      if (game.falling) {
+        drawCingCube(game.falling, camY, true);
+      }
 
       for (const p of particles) {
         ctx.globalAlpha = Math.max(0, p.life);
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y + cameraY, p.size, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y + camY, p.size, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.globalAlpha = 1;
@@ -411,35 +553,39 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         ctx.textAlign = "center";
         ctx.fillStyle = "#2b160b";
         ctx.font = "900 31px Arial";
-        ctx.fillText("TAP ĐỂ BẮT ĐẦU", W / 2, H / 2 - 86);
-        ctx.fillStyle = "rgba(43,22,11,.72)";
+        ctx.fillText("TAP ĐỂ BẮT ĐẦU", W / 2, H / 2 - 64);
+        ctx.fillStyle = "rgba(43,22,11,.68)";
         ctx.font = "800 15px Arial";
-        ctx.fillText("Xếp cube Cing thật chuẩn trong 120 giây", W / 2, H / 2 - 52);
+        ctx.fillText("Thả cube Cing từ cần cẩu trong 120 giây", W / 2, H / 2 - 30);
       }
 
-      if (game.message && (game.started || game.ended)) {
+      if (game.message && now <= game.messageUntil) {
         ctx.textAlign = "center";
         ctx.font = "900 18px Arial";
         ctx.fillStyle = game.message.includes("PERFECT") ? "#ffd700" : "#fff";
-        ctx.strokeStyle = "rgba(0,0,0,.45)";
+        ctx.strokeStyle = "rgba(0,0,0,.56)";
         ctx.lineWidth = 4;
-        ctx.strokeText(game.message, W / 2, 160);
-        ctx.fillText(game.message, W / 2, 160);
+        ctx.strokeText(game.message, W / 2, SAFE_TOP + 96);
+        ctx.fillText(game.message, W / 2, SAFE_TOP + 96);
       }
 
       if (game.ended) {
-        ctx.fillStyle = "rgba(0,0,0,.62)";
+        ctx.fillStyle = "rgba(0,0,0,.64)";
         ctx.fillRect(0, 0, W, H);
+
         ctx.textAlign = "center";
         ctx.fillStyle = "white";
-        ctx.font = "900 48px Arial";
-        ctx.fillText("HẾT GIỜ", W / 2, H / 2 - 76);
+        ctx.font = "900 46px Arial";
+        ctx.fillText("HẾT GIỜ", W / 2, H / 2 - 74);
+
         ctx.fillStyle = "#ffd166";
         ctx.font = "900 28px Arial";
-        ctx.fillText(`${game.score} điểm`, W / 2, H / 2 - 24);
+        ctx.fillText(`${Math.floor(game.score)} điểm`, W / 2, H / 2 - 24);
+
         ctx.fillStyle = "white";
-        ctx.font = "800 18px Arial";
-        ctx.fillText(`Tầng: ${Math.max(0, game.stack.length - 1)} • Best combo x${game.bestCombo}`, W / 2, H / 2 + 16);
+        ctx.font = "800 17px Arial";
+        ctx.fillText(`Tầng: ${game.floor} • Best combo x${game.bestCombo}`, W / 2, H / 2 + 18);
+
         ctx.font = "800 15px Arial";
         ctx.fillText("Tap để chơi lại", W / 2, H / 2 + 64);
       }
@@ -451,6 +597,10 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       rafRef.current = requestAnimationFrame(loop);
     }
 
+    function onPointerDown() {
+      tap();
+    }
+
     function onVisibility() {
       if (document.hidden) {
         cancelAnimationFrame(rafRef.current);
@@ -458,10 +608,6 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       } else if (!rafRef.current) {
         rafRef.current = requestAnimationFrame(loop);
       }
-    }
-
-    function onPointerDown() {
-      tap();
     }
 
     canvas.addEventListener("pointerdown", onPointerDown, { passive: true });
@@ -478,56 +624,12 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
   return (
     <div style={{ position:"fixed", inset:0, background:"#fff3df", overflow:"hidden", zIndex:200 }}>
       <div style={{ position:"relative", width:"100%", height:"100%", contain:"layout style paint" }}>
-        <div style={{
-          position:"absolute",
-          top:"var(--app-safe-top, 0px)",
-          left:12,
-          right:12,
-          display:"flex",
-          alignItems:"flex-start",
-          justifyContent:"space-between",
-          pointerEvents:"none",
-          zIndex:50,
-        }}>
-          <div style={{
-            display:"flex",
-            alignItems:"center",
-            gap:8,
-            background:"#fff3df",
-            border:"1px solid rgba(43,22,11,.18)",
-            borderRadius:18,
-            padding:"8px 12px",
-            boxShadow:"0 2px 12px rgba(0,0,0,.12)",
-            maxWidth:235,
-          }}>
-            <img src="/logo-cing.png" alt="logo" style={{ width:36, height:36, borderRadius:10, objectFit:"contain", flexShrink:0 }} />
-            <div>
-              <div style={{ fontSize:9, fontWeight:900, letterSpacing:2, color:"#c15a13", marginBottom:2 }}>MINI GAME</div>
-              <div style={{ fontSize:14, fontWeight:900, color:"#2b160b", whiteSpace:"nowrap" }}>Xếp Tháp Cing</div>
-            </div>
-          </div>
+        <TopBar
+          onOpenLeaderboard={() => setShowLeaderboard(true)}
+          onExit={() => { if (onExit) onExit(); else navigate("/game-center"); }}
+        />
 
-          <div style={{ display:"flex", flexDirection:"column", gap:8, pointerEvents:"auto" }}>
-            <button onClick={() => setShowLeaderboard(true)} style={{ background:"rgba(0,0,0,.58)", color:"white", fontWeight:900, fontSize:13, borderRadius:18, padding:"0 16px", height:42, border:"none", cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,.2)" }}>🏆 BXH</button>
-            <button onClick={() => { if (onExit) onExit(); else navigate("/game-center"); }} style={{ background:"#2b160b", color:"white", fontWeight:900, fontSize:11, borderRadius:18, padding:"0 16px", height:42, border:"none", cursor:"pointer" }}>🎮 Game Center</button>
-          </div>
-        </div>
-
-        <div style={{
-          position:"absolute",
-          top:"max(env(safe-area-inset-top,0px) + 76px, 108px)",
-          left:12,
-          right:12,
-          zIndex:45,
-          display:"grid",
-          gridTemplateColumns:"1fr 1fr 1fr",
-          gap:8,
-          pointerEvents:"none",
-        }}>
-          <div style={hudBoxStyle}><b>{ui.score}</b><span>Điểm</span></div>
-          <div style={hudBoxStyle}><b>{ui.timeLeft}s</b><span>Thời gian</span></div>
-          <div style={hudBoxStyle}><b>x{ui.combo}</b><span>Combo</span></div>
-        </div>
+        <Hud ui={ui} />
 
         <canvas
           ref={canvasRef}
@@ -536,25 +638,33 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         />
 
         {showLeaderboard && (
-          <div className="absolute inset-0 z-50 bg-black/70 flex items-center justify-center rounded-[32px] p-4">
+          <div className="absolute inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
             <div className="w-full bg-[#fff3df] rounded-[28px] p-5 shadow-2xl border border-[#dccfb7]">
               <div className="flex items-center justify-between mb-5">
                 <div className="text-[#2b160b] font-black text-2xl">🏆 TOP Xếp Tháp Cing</div>
-                <button onClick={() => setShowLeaderboard(false)}
-                  className="w-10 h-10 rounded-full bg-[#2b160b] text-white font-black">✕</button>
+                <button
+                  onClick={() => setShowLeaderboard(false)}
+                  className="w-10 h-10 rounded-full bg-[#2b160b] text-white font-black"
+                >
+                  ✕
+                </button>
               </div>
+
               <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
                 {leaderboardData.length === 0 && (
                   <div className="rounded-2xl bg-white/70 px-4 py-5 text-center font-bold text-[#2b160b]">
                     Chưa có dữ liệu BXH. Chơi một lượt để ghi điểm nhé.
                   </div>
                 )}
-                {leaderboardData?.slice(0,20)?.map((player, index) => (
-                  <div key={player.id || `${player.user_id}-${index}`}
+
+                {leaderboardData.slice(0, 20).map((player, index) => (
+                  <div
+                    key={player.id || `${player.user_id}-${index}`}
                     className={"flex items-center justify-between rounded-2xl px-4 py-3 " +
-                      (player.isPlayer ? "bg-[#2b160b] text-white" : "bg-white/70")}>
+                      (player.isPlayer ? "bg-[#2b160b] text-white" : "bg-white/70")}
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="font-black w-[42px] text-[#c15a13]">#{index+1}</div>
+                      <div className="font-black w-[42px] text-[#c15a13]">#{index + 1}</div>
                       <div className="font-bold">{player.player_name || player.name || "Cing iu"}</div>
                     </div>
                     <div className="font-black">{player.score}</div>
@@ -569,13 +679,135 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
   );
 }
 
-const hudBoxStyle = {
-  background:"rgba(43,22,11,.82)",
-  border:"1px solid rgba(255,215,0,.24)",
-  borderRadius:14,
-  padding:"8px 10px",
-  color:"white",
-  textAlign:"center",
-  boxShadow:"0 4px 18px rgba(0,0,0,.18)",
-};
+function TopBar({ onOpenLeaderboard, onExit }) {
+  return (
+    <div
+      style={{
+        position:"absolute",
+        top:"max(env(safe-area-inset-top,0px) + 10px, 48px)",
+        left:14,
+        right:14,
+        zIndex:40,
+        display:"flex",
+        alignItems:"flex-start",
+        justifyContent:"space-between",
+        gap:12,
+        pointerEvents:"none",
+      }}
+    >
+      <div
+        style={{
+          height:60,
+          minWidth:0,
+          maxWidth:238,
+          display:"flex",
+          alignItems:"center",
+          gap:10,
+          background:"rgba(255,246,231,.92)",
+          border:"1px solid rgba(43,22,11,.16)",
+          borderRadius:28,
+          padding:"8px 13px",
+          boxShadow:"0 8px 28px rgba(43,22,11,.18)",
+          pointerEvents:"auto",
+        }}
+      >
+        <img
+          src="/logo-cing.png"
+          alt="logo"
+          style={{ width:42, height:42, borderRadius:10, objectFit:"contain", flexShrink:0 }}
+        />
+        <div style={{ minWidth:0 }}>
+          <div style={{ fontSize:10, fontWeight:900, letterSpacing:3, color:"#c15a13", marginBottom:2 }}>
+            MINI GAME
+          </div>
+          <div style={{ fontSize:18, lineHeight:"20px", fontWeight:900, color:"#2b160b", whiteSpace:"nowrap" }}>
+            Xếp Tháp Cing
+          </div>
+        </div>
+      </div>
 
+      <div
+        style={{
+          display:"flex",
+          flexDirection:"column",
+          gap:8,
+          width:150,
+          pointerEvents:"auto",
+        }}
+      >
+        <button
+          onClick={onOpenLeaderboard}
+          style={topButtonStyle("#6a6257", "white")}
+        >
+          🏆 BXH
+        </button>
+        <button
+          onClick={onExit}
+          style={topButtonStyle("#2b1207", "white")}
+        >
+          🎮 Game Center
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Hud({ ui }) {
+  return (
+    <div
+      style={{
+        position:"absolute",
+        top:"max(env(safe-area-inset-top,0px) + 142px, 174px)",
+        left:14,
+        right:14,
+        zIndex:35,
+        display:"grid",
+        gridTemplateColumns:"repeat(3, minmax(0, 1fr))",
+        gap:8,
+        pointerEvents:"none",
+      }}
+    >
+      <HudBox value={ui.score} label="Điểm" />
+      <HudBox value={`${ui.timeLeft}s`} label="Thời gian" />
+      <HudBox value={`x${ui.combo}`} label="Combo" />
+    </div>
+  );
+}
+
+function HudBox({ value, label }) {
+  return (
+    <div
+      style={{
+        height:58,
+        background:"rgba(70,45,31,.92)",
+        border:"1px solid rgba(255,185,60,.52)",
+        borderRadius:18,
+        color:"white",
+        display:"flex",
+        flexDirection:"column",
+        alignItems:"center",
+        justifyContent:"center",
+        boxShadow:"0 10px 26px rgba(43,22,11,.18)",
+        overflow:"hidden",
+      }}
+    >
+      <div style={{ fontSize:22, lineHeight:"24px", fontWeight:950, letterSpacing:-0.5 }}>{value}</div>
+      <div style={{ fontSize:12, lineHeight:"14px", opacity:.82, fontWeight:800 }}>{label}</div>
+    </div>
+  );
+}
+
+function topButtonStyle(bg, color) {
+  return {
+    height:48,
+    width:"100%",
+    border:"none",
+    borderRadius:24,
+    background:bg,
+    color,
+    fontSize:15,
+    fontWeight:950,
+    cursor:"pointer",
+    boxShadow:"0 8px 22px rgba(43,22,11,.22)",
+  };
+}
