@@ -45,6 +45,14 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     const DEPTH = Math.round(BLOCK * 0.26);
     const PIVOT_Y = SAFE_TOP - 46;
     const ROPE_LENGTH = Math.max(276, Math.min(392, Math.floor(H * 0.38)));
+    const HANGING_CENTER_LOW = PIVOT_Y + ROPE_LENGTH;
+    const LANDING_SCREEN_Y = Math.min(
+      GROUND_Y - BLOCK,
+      Math.max(
+        Math.floor(H * 0.72),
+        HANGING_CENTER_LOW + BLOCK * 0.75
+      )
+    );
     const DROP_GRAVITY = 0.58;
     const AIR_DRAG_X = 0.996;
     const HIT_TOLERANCE = BLOCK * 0.68;
@@ -123,7 +131,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
     function cameraY() {
       const visibleTop = targetY();
-      return Math.max(0, SAFE_TOP - visibleTop);
+      return Math.max(0, LANDING_SCREEN_Y - visibleTop);
     }
 
     function pendulumState(now) {
@@ -811,29 +819,29 @@ function TopBar({ onOpenLeaderboard, onExit }) {
     <div
       style={{
         position:"absolute",
-        top:"max(env(safe-area-inset-top,0px) + 10px, 48px)",
+        top:"max(env(safe-area-inset-top,0px) + 12px, 44px)",
         left:14,
         right:14,
         zIndex:40,
         display:"flex",
-        alignItems:"flex-start",
-        justifyContent:"space-between",
-        gap:12,
+        flexDirection:"column",
+        alignItems:"center",
+        gap:9,
         pointerEvents:"none",
       }}
     >
       <div
         style={{
-          height:60,
-          minWidth:0,
-          maxWidth:238,
+          height:62,
+          width:"min(360px, calc(100vw - 36px))",
           display:"flex",
           alignItems:"center",
-          gap:10,
-          background:"rgba(255,246,231,.92)",
+          justifyContent:"center",
+          gap:12,
+          background:"rgba(255,246,231,.94)",
           border:"1px solid rgba(43,22,11,.16)",
-          borderRadius:28,
-          padding:"8px 13px",
+          borderRadius:31,
+          padding:"8px 16px",
           boxShadow:"0 8px 28px rgba(43,22,11,.18)",
           pointerEvents:"auto",
         }}
@@ -841,13 +849,13 @@ function TopBar({ onOpenLeaderboard, onExit }) {
         <img
           src="/logo-cing.png"
           alt="logo"
-          style={{ width:42, height:42, borderRadius:10, objectFit:"contain", flexShrink:0 }}
+          style={{ width:44, height:44, borderRadius:10, objectFit:"contain", flexShrink:0 }}
         />
         <div style={{ minWidth:0 }}>
           <div style={{ fontSize:10, fontWeight:900, letterSpacing:3, color:"#c15a13", marginBottom:2 }}>
             MINI GAME
           </div>
-          <div style={{ fontSize:18, lineHeight:"20px", fontWeight:900, color:"#2b160b", whiteSpace:"nowrap" }}>
+          <div style={{ fontSize:20, lineHeight:"22px", fontWeight:950, color:"#2b160b", whiteSpace:"nowrap" }}>
             Xếp Tháp Cing
           </div>
         </div>
@@ -855,10 +863,10 @@ function TopBar({ onOpenLeaderboard, onExit }) {
 
       <div
         style={{
-          display:"flex",
-          flexDirection:"column",
-          gap:8,
-          width:150,
+          width:"min(360px, calc(100vw - 36px))",
+          display:"grid",
+          gridTemplateColumns:"1fr 1fr",
+          gap:9,
           pointerEvents:"auto",
         }}
       >
@@ -884,7 +892,7 @@ function Hud({ ui }) {
     <div
       style={{
         position:"absolute",
-        top:"max(env(safe-area-inset-top,0px) + 154px, 186px)",
+        top:"max(env(safe-area-inset-top,0px) + 172px, 214px)",
         left:14,
         right:14,
         zIndex:35,
