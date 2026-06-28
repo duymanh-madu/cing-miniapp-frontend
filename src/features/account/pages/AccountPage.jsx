@@ -365,23 +365,19 @@ export default function AccountPage() {
             <div key={idx} onClick={() => {
               if (item.action === "chat_admin") {
                 (async () => {
+                  const oaId = import.meta.env.VITE_ZALO_OA_ID || "4341283871868668950";
+                  const fallbackUrl = `https://zalo.me/${oaId}`;
+
                   try {
-                    const sdk = await import("zmp-sdk");
-                    try {
-                      await sdk.openChat({
-                        type: "oa",
-                        id: "4341283871868668950",
-                        message: "Xin chào Cing Hu Tang! Tôi cần hỗ trợ."
-                      });
-                    } catch(e) {
-                      if (typeof sdk.openWebview === "function") {
-                        await sdk.openWebview({ url: "https://zalo.me/4341283871868668950" }).catch(()=>{});
-                      } else {
-                        window.open("https://zalo.me/4341283871868668950", "_blank");
-                      }
-                    }
-                  } catch(e) {
-                    window.open("https://zalo.me/4341283871868668950", "_blank");
+                    const { openChat } = await import("zmp-sdk/apis");
+                    await openChat({
+                      type: "oa",
+                      id: oaId,
+                      message: "Xin chào Cing Hu Tang! Tôi cần hỗ trợ.",
+                    });
+                  } catch (e) {
+                    console.warn("[ACCOUNT] open OA chat failed, fallback to zalo.me:", e);
+                    window.location.href = fallbackUrl;
                   }
                 })();
               } else if (item.path) {
