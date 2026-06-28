@@ -112,8 +112,8 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         falling: null,
         cranePhase: 0,
         // Production gameplay tuning:
-        // slow at start, then increases only by tower height milestones.
-        craneSpeed: 0.0026,
+        // very slow at start, then increases only by tower height milestones.
+        craneSpeed: 0.00105,
         dropCount: 0,
       };
     }
@@ -134,19 +134,27 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       return Math.max(0, LANDING_SCREEN_Y - visibleTop);
     }
 
+    function activeRopeLengthForFloor(floor) {
+      const visibleHeight = Math.min(4, Math.max(1, floor + 1)) * BLOCK;
+      const targetLength = ROPE_LENGTH - Math.max(0, floor) * BLOCK * 0.38;
+      const minLength = Math.max(138, Math.min(190, visibleHeight + BLOCK * 0.6));
+      return Math.max(minLength, targetLength);
+    }
+
     function pendulumState(now) {
       const floor = Math.max(0, game.floor);
-      const maxAngle = Math.max(0.34, 0.58 - Math.min(0.14, floor * 0.004));
+      const activeRopeLength = activeRopeLengthForFloor(floor);
+      const maxAngle = Math.max(0.28, 0.46 - Math.min(0.10, Math.floor(floor / 10) * 0.018));
       const speedLevel = Math.min(5, Math.floor(floor / 10));
-      const speed = game.craneSpeed + speedLevel * 0.00055;
+      const speed = game.craneSpeed + speedLevel * 0.00022;
       const t = now * speed + game.cranePhase;
       const angle = Math.sin(t) * maxAngle;
       const angularVelocity = Math.cos(t) * maxAngle * speed;
 
       const pivotX = W / 2;
       const pivotY = PIVOT_Y;
-      const cx = pivotX + Math.sin(angle) * ROPE_LENGTH;
-      const cy = pivotY + Math.cos(angle) * ROPE_LENGTH;
+      const cx = pivotX + Math.sin(angle) * activeRopeLength;
+      const cy = pivotY + Math.cos(angle) * activeRopeLength;
 
       return {
         pivotX,
@@ -155,10 +163,11 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         cy,
         angle,
         angularVelocity,
+        ropeLength: activeRopeLength,
         x: cx - BLOCK / 2,
         y: cy - BLOCK / 2 - cameraY(),
-        vx: angularVelocity * ROPE_LENGTH * Math.cos(angle) * 16.5,
-        vy: Math.max(0, -angularVelocity * ROPE_LENGTH * Math.sin(angle) * 2.2),
+        vx: angularVelocity * activeRopeLength * Math.cos(angle) * 10.5,
+        vy: Math.max(0, -angularVelocity * activeRopeLength * Math.sin(angle) * 1.6),
       };
     }
 
@@ -579,7 +588,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
       const swing = pendulumState(now);
       const hookX = swing.cx;
-      const hookY = swing.cy + camY - BLOCK / 2 - DEPTH - 8;
+      const hookY = swing.cy - BLOCK / 2 - DEPTH - 8;
 
       ctx.save();
 
@@ -662,7 +671,8 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       ctx.fillStyle = "#2b1207";
       ctx.fillRect(0, GROUND_Y + camY, W, H);
 
-      for (let i = 0; i < game.tower.length; i++) {
+      const firstVisibleTowerIndex = Math.max(0, game.tower.length - 4);
+      for (let i = firstVisibleTowerIndex; i < game.tower.length; i++) {
         const b = game.tower[i];
         const yy = b.y + camY;
         if (yy < -100 || yy > H + 120) continue;
