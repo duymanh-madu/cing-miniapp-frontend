@@ -103,8 +103,9 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         tower: [base],
         falling: null,
         cranePhase: 0,
-        // Pendulum speed is intentionally slower than classic stack games.
-        craneSpeed: 0.0046,
+        // Production gameplay tuning:
+        // slow at start, then increases only by tower height milestones.
+        craneSpeed: 0.0026,
         dropCount: 0,
       };
     }
@@ -128,7 +129,8 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     function pendulumState(now) {
       const floor = Math.max(0, game.floor);
       const maxAngle = Math.max(0.34, 0.58 - Math.min(0.14, floor * 0.004));
-      const speed = game.craneSpeed + Math.min(0.0028, floor * 0.00008);
+      const speedLevel = Math.min(5, Math.floor(floor / 10));
+      const speed = game.craneSpeed + speedLevel * 0.00055;
       const t = now * speed + game.cranePhase;
       const angle = Math.sin(t) * maxAngle;
       const angularVelocity = Math.cos(t) * maxAngle * speed;
