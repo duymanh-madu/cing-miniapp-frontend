@@ -3,6 +3,7 @@ import apiClient from "@/infra/api/apiClient";
 
 const GAME_OPTIONS = [
   { key:"black-pearl-rush", name:"Bay cùng trân châu 🫧" },
+  { key:"cing-stack-tower", name:"Xếp Tháp Cing 🧱" },
   { key:"chess",            name:"Kỳ thủ cờ vua ♟️" },
 ];
 

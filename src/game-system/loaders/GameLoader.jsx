@@ -2,6 +2,7 @@ import { lazy } from "react";
 
 const gameModules = {
   "black-pearl-rush": lazy(() => import("../../games/black-pearl-rush")),
+  "cing-stack-tower": lazy(() => import("../../games/cing-stack-tower")),
 };
 
 export default function GameLoader({ gameId, onGameOver }) {

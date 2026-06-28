@@ -22,6 +22,7 @@ function getPhone() {
 
 const GAME_NAMES = {
   "black-pearl-rush": "Bay cùng trân châu 🫧",
+  "cing-stack-tower": "Xếp Tháp Cing 🧱",
   "chess": "Kỳ thủ cờ vua ♟️",
 };
 
