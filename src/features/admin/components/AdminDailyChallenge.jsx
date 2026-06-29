@@ -39,7 +39,8 @@ export default function AdminDailyChallenge({ token }) {
       await apiClient.put("/app-config/1", {
         daily_challenge_config: { challenges }
       }, { headers: h });
-      setMsg("✅ Đã lưu!"); setTimeout(() => setMsg(""), 3000);
+      await apiClient.post("/game/daily-challenge/sync-today", {}, { headers: h });
+      setMsg("✅ Đã lưu và áp dụng thách thức hôm nay!"); setTimeout(() => setMsg(""), 3000);
     } catch(e) { setMsg("❌ " + e.message); }
     setSaving(false);
   };
@@ -80,7 +81,7 @@ export default function AdminDailyChallenge({ token }) {
         <p style={{ color:"#aaa", fontSize:11, margin:0, lineHeight:1.6 }}>
           Thách thức ngày chỉ <strong style={{color:"white"}}>1 người đầu tiên</strong> nhận được thưởng.
           Mỗi ngày hệ thống tự tạo challenge mới từ config này.
-          Thay đổi config sẽ áp dụng từ <strong style={{color:"white"}}>ngày hôm sau</strong>.
+          Thay đổi config sẽ được <strong style={{color:"white"}}>áp dụng ngay cho hôm nay</strong> khi bấm lưu.
         </p>
       </div>
 

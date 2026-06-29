@@ -1,3 +1,19 @@
+
+const GAME_LABELS = {
+  "black-pearl-rush": "Bay cùng trân châu",
+  "cing-stack-tower": "Xếp Tháp Cing",
+  chess: "Kỳ thủ cờ vua",
+};
+
+function dailyChallengeLabel(c) {
+  if (c?.label) return c.label;
+  const gameName = GAME_LABELS[c?.game_key] || "trò chơi";
+  const target = c?.target_value || 100;
+  if (c?.challenge_type === "wins") return `Thắng ${target} ván game "${gameName}"`;
+  if (c?.challenge_type === "score") return `Đạt ${target} điểm trong game "${gameName}"`;
+  return `Đạt combo ${target} trong game "${gameName}"`;
+}
+
 import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import React, { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
@@ -309,7 +325,7 @@ export default function GameCenterPage() {
                 {c.completed && <p style={{ color:"#4CAF50", fontSize:10, fontWeight:800, margin:"0 0 3px", letterSpacing:2 }}>✅ ĐÃ CÓ NGƯỜI NHẬN THƯỞNG</p>}
                 {!c.completed && <p style={{ color:"#FFD700", fontSize:10, fontWeight:800, margin:"0 0 3px", letterSpacing:2 }}>🎯 THÁCH THỨC</p>}
                 <p style={{ color:"white", fontSize:14, fontWeight:800, margin:"0 0 3px" }}>
-                  {c.label || `Đạt combo ${c.target_value || 100}`}
+                  {dailyChallengeLabel(c)}
                 </p>
                 <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, margin:0 }}>
                   Thưởng: +{c.reward_points || 50} điểm • Chỉ 1 người đầu tiên
