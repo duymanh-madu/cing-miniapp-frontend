@@ -200,128 +200,131 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       ctx.save();
 
       const cityOffset = (camY * 0.18) % 180;
+      const landmarkW = Math.min(118, Math.max(96, W * 0.16));
+      const landmarkX = Math.max(26, Math.min(W - landmarkW - 26, W * 0.39 - landmarkW / 2));
+      const landmarkTop = Math.max(SAFE_TOP + 118, H - 315 + cityOffset * 0.34);
+      const landmarkBottom = H;
+      const landmarkGapLeft = landmarkX - 18;
+      const landmarkGapRight = landmarkX + landmarkW + 18;
 
-      // Background city blocks.
+      // Background city blocks, deliberately separated from the Cing landmark.
       for (let i = 0; i < 8; i++) {
-        if (i === 3) continue;
-
         const buildingX = -18 + i * Math.max(44, W / 6.3);
         const buildingW = 28 + (i % 4) * 8;
-        const baseTop = H - 150 - (i % 4) * 22 + cityOffset;
-        const top = Math.max(SAFE_TOP + 150, baseTop);
+        const centerX = buildingX + buildingW / 2;
+        if (centerX > landmarkGapLeft && centerX < landmarkGapRight) continue;
 
-        ctx.fillStyle = "rgba(72, 43, 28, 0.14)";
+        const baseTop = H - 136 - (i % 4) * 20 + cityOffset;
+        const top = Math.max(SAFE_TOP + 168, baseTop);
+
+        ctx.fillStyle = "rgba(72, 43, 28, 0.13)";
         ctx.fillRect(buildingX, top, buildingW, H - top);
 
-        ctx.fillStyle = "rgba(255, 211, 130, 0.24)";
+        ctx.fillStyle = "rgba(255, 211, 130, 0.22)";
         for (let wy = top + 18; wy < H - 18; wy += 26) {
           ctx.fillRect(buildingX + 7, wy, 5, 7);
           ctx.fillRect(buildingX + buildingW - 12, wy, 5, 7);
         }
       }
 
-      // Cing Hu Tang Kinh Bac landmark: tallest building, inspired by the real storefront.
-      const cingW = Math.min(138, Math.max(112, W * 0.18));
-      const cingX = Math.max(28, Math.min(W - cingW - 28, W * 0.43 - cingW / 2));
-      const cingTop = Math.max(SAFE_TOP + 94, H - 340 + cityOffset * 0.42);
-      const cingH = H - cingTop;
-
+      // One clean Cing Hu Tang Kinh Bac bay, inspired by a single townhouse bay.
       ctx.save();
-      ctx.globalAlpha = 0.34;
+      ctx.globalAlpha = 0.42;
 
-      // Main cream facade.
-      const facadeGrad = ctx.createLinearGradient(cingX, cingTop, cingX + cingW, H);
-      facadeGrad.addColorStop(0, "rgba(232, 205, 162, 0.72)");
-      facadeGrad.addColorStop(0.48, "rgba(178, 132, 88, 0.52)");
-      facadeGrad.addColorStop(1, "rgba(83, 49, 30, 0.2)");
+      const facadeGrad = ctx.createLinearGradient(landmarkX, landmarkTop, landmarkX + landmarkW, landmarkBottom);
+      facadeGrad.addColorStop(0, "rgba(238, 216, 178, 0.62)");
+      facadeGrad.addColorStop(0.5, "rgba(177, 133, 89, 0.42)");
+      facadeGrad.addColorStop(1, "rgba(73, 43, 27, 0.18)");
       ctx.fillStyle = facadeGrad;
-      ctx.fillRect(cingX, cingTop, cingW, cingH);
+      ctx.fillRect(landmarkX, landmarkTop, landmarkW, landmarkBottom - landmarkTop);
 
-      // Side columns.
-      ctx.fillStyle = "rgba(72, 43, 28, 0.18)";
-      ctx.fillRect(cingX, cingTop, 10, cingH);
-      ctx.fillRect(cingX + cingW - 10, cingTop, 10, cingH);
-      ctx.fillRect(cingX + cingW * 0.49, cingTop + 18, 8, cingH - 18);
+      // Strong outer silhouette so it is clearly separate from other buildings.
+      ctx.strokeStyle = "rgba(255, 232, 188, 0.18)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(landmarkX, landmarkTop, landmarkW, landmarkBottom - landmarkTop);
 
-      // Floor separators, like stone facade bands.
-      ctx.strokeStyle = "rgba(255, 229, 176, 0.22)";
+      // Tall side pillars and center column.
+      ctx.fillStyle = "rgba(66, 40, 28, 0.18)";
+      ctx.fillRect(landmarkX, landmarkTop, 9, landmarkBottom - landmarkTop);
+      ctx.fillRect(landmarkX + landmarkW - 9, landmarkTop, 9, landmarkBottom - landmarkTop);
+      ctx.fillRect(landmarkX + landmarkW / 2 - 4, landmarkTop + 28, 8, landmarkBottom - landmarkTop - 28);
+
+      // Top cornice and balcony rail like the reference building.
+      ctx.fillStyle = "rgba(255, 229, 184, 0.22)";
+      ctx.fillRect(landmarkX - 5, landmarkTop + 18, landmarkW + 10, 8);
+      ctx.fillRect(landmarkX + 12, landmarkTop + 42, landmarkW - 24, 9);
+
+      ctx.strokeStyle = "rgba(43, 22, 11, 0.28)";
       ctx.lineWidth = 1;
-      for (let y = cingTop + 34; y < H - 40; y += 32) {
-        ctx.beginPath();
-        ctx.moveTo(cingX + 6, y);
-        ctx.lineTo(cingX + cingW - 6, y);
-        ctx.stroke();
-      }
-
-      // Upper balconies.
-      for (let b = 0; b < 3; b++) {
-        const bx = cingX + 16 + b * ((cingW - 38) / 3);
-        const by = cingTop + 18;
-        const bw = Math.max(24, cingW * 0.22);
-
-        ctx.fillStyle = "rgba(255, 230, 184, 0.28)";
-        ctx.fillRect(bx, by, bw, 11);
-
-        ctx.strokeStyle = "rgba(43, 22, 11, 0.36)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(bx - 2, by + 11);
-        ctx.lineTo(bx + bw + 2, by + 11);
-        for (let r = 0; r < 5; r++) {
-          const rx = bx + 2 + r * (bw - 4) / 4;
-          ctx.moveTo(rx, by + 2);
-          ctx.lineTo(rx, by + 12);
-        }
-        ctx.stroke();
-      }
-
-      // Large arches copied from the real facade feel.
-      const archY = cingTop + Math.max(72, cingH * 0.34);
-      const archW = cingW * 0.43;
-      const archH = Math.min(92, cingH * 0.28);
-      for (let a = 0; a < 2; a++) {
-        const ax = cingX + 11 + a * (cingW * 0.5);
-        ctx.fillStyle = "rgba(44, 29, 24, 0.22)";
-        ctx.beginPath();
-        ctx.moveTo(ax, archY + archH);
-        ctx.lineTo(ax, archY + archW * 0.5);
-        ctx.quadraticCurveTo(ax + archW / 2, archY - 8, ax + archW, archY + archW * 0.5);
-        ctx.lineTo(ax + archW, archY + archH);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = "rgba(255, 225, 178, 0.2)";
-        ctx.lineWidth = 4;
-        ctx.stroke();
-      }
-
-      // Real-storefront style black signboard.
-      const signW = cingW * 0.74;
-      const signH = 25;
-      const signX = cingX + (cingW - signW) / 2;
-      const signY = archY + 18;
-
-      ctx.globalAlpha = 0.52;
-      ctx.fillStyle = "rgba(9, 16, 18, 0.9)";
       ctx.beginPath();
-      ctx.roundRect(signX, signY, signW, signH, 3);
+      for (let r = 0; r < 12; r++) {
+        const rx = landmarkX + 16 + r * (landmarkW - 32) / 11;
+        ctx.moveTo(rx, landmarkTop + 36);
+        ctx.lineTo(rx, landmarkTop + 52);
+      }
+      ctx.moveTo(landmarkX + 10, landmarkTop + 52);
+      ctx.lineTo(landmarkX + landmarkW - 10, landmarkTop + 52);
+      ctx.stroke();
+
+      // Stone facade horizontal bands.
+      ctx.strokeStyle = "rgba(255, 235, 198, 0.16)";
+      ctx.lineWidth = 1;
+      for (let y = landmarkTop + 68; y < landmarkBottom - 44; y += 34) {
+        ctx.beginPath();
+        ctx.moveTo(landmarkX + 8, y);
+        ctx.lineTo(landmarkX + landmarkW - 8, y);
+        ctx.stroke();
+      }
+
+      // One large lower arch, simplified from the real townhouse arcade.
+      const archW = landmarkW * 0.58;
+      const archX = landmarkX + (landmarkW - archW) / 2;
+      const archY = landmarkTop + Math.max(118, (landmarkBottom - landmarkTop) * 0.55);
+      const archH = Math.min(92, landmarkBottom - archY - 12);
+
+      ctx.fillStyle = "rgba(45, 30, 24, 0.2)";
+      ctx.beginPath();
+      ctx.moveTo(archX, archY + archH);
+      ctx.lineTo(archX, archY + archW * 0.5);
+      ctx.quadraticCurveTo(archX + archW / 2, archY - 10, archX + archW, archY + archW * 0.5);
+      ctx.lineTo(archX + archW, archY + archH);
+      ctx.closePath();
       ctx.fill();
 
-      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+      ctx.strokeStyle = "rgba(255, 229, 184, 0.22)";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Rooftop sign: attached to the top, not overlapping the facade.
+      const signW = Math.min(130, landmarkW + 24);
+      const signH = 34;
+      const signX = landmarkX + landmarkW / 2 - signW / 2;
+      const signY = landmarkTop - signH - 10;
+
+      ctx.strokeStyle = "rgba(76, 45, 28, 0.36)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(signX + 18, signY + signH);
+      ctx.lineTo(landmarkX + 16, landmarkTop);
+      ctx.moveTo(signX + signW - 18, signY + signH);
+      ctx.lineTo(landmarkX + landmarkW - 16, landmarkTop);
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(15, 19, 18, 0.8)";
+      ctx.beginPath();
+      ctx.roundRect(signX, signY, signW, signH, 5);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255, 224, 154, 0.38)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(255, 244, 220, 0.92)";
       ctx.textAlign = "center";
       ctx.font = "900 10px system-ui, -apple-system, Segoe UI, sans-serif";
-      ctx.fillText("Cing Hu Tang", signX + signW / 2, signY + 11);
-      ctx.font = "800 7px system-ui, -apple-system, Segoe UI, sans-serif";
-      ctx.fillText("Kinh Bac", signX + signW / 2, signY + 20);
-
-      // Lower entrance sign.
-      const doorW = cingW * 0.46;
-      const doorX = cingX + (cingW - doorW) / 2;
-      const doorY = signY + signH + 8;
-      ctx.fillStyle = "rgba(12, 18, 20, 0.68)";
-      ctx.fillRect(doorX, doorY, doorW, 42);
-      ctx.strokeStyle = "rgba(255, 230, 184, 0.3)";
-      ctx.strokeRect(doorX, doorY, doorW, 42);
+      ctx.fillText("Cing Hu Tang", signX + signW / 2, signY + 14);
+      ctx.font = "800 8px system-ui, -apple-system, Segoe UI, sans-serif";
+      ctx.fillText("Kinh Bac", signX + signW / 2, signY + 25);
 
       ctx.restore();
 
