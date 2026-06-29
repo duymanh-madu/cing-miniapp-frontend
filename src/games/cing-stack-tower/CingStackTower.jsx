@@ -216,31 +216,49 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         }
 
         if (i === 3) {
-          const signW = Math.min(150, W - 48);
-          const signH = 36;
+          const signW = Math.min(118, Math.max(96, buildingW + 66));
+          const signH = 38;
           const signX = Math.max(18, Math.min(W - signW - 18, buildingX + buildingW / 2 - signW / 2));
-          const signY = Math.max(SAFE_TOP + 58, top - signH - 12);
+          const signY = top - 6;
 
           ctx.save();
-          ctx.globalAlpha = 0.86;
-          ctx.shadowColor = "rgba(43, 22, 11, 0.24)";
-          ctx.shadowBlur = 10;
-          ctx.fillStyle = "rgba(255, 184, 59, 0.3)";
+
+          // Rooftop crown: attached to the building, not floating.
+          ctx.globalAlpha = 0.72;
+          ctx.fillStyle = "rgba(72, 43, 28, 0.24)";
+          ctx.fillRect(buildingX - 3, top - 1, buildingW + 6, 18);
+
+          ctx.fillStyle = "rgba(255, 184, 59, 0.2)";
+          ctx.fillRect(signX + 12, signY + signH - 3, signW - 24, 8);
+
+          ctx.shadowColor = "rgba(43, 22, 11, 0.2)";
+          ctx.shadowBlur = 8;
+          ctx.fillStyle = "rgba(255, 184, 59, 0.26)";
           ctx.beginPath();
-          ctx.roundRect(signX, signY, signW, signH, 8);
+          ctx.roundRect(signX, signY, signW, signH, 7);
           ctx.fill();
 
           ctx.shadowBlur = 0;
-          ctx.strokeStyle = "rgba(255, 220, 120, 0.4)";
+          ctx.strokeStyle = "rgba(255, 222, 144, 0.34)";
           ctx.lineWidth = 1;
           ctx.stroke();
 
-          ctx.fillStyle = "rgba(255, 218, 142, 0.9)";
+          ctx.strokeStyle = "rgba(94, 57, 33, 0.28)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(signX + 16, signY + signH - 1);
+          ctx.lineTo(signX + 16, top + 20);
+          ctx.moveTo(signX + signW - 16, signY + signH - 1);
+          ctx.lineTo(signX + signW - 16, top + 20);
+          ctx.stroke();
+
+          ctx.fillStyle = "rgba(255, 224, 154, 0.88)";
           ctx.textAlign = "center";
-          ctx.font = "900 10px system-ui, -apple-system, Segoe UI, sans-serif";
+          ctx.font = "900 9.5px system-ui, -apple-system, Segoe UI, sans-serif";
           ctx.fillText("Cing Hu Tang", signX + signW / 2, signY + 15);
           ctx.font = "900 9px system-ui, -apple-system, Segoe UI, sans-serif";
           ctx.fillText("Kinh Bac", signX + signW / 2, signY + 28);
+
           ctx.restore();
         }
       }
