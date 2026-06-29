@@ -200,67 +200,130 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       ctx.save();
 
       const cityOffset = (camY * 0.18) % 180;
+
+      // Background city blocks.
       for (let i = 0; i < 8; i++) {
+        if (i === 3) continue;
+
         const buildingX = -18 + i * Math.max(44, W / 6.3);
         const buildingW = 28 + (i % 4) * 8;
-        const baseTop = H - 190 - (i % 5) * 28 + cityOffset;
-        const top = Math.max(SAFE_TOP + 84, baseTop);
+        const baseTop = H - 150 - (i % 4) * 22 + cityOffset;
+        const top = Math.max(SAFE_TOP + 150, baseTop);
 
-        ctx.fillStyle = "rgba(72, 43, 28, 0.18)";
+        ctx.fillStyle = "rgba(72, 43, 28, 0.14)";
         ctx.fillRect(buildingX, top, buildingW, H - top);
 
-        ctx.fillStyle = "rgba(255, 211, 130, 0.28)";
-        for (let wy = top + 16; wy < H - 18; wy += 24) {
+        ctx.fillStyle = "rgba(255, 211, 130, 0.24)";
+        for (let wy = top + 18; wy < H - 18; wy += 26) {
           ctx.fillRect(buildingX + 7, wy, 5, 7);
           ctx.fillRect(buildingX + buildingW - 12, wy, 5, 7);
         }
-
-        if (i === 3) {
-          const signW = Math.min(122, Math.max(100, buildingW + 70));
-          const signH = 36;
-          const signX = Math.max(18, Math.min(W - signW - 18, buildingX + buildingW / 2 - signW / 2));
-          const signY = Math.max(SAFE_TOP + 54, top - signH - 18);
-          const roofY = top;
-
-          ctx.save();
-
-          // Thin rooftop cap, so the sign belongs to the building.
-          ctx.globalAlpha = 0.72;
-          ctx.fillStyle = "rgba(72, 43, 28, 0.26)";
-          ctx.fillRect(buildingX - 4, roofY - 3, buildingW + 8, 6);
-
-          // Two supports connect the sign to the roof without covering the facade.
-          ctx.strokeStyle = "rgba(94, 57, 33, 0.34)";
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(signX + 18, signY + signH);
-          ctx.lineTo(buildingX + 7, roofY - 1);
-          ctx.moveTo(signX + signW - 18, signY + signH);
-          ctx.lineTo(buildingX + buildingW - 7, roofY - 1);
-          ctx.stroke();
-
-          ctx.shadowColor = "rgba(43, 22, 11, 0.22)";
-          ctx.shadowBlur = 8;
-          ctx.fillStyle = "rgba(255, 184, 59, 0.27)";
-          ctx.beginPath();
-          ctx.roundRect(signX, signY, signW, signH, 8);
-          ctx.fill();
-
-          ctx.shadowBlur = 0;
-          ctx.strokeStyle = "rgba(255, 222, 144, 0.38)";
-          ctx.lineWidth = 1;
-          ctx.stroke();
-
-          ctx.fillStyle = "rgba(255, 224, 154, 0.9)";
-          ctx.textAlign = "center";
-          ctx.font = "900 9.5px system-ui, -apple-system, Segoe UI, sans-serif";
-          ctx.fillText("Cing Hu Tang", signX + signW / 2, signY + 14);
-          ctx.font = "900 9px system-ui, -apple-system, Segoe UI, sans-serif";
-          ctx.fillText("Kinh Bac", signX + signW / 2, signY + 27);
-
-          ctx.restore();
-        }
       }
+
+      // Cing Hu Tang Kinh Bac landmark: tallest building, inspired by the real storefront.
+      const cingW = Math.min(138, Math.max(112, W * 0.18));
+      const cingX = Math.max(28, Math.min(W - cingW - 28, W * 0.43 - cingW / 2));
+      const cingTop = Math.max(SAFE_TOP + 94, H - 340 + cityOffset * 0.42);
+      const cingH = H - cingTop;
+
+      ctx.save();
+      ctx.globalAlpha = 0.34;
+
+      // Main cream facade.
+      const facadeGrad = ctx.createLinearGradient(cingX, cingTop, cingX + cingW, H);
+      facadeGrad.addColorStop(0, "rgba(232, 205, 162, 0.72)");
+      facadeGrad.addColorStop(0.48, "rgba(178, 132, 88, 0.52)");
+      facadeGrad.addColorStop(1, "rgba(83, 49, 30, 0.2)");
+      ctx.fillStyle = facadeGrad;
+      ctx.fillRect(cingX, cingTop, cingW, cingH);
+
+      // Side columns.
+      ctx.fillStyle = "rgba(72, 43, 28, 0.18)";
+      ctx.fillRect(cingX, cingTop, 10, cingH);
+      ctx.fillRect(cingX + cingW - 10, cingTop, 10, cingH);
+      ctx.fillRect(cingX + cingW * 0.49, cingTop + 18, 8, cingH - 18);
+
+      // Floor separators, like stone facade bands.
+      ctx.strokeStyle = "rgba(255, 229, 176, 0.22)";
+      ctx.lineWidth = 1;
+      for (let y = cingTop + 34; y < H - 40; y += 32) {
+        ctx.beginPath();
+        ctx.moveTo(cingX + 6, y);
+        ctx.lineTo(cingX + cingW - 6, y);
+        ctx.stroke();
+      }
+
+      // Upper balconies.
+      for (let b = 0; b < 3; b++) {
+        const bx = cingX + 16 + b * ((cingW - 38) / 3);
+        const by = cingTop + 18;
+        const bw = Math.max(24, cingW * 0.22);
+
+        ctx.fillStyle = "rgba(255, 230, 184, 0.28)";
+        ctx.fillRect(bx, by, bw, 11);
+
+        ctx.strokeStyle = "rgba(43, 22, 11, 0.36)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(bx - 2, by + 11);
+        ctx.lineTo(bx + bw + 2, by + 11);
+        for (let r = 0; r < 5; r++) {
+          const rx = bx + 2 + r * (bw - 4) / 4;
+          ctx.moveTo(rx, by + 2);
+          ctx.lineTo(rx, by + 12);
+        }
+        ctx.stroke();
+      }
+
+      // Large arches copied from the real facade feel.
+      const archY = cingTop + Math.max(72, cingH * 0.34);
+      const archW = cingW * 0.43;
+      const archH = Math.min(92, cingH * 0.28);
+      for (let a = 0; a < 2; a++) {
+        const ax = cingX + 11 + a * (cingW * 0.5);
+        ctx.fillStyle = "rgba(44, 29, 24, 0.22)";
+        ctx.beginPath();
+        ctx.moveTo(ax, archY + archH);
+        ctx.lineTo(ax, archY + archW * 0.5);
+        ctx.quadraticCurveTo(ax + archW / 2, archY - 8, ax + archW, archY + archW * 0.5);
+        ctx.lineTo(ax + archW, archY + archH);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(255, 225, 178, 0.2)";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
+
+      // Real-storefront style black signboard.
+      const signW = cingW * 0.74;
+      const signH = 25;
+      const signX = cingX + (cingW - signW) / 2;
+      const signY = archY + 18;
+
+      ctx.globalAlpha = 0.52;
+      ctx.fillStyle = "rgba(9, 16, 18, 0.9)";
+      ctx.beginPath();
+      ctx.roundRect(signX, signY, signW, signH, 3);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+      ctx.textAlign = "center";
+      ctx.font = "900 10px system-ui, -apple-system, Segoe UI, sans-serif";
+      ctx.fillText("Cing Hu Tang", signX + signW / 2, signY + 11);
+      ctx.font = "800 7px system-ui, -apple-system, Segoe UI, sans-serif";
+      ctx.fillText("Kinh Bac", signX + signW / 2, signY + 20);
+
+      // Lower entrance sign.
+      const doorW = cingW * 0.46;
+      const doorX = cingX + (cingW - doorW) / 2;
+      const doorY = signY + signH + 8;
+      ctx.fillStyle = "rgba(12, 18, 20, 0.68)";
+      ctx.fillRect(doorX, doorY, doorW, 42);
+      ctx.strokeStyle = "rgba(255, 230, 184, 0.3)";
+      ctx.strokeRect(doorX, doorY, doorW, 42);
+
+      ctx.restore();
 
       const cloudBase = SAFE_TOP + 46 + ((camY * 0.11) % 130);
       ctx.fillStyle = "rgba(255, 255, 255, 0.34)";
@@ -336,17 +399,6 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         ctx.shadowBlur = 12;
         ctx.beginPath();
         ctx.roundRect(barX, barY, fillW, barH, 999);
-        ctx.fill();
-
-        const shineX = barX + Math.max(0, fillW - 38);
-        const shine = ctx.createLinearGradient(shineX, barY, shineX + 38, barY);
-        shine.addColorStop(0, "rgba(255,255,255,0)");
-        shine.addColorStop(0.5, "rgba(255,255,255,0.72)");
-        shine.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = shine;
-        ctx.shadowBlur = 0;
-        ctx.beginPath();
-        ctx.roundRect(shineX, barY + 2, Math.min(38, fillW), barH - 4, 999);
         ctx.fill();
 
         ctx.strokeStyle = "rgba(255, 238, 176, 0.82)";
