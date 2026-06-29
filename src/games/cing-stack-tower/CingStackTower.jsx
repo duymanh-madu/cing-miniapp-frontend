@@ -69,6 +69,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     bgGrad.addColorStop(1, "#3a2417");
 
     const particles = [];
+    const starbursts = [];
     const MAX_PARTICLES = 110;
 
     const SHAKE_TABLE = new Float32Array(64);
@@ -135,6 +136,62 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       } catch {}
     }
 
+    function emitPerfectStarburst(x, y) {
+      const colors = ["#fff7b0", "#ffd24a", "#ff9f1c", "#ffffff"];
+      for (let i = 0; i < 22; i++) {
+        starbursts.push({
+          x,
+          y,
+          angle: (Math.PI * 2 * i) / 22 + Math.random() * 0.16,
+          speed: 52 + Math.random() * 48,
+          size: 5 + Math.random() * 7,
+          spin: (Math.random() - 0.5) * 1.8,
+          color: colors[i % colors.length],
+          born: performance.now(),
+          life: 680 + Math.random() * 180,
+        });
+      }
+    }
+
+    function drawStar(x, y, outer, inner, rotation) {
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const radius = i % 2 === 0 ? outer : inner;
+        const angle = rotation + i * Math.PI / 5 - Math.PI / 2;
+        const px = x + Math.cos(angle) * radius;
+        const py = y + Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawPerfectStarbursts(now) {
+      for (let i = starbursts.length - 1; i >= 0; i--) {
+        const star = starbursts[i];
+        const progress = (now - star.born) / star.life;
+        if (progress >= 1) {
+          starbursts.splice(i, 1);
+          continue;
+        }
+
+        const easeOut = 1 - Math.pow(1 - progress, 2);
+        const radius = star.speed * easeOut;
+        const x = star.x + Math.cos(star.angle) * radius;
+        const y = star.y + Math.sin(star.angle) * radius - progress * 20;
+        const alpha = Math.pow(1 - progress, 1.35);
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.shadowColor = "#ffd24a";
+        ctx.shadowBlur = 16;
+        ctx.fillStyle = star.color;
+        drawStar(x, y, star.size, star.size * 0.45, progress * 5 + star.spin);
+        ctx.restore();
+      }
+    }
+
     function drawHeightReferences() {
       const camY = cameraY();
       const markerLimit = Math.max(35, game.floor + 20);
@@ -159,15 +216,31 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         }
 
         if (i === 3) {
-          ctx.fillStyle = "rgba(255, 138, 0, 0.34)";
-          ctx.font = "800 12px system-ui, -apple-system, Segoe UI, sans-serif";
-          ctx.textAlign = "center";
-          
+          const signW = Math.min(150, W - 48);
+          const signH = 36;
+          const signX = Math.max(18, Math.min(W - signW - 18, buildingX + buildingW / 2 - signW / 2));
+          const signY = Math.max(SAFE_TOP + 58, top - signH - 12);
+
           ctx.save();
-          ctx.translate(buildingX + buildingW / 2, top - 8);
-          ctx.rotate(-0.08);
-          ctx.fillText("Cing Hu Tang", 0, 0);
-          ctx.fillText("Kinh Bắc", 0, 13);
+          ctx.globalAlpha = 0.86;
+          ctx.shadowColor = "rgba(43, 22, 11, 0.24)";
+          ctx.shadowBlur = 10;
+          ctx.fillStyle = "rgba(255, 184, 59, 0.3)";
+          ctx.beginPath();
+          ctx.roundRect(signX, signY, signW, signH, 8);
+          ctx.fill();
+
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = "rgba(255, 220, 120, 0.4)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = "rgba(255, 218, 142, 0.9)";
+          ctx.textAlign = "center";
+          ctx.font = "900 10px system-ui, -apple-system, Segoe UI, sans-serif";
+          ctx.fillText("Cing Hu Tang", signX + signW / 2, signY + 15);
+          ctx.font = "900 9px system-ui, -apple-system, Segoe UI, sans-serif";
+          ctx.fillText("Kinh Bac", signX + signW / 2, signY + 28);
           ctx.restore();
         }
       }
@@ -201,36 +274,71 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
         ctx.font = "800 11px system-ui, -apple-system, Segoe UI, sans-serif";
         ctx.textAlign = "right";
-        const label = floor >= 30 ? `Mây tầng ${floor}` : `Tầng ${floor}`;
+        const label = floor >= 30 ? `May tang ${floor}` : `Tang ${floor}`;
         ctx.fillText(label, rulerX, y - 6);
       }
 
       if (isFeverActive()) {
         const now = performance.now();
         const progress = Math.max(0, Math.min(1, (game.feverUntil - now) / 3000));
-        const barW = Math.min(250, W - 72);
-        const barH = 10;
+        const barW = Math.min(286, W - 56);
+        const barH = 14;
         const barX = (W - barW) / 2;
-        const barY = SAFE_TOP + 24;
+        const barY = SAFE_TOP + 25;
+        const fillW = Math.max(barH, barW * progress);
 
-        ctx.globalAlpha = game.feverFlashUntil > now ? 0.94 : 0.78;
-        ctx.fillStyle = "rgba(255, 196, 0, 0.18)";
-        ctx.fillRect(0, SAFE_TOP - 8, W, 58);
+        ctx.save();
+        ctx.globalAlpha = game.feverFlashUntil > now ? 0.98 : 0.86;
+
+        const glow = ctx.createLinearGradient(0, SAFE_TOP - 12, 0, SAFE_TOP + 62);
+        glow.addColorStop(0, "rgba(255, 210, 78, 0.25)");
+        glow.addColorStop(0.62, "rgba(255, 176, 0, 0.16)");
+        glow.addColorStop(1, "rgba(255, 176, 0, 0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, SAFE_TOP - 12, W, 76);
 
         ctx.fillStyle = "#7a3c00";
-        ctx.font = "900 15px system-ui, -apple-system, Segoe UI, sans-serif";
+        ctx.shadowColor = "rgba(255, 176, 0, 0.55)";
+        ctx.shadowBlur = 10;
+        ctx.font = "950 15px system-ui, -apple-system, Segoe UI, sans-serif";
         ctx.textAlign = "center";
         ctx.fillText("PERFECT FEVER x1.55", W / 2, SAFE_TOP + 14);
 
-        ctx.fillStyle = "rgba(122, 60, 0, 0.22)";
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(73, 38, 17, 0.22)";
         ctx.beginPath();
         ctx.roundRect(barX, barY, barW, barH, 999);
         ctx.fill();
 
-        ctx.fillStyle = "#ffb000";
+        const barGrad = ctx.createLinearGradient(barX, barY, barX + barW, barY);
+        barGrad.addColorStop(0, "#ffb000");
+        barGrad.addColorStop(0.52, "#ffe16a");
+        barGrad.addColorStop(1, "#ff8a00");
+        ctx.fillStyle = barGrad;
+        ctx.shadowColor = "rgba(255, 196, 0, 0.72)";
+        ctx.shadowBlur = 12;
         ctx.beginPath();
-        ctx.roundRect(barX, barY, barW * progress, barH, 999);
+        ctx.roundRect(barX, barY, fillW, barH, 999);
         ctx.fill();
+
+        const shineX = barX + Math.max(0, fillW - 38);
+        const shine = ctx.createLinearGradient(shineX, barY, shineX + 38, barY);
+        shine.addColorStop(0, "rgba(255,255,255,0)");
+        shine.addColorStop(0.5, "rgba(255,255,255,0.72)");
+        shine.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = shine;
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.roundRect(shineX, barY + 2, Math.min(38, fillW), barH - 4, 999);
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(255, 238, 176, 0.82)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW, barH, 999);
+        ctx.stroke();
+
+        ctx.restore();
       }
 
       ctx.restore();
@@ -380,6 +488,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       Object.keys(game).forEach(k => delete game[k]);
       Object.assign(game, next);
       particles.length = 0;
+      starbursts.length = 0;
       setLeaderboardData([]);
       setUi({ score: 0, combo: 0, timeLeft: 120, floor: 0, ended: false });
     }
@@ -510,6 +619,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         game.feverFlashUntil = now + 650;
         showMessage(`FEVER PERFECT x${game.combo} +${gained}`, 1050);
         emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 38, "#ffd700");
+        emitPerfectStarburst(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY());
       } else if (excellent) {
         game.combo = 0;
         gained = 52 + game.floor * 6;
@@ -898,6 +1008,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         ctx.arc(p.x, p.y + camY, p.size, 0, Math.PI * 2);
         ctx.fill();
       }
+      drawPerfectStarbursts(now);
       ctx.globalAlpha = 1;
 
       ctx.restore();
