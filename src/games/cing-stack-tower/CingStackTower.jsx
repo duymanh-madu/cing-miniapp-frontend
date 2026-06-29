@@ -57,6 +57,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     const AIR_DRAG_X = 0.996;
     const HIT_TOLERANCE = BLOCK * 0.68;
     const COLLAPSE_TOLERANCE = BLOCK * 0.84;
+    const PERFECT_TOLERANCE = Math.max(7, Math.round(BLOCK * 0.095));
 
     const logoImg = new Image();
     logoImg.src = "/logo-cing.png";
@@ -229,25 +230,24 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
       // One clean Cing Hu Tang Kinh Bắc bay, inspired by a single townhouse bay.
       ctx.save();
-      ctx.globalAlpha = 0.42;
+      ctx.globalAlpha = 0.62;
 
       const facadeGrad = ctx.createLinearGradient(landmarkX, landmarkTop, landmarkX + landmarkW, landmarkBottom);
-      facadeGrad.addColorStop(0, "rgba(238, 216, 178, 0.62)");
-      facadeGrad.addColorStop(0.5, "rgba(177, 133, 89, 0.42)");
-      facadeGrad.addColorStop(1, "rgba(73, 43, 27, 0.18)");
+      facadeGrad.addColorStop(0, "rgba(238, 216, 178, 0.86)");
+      facadeGrad.addColorStop(0.5, "rgba(177, 133, 89, 0.66)");
+      facadeGrad.addColorStop(1, "rgba(73, 43, 27, 0.34)");
       ctx.fillStyle = facadeGrad;
       ctx.fillRect(landmarkX, landmarkTop, landmarkW, landmarkBottom - landmarkTop);
 
       // Strong outer silhouette so it is clearly separate from other buildings.
-      ctx.strokeStyle = "rgba(255, 232, 188, 0.18)";
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255, 232, 188, 0.44)";
+      ctx.lineWidth = 2.4;
       ctx.strokeRect(landmarkX, landmarkTop, landmarkW, landmarkBottom - landmarkTop);
 
       // Tall side pillars and center column.
-      ctx.fillStyle = "rgba(66, 40, 28, 0.18)";
+      ctx.fillStyle = "rgba(66, 40, 28, 0.3)";
       ctx.fillRect(landmarkX, landmarkTop, 9, landmarkBottom - landmarkTop);
       ctx.fillRect(landmarkX + landmarkW - 9, landmarkTop, 9, landmarkBottom - landmarkTop);
-      ctx.fillRect(landmarkX + landmarkW / 2 - 4, landmarkTop + 28, 8, landmarkBottom - landmarkTop - 28);
 
       // Top cornice and balcony rail like the reference building.
       ctx.fillStyle = "rgba(255, 229, 184, 0.22)";
@@ -267,7 +267,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       ctx.stroke();
 
       // Stone facade horizontal bands.
-      ctx.strokeStyle = "rgba(255, 235, 198, 0.16)";
+      ctx.strokeStyle = "rgba(255, 235, 198, 0.3)";
       ctx.lineWidth = 1;
       for (let y = landmarkTop + 68; y < landmarkBottom - 44; y += 34) {
         ctx.beginPath();
@@ -282,7 +282,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       const archY = landmarkTop + Math.max(118, (landmarkBottom - landmarkTop) * 0.55);
       const archH = Math.min(92, landmarkBottom - archY - 12);
 
-      ctx.fillStyle = "rgba(45, 30, 24, 0.2)";
+      ctx.fillStyle = "rgba(45, 30, 24, 0.34)";
       ctx.beginPath();
       ctx.moveTo(archX, archY + archH);
       ctx.lineTo(archX, archY + archW * 0.5);
@@ -291,7 +291,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       ctx.closePath();
       ctx.fill();
 
-      ctx.strokeStyle = "rgba(255, 229, 184, 0.22)";
+      ctx.strokeStyle = "rgba(255, 229, 184, 0.42)";
       ctx.lineWidth = 4;
       ctx.stroke();
 
@@ -661,7 +661,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
     function settleBlock(block) {
       const below = topBlock();
-      const offset = block.x - below.x;
+      const offset = Math.round(block.x - below.x);
       const absOffset = Math.abs(offset);
 
       if (absOffset > COLLAPSE_TOLERANCE) {
@@ -673,7 +673,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       block.settled = true;
       block.dropping = false;
 
-      const perfect = absOffset <= 4;
+      const perfect = absOffset <= PERFECT_TOLERANCE;
       const excellent = absOffset <= BLOCK * 0.14;
       const good = absOffset <= BLOCK * 0.34;
 
@@ -683,6 +683,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         game.combo += 1;
         game.bestCombo = Math.max(game.bestCombo, game.combo);
         gained = 80 + game.floor * 8 + Math.min(360, game.combo * game.combo * 8);
+        block.x = below.x;
         block.perfect = true;
         playSound("perfect", 0.88);
 
