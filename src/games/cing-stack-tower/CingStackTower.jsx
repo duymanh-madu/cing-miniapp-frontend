@@ -44,7 +44,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     const FACE = BLOCK;
     const DEPTH = Math.round(BLOCK * 0.26);
     const PIVOT_Y = SAFE_TOP - 46;
-    const ROPE_LENGTH = Math.max(276, Math.min(392, Math.floor(H * 0.38)));
+    const ROPE_LENGTH = Math.max(228, Math.min(332, Math.floor(H * 0.33)));
     const HANGING_CENTER_LOW = PIVOT_Y + ROPE_LENGTH;
     const LANDING_SCREEN_Y = Math.min(
       GROUND_Y - BLOCK,
@@ -135,6 +135,48 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       } catch {}
     }
 
+    function drawHeightReferences() {
+      const camY = cameraY();
+      const markerLimit = Math.max(30, game.floor + 18);
+      const rulerX = W - 24;
+
+      ctx.save();
+      ctx.globalAlpha = 0.62;
+      ctx.strokeStyle = "rgba(92, 50, 26, 0.32)";
+      ctx.fillStyle = "rgba(92, 50, 26, 0.62)";
+      ctx.lineWidth = 1;
+
+      for (let floor = 5; floor <= markerLimit; floor += 5) {
+        const y = GROUND_Y - BLOCK * (floor + 1) + camY;
+        if (y < SAFE_TOP - 80 || y > H + 80) continue;
+
+        ctx.beginPath();
+        ctx.moveTo(18, y);
+        ctx.lineTo(W - 18, y);
+        ctx.stroke();
+
+        ctx.font = "700 11px system-ui, -apple-system, Segoe UI, sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText(`Tầng ${floor}`, rulerX, y - 6);
+      }
+
+      ctx.globalAlpha = 0.42;
+      for (let i = 0; i < 7; i++) {
+        const buildingX = 12 + i * Math.max(46, W / 6.5);
+        const buildingW = 26 + (i % 3) * 7;
+        const top = SAFE_TOP + 70 + ((i * 47 - camY * 0.18) % 150);
+        ctx.fillStyle = "rgba(93, 55, 34, 0.16)";
+        ctx.fillRect(buildingX, top, buildingW, H - top);
+        ctx.fillStyle = "rgba(255, 210, 132, 0.24)";
+        for (let wy = top + 14; wy < H - 20; wy += 22) {
+          ctx.fillRect(buildingX + 7, wy, 5, 7);
+          ctx.fillRect(buildingX + buildingW - 12, wy, 5, 7);
+        }
+      }
+
+      ctx.restore();
+    }
+
     function cloneBlock(x, y, extra = {}) {
       return {
         x,
@@ -172,8 +214,8 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         falling: null,
         cranePhase: 0,
         // Production gameplay tuning:
-        // very slow at start, then increases only by tower height milestones.
-        craneSpeed: 0.00105,
+        // slow start, then ramps continuously with tower height.
+        craneSpeed: 0.00134,
         dropCount: 0,
       };
     }
@@ -196,25 +238,41 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
     function activeRopeLengthForFloor(floor) {
       const visibleHeight = Math.min(4, Math.max(1, floor + 1)) * BLOCK;
-      const targetLength = ROPE_LENGTH - Math.max(0, floor) * BLOCK * 0.38;
-      const minLength = Math.max(138, Math.min(190, visibleHeight + BLOCK * 0.6));
+      const targetLength = ROPE_LENGTH - Math.max(0, floor) * BLOCK * 0.46;
+      const minLength = Math.max(112, Math.min(164, visibleHeight + BLOCK * 0.34));
       return Math.max(minLength, targetLength);
     }
 
     function pendulumState(now) {
       const floor = Math.max(0, game.floor);
       const activeRopeLength = activeRopeLengthForFloor(floor);
-      const maxAngle = Math.max(0.28, 0.46 - Math.min(0.10, Math.floor(floor / 10) * 0.018));
-      const speedLevel = Math.min(5, Math.floor(floor / 10));
-      const speed = game.craneSpeed + speedLevel * 0.00022;
+
+      const speedLevel = Math.min(9, Math.floor(floor / 5));
+      const speed = game.craneSpeed + floor * 0.000024 + speedLevel * 0.00011;
+
+      const maxAngle = Math.max(0.22, 0.42 - Math.min(0.16, floor * 0.0045));
       const t = now * speed + game.cranePhase;
-      const angle = Math.sin(t) * maxAngle;
-      const angularVelocity = Math.cos(t) * maxAngle * speed;
+      const wave =
+        Math.sin(t) +
+        Math.sin(t * 1.73 + floor * 0.31) * 0.18 +
+        Math.sin(t * 2.41 + game.cranePhase * 0.7) * 0.075;
+      const angle = Math.max(-maxAngle, Math.min(maxAngle, wave * maxAngle));
+
+      const angularWave =
+        Math.cos(t) +
+        Math.cos(t * 1.73 + floor * 0.31) * 0.18 * 1.73 +
+        Math.cos(t * 2.41 + game.cranePhase * 0.7) * 0.075 * 2.41;
+      const angularVelocity = angularWave * maxAngle * speed;
+
+      const verticalAmp = Math.min(BLOCK * 0.2, 5 + floor * 0.35);
+      const verticalSway =
+        Math.sin(t * 1.31 + floor * 0.47) * verticalAmp +
+        Math.sin(t * 0.57 + game.cranePhase) * verticalAmp * 0.38;
 
       const pivotX = W / 2;
       const pivotY = PIVOT_Y;
       const cx = pivotX + Math.sin(angle) * activeRopeLength;
-      const cy = pivotY + Math.cos(angle) * activeRopeLength;
+      const cy = pivotY + Math.cos(angle) * activeRopeLength + verticalSway;
 
       return {
         pivotX,
@@ -226,8 +284,8 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         ropeLength: activeRopeLength,
         x: cx - BLOCK / 2,
         y: cy - BLOCK / 2 - cameraY(),
-        vx: angularVelocity * activeRopeLength * Math.cos(angle) * 10.5,
-        vy: Math.max(0, -angularVelocity * activeRopeLength * Math.sin(angle) * 1.6),
+        vx: angularVelocity * activeRopeLength * Math.cos(angle) * 10.8,
+        vy: Math.max(0, -angularVelocity * activeRopeLength * Math.sin(angle) * 1.7),
       };
     }
 
@@ -711,6 +769,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     function draw(now) {
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, W, H);
+      drawHeightReferences();
 
       ctx.save();
 
