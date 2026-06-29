@@ -227,7 +227,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         }
       }
 
-      // One clean Cing Hu Tang Kinh Bac bay, inspired by a single townhouse bay.
+      // One clean Cing Hu Tang Kinh Bắc bay, inspired by a single townhouse bay.
       ctx.save();
       ctx.globalAlpha = 0.42;
 
@@ -324,7 +324,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       ctx.font = "900 10px system-ui, -apple-system, Segoe UI, sans-serif";
       ctx.fillText("Cing Hu Tang", signX + signW / 2, signY + 14);
       ctx.font = "800 8px system-ui, -apple-system, Segoe UI, sans-serif";
-      ctx.fillText("Kinh Bac", signX + signW / 2, signY + 25);
+      ctx.fillText("Kinh Bắc", signX + signW / 2, signY + 25);
 
       ctx.restore();
 
@@ -357,7 +357,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
         ctx.font = "800 11px system-ui, -apple-system, Segoe UI, sans-serif";
         ctx.textAlign = "right";
-        const label = floor >= 30 ? `May tang ${floor}` : `Tang ${floor}`;
+        const label = floor >= 30 ? `Mây tầng ${floor}` : `Tầng ${floor}`;
         ctx.fillText(label, rulerX, y - 6);
       }
 
