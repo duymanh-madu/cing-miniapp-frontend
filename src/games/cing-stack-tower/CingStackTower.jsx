@@ -216,48 +216,47 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         }
 
         if (i === 3) {
-          const signW = Math.min(118, Math.max(96, buildingW + 66));
-          const signH = 38;
+          const signW = Math.min(122, Math.max(100, buildingW + 70));
+          const signH = 36;
           const signX = Math.max(18, Math.min(W - signW - 18, buildingX + buildingW / 2 - signW / 2));
-          const signY = top - 6;
+          const signY = Math.max(SAFE_TOP + 54, top - signH - 18);
+          const roofY = top;
 
           ctx.save();
 
-          // Rooftop crown: attached to the building, not floating.
+          // Thin rooftop cap, so the sign belongs to the building.
           ctx.globalAlpha = 0.72;
-          ctx.fillStyle = "rgba(72, 43, 28, 0.24)";
-          ctx.fillRect(buildingX - 3, top - 1, buildingW + 6, 18);
+          ctx.fillStyle = "rgba(72, 43, 28, 0.26)";
+          ctx.fillRect(buildingX - 4, roofY - 3, buildingW + 8, 6);
 
-          ctx.fillStyle = "rgba(255, 184, 59, 0.2)";
-          ctx.fillRect(signX + 12, signY + signH - 3, signW - 24, 8);
-
-          ctx.shadowColor = "rgba(43, 22, 11, 0.2)";
-          ctx.shadowBlur = 8;
-          ctx.fillStyle = "rgba(255, 184, 59, 0.26)";
+          // Two supports connect the sign to the roof without covering the facade.
+          ctx.strokeStyle = "rgba(94, 57, 33, 0.34)";
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.roundRect(signX, signY, signW, signH, 7);
+          ctx.moveTo(signX + 18, signY + signH);
+          ctx.lineTo(buildingX + 7, roofY - 1);
+          ctx.moveTo(signX + signW - 18, signY + signH);
+          ctx.lineTo(buildingX + buildingW - 7, roofY - 1);
+          ctx.stroke();
+
+          ctx.shadowColor = "rgba(43, 22, 11, 0.22)";
+          ctx.shadowBlur = 8;
+          ctx.fillStyle = "rgba(255, 184, 59, 0.27)";
+          ctx.beginPath();
+          ctx.roundRect(signX, signY, signW, signH, 8);
           ctx.fill();
 
           ctx.shadowBlur = 0;
-          ctx.strokeStyle = "rgba(255, 222, 144, 0.34)";
+          ctx.strokeStyle = "rgba(255, 222, 144, 0.38)";
           ctx.lineWidth = 1;
           ctx.stroke();
 
-          ctx.strokeStyle = "rgba(94, 57, 33, 0.28)";
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(signX + 16, signY + signH - 1);
-          ctx.lineTo(signX + 16, top + 20);
-          ctx.moveTo(signX + signW - 16, signY + signH - 1);
-          ctx.lineTo(signX + signW - 16, top + 20);
-          ctx.stroke();
-
-          ctx.fillStyle = "rgba(255, 224, 154, 0.88)";
+          ctx.fillStyle = "rgba(255, 224, 154, 0.9)";
           ctx.textAlign = "center";
           ctx.font = "900 9.5px system-ui, -apple-system, Segoe UI, sans-serif";
-          ctx.fillText("Cing Hu Tang", signX + signW / 2, signY + 15);
+          ctx.fillText("Cing Hu Tang", signX + signW / 2, signY + 14);
           ctx.font = "900 9px system-ui, -apple-system, Segoe UI, sans-serif";
-          ctx.fillText("Kinh Bac", signX + signW / 2, signY + 28);
+          ctx.fillText("Kinh Bac", signX + signW / 2, signY + 27);
 
           ctx.restore();
         }
