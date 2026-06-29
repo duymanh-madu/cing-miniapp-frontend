@@ -162,7 +162,13 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
           ctx.fillStyle = "rgba(255, 138, 0, 0.34)";
           ctx.font = "800 12px system-ui, -apple-system, Segoe UI, sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText("CING", buildingX + buildingW / 2, top - 8);
+          
+          ctx.save();
+          ctx.translate(buildingX + buildingW / 2, top - 8);
+          ctx.rotate(-0.08);
+          ctx.fillText("Cing Hu Tang", 0, 0);
+          ctx.fillText("Kinh Bắc", 0, 13);
+          ctx.restore();
         }
       }
 
@@ -499,16 +505,11 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         block.perfect = true;
         playSound("perfect", 0.88);
 
-        if (game.combo >= 3) {
-          const now = performance.now();
-          game.feverUntil = now + 3000;
-          game.feverFlashUntil = now + 650;
-          showMessage(`FEVER PERFECT x${game.combo} +${gained}`, 1050);
-          emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 38, "#ffd700");
-        } else {
-          showMessage(`PERFECT x${game.combo} +${gained}`, 950);
-          emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 24, "#ffd700");
-        }
+        const now = performance.now();
+        game.feverUntil = now + 3000;
+        game.feverFlashUntil = now + 650;
+        showMessage(`FEVER PERFECT x${game.combo} +${gained}`, 1050);
+        emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 38, "#ffd700");
       } else if (excellent) {
         game.combo = 0;
         gained = 52 + game.floor * 6;
