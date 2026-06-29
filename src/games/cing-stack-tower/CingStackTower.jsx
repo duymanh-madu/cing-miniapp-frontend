@@ -44,7 +44,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     const FACE = BLOCK;
     const DEPTH = Math.round(BLOCK * 0.26);
     const PIVOT_Y = SAFE_TOP - 46;
-    const ROPE_LENGTH = Math.max(228, Math.min(332, Math.floor(H * 0.33)));
+    const ROPE_LENGTH = Math.max(292, Math.min(408, Math.floor(H * 0.405)));
     const HANGING_CENTER_LOW = PIVOT_Y + ROPE_LENGTH;
     const LANDING_SCREEN_Y = Math.min(
       GROUND_Y - BLOCK,
@@ -201,15 +201,30 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
       if (isFeverActive()) {
         const now = performance.now();
-        const left = Math.max(0, Math.ceil((game.feverUntil - now) / 1000));
-        ctx.globalAlpha = game.feverFlashUntil > now ? 0.92 : 0.74;
-        ctx.fillStyle = "rgba(255, 196, 0, 0.2)";
-        ctx.fillRect(0, SAFE_TOP - 8, W, 46);
+        const progress = Math.max(0, Math.min(1, (game.feverUntil - now) / 3000));
+        const barW = Math.min(250, W - 72);
+        const barH = 10;
+        const barX = (W - barW) / 2;
+        const barY = SAFE_TOP + 24;
+
+        ctx.globalAlpha = game.feverFlashUntil > now ? 0.94 : 0.78;
+        ctx.fillStyle = "rgba(255, 196, 0, 0.18)";
+        ctx.fillRect(0, SAFE_TOP - 8, W, 58);
 
         ctx.fillStyle = "#7a3c00";
-        ctx.font = "900 16px system-ui, -apple-system, Segoe UI, sans-serif";
+        ctx.font = "900 15px system-ui, -apple-system, Segoe UI, sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(`PERFECT FEVER x1.55 • ${left}s`, W / 2, SAFE_TOP + 20);
+        ctx.fillText("PERFECT FEVER x1.55", W / 2, SAFE_TOP + 14);
+
+        ctx.fillStyle = "rgba(122, 60, 0, 0.22)";
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW, barH, 999);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffb000";
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW * progress, barH, 999);
+        ctx.fill();
       }
 
       ctx.restore();
@@ -281,9 +296,8 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     }
 
     function activeRopeLengthForFloor(floor) {
-      const visibleHeight = Math.min(4, Math.max(1, floor + 1)) * BLOCK;
-      const targetLength = ROPE_LENGTH - Math.max(0, floor) * BLOCK * 0.46;
-      const minLength = Math.max(112, Math.min(164, visibleHeight + BLOCK * 0.34));
+      const targetLength = ROPE_LENGTH - Math.max(0, floor) * BLOCK * 0.08;
+      const minLength = Math.max(246, Math.min(318, ROPE_LENGTH * 0.82));
       return Math.max(minLength, targetLength);
     }
 
@@ -291,27 +305,37 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       const floor = Math.max(0, game.floor);
       const activeRopeLength = activeRopeLengthForFloor(floor);
 
-      const speedLevel = Math.min(9, Math.floor(floor / 5));
-      const speed = game.craneSpeed + floor * 0.000024 + speedLevel * 0.00011;
+      const speedLevel = Math.min(10, Math.floor(floor / 5));
+      const baseSpeed = game.craneSpeed + floor * 0.00002 + speedLevel * 0.00009;
+      const t = now * baseSpeed + game.cranePhase;
 
-      const maxAngle = Math.max(0.22, 0.42 - Math.min(0.16, floor * 0.0045));
-      const t = now * speed + game.cranePhase;
-      const wave =
-        Math.sin(t) +
-        Math.sin(t * 1.73 + floor * 0.31) * 0.18 +
-        Math.sin(t * 2.41 + game.cranePhase * 0.7) * 0.075;
-      const angle = Math.max(-maxAngle, Math.min(maxAngle, wave * maxAngle));
+      // Smooth continuous swing. Difficulty comes from rhythm variation,
+      // while the vertical loop keeps the hook moving at the side turns.
+      const rhythmPhase =
+        Math.sin(t * 0.36 + floor * 0.29) * 0.16 +
+        Math.sin(t * 0.71 + game.cranePhase) * 0.055;
 
-      const angularWave =
-        Math.cos(t) +
-        Math.cos(t * 1.73 + floor * 0.31) * 0.18 * 1.73 +
-        Math.cos(t * 2.41 + game.cranePhase * 0.7) * 0.075 * 2.41;
-      const angularVelocity = angularWave * maxAngle * speed;
+      const maxAngle = Math.max(0.25, 0.43 - Math.min(0.12, floor * 0.0032));
+      const swingWave =
+        Math.sin(t + rhythmPhase) * 0.92 +
+        Math.sin(t * 2.08 + 0.7) * 0.08;
+      const angle = swingWave * maxAngle;
 
-      const verticalAmp = Math.min(BLOCK * 0.2, 5 + floor * 0.35);
+      const rhythmVelocity =
+        1 +
+        Math.cos(t * 0.36 + floor * 0.29) * 0.16 * 0.36 +
+        Math.cos(t * 0.71 + game.cranePhase) * 0.055 * 0.71;
+      const angularVelocity =
+        (Math.cos(t + rhythmPhase) * 0.92 +
+          Math.cos(t * 2.08 + 0.7) * 0.08 * 2.08) *
+        maxAngle *
+        baseSpeed *
+        rhythmVelocity;
+
+      const verticalAmp = Math.min(BLOCK * 0.34, 12 + floor * 0.55);
       const verticalSway =
-        Math.sin(t * 1.31 + floor * 0.47) * verticalAmp +
-        Math.sin(t * 0.57 + game.cranePhase) * verticalAmp * 0.38;
+        Math.sin(t * 1.42 + floor * 0.33) * verticalAmp +
+        Math.sin(t * 0.62 + 1.2) * verticalAmp * 0.22;
 
       const pivotX = W / 2;
       const pivotY = PIVOT_Y;
@@ -329,7 +353,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         x: cx - BLOCK / 2,
         y: cy - BLOCK / 2 - cameraY(),
         vx: angularVelocity * activeRopeLength * Math.cos(angle) * 10.8,
-        vy: Math.max(0, -angularVelocity * activeRopeLength * Math.sin(angle) * 1.7),
+        vy: Math.max(0, -angularVelocity * activeRopeLength * Math.sin(angle) * 1.55),
       };
     }
 
@@ -476,9 +500,9 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         playSound("perfect", 0.88);
 
         if (game.combo >= 3) {
-          const feverDuration = Math.min(7600, 4300 + Math.min(8, game.combo) * 420);
-          game.feverUntil = Math.max(game.feverUntil, performance.now() + feverDuration);
-          game.feverFlashUntil = performance.now() + 900;
+          const now = performance.now();
+          game.feverUntil = now + 3000;
+          game.feverFlashUntil = now + 650;
           showMessage(`FEVER PERFECT x${game.combo} +${gained}`, 1050);
           emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 38, "#ffd700");
         } else {
