@@ -81,7 +81,9 @@ function EditProfileSheet({ userId, currentName, currentAvatar, currentEmail, co
     if (!name.trim()) { setError("Tên không được để trống"); return; }
     setSaving(true); setError("");
     try {
-      const body = { use_points: blocked ? usePoints : false, email: email.trim() || null };
+      const normalizedEmail = String(email || "").trim();
+      const body = { use_points: blocked ? usePoints : false };
+      if (emailChanged) body.email = normalizedEmail || null;
       if (nameChanged) {
         const finalName = name.trim();
         if (finalName.length > 20) {
