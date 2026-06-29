@@ -602,19 +602,16 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       });
     }
 
-    function fetchLeaderboardSoon() {
-      setTimeout(() => {
-        fetch(`${API_BASE}/leaderboard/top-games/${GAME_KEY}?limit=20`)
-          .then(r => r.json())
-          .then(d => {
-            const rows = Array.isArray(d?.data) ? d.data : [];
-            setLeaderboardData(rows);
-          })
-          .catch(() => {});
-      }, 650);
+    async function fetchLeaderboard() {
+      try {
+        const res = await fetch(`${API_BASE}/leaderboard/top-games/${GAME_KEY}?limit=20`);
+        const data = await res.json();
+        const rows = Array.isArray(data?.data) ? data.data : [];
+        setLeaderboardData(rows);
+      } catch {}
     }
 
-    function finishRound(reason = "timeout") {
+    async function finishRound(reason = "timeout") {
       if (game.submitted) return;
       game.ended = true;
       game.started = false;
@@ -623,14 +620,14 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       syncUi(true);
 
       if (onGameOver) {
-        onGameOver({
+        await onGameOver({
           bestCombo: game.bestCombo,
           score: Math.max(0, Math.floor(game.score)),
           floor: game.floor,
         });
       }
 
-      fetchLeaderboardSoon();
+      await fetchLeaderboard();
     }
 
     function collapseTower() {

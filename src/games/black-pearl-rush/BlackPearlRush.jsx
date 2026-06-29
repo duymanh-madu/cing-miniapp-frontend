@@ -174,22 +174,26 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
       game.obstacles.push({ x: W + 100, w: 74, top: center - gap/2, bot: center + gap/2, passed: false });
     }
 
-    function die() {
+    async function refreshLeaderboard() {
+      try {
+        const res = await fetch((import.meta.env.VITE_API_BASE_URL || 'https://cing-backend-production.up.railway.app/api') + '/leaderboard/top-games/black-pearl-rush?limit=20');
+        const data = await res.json();
+        const rows = Array.isArray(data?.data) ? data.data : [];
+        setLeaderboardData(rows);
+      } catch {}
+    }
+
+    async function die() {
       if (game.dead) return;
       game.dead = true; game.started = false; game.shake = 14;
       playSound("die");
       burst(game.pearl.x, game.pearl.y, 30);
       setLeaderboardData([]);
-      // Gọi onGameOver ngay khi chết
+
       if (!game._deadNotified) {
         game._deadNotified = true;
-        if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
-        // Fetch leaderboard thật sau khi die
-        fetch((import.meta.env.VITE_API_BASE_URL || 'https://cing-backend-production.up.railway.app/api') + '/leaderboard/top-games/black-pearl-rush?limit=10')
-          .then(r => r.json())
-          .then(d => {
-            if (d?.data?.length > 0) setLeaderboardData(d.data);
-          }).catch(() => {});
+        if (onGameOver) await onGameOver({ bestCombo: game.bestCombo, score: game.score });
+        await refreshLeaderboard();
       }
     }
 
