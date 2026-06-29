@@ -4,6 +4,31 @@ import useAuthStore from "@/stores/auth";
 const BACKEND_URL =
   (import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api");
 
+const GENERIC_PROFILE_NAMES = new Set([
+  "khách hàng",
+  "khach hang",
+  "khách",
+  "khach",
+  "guest",
+  "hội viên",
+  "hoi vien",
+]);
+
+function cleanProfileName(value: unknown) {
+  const name = String(value || "").trim();
+  if (!name) return "";
+  if (GENERIC_PROFILE_NAMES.has(name.toLowerCase())) return "";
+  return name;
+}
+
+function pickProfileName(...values: unknown[]) {
+  for (const value of values) {
+    const name = cleanProfileName(value);
+    if (name) return name;
+  }
+  return "";
+}
+
 export interface ActivateMiniAppUserInput {
   phone:        string;
   phoneGranted: boolean;
@@ -72,20 +97,23 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
       normalizedResolvedPhone &&
       existingPhone === normalizedResolvedPhone;
 
-    const backendName =
-      (data.customer?.fullName && data.customer?.fullName !== "Khách hàng"
-        ? data.customer.fullName
-        : null) ||
-      (data.customer?.name && data.customer?.name !== "Khách hàng"
-        ? data.customer.name
-        : null);
+    const backendName = pickProfileName(
+      data.customer?.fullName,
+      data.customer?.name
+    );
+
+    const sessionName = pickProfileName(
+      backendName,
+      canReuseExistingProfile ? existingProfile?.name : "",
+      input.name
+    );
 
     createSession({
       accessToken:  data.accessToken  || data.access_token,
       refreshToken: data.refreshToken || data.refresh_token || null,
       profile: {
         id:     data.customer?.id || data.customer?.zalo_id || existingProfile?.id || "",
-        name:   backendName || (canReuseExistingProfile ? existingProfile?.name : "") || input.name || "",
+        name:   sessionName,
         phone:  resolvedPhone,
         avatar: data.customer?.avatar || (canReuseExistingProfile ? existingProfile?.avatar : "") || input.avatar || "",
       },
@@ -97,7 +125,7 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
           type: "CACHE_MEMBER_IDENTITY",
           phone: resolvedPhone,
           zaloId: input.zaloUserId || data.customer?.zalo_id || data.customer?.zalo_user_id || "",
-          name: backendName || input.name || "",
+          name: sessionName || pickProfileName(input.name),
           avatar: data.customer?.avatar || input.avatar || "",
         }, "*");
       }
@@ -107,7 +135,7 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
   return {
     ...data,
     customerId:    data.customer?.id            || "",
-    fullName:      data.customer?.fullName || data.customer?.name || "",
+    fullName:      pickProfileName(data.customer?.fullName, data.customer?.name, input.name),
     phone:         data.customer?.phone         || input.phone,
     totalSpent:    data.customer?.total_spent   || 0,
     monthlySpent:  data.customer?.monthly_spent || 0,

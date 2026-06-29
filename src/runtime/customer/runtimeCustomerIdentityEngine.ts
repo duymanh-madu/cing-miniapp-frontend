@@ -10,6 +10,31 @@ function normalizePhone(phone: unknown) {
   return n.startsWith("84") ? "0" + n.slice(2) : n;
 }
 
+const GENERIC_RUNTIME_NAMES = new Set([
+  "khách hàng",
+  "khach hang",
+  "khách",
+  "khach",
+  "guest",
+  "hội viên",
+  "hoi vien",
+]);
+
+function cleanRuntimeName(value: unknown) {
+  const name = String(value || "").trim();
+  if (!name) return "";
+  if (GENERIC_RUNTIME_NAMES.has(name.toLowerCase())) return "";
+  return name;
+}
+
+function pickRuntimeName(...values: unknown[]) {
+  for (const value of values) {
+    const name = cleanRuntimeName(value);
+    if (name) return name;
+  }
+  return "";
+}
+
 export async function initializeCustomerIdentityEngine() {
   const store = useRuntimeCustomerIdentityStore.getState();
 
@@ -51,7 +76,7 @@ export async function initializeCustomerIdentityEngine() {
     const currentIdentity = store.identity as any;
 
     const zaloUserId = zaloUserInfo?.id || currentIdentity?.zaloUserId || "";
-    const fullName = zaloUserInfo?.name || currentIdentity?.fullName || "";
+    const fullName = pickRuntimeName(zaloUserInfo?.name, currentIdentity?.fullName);
     const avatar = zaloUserInfo?.avatar || currentIdentity?.avatar || "";
 
     const result = await activateMiniAppUser({
@@ -75,9 +100,11 @@ export async function initializeCustomerIdentityEngine() {
       oaFollowed: true,
     });
 
+    const resolvedFullName = pickRuntimeName(result?.fullName, fullName) || "Cing iu";
+
     store.setIdentity({
       customerId: result?.customerId || "",
-      fullName: result?.fullName || fullName,
+      fullName: resolvedFullName,
       phone: resolvedPhone,
       avatar: result?.avatar || avatar,
       zaloUserId,
