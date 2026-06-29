@@ -133,8 +133,10 @@ export default function LeaderboardPage() {
   const prevRankRef      = useRef(null);
   const currentTabRef    = useRef(tab);
   const currentRankIdRef = useRef("");
+  const canViewLeaderboard = Boolean(isActivated && validPhone);
+
   currentTabRef.current = tab;
-  currentRankIdRef.current = validPhone || profile?.id || "";
+  currentRankIdRef.current = canViewLeaderboard ? validPhone : "";
 
   const TABS = customEnabled ? [...DEFAULT_TABS, { id:"custom", label: customTabName }] : DEFAULT_TABS;
 
@@ -149,10 +151,12 @@ export default function LeaderboardPage() {
       // Ẩn tab custom nếu admin tắt
       if (lbCfg.spending?.custom?.enabled === false) setCustomEnabled(false);
     }).catch(() => {});
-  }, []);
+  }, [canViewLeaderboard]);
 
   // Socket realtime + visibilitychange safety net
   useEffect(() => {
+    if (!canViewLeaderboard) return;
+
     // Lắng nghe socket — retry đến khi connected
     let attempts = 0;
 
@@ -226,6 +230,13 @@ export default function LeaderboardPage() {
   }, []);
 
   const fetchData = (period, from="", to="") => {
+    if (!canViewLeaderboard) {
+      setData([]);
+      setMyRank(null);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     let url = `/leaderboard/top-spenders?period=${period}&limit=100`;
     if (period === "custom" && from && to) url += `&from=${from}&to=${to}`;
@@ -236,7 +247,7 @@ export default function LeaderboardPage() {
       .finally(() => setLoading(false));
 
     // My rank — dùng phone (players.user_id = phone)
-    const rankId = validPhone || profile?.id;
+    const rankId = validPhone;
     if (rankId) {
       apiClient.get(`/leaderboard/user-rank/${rankId}?period=${period}`)
         .then(r => {
@@ -254,6 +265,13 @@ export default function LeaderboardPage() {
 
   // Fetch khi tab thay đổi hoặc phone được resolve
   useEffect(() => {
+    if (!canViewLeaderboard) {
+      setData([]);
+      setMyRank(null);
+      setLoading(false);
+      return;
+    }
+
     if (tab === "custom") {
       setShowCustom(true);
       if (customRange.from && customRange.to) fetchData("custom", customRange.from, customRange.to);
@@ -261,11 +279,11 @@ export default function LeaderboardPage() {
     }
     setShowCustom(false);
     fetchData(tab);
-  }, [tab, customRange.from, validPhone]);
+  }, [tab, customRange.from, customRange.to, validPhone, canViewLeaderboard]);
 
   const top1 = data[0], top2 = data[1], top3 = data[2], rest = data.slice(3);
 
-  if (!isActivated) {
+  if (!canViewLeaderboard) {
     return (
       <div style={{ minHeight:"100vh", background:"#0a0a0f", display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"center", padding:32, textAlign:"center" }}>
