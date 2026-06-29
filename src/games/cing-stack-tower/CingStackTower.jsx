@@ -137,41 +137,79 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
     function drawHeightReferences() {
       const camY = cameraY();
-      const markerLimit = Math.max(30, game.floor + 18);
+      const markerLimit = Math.max(35, game.floor + 20);
       const rulerX = W - 24;
 
       ctx.save();
-      ctx.globalAlpha = 0.62;
-      ctx.strokeStyle = "rgba(92, 50, 26, 0.32)";
-      ctx.fillStyle = "rgba(92, 50, 26, 0.62)";
+
+      const cityOffset = (camY * 0.18) % 180;
+      for (let i = 0; i < 8; i++) {
+        const buildingX = -18 + i * Math.max(44, W / 6.3);
+        const buildingW = 28 + (i % 4) * 8;
+        const baseTop = H - 190 - (i % 5) * 28 + cityOffset;
+        const top = Math.max(SAFE_TOP + 84, baseTop);
+
+        ctx.fillStyle = "rgba(72, 43, 28, 0.18)";
+        ctx.fillRect(buildingX, top, buildingW, H - top);
+
+        ctx.fillStyle = "rgba(255, 211, 130, 0.28)";
+        for (let wy = top + 16; wy < H - 18; wy += 24) {
+          ctx.fillRect(buildingX + 7, wy, 5, 7);
+          ctx.fillRect(buildingX + buildingW - 12, wy, 5, 7);
+        }
+
+        if (i === 3) {
+          ctx.fillStyle = "rgba(255, 138, 0, 0.34)";
+          ctx.font = "800 12px system-ui, -apple-system, Segoe UI, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("CING", buildingX + buildingW / 2, top - 8);
+        }
+      }
+
+      const cloudBase = SAFE_TOP + 46 + ((camY * 0.11) % 130);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.34)";
+      for (let i = 0; i < 4; i++) {
+        const x = 30 + i * Math.max(82, W / 3.4);
+        const y = cloudBase + (i % 2) * 42;
+        if (y < SAFE_TOP - 40 || y > H + 50) continue;
+        ctx.beginPath();
+        ctx.arc(x, y, 15, 0, Math.PI * 2);
+        ctx.arc(x + 18, y - 6, 19, 0, Math.PI * 2);
+        ctx.arc(x + 40, y, 14, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 0.72;
+      ctx.strokeStyle = "rgba(92, 50, 26, 0.34)";
+      ctx.fillStyle = "rgba(92, 50, 26, 0.66)";
       ctx.lineWidth = 1;
 
       for (let floor = 5; floor <= markerLimit; floor += 5) {
         const y = GROUND_Y - BLOCK * (floor + 1) + camY;
-        if (y < SAFE_TOP - 80 || y > H + 80) continue;
+        if (y < SAFE_TOP - 82 || y > H + 82) continue;
 
         ctx.beginPath();
         ctx.moveTo(18, y);
         ctx.lineTo(W - 18, y);
         ctx.stroke();
 
-        ctx.font = "700 11px system-ui, -apple-system, Segoe UI, sans-serif";
+        ctx.font = "800 11px system-ui, -apple-system, Segoe UI, sans-serif";
         ctx.textAlign = "right";
-        ctx.fillText(`Tầng ${floor}`, rulerX, y - 6);
+        const label = floor >= 30 ? `Mây tầng ${floor}` : `Tầng ${floor}`;
+        ctx.fillText(label, rulerX, y - 6);
       }
 
-      ctx.globalAlpha = 0.42;
-      for (let i = 0; i < 7; i++) {
-        const buildingX = 12 + i * Math.max(46, W / 6.5);
-        const buildingW = 26 + (i % 3) * 7;
-        const top = SAFE_TOP + 70 + ((i * 47 - camY * 0.18) % 150);
-        ctx.fillStyle = "rgba(93, 55, 34, 0.16)";
-        ctx.fillRect(buildingX, top, buildingW, H - top);
-        ctx.fillStyle = "rgba(255, 210, 132, 0.24)";
-        for (let wy = top + 14; wy < H - 20; wy += 22) {
-          ctx.fillRect(buildingX + 7, wy, 5, 7);
-          ctx.fillRect(buildingX + buildingW - 12, wy, 5, 7);
-        }
+      if (isFeverActive()) {
+        const now = performance.now();
+        const left = Math.max(0, Math.ceil((game.feverUntil - now) / 1000));
+        ctx.globalAlpha = game.feverFlashUntil > now ? 0.92 : 0.74;
+        ctx.fillStyle = "rgba(255, 196, 0, 0.2)";
+        ctx.fillRect(0, SAFE_TOP - 8, W, 46);
+
+        ctx.fillStyle = "#7a3c00";
+        ctx.font = "900 16px system-ui, -apple-system, Segoe UI, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`PERFECT FEVER x1.55 • ${left}s`, W / 2, SAFE_TOP + 20);
       }
 
       ctx.restore();
@@ -205,6 +243,8 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         score: 0,
         combo: 0,
         bestCombo: 0,
+        feverUntil: 0,
+        feverFlashUntil: 0,
         floor: 0,
         stability: 100,
         shake: 0,
@@ -225,6 +265,10 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
 
     function topBlock() {
       return game.tower[game.tower.length - 1];
+    }
+
+    function isFeverActive(now = performance.now()) {
+      return game.feverUntil > now;
     }
 
     function targetY() {
@@ -383,6 +427,8 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       const penalty = Math.min(game.score, 36 + game.floor * 5 + game.combo * 4);
       game.score = Math.max(0, game.score - penalty);
       game.combo = 0;
+      game.feverUntil = 0;
+      game.feverFlashUntil = 0;
       game.stability = 100;
       game.shake = 22;
       game.dropCount += 1;
@@ -428,8 +474,17 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         gained = 80 + game.floor * 8 + Math.min(360, game.combo * game.combo * 8);
         block.perfect = true;
         playSound("perfect", 0.88);
-        showMessage(`PERFECT x${game.combo} +${gained}`, 950);
-        emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 24, "#ffd700");
+
+        if (game.combo >= 3) {
+          const feverDuration = Math.min(7600, 4300 + Math.min(8, game.combo) * 420);
+          game.feverUntil = Math.max(game.feverUntil, performance.now() + feverDuration);
+          game.feverFlashUntil = performance.now() + 900;
+          showMessage(`FEVER PERFECT x${game.combo} +${gained}`, 1050);
+          emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 38, "#ffd700");
+        } else {
+          showMessage(`PERFECT x${game.combo} +${gained}`, 950);
+          emitParticles(block.x + BLOCK / 2, block.y + BLOCK / 2 + cameraY(), 24, "#ffd700");
+        }
       } else if (excellent) {
         game.combo = 0;
         gained = 52 + game.floor * 6;
@@ -449,6 +504,10 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         game.stability -= Math.round((absOffset / BLOCK) * 30);
         game.shake = Math.max(game.shake, 12);
         showMessage(`LỆCH +${gained}`, 850);
+      }
+
+      if (isFeverActive()) {
+        gained = Math.round(gained * 1.55);
       }
 
       game.score += gained;
