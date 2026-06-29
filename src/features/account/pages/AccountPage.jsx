@@ -207,8 +207,6 @@ export default function AccountPage() {
   })();
   const userId = phone || profile?.id || null;
 
-  const authenticated = useAuthStore(s => s.authenticated);
-
   const saveBirthday = async () => {
     if (!birthday || !userId) return;
     setBdSaving(true); setBdMsg("");
@@ -246,9 +244,8 @@ export default function AccountPage() {
 
   const openEdit = async () => {
     if (!userId) return;
-    // Chỉ cho phép Zalo authenticated user đổi thông tin
-    if (!authenticated) {
-      setToast("⚠️ Vui lòng đăng nhập qua Zalo để thay đổi thông tin!");
+    if (!phone) {
+      setToast("⚠️ Vui lòng kích hoạt thành viên để thay đổi thông tin!");
       setTimeout(() => setToast(""), 3000);
       return;
     }
