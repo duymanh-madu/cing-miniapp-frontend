@@ -218,7 +218,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
             display:"flex", justifyContent:"space-between", alignItems:"center",
             border:"1px solid rgba(255,215,0,0.15)" }}>
             <span style={{ color:"rgba(255,255,255,0.5)", fontSize:12 }}>Hạng của bạn</span>
-            <span style={{ color:"#FFD700", fontSize:14, fontWeight:900 }}>#{myRank.rank} · {myRank.score} điểm</span>
+            <span style={{ color:"#FFD700", fontSize:14, fontWeight:900 }}>Top {myRank.rank} · {myRank.score} điểm</span>
           </div>
         )}
       </div>
@@ -328,7 +328,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
 
                   <span style={{ color: isHot ? "#FFD700" : "rgba(255,255,255,0.3)",
                     fontSize:13, fontWeight:900, width:28, textAlign:"center", flexShrink:0,
-                    textShadow: isHot ? "0 0 10px rgba(255,215,0,0.55)" : "none" }}>#{rank}</span>
+                    textShadow: isHot ? "0 0 10px rgba(255,215,0,0.55)" : "none" }}>Top {rank}</span>
 
                   <div style={{ width:36, height:36, borderRadius:18, flexShrink:0, overflow:"hidden",
                     background:"linear-gradient(135deg,#1a0a2e,#2d1254)",

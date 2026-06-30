@@ -94,7 +94,7 @@ export default function AlltimeLeaderboard({ onClose }) {
             borderRadius:12, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
             <span style={{ color:"rgba(255,255,255,0.5)", fontSize:12 }}>Hạng của bạn</span>
             <span style={{ color:"#D4531C", fontSize:14, fontWeight:900 }}>
-              #{myEntry.rank} · {(myEntry.score||0).toLocaleString()} {scoreLabel}
+              Top {myEntry.rank} · {(myEntry.score||0).toLocaleString()} {scoreLabel}
             </span>
           </div>
         )}

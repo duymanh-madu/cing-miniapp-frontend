@@ -1199,7 +1199,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
                       (player.isPlayer ? "bg-[#2b160b] text-white" : "bg-white/70")}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="font-black w-[42px] text-[#c15a13]">#{index + 1}</div>
+                      <div className="font-black w-[42px] text-[#c15a13]">Top {index + 1}</div>
                       <div className="font-bold">{player.player_name || player.name || "Cing iu"}</div>
                     </div>
                     <div className="font-black">{player.score}</div>
