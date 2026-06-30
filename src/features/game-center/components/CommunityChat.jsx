@@ -358,9 +358,15 @@ export default function CommunityChat({ onClose }) {
     { type:"rule",  num:1, text:'Không văng tục, chửi bậy trong nhóm chat cộng đồng "Cing iu" cũng như trong group cộng đồng: "Những Cing iu vui tính của nhà Cing Hu Tang Kinh Bắc".' },
     { type:"rule",  num:2, text:'Không gây thù hằn giữa các cá nhân trong cộng đồng. Chúng ta là những "Cing iu" vui tính, game chơi thắng không kiêu, thua không cay cú.' },
     { type:"rule",  num:3, text:'Không tuyên truyền những tôn giáo không chính thống, không làm những việc trái với pháp luật. Chúng ta là những công dân Việt Nam gương mẫu. Chỉ làm những việc pháp luật cho phép.' },
-    { type:"penalty", text:"Vi phạm nội quy lần đầu sẽ bị cấm chat 1 ngày, vi phạm lần 2 sẽ bị cấm chat 3 ngày, vi phạm lần 3 sẽ bị cấm chat 7 ngày, vi phạm lần 4 sẽ bị cấm chat 30 ngày và vi phạm lần 5 sẽ bị cấm chat vĩnh viễn." },
-    { type:"outro", text:'Admin hi vọng không phải cấm chat bất kỳ "Cing iu" nào. Hãy cùng xây dựng cộng đồng "Cing iu" văn minh, vui vẻ và tích cực ngay trong Mini App của Cing Hu Tang Kinh Bắc nhé các "Cing iu"!' },
-    { type:"sign",  text:"Trân trọng! 🧋 Cing Hu Tang Kinh Bắc" },
+    { type:"penalty", items:[
+      { label:"Vi phạm lần 1", value:"Cấm chat 1 ngày" },
+      { label:"Vi phạm lần 2", value:"Cấm chat 3 ngày" },
+      { label:"Vi phạm lần 3", value:"Cấm chat 7 ngày" },
+      { label:"Vi phạm lần 4", value:"Cấm chat 30 ngày" },
+      { label:"Vi phạm lần 5", value:"Cấm chat vĩnh viễn" },
+    ] },
+    { type:"outro", text:'Cùng gia nhập group cộng đồng FB: "Những Cing iu vui tính của nhà Cing Hu Tang Kinh Bắc" để giao lưu, kết nối, giải trí và hơn hết là để thoải mái flex trình độ chơi game của chúng ta nhé!' },
+    { type:"sign",  greeting:"Trân trọng!", brand:"🧋 Cing Hu Tang Kinh Bắc" },
   ];
 
   return (
@@ -573,19 +579,33 @@ export default function CommunityChat({ onClose }) {
                 </div>
               );
               if (item.type === "penalty") return (
-                <div key={i} style={{ background:"rgba(244,67,54,0.08)", border:"1px solid rgba(244,67,54,0.25)",
-                  borderRadius:12, padding:"12px 14px", marginBottom:14 }}>
-                  <p style={{ color:"#FFD700", fontSize:11, fontWeight:800, margin:"0 0 6px", letterSpacing:1 }}>⚠️ HÌNH THỨC XỬ PHẠT</p>
-                  <p style={{ color:"rgba(255,180,180,0.9)", fontSize:12, lineHeight:1.7, margin:0 }}>{item.text}</p>
+                <div key={i} style={{ background:"linear-gradient(135deg,rgba(244,67,54,0.12),rgba(212,83,28,0.06))",
+                  border:"1px solid rgba(244,67,54,0.28)", borderRadius:14, padding:"14px 14px", marginBottom:14 }}>
+                  <p style={{ color:"#FFD700", fontSize:11, fontWeight:900, margin:"0 0 10px", letterSpacing:1.2 }}>⚠️ HÌNH THỨC XỬ PHẠT</p>
+                  <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                    {(item.items || []).map((penalty, idx) => (
+                      <div key={idx} style={{ display:"grid", gridTemplateColumns:"104px 1fr", gap:10, alignItems:"center",
+                        background:"rgba(0,0,0,0.18)", border:"1px solid rgba(255,255,255,0.06)", borderRadius:10, padding:"9px 10px" }}>
+                        <span style={{ color:"#FFD700", fontSize:12, fontWeight:900 }}>{penalty.label}</span>
+                        <span style={{ color:"rgba(255,205,205,0.95)", fontSize:12, fontWeight:700, lineHeight:1.45 }}>{penalty.value}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               );
               if (item.type === "outro") return (
-                <p key={i} style={{ color:"rgba(255,255,255,0.7)", fontSize:13, lineHeight:1.7,
-                  margin:"0 0 16px", textAlign:"justify", fontStyle:"italic" }}>{item.text}</p>
+                <div key={i} style={{ background:"rgba(255,215,0,0.08)", border:"1px solid rgba(255,215,0,0.18)",
+                  borderRadius:14, padding:"13px 14px", margin:"0 0 16px" }}>
+                  <p style={{ color:"rgba(255,255,255,0.82)", fontSize:13, lineHeight:1.65,
+                    margin:0, textAlign:"justify", fontWeight:650 }}>{item.text}</p>
+                </div>
               );
               if (item.type === "sign") return (
-                <p key={i} style={{ color:"#D4531C", fontSize:14, fontWeight:1000, margin:0,
-                  textAlign:"right", letterSpacing:0.5 }}>{item.text}</p>
+                <div key={i} style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between",
+                  gap:12, marginTop:4 }}>
+                  <p style={{ color:"#D4531C", fontSize:14, fontWeight:1000, margin:0, textAlign:"left", letterSpacing:0.3 }}>{item.greeting}</p>
+                  <p style={{ color:"#D4531C", fontSize:14, fontWeight:1000, margin:0, textAlign:"right", letterSpacing:0.3 }}>{item.brand}</p>
+                </div>
               );
               return null;
             })}
