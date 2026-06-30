@@ -433,7 +433,7 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
                     className={"flex items-center justify-between rounded-2xl px-4 py-3 " +
                       (player.isPlayer ? "bg-[#2b160b] text-white" : "bg-white/70")}>
                     <div className="flex items-center gap-3">
-                      <div className="font-black w-[42px] text-[#c19b61]">Top {index+1}</div>
+                      <div className="font-black w-[64px] shrink-0 whitespace-nowrap text-[#c19b61]">Top {index+1}</div>
                       <div className="font-bold">{player.player_name || player.name || "Ẩn danh"}</div>
                     </div>
                     <div className="font-black">{player.score}</div>
