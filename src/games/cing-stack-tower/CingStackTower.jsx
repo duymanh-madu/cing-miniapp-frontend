@@ -1232,16 +1232,15 @@ function TopBar({ onOpenLeaderboard, onExit }) {
     >
       <div
         style={{
-          height:62,
+          height:68,
           width:"min(360px, calc(100vw - 36px))",
-          display:"flex",
+          display:"grid",
+          gridTemplateColumns:"72px minmax(0, 1fr) 72px",
           alignItems:"center",
-          justifyContent:"center",
-          gap:12,
           background:"rgba(255,246,231,.94)",
           border:"1px solid rgba(43,22,11,.16)",
-          borderRadius:31,
-          padding:"8px 16px",
+          borderRadius:34,
+          padding:"7px 12px",
           boxShadow:"0 8px 28px rgba(43,22,11,.18)",
           pointerEvents:"auto",
         }}
@@ -1249,16 +1248,17 @@ function TopBar({ onOpenLeaderboard, onExit }) {
         <img
           src="/logo-cing.png"
           alt="logo"
-          style={{ width:44, height:44, borderRadius:10, objectFit:"contain", flexShrink:0 }}
+          style={{ width:62, height:50, borderRadius:10, objectFit:"contain", justifySelf:"center" }}
         />
-        <div style={{ minWidth:0 }}>
-          <div style={{ fontSize:10, fontWeight:900, letterSpacing:3, color:"#c15a13", marginBottom:2 }}>
+        <div style={{ minWidth:0, display:"flex", flexDirection:"column", alignItems:"center", textAlign:"center" }}>
+          <div style={{ fontSize:11, lineHeight:"13px", fontWeight:900, letterSpacing:3, color:"#c15a13", marginBottom:2 }}>
             MINI GAME
           </div>
           <div style={{ fontSize:20, lineHeight:"22px", fontWeight:950, color:"#2b160b", whiteSpace:"nowrap" }}>
             Xếp Tháp Cing
           </div>
         </div>
+        <div aria-hidden="true" />
       </div>
 
       <div
