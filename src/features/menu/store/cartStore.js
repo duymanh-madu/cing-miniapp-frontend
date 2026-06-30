@@ -13,36 +13,58 @@ function saveCart(items) {
   try { sessionStorage.setItem(CART_KEY, JSON.stringify(items)); } catch(e) {}
 }
 
+function getCartKey(product) {
+  const toppingIds = Array.isArray(product.toppings)
+    ? product.toppings.map(t => t.id || t.label || t.name || String(t)).sort()
+    : [];
+
+  return JSON.stringify({
+    id: product.id,
+    price: product.price || 0,
+    options: product.options || {},
+    toppings: toppingIds,
+    note: String(product.note || "").trim(),
+  });
+}
+
+function matchesCartLine(item, keyOrId) {
+  return item.cartId === keyOrId || (!item.cartId && item.id === keyOrId);
+}
+
 const useCartStore = create((set, get) => ({
   items: loadCart(),
 
   addItem: (product) => {
     const items = get().items;
-    const existing = items.find(i => i.id === product.id);
+    const qtyToAdd = Math.max(1, Number(product.qty || 1));
+    const cartKey = getCartKey(product);
+    const existing = items.find(i => i.cartKey === cartKey);
+
     const next = existing
-      ? items.map(i => i.id === product.id ? {...i, qty: i.qty + 1} : i)
-      : [...items, { ...product, qty: 1, cartId: crypto.randomUUID() }];
+      ? items.map(i => i.cartKey === cartKey ? {...i, qty: i.qty + qtyToAdd} : i)
+      : [...items, { ...product, qty: qtyToAdd, cartKey, cartId: crypto.randomUUID() }];
+
     saveCart(next);
     set({ items: next });
   },
 
-  increment: (id) => {
-    const next = get().items.map(i => i.id === id ? {...i, qty: i.qty + 1} : i);
+  increment: (cartId) => {
+    const next = get().items.map(i => matchesCartLine(i, cartId) ? {...i, qty: i.qty + 1} : i);
     saveCart(next); set({ items: next });
   },
 
-  decrement: (id) => {
+  decrement: (cartId) => {
     const items = get().items;
-    const item = items.find(i => i.id === id);
+    const item = items.find(i => matchesCartLine(i, cartId));
     if (!item) return;
     const next = item.qty <= 1
-      ? items.filter(i => i.id !== id)
-      : items.map(i => i.id === id ? {...i, qty: i.qty - 1} : i);
+      ? items.filter(i => !matchesCartLine(i, cartId))
+      : items.map(i => matchesCartLine(i, cartId) ? {...i, qty: i.qty - 1} : i);
     saveCart(next); set({ items: next });
   },
 
-  removeItem: (id) => {
-    const next = get().items.filter(i => i.id !== id);
+  removeItem: (cartId) => {
+    const next = get().items.filter(i => !matchesCartLine(i, cartId));
     saveCart(next); set({ items: next });
   },
 

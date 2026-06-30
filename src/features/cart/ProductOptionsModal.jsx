@@ -39,6 +39,7 @@ export default function ProductOptionsModal({ item, onClose }) {
   const [sugar, setSugar] = useState("100");
   const [ice, setIce] = useState("100");
   const [toppings, setToppings] = useState([]);
+  const [customNote, setCustomNote] = useState("");
   const [qty, setQty] = useState(1);
 
   const toggleTopping = (id) => {
@@ -57,11 +58,14 @@ export default function ProductOptionsModal({ item, onClose }) {
 
   const handleAdd = () => {
     const selectedToppings = TOPPINGS.filter(t => toppings.includes(t.id));
-    const note = [
+    const optionNote = [
       sugar !== "100" ? `${sugar}% đường` : null,
       ice !== "100" ? `${ice}% đá` : null,
       ...selectedToppings.map(t => t.label),
     ].filter(Boolean).join(", ");
+
+    const cleanCustomNote = customNote.trim().replace(/\s+/g, " ").slice(0, 120);
+    const note = [optionNote, cleanCustomNote].filter(Boolean).join(" — ");
 
     addItem({
       ...item,
@@ -70,7 +74,8 @@ export default function ProductOptionsModal({ item, onClose }) {
       note,
       toppings: selectedToppings,
       options: { sugar, ice },
-      displayName: item.name + (note ? ` (${note})` : ""),
+      displayName: item.name + (optionNote ? ` (${optionNote})` : ""),
+      customNote: cleanCustomNote,
     });
     onClose();
   };
@@ -145,6 +150,30 @@ export default function ProductOptionsModal({ item, onClose }) {
                 </button>
               ))}
             </div>
+          </Section>
+
+          <Section title="Ghi chú riêng cho cốc này">
+            <textarea
+              value={customNote}
+              onChange={e => setCustomNote(e.target.value.slice(0, 120))}
+              placeholder="Ví dụ: ít ngọt hơn, không kem cheese, tách đá riêng..."
+              rows={3}
+              style={{
+                width:"100%",
+                boxSizing:"border-box",
+                border:"1.5px solid #e8e8e8",
+                borderRadius:12,
+                padding:"10px 12px",
+                fontSize:13,
+                lineHeight:1.4,
+                outline:"none",
+                resize:"none",
+                fontFamily:"inherit",
+              }}
+            />
+            <p style={{fontSize:10,color:"#aaa",margin:"6px 0 0"}}>
+              Ghi chú này sẽ đi theo từng dòng món trong đơn hàng.
+            </p>
           </Section>
         </div>
 

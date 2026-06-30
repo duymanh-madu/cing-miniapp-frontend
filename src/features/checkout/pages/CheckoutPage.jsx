@@ -239,110 +239,166 @@ export default function CheckoutPage(){
       setShipFee(0);setDistKm(null);setShipStatus("idle");setLocMsg("");
       return;
     }
-    setShipStatus("loading");setLocMsg("");
 
-    // Bridge location qua shell (giống phone permission)
-    const getLocation = () => new Promise((resolve, reject) => {
-      const requestId = `loc_${Date.now()}`;
-      const timer = setTimeout(() => {
-        window.removeEventListener("message", handler);
-        // Fallback navigator.geolocation
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            pos => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-            () => reject(new Error("Không lấy được vị trí. Vui lòng cho phép truy cập định vị.")),
-            { timeout: 10000, enableHighAccuracy: false }
-          );
-        } else {
-          reject(new Error("Thiết bị không hỗ trợ định vị."));
-        }
-      }, 10000);
+    refreshShippingLocation();
+  },[orderType,subtotal,shippingTiers]);
 
-      function handler(e) {
-        const data = e.data;
-        if (!data || data.type !== "ZALO_LOCATION_RESULT") return;
-        if (data.requestId && data.requestId !== requestId) return;
-        clearTimeout(timer);
-        window.removeEventListener("message", handler);
-        if (!data.success) { reject(new Error(data.error || "Không lấy được vị trí.")); return; }
+  const decodeLocationToken = async (token, miniAccessToken = "") => {
+    const r = await apiClient.post("/shipping/decode-location", {
+      token,
+      amount: subtotal,
+      miniAccessToken,
+    });
+
+    if (r.data?.success && r.data?.latitude && r.data?.longitude) {
+      return {
+        latitude: parseFloat(r.data.latitude),
+        longitude: parseFloat(r.data.longitude),
+      };
+    }
+
+    throw new Error("Không decode được vị trí.");
+  };
+
+  const requestBrowserLocation = () => new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Thiết bị không hỗ trợ định vị."));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+      () => reject(new Error("Không lấy được vị trí. Vui lòng cho phép truy cập định vị.")),
+      { timeout: 10000, enableHighAccuracy: false }
+    );
+  });
+
+  const requestShellLocation = () => new Promise((resolve, reject) => {
+    if (!window.parent || window.parent === window) {
+      reject(new Error("Không có shell Zalo."));
+      return;
+    }
+
+    const requestId = `loc_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const miniAccessToken = useRuntimeCustomerIdentityStore.getState().identity?.miniAccessToken || "";
+
+    const timer = setTimeout(() => {
+      window.removeEventListener("message", handler);
+      reject(new Error("Zalo location timeout."));
+    }, 10000);
+
+    async function handler(e) {
+      const data = e.data || {};
+      if (data.type !== "ZALO_LOCATION_RESULT") return;
+      if (data.requestId && data.requestId !== requestId) return;
+
+      clearTimeout(timer);
+      window.removeEventListener("message", handler);
+
+      try {
+        if (!data.success) throw new Error(data.error || "Không lấy được vị trí.");
+
         if (data.latitude && data.longitude) {
-          resolve({ latitude: parseFloat(data.latitude), longitude: parseFloat(data.longitude) });
-          return;
-        }
-        // Có token → decode qua backend
-        if (data.token) {
-          import("@/infra/api/apiClient").then(({ default: apiClient }) => {
-            apiClient.post("/shipping/decode-location", { token: data.token, amount: subtotal, miniAccessToken: data.miniAccessToken || "" })
-              .then(r => {
-                if (r.data?.success && r.data?.latitude && r.data?.longitude) {
-                  resolve({ latitude: r.data.latitude, longitude: r.data.longitude });
-                } else {
-                  reject(new Error("Không decode được vị trí."));
-                }
-              })
-              .catch(() => reject(new Error("Không decode được vị trí.")));
+          resolve({
+            latitude: parseFloat(data.latitude),
+            longitude: parseFloat(data.longitude),
           });
           return;
         }
-        reject(new Error("Không lấy được vị trí."));
+
+        if (data.token) {
+          resolve(await decodeLocationToken(data.token, data.miniAccessToken || miniAccessToken));
+          return;
+        }
+
+        throw new Error("Không lấy được vị trí.");
+      } catch (err) {
+        reject(err);
       }
+    }
 
-      window.addEventListener("message", handler);
-      // Lấy miniAccessToken từ identity store (sync)
-      let _miniAccessToken = "";
-      try {
-        const { useRuntimeCustomerIdentityStore } = require("@/runtime/customer/runtimeCustomerIdentityStore");
-        _miniAccessToken = useRuntimeCustomerIdentityStore.getState().identity?.miniAccessToken || "";
-      } catch(e) {}
-      window.parent.postMessage({ type: "REQUEST_ZALO_LOCATION", requestId, miniAccessToken: _miniAccessToken }, "*");
-    });
+    window.addEventListener("message", handler);
+    window.parent.postMessage({
+      type: "REQUEST_ZALO_LOCATION",
+      requestId,
+      miniAccessToken,
+    }, "*");
+  });
 
-    getLocation()
-      .then(async coords => {
-        const km = calcDistKm(coords.latitude, coords.longitude, STORE_LAT, STORE_LNG);
-        setDistKm(km);
-        try {
-          const r = await apiClient.get(`/shipping/estimate?lat=${coords.latitude}&lng=${coords.longitude}&amount=${subtotal}`);
-          if(r.data?.success && r.data?.ship_fee !== null){
-            const fee = r.data.ship_fee;
-            if(fee===-1){
-              setShipFee(0);setShipStatus("contact");
-              setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
-            } else {
-              setShipFee(fee);setShipStatus("done");
-              setLocMsg(`Khoảng cách: ${km.toFixed(1)} km`);
-            }
-          } else {
-            const fee=calcShipFee(subtotal, km, shippingTiers);
-            if(fee===-1){
-              setShipFee(0);setShipStatus("contact");
-              setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
-            } else {
-              setShipFee(fee);setShipStatus("done");
-              setLocMsg(`Khoảng cách: ${km.toFixed(1)} km`);
-            }
-          }
-        } catch(e){
-          const fee=calcShipFee(subtotal, km, shippingTiers);
-          if(fee===-1){
-            setShipFee(0);setShipStatus("contact");
-            setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
-          } else {
-            setShipFee(fee);setShipStatus("done");
-            setLocMsg(`Khoảng cách: ${km.toFixed(1)} km (ước tính)`);
-          }
+  const requestSdkLocation = async () => {
+    const zmpSdk = await import("zmp-sdk");
+    const result = await zmpSdk.getLocation();
+
+    if (result?.latitude && result?.longitude) {
+      return {
+        latitude: parseFloat(result.latitude),
+        longitude: parseFloat(result.longitude),
+      };
+    }
+
+    if (result?.token) {
+      const miniAccessToken = useRuntimeCustomerIdentityStore.getState().identity?.miniAccessToken || "";
+      return decodeLocationToken(result.token, result.miniAccessToken || miniAccessToken);
+    }
+
+    throw new Error("Không lấy được vị trí.");
+  };
+
+  const requestDeliveryLocation = async () => {
+    try { return await requestShellLocation(); } catch(e) {}
+    try { return await requestSdkLocation(); } catch(e) {}
+    return requestBrowserLocation();
+  };
+
+  const updateShippingFromLocation = async (coords) => {
+    const km = calcDistKm(coords.latitude, coords.longitude, STORE_LAT, STORE_LNG);
+    setDistKm(km);
+
+    try {
+      const r = await apiClient.get(`/shipping/estimate?lat=${coords.latitude}&lng=${coords.longitude}&amount=${subtotal}`);
+      if (r.data?.success && r.data?.ship_fee !== null) {
+        const fee = r.data.ship_fee;
+
+        if (fee === -1) {
+          setShipFee(0);
+          setShipStatus("contact");
+          setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
+          return;
         }
-      })
-      .catch(err => {
-        if(err.code===1 || err.message==="NO_GEO" || err.message==="NO_LOCATION"){
-          setShipFee(0);setShipStatus("denied");
-          setLocMsg("Vui lòng cho phép truy cập vị trí để tính phí ship chính xác");
-        } else {
-          setShipFee(0);setShipStatus("contact");
-          setLocMsg("Cửa hàng sẽ liên hệ lại để tính phí ship cụ thể.");
-        }
-      });
-  },[orderType]);
+
+        setShipFee(fee);
+        setShipStatus("done");
+        setLocMsg(`Khoảng cách: ${km.toFixed(1)} km`);
+        return;
+      }
+    } catch(e) {}
+
+    const fee = calcShipFee(subtotal, km, shippingTiers);
+    if (fee === -1) {
+      setShipFee(0);
+      setShipStatus("contact");
+      setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
+    } else {
+      setShipFee(fee);
+      setShipStatus("done");
+      setLocMsg(`Khoảng cách: ${km.toFixed(1)} km (ước tính)`);
+    }
+  };
+
+  const refreshShippingLocation = async () => {
+    setShipStatus("loading");
+    setLocMsg("");
+
+    try {
+      const coords = await requestDeliveryLocation();
+      await updateShippingFromLocation(coords);
+    } catch(e) {
+      console.warn("[LOCATION] failed", e.message);
+      setShipFee(0);
+      setShipStatus("denied");
+      setLocMsg("Không lấy được vị trí. Bấm để cho phép hoặc nhập địa chỉ, cửa hàng sẽ liên hệ phí ship.");
+    }
+  };
 
   const total=Math.max(0, subtotal+shipFee-pointsDiscount-tierDiscount);
 
@@ -376,6 +432,9 @@ export default function CheckoutPage(){
           price:i.price,
           quantity:i.qty,
           note:i.note||"",
+          toppings:i.toppings||[],
+          options:i.options||{},
+          customNote:i.customNote||"",
         })),
         subtotal,
         shipping_fee:shipFee,
@@ -414,6 +473,10 @@ export default function CheckoutPage(){
               name: i.displayName||i.name,
               price: i.price,
               quantity: i.qty,
+              note: i.note||"",
+              toppings: i.toppings||[],
+              options: i.options||{},
+              customNote: i.customNote||"",
             })),
             subtotal,
             total_amount: 0,
@@ -544,12 +607,12 @@ export default function CheckoutPage(){
               <p style={{fontSize:12,fontWeight:900,color:"#D4531C",margin:0}}>{fmt(item.price)}</p>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
-              <button onClick={()=>decrement(item.id)}
+              <button onClick={()=>decrement(item.cartId || item.id)}
                 style={{width:24,height:24,borderRadius:"50%",border:"1.5px solid #D4531C",
                   background:"white",color:"#D4531C",fontSize:16,cursor:"pointer",
                   display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
               <span style={{fontSize:13,fontWeight:900,minWidth:16,textAlign:"center"}}>{item.qty}</span>
-              <button onClick={()=>increment(item.id)}
+              <button onClick={()=>increment(item.cartId || item.id)}
                 style={{width:24,height:24,borderRadius:"50%",background:"#D4531C",
                   border:"none",color:"white",fontSize:16,cursor:"pointer",
                   display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
@@ -581,47 +644,7 @@ export default function CheckoutPage(){
 {shipStatus==="denied"&&(
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
                 <p style={{fontSize:11,color:"#f57c00",margin:0}}>{locMsg}</p>
-                <button onClick={async ()=>{
-                  setShipStatus("loading");
-                  try {
-                    let coords;
-                    try {
-                      const zmpSdk = await import("zmp-sdk");
-                      const result = await zmpSdk.getLocation();
-                      if (result?.latitude && result?.longitude) {
-                        coords = { latitude: parseFloat(result.latitude), longitude: parseFloat(result.longitude) };
-                      } else if (result?.token) {
-                        const r = await apiClient.post("/shipping/decode-location", { token: result.token, amount: subtotal });
-                        if (r.data?.success && r.data?.latitude && r.data?.longitude) {
-                          coords = { latitude: r.data.latitude, longitude: r.data.longitude };
-                        } else throw new Error("NO_LOCATION");
-                      } else throw new Error("NO_LOCATION");
-                    } catch(e) {
-                      coords = await new Promise((resolve, reject) => {
-                        if (!navigator.geolocation) { reject(new Error("NO_GEO")); return; }
-                        navigator.geolocation.getCurrentPosition(
-                          pos => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-                          err => reject(err),
-                          { timeout: 10000 }
-                        );
-                      });
-                    }
-                    const km = calcDistKm(coords.latitude, coords.longitude, STORE_LAT, STORE_LNG);
-                    setDistKm(km);
-                    try {
-                      const r = await apiClient.get('/shipping/estimate?lat='+coords.latitude+'&lng='+coords.longitude+'&amount='+subtotal);
-                      const fee = r.data?.ship_fee ?? calcShipFee(subtotal, km, shippingTiers);
-                      if(fee===-1){ setShipFee(0);setShipStatus("contact");setLocMsg('Khoảng cách '+km.toFixed(1)+'km > 10km. Nhà hàng sẽ liên hệ báo phí ship.'); }
-                      else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
-                    } catch(e){
-                      const fee=calcShipFee(subtotal, km, shippingTiers);
-                      if(fee===-1){ setShipFee(0);setShipStatus("contact");setLocMsg('Khoảng cách '+km.toFixed(1)+'km > 10km.'); }
-                      else { setShipFee(fee);setShipStatus("done");setLocMsg('Khoảng cách: '+km.toFixed(1)+' km'); }
-                    }
-                  } catch(e){
-                    setShipFee(0);setShipStatus("contact");setLocMsg("Cửa hàng sẽ liên hệ lại để tính phí ship cụ thể.");
-                  }
-                }} style={{fontSize:11,color:"#D4531C",fontWeight:700,background:"none",border:"1px solid #D4531C",borderRadius:6,padding:"4px 10px",cursor:"pointer",alignSelf:"flex-start"}}>
+                <button onClick={refreshShippingLocation} style={{fontSize:11,color:"#D4531C",fontWeight:700,background:"none",border:"1px solid #D4531C",borderRadius:6,padding:"4px 10px",cursor:"pointer",alignSelf:"flex-start"}}>
                   📍 Cho phép vị trí
                 </button>
               </div>
