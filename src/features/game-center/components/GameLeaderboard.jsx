@@ -26,6 +26,11 @@ const GAME_NAMES = {
   "chess": "Kỳ thủ cờ vua ♟️",
 };
 
+const GAME_ICONS = {
+  "black-pearl-rush": "/game-icons/black-pearl-rush.svg",
+  "cing-stack-tower": "/game-icons/cing-stack-tower.svg",
+};
+
 export default function GameLeaderboard({ gameKey, onClose }) {
   const [data,        setData]        = useState([]);
   const [myRank,      setMyRank]      = useState(null);
@@ -229,7 +234,11 @@ export default function GameLeaderboard({ gameKey, onClose }) {
           <div style={{ padding:"60px", textAlign:"center", color:"rgba(255,255,255,0.3)" }}>Đang tải...</div>
         ) : data.length === 0 ? (
           <div style={{ padding:"60px 24px", textAlign:"center", color:"rgba(255,255,255,0.3)" }}>
-            <div style={{ fontSize:48, marginBottom:12 }}>🎮</div>
+            {GAME_ICONS[gameKey] ? (
+              <img src={GAME_ICONS[gameKey]} alt="" style={{ width:72, height:72, objectFit:"contain", marginBottom:12 }} />
+            ) : (
+              <div style={{ fontSize:48, marginBottom:12 }}>🎮</div>
+            )}
             <p style={{ fontSize:14 }}>Chưa có dữ liệu. Hãy chơi để xếp hạng!</p>
           </div>
         ) : (

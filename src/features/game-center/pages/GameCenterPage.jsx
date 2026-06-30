@@ -406,7 +406,13 @@ export default function GameCenterPage() {
         <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, fontWeight:700, letterSpacing:3, margin:"0 0 12px", textTransform:"uppercase" }}>Trò Chơi</p>
         {games.map(game => (
           <div key={game.id} style={{ background:"linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))", border:"1px solid rgba(255,255,255,0.08)", borderRadius:20, padding:"20px", marginBottom:12, display:"flex", alignItems:"center", gap:16 }}>
-            <div style={{ width:64, height:64, borderRadius:18, flexShrink:0, background:"linear-gradient(135deg,#1a0a2e,#2d1254)", border:"1px solid rgba(255,215,0,0.2)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28 }}>🎮</div>
+            <div style={{ width:64, height:64, borderRadius:18, flexShrink:0, background:"linear-gradient(135deg,#1a0a2e,#2d1254)", border:"1px solid rgba(255,215,0,0.2)", display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
+              {game.iconUrl ? (
+                <img src={game.iconUrl} alt="" style={{ width:58, height:58, objectFit:"contain", display:"block" }} />
+              ) : (
+                <span style={{ fontSize:28 }}>{game.iconFallback || "🎮"}</span>
+              )}
+            </div>
             <div style={{ flex:1 }}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
                 <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>{game.displayName || game.name}</p>

@@ -1,0 +1,51 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="20" y1="8" x2="104" y2="124" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF5E4"/>
+      <stop offset=".55" stop-color="#F5D4A2"/>
+      <stop offset="1" stop-color="#3A2417"/>
+    </linearGradient>
+    <linearGradient id="front" x1="30" y1="36" x2="82" y2="92" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF9C1A"/>
+      <stop offset=".55" stop-color="#FF7400"/>
+      <stop offset="1" stop-color="#E95700"/>
+    </linearGradient>
+    <linearGradient id="top" x1="35" y1="25" x2="95" y2="42" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFC05A"/>
+      <stop offset=".55" stop-color="#FF9D18"/>
+      <stop offset="1" stop-color="#E96600"/>
+    </linearGradient>
+    <linearGradient id="side" x1="82" y1="39" x2="105" y2="96" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C84405"/>
+      <stop offset="1" stop-color="#7C2506"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="6" y="6" width="116" height="116" rx="30" fill="url(#bg)"/>
+  <rect x="6" y="6" width="116" height="116" rx="30" stroke="#FFD700" stroke-opacity=".28" stroke-width="2"/>
+
+  <path d="M64 10V28" stroke="#2B160B" stroke-width="4" stroke-linecap="round"/>
+  <path d="M44 28H84" stroke="#2B160B" stroke-width="5" stroke-linecap="round"/>
+  <path d="M64 28V41" stroke="#2B160B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M58 41H70L66 48H62L58 41Z" fill="#2B160B"/>
+
+  <g transform="translate(16 14)">
+    <path d="M28 29L43 16H96L82 29H28Z" fill="url(#top)" stroke="#2B160B" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M82 29L96 16V69L82 82V29Z" fill="url(#side)" stroke="#2B160B" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="28" y="29" width="54" height="54" rx="10" fill="url(#front)" stroke="#2B160B" stroke-width="3"/>
+    <path d="M37 39H73M37 42V70" stroke="white" stroke-opacity=".32" stroke-width="2.5" stroke-linecap="round"/>
+
+    <rect x="38" y="39" width="34" height="34" rx="8" fill="#FF7A00" stroke="#2B160B" stroke-width="2"/>
+    <path d="M45 52C47 44 55 41 62 45C68 49 68 58 62 63C56 69 47 66 45 59" stroke="#2B160B" stroke-width="5" stroke-linecap="round"/>
+    <path d="M58 50H70" stroke="#2B160B" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(35 86)">
+    <path d="M0 14L12 4H56L45 14H0Z" fill="#FFB441" stroke="#2B160B" stroke-width="2"/>
+    <path d="M45 14L56 4V28L45 38V14Z" fill="#973207" stroke="#2B160B" stroke-width="2"/>
+    <rect y="14" width="45" height="24" rx="6" fill="#F46B00" stroke="#2B160B" stroke-width="2"/>
+  </g>
+
+  <path d="M22 25L25 32L32 35L25 38L22 45L19 38L12 35L19 32L22 25Z" fill="#FFE36A"/>
+  <path d="M101 79L104 86L111 89L104 92L101 99L98 92L91 89L98 86L101 79Z" fill="#FFE36A"/>
+</svg>
