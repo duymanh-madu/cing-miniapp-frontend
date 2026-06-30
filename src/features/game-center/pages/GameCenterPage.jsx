@@ -167,31 +167,37 @@ export default function GameCenterPage() {
   // Socket: challenge winner
   useEffect(() => {
     let attempts = 0;
+    let attachedSocket = null;
+
+    const handleChallengeWon = (data) => {
+      const wonPayload = data?.payload || data;
+      setChallenges(prev => prev.map(c =>
+        c.game_key === wonPayload?.game_key
+          ? { ...c, completed: true, winner_name: wonPayload?.winner_name, winner_user_id: wonPayload?.winner_user_id }
+          : c
+      ));
+      setChallenge(prev => prev?.game_key === wonPayload?.game_key
+        ? { ...prev, completed: true, winner_name: wonPayload?.winner_name, winner_user_id: wonPayload?.winner_user_id }
+        : prev
+      );
+    };
+
     const attach = () => {
       const socket = getRuntimeSocket();
       if (socket?.connected) {
-        socket.on("challenge.won", (data) => {
-          // Update tất cả challenges khi có người nhận thưởng
-          const wonPayload = data?.payload || data;
-          setChallenges(prev => prev.map(c =>
-            c.game_key === wonPayload?.game_key
-              ? { ...c, completed: true, winner_name: wonPayload?.winner_name, winner_user_id: wonPayload?.winner_user_id }
-              : c
-          ));
-          setChallenge(prev => prev?.game_key === wonPayload?.game_key
-            ? { ...prev, completed: true, winner_name: wonPayload?.winner_name, winner_user_id: wonPayload?.winner_user_id }
-            : prev
-          );
-          // Popup toàn server
-          window.dispatchEvent(new CustomEvent("challenge_won", { detail: data?.payload }));
-        });
+        attachedSocket = socket;
+        socket.off("challenge.won", handleChallengeWon);
+        socket.on("challenge.won", handleChallengeWon);
         return;
       }
       if (attempts++ < 20) setTimeout(attach, 1000);
     };
+
     attach();
 
-  return () => { getRuntimeSocket()?.off("challenge.won"); };
+    return () => {
+      attachedSocket?.off("challenge.won", handleChallengeWon);
+    };
   }, []);
 
   const handleGameOver = async ({ bestCombo, score }) => {
@@ -215,20 +221,22 @@ export default function GameCenterPage() {
       });
     } catch(e) { console.warn("[GAME] score failed:", e.message); }
 
-    // Claim daily challenge
+    // Claim daily challenge chạy nền để không chặn refresh BXH ingame.
     if (bestCombo > 0) {
-      try {
-        const res = await apiClient.post("/game/daily-challenge/claim", {
-          user_id:     userId,
-          player_name: playerName,
-          avatar:      useAuthStore.getState().profile?.avatar || "",
-          combo:       bestCombo,
-          game_key:    gameKey,
-        });
-        if (res.data?.success) {
-          showToast("🏆 " + res.data.message);
-        }
-      } catch(e) {}
+      void (async () => {
+        try {
+          const res = await apiClient.post("/game/daily-challenge/claim", {
+            user_id:     userId,
+            player_name: playerName,
+            avatar:      useAuthStore.getState().profile?.avatar || "",
+            combo:       bestCombo,
+            game_key:    gameKey,
+          });
+          if (res.data?.success) {
+            showToast("🏆 " + res.data.message);
+          }
+        } catch(e) {}
+      })();
     }
   };
 
