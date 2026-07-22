@@ -146,26 +146,45 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
       setUiScore(0);
     }
 
-    function jump() {
-      if (game.dead && !game._deadNotified) {
-        game._deadNotified = true;
-        if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
+    let startPending = false;
+
+    async function requestStartPlay() {
+      if (startPending) return false;
+      startPending = true;
+      try {
+        if (!onGameStart) return true;
+        const allowed = await onGameStart();
+        return allowed !== false;
+      } finally {
+        startPending = false;
       }
-      if (game.dead) {
-        // Check lượt trước khi reset
-        if (onRestart) {
-          const allowed = onRestart();
-          if (allowed === false) return; // Hết lượt — không reset
-        }
-        resetGame();
-        return;
-      }
-      if (!game.started && onGameStart) onGameStart();
+    }
+
+    function startRound() {
       game.started = true;
       game.pearl.vy = -8.2;
       game.pearl.squash = 1.22;
       playSound("jump");
       burst(game.pearl.x, game.pearl.y, 10);
+    }
+
+    async function jump() {
+      if (game.dead && !game._deadNotified) {
+        game._deadNotified = true;
+        if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
+      }
+      if (game.dead) {
+        const allowed = await requestStartPlay();
+        if (!allowed) return;
+        resetGame();
+        startRound();
+        return;
+      }
+      if (!game.started) {
+        const allowed = await requestStartPlay();
+        if (!allowed) return;
+      }
+      startRound();
     }
 
     function createObstacle() {

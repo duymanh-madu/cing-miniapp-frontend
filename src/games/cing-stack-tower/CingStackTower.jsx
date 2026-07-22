@@ -728,28 +728,46 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       syncUi(true);
     }
 
-    function tap() {
+    let startPending = false;
+
+    async function requestStartPlay() {
+      if (startPending) return false;
+      startPending = true;
+      try {
+        if (!onGameStart) return true;
+        const allowed = await onGameStart();
+        return allowed !== false;
+      } finally {
+        startPending = false;
+      }
+    }
+
+    function startRound(now) {
+      game.started = true;
+      game.startAt = now;
+      game.lastAt = now;
+      game.cranePhase = Math.random() * Math.PI * 2;
+      showMessage("TAP ĐỂ THẢ KHỐI", 900);
+      spawnFalling(now);
+      syncUi(true);
+    }
+
+    async function tap() {
       unlockAudio();
       const now = performance.now();
 
       if (game.ended) {
-        if (onRestart) {
-          const allowed = onRestart();
-          if (allowed === false) return;
-        }
+        const allowed = await requestStartPlay();
+        if (!allowed) return;
         resetRoundOnly();
+        startRound(performance.now());
         return;
       }
 
       if (!game.started) {
-        if (onGameStart) onGameStart();
-        game.started = true;
-        game.startAt = now;
-        game.lastAt = now;
-        game.cranePhase = Math.random() * Math.PI * 2;
-        showMessage("TAP ĐỂ THẢ KHỐI", 900);
-        spawnFalling(now);
-        syncUi(true);
+        const allowed = await requestStartPlay();
+        if (!allowed) return;
+        startRound(now);
         return;
       }
 

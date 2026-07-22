@@ -103,6 +103,51 @@ function showToast(msg) {
   }).catch(() => {});
 }
 
+function NoGamePlaysPopup({ onClose }) {
+  return (
+    <div style={{
+      position:"fixed", inset:0, zIndex:10000,
+      background:"rgba(0,0,0,0.72)",
+      display:"flex", alignItems:"center", justifyContent:"center",
+      padding:20,
+    }}>
+      <div style={{
+        width:"min(340px, calc(100vw - 40px))",
+        background:"linear-gradient(180deg,#fffaf2,#fff1df)",
+        borderRadius:24,
+        padding:"24px 20px 20px",
+        textAlign:"center",
+        border:"1px solid rgba(212,83,28,0.25)",
+        boxShadow:"0 20px 60px rgba(0,0,0,0.35)",
+      }}>
+        <div style={{fontSize:48, marginBottom:8}}>🎮</div>
+        <h3 style={{margin:"0 0 8px", fontSize:20, fontWeight:950, color:"#2b160b"}}>
+          Hết lượt chơi rồi
+        </h3>
+        <p style={{margin:"0 0 18px", fontSize:13, lineHeight:1.55, color:"#7a5435", fontWeight:700}}>
+          Cing iu hãy đặt hàng hoặc nhận nhiệm vụ để có thêm lượt chơi nhé.
+        </p>
+        <button
+          onClick={onClose}
+          style={{
+            width:"100%",
+            height:44,
+            border:"none",
+            borderRadius:14,
+            background:"linear-gradient(135deg,#D4531C,#FF6B35)",
+            color:"white",
+            fontSize:14,
+            fontWeight:900,
+            cursor:"pointer",
+          }}
+        >
+          Đã hiểu
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function GameCenterPage() {
   const games = getAllGames();
   const [activeGame, setActiveGame]       = useState(null);
@@ -120,6 +165,7 @@ export default function GameCenterPage() {
   const [challenge, setChallenge]         = useState(null);
   const [missions,  setMissions]          = useState([]);
   const [gamePlays, setGamePlays]         = useState(null);
+  const [noPlaysPopup, setNoPlaysPopup]   = useState(false);
   const [showChat, setShowChat]           = useState(false);
 
   const authenticated = useAuthStore(s => s.authenticated);
@@ -240,10 +286,60 @@ export default function GameCenterPage() {
     }
   };
 
+  const showNoPlays = () => {
+    setGamePlays(0);
+    setNoPlaysPopup(true);
+  };
+
+  const consumeGamePlay = async (gameName) => {
+    if (!requireMember()) return false;
+
+    const ph = getPhone();
+    if (!ph) {
+      showToast("Không tìm thấy tài khoản thành viên.");
+      return false;
+    }
+
+    if (gamePlays !== null && gamePlays <= 0) {
+      showNoPlays();
+      return false;
+    }
+
+    try {
+      const res = await apiClient.post("/game/use-play", {
+        user_id: ph,
+        game_name: gameName || "game",
+      });
+
+      if (!res.data?.success) {
+        throw new Error(res.data?.message || "Không thể sử dụng lượt chơi");
+      }
+
+      const remaining =
+        Number(res.data?.game_plays ?? res.data?.remaining ?? 0);
+
+      setGamePlays(Number.isFinite(remaining) ? remaining : 0);
+      return true;
+    } catch(e) {
+      const status = e?.response?.status;
+      const code = e?.response?.data?.code;
+      const message = e?.response?.data?.message || e.message || "";
+
+      if (status === 409 || code === "NO_GAME_PLAYS" || message.includes("hết lượt")) {
+        showNoPlays();
+        return false;
+      }
+
+      showToast("Không thể bắt đầu ván chơi. Vui lòng thử lại.");
+      return false;
+    }
+  };
+
   const handlePlayGame = (gameId) => {
     if (!requireMember()) return;
     if (gamePlays !== null && gamePlays <= 0) {
-      showToast("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt."); return;
+      showNoPlays();
+      return;
     }
     setTimeout(() => {
       setActiveGame(gameId);
@@ -252,10 +348,8 @@ export default function GameCenterPage() {
   };
 
   const handleRestart = () => {
-    // Chỉ check lượt, không trừ — lượt trừ khi tap START
     if (gamePlays !== null && gamePlays <= 0) {
-      showToast("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
-      setActiveGame(null);
+      showNoPlays();
       return false;
     }
     return true;
@@ -291,24 +385,17 @@ export default function GameCenterPage() {
           onGameOver={handleGameOver}
           onRestart={handleRestart}
           onShowLeaderboard={() => setShowBoard(activeGame)}
-          onGameStart={() => {
-            const ph = getPhone();
-            if (ph) {
-              apiClient.post("/game/use-play", {
-                user_id: ph,
-                game_name: game?.displayName || activeGame || "game",
-              }).catch(e => console.warn("[GAME] use-play:", e.message));
-              setGamePlays(prev => prev !== null ? Math.max(0, prev - 1) : null);
-            }
-          }}
+          onGameStart={() => consumeGamePlay(game?.displayName || activeGame || "game")}
         />
         {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
+        {noPlaysPopup && <NoGamePlaysPopup onClose={() => setNoPlaysPopup(false)} />}
       </>
     );
   }
 
   return (
     <div style={{ minHeight:"100vh", background:"linear-gradient(180deg,#0a0a0f 0%,#12071a 50%,#0d0d1a 100%)", paddingBottom:100 }}>
+      {noPlaysPopup && <NoGamePlaysPopup onClose={() => setNoPlaysPopup(false)} />}
       {/* HEADER */}
       <div style={{ padding:"16px 20px 16px", paddingTop:"max(env(safe-area-inset-top,0px) + 12px, 52px)", textAlign:"center" }}>
         <p style={{ color:"rgba(255,215,0,0.6)", fontSize:11, letterSpacing:4, fontWeight:700, margin:"0 0 6px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
