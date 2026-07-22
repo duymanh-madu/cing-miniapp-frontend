@@ -3,6 +3,7 @@ import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
+import { useNavigate } from "react-router-dom";
 
 function getPhone() {
   const sources = [
@@ -17,7 +18,8 @@ function getPhone() {
   return "";
 }
 
-export default function GamePlaysCard({ onPlaysUpdate }) {
+export default function GamePlaysCard({ onPlaysUpdate, refreshKey = 0 }) {
+  const navigate = useNavigate();
   const [plays,   setPlays]   = useState(null);
   const [points,  setPoints]  = useState(0);
   const [loading, setLoading] = useState(true);
@@ -79,7 +81,7 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
     }
   };
 
-  useEffect(() => { fetchPlays(); }, [profileId, runtimePhone]);
+  useEffect(() => { fetchPlays(); }, [profileId, runtimePhone, refreshKey]);
 
   const buyPlay = async (qty) => {
     const phone = getPhone();
@@ -144,7 +146,7 @@ export default function GamePlaysCard({ onPlaysUpdate }) {
       {plays === 0 && !loading && (
         <div style={{ margin:"0 12px 12px", background:"rgba(212,83,28,0.15)", border:"1px solid rgba(212,83,28,0.3)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <span style={{ color:"rgba(255,255,255,0.7)", fontSize:12 }}>Đặt hàng để nhận thêm lượt chơi</span>
-          <button onClick={() => window.location.hash = "/menu"} style={{ background:"#D4531C", color:"white", border:"none", borderRadius:8, padding:"5px 12px", fontSize:11, fontWeight:700, cursor:"pointer" }}>Đặt ngay</button>
+          <button onClick={() => navigate("/menu")} style={{ background:"#D4531C", color:"white", border:"none", borderRadius:8, padding:"5px 12px", fontSize:11, fontWeight:700, cursor:"pointer" }}>Đặt ngay</button>
         </div>
       )}
 

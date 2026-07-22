@@ -103,7 +103,7 @@ function showToast(msg) {
   }).catch(() => {});
 }
 
-function NoGamePlaysPopup({ onClose }) {
+function NoGamePlaysPopup({ onClose, userName = "Cing iu" }) {
   return (
     <div style={{
       position:"fixed", inset:0, zIndex:10000,
@@ -125,7 +125,7 @@ function NoGamePlaysPopup({ onClose }) {
           Hết lượt chơi rồi
         </h3>
         <p style={{margin:"0 0 18px", fontSize:13, lineHeight:1.55, color:"#7a5435", fontWeight:700}}>
-          Cing iu hãy đặt hàng hoặc nhận nhiệm vụ để có thêm lượt chơi nhé.
+          {userName} hãy đặt hàng hoặc nhận nhiệm vụ để có thêm lượt chơi nhé.
         </p>
         <button
           onClick={onClose}
@@ -166,11 +166,14 @@ export default function GameCenterPage() {
   const [missions,  setMissions]          = useState([]);
   const [gamePlays, setGamePlays]         = useState(null);
   const [noPlaysPopup, setNoPlaysPopup]   = useState(false);
+  const [gamePlaysRefreshKey, setGamePlaysRefreshKey] = useState(0);
   const [showChat, setShowChat]           = useState(false);
 
   const authenticated = useAuthStore(s => s.authenticated);
   const { isActivated, requireMember, MemberPrompt } = useMemberRequired();
   const profile       = useAuthStore(s => s.profile);
+  const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
+  const displayName = resolveProfileName(profile || runtimeIdentity, "Cing iu");
 
   useEffect(() => {
     apiClient.get("/game/daily-challenge")
@@ -357,7 +360,7 @@ export default function GameCenterPage() {
 
   const handlePlayChess = () => {
     if (!requireMember()) return;
-    if (gamePlays !== null && gamePlays <= 0) { showToast("Hết lượt chơi!"); return; }
+    if (gamePlays !== null && gamePlays <= 0) { showNoPlays(); return; }
     setPlayingChess(true);
     trackGameStart('chess');
     // KHÔNG trừ lượt ở đây — chỉ trừ khi match thành công (chess:matched)
@@ -366,7 +369,7 @@ export default function GameCenterPage() {
   // Callback cho ChessGame.findMatch — check lượt trước khi tìm ván mới
   const handleFindChessMatch = () => {
     if (gamePlays !== null && gamePlays <= 0) {
-      showToast("Hết lượt chơi! Hãy đặt hàng để nhận thêm lượt.");
+      showNoPlays();
       return false; // Chặn tìm ván mới
     }
     return true; // Cho phép tìm ván
@@ -388,14 +391,14 @@ export default function GameCenterPage() {
           onGameStart={() => consumeGamePlay(game?.displayName || activeGame || "game")}
         />
         {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
-        {noPlaysPopup && <NoGamePlaysPopup onClose={() => setNoPlaysPopup(false)} />}
+        {noPlaysPopup && <NoGamePlaysPopup userName={displayName} onClose={() => setNoPlaysPopup(false)} />}
       </>
     );
   }
 
   return (
     <div style={{ minHeight:"100vh", background:"linear-gradient(180deg,#0a0a0f 0%,#12071a 50%,#0d0d1a 100%)", paddingBottom:100 }}>
-      {noPlaysPopup && <NoGamePlaysPopup onClose={() => setNoPlaysPopup(false)} />}
+      {noPlaysPopup && <NoGamePlaysPopup userName={displayName} onClose={() => setNoPlaysPopup(false)} />}
       {/* HEADER */}
       <div style={{ padding:"16px 20px 16px", paddingTop:"max(env(safe-area-inset-top,0px) + 12px, 52px)", textAlign:"center" }}>
         <p style={{ color:"rgba(255,215,0,0.6)", fontSize:11, letterSpacing:4, fontWeight:700, margin:"0 0 6px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
@@ -468,6 +471,7 @@ export default function GameCenterPage() {
                       const res = await apiClient.post("/missions/checkin", { user_id: phone });
                       if (res.data?.success) {
                         setMissions(prev => prev.map(x => x.type === "checkin" ? {...x, completed:true} : x));
+                        setGamePlaysRefreshKey(v => v + 1);
                         showToast(`✅ Điểm danh thành công! +${m.plays} lượt chơi`);
                       } else showToast(res.data?.message || "Đã điểm danh hôm nay rồi!");
                     } catch(e) { showToast("Lỗi điểm danh"); }
@@ -486,7 +490,7 @@ export default function GameCenterPage() {
         </div>
       )}
 
-      <GamePlaysCard onPlaysUpdate={setGamePlays} />
+      <GamePlaysCard onPlaysUpdate={setGamePlays} refreshKey={gamePlaysRefreshKey} />
 
       {/* GAME LIST */}
       <div style={{ padding:"0 16px" }}>
