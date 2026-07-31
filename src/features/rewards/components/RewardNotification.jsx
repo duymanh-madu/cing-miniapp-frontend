@@ -204,9 +204,24 @@ export function LeaderboardResetPopup() {
       const type = detail.type || detail.period || "weekly";
       const priority = { weekly: 1, monthly: 2, yearly: 3 }[type] || 99;
 
+      const message = detail.message || "BXH đã được reset!";
+      const eventKey =
+        detail.periodKey ||
+        `${type}:${detail.timestamp || message}`;
+
+      const duplicated = resetBufferRef.current.some(
+        item => item.eventKey === eventKey || (
+          item.priority === priority &&
+          item.message === message
+        )
+      );
+
+      if (duplicated) return;
+
       resetBufferRef.current.push({
+        eventKey,
         priority,
-        message: detail.message || "BXH đã được reset!"
+        message
       });
 
       if (resetFlushRef.current) clearTimeout(resetFlushRef.current);
@@ -215,7 +230,8 @@ export function LeaderboardResetPopup() {
         const items = [...resetBufferRef.current].sort((a,b) => a.priority - b.priority);
         resetBufferRef.current = [];
 
-        const body = items.map(i => i.message).filter(Boolean).join("\n\n");
+        const uniqueMessages = [...new Set(items.map(i => i.message).filter(Boolean))];
+        const body = uniqueMessages.join("\n\n");
         if (!body) return;
         persistResetPopup(body);
         if (isGamePlaying()) {
@@ -234,10 +250,21 @@ export function LeaderboardResetPopup() {
         const saved = JSON.parse(raw);
         const fresh = Date.now() - Number(saved?.createdAt || 0) < 10 * 60 * 1000;
         if (fresh && saved?.message) {
+          const normalizedSavedMessage = [...new Set(
+            String(saved.message)
+              .split(/\n\s*\n/)
+              .map(part => part.trim())
+              .filter(Boolean)
+          )].join("\n\n");
+
           if (isGamePlaying()) {
-            resetBufferRef.current.push({ priority: 99, message: saved.message });
+            resetBufferRef.current.push({
+              eventKey: `stored:${normalizedSavedMessage}`,
+              priority: 99,
+              message: normalizedSavedMessage
+            });
           } else {
-            setMsg(saved.message);
+            setMsg(normalizedSavedMessage);
           }
         } else {
           clearPersistedResetPopup();
@@ -249,7 +276,8 @@ export function LeaderboardResetPopup() {
       if (!playing && !msg && resetBufferRef.current.length > 0) {
         const items = [...resetBufferRef.current].sort((a,b) => a.priority - b.priority);
         resetBufferRef.current = [];
-        const body = items.map(i => i.message).filter(Boolean).join("\n\n");
+        const uniqueMessages = [...new Set(items.map(i => i.message).filter(Boolean))];
+        const body = uniqueMessages.join("\n\n");
         if (body) {
           persistResetPopup(body);
           setMsg(body);

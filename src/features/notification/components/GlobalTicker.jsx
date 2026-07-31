@@ -42,46 +42,104 @@ export default function GlobalTicker() {
   };
 
   useEffect(() => {
-    let attached = false;
+    let socket = null;
+    let interval = null;
 
-    const attachListeners = (socket) => {
-      if (attached) return;
-      attached = true;
-      const handleNotificationTicker = (data) => {
-        const payload = data?.payload || data || {};
-        const msg =
-          payload?.ticker?.message ||
-          payload?.notification?.message ||
-          data?.notification?.message ||
-          data?.message ||
-          "";
-        if (msg) addMessage(msg);
-      };
+    const handleNotificationTicker = (data) => {
+      const payload = data?.payload || data || {};
+      const msg =
+        payload?.ticker?.message ||
+        payload?.notification?.message ||
+        data?.notification?.message ||
+        data?.message ||
+        "";
+
+      if (msg) addMessage(msg);
+    };
+
+    const handleWeeklyReset = (data) => {
+      addLeaderboardResetMessage(
+        "weekly",
+        data?.message || "BXH tuần đã reset. Top 3 vui lòng vào nhận thưởng 🎁"
+      );
+    };
+
+    const handleMonthlyReset = (data) => {
+      addLeaderboardResetMessage(
+        "monthly",
+        data?.message || "BXH tháng đã reset. Top 3 vui lòng vào nhận thưởng 🎁"
+      );
+    };
+
+    const handleYearlyReset = (data) => {
+      addLeaderboardResetMessage(
+        "yearly",
+        data?.message || "BXH năm đã reset. Top 3 vui lòng vào nhận thưởng 🎁"
+      );
+    };
+
+    const handleChallengeWon = (data) => {
+      const payload = data?.payload || data;
+      const name = payload?.winner_name || "Một thành viên";
+      const pts = payload?.reward_points || 0;
+      addMessage(
+        "🏆 Chúc mừng " + name +
+        " đã xuất sắc hoàn thành thách thức ngày! +" +
+        pts + " điểm 🎉"
+      );
+    };
+
+    const detachListeners = () => {
+      if (!socket) return;
+
+      socket.off("notification.broadcast", handleNotificationTicker);
+      socket.off("notification.new", handleNotificationTicker);
+      socket.off("leaderboard.weekly_reset", handleWeeklyReset);
+      socket.off("leaderboard.monthly_reset", handleMonthlyReset);
+      socket.off("leaderboard.yearly_reset", handleYearlyReset);
+      socket.off("challenge.won", handleChallengeWon);
+      socket.off("connect", attachListeners);
+    };
+
+    function attachListeners() {
+      if (!socket) return;
+
+      // Bảo đảm mỗi event chỉ tồn tại đúng một listener của component này.
+      detachListeners();
 
       socket.on("notification.broadcast", handleNotificationTicker);
       socket.on("notification.new", handleNotificationTicker);
-      socket.on("leaderboard.weekly_reset",  (d) => addLeaderboardResetMessage("weekly",  d?.message || "BXH tuần đã reset. Top 3 vui lòng vào nhận thưởng 🎁"));
-      socket.on("leaderboard.monthly_reset", (d) => addLeaderboardResetMessage("monthly", d?.message || "BXH tháng đã reset. Top 3 vui lòng vào nhận thưởng 🎁"));
-      socket.on("leaderboard.yearly_reset",  (d) => addLeaderboardResetMessage("yearly",  d?.message || "BXH năm đã reset. Top 3 vui lòng vào nhận thưởng 🎁"));
-      socket.on("challenge.won", (d) => {
-        const payload = d?.payload || d;
-        const name = payload?.winner_name || "Một thành viên";
-        const pts  = payload?.reward_points || 0;
-        addMessage("🏆 Chúc mừng " + name + " đã xuất sắc hoàn thành thách thức ngày! +" + pts + " điểm 🎉");
-      });
-      // Re-attach khi reconnect
-      socket.on("connect", () => { attached = false; attachListeners(socket); });
-    };
+      socket.on("leaderboard.weekly_reset", handleWeeklyReset);
+      socket.on("leaderboard.monthly_reset", handleMonthlyReset);
+      socket.on("leaderboard.yearly_reset", handleYearlyReset);
+      socket.on("challenge.won", handleChallengeWon);
+      socket.on("connect", attachListeners);
+    }
 
     let attempts = 0;
-    let interval = setInterval(() => {
-      const socket = getRuntimeSocket();
-      if (!socket) { if (attempts++ > 40) clearInterval(interval); return; }
+
+    interval = setInterval(() => {
+      socket = getRuntimeSocket();
+
+      if (!socket) {
+        if (attempts++ > 40) clearInterval(interval);
+        return;
+      }
+
       clearInterval(interval);
-      // Attach ngay — socket.on hoạt động dù chưa connected
-      attachListeners(socket);
+      interval = null;
+      attachListeners();
     }, 500);
-    return () => clearInterval(interval);
+
+    return () => {
+      if (interval) clearInterval(interval);
+      detachListeners();
+
+      if (resetFlushRef.current) {
+        clearTimeout(resetFlushRef.current);
+        resetFlushRef.current = null;
+      }
+    };
   }, []);
 
   if (!current) return null;
