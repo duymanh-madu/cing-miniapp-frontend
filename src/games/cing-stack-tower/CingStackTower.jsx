@@ -729,16 +729,27 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     }
 
     let startPending = false;
+    let roundAuthorizationId = 0;
 
-    async function requestStartPlay() {
-      if (startPending) return false;
+    async function authorizeStartedRound(authorizationId) {
+      if (startPending) return;
       startPending = true;
+
       try {
-        if (!onGameStart) return true;
+        if (!onGameStart) return;
+
         const allowed = await onGameStart();
-        return allowed !== false;
+
+        // Bỏ qua response cũ nếu round đã thay đổi.
+        if (authorizationId !== roundAuthorizationId) return;
+
+        if (allowed === false) {
+          resetRoundOnly();
+        }
       } finally {
-        startPending = false;
+        if (authorizationId === roundAuthorizationId) {
+          startPending = false;
+        }
       }
     }
 
@@ -752,22 +763,30 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       syncUi(true);
     }
 
-    async function tap() {
+    function startAuthorizedRound(now) {
+      roundAuthorizationId += 1;
+      const authorizationId = roundAuthorizationId;
+
+      startRound(now);
+      void authorizeStartedRound(authorizationId);
+    }
+
+    function tap() {
       unlockAudio();
       const now = performance.now();
 
       if (game.ended) {
-        const allowed = await requestStartPlay();
-        if (!allowed) return;
+        if (startPending) return;
+
         resetRoundOnly();
-        startRound(performance.now());
+        startAuthorizedRound(performance.now());
         return;
       }
 
       if (!game.started) {
-        const allowed = await requestStartPlay();
-        if (!allowed) return;
-        startRound(now);
+        if (startPending) return;
+
+        startAuthorizedRound(now);
         return;
       }
 

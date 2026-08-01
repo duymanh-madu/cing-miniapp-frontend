@@ -147,16 +147,27 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
     }
 
     let startPending = false;
+    let roundAuthorizationId = 0;
 
-    async function requestStartPlay() {
-      if (startPending) return false;
+    async function authorizeStartedRound(authorizationId) {
+      if (startPending) return;
       startPending = true;
+
       try {
-        if (!onGameStart) return true;
+        if (!onGameStart) return;
+
         const allowed = await onGameStart();
-        return allowed !== false;
+
+        // Bỏ qua response cũ nếu round đã thay đổi.
+        if (authorizationId !== roundAuthorizationId) return;
+
+        if (allowed === false) {
+          resetGame();
+        }
       } finally {
-        startPending = false;
+        if (authorizationId === roundAuthorizationId) {
+          startPending = false;
+        }
       }
     }
 
@@ -168,22 +179,38 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
       burst(game.pearl.x, game.pearl.y, 10);
     }
 
-    async function jump() {
+    function startAuthorizedRound() {
+      roundAuthorizationId += 1;
+      const authorizationId = roundAuthorizationId;
+
+      startRound();
+      void authorizeStartedRound(authorizationId);
+    }
+
+    function jump() {
       if (game.dead && !game._deadNotified) {
         game._deadNotified = true;
-        if (onGameOver) onGameOver({ bestCombo: game.bestCombo, score: game.score });
+        if (onGameOver) onGameOver({
+          bestCombo: game.bestCombo,
+          score: game.score
+        });
       }
+
       if (game.dead) {
-        const allowed = await requestStartPlay();
-        if (!allowed) return;
+        if (startPending) return;
+
         resetGame();
-        startRound();
+        startAuthorizedRound();
         return;
       }
+
       if (!game.started) {
-        const allowed = await requestStartPlay();
-        if (!allowed) return;
+        if (startPending) return;
+
+        startAuthorizedRound();
+        return;
       }
+
       startRound();
     }
 
