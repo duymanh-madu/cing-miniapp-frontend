@@ -899,12 +899,12 @@ export default function ChessGame({ onExit }) {
           margin:"0 0 12px", textTransform:"uppercase" }}>Luật chơi</p>
         {[
           "♟ Tìm đối thủ tối đa 60 giây",
-          "🎯 Bạn chỉ mất lượt chơi khi vào ván",
-          "⚔️ Trận đấu bắt đầu khi 2 người vào",
+          "♾ Chơi không giới hạn — không sử dụng lượt chơi",
+          "⚔️ Trận đấu bắt đầu khi đủ 2 người",
           "♔ Chiếu hết đối thủ để thắng",
           "⏱ Mỗi nước đi tối đa 30 giây",
           "⏳ Mỗi người có 60s quỹ thời gian dự trữ — kích hoạt khi hết 30s, hết quỹ là thua",
-          "📊 BXH theo số trận thắng & chuỗi thắng",
+          "🏆 Thành tích được ghi nhận theo số trận thắng & chuỗi thắng",
         ].map((r,i) => <p key={i} style={{ color:"#aaa", fontSize:12, margin:"0 0 6px" }}>{r}</p>)}
       </div>
 
