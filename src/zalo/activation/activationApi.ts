@@ -1,5 +1,6 @@
 import { createSession } from "@/infra/auth/authSession";
 import useAuthStore from "@/stores/auth";
+import { getOrCreateRuntimeDeviceId } from "@/runtime/session/runtimeDeviceIdentity";
 
 const BACKEND_URL =
   (import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api");
@@ -56,6 +57,7 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
     birthday:      input.birthday     || null,
     phone_token:        input.phoneToken       || "",
     mini_access_token:  input.miniAccessToken  || "",
+    installation_id:   getOrCreateRuntimeDeviceId(),
   };
 
   const res = await fetch(`${BACKEND_URL}/auth/zalo/login`, {

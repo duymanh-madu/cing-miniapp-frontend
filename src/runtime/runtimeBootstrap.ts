@@ -7,6 +7,7 @@ import registerMenuRealtime from "@/features/menu/realtime/registerMenuRealtime"
 import useAuthStore from "@/stores/auth/authStore";
 import apiClient from "@/infra/api/apiClient";
 import { activateMiniAppUser } from "@/zalo/activation/activationApi";
+import { getOrCreateRuntimeDeviceId } from "./session/runtimeDeviceIdentity";
 
 function normalizeRuntimePhone(value: unknown) {
   const digits = String(value || "").replace(/\D/g, "");
@@ -50,6 +51,135 @@ function getPersistedAuthSession() {
       accessToken: null,
       refreshToken: null,
     };
+  }
+}
+
+async function openAuthenticatedRuntimeSession() {
+  const {
+    session,
+    accessToken,
+    refreshToken,
+  } = getPersistedAuthSession();
+
+  if (!accessToken) {
+    return false;
+  }
+
+  const installationId =
+    getOrCreateRuntimeDeviceId();
+
+  const openSession = async (
+    token: string
+  ) => {
+    return apiClient.post(
+      "/auth/session/open",
+      {
+        installation_id:
+          installationId,
+
+        source:
+          "zalo-miniapp-session",
+      },
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    );
+  };
+
+  try {
+
+    await openSession(
+      accessToken
+    );
+
+    return true;
+
+  } catch (error: any) {
+
+    if (
+      error?.response?.status !== 401 ||
+      !refreshToken
+    ) {
+      return false;
+    }
+
+  }
+
+  try {
+
+    const refreshResponse =
+      await apiClient.post(
+        "/auth/refresh",
+        {
+          refreshToken,
+        }
+      );
+
+    const refreshed =
+      refreshResponse?.data?.data ||
+      refreshResponse?.data ||
+      {};
+
+    const nextAccessToken =
+      refreshed.accessToken ||
+      refreshed.access_token ||
+      "";
+
+    if (!nextAccessToken) {
+      return false;
+    }
+
+    const nextProfile = {
+      ...(session?.profile || {}),
+      ...(refreshed.customer || {}),
+    };
+
+    try {
+
+      localStorage.setItem(
+        "cing_access_token",
+        nextAccessToken
+      );
+
+      localStorage.setItem(
+        "cing_session",
+        JSON.stringify({
+          ...(session || {}),
+          accessToken:
+            nextAccessToken,
+          refreshToken,
+          profile:
+            nextProfile,
+        })
+      );
+
+    } catch {}
+
+    useAuthStore
+      .getState()
+      .setSession({
+        accessToken:
+          nextAccessToken,
+
+        refreshToken,
+
+        profile:
+          nextProfile,
+      });
+
+    await openSession(
+      nextAccessToken
+    );
+
+    return true;
+
+  } catch {
+
+    return false;
+
   }
 }
 
@@ -334,6 +464,14 @@ export async function bootstrapRuntime() {
 
   // 2. Restore session từ localStorage
   await initializeRuntimeSession();
+
+  // 2b. Establish canonical authenticated app-entry
+  // boundary for persisted sessions.
+  //
+  // Backend owns campaign eligibility and all durable
+  // reward mutation; this runtime only establishes the
+  // authenticated session entry.
+  await openAuthenticatedRuntimeSession();
 
   // 3. Khởi tạo stores
   await initializeRuntimeStores();
