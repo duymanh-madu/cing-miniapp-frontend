@@ -220,14 +220,46 @@ async function restoreActivatedMemberFromShellToken() {
     const store = useRuntimeCustomerIdentityStore.getState();
     const identity = (store.identity || {}) as any;
 
-    const existingPhone = normalizeRuntimePhone(identity.phone || getStoredRuntimePhone());
-    if (existingPhone) return false;
+    const {
+      accessToken,
+    } = getPersistedAuthSession();
 
-    const phoneToken = identity.phoneToken || "";
-    const miniAccessToken = identity.miniAccessToken || "";
-    const zaloUserId = identity.zaloUserId || "";
+    /*
+     * A shell-restored member identity is not equivalent
+     * to an authenticated backend session.
+     *
+     * If a valid backend access token already exists,
+     * no Zalo re-authentication is required.
+     *
+     * If the shell has restored member identity but local
+     * auth storage is empty, we must silently establish a
+     * canonical backend session using the shell-held Zalo
+     * credentials.
+     */
+    if (accessToken) return false;
 
-    if (!zaloUserId || !phoneToken || !miniAccessToken) return false;
+    const existingPhone =
+      normalizeRuntimePhone(
+        identity.phone ||
+        getStoredRuntimePhone()
+      );
+
+    const phoneToken =
+      identity.phoneToken || "";
+
+    const miniAccessToken =
+      identity.miniAccessToken || "";
+
+    const zaloUserId =
+      identity.zaloUserId || "";
+
+    if (
+      !zaloUserId ||
+      !phoneToken ||
+      !miniAccessToken
+    ) {
+      return false;
+    }
 
     console.log("[BOOT] Attempt silent iOS member restore from shell token:", zaloUserId);
 
@@ -235,7 +267,7 @@ async function restoreActivatedMemberFromShellToken() {
       zaloUserId,
       name: identity.fullName || "",
       avatar: identity.avatar || "",
-      phone: "",
+      phone: existingPhone || "",
       phoneToken,
       miniAccessToken,
       phoneGranted: true,
