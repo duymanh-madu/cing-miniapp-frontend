@@ -168,12 +168,30 @@ export default function GameCenterPage() {
   const [noPlaysPopup, setNoPlaysPopup]   = useState(false);
   const [gamePlaysRefreshKey, setGamePlaysRefreshKey] = useState(0);
   const [showChat, setShowChat]           = useState(false);
+  const [gameEconomy, setGameEconomy]     = useState(null);
 
   const authenticated = useAuthStore(s => s.authenticated);
   const { isActivated, requireMember, MemberPrompt } = useMemberRequired();
   const profile       = useAuthStore(s => s.profile);
   const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
   const displayName = resolveProfileName(profile || runtimeIdentity, "Cing iu");
+
+  useEffect(() => {
+    apiClient.get("/game/economy-policy")
+      .then(r => {
+        const data = r.data?.data;
+        if (data?.games && typeof data.games === "object") {
+          setGameEconomy(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const getGameEconomy = (gameKey) =>
+    gameEconomy?.games?.[gameKey] || null;
+
+  const gameUsesPlay = (gameKey) =>
+    Number(getGameEconomy(gameKey)?.play_cost || 0) > 0;
 
   useEffect(() => {
     apiClient.get("/game/daily-challenge")
@@ -294,12 +312,17 @@ export default function GameCenterPage() {
     setNoPlaysPopup(true);
   };
 
-  const consumeGamePlay = async (gameName) => {
+  const consumeGamePlay = async (gameKey) => {
     if (!requireMember()) return false;
 
     const ph = getPhone();
     if (!ph) {
       showToast("Không tìm thấy tài khoản thành viên.");
+      return false;
+    }
+
+    if (!gameKey) {
+      showToast("Không xác định được trò chơi.");
       return false;
     }
 
@@ -311,7 +334,7 @@ export default function GameCenterPage() {
     try {
       const res = await apiClient.post("/game/use-play", {
         user_id: ph,
-        game_name: gameName || "game",
+        game_key: gameKey,
       });
 
       if (!res.data?.success) {
@@ -340,10 +363,16 @@ export default function GameCenterPage() {
 
   const handlePlayGame = (gameId) => {
     if (!requireMember()) return;
-    if (gamePlays !== null && gamePlays <= 0) {
+
+    if (
+      gameUsesPlay(gameId) &&
+      gamePlays !== null &&
+      gamePlays <= 0
+    ) {
       showNoPlays();
       return;
     }
+
     setTimeout(() => {
       setActiveGame(gameId);
       trackGameStart(gameId);
@@ -351,32 +380,27 @@ export default function GameCenterPage() {
   };
 
   const handleRestart = () => {
-    if (gamePlays !== null && gamePlays <= 0) {
+    if (
+      activeGame &&
+      gameUsesPlay(activeGame) &&
+      gamePlays !== null &&
+      gamePlays <= 0
+    ) {
       showNoPlays();
       return false;
     }
+
     return true;
   };
 
   const handlePlayChess = () => {
     if (!requireMember()) return;
-    if (gamePlays !== null && gamePlays <= 0) { showNoPlays(); return; }
     setPlayingChess(true);
-    trackGameStart('chess');
-    // KHÔNG trừ lượt ở đây — chỉ trừ khi match thành công (chess:matched)
-  };
-
-  // Callback cho ChessGame.findMatch — check lượt trước khi tìm ván mới
-  const handleFindChessMatch = () => {
-    if (gamePlays !== null && gamePlays <= 0) {
-      showNoPlays();
-      return false; // Chặn tìm ván mới
-    }
-    return true; // Cho phép tìm ván
+    trackGameStart("chess");
   };
 
   if (showChat) return <CommunityChat onClose={() => setShowChat(false)} />;
-  if (playingChess) return <ChessGame onExit={() => { trackGameStop('chess'); setPlayingChess(false); }} onFindMatch={handleFindChessMatch} />;
+  if (playingChess) return <ChessGame onExit={() => { trackGameStop("chess"); setPlayingChess(false); }} />;
 
   if (activeGame) {
     const game     = games.find(g => g.id === activeGame);
@@ -388,7 +412,7 @@ export default function GameCenterPage() {
           onGameOver={handleGameOver}
           onRestart={handleRestart}
           onShowLeaderboard={() => setShowBoard(activeGame)}
-          onGameStart={() => consumeGamePlay(game?.displayName || activeGame || "game")}
+          onGameStart={() => consumeGamePlay(activeGame)}
         />
         {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
         {noPlaysPopup && <NoGamePlaysPopup userName={displayName} onClose={() => setNoPlaysPopup(false)} />}
@@ -490,7 +514,11 @@ export default function GameCenterPage() {
         </div>
       )}
 
-      <GamePlaysCard onPlaysUpdate={setGamePlays} refreshKey={gamePlaysRefreshKey} />
+      <GamePlaysCard
+        onPlaysUpdate={setGamePlays}
+        refreshKey={gamePlaysRefreshKey}
+        economyPolicy={gameEconomy}
+      />
 
       {/* GAME LIST */}
       <div style={{ padding:"0 16px" }}>
@@ -508,6 +536,16 @@ export default function GameCenterPage() {
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
                 <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>{game.displayName || game.name}</p>
                 {game.status==="LIVE" && <span style={{ background:"rgba(0,255,100,0.15)", color:"#00ff64", fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8, letterSpacing:1 }}>LIVE</span>}
+                {getGameEconomy(game.id)?.play_cost > 0 && (
+                  <span style={{ background:"rgba(255,215,0,0.12)", color:"#FFD700", fontSize:9, fontWeight:900, padding:"2px 7px", borderRadius:8, border:"1px solid rgba(255,215,0,0.25)" }}>
+                    🎟 1 LƯỢT / VÁN
+                  </span>
+                )}
+                {getGameEconomy(game.id)?.play_cost === 0 && (
+                  <span style={{ background:"rgba(0,255,150,0.12)", color:"#00e99a", fontSize:9, fontWeight:900, padding:"2px 7px", borderRadius:8, border:"1px solid rgba(0,255,150,0.22)" }}>
+                    ♾ MIỄN PHÍ
+                  </span>
+                )}
               </div>
               <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>
                 {game.description || "Thử thách phản xạ — ghi điểm cao nhất"}
@@ -530,6 +568,11 @@ export default function GameCenterPage() {
             <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
               <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>Kỳ thủ cờ vua</p>
               <span style={{ background:"rgba(255,80,0,0.2)", color:"#FF6030", fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8 }}>MULTIPLAYER</span>
+              {getGameEconomy("chess")?.play_cost === 0 && (
+                <span style={{ background:"rgba(0,255,150,0.12)", color:"#00e99a", fontSize:9, fontWeight:900, padding:"2px 7px", borderRadius:8, border:"1px solid rgba(0,255,150,0.22)" }}>
+                  ♾ KHÔNG TRỪ LƯỢT
+                </span>
+              )}
               <span style={{ background:"rgba(0,255,100,0.15)", color:"#00ff64", fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8 }}>NEW</span>
             </div>
             <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>PvP 1v1 · Chiếu hết đối thủ · Leo bảng danh vọng</p>

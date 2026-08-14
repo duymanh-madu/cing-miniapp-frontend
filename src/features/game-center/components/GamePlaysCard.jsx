@@ -18,7 +18,11 @@ function getPhone() {
   return "";
 }
 
-export default function GamePlaysCard({ onPlaysUpdate, refreshKey = 0 }) {
+export default function GamePlaysCard({
+  onPlaysUpdate,
+  refreshKey = 0,
+  economyPolicy = null,
+}) {
   const navigate = useNavigate();
   const [plays,   setPlays]   = useState(null);
   const [points,  setPoints]  = useState(0);
@@ -109,6 +113,26 @@ export default function GamePlaysCard({ onPlaysUpdate, refreshKey = 0 }) {
 
   const bars = [1,2,3,4,5];
 
+  const economyGames =
+    economyPolicy?.games &&
+    typeof economyPolicy.games === "object"
+      ? Object.values(economyPolicy.games)
+      : [];
+
+  const paidOfflineCount =
+    economyGames.filter(
+      game =>
+        game?.economy_type === "paid_offline" &&
+        Number(game?.play_cost || 0) > 0
+    ).length;
+
+  const freeMultiplayerCount =
+    economyGames.filter(
+      game =>
+        game?.economy_type === "free_multiplayer" &&
+        Number(game?.play_cost || 0) === 0
+    ).length;
+
   return (
     <div style={{ margin:"0 16px 16px", background:"linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,140,0,0.05))", border:"1px solid rgba(255,215,0,0.2)", borderRadius:18, overflow:"hidden" }}>
       <div style={{ padding:"14px 16px 10px", borderBottom:"1px solid rgba(255,255,255,0.06)", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
@@ -129,16 +153,26 @@ export default function GamePlaysCard({ onPlaysUpdate, refreshKey = 0 }) {
         </div>
         <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <span>🎁</span>
-            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>Tặng <b style={{color:"#FFD700"}}>3 lượt miễn phí</b> khi kích hoạt tài khoản lần đầu</span>
+            <span>🎟</span>
+            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>
+              Game offline có thưởng BXH sử dụng <b style={{color:"#FFD700"}}>1 lượt / ván</b>
+              {paidOfflineCount > 0 ? ` · hiện có ${paidOfflineCount} game` : ""}
+            </span>
           </div>
+
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <span>♾</span>
+            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>
+              Game multiplayer realtime <b style={{color:"#00e99a"}}>không trừ lượt chơi</b>
+              {freeMultiplayerCount > 0 ? ` · hiện có ${freeMultiplayerCount} game` : ""}
+            </span>
+          </div>
+
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <span>🧋</span>
-            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>Mỗi <b style={{color:"#FFD700"}}>{(spendPerPlay||20000).toLocaleString("vi-VN")}đ</b> chi tiêu → nhận thêm <b style={{color:"#FFD700"}}>1 lượt chơi</b></span>
-          </div>
-          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <span>⚡</span>
-            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>1 lượt = 1 ván game bất kỳ trong Game Center</span>
+            <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>
+              Mỗi <b style={{color:"#FFD700"}}>{(spendPerPlay||20000).toLocaleString("vi-VN")}đ</b> chi tiêu → nhận thêm <b style={{color:"#FFD700"}}>1 lượt chơi</b>
+            </span>
           </div>
         </div>
       </div>

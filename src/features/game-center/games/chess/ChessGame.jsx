@@ -387,7 +387,7 @@ function getCharmBadge(charmPoints) {
   return null;
 }
 
-export default function ChessGame({ onExit, onFindMatch }) {
+export default function ChessGame({ onExit }) {
   const navigate = useNavigate();
   const profile  = useAuthStore(s => s.profile);
   const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
@@ -479,13 +479,6 @@ export default function ChessGame({ onExit, onFindMatch }) {
     s.on("chess:matched", (data) => {
       clearInterval(timerRef.current);
       clearInterval(moveTimerRef.current);
-      // Trừ lượt chơi đúng lúc — khi đã tìm được đối thủ
-      const phone = userIdRef.current;
-      if (phone) {
-        fetch((import.meta.env.VITE_API_BASE_URL||"https://cing-backend-production.up.railway.app/api")+"/game/use-play",
-          { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ user_id: phone, game_name: "Kỳ thủ cờ vua" }) }
-        ).catch(()=>{});
-      }
       const c = new Chess();
       setChess(c);
       setMyColor(data.myColor);
@@ -724,8 +717,6 @@ export default function ChessGame({ onExit, onFindMatch }) {
   };
 
   const findMatch = useCallback(() => {
-    // Nếu có callback từ parent — check lượt chơi trước
-    if (onFindMatch && !onFindMatch()) return; // onFindMatch trả false = hết lượt
     if (!userId) return;
     // Tên: display_name > zalo_name > runtime fallback.
     // Avatar: custom avatar > zalo avatar > runtime avatar.
