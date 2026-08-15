@@ -54,6 +54,62 @@ function getPersistedAuthSession() {
   }
 }
 
+async function openCachedMemberRuntimeEntry({
+  phone,
+  zaloUserId,
+}: {
+  phone: string;
+  zaloUserId: string;
+}) {
+  const normalizedPhone =
+    normalizeRuntimePhone(
+      phone
+    );
+
+  const normalizedZaloUserId =
+    String(
+      zaloUserId || ""
+    ).trim();
+
+  if (
+    !normalizedPhone ||
+    !normalizedZaloUserId
+  ) {
+    return false;
+  }
+
+  try {
+
+    await apiClient.post(
+      "/auth/member/app-open",
+      {
+        phone:
+          normalizedPhone,
+
+        zalo_id:
+          normalizedZaloUserId,
+
+        installation_id:
+          getOrCreateRuntimeDeviceId(),
+
+        source:
+          "zalo-miniapp-shell-cache",
+      }
+    );
+
+    return true;
+
+  } catch {
+
+    /*
+     * App-open campaign evaluation must never block
+     * normal Mini App bootstrap.
+     */
+    return false;
+
+  }
+}
+
 async function openAuthenticatedRuntimeSession() {
   const {
     session,
@@ -472,6 +528,19 @@ export async function bootstrapRuntime() {
         store.setPermissionState({ phoneGranted: true, oaFollowed: true });
         store.setActivationStatus("activated");
         store.setProfileHydrated(true);
+
+        if (
+          (shellBootData as any)?.cachedMember &&
+          shellBootData.zaloId
+        ) {
+          await openCachedMemberRuntimeEntry({
+            phone:
+              shellPhone,
+
+            zaloUserId:
+              shellBootData.zaloId,
+          });
+        }
       } else if (shellBootData.phoneToken && shellBootData.miniAccessToken) {
         store.setActivationStatus("checking");
       }
