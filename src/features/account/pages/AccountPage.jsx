@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
+import { useMembership } from "@/features/home/hooks/useMembership";
 import { TierBadge } from "@/membership/components/TierBadge";
 import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
 injectTierBadgeStyles();
@@ -192,7 +193,6 @@ export default function AccountPage() {
   const [showEdit, setShowEdit]   = useState(false);
   const [cooldown, setCooldown]   = useState(null);
   const [toast, setToast]         = useState("");
-  const [membership, setMembership] = useState(null);
   const [birthday,   setBirthday]   = useState("");
   const [bdSaving,   setBdSaving]   = useState(false);
   const [bdMsg,      setBdMsg]      = useState("");
@@ -209,6 +209,12 @@ export default function AccountPage() {
   })();
   const userId = phone || profile?.id || null;
 
+  const {
+    data: membership,
+  } = useMembership(
+    phone
+  );
+
   const saveBirthday = async () => {
     if (!birthday || !userId) return;
     setBdSaving(true); setBdMsg("");
@@ -221,14 +227,6 @@ export default function AccountPage() {
     setBdSaving(false);
     setTimeout(() => setBdMsg(""), 3000);
   };
-
-  // Fetch membership data thật từ iPOS
-  useEffect(() => {
-    if (!phone) return;
-    apiClient.get(`/membership/${phone}`)
-      .then(r => { setMembership(r.data?.data); })
-      .catch(() => {});
-  }, [phone]);
 
   // Fetch birthday từ players table (nguồn chính xác nhất)
   useEffect(() => {

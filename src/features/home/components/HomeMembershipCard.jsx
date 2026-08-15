@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useMembership } from "../hooks/useMembership";
 import { useEffect, useRef } from "react";
 import useAuthStore from "@/stores/auth/authStore";
-import useRealtimeCustomerStore from "@/stores/customer/customerRuntimeStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
 /* ── Barcode 1D dung JsBarcode (Code128 chuan ISO) ── */
@@ -132,21 +131,55 @@ export default function HomeMembershipCard() {
     : "";
   const phone = (profile?.phone || profile?.phoneNumber || profile?.mobile || runtimePhone || "").replace(/\D/g,"").replace(/^84/,"0");
 
-  const realtimePoints = useRealtimeCustomerStore(s => s.profile?.points ?? null);
-  const realtimeTier   = useRealtimeCustomerStore(s => s.profile?.tier?.toLowerCase?.() ?? null);
+  /*
+   * Developer membership override is strictly a browser-test
+   * facility. It must never override canonical member identity
+   * inside Zalo Mini App production.
+   */
+  const isWeb =
+    typeof window !== "undefined" &&
+    !window.__ZALO_MINI_APP__ &&
+    !navigator.userAgent.includes("ZaloApp");
+
   const [inputPhone, setInputPhone] = useState("");
+
   const [submittedPhone, setSubmittedPhone] = useState(
-    () => sessionStorage.getItem("dev_membership_phone") || ""
+    () =>
+      isWeb
+        ? sessionStorage.getItem("dev_membership_phone") || ""
+        : ""
   );
+
   const handleSubmitPhone = (p) => {
-    const clean = p.replace(/\D/g,"");
-    sessionStorage.setItem("dev_membership_phone", clean);
-    setSubmittedPhone(clean);
+    if (!isWeb) return;
+
+    const clean =
+      p.replace(/\D/g,"");
+
+    sessionStorage.setItem(
+      "dev_membership_phone",
+      clean
+    );
+
+    setSubmittedPhone(
+      clean
+    );
   };
-  const { data: membership, isLoading } = useMembership(submittedPhone || phone);
+
+  const membershipPhone =
+    isWeb
+      ? submittedPhone || phone
+      : phone;
+
+  const {
+    data: membership,
+    isLoading,
+  } = useMembership(
+    membershipPhone
+  );
   const displayName = resolveProfileName(profile, membership?.name || "Hội viên"); // custom name ưu tiên
 
-  const tierRaw = membership?.tierName || membership?.tierKey || realtimeTier || "member";
+  const tierRaw = membership?.tierName || membership?.tierKey || "member";
   // Uu tien tierKey neu da biet (chinh xac hon)
   const tierKeyDirect = membership?.tierKey?.toLowerCase?.() || "";
   const tierNameRaw = membership?.tierName || "";
@@ -161,7 +194,7 @@ export default function HomeMembershipCard() {
     tier = mapTierKey(tierNameRaw || tierRaw || "");
   }
   const cfg    = TIERS[tier] || TIERS.member;
-  const points = membership?.points ?? (realtimePoints || 0);
+  const points = membership?.points ?? 0;
   const paymentAmount = membership?.paymentAmount ?? 0;
 
   const TIER_THRESHOLDS = { member:0, loyal:1000000, silver:3000000, gold:5000000, diamond:10000000 };
@@ -186,10 +219,14 @@ export default function HomeMembershipCard() {
     ? Math.min(Math.round(((paymentAmount - currentThreshold) / (nextThreshold - currentThreshold)) * 100), 99)
     : 100;
   const remaining = nextThreshold ? Math.max(nextThreshold - paymentAmount, 0) : 0;
-  const activePhone = submittedPhone || phone || membership?.phone || "";
-  const barcodeValue = activePhone.replace(/\D/g,"") || "000000000000";
+  const activePhone =
+    membershipPhone ||
+    membership?.phone ||
+    "";
 
-  const isWeb = typeof window !== "undefined" && !window.__ZALO_MINI_APP__ && !navigator.userAgent.includes("ZaloApp");
+  const barcodeValue =
+    activePhone.replace(/\D/g,"") ||
+    "000000000000";
 
   // Neu tren web va chua co phone, hien thi input
   if (!phone && isWeb && !submittedPhone) {

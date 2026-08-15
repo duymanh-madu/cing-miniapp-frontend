@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
-import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import { useNavigate } from "react-router-dom";
+import { useMembership } from "@/features/home/hooks/useMembership";
+import queryRealtimeSync from "@/services/query/queryRealtimeSync";
 
 function getPhone() {
   const sources = [
@@ -25,14 +26,66 @@ export default function GamePlaysCard({
 }) {
   const navigate = useNavigate();
   const [plays,   setPlays]   = useState(null);
-  const [points,  setPoints]  = useState(0);
   const [loading, setLoading] = useState(true);
   const [buying,  setBuying]  = useState(false);
   const [buyMsg,  setBuyMsg]  = useState("");
   const [pressing, setPressing] = useState(null);
 
-  const profileId    = useAuthStore(s => s.profile?.id);
-  const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
+  const profileId =
+    useAuthStore(
+      s => s.profile?.id
+    );
+
+  const profilePhone =
+    useAuthStore(
+      s => s.profile?.phone
+    );
+
+  const runtimePhone =
+    useRuntimeCustomerIdentityStore(
+      s => s.identity?.phone
+    );
+
+  const memberPhone = (() => {
+    for (
+      const source of [
+        runtimePhone,
+        profilePhone,
+      ]
+    ) {
+      if (
+        !source ||
+        source === "pending"
+      ) {
+        continue;
+      }
+
+      const normalized =
+        String(source)
+          .replace(/\D/g, "")
+          .replace(/^84/, "0");
+
+      if (
+        normalized.length >= 9
+      ) {
+        return normalized;
+      }
+    }
+
+    return "";
+  })();
+
+  const {
+    data: membership,
+  } = useMembership(
+    memberPhone
+  );
+
+  const points =
+    Number(
+      membership?.points ||
+      0
+    );
 
   const [spendPerPlay, setSpendPerPlay] = useState(20000);
 
@@ -44,39 +97,29 @@ export default function GamePlaysCard({
       }).catch(() => {});
   }, []);
 
-  // Lắng nghe event membership.points để refresh điểm ngay
-  useEffect(() => {
-    let attempts = 0;
-    const attach = () => {
-      const socket = getRuntimeSocket();
-      if (socket && socket.connected) {
-        socket.on("membership.points", fetchPlays);
-        return true;
-      }
-      if (attempts++ < 20) setTimeout(attach, 1000);
-      return false;
-    };
-    attach();
-    return () => {
-      const socket = getRuntimeSocket();
-      if (socket) socket.off("membership.points", fetchPlays);
-    };
-  }, [runtimePhone, profileId]);
-
   const fetchPlays = async () => {
     const phone = getPhone();
     if (!phone) { setLoading(false); return; }
     try {
-      // Lấy game_plays từ players table
-      const [playsRes, memberRes] = await Promise.all([
-        apiClient.get(`/game/plays/${phone}`),
-        apiClient.get(`/membership/${phone}`).catch(() => ({ data: { data: null } })),
-      ]);
-      const gamePlays = playsRes.data?.data?.game_plays ?? 0;
-      const pts       = memberRes.data?.data?.points    ?? playsRes.data?.data?.total_points ?? 0;
-      setPlays(gamePlays);
-      setPoints(pts);
-      onPlaysUpdate?.(gamePlays);
+      // game_plays is a separate game-economy domain.
+      // Loyalty points come exclusively from useMembership().
+      const playsRes =
+        await apiClient.get(
+          `/game/plays/${phone}`
+        );
+
+      const gamePlays =
+        playsRes.data?.data
+          ?.game_plays ??
+        0;
+
+      setPlays(
+        gamePlays
+      );
+
+      onPlaysUpdate?.(
+        gamePlays
+      );
     } catch(e) {
       setPlays(0);
       onPlaysUpdate?.(0);
@@ -97,9 +140,25 @@ export default function GamePlaysCard({
     try {
       const res = await apiClient.post("/points/buy-plays", { user_id: phone, quantity: qty });
       if (res.data?.success) {
-        setPlays(res.data.data.new_plays);
-        setPoints(res.data.data.remaining_points);
-        onPlaysUpdate?.(res.data.data.new_plays);
+        setPlays(
+          res.data.data.new_plays
+        );
+
+        queryRealtimeSync
+          .applyMembershipPoints({
+            user_id:
+              phone,
+
+            phone,
+
+            points:
+              res.data.data
+                .remaining_points,
+          });
+
+        onPlaysUpdate?.(
+          res.data.data.new_plays
+        );
         setBuyMsg("✅ +" + qty + " lượt thành công!");
       } else {
         setBuyMsg("❌ " + res.data.message);

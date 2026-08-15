@@ -1,68 +1,147 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
-import apiClient from "@/infra/api/apiClient";
-import useAuthStore from "@/stores/auth/authStore";
-import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
+import {
+  useQuery,
+} from "@tanstack/react-query";
 
-export function useMembership(overridePhone = "") {
-  const profile = useAuthStore(s => s.profile);
-  const storePhone = (profile?.phone || profile?.phoneNumber || profile?.mobile || "")
-    .replace(/\D/g, "");
-  const phone = (overridePhone || storePhone || "").replace(/\D/g, "");
-  const queryClient = useQueryClient();
-  const handlerRef = useRef(null);
+import apiClient
+  from "@/infra/api/apiClient";
 
-  useEffect(() => {
-    if (!phone) return;
+import useAuthStore
+  from "@/stores/auth/authStore";
 
-    const handler = (data) => {
-      const eventPhone = String(data?.payload?.phone || data?.phone || "").replace(/\D/g,"");
-      const normalizedEvent = eventPhone.startsWith("84") ? "0" + eventPhone.slice(2) : eventPhone;
-      // Refetch neu dung dien thoai hoac neu points_changed (sau khi cong/tru diem)
-      const isPointsChanged = data?.payload?.points_changed === true;
-      if (normalizedEvent === phone || eventPhone === phone || isPointsChanged) {
-        queryClient.invalidateQueries({ queryKey: ["membership", phone] });
-      }
-    };
-    handlerRef.current = handler;
+import {
+  useMembershipStore,
+} from "@/membership/store/membershipStore";
 
-    // Retry attach listener cho den khi socket ready
-    let attempts = 0;
-    const attach = () => {
-      const socket = getRuntimeSocket();
-      if (socket && socket.connected) {
-        socket.on("user.updated", handler);
-        socket.on("membership.points", handler);
-        socket.on("membership.updated", handler);
-        return true;
-      }
-      if (attempts++ < 30) {
-        setTimeout(attach, 1000);
-      }
-      return false;
-    };
-    attach();
+function normalizePhone(
+  value
+) {
+  const digits =
+    String(
+      value || ""
+    ).replace(
+      /\D/g,
+      ""
+    );
 
-    return () => {
-      const socket = getRuntimeSocket();
-      if (socket && handlerRef.current) {
-        socket.off("user.updated", handlerRef.current);
-        socket.off("membership.points", handlerRef.current);
-        socket.off("membership.updated", handlerRef.current);
-      }
-    };
-  }, [phone, queryClient]);
+  if (
+    digits.startsWith("84")
+  ) {
+    return (
+      "0" +
+      digits.slice(2)
+    );
+  }
 
-  return useQuery({
-    queryKey: ["membership", phone],
-    queryFn: async () => {
-      if (!phone) return null;
-      const res = await apiClient.get(`/membership/${phone}`);
-      return res.data?.data || null;
-    },
-    enabled: !!phone,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    retry: 2,
-  });
+  return digits;
+}
+
+export function useMembership(
+  overridePhone = ""
+) {
+  const profile =
+    useAuthStore(
+      state =>
+        state.profile
+    );
+
+  const storePhone =
+    normalizePhone(
+      profile?.phone ||
+      profile?.phoneNumber ||
+      profile?.mobile ||
+      ""
+    );
+
+  const phone =
+    normalizePhone(
+      overridePhone ||
+      storePhone ||
+      ""
+    );
+
+  const realtimePoints =
+    useMembershipStore(
+      state =>
+        state.loyaltyPoints
+    );
+
+  const realtimePointsPhone =
+    normalizePhone(
+      useMembershipStore(
+        state =>
+          state.loyaltyPointsPhone
+      )
+    );
+
+  const query =
+    useQuery({
+      queryKey: [
+        "membership",
+        phone,
+      ],
+
+      queryFn: async ({
+        signal,
+      }) => {
+
+        if (!phone) {
+          return null;
+        }
+
+        const response =
+          await apiClient.get(
+            `/membership/${phone}`,
+            {
+              signal,
+            }
+          );
+
+        return (
+          response.data?.data ||
+          null
+        );
+      },
+
+      enabled:
+        !!phone,
+
+      staleTime:
+        5 * 60 * 1000,
+
+      gcTime:
+        10 * 60 * 1000,
+
+      retry:
+        2,
+    });
+
+  const hasRealtimePoints =
+    !!phone &&
+    realtimePointsPhone ===
+      phone &&
+    Number.isFinite(
+      Number(
+        realtimePoints
+      )
+    );
+
+  const data =
+    query.data &&
+    typeof query.data ===
+      "object" &&
+    hasRealtimePoints
+      ? {
+          ...query.data,
+
+          points:
+            Number(
+              realtimePoints
+            ),
+        }
+      : query.data;
+
+  return {
+    ...query,
+    data,
+  };
 }

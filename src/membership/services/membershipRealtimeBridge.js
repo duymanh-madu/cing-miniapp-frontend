@@ -13,7 +13,11 @@ export function connectMembershipRealtime({
       useMembershipStore
         .getState()
         .setLoyaltyPoints(
-          payload.points
+          payload.points,
+          payload.phone ||
+          payload.user_id ||
+          payload.userId ||
+          ""
         );
 
     }

@@ -10,6 +10,9 @@ export const useMembershipStore =
     loyaltyPoints:
       0,
 
+    loyaltyPointsPhone:
+      "",
+
     walletItems: [],
 
     loyaltyHistory: [],
@@ -25,12 +28,22 @@ export const useMembershipStore =
 
     },
 
-    setLoyaltyPoints(points) {
+    setLoyaltyPoints(
+      points,
+      phone = ""
+    ) {
 
       set({
 
         loyaltyPoints:
-          points,
+          Number(
+            points || 0
+          ),
+
+        loyaltyPointsPhone:
+          String(
+            phone || ""
+          ),
 
       });
 
