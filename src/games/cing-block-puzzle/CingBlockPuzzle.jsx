@@ -43,6 +43,8 @@ import {
   isBlockPuzzleSessionExpired,
 } from "./runtime/blockPuzzleRecovery.js";
 
+import "./CingBlockPuzzle.css";
+
 const PHASE = Object.freeze({
   IDLE: "idle",
   STARTING: "starting",
@@ -87,6 +89,7 @@ function PieceView({
   piece,
   trayIndex,
   disabled,
+  dragging = false,
   onPointerStart,
 }) {
   if (!piece) {
@@ -149,7 +152,11 @@ function PieceView({
         alignItems: "center",
         justifyContent: "center",
         opacity:
-          disabled ? 0.38 : 1,
+          disabled
+            ? 0.38
+            : dragging
+              ? 0.18
+              : 1,
       }}
     >
       <div
@@ -198,6 +205,7 @@ function PieceView({
             return (
               <div
                 key={`${row}:${col}`}
+                className="cing-block-puzzle__piece-cell"
                 role="button"
                 tabIndex={-1}
                 onPointerDown={
@@ -221,13 +229,6 @@ function PieceView({
                         cell * 0.2
                       )
                     ),
-                  background:
-                    "linear-gradient(145deg,#ffb25b,#d4531c)",
-                  border:
-                    "1px solid rgba(255,255,255,0.7)",
-                  boxShadow:
-                    "inset 0 -3px 0 rgba(90,36,8,0.18), 0 3px 8px rgba(80,30,5,0.18)",
-                  cursor: "grab",
                   touchAction: "none",
                 }}
               />
@@ -235,6 +236,117 @@ function PieceView({
           }
         )}
       </div>
+    </div>
+  );
+}
+
+function FloatingPieceView({
+  piece,
+  cellWidth,
+  cellHeight,
+  floatingRef,
+}) {
+  if (
+    !piece ||
+    !Number.isFinite(cellWidth) ||
+    !Number.isFinite(cellHeight) ||
+    cellWidth <= 0 ||
+    cellHeight <= 0
+  ) {
+    return null;
+  }
+
+  const maxRow =
+    Math.max(
+      ...piece.cells.map(
+        ([row]) => row
+      )
+    );
+
+  const maxCol =
+    Math.max(
+      ...piece.cells.map(
+        ([, col]) => col
+      )
+    );
+
+  const occupied =
+    new Set(
+      piece.cells.map(
+        ([row, col]) =>
+          `${row}:${col}`
+      )
+    );
+
+  return (
+    <div
+      ref={floatingRef}
+      className="cing-block-puzzle__floating-piece"
+      aria-hidden="true"
+      style={{
+        display: "grid",
+
+        gridTemplateColumns:
+          `repeat(${maxCol + 1}, ${cellWidth}px)`,
+
+        gridTemplateRows:
+          `repeat(${maxRow + 1}, ${cellHeight}px)`,
+      }}
+    >
+      {Array.from(
+        {
+          length:
+            (maxRow + 1) *
+            (maxCol + 1),
+        },
+        (_, index) => {
+          const row =
+            Math.floor(
+              index /
+              (maxCol + 1)
+            );
+
+          const col =
+            index %
+            (maxCol + 1);
+
+          const key =
+            `${row}:${col}`;
+
+          if (
+            !occupied.has(key)
+          ) {
+            return (
+              <div key={key} />
+            );
+          }
+
+          return (
+            <div
+              key={key}
+              className="cing-block-puzzle__floating-cell"
+              style={{
+                width:
+                  cellWidth,
+
+                height:
+                  cellHeight,
+
+                borderRadius:
+                  Math.max(
+                    5,
+                    Math.floor(
+                      Math.min(
+                        cellWidth,
+                        cellHeight
+                      ) * 0.18
+                    )
+                  ),
+              }}
+            />
+          );
+        }
+      )}
     </div>
   );
 }
@@ -247,6 +359,24 @@ CingBlockPuzzle({
     useNavigate();
 
   const boardRef =
+    useRef(null);
+
+  const floatingPieceRef =
+    useRef(null);
+
+  const dragGestureRef =
+    useRef(null);
+
+  const dragPreviewRef =
+    useRef(null);
+
+  const dragPointRef =
+    useRef(null);
+
+  const dragFrameRef =
+    useRef(null);
+
+  const dragCleanupRef =
     useRef(null);
 
   const runtimeRef =
@@ -293,6 +423,8 @@ CingBlockPuzzle({
     return () => {
       mountedRef.current =
         false;
+
+      dragCleanupRef.current?.();
     };
   }, []);
 
@@ -791,45 +923,6 @@ CingBlockPuzzle({
       ]
     );
 
-  const updateDrag =
-    useCallback(
-      (
-        event,
-        current
-      ) => {
-        const rect =
-          boardRef.current
-            ?.getBoundingClientRect();
-
-        const origin =
-          resolveBoardDropOrigin({
-            clientX:
-              event.clientX,
-            clientY:
-              event.clientY,
-            boardRect:
-              rect,
-            anchorRow:
-              current.anchorRow,
-            anchorCol:
-              current.anchorCol,
-          });
-
-        return {
-          ...current,
-
-          row:
-            origin?.row ??
-            null,
-
-          col:
-            origin?.col ??
-            null,
-        };
-      },
-      []
-    );
-
   const beginDrag =
     useCallback(
       (
@@ -838,218 +931,456 @@ CingBlockPuzzle({
         anchorRow,
         anchorCol
       ) => {
+        const currentRuntime =
+          runtimeRef.current;
+
+        const piece =
+          currentRuntime
+            ?.state?.tray?.[
+              trayIndex
+            ];
+
         if (
           phase !==
             PHASE.PLAYING ||
-          !runtimeRef.current
-            ?.state?.tray?.[
-              trayIndex
-            ]
+          !piece
+        ) {
+          return;
+        }
+
+        const domRect =
+          boardRef.current
+            ?.getBoundingClientRect();
+
+        if (
+          !domRect ||
+          !Number.isFinite(
+            domRect.left
+          ) ||
+          !Number.isFinite(
+            domRect.top
+          ) ||
+          !Number.isFinite(
+            domRect.width
+          ) ||
+          !Number.isFinite(
+            domRect.height
+          ) ||
+          domRect.width <= 0 ||
+          domRect.height <= 0
         ) {
           return;
         }
 
         event.preventDefault();
 
-        event.currentTarget
-          .setPointerCapture?.(
-            event.pointerId
-          );
-
-        const initial =
-          updateDrag(
-            event,
-            {
-              pointerId:
-                event.pointerId,
-
-              trayIndex,
-              anchorRow,
-              anchorCol,
-              row: null,
-              col: null,
-            }
-          );
-
-        setDrag(
-          initial
-        );
+        dragCleanupRef.current?.();
 
         const target =
           event.currentTarget;
 
-        const move = (
-          moveEvent
-        ) => {
-          if (
-            moveEvent.pointerId !==
+        target
+          .setPointerCapture?.(
             event.pointerId
-          ) {
-            return;
-          }
+          );
 
-          moveEvent
-            .preventDefault();
+        /*
+         * Cache layout exactly once at pointerdown.
+         * pointermove never reads layout.
+         */
+        const boardRect = {
+          left:
+            domRect.left,
 
-          setDrag(
-            (current) => {
-              if (
-                !current ||
-                current.pointerId !==
-                  moveEvent.pointerId
-              ) {
-                return current;
-              }
+          top:
+            domRect.top,
 
-              return updateDrag(
-                moveEvent,
-                current
+          width:
+            domRect.width,
+
+          height:
+            domRect.height,
+        };
+
+        const cellWidth =
+          boardRect.width /
+          BOARD_SIZE;
+
+        const cellHeight =
+          boardRect.height /
+          BOARD_SIZE;
+
+        const gesture = {
+          pointerId:
+            event.pointerId,
+
+          trayIndex,
+          anchorRow,
+          anchorCol,
+          boardRect,
+          cellWidth,
+          cellHeight,
+          target,
+        };
+
+        dragGestureRef.current =
+          gesture;
+
+        const queueFloatingPosition =
+          (
+            clientX,
+            clientY
+          ) => {
+            dragPointRef.current = {
+              clientX,
+              clientY,
+            };
+
+            if (
+              dragFrameRef.current !==
+              null
+            ) {
+              return;
+            }
+
+            dragFrameRef.current =
+              requestAnimationFrame(
+                () => {
+                  dragFrameRef.current =
+                    null;
+
+                  const point =
+                    dragPointRef.current;
+
+                  const element =
+                    floatingPieceRef
+                      .current;
+
+                  const active =
+                    dragGestureRef
+                      .current;
+
+                  if (
+                    !point ||
+                    !element ||
+                    !active
+                  ) {
+                    return;
+                  }
+
+                  const x =
+                    point.clientX -
+                    (
+                      active.anchorCol +
+                      0.5
+                    ) *
+                      active.cellWidth;
+
+                  const y =
+                    point.clientY -
+                    (
+                      active.anchorRow +
+                      0.5
+                    ) *
+                      active.cellHeight;
+
+                  element.style.transform =
+                    `translate3d(${x}px, ${y}px, 0)`;
+                }
+              );
+          };
+
+        const publishPreview =
+          (
+            clientX,
+            clientY
+          ) => {
+            const origin =
+              resolveBoardDropOrigin({
+                clientX,
+                clientY,
+
+                boardRect:
+                  gesture.boardRect,
+
+                anchorRow:
+                  gesture.anchorRow,
+
+                anchorCol:
+                  gesture.anchorCol,
+              });
+
+            const row =
+              origin?.row ??
+              null;
+
+            const col =
+              origin?.col ??
+              null;
+
+            const previous =
+              dragPreviewRef.current;
+
+            /*
+             * React updates only when the board target
+             * cell changes, never for raw pointer pixels.
+             */
+            if (
+              previous &&
+              previous.row === row &&
+              previous.col === col
+            ) {
+              return origin;
+            }
+
+            dragPreviewRef.current = {
+              row,
+              col,
+            };
+
+            setDrag({
+              pointerId:
+                gesture.pointerId,
+
+              trayIndex:
+                gesture.trayIndex,
+
+              anchorRow:
+                gesture.anchorRow,
+
+              anchorCol:
+                gesture.anchorCol,
+
+              row,
+              col,
+
+              cellWidth:
+                gesture.cellWidth,
+
+              cellHeight:
+                gesture.cellHeight,
+            });
+
+            return origin;
+          };
+
+        let cleaned = false;
+
+        const cleanup =
+          () => {
+            if (cleaned) {
+              return;
+            }
+
+            cleaned = true;
+
+            target.removeEventListener(
+              "pointermove",
+              move
+            );
+
+            target.removeEventListener(
+              "pointerup",
+              finish
+            );
+
+            target.removeEventListener(
+              "pointercancel",
+              cancel
+            );
+
+            if (
+              dragFrameRef.current !==
+              null
+            ) {
+              cancelAnimationFrame(
+                dragFrameRef.current
+              );
+
+              dragFrameRef.current =
+                null;
+            }
+
+            dragPointRef.current =
+              null;
+
+            dragGestureRef.current =
+              null;
+
+            dragPreviewRef.current =
+              null;
+
+            dragCleanupRef.current =
+              null;
+
+            try {
+              target
+                .releasePointerCapture?.(
+                  event.pointerId
+                );
+            } catch {
+              /*
+               * Capture may already be released by
+               * the browser after pointerup/cancel.
+               */
+            }
+          };
+
+        const move =
+          (
+            moveEvent
+          ) => {
+            if (
+              moveEvent.pointerId !==
+                gesture.pointerId
+            ) {
+              return;
+            }
+
+            moveEvent.preventDefault();
+
+            queueFloatingPosition(
+              moveEvent.clientX,
+              moveEvent.clientY
+            );
+
+            publishPreview(
+              moveEvent.clientX,
+              moveEvent.clientY
+            );
+          };
+
+        const finish =
+          (
+            upEvent
+          ) => {
+            if (
+              upEvent.pointerId !==
+                gesture.pointerId
+            ) {
+              return;
+            }
+
+            upEvent.preventDefault();
+
+            const latest =
+              resolveBoardDropOrigin({
+                clientX:
+                  upEvent.clientX,
+
+                clientY:
+                  upEvent.clientY,
+
+                boardRect:
+                  gesture.boardRect,
+
+                anchorRow:
+                  gesture.anchorRow,
+
+                anchorCol:
+                  gesture.anchorCol,
+              });
+
+            cleanup();
+            setDrag(null);
+
+            const latestRuntime =
+              runtimeRef.current;
+
+            const latestPiece =
+              latestRuntime
+                ?.state?.tray?.[
+                  gesture.trayIndex
+                ];
+
+            if (
+              !latestPiece ||
+              !Number.isInteger(
+                latest?.row
+              ) ||
+              !Number.isInteger(
+                latest?.col
+              ) ||
+              !canPlacePiece(
+                latestRuntime
+                  .state.board,
+                latestPiece,
+                latest.row,
+                latest.col
+              )
+            ) {
+              return;
+            }
+
+            const nextRuntime =
+              applyAuthorizedBlockPuzzleMove(
+                latestRuntime,
+                {
+                  trayIndex:
+                    gesture.trayIndex,
+
+                  row:
+                    latest.row,
+
+                  col:
+                    latest.col,
+                }
+              );
+
+            runtimeRef.current =
+              nextRuntime;
+
+            persistBlockPuzzleRuntime({
+              ownerKey:
+                recoveryOwnerKey,
+
+              requestId:
+                requestIdRef.current,
+
+              runtime:
+                nextRuntime,
+            });
+
+            if (
+              mountedRef.current
+            ) {
+              setRuntime(
+                nextRuntime
               );
             }
-          );
-        };
 
-        const finish = (
-          upEvent
-        ) => {
-          if (
-            upEvent.pointerId !==
-            event.pointerId
-          ) {
-            return;
-          }
+            if (
+              nextRuntime.state
+                .ended
+            ) {
+              void submitRuntime(
+                nextRuntime
+              );
+            }
+          };
 
-          target.removeEventListener(
-            "pointermove",
-            move
-          );
+        const cancel =
+          (
+            cancelEvent
+          ) => {
+            if (
+              cancelEvent.pointerId !==
+                gesture.pointerId
+            ) {
+              return;
+            }
 
-          target.removeEventListener(
-            "pointerup",
-            finish
-          );
+            cleanup();
 
-          target.removeEventListener(
-            "pointercancel",
-            cancel
-          );
+            if (
+              mountedRef.current
+            ) {
+              setDrag(null);
+            }
+          };
 
-          const latest =
-            updateDrag(
-              upEvent,
-              {
-                pointerId:
-                  upEvent.pointerId,
-
-                trayIndex,
-                anchorRow,
-                anchorCol,
-                row: null,
-                col: null,
-              }
-            );
-
-          setDrag(null);
-
-          const currentRuntime =
-            runtimeRef.current;
-
-          const piece =
-            currentRuntime
-              ?.state?.tray?.[
-                trayIndex
-              ];
-
-          if (
-            !piece ||
-            !Number.isInteger(
-              latest.row
-            ) ||
-            !Number.isInteger(
-              latest.col
-            ) ||
-            !canPlacePiece(
-              currentRuntime
-                .state.board,
-              piece,
-              latest.row,
-              latest.col
-            )
-          ) {
-            return;
-          }
-
-          const nextRuntime =
-            applyAuthorizedBlockPuzzleMove(
-              currentRuntime,
-              {
-                trayIndex,
-                row:
-                  latest.row,
-                col:
-                  latest.col,
-              }
-            );
-
-          runtimeRef.current =
-            nextRuntime;
-
-          persistBlockPuzzleRuntime({
-            ownerKey:
-              recoveryOwnerKey,
-
-            requestId:
-              requestIdRef.current,
-
-            runtime:
-              nextRuntime,
-          });
-
-          if (
-            mountedRef.current
-          ) {
-            setRuntime(
-              nextRuntime
-            );
-          }
-
-          if (
-            nextRuntime.state
-              .ended
-          ) {
-            void submitRuntime(
-              nextRuntime
-            );
-          }
-        };
-
-        const cancel = (
-          cancelEvent
-        ) => {
-          if (
-            cancelEvent.pointerId !==
-            event.pointerId
-          ) {
-            return;
-          }
-
-          target.removeEventListener(
-            "pointermove",
-            move
-          );
-
-          target.removeEventListener(
-            "pointerup",
-            finish
-          );
-
-          target.removeEventListener(
-            "pointercancel",
-            cancel
-          );
-
-          setDrag(null);
-        };
+        dragCleanupRef.current =
+          cleanup;
 
         target.addEventListener(
           "pointermove",
@@ -1068,17 +1399,32 @@ CingBlockPuzzle({
           "pointercancel",
           cancel
         );
+
+        /*
+         * Create one React drag snapshot and place
+         * the floating layer immediately.
+         */
+        publishPreview(
+          event.clientX,
+          event.clientY
+        );
+
+        queueFloatingPosition(
+          event.clientX,
+          event.clientY
+        );
       },
       [
         phase,
         recoveryOwnerKey,
         submitRuntime,
-        updateDrag,
       ]
     );
 
   const newGame =
     useCallback(() => {
+      dragCleanupRef.current?.();
+
       runtimeRef.current =
         null;
 
@@ -1450,37 +1796,30 @@ CingBlockPuzzle({
                             key
                           );
 
-                        let background =
+                        const className = [
+                          "cing-block-puzzle__board-cell",
+
                           value === 1
-                            ? "linear-gradient(145deg,#ffb25b,#d4531c)"
-                            : "#f9e9d0";
+                            ? "cing-block-puzzle__board-cell--filled"
+                            : "",
 
-                        if (
-                          previewValid ===
-                          true
-                        ) {
-                          background =
-                            "#f6bd60";
-                        }
+                          previewValid === true
+                            ? "cing-block-puzzle__board-cell--preview-valid"
+                            : "",
 
-                        if (
-                          previewValid ===
-                          false
-                        ) {
-                          background =
-                            "#d96b5c";
-                        }
+                          previewValid === false
+                            ? "cing-block-puzzle__board-cell--preview-invalid"
+                            : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ");
 
                         return (
                           <div
                             key={key}
-                            style={{
-                              boxSizing:
-                                "border-box",
-                              border:
-                                "1px solid rgba(93,53,29,0.18)",
-                              background,
-                            }}
+                            className={
+                              className
+                            }
                           />
                         );
                       }
@@ -1519,6 +1858,10 @@ CingBlockPuzzle({
                         phase !==
                           PHASE.PLAYING
                       }
+                      dragging={
+                        drag?.trayIndex ===
+                          trayIndex
+                      }
                       onPointerStart={
                         beginDrag
                       }
@@ -1529,6 +1872,24 @@ CingBlockPuzzle({
             </>
           )}
         </main>
+
+        {drag &&
+          activePiece && (
+            <FloatingPieceView
+              piece={
+                activePiece
+              }
+              cellWidth={
+                drag.cellWidth
+              }
+              cellHeight={
+                drag.cellHeight
+              }
+              floatingRef={
+                floatingPieceRef
+              }
+            />
+          )}
 
         {gameStarted &&
           phase ===
