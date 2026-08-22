@@ -7,3 +7,4 @@ export * from "./lineClear.js";
 export * from "./scoring.js";
 export * from "./gameOver.js";
 export * from "./gameState.js";
+export * from "./replay.js";
