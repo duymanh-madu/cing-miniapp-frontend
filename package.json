@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext js,jsx,ts,tsx",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:cing-block-puzzle": "node --test src/games/cing-block-puzzle/__tests__/*.test.js"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.10",
