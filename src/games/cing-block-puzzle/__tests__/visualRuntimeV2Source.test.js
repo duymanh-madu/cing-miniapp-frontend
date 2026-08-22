@@ -271,3 +271,33 @@ test(
     );
   }
 );
+
+test(
+  "magnetic pointer target explicitly disables native touch gestures",
+  () => {
+    const hitboxIndex =
+      component.indexOf(
+        'className="cing-block-puzzle__piece-hitbox"'
+      );
+
+    assert.ok(
+      hitboxIndex >= 0
+    );
+
+    const hitboxSource =
+      component.slice(
+        hitboxIndex,
+        hitboxIndex + 2200
+      );
+
+    assert.match(
+      hitboxSource,
+      /touchAction:\s*"none"/
+    );
+
+    assert.match(
+      hitboxSource,
+      /userSelect:\s*"none"/
+    );
+  }
+);

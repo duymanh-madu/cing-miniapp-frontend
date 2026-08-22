@@ -203,6 +203,11 @@ function PieceView({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        touchAction: "none",
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        WebkitTapHighlightColor:
+          "transparent",
         opacity:
           disabled
             ? 0.38
