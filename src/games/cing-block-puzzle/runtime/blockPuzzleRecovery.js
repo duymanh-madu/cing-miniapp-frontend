@@ -1,6 +1,6 @@
 import {
-  validateReplayTranscript,
-} from "../engine/index.js";
+  getBlockPuzzleEngineForContract,
+} from "./blockPuzzleEngineRegistry.js";
 
 const STORAGE_VERSION = 1;
 
@@ -299,7 +299,28 @@ function normalizeEnvelope(
       envelope.session
     );
 
-  validateReplayTranscript(
+  let engine;
+
+  try {
+    engine =
+      getBlockPuzzleEngineForContract(
+        session
+      );
+  } catch (error) {
+    if (
+      error?.code ===
+      "BLOCK_PUZZLE_UNSUPPORTED_ENGINE_CONTRACT"
+    ) {
+      fail(
+        "BLOCK_PUZZLE_RECOVERY_VERSION_UNSUPPORTED",
+        "Recovery engine contract không được hỗ trợ"
+      );
+    }
+
+    throw error;
+  }
+
+  engine.validateReplayTranscript(
     envelope.replay
   );
 
