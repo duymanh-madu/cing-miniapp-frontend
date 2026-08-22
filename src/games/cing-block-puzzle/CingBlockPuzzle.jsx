@@ -1215,17 +1215,17 @@ CingBlockPuzzle({
 
             cleaned = true;
 
-            target.removeEventListener(
+            window.removeEventListener(
               "pointermove",
               move
             );
 
-            target.removeEventListener(
+            window.removeEventListener(
               "pointerup",
               finish
             );
 
-            target.removeEventListener(
+            window.removeEventListener(
               "pointercancel",
               cancel
             );
@@ -1423,7 +1423,14 @@ CingBlockPuzzle({
         dragCleanupRef.current =
           cleanup;
 
-        target.addEventListener(
+        /*
+         * After pointerdown, the gesture is owned by
+         * the stable window surface rather than the
+         * React-rendered tray hitbox. This preserves
+         * movement across rerenders and WebView
+         * pointer-capture changes.
+         */
+        window.addEventListener(
           "pointermove",
           move,
           {
@@ -1431,12 +1438,12 @@ CingBlockPuzzle({
           }
         );
 
-        target.addEventListener(
+        window.addEventListener(
           "pointerup",
           finish
         );
 
-        target.addEventListener(
+        window.addEventListener(
           "pointercancel",
           cancel
         );

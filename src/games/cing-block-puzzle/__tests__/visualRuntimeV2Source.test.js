@@ -241,3 +241,33 @@ test(
     );
   }
 );
+
+test(
+  "active drag gesture is owned by stable window listeners",
+  () => {
+    assert.match(
+      component,
+      /window\.addEventListener\(\s*"pointermove"/
+    );
+
+    assert.match(
+      component,
+      /window\.addEventListener\(\s*"pointerup"/
+    );
+
+    assert.match(
+      component,
+      /window\.addEventListener\(\s*"pointercancel"/
+    );
+
+    assert.match(
+      component,
+      /window\.removeEventListener\(\s*"pointermove"/
+    );
+
+    assert.doesNotMatch(
+      component,
+      /target\.addEventListener\(\s*"pointermove"/
+    );
+  }
+);
