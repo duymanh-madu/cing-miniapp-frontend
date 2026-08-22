@@ -47,6 +47,9 @@ import {
   isBlockPuzzleSessionExpired,
 } from "./runtime/blockPuzzleRecovery.js";
 
+import blockPuzzleAudioRuntime from
+  "./audio/blockPuzzleAudioRuntime.js";
+
 import "./CingBlockPuzzle.css";
 
 const PHASE = Object.freeze({
@@ -484,6 +487,11 @@ CingBlockPuzzle({
           return;
         }
 
+        blockPuzzleAudioRuntime
+          .playMoveEvent(
+            event
+          );
+
         if (
           presentationTimerRef
             .current !== null
@@ -527,6 +535,36 @@ CingBlockPuzzle({
       []
     );
 
+
+  useEffect(() => {
+    const onVisibility =
+      () => {
+        if (
+          document.hidden
+        ) {
+          blockPuzzleAudioRuntime
+            .suspend();
+        } else {
+          blockPuzzleAudioRuntime
+            .resume();
+        }
+      };
+
+    document.addEventListener(
+      "visibilitychange",
+      onVisibility
+    );
+
+    return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        onVisibility
+      );
+
+      blockPuzzleAudioRuntime
+        .stopMusic();
+    };
+  }, []);
 
   useEffect(() => {
     mountedRef.current =
@@ -855,6 +893,14 @@ CingBlockPuzzle({
   const startGame =
     useCallback(
       async () => {
+        /*
+         * Must remain synchronous inside
+         * the user's start-button gesture
+         * for Zalo WebView audio policy.
+         */
+        blockPuzzleAudioRuntime
+          .unlockFromGesture();
+
         if (
           startInFlightRef
             .current ||
@@ -955,6 +1001,9 @@ CingBlockPuzzle({
             );
 
             setDrag(null);
+
+            blockPuzzleAudioRuntime
+              .startMusic();
 
             setPhase(
               PHASE.PLAYING
@@ -1072,6 +1121,17 @@ CingBlockPuzzle({
         ) {
           return;
         }
+
+        /*
+         * Recovery can enter PLAYING without
+         * the start button gesture.
+         * Unlock again here synchronously.
+         */
+        blockPuzzleAudioRuntime
+          .unlockFromGesture();
+
+        blockPuzzleAudioRuntime
+          .startMusic();
 
         const domRect =
           boardRef.current
