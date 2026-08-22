@@ -301,3 +301,108 @@ test(
     );
   }
 );
+
+test(
+  "B2 presentation consumes exact engine event fields",
+  () => {
+    assert.match(
+      component,
+      /presentationEvent\s*\.\s*comboScore/
+    );
+
+    assert.match(
+      component,
+      /presentationEvent\s*\.\s*combo/
+    );
+
+    assert.match(
+      component,
+      /presentationEvent\s*\.\s*clearedRows/
+    );
+
+    assert.match(
+      component,
+      /presentationEvent\s*\.\s*clearedCols/
+    );
+
+    assert.match(
+      component,
+      /presentationEvent\s*\.\s*lineCount/
+    );
+
+    assert.doesNotMatch(
+      component,
+      /comboScore\s*=\s*/
+    );
+  }
+);
+
+test(
+  "B2 renders combo HUD grace dots and event-driven bursts",
+  () => {
+    assert.match(
+      component,
+      /cing-block-puzzle__combo-hud/
+    );
+
+    assert.match(
+      component,
+      /cing-block-puzzle__grace-dots/
+    );
+
+    assert.match(
+      component,
+      /cing-block-puzzle__combo-burst/
+    );
+
+    assert.match(
+      component,
+      /cing-block-puzzle__line-burst/
+    );
+
+    assert.match(
+      component,
+      /cing-block-puzzle__board-cell--line-clear/
+    );
+
+    assert.match(
+      css,
+      /@keyframes cing-block-puzzle-combo-burst/
+    );
+
+    assert.match(
+      css,
+      /@keyframes cing-block-puzzle-line-cell-burst/
+    );
+  }
+);
+
+test(
+  "B2 presentation effects avoid filter based animation",
+  () => {
+    assert.doesNotMatch(
+      css,
+      /(^|[\s;])filter\s*:/m
+    );
+  }
+);
+
+test(
+  "B2 presentation timer is cleared on component unmount",
+  () => {
+    assert.match(
+      component,
+      /presentationTimerRef\s*\.current\s*!==\s*null/
+    );
+
+    assert.match(
+      component,
+      /clearTimeout\(\s*presentationTimerRef\s*\.current\s*\)/
+    );
+
+    assert.match(
+      component,
+      /presentationTimerRef\s*\.current\s*=\s*null/
+    );
+  }
+);

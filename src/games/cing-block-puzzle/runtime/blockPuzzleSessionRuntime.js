@@ -181,8 +181,8 @@ recoverAuthorizedBlockPuzzleRuntime(
   });
 }
 
-export function
-applyAuthorizedBlockPuzzleMove(
+function
+applyAuthorizedBlockPuzzleMoveResult(
   runtime,
   move
 ) {
@@ -242,17 +242,57 @@ applyAuthorizedBlockPuzzleMove(
       replayMove
     );
 
+  const nextRuntime =
+    Object.freeze({
+      ...runtime,
+
+      state:
+        applied.state,
+
+      replay,
+
+      submission:
+        null,
+    });
+
   return Object.freeze({
-    ...runtime,
+    runtime:
+      nextRuntime,
 
-    state:
-      applied.state,
-
-    replay,
-
-    submission:
-      null,
+    /*
+     * Ephemeral presentation authority.
+     * Never persisted by recovery and never
+     * submitted as gameplay authority.
+     */
+    presentationEvent:
+      applied.event,
   });
+}
+
+export function
+applyAuthorizedBlockPuzzleMove(
+  runtime,
+  move
+) {
+  return (
+    applyAuthorizedBlockPuzzleMoveResult(
+      runtime,
+      move
+    ).runtime
+  );
+}
+
+export function
+applyAuthorizedBlockPuzzleMoveWithPresentation(
+  runtime,
+  move
+) {
+  return (
+    applyAuthorizedBlockPuzzleMoveResult(
+      runtime,
+      move
+    )
+  );
 }
 
 export function

@@ -27,7 +27,7 @@ import {
 import {
   createAuthorizedBlockPuzzleRuntime,
   recoverAuthorizedBlockPuzzleRuntime,
-  applyAuthorizedBlockPuzzleMove,
+  applyAuthorizedBlockPuzzleMoveWithPresentation,
   applyAuthoritativeBlockPuzzleSubmission,
 } from "./runtime/blockPuzzleSessionRuntime.js";
 
@@ -425,6 +425,12 @@ CingBlockPuzzle({
   const dragCleanupRef =
     useRef(null);
 
+  const presentationTimerRef =
+    useRef(null);
+
+  const presentationSerialRef =
+    useRef(0);
+
   const runtimeRef =
     useRef(null);
 
@@ -462,6 +468,66 @@ CingBlockPuzzle({
   const [drag, setDrag] =
     useState(null);
 
+  const [
+    presentation,
+    setPresentation,
+  ] = useState(null);
+
+  const publishPresentation =
+    useCallback(
+      (event) => {
+        if (
+          !event ||
+          event.type !==
+            "piece_placed"
+        ) {
+          return;
+        }
+
+        if (
+          presentationTimerRef
+            .current !== null
+        ) {
+          clearTimeout(
+            presentationTimerRef
+              .current
+          );
+        }
+
+        const serial =
+          presentationSerialRef
+            .current + 1;
+
+        presentationSerialRef
+          .current = serial;
+
+        setPresentation({
+          serial,
+          event,
+        });
+
+        presentationTimerRef
+          .current =
+          setTimeout(
+            () => {
+              presentationTimerRef
+                .current = null;
+
+              if (
+                mountedRef.current &&
+                presentationSerialRef
+                  .current === serial
+              ) {
+                setPresentation(null);
+              }
+            },
+            900
+          );
+      },
+      []
+    );
+
+
   useEffect(() => {
     mountedRef.current =
       true;
@@ -471,6 +537,19 @@ CingBlockPuzzle({
         false;
 
       dragCleanupRef.current?.();
+
+      if (
+        presentationTimerRef
+          .current !== null
+      ) {
+        clearTimeout(
+          presentationTimerRef
+            .current
+        );
+
+        presentationTimerRef
+          .current = null;
+      }
     };
   }, []);
 
@@ -1358,8 +1437,8 @@ CingBlockPuzzle({
               return;
             }
 
-            const nextRuntime =
-              applyAuthorizedBlockPuzzleMove(
+            const moveResult =
+              applyAuthorizedBlockPuzzleMoveWithPresentation(
                 latestRuntime,
                 {
                   trayIndex:
@@ -1372,6 +1451,9 @@ CingBlockPuzzle({
                     latest.col,
                 }
               );
+
+            const nextRuntime =
+              moveResult.runtime;
 
             runtimeRef.current =
               nextRuntime;
@@ -1392,6 +1474,11 @@ CingBlockPuzzle({
             ) {
               setRuntime(
                 nextRuntime
+              );
+
+              publishPresentation(
+                moveResult
+                  .presentationEvent
               );
             }
 
@@ -1512,6 +1599,60 @@ CingBlockPuzzle({
 
   const board =
     runtime?.state?.board;
+
+  const presentationEvent =
+    presentation?.event ||
+    null;
+
+  const lineClearMap =
+    useMemo(() => {
+      const cells =
+        new Set();
+
+      if (
+        !presentationEvent ||
+        presentationEvent.lineCount <=
+          0
+      ) {
+        return cells;
+      }
+
+      for (
+        const row of
+        presentationEvent
+          .clearedRows || []
+      ) {
+        for (
+          let col = 0;
+          col < BOARD_SIZE;
+          col += 1
+        ) {
+          cells.add(
+            `${row}:${col}`
+          );
+        }
+      }
+
+      for (
+        const col of
+        presentationEvent
+          .clearedCols || []
+      ) {
+        for (
+          let row = 0;
+          row < BOARD_SIZE;
+          row += 1
+        ) {
+          cells.add(
+            `${row}:${col}`
+          );
+        }
+      }
+
+      return cells;
+    }, [
+      presentationEvent,
+    ]);
 
   const gameStarted =
     Boolean(board);
@@ -1806,6 +1947,43 @@ CingBlockPuzzle({
             </div>
           ) : (
             <>
+              {runtime.state.combo >
+                0 && (
+                <div
+                  className="cing-block-puzzle__combo-hud"
+                >
+                  <strong>
+                    CING x
+                    {runtime.state.combo}
+                  </strong>
+
+                  {Number.isInteger(
+                    runtime.state
+                      .comboGraceMoves
+                  ) && (
+                    <span
+                      className="cing-block-puzzle__grace-dots"
+                      aria-label={`Còn ${runtime.state.comboGraceMoves} lượt giữ combo`}
+                    >
+                      {[0, 1, 2].map(
+                        (index) => (
+                          <i
+                            key={index}
+                            className={
+                              index <
+                              runtime.state
+                                .comboGraceMoves
+                                ? "is-active"
+                                : ""
+                            }
+                          />
+                        )
+                      )}
+                    </span>
+                  )}
+                </div>
+              )}
+
               <div
                 ref={boardRef}
                 style={{
@@ -1862,6 +2040,12 @@ CingBlockPuzzle({
 
                           previewValid === false
                             ? "cing-block-puzzle__board-cell--preview-invalid"
+                            : "",
+
+                          lineClearMap.has(
+                            key
+                          )
+                            ? "cing-block-puzzle__board-cell--line-clear"
                             : "",
                         ]
                           .filter(Boolean)
@@ -1925,6 +2109,54 @@ CingBlockPuzzle({
             </>
           )}
         </main>
+
+        {presentationEvent
+          ?.lineCount > 0 && (
+          <div
+            key={`line-${presentation.serial}`}
+            className="cing-block-puzzle__line-burst"
+            aria-hidden="true"
+          >
+            {Array.from(
+              {
+                length: 12,
+              },
+              (_, index) => (
+                <i
+                  key={index}
+                  style={{
+                    "--particle-index":
+                      index,
+                  }}
+                />
+              )
+            )}
+          </div>
+        )}
+
+        {presentationEvent
+          ?.comboAdvanced ===
+          true && (
+          <div
+            key={`combo-${presentation.serial}`}
+            className="cing-block-puzzle__combo-burst"
+            aria-live="polite"
+          >
+            <strong>
+              CING x
+              {presentationEvent.combo}
+            </strong>
+
+            <span>
+              +
+              {
+                presentationEvent
+                  .comboScore
+              }{" "}
+              ĐIỂM
+            </span>
+          </div>
+        )}
 
         {drag &&
           activePiece && (
