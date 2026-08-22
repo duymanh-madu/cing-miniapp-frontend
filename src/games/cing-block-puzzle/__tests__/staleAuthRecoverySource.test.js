@@ -100,3 +100,43 @@ test(
     );
   }
 );
+
+test(
+  "cached activated member can rebuild backend auth from canonical phone and Zalo identity",
+  () => {
+    assert.match(
+      bootstrap,
+      /const hasCanonicalPhone\s*=\s*!!existingPhone/
+    );
+
+    assert.match(
+      bootstrap,
+      /const hasZaloTokenPair[\s\S]*phoneToken[\s\S]*miniAccessToken/
+    );
+
+    assert.match(
+      bootstrap,
+      /!hasCanonicalPhone[\s\S]*!hasZaloTokenPair/
+    );
+
+    assert.match(
+      bootstrap,
+      /activateMiniAppUser\(\{[\s\S]*phone:\s*existingPhone\s*\|\|\s*""/
+    );
+  }
+);
+
+test(
+  "phone-less silent restore still requires Zalo token pair",
+  () => {
+    assert.match(
+      bootstrap,
+      /!hasCanonicalPhone[\s\S]*!hasZaloTokenPair/
+    );
+
+    assert.match(
+      bootstrap,
+      /phoneToken,[\s\S]*miniAccessToken/
+    );
+  }
+);

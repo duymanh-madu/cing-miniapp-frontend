@@ -309,15 +309,38 @@ async function restoreActivatedMemberFromShellToken() {
     const zaloUserId =
       identity.zaloUserId || "";
 
+    const hasCanonicalPhone =
+      !!existingPhone;
+
+    const hasZaloTokenPair =
+      !!(
+        phoneToken &&
+        miniAccessToken
+      );
+
+    /*
+     * Cached-member continuity:
+     *
+     * Existing activated members may be restored by the shell with
+     * canonical phone + zaloUserId but without fresh phone/access
+     * permission tokens.
+     *
+     * The existing /auth/zalo/login contract already accepts the
+     * canonical phone path and creates the backend access/refresh
+     * session. Token-based phone decoding remains required only when
+     * the canonical phone is unavailable.
+     */
     if (
       !zaloUserId ||
-      !phoneToken ||
-      !miniAccessToken
+      (
+        !hasCanonicalPhone &&
+        !hasZaloTokenPair
+      )
     ) {
       return false;
     }
 
-    console.log("[BOOT] Attempt silent iOS member restore from shell token:", zaloUserId);
+    console.log("[BOOT] Attempt silent member backend-session restore:", zaloUserId);
 
     const result = await activateMiniAppUser({
       zaloUserId,
