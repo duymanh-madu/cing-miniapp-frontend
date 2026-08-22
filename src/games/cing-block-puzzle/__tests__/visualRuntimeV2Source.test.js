@@ -142,3 +142,47 @@ test(
     );
   }
 );
+
+test(
+  "occupied board skin overrides empty board skin by cascade order",
+  () => {
+    const emptyIndex =
+      css.indexOf(
+        ".cing-block-puzzle__board-cell {"
+      );
+
+    const filledIndex =
+      css.indexOf(
+        ".cing-block-puzzle__board-cell--filled {"
+      );
+
+    const validPreviewIndex =
+      css.indexOf(
+        ".cing-block-puzzle__board-cell--preview-valid {"
+      );
+
+    const invalidPreviewIndex =
+      css.indexOf(
+        ".cing-block-puzzle__board-cell--preview-invalid {"
+      );
+
+    assert.ok(
+      emptyIndex >= 0
+    );
+
+    assert.ok(
+      filledIndex >
+        emptyIndex
+    );
+
+    assert.ok(
+      validPreviewIndex >
+        filledIndex
+    );
+
+    assert.ok(
+      invalidPreviewIndex >
+        filledIndex
+    );
+  }
+);
