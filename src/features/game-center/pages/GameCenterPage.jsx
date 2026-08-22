@@ -2,6 +2,7 @@
 const GAME_LABELS = {
   "black-pearl-rush": "Bay cùng trân châu",
   "cing-stack-tower": "Xếp Tháp Cing",
+  "cing-block-puzzle": "Cing Block Puzzle",
   chess: "Kỳ thủ cờ vua",
 };
 
@@ -22,7 +23,10 @@ import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCusto
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import CommunityChat from "../components/CommunityChat";
 import { getAllGames } from "@/games/registry/gameRegistry";
-import BlackPearlRush from "@/games/black-pearl-rush/BlackPearlRush";
+import {
+  GAME_RUNTIME_AUTHORITY,
+  isSupportedGameRuntimeAuthority,
+} from "@/games/registry/gameRuntimeAuthority";
 import { setGamePlaying } from "@/runtime/game/gamePlayState";
 import { trackGameStart, trackGameStop } from "@/runtime/tracking/gameTracking";
 import { useMemberRequired } from "@/hooks/useMemberRequired";
@@ -403,19 +407,109 @@ export default function GameCenterPage() {
   if (playingChess) return <ChessGame onExit={() => { trackGameStop("chess"); setPlayingChess(false); }} />;
 
   if (activeGame) {
-    const game     = games.find(g => g.id === activeGame);
-    const GameComp = game?.component || BlackPearlRush;
+    const game =
+      games.find(
+        (entry) =>
+          entry.id ===
+          activeGame
+      );
+
+    if (
+      !game ||
+      !game.component ||
+      !isSupportedGameRuntimeAuthority(
+        game.runtimeAuthority
+      )
+    ) {
+      return (
+        <div
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+            background: "#0a0a0f",
+            color: "white",
+            textAlign: "center",
+            fontWeight: 800,
+          }}
+        >
+          Trò chơi hiện không khả dụng.
+        </div>
+      );
+    }
+
+    const GameComp =
+      game.component;
+
+    const isSelfManaged =
+      game.runtimeAuthority ===
+      GAME_RUNTIME_AUTHORITY
+        .SELF_MANAGED;
+
+    const genericRuntimeProps =
+      isSelfManaged
+        ? {}
+        : {
+            onGameOver:
+              handleGameOver,
+
+            onRestart:
+              handleRestart,
+
+            onGameStart:
+              () =>
+                consumeGamePlay(
+                  activeGame
+                ),
+          };
+
     return (
       <>
         <GameComp
-          onExit={() => { trackGameStop(activeGame); setActiveGame(null); }}
-          onGameOver={handleGameOver}
-          onRestart={handleRestart}
-          onShowLeaderboard={() => setShowBoard(activeGame)}
-          onGameStart={() => consumeGamePlay(activeGame)}
+          onExit={() => {
+            trackGameStop(
+              activeGame
+            );
+
+            setActiveGame(
+              null
+            );
+          }}
+          onShowLeaderboard={() =>
+            setShowBoard(
+              activeGame
+            )
+          }
+          {...genericRuntimeProps}
         />
-        {showBoard && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
-        {noPlaysPopup && <NoGamePlaysPopup userName={displayName} onClose={() => setNoPlaysPopup(false)} />}
+
+        {showBoard && (
+          <GameLeaderboard
+            gameKey={
+              showBoard
+            }
+            onClose={() =>
+              setShowBoard(
+                null
+              )
+            }
+          />
+        )}
+
+        {noPlaysPopup && (
+          <NoGamePlaysPopup
+            userName={
+              displayName
+            }
+            onClose={() =>
+              setNoPlaysPopup(
+                false
+              )
+            }
+          />
+        )}
       </>
     );
   }

@@ -1,5 +1,10 @@
 import BlackPearlRush from "../black-pearl-rush";
 import CingStackTower from "../cing-stack-tower";
+import CingBlockPuzzle from "../cing-block-puzzle";
+
+import {
+  GAME_RUNTIME_AUTHORITY,
+} from "./gameRuntimeAuthority.js";
 
 const gameRegistry = {
   "black-pearl-rush": {
@@ -12,6 +17,9 @@ const gameRegistry = {
     component: BlackPearlRush,
     status: "LIVE",
     leaderboardEnabled: true,
+    runtimeAuthority:
+      GAME_RUNTIME_AUTHORITY
+        .LEGACY_GENERIC,
   },
   "cing-stack-tower": {
     id: "cing-stack-tower",
@@ -23,6 +31,26 @@ const gameRegistry = {
     component: CingStackTower,
     status: "LIVE",
     leaderboardEnabled: true,
+    runtimeAuthority:
+      GAME_RUNTIME_AUTHORITY
+        .LEGACY_GENERIC,
+  },
+
+  "cing-block-puzzle": {
+    id: "cing-block-puzzle",
+    name: "cing-block-puzzle",
+    displayName:
+      "Cing Block Puzzle",
+    description:
+      "Xếp khối 8×8 · Phá hàng, phá cột · Leo bảng xếp hạng",
+    iconUrl: null,
+    iconFallback: "🧩",
+    component: CingBlockPuzzle,
+    status: "LIVE",
+    leaderboardEnabled: true,
+    runtimeAuthority:
+      GAME_RUNTIME_AUTHORITY
+        .SELF_MANAGED,
   },
 };
 
