@@ -9,3 +9,5 @@ dist/
 .env.development
 .vercel
 .env*
+.DS_Store
+**/.DS_Store
