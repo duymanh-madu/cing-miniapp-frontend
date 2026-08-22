@@ -1,12 +1,6 @@
 import {
-  createGameState,
-  createReplayTranscript,
-  createReplayMove,
-  appendReplayMove,
-  applyMove,
-  validateReplayTranscript,
-  replayTranscript,
-} from "../engine/index.js";
+  getBlockPuzzleEngineForContract,
+} from "./blockPuzzleEngineRegistry.js";
 
 function fail(
   code,
@@ -67,14 +61,19 @@ createAuthorizedBlockPuzzleRuntime(
     session
   );
 
+  const engine =
+    getBlockPuzzleEngineForContract(
+      session
+    );
+
   const state =
-    createGameState({
+    engine.createGameState({
       seed:
         session.seed,
     });
 
   const replay =
-    createReplayTranscript(
+    engine.createReplayTranscript(
       session.seed
     );
 
@@ -113,7 +112,12 @@ recoverAuthorizedBlockPuzzleRuntime(
       session
     );
 
-  validateReplayTranscript(
+  const engine =
+    getBlockPuzzleEngineForContract(
+      session
+    );
+
+  engine.validateReplayTranscript(
     replay
   );
 
@@ -136,7 +140,7 @@ recoverAuthorizedBlockPuzzleRuntime(
   }
 
   const recovered =
-    replayTranscript(
+    engine.replayTranscript(
       replay
     );
 
@@ -215,20 +219,25 @@ applyAuthorizedBlockPuzzleMove(
    * Capture immutable piece identity from the
    * pre-move state before applying gameplay.
    */
+  const engine =
+    getBlockPuzzleEngineForContract(
+      runtime.session
+    );
+
   const replayMove =
-    createReplayMove(
+    engine.createReplayMove(
       runtime.state,
       move
     );
 
   const applied =
-    applyMove(
+    engine.applyMove(
       runtime.state,
       move
     );
 
   const replay =
-    appendReplayMove(
+    engine.appendReplayMove(
       runtime.replay,
       replayMove
     );
@@ -271,7 +280,12 @@ assertTerminalBlockPuzzleRuntime(
     );
   }
 
-  validateReplayTranscript(
+  const engine =
+    getBlockPuzzleEngineForContract(
+      runtime.session
+    );
+
+  engine.validateReplayTranscript(
     runtime.replay
   );
 
