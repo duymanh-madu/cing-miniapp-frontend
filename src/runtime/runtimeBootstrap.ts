@@ -9,6 +9,10 @@ import apiClient from "@/infra/api/apiClient";
 import {
   getPersistedAuthSession,
 } from "@/infra/auth/persistedAuthSession";
+
+import {
+  clearStaleBackendAuthSession,
+} from "@/infra/auth/staleAuthRecovery";
 import { activateMiniAppUser } from "@/zalo/activation/activationApi";
 import { getOrCreateRuntimeDeviceId } from "./session/runtimeDeviceIdentity";
 
@@ -88,7 +92,14 @@ async function openCachedMemberRuntimeEntry({
   }
 }
 
-async function openAuthenticatedRuntimeSession() {
+type AuthenticatedRuntimeSessionResult =
+  | "authenticated"
+  | "no_access_token"
+  | "auth_rejected"
+  | "transient_failure";
+
+async function openAuthenticatedRuntimeSession():
+  Promise<AuthenticatedRuntimeSessionResult> {
   const {
     session,
     accessToken,
@@ -96,7 +107,7 @@ async function openAuthenticatedRuntimeSession() {
   } = getPersistedAuthSession();
 
   if (!accessToken) {
-    return false;
+    return "no_access_token";
   }
 
   const installationId =
@@ -129,15 +140,18 @@ async function openAuthenticatedRuntimeSession() {
       accessToken
     );
 
-    return true;
+    return "authenticated";
 
   } catch (error: any) {
 
     if (
-      error?.response?.status !== 401 ||
-      !refreshToken
+      error?.response?.status !== 401
     ) {
-      return false;
+      return "transient_failure";
+    }
+
+    if (!refreshToken) {
+      return "auth_rejected";
     }
 
   }
@@ -163,7 +177,7 @@ async function openAuthenticatedRuntimeSession() {
       "";
 
     if (!nextAccessToken) {
-      return false;
+      return "auth_rejected";
     }
 
     const nextProfile = {
@@ -208,11 +222,19 @@ async function openAuthenticatedRuntimeSession() {
       nextAccessToken
     );
 
-    return true;
+    return "authenticated";
 
-  } catch {
+  } catch (error: any) {
 
-    return false;
+    if (
+      error?.response?.status === 400 ||
+      error?.response?.status === 401 ||
+      error?.response?.status === 403
+    ) {
+      return "auth_rejected";
+    }
+
+    return "transient_failure";
 
   }
 }
@@ -534,23 +556,54 @@ export async function bootstrapRuntime() {
   // 1b. Fallback: đọc params từ URL
   hydrateIdentityFromUrlParams();
 
-  // 1c. iOS Zalo WebView restore:
-  // Khi iOS mất localStorage/session sau khi thoát Zalo vào lại,
-  // shell vẫn có thể trả phoneToken/miniAccessToken. Dùng token này
-  // để silent login/restore member, không bật prompt active lại.
-  await restoreActivatedMemberFromShellToken();
+  /*
+   * 1c. Establish canonical backend authentication.
+   *
+   * Presence of a persisted access token does NOT prove
+   * that the token is still valid. Older WebView sessions
+   * may retain an expired JWT while the Zalo shell still
+   * holds valid silent-login credentials.
+   */
+  const authSessionResult =
+    await openAuthenticatedRuntimeSession();
 
+  if (
+    authSessionResult ===
+      "auth_rejected"
+  ) {
+    /*
+     * Definitive backend-auth rejection only.
+     * Never clear auth state for transient network/server
+     * failures.
+     *
+     * Zalo shell identity/tokens live outside this backend
+     * auth session and remain available for silent login.
+     */
+    clearStaleBackendAuthSession();
+  }
 
-  // 2. Restore session từ localStorage
+  if (
+    authSessionResult ===
+      "no_access_token" ||
+    authSessionResult ===
+      "auth_rejected"
+  ) {
+    await restoreActivatedMemberFromShellToken();
+  }
+
+  // 2. Restore runtime session metadata.
   await initializeRuntimeSession();
 
-  // 2b. Establish canonical authenticated app-entry
-  // boundary for persisted sessions.
-  //
-  // Backend owns campaign eligibility and all durable
-  // reward mutation; this runtime only establishes the
-  // authenticated session entry.
-  await openAuthenticatedRuntimeSession();
+  /*
+   * 2b. After a possible shell silent-login, establish the
+   * authenticated app-entry against the fresh backend JWT.
+   */
+  if (
+    authSessionResult !==
+      "transient_failure"
+  ) {
+    await openAuthenticatedRuntimeSession();
+  }
 
   // 3. Khởi tạo stores
   await initializeRuntimeStores();

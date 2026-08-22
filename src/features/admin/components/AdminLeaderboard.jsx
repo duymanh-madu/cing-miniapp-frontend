@@ -12,6 +12,7 @@ const PERIODS = [
 const GAMES = [
   { key:"black-pearl-rush", label:"Bay cùng trân châu", icon:"🫧" },
   { key:"cing-stack-tower", label:"Xếp Tháp Cing", icon:"🧱" },
+  { key:"cing-block-puzzle", label:"Cing Block Puzzle", icon:"🧩" },
   { key:"chess-wins", label:"Kỳ thủ cờ vua — Thắng nhiều nhất", icon:"♟️" },
   { key:"chess-streak", label:"Kỳ thủ cờ vua — Chuỗi thắng dài nhất", icon:"🔥" },
 ];
@@ -396,6 +397,14 @@ function defaultConfig() {
           { rank:3, points:40,  label:"🥉 Hạng ba" },
         ],
       },
+      "cing-block-puzzle": {
+        enabled: false,
+        weekly_reset: true,
+        display_name: "Cing Block Puzzle",
+        icon: "🧩",
+        rewards: [],
+      },
+
       "black-pearl-rush": {
         enabled:true, weekly_reset:true, display_name:"Bay cùng trân châu", icon:"🫧",
         rewards:[{rank:1,points:50,label:"🥇 Top 1 tuần"},{rank:2,points:30,label:"🥈 Top 2 tuần"},{rank:3,points:20,label:"🥉 Top 3 tuần"}],
