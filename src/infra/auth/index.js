@@ -23,3 +23,8 @@ export {
   useSession,
 }
 from "./useSession";
+export {
+  getPersistedAuthSession,
+  getCanonicalAccessToken,
+}
+from "./persistedAuthSession";

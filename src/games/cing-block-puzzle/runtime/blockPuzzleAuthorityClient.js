@@ -1,8 +1,10 @@
 import apiClient from
   "../../../infra/api/apiClient.js";
 
-import useAuthStore from
-  "../../../stores/auth/authStore.js";
+import {
+  getCanonicalAccessToken,
+} from
+  "../../../infra/auth/persistedAuthSession.js";
 
 import {
   ENGINE_VERSION,
@@ -37,9 +39,8 @@ function fail(
 function requireAccessToken() {
   const token =
     String(
-      useAuthStore
-        .getState()
-        .accessToken || ""
+      getCanonicalAccessToken() ||
+      ""
     ).trim();
 
   if (!token) {

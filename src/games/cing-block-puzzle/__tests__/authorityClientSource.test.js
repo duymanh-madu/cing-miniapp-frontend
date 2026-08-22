@@ -120,11 +120,11 @@ test(
 );
 
 test(
-  "authority requests use authenticated access token",
+  "authority requests use canonical authenticated access token",
   () => {
     assert.match(
       source,
-      /accessToken/
+      /getCanonicalAccessToken/
     );
 
     assert.match(
@@ -134,7 +134,12 @@ test(
 
     assert.match(
       source,
-      /Bearer/
+      /Bearer \$\{token\}/
+    );
+
+    assert.doesNotMatch(
+      source,
+      /useAuthStore/
     );
   }
 );

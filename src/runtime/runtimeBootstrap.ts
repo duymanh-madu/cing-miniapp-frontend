@@ -6,6 +6,9 @@ import { useRuntimeCustomerIdentityStore }   from "./customer/runtimeCustomerIde
 import registerMenuRealtime from "@/features/menu/realtime/registerMenuRealtime";
 import useAuthStore from "@/stores/auth/authStore";
 import apiClient from "@/infra/api/apiClient";
+import {
+  getPersistedAuthSession,
+} from "@/infra/auth/persistedAuthSession";
 import { activateMiniAppUser } from "@/zalo/activation/activationApi";
 import { getOrCreateRuntimeDeviceId } from "./session/runtimeDeviceIdentity";
 
@@ -26,31 +29,6 @@ function getStoredRuntimePhone() {
     );
   } catch {
     return "";
-  }
-}
-
-function getPersistedAuthSession() {
-  try {
-    const rawSession = localStorage.getItem("cing_session");
-    const session = rawSession ? JSON.parse(rawSession) : null;
-
-    return {
-      session,
-      accessToken:
-        session?.accessToken ||
-        localStorage.getItem("cing_access_token") ||
-        null,
-      refreshToken:
-        session?.refreshToken ||
-        localStorage.getItem("cing_refresh_token") ||
-        null,
-    };
-  } catch {
-    return {
-      session: null,
-      accessToken: null,
-      refreshToken: null,
-    };
   }
 }
 
