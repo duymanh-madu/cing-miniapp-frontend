@@ -1951,9 +1951,20 @@ CingBlockPuzzle({
                 0 && (
                 <div
                   className="cing-block-puzzle__combo-hud"
+                  data-combo={
+                    runtime.state.combo
+                  }
                 >
-                  <strong>
-                    CING x
+                  <span
+                    className="cing-block-puzzle__combo-hud-brand"
+                  >
+                    CING
+                  </span>
+
+                  <strong
+                    className="cing-block-puzzle__combo-hud-multiplier"
+                  >
+                    x
                     {runtime.state.combo}
                   </strong>
 
@@ -2140,21 +2151,56 @@ CingBlockPuzzle({
           <div
             key={`combo-${presentation.serial}`}
             className="cing-block-puzzle__combo-burst"
+            data-combo={
+              presentationEvent.combo
+            }
             aria-live="polite"
           >
-            <strong>
-              CING x
-              {presentationEvent.combo}
-            </strong>
+            <div
+              className="cing-block-puzzle__combo-energy"
+              aria-hidden="true"
+            >
+              <i />
+              <i />
+              <i />
+            </div>
 
-            <span>
-              +
-              {
-                presentationEvent
-                  .comboScore
-              }{" "}
-              ĐIỂM
-            </span>
+            <div
+              className="cing-block-puzzle__combo-emblem"
+            >
+              <span
+                className="cing-block-puzzle__combo-brand"
+              >
+                CING
+              </span>
+
+              <strong
+                className="cing-block-puzzle__combo-multiplier"
+              >
+                x
+                {presentationEvent.combo}
+              </strong>
+            </div>
+
+            <div
+              className="cing-block-puzzle__combo-score"
+            >
+              <small>
+                COMBO BONUS
+              </small>
+
+              <strong>
+                +
+                {
+                  presentationEvent
+                    .comboScore
+                }
+              </strong>
+
+              <span>
+                ĐIỂM
+              </span>
+            </div>
           </div>
         )}
 
