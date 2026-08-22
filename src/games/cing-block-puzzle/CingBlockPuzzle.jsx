@@ -36,6 +36,10 @@ import {
 } from "./runtime/blockPuzzleDragGeometry.js";
 
 import {
+  resolveBlockPuzzleDragControlPoint,
+} from "./runtime/blockPuzzleDragControlPoint.js";
+
+import {
   resolveNearestPieceAnchor,
 } from "./runtime/blockPuzzlePieceTouchGeometry.js";
 
@@ -1216,9 +1220,25 @@ CingBlockPuzzle({
             clientX,
             clientY
           ) => {
+            const controlPoint =
+              resolveBlockPuzzleDragControlPoint({
+                clientX,
+                clientY,
+
+                cellHeight:
+                  gesture.cellHeight,
+              });
+
+            if (!controlPoint) {
+              return;
+            }
+
             dragPointRef.current = {
-              clientX,
-              clientY,
+              clientX:
+                controlPoint.clientX,
+
+              clientY:
+                controlPoint.clientY,
             };
 
             if (
@@ -1280,20 +1300,34 @@ CingBlockPuzzle({
             clientX,
             clientY
           ) => {
-            const origin =
-              resolveBoardDropOrigin({
+            const controlPoint =
+              resolveBlockPuzzleDragControlPoint({
                 clientX,
                 clientY,
 
-                boardRect:
-                  gesture.boardRect,
+                cellHeight:
+                  gesture.cellHeight,
+              });
+
+            const origin =
+              controlPoint
+                ? resolveBoardDropOrigin({
+                    clientX:
+                      controlPoint.clientX,
+
+                    clientY:
+                      controlPoint.clientY,
+
+                    boardRect:
+                      gesture.boardRect,
 
                 anchorRow:
                   gesture.anchorRow,
 
-                anchorCol:
-                  gesture.anchorCol,
-              });
+                    anchorCol:
+                      gesture.anchorCol,
+                  })
+                : null;
 
             const row =
               origin?.row ??
@@ -1448,23 +1482,37 @@ CingBlockPuzzle({
 
             upEvent.preventDefault();
 
-            const latest =
-              resolveBoardDropOrigin({
+            const controlPoint =
+              resolveBlockPuzzleDragControlPoint({
                 clientX:
                   upEvent.clientX,
 
                 clientY:
                   upEvent.clientY,
 
-                boardRect:
-                  gesture.boardRect,
-
-                anchorRow:
-                  gesture.anchorRow,
-
-                anchorCol:
-                  gesture.anchorCol,
+                cellHeight:
+                  gesture.cellHeight,
               });
+
+            const latest =
+              controlPoint
+                ? resolveBoardDropOrigin({
+                    clientX:
+                      controlPoint.clientX,
+
+                    clientY:
+                      controlPoint.clientY,
+
+                    boardRect:
+                      gesture.boardRect,
+
+                    anchorRow:
+                      gesture.anchorRow,
+
+                    anchorCol:
+                      gesture.anchorCol,
+                  })
+                : null;
 
             cleanup();
             setDrag(null);

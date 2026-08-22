@@ -10,7 +10,7 @@ const SONIC = Object.freeze({
     0.9,
 
   musicGain:
-    0.075,
+    0.26,
 
   bpm:
     96,
@@ -27,12 +27,12 @@ const SONIC = Object.freeze({
    * recognizable Cing Block Puzzle DNA.
    */
   comboRoots: Object.freeze([
-    659.255,
-    739.989,
-    830.609,
-    987.767,
-    1108.731,
-    1318.510,
+    329.628,
+    369.994,
+    415.305,
+    440.000,
+    493.883,
+    554.365,
   ]),
 
   musicPlucks: Object.freeze([
@@ -41,9 +41,17 @@ const SONIC = Object.freeze({
     739.989,
     null,
     830.609,
-    null,
     739.989,
     null,
+    659.255,
+    554.365,
+    null,
+    659.255,
+    null,
+    739.989,
+    659.255,
+    null,
+    554.365,
   ]),
 
   musicBass: Object.freeze([
@@ -52,6 +60,14 @@ const SONIC = Object.freeze({
     null,
     null,
     123.471,
+    null,
+    null,
+    null,
+    138.591,
+    null,
+    null,
+    null,
+    110.000,
     null,
     null,
     null,
@@ -299,6 +315,8 @@ class BlockPuzzleAudioRuntime {
     gain,
     type =
       "sine",
+    attack =
+      0.008,
     destination =
       this.sfx,
   }) {
@@ -349,7 +367,7 @@ class BlockPuzzleAudioRuntime {
     envelope.gain
       .exponentialRampToValueAtTime(
         gain,
-        time + 0.008
+        time + attack
       );
 
     envelope.gain
@@ -383,6 +401,8 @@ class BlockPuzzleAudioRuntime {
     gain,
     highpass,
     lowpass,
+    destination =
+      this.sfx,
   }) {
     const context =
       this.context;
@@ -447,7 +467,7 @@ class BlockPuzzleAudioRuntime {
     );
 
     envelope.connect(
-      this.sfx
+      destination
     );
 
     source.start(
@@ -516,6 +536,73 @@ class BlockPuzzleAudioRuntime {
 
       type:
         "sine",
+    });
+  }
+
+  scheduleLuxuryMallet(
+    time,
+    frequency,
+    gain
+  ) {
+    /*
+     * Cing Velvet Chime:
+     * warm fundamental + muted wooden
+     * upper body. No brittle 3x sparkle.
+     */
+    this.scheduleTone({
+      time,
+      frequency,
+
+      duration:
+        0.42,
+
+      gain,
+
+      type:
+        "sine",
+
+      attack:
+        0.014,
+    });
+
+    this.scheduleTone({
+      time:
+        time + 0.008,
+
+      frequency:
+        frequency * 1.49830708,
+
+      duration:
+        0.29,
+
+      gain:
+        gain * 0.24,
+
+      type:
+        "triangle",
+
+      attack:
+        0.018,
+    });
+
+    this.scheduleTone({
+      time:
+        time + 0.015,
+
+      frequency:
+        frequency * 0.5,
+
+      duration:
+        0.31,
+
+      gain:
+        gain * 0.19,
+
+      type:
+        "sine",
+
+      attack:
+        0.012,
     });
   }
 
@@ -805,39 +892,36 @@ class BlockPuzzleAudioRuntime {
 
     const now =
       context.currentTime +
-      0.055;
+      0.045;
 
     const intensity =
       clamp(
-        0.075 +
-        level * 0.009,
-        0.08,
-        0.16
+        0.072 +
+        level * 0.006,
+        0.076,
+        0.122
       );
 
     this.duckMusic(
-      0.24,
-      0.72
+      0.42,
+      0.64
     );
 
     /*
-     * CING sonic logo:
+     * Luxury CING motif.
      *
-     *   root
-     *      → major third
-     *         → perfect fifth
+     * Short ascending signature:
+     * root → major 3rd → perfect 5th.
      *
-     * Same motif every time,
-     * but rising through the Cing
-     * pentatonic register.
+     * Register stays warm even at
+     * high combos; escalation comes
+     * from richness, not shrill pitch.
      */
     const motif =
       [
         root,
-        root *
-          1.25992105,
-        root *
-          1.49830708,
+        root * 1.25992105,
+        root * 1.49830708,
       ];
 
     motif.forEach(
@@ -845,87 +929,99 @@ class BlockPuzzleAudioRuntime {
         frequency,
         noteIndex
       ) => {
-        this.scheduleCingBell(
+        this.scheduleLuxuryMallet(
           now +
-            noteIndex *
-              0.073,
+          noteIndex * 0.082,
 
           frequency,
 
           intensity *
-            (
-              noteIndex === 2
-                ? 1.12
-                : 1
-            )
+          (
+            noteIndex === 2
+              ? 1.04
+              : 1
+          )
         );
       }
     );
 
     /*
-     * Warm impact behind the badge
-     * arrival (~100ms visual overshoot).
+     * Soft caramel/sub impact under
+     * the visual badge arrival.
      */
     this.scheduleTone({
       time:
-        now + 0.028,
+        now + 0.025,
 
       frequency:
-        132,
+        104,
 
       endFrequency:
-        88,
+        78,
 
       duration:
-        0.21,
+        0.24,
 
       gain:
         clamp(
-          0.12 +
-            level * 0.008,
-          0.12,
-          0.19
+          0.092 +
+          level * 0.005,
+          0.095,
+          0.14
         ),
 
       type:
         "sine",
+
+      attack:
+        0.012,
     });
 
+    /*
+     * Higher combos become wider and
+     * richer, never brighter/shriller.
+     */
     if (
       level >= 4
     ) {
-      this.scheduleCingBell(
-        now + 0.245,
-        root * 2,
-        0.072
+      this.scheduleLuxuryMallet(
+        now + 0.265,
+        root * 0.74915354,
+        0.052
       );
     }
 
     if (
       level >= 8
     ) {
-      this.scheduleNoise({
+      this.scheduleLuxuryMallet(
+        now + 0.315,
+        root,
+        0.048
+      );
+
+      this.scheduleTone({
         time:
           now + 0.19,
 
+        frequency:
+          82.407,
+
+        endFrequency:
+          65.406,
+
         duration:
-          0.14,
+          0.32,
 
         gain:
-          0.045,
+          0.075,
 
-        highpass:
-          2800,
+        type:
+          "sine",
 
-        lowpass:
-          9800,
+        attack:
+          0.016,
       });
-
-      this.scheduleCingBell(
-        now + 0.285,
-        root * 2.52,
-        0.055
-      );
     }
   }
 
@@ -974,71 +1070,201 @@ class BlockPuzzleAudioRuntime {
       return;
     }
 
+    const phraseLength =
+      SONIC.musicPlucks.length;
+
+    const phraseStep =
+      step %
+      phraseLength;
+
     const pluck =
       SONIC.musicPlucks[
-        step %
-        SONIC.musicPlucks.length
+        phraseStep
       ];
 
     const bass =
       SONIC.musicBass[
-        step %
-        SONIC.musicBass.length
+        phraseStep
       ];
 
+    /*
+     * Cing Lounge Rhodes:
+     * soft fundamental + restrained fifth.
+     * Warm and musical, never metallic.
+     */
     if (
       Number.isFinite(pluck)
     ) {
       this.scheduleTone({
         time,
+
         frequency:
           pluck,
+
         duration:
-          0.17,
+          0.34,
+
         gain:
-          0.021,
+          0.052,
+
         type:
-          "triangle",
+          "sine",
+
+        attack:
+          0.022,
+
         destination:
           this.music,
       });
 
       this.scheduleTone({
         time:
-          time + 0.006,
+          time + 0.012,
 
         frequency:
-          pluck * 2,
+          pluck * 1.49830708,
 
         duration:
-          0.095,
+          0.21,
+
         gain:
-          0.006,
+          0.013,
+
         type:
-          "sine",
+          "triangle",
+
+        attack:
+          0.03,
+
         destination:
           this.music,
       });
     }
 
+    /*
+     * Round lounge bass.
+     */
     if (
       Number.isFinite(bass)
     ) {
       this.scheduleTone({
         time,
+
         frequency:
           bass,
+
         endFrequency:
-          bass * 0.985,
+          bass * 0.992,
+
         duration:
-          0.28,
+          0.5,
+
         gain:
-          0.028,
+          0.078,
+
         type:
           "sine",
+
+        attack:
+          0.032,
+
         destination:
           this.music,
       });
+    }
+
+    /*
+     * Cing bubble pulse.
+     * A soft upward droplet on offbeats
+     * gives the loop its own brand texture.
+     */
+    if (
+      phraseStep %
+        2 === 1
+    ) {
+      const bubbleBase =
+        phraseStep >= 8
+          ? 246.942
+          : 220.000;
+
+      this.scheduleTone({
+        time:
+          time + 0.018,
+
+        frequency:
+          bubbleBase,
+
+        endFrequency:
+          bubbleBase * 1.18,
+
+        duration:
+          0.095,
+
+        gain:
+          0.025,
+
+        type:
+          "sine",
+
+        attack:
+          0.012,
+
+        destination:
+          this.music,
+      });
+    }
+
+    /*
+     * Velvet chord at the start of each
+     * half phrase. This makes the background
+     * feel composed rather than sequenced.
+     */
+    if (
+      phraseStep === 0 ||
+      phraseStep === 8
+    ) {
+      const chord =
+        phraseStep === 0
+          ? [
+              329.628,
+              415.305,
+              493.883,
+            ]
+          : [
+              277.183,
+              369.994,
+              440.000,
+            ];
+
+      chord.forEach(
+        (
+          frequency,
+          index
+        ) => {
+          this.scheduleTone({
+            time:
+              time +
+              index * 0.012,
+
+            frequency,
+
+            duration:
+              0.78,
+
+            gain:
+              0.023,
+
+            type:
+              "sine",
+
+            attack:
+              0.085,
+
+            destination:
+              this.music,
+          });
+        }
+      );
     }
   }
 
@@ -1078,7 +1304,8 @@ class BlockPuzzleAudioRuntime {
       this.musicStep =
         (
           this.musicStep + 1
-        ) % 8;
+        ) %
+        SONIC.musicPlucks.length;
 
       this.nextMusicTime +=
         stepDuration;
@@ -1095,40 +1322,52 @@ class BlockPuzzleAudioRuntime {
     this.musicRequested =
       true;
 
+    const beginScheduler =
+      () => {
+        if (
+          !this.musicRequested ||
+          this.musicTimer !==
+            null ||
+          !this.context ||
+          this.context.state !==
+            "running"
+        ) {
+          return;
+        }
+
+        this.musicStep =
+          0;
+
+        this.nextMusicTime =
+          this.context.currentTime +
+          0.04;
+
+        this.runMusicScheduler();
+
+        this.musicTimer =
+          window.setInterval(
+            () => {
+              this.runMusicScheduler();
+            },
+            SONIC.schedulerIntervalMs
+          );
+      };
+
     if (
       this.context.state ===
         "suspended"
     ) {
       this.context
         .resume()
+        .then(
+          beginScheduler
+        )
         .catch(() => {});
 
       return;
     }
 
-    if (
-      this.musicTimer !==
-        null
-    ) {
-      return;
-    }
-
-    this.musicStep =
-      0;
-
-    this.nextMusicTime =
-      this.context.currentTime +
-      0.04;
-
-    this.runMusicScheduler();
-
-    this.musicTimer =
-      window.setInterval(
-        () => {
-          this.runMusicScheduler();
-        },
-        SONIC.schedulerIntervalMs
-      );
+    beginScheduler();
   }
 
   stopMusic() {

@@ -95,3 +95,59 @@ test(
     );
   }
 );
+
+
+test(
+  "luxury combo avoids brittle high harmonic escalation",
+  () => {
+    assert.match(
+      runtime,
+      /scheduleLuxuryMallet/
+    );
+
+    assert.match(
+      runtime,
+      /Cing Velvet Chime/
+    );
+
+    assert.doesNotMatch(
+      runtime,
+      /root\s*\*\s*2\.52/
+    );
+  }
+);
+
+test(
+  "background music has Cing Lounge Groove V2",
+  () => {
+    assert.match(
+      runtime,
+      /musicGain:\s*\n\s*0\.26/
+    );
+
+    assert.match(
+      runtime,
+      /Cing bubble pulse/
+    );
+
+    assert.match(
+      runtime,
+      /Velvet chord/
+    );
+
+    assert.match(
+      runtime,
+      /SONIC\.musicPlucks\.length/
+    );
+  }
+);
+
+test(
+  "background scheduler starts after suspended context resumes",
+  () => {
+    assert.match(
+      runtime,
+      /\.resume\(\)\s*\.then\(\s*beginScheduler\s*\)/
+    );
+  }
+);

@@ -406,3 +406,28 @@ test(
     );
   }
 );
+
+
+test(
+  "drag uses finger-clear control point for visual and board targeting",
+  () => {
+    assert.match(
+      component,
+      /resolveBlockPuzzleDragControlPoint/
+    );
+
+    const uses =
+      component.match(
+        /resolveBlockPuzzleDragControlPoint/g
+      ) || [];
+
+    /*
+     * 1 import + 3 runtime uses:
+     * floating piece, board preview,
+     * authoritative final drop.
+     */
+    assert.ok(
+      uses.length >= 4
+    );
+  }
+);
