@@ -316,3 +316,55 @@ test(
     );
   }
 );
+
+test(
+  "authorized runtime can be reconstructed exactly from replay",
+  async () => {
+    const {
+      recoverAuthorizedBlockPuzzleRuntime,
+    } = await import(
+      "../runtime/blockPuzzleSessionRuntime.js"
+    );
+
+    let runtime =
+      createAuthorizedBlockPuzzleRuntime(
+        session(24680)
+      );
+
+    for (
+      let i = 0;
+      i < 8 &&
+      !runtime.state.ended;
+      i += 1
+    ) {
+      const move =
+        firstLegalMove(
+          runtime.state
+        );
+
+      assert.ok(move);
+
+      runtime =
+        applyAuthorizedBlockPuzzleMove(
+          runtime,
+          move
+        );
+    }
+
+    const recovered =
+      recoverAuthorizedBlockPuzzleRuntime(
+        runtime.session,
+        runtime.replay
+      );
+
+    assert.deepEqual(
+      recovered.state,
+      runtime.state
+    );
+
+    assert.deepEqual(
+      recovered.replay,
+      runtime.replay
+    );
+  }
+);

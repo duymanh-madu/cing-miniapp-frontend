@@ -5,6 +5,7 @@ import {
   appendReplayMove,
   applyMove,
   validateReplayTranscript,
+  replayTranscript,
 } from "../engine/index.js";
 
 function fail(
@@ -97,6 +98,80 @@ createAuthorizedBlockPuzzleRuntime(
     session,
     state,
     replay,
+    submission:
+      null,
+  });
+}
+
+export function
+recoverAuthorizedBlockPuzzleRuntime(
+  session,
+  replay
+) {
+  const initial =
+    createAuthorizedBlockPuzzleRuntime(
+      session
+    );
+
+  validateReplayTranscript(
+    replay
+  );
+
+  if (
+    replay.seed !==
+      session.seed ||
+    replay.engineVersion !==
+      session.engine_version ||
+    replay.rulesVersion !==
+      session.rules_version ||
+    replay.scoreVersion !==
+      session.score_version ||
+    replay.replayVersion !==
+      session.replay_version
+  ) {
+    fail(
+      "BLOCK_PUZZLE_RUNTIME_RECOVERY_VERSION_MISMATCH",
+      "Recovery replay does not match authorized session"
+    );
+  }
+
+  const recovered =
+    replayTranscript(
+      replay
+    );
+
+  if (
+    recovered.state.seed !==
+      initial.state.seed ||
+    recovered.state
+      .engineVersion !==
+      initial.state
+        .engineVersion ||
+    recovered.state
+      .rulesVersion !==
+      initial.state
+        .rulesVersion ||
+    recovered.state
+      .scoreVersion !==
+      initial.state
+        .scoreVersion ||
+    recovered.state.moves !==
+      replay.moves.length
+  ) {
+    fail(
+      "BLOCK_PUZZLE_RUNTIME_RECOVERY_MISMATCH",
+      "Recovered deterministic state is invalid"
+    );
+  }
+
+  return Object.freeze({
+    session,
+    state:
+      recovered.state,
+    replay:
+      structuredClone(
+        replay
+      ),
     submission:
       null,
   });

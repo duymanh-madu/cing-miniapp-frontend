@@ -1,5 +1,6 @@
 import React, {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -8,6 +9,9 @@ import React, {
 import {
   useNavigate,
 } from "react-router-dom";
+
+import useAuthStore from
+  "../../stores/auth/authStore.js";
 
 import {
   BOARD_SIZE,
@@ -22,6 +26,7 @@ import {
 
 import {
   createAuthorizedBlockPuzzleRuntime,
+  recoverAuthorizedBlockPuzzleRuntime,
   applyAuthorizedBlockPuzzleMove,
   applyAuthoritativeBlockPuzzleSubmission,
 } from "./runtime/blockPuzzleSessionRuntime.js";
@@ -29,6 +34,14 @@ import {
 import {
   resolveBoardDropOrigin,
 } from "./runtime/blockPuzzleDragGeometry.js";
+
+import {
+  persistBlockPuzzlePendingStart,
+  persistBlockPuzzleRuntime,
+  restoreBlockPuzzleRecovery,
+  clearBlockPuzzleRecovery,
+  isBlockPuzzleSessionExpired,
+} from "./runtime/blockPuzzleRecovery.js";
 
 const PHASE = Object.freeze({
   IDLE: "idle",
@@ -38,6 +51,7 @@ const PHASE = Object.freeze({
   SUBMIT_ERROR: "submit_error",
   START_ERROR: "start_error",
   COMPLETE: "complete",
+  EXPIRED: "expired",
 });
 
 function errorMessage(
@@ -244,6 +258,22 @@ CingBlockPuzzle({
   const submitInFlightRef =
     useRef(false);
 
+  const startInFlightRef =
+    useRef(false);
+
+  const mountedRef =
+    useRef(true);
+
+  const recoveryInitializedRef =
+    useRef(false);
+
+  const recoveryOwnerKey =
+    useAuthStore(
+      (state) =>
+        state.profile?.phone ||
+        ""
+    );
+
   const [runtime, setRuntime] =
     useState(null);
 
@@ -255,6 +285,137 @@ CingBlockPuzzle({
 
   const [drag, setDrag] =
     useState(null);
+
+  useEffect(() => {
+    mountedRef.current =
+      true;
+
+    return () => {
+      mountedRef.current =
+        false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      recoveryInitializedRef
+        .current ||
+      !recoveryOwnerKey
+    ) {
+      return;
+    }
+
+    recoveryInitializedRef.current =
+      true;
+
+    const recovered =
+      restoreBlockPuzzleRecovery({
+        ownerKey:
+          recoveryOwnerKey,
+      });
+
+    if (!recovered) {
+      return;
+    }
+
+    requestIdRef.current =
+      recovered.request_id;
+
+    /*
+     * Pending-start recovery:
+     * do not create a new idempotency key.
+     * User explicitly retries the exact request.
+     */
+    if (
+      !recovered.session ||
+      !recovered.replay
+    ) {
+      setError(
+        "Có một yêu cầu tạo ván chưa hoàn tất. Hãy thử lại để tiếp tục đúng ván đó."
+      );
+
+      setPhase(
+        PHASE.START_ERROR
+      );
+
+      return;
+    }
+
+    if (
+      isBlockPuzzleSessionExpired(
+        recovered.session
+      )
+    ) {
+      clearBlockPuzzleRecovery();
+
+      requestIdRef.current =
+        null;
+
+      setError(
+        "Ván chơi trước đã hết hạn. Bạn có thể bắt đầu một ván mới."
+      );
+
+      setPhase(
+        PHASE.IDLE
+      );
+
+      return;
+    }
+
+    try {
+      const recoveredRuntime =
+        recoverAuthorizedBlockPuzzleRuntime(
+          recovered.session,
+          recovered.replay
+        );
+
+      runtimeRef.current =
+        recoveredRuntime;
+
+      setRuntime(
+        recoveredRuntime
+      );
+
+      setDrag(null);
+
+      if (
+        recoveredRuntime.state
+          .ended
+      ) {
+        setError(
+          "Ván trước đã kết thúc nhưng kết quả chưa được xác nhận. Hãy gửi lại kết quả."
+        );
+
+        setPhase(
+          PHASE.SUBMIT_ERROR
+        );
+      } else {
+        setPhase(
+          PHASE.PLAYING
+        );
+      }
+    } catch {
+      clearBlockPuzzleRecovery();
+
+      runtimeRef.current =
+        null;
+
+      requestIdRef.current =
+        null;
+
+      setRuntime(null);
+
+      setError(
+        "Dữ liệu khôi phục không hợp lệ. Vui lòng bắt đầu ván mới."
+      );
+
+      setPhase(
+        PHASE.IDLE
+      );
+    }
+  }, [
+    recoveryOwnerKey,
+  ]);
 
   const activePiece =
     drag &&
@@ -373,24 +534,59 @@ CingBlockPuzzle({
           runtimeRef.current =
             finalRuntime;
 
-          setRuntime(
-            finalRuntime
-          );
+          clearBlockPuzzleRecovery();
 
-          setPhase(
-            PHASE.COMPLETE
-          );
+          if (
+            mountedRef.current
+          ) {
+            setRuntime(
+              finalRuntime
+            );
+
+            setPhase(
+              PHASE.COMPLETE
+            );
+          }
         } catch (submitError) {
-          setError(
-            errorMessage(
-              submitError,
-              "Không thể xác minh kết quả. Hãy thử gửi lại."
-            )
-          );
+          const code =
+            submitError
+              ?.response
+              ?.data
+              ?.code ||
+            submitError?.code ||
+            "";
 
-          setPhase(
-            PHASE.SUBMIT_ERROR
-          );
+          if (
+            code ===
+            "BLOCK_PUZZLE_SESSION_EXPIRED"
+          ) {
+            clearBlockPuzzleRecovery();
+
+            if (
+              mountedRef.current
+            ) {
+              setError(
+                "Ván chơi đã hết hạn và không thể gửi điểm."
+              );
+
+              setPhase(
+                PHASE.EXPIRED
+              );
+            }
+          } else if (
+            mountedRef.current
+          ) {
+            setError(
+              errorMessage(
+                submitError,
+                "Không thể xác minh kết quả. Hãy thử gửi lại."
+              )
+            );
+
+            setPhase(
+              PHASE.SUBMIT_ERROR
+            );
+          }
         } finally {
           submitInFlightRef
             .current = false;
@@ -403,8 +599,8 @@ CingBlockPuzzle({
     useCallback(
       async () => {
         if (
-          phase ===
-            PHASE.STARTING ||
+          startInFlightRef
+            .current ||
           phase ===
             PHASE.PLAYING ||
           phase ===
@@ -414,10 +610,51 @@ CingBlockPuzzle({
         }
 
         if (
+          !recoveryOwnerKey
+        ) {
+          setError(
+            "Không xác định được tài khoản thành viên."
+          );
+
+          setPhase(
+            PHASE.START_ERROR
+          );
+
+          return;
+        }
+
+        startInFlightRef.current =
+          true;
+
+        if (
           !requestIdRef.current
         ) {
           requestIdRef.current =
             createBlockPuzzleRequestId();
+        }
+
+        const persisted =
+          persistBlockPuzzlePendingStart({
+            ownerKey:
+              recoveryOwnerKey,
+
+            requestId:
+              requestIdRef.current,
+          });
+
+        if (!persisted) {
+          startInFlightRef.current =
+            false;
+
+          setError(
+            "Thiết bị không thể lưu trạng thái ván chơi an toàn."
+          );
+
+          setPhase(
+            PHASE.START_ERROR
+          );
+
+          return;
         }
 
         setError("");
@@ -442,33 +679,116 @@ CingBlockPuzzle({
           runtimeRef.current =
             nextRuntime;
 
-          setRuntime(
-            nextRuntime
-          );
+          persistBlockPuzzleRuntime({
+            ownerKey:
+              recoveryOwnerKey,
 
-          setDrag(null);
+            requestId:
+              requestIdRef.current,
 
-          setPhase(
-            PHASE.PLAYING
-          );
+            runtime:
+              nextRuntime,
+          });
+
+          if (
+            mountedRef.current
+          ) {
+            setRuntime(
+              nextRuntime
+            );
+
+            setDrag(null);
+
+            setPhase(
+              PHASE.PLAYING
+            );
+          }
         } catch (startError) {
-          setError(
-            errorMessage(
-              startError,
-              "Không thể bắt đầu ván chơi."
-            )
-          );
+          const code =
+            startError
+              ?.response
+              ?.data
+              ?.code ||
+            startError?.code ||
+            "";
 
-          /*
-           * requestIdRef intentionally survives.
-           * A retry reuses the same idempotency key.
-           */
-          setPhase(
-            PHASE.START_ERROR
-          );
+          if (
+            code ===
+            "BLOCK_PUZZLE_SESSION_EXPIRED"
+          ) {
+            clearBlockPuzzleRecovery();
+
+            requestIdRef.current =
+              null;
+
+            runtimeRef.current =
+              null;
+
+            if (
+              mountedRef.current
+            ) {
+              setRuntime(null);
+
+              setError(
+                "Yêu cầu tạo ván trước đã hết hạn. Bạn có thể bắt đầu một ván mới."
+              );
+
+              setPhase(
+                PHASE.IDLE
+              );
+            }
+          } else if (
+            code ===
+            "BLOCK_PUZZLE_SESSION_STATUS_INVALID"
+          ) {
+            clearBlockPuzzleRecovery();
+
+            requestIdRef.current =
+              null;
+
+            runtimeRef.current =
+              null;
+
+            if (
+              mountedRef.current
+            ) {
+              setRuntime(null);
+
+              setError(
+                "Ván trước đã kết thúc và không thể tiếp tục từ yêu cầu cũ."
+              );
+
+              setPhase(
+                PHASE.IDLE
+              );
+            }
+          } else if (
+            mountedRef.current
+          ) {
+            setError(
+              errorMessage(
+                startError,
+                "Không thể bắt đầu ván chơi."
+              )
+            );
+
+            /*
+             * Ambiguous/network failure intentionally
+             * preserves request_id for exact retry.
+             */
+            setPhase(
+              PHASE.START_ERROR
+            );
+          }
+        } finally {
+          startInFlightRef.current =
+            false;
         }
       },
-      [phase]
+      [
+        phase,
+        recoveryOwnerKey,
+      ]
     );
 
   const updateDrag =
@@ -674,9 +994,24 @@ CingBlockPuzzle({
           runtimeRef.current =
             nextRuntime;
 
-          setRuntime(
-            nextRuntime
-          );
+          persistBlockPuzzleRuntime({
+            ownerKey:
+              recoveryOwnerKey,
+
+            requestId:
+              requestIdRef.current,
+
+            runtime:
+              nextRuntime,
+          });
+
+          if (
+            mountedRef.current
+          ) {
+            setRuntime(
+              nextRuntime
+            );
+          }
 
           if (
             nextRuntime.state
@@ -736,6 +1071,7 @@ CingBlockPuzzle({
       },
       [
         phase,
+        recoveryOwnerKey,
         submitRuntime,
         updateDrag,
       ]
@@ -751,6 +1087,11 @@ CingBlockPuzzle({
 
       submitInFlightRef.current =
         false;
+
+      startInFlightRef.current =
+        false;
+
+      clearBlockPuzzleRecovery();
 
       setRuntime(null);
       setDrag(null);
@@ -1284,6 +1625,80 @@ CingBlockPuzzle({
                   }}
                 >
                   Gửi lại kết quả
+                </button>
+              </div>
+            </div>
+          )}
+
+        {gameStarted &&
+          phase ===
+            PHASE.EXPIRED && (
+            <div
+              style={{
+                position:
+                  "absolute",
+                inset: 0,
+                zIndex: 32,
+                background:
+                  "rgba(43,22,11,0.78)",
+                display: "flex",
+                alignItems:
+                  "center",
+                justifyContent:
+                  "center",
+                padding: 20,
+              }}
+            >
+              <div
+                style={{
+                  width:
+                    "min(340px,100%)",
+                  padding: 24,
+                  borderRadius: 26,
+                  background:
+                    "#fff8ee",
+                  textAlign:
+                    "center",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 42,
+                  }}
+                >
+                  ⏱️
+                </div>
+
+                <h3>
+                  Ván chơi đã hết hạn
+                </h3>
+
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: "#79502f",
+                  }}
+                >
+                  {error}
+                </p>
+
+                <button
+                  type="button"
+                  onClick={
+                    newGame
+                  }
+                  style={{
+                    width: "100%",
+                    height: 48,
+                    border: "none",
+                    borderRadius: 15,
+                    background:
+                      "#d4531c",
+                    color: "white",
+                    fontWeight: 950,
+                  }}
+                >
+                  Bắt đầu ván mới
                 </button>
               </div>
             </div>
