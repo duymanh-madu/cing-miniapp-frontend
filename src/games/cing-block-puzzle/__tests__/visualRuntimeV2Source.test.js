@@ -29,16 +29,26 @@ const css =
   );
 
 test(
-  "drag layout is measured once at pointerdown",
+  "magnetic drag performs exactly two pointerdown layout measurements",
   () => {
     const matches =
       component.match(
         /getBoundingClientRect/g
       ) || [];
 
+    /*
+     * One tray-slot measurement resolves the nearest
+     * occupied magnetic anchor. One board measurement
+     * caches drop geometry. pointermove performs neither.
+     */
     assert.equal(
       matches.length,
-      1
+      2
+    );
+
+    assert.match(
+      component,
+      /resolveNearestPieceAnchor/
     );
 
     assert.match(
@@ -183,6 +193,51 @@ test(
     assert.ok(
       invalidPreviewIndex >
         filledIndex
+    );
+  }
+);
+
+test(
+  "tray piece uses whole-slot magnetic pointer hitbox",
+  () => {
+    assert.match(
+      component,
+      /cing-block-puzzle__piece-hitbox/
+    );
+
+    assert.match(
+      component,
+      /resolveNearestPieceAnchor/
+    );
+
+    assert.doesNotMatch(
+      component,
+      /role="button"\s*[\s\S]*?onPointerDown=\{\s*disabled/
+    );
+  }
+);
+
+test(
+  "premium block skin uses layered bevel without filter effects",
+  () => {
+    assert.match(
+      css,
+      /radial-gradient/
+    );
+
+    assert.match(
+      css,
+      /inset 0 -5px 0/
+    );
+
+    assert.match(
+      css,
+      /board-cell--filled::after/
+    );
+
+    assert.doesNotMatch(
+      css,
+      /\bfilter\s*:/
     );
   }
 );

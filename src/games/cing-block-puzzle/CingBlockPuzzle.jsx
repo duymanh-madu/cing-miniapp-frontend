@@ -36,6 +36,10 @@ import {
 } from "./runtime/blockPuzzleDragGeometry.js";
 
 import {
+  resolveNearestPieceAnchor,
+} from "./runtime/blockPuzzlePieceTouchGeometry.js";
+
+import {
   persistBlockPuzzlePendingStart,
   persistBlockPuzzleRuntime,
   restoreBlockPuzzleRecovery,
@@ -145,6 +149,54 @@ function PieceView({
 
   return (
     <div
+      className="cing-block-puzzle__piece-hitbox"
+      onPointerDown={
+        disabled
+          ? undefined
+          : (event) => {
+              const rect =
+                event.currentTarget
+                  .getBoundingClientRect();
+
+              const anchor =
+                resolveNearestPieceAnchor({
+                  clientX:
+                    event.clientX,
+
+                  clientY:
+                    event.clientY,
+
+                  slotRect: {
+                    left:
+                      rect.left,
+
+                    top:
+                      rect.top,
+
+                    width:
+                      rect.width,
+
+                    height:
+                      rect.height,
+                  },
+
+                  piece,
+                  slotSize: 92,
+                  cellSize: cell,
+                });
+
+              if (!anchor) {
+                return;
+              }
+
+              onPointerStart(
+                event,
+                trayIndex,
+                anchor.row,
+                anchor.col
+              );
+            }
+      }
       style={{
         width: 92,
         height: 92,
@@ -170,6 +222,7 @@ function PieceView({
 
           touchAction: "none",
           userSelect: "none",
+          pointerEvents: "none",
         }}
       >
         {Array.from(
@@ -206,19 +259,7 @@ function PieceView({
               <div
                 key={`${row}:${col}`}
                 className="cing-block-puzzle__piece-cell"
-                role="button"
-                tabIndex={-1}
-                onPointerDown={
-                  disabled
-                    ? undefined
-                    : (event) =>
-                        onPointerStart(
-                          event,
-                          trayIndex,
-                          row,
-                          col
-                        )
-                }
+                aria-hidden="true"
                 style={{
                   width: cell,
                   height: cell,
