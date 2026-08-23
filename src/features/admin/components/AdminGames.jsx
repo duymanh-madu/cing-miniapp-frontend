@@ -71,17 +71,13 @@ export default function AdminGames({ token }) {
         setGames(data);
         if (data.length > 0) setActiveGame(data[0].game_key);
 
-        const scoreMap = {};
-
-        await Promise.all(
-          data.map(async (g) => {
-            try {
-              const r2 = await apiClient.get(`/leaderboard/top-games/${g.game_key}`, { headers: h });
-              scoreMap[g.game_key] = r2.data?.data || [];
-            } catch {
-              scoreMap[g.game_key] = g.data || [];
-            }
-          })
+        const scoreMap = Object.fromEntries(
+          data.map(game => [
+            game.game_key,
+            Array.isArray(game.data)
+              ? game.data
+              : [],
+          ])
         );
 
         if (mounted) setScores(scoreMap);

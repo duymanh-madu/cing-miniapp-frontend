@@ -158,7 +158,7 @@ export default function AdminLeaderboard({ token }) {
     try {
       const url = type === "spending"
         ? `/leaderboard/top100/spending?period=${key}`
-        : `/leaderboard/top100/game/${key}`;
+        : `/leaderboard/top-games/${key}`;
       const res = await apiClient.get(url, { headers:h });
       setTop100Rows(res.data?.data || []);
     } catch(e) {
