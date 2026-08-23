@@ -87,7 +87,7 @@ test(
 
     assert.equal(
       postBodies.length,
-      2
+      3
     );
 
     for (const body of postBodies) {

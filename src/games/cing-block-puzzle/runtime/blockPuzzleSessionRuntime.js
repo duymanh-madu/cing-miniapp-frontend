@@ -435,3 +435,120 @@ applyAuthoritativeBlockPuzzleSubmission(
       submission.verified_score,
   });
 }
+
+export function
+applyAuthorizedBlockPuzzleContinue(
+  runtime,
+  purchase
+) {
+  if (
+    !runtime ||
+    typeof runtime !==
+      "object" ||
+    runtime.state?.ended !==
+      true ||
+    runtime.submission
+  ) {
+    fail(
+      "BLOCK_PUZZLE_CONTINUE_RUNTIME_INVALID",
+      "Continue requires an unsubmitted terminal runtime"
+    );
+  }
+
+  if (
+    runtime.session
+      ?.replay_version !== 3
+  ) {
+    fail(
+      "BLOCK_PUZZLE_CONTINUE_REPLAY_VERSION_INVALID",
+      "Continue requires Replay V3"
+    );
+  }
+
+  const engine =
+    getBlockPuzzleEngineForContract(
+      runtime.session
+    );
+
+  if (
+    typeof
+      engine.createReplayContinue !==
+        "function" ||
+    typeof
+      engine.appendReplayContinue !==
+        "function" ||
+    typeof
+      engine.applyContinue !==
+        "function"
+  ) {
+    fail(
+      "BLOCK_PUZZLE_CONTINUE_ENGINE_INVALID",
+      "Continue engine capability unavailable"
+    );
+  }
+
+  const replayEvent =
+    engine.createReplayContinue(
+      runtime.state
+    );
+
+  const expectedIndex =
+    replayEvent.continueIndex;
+
+  if (
+    purchase?.session_id !==
+      runtime.session.session_id ||
+    purchase?.continue_index !==
+      expectedIndex ||
+    purchase?.continue_count !==
+      expectedIndex
+  ) {
+    fail(
+      "BLOCK_PUZZLE_CONTINUE_AUTHORITY_MISMATCH",
+      "Purchased continue does not match deterministic runtime"
+    );
+  }
+
+  const applied =
+    engine.applyContinue(
+      runtime.state
+    );
+
+  if (
+    applied.state
+      .continuesUsed !==
+      expectedIndex ||
+    applied.state.ended !==
+      false ||
+    applied.event
+      ?.continueIndex !==
+      expectedIndex
+  ) {
+    fail(
+      "BLOCK_PUZZLE_CONTINUE_STATE_MISMATCH",
+      "Continue deterministic state mismatch"
+    );
+  }
+
+  const replay =
+    engine.appendReplayContinue(
+      runtime.replay,
+      replayEvent
+    );
+
+  engine.validateReplayTranscript(
+    replay
+  );
+
+  return Object.freeze({
+    ...runtime,
+
+    state:
+      applied.state,
+
+    replay,
+
+    submission:
+      null,
+  });
+}

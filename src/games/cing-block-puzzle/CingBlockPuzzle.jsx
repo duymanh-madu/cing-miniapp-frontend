@@ -22,6 +22,7 @@ import {
   createBlockPuzzleRequestId,
   startAuthorizedBlockPuzzleSession,
   submitAuthorizedBlockPuzzleReplay,
+  purchaseAuthorizedBlockPuzzleContinue,
 } from "./runtime/blockPuzzleAuthorityClient.js";
 
 import {
@@ -29,6 +30,7 @@ import {
   recoverAuthorizedBlockPuzzleRuntime,
   applyAuthorizedBlockPuzzleMoveWithPresentation,
   applyAuthoritativeBlockPuzzleSubmission,
+  applyAuthorizedBlockPuzzleContinue,
 } from "./runtime/blockPuzzleSessionRuntime.js";
 
 import {
@@ -51,6 +53,12 @@ import {
   isBlockPuzzleSessionExpired,
 } from "./runtime/blockPuzzleRecovery.js";
 
+import {
+  persistBlockPuzzleTerminalIntent,
+  restoreBlockPuzzleTerminalIntent,
+  clearBlockPuzzleTerminalIntent,
+} from "./runtime/blockPuzzleTerminalIntentRecovery.js";
+
 import blockPuzzleAudioRuntime from
   "./audio/blockPuzzleAudioRuntime.js";
 
@@ -60,6 +68,9 @@ const PHASE = Object.freeze({
   IDLE: "idle",
   STARTING: "starting",
   PLAYING: "playing",
+  CONTINUE_OFFER: "continue_offer",
+  CONTINUE_PURCHASING: "continue_purchasing",
+  CONTINUE_ERROR: "continue_error",
   SUBMITTING: "submitting",
   SUBMIT_ERROR: "submit_error",
   START_ERROR: "start_error",
@@ -447,6 +458,9 @@ CingBlockPuzzle({
   const submitInFlightRef =
     useRef(false);
 
+  const continueInFlightRef =
+    useRef(false);
+
   const startInFlightRef =
     useRef(false);
 
@@ -681,14 +695,53 @@ CingBlockPuzzle({
         recoveredRuntime.state
           .ended
       ) {
-        setError(
-          "Ván trước đã kết thúc nhưng kết quả chưa được xác nhận. Hãy gửi lại kết quả."
-        );
+        const intent =
+          restoreBlockPuzzleTerminalIntent({
+            ownerKey:
+              recoveryOwnerKey,
 
-        setPhase(
-          PHASE.SUBMIT_ERROR
-        );
+            sessionId:
+              recoveredRuntime
+                .session
+                .session_id,
+          });
+
+        if (
+          intent?.action ===
+            "continue_pending" &&
+          recoveredRuntime.state
+            .continuesUsed < 3
+        ) {
+          setError(
+            "Giao dịch mua mạng trước chưa hoàn tất trên thiết bị. Hãy thử lại để khôi phục đúng giao dịch."
+          );
+
+          setPhase(
+            PHASE.CONTINUE_ERROR
+          );
+        } else if (
+          intent?.action ===
+            "offer" &&
+          recoveredRuntime.state
+            .continuesUsed < 3
+        ) {
+          setError("");
+
+          setPhase(
+            PHASE.CONTINUE_OFFER
+          );
+        } else {
+          setError(
+            "Ván trước đã kết thúc nhưng kết quả chưa được xác nhận. Hãy gửi lại kết quả."
+          );
+
+          setPhase(
+            PHASE.SUBMIT_ERROR
+          );
+        }
       } else {
+        clearBlockPuzzleTerminalIntent();
+
         setPhase(
           PHASE.PLAYING
         );
@@ -834,6 +887,7 @@ CingBlockPuzzle({
             finalRuntime;
 
           clearBlockPuzzleRecovery();
+          clearBlockPuzzleTerminalIntent();
 
           if (
             mountedRef.current
@@ -892,6 +946,331 @@ CingBlockPuzzle({
         }
       },
       []
+    );
+
+  const enterTerminalDecision =
+    useCallback(
+      (
+        terminalRuntime
+      ) => {
+        if (
+          !terminalRuntime ||
+          terminalRuntime.state
+            ?.ended !== true
+        ) {
+          return;
+        }
+
+        if (
+          terminalRuntime.state
+            .continuesUsed >= 3
+        ) {
+          const persisted =
+            persistBlockPuzzleTerminalIntent({
+              ownerKey:
+                recoveryOwnerKey,
+
+              sessionId:
+                terminalRuntime
+                  .session
+                  .session_id,
+
+              action:
+                "submit_pending",
+            });
+
+          if (!persisted) {
+            setError(
+              "Thiết bị không thể lưu trạng thái kết thúc ván an toàn."
+            );
+
+            setPhase(
+              PHASE.SUBMIT_ERROR
+            );
+
+            return;
+          }
+
+          void submitRuntime(
+            terminalRuntime
+          );
+
+          return;
+        }
+
+        const persisted =
+          persistBlockPuzzleTerminalIntent({
+            ownerKey:
+              recoveryOwnerKey,
+
+            sessionId:
+              terminalRuntime
+                .session
+                .session_id,
+
+            action:
+              "offer",
+          });
+
+        if (!persisted) {
+          setError(
+            "Thiết bị không thể lưu trạng thái mua mạng an toàn."
+          );
+
+          setPhase(
+            PHASE.SUBMIT_ERROR
+          );
+
+          return;
+        }
+
+        setError("");
+
+        setPhase(
+          PHASE.CONTINUE_OFFER
+        );
+      },
+      [
+        recoveryOwnerKey,
+        enterTerminalDecision,
+      ]
+    );
+
+  const purchaseContinue =
+    useCallback(
+      async (
+        terminalRuntime
+      ) => {
+        if (
+          !terminalRuntime ||
+          terminalRuntime.state
+            ?.ended !== true ||
+          terminalRuntime.state
+            .continuesUsed >= 3 ||
+          continueInFlightRef
+            .current
+        ) {
+          return;
+        }
+
+        const expectedIndex =
+          terminalRuntime.state
+            .continuesUsed + 1;
+
+        const previousIntent =
+          restoreBlockPuzzleTerminalIntent({
+            ownerKey:
+              recoveryOwnerKey,
+
+            sessionId:
+              terminalRuntime
+                .session
+                .session_id,
+          });
+
+        const requestId =
+          (
+            previousIntent?.action ===
+              "continue_pending" &&
+            previousIntent
+              .continue_index ===
+              expectedIndex
+          )
+            ? previousIntent
+                .request_id
+            : createBlockPuzzleRequestId();
+
+        const persistedIntent =
+          persistBlockPuzzleTerminalIntent({
+            ownerKey:
+              recoveryOwnerKey,
+
+            sessionId:
+              terminalRuntime
+                .session
+                .session_id,
+
+            action:
+              "continue_pending",
+
+            requestId,
+
+            continueIndex:
+              expectedIndex,
+          });
+
+        if (!persistedIntent) {
+          setError(
+            "Thiết bị không thể lưu giao dịch mua mạng an toàn."
+          );
+
+          setPhase(
+            PHASE.CONTINUE_ERROR
+          );
+
+          return;
+        }
+
+        continueInFlightRef.current =
+          true;
+
+        setError("");
+
+        setPhase(
+          PHASE.CONTINUE_PURCHASING
+        );
+
+        try {
+          const purchase =
+            await purchaseAuthorizedBlockPuzzleContinue({
+              sessionId:
+                terminalRuntime
+                  .session
+                  .session_id,
+
+              requestId,
+
+              replay:
+                terminalRuntime
+                  .replay,
+            });
+
+          const nextRuntime =
+            applyAuthorizedBlockPuzzleContinue(
+              terminalRuntime,
+              purchase
+            );
+
+          const persistedRuntime =
+            persistBlockPuzzleRuntime({
+              ownerKey:
+                recoveryOwnerKey,
+
+              requestId:
+                requestIdRef.current,
+
+              runtime:
+                nextRuntime,
+            });
+
+          if (!persistedRuntime) {
+            throw new Error(
+              "Thiết bị không thể lưu ván chơi sau khi mua mạng"
+            );
+          }
+
+          runtimeRef.current =
+            nextRuntime;
+
+          clearBlockPuzzleTerminalIntent();
+
+          if (
+            typeof window !==
+              "undefined"
+          ) {
+            window.dispatchEvent(
+              new CustomEvent(
+                "membership_points_updated",
+                {
+                  detail: {
+                    points:
+                      purchase
+                        .balance_after,
+                  },
+                }
+              )
+            );
+          }
+
+          if (
+            mountedRef.current
+          ) {
+            setRuntime(
+              nextRuntime
+            );
+
+            setDrag(null);
+            setError("");
+
+            setPhase(
+              PHASE.PLAYING
+            );
+          }
+        } catch (
+          continueError
+        ) {
+          if (
+            mountedRef.current
+          ) {
+            setError(
+              errorMessage(
+                continueError,
+                "Không thể mua mạng. Hãy thử lại."
+              )
+            );
+
+            setPhase(
+              PHASE.CONTINUE_ERROR
+            );
+          }
+        } finally {
+          continueInFlightRef.current =
+            false;
+        }
+      },
+      [
+        recoveryOwnerKey,
+      ]
+    );
+
+  const finishTerminalGame =
+    useCallback(
+      () => {
+        const terminalRuntime =
+          runtimeRef.current;
+
+        if (
+          !terminalRuntime ||
+          terminalRuntime.state
+            ?.ended !== true
+        ) {
+          return;
+        }
+
+        const persisted =
+          persistBlockPuzzleTerminalIntent({
+            ownerKey:
+              recoveryOwnerKey,
+
+            sessionId:
+              terminalRuntime
+                .session
+                .session_id,
+
+            action:
+              "submit_pending",
+          });
+
+        if (!persisted) {
+          setError(
+            "Thiết bị không thể lưu trạng thái gửi kết quả an toàn."
+          );
+
+          setPhase(
+            PHASE.SUBMIT_ERROR
+          );
+
+          return;
+        }
+
+        void submitRuntime(
+          terminalRuntime
+        );
+      },
+      [
+        recoveryOwnerKey,
+        submitRuntime,
+      ]
     );
 
   const startGame =
@@ -1594,7 +1973,7 @@ CingBlockPuzzle({
               nextRuntime.state
                 .ended
             ) {
-              void submitRuntime(
+              enterTerminalDecision(
                 nextRuntime
               );
             }
@@ -1686,6 +2065,7 @@ CingBlockPuzzle({
         false;
 
       clearBlockPuzzleRecovery();
+      clearBlockPuzzleTerminalIntent();
 
       setRuntime(null);
       setDrag(null);
@@ -2328,6 +2708,165 @@ CingBlockPuzzle({
                 floatingPieceRef
               }
             />
+          )}
+
+        {gameStarted &&
+          (
+            phase ===
+              PHASE.CONTINUE_OFFER ||
+            phase ===
+              PHASE.CONTINUE_PURCHASING ||
+            phase ===
+              PHASE.CONTINUE_ERROR
+          ) && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                zIndex: 31,
+                background:
+                  "rgba(43,22,11,0.78)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent:
+                  "center",
+                padding: 20,
+              }}
+            >
+              <div
+                style={{
+                  width:
+                    "min(340px,100%)",
+                  padding: 24,
+                  borderRadius: 26,
+                  background:
+                    "#fff8ee",
+                  textAlign:
+                    "center",
+                  boxShadow:
+                    "0 18px 50px rgba(0,0,0,.28)",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 42,
+                  }}
+                >
+                  ❤️
+                </div>
+
+                <h3
+                  style={{
+                    margin:
+                      "8px 0 6px",
+                    color: "#4a2513",
+                  }}
+                >
+                  Chơi tiếp?
+                </h3>
+
+                <p
+                  style={{
+                    margin:
+                      "0 0 18px",
+                    color: "#79502f",
+                    fontSize: 13,
+                  }}
+                >
+                  Bạn có thể mua thêm mạng và
+                  giữ nguyên điểm, bàn chơi và combo.
+                </p>
+
+                {error && (
+                  <p
+                    style={{
+                      color: "#b43b22",
+                      fontSize: 12,
+                      margin:
+                        "0 0 12px",
+                    }}
+                  >
+                    {error}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  disabled={
+                    phase ===
+                    PHASE.CONTINUE_PURCHASING
+                  }
+                  onClick={() =>
+                    purchaseContinue(
+                      runtimeRef.current
+                    )
+                  }
+                  style={{
+                    width: "100%",
+                    height: 50,
+                    border: "none",
+                    borderRadius: 15,
+                    background:
+                      "linear-gradient(135deg,#d4531c,#ff7a32)",
+                    color: "white",
+                    fontWeight: 950,
+                    fontSize: 15,
+                    opacity:
+                      phase ===
+                      PHASE.CONTINUE_PURCHASING
+                        ? 0.7
+                        : 1,
+                  }}
+                >
+                  {phase ===
+                  PHASE.CONTINUE_PURCHASING
+                    ? "Đang mua mạng..."
+                    : `Chơi tiếp — ${
+                        [5, 10, 20][
+                          runtime?.state
+                            ?.continuesUsed ?? 0
+                        ]
+                      } điểm`}
+                </button>
+
+                <button
+                  type="button"
+                  disabled={
+                    phase ===
+                    PHASE.CONTINUE_PURCHASING
+                  }
+                  onClick={
+                    finishTerminalGame
+                  }
+                  style={{
+                    width: "100%",
+                    height: 44,
+                    border: "none",
+                    background:
+                      "transparent",
+                    color: "#79502f",
+                    fontWeight: 850,
+                    marginTop: 8,
+                  }}
+                >
+                  Kết thúc ván
+                </button>
+
+                <div
+                  style={{
+                    marginTop: 8,
+                    fontSize: 11,
+                    color: "#a66a34",
+                    fontWeight: 800,
+                  }}
+                >
+                  Đã dùng {
+                    runtime?.state
+                      ?.continuesUsed ?? 0
+                  } / 3 mạng
+                </div>
+              </div>
+            </div>
           )}
 
         {gameStarted &&

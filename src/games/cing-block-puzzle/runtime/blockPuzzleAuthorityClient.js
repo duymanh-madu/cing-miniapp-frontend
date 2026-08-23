@@ -385,3 +385,285 @@ submitAuthorizedBlockPuzzleReplay({
     )
   );
 }
+
+export function
+normalizeAuthoritativeContinuePurchase(
+  raw,
+  expectedSessionId
+) {
+  if (
+    !raw ||
+    typeof raw !== "object" ||
+    Array.isArray(raw)
+  ) {
+    fail(
+      "BLOCK_PUZZLE_CONTINUE_RESPONSE_INVALID",
+      "Continue authority response không hợp lệ"
+    );
+  }
+
+  const purchaseId =
+    String(
+      raw.purchase_id || ""
+    ).trim();
+
+  const sessionId =
+    String(
+      raw.session_id || ""
+    ).trim();
+
+  if (
+    !UUID_V4.test(
+      purchaseId
+    ) ||
+    !UUID_V4.test(
+      sessionId
+    ) ||
+    sessionId !==
+      expectedSessionId
+  ) {
+    fail(
+      "BLOCK_PUZZLE_CONTINUE_RESPONSE_INVALID",
+      "Continue authority identity không hợp lệ"
+    );
+  }
+
+  const continueIndex =
+    Number(
+      raw.continue_index
+    );
+
+  const pointsCost =
+    Number(
+      raw.points_cost
+    );
+
+  const balanceBefore =
+    Number(
+      raw.balance_before
+    );
+
+  const balanceAfter =
+    Number(
+      raw.balance_after
+    );
+
+  const continueCount =
+    Number(
+      raw.continue_count
+    );
+
+  for (
+    const [
+      value,
+      label,
+      min,
+    ] of [
+      [
+        continueIndex,
+        "continue_index",
+        1,
+      ],
+      [
+        pointsCost,
+        "points_cost",
+        1,
+      ],
+      [
+        balanceBefore,
+        "balance_before",
+        0,
+      ],
+      [
+        balanceAfter,
+        "balance_after",
+        0,
+      ],
+      [
+        continueCount,
+        "continue_count",
+        1,
+      ],
+    ]
+  ) {
+    assertSafeInteger(
+      value,
+      label,
+      min
+    );
+  }
+
+  const expectedCost =
+    [
+      0,
+      5,
+      10,
+      20,
+    ][
+      continueIndex
+    ];
+
+  if (
+    pointsCost !==
+      expectedCost ||
+    continueCount !==
+      continueIndex ||
+    balanceAfter !==
+      balanceBefore -
+        pointsCost
+  ) {
+    fail(
+      "BLOCK_PUZZLE_CONTINUE_RESPONSE_INVALID",
+      "Continue authority invariant không hợp lệ"
+    );
+  }
+
+  if (
+    typeof raw.idempotent !==
+      "boolean"
+  ) {
+    fail(
+      "BLOCK_PUZZLE_CONTINUE_RESPONSE_INVALID",
+      "Continue idempotency flag không hợp lệ"
+    );
+  }
+
+  const createdAt =
+    String(
+      raw.created_at || ""
+    );
+
+  if (
+    !Number.isFinite(
+      Date.parse(
+        createdAt
+      )
+    )
+  ) {
+    fail(
+      "BLOCK_PUZZLE_CONTINUE_RESPONSE_INVALID",
+      "Continue created_at không hợp lệ"
+    );
+  }
+
+  return Object.freeze({
+    purchase_id:
+      purchaseId,
+
+    session_id:
+      sessionId,
+
+    continue_index:
+      continueIndex,
+
+    points_cost:
+      pointsCost,
+
+    balance_before:
+      balanceBefore,
+
+    balance_after:
+      balanceAfter,
+
+    continue_count:
+      continueCount,
+
+    created_at:
+      createdAt,
+
+    idempotent:
+      raw.idempotent,
+  });
+}
+
+export async function
+purchaseAuthorizedBlockPuzzleContinue({
+  sessionId,
+  requestId,
+  replay,
+}) {
+  const normalizedSessionId =
+    String(
+      sessionId || ""
+    ).trim();
+
+  const normalizedRequestId =
+    String(
+      requestId || ""
+    ).trim();
+
+  if (
+    !UUID_V4.test(
+      normalizedSessionId
+    )
+  ) {
+    fail(
+      "BLOCK_PUZZLE_SESSION_ID_INVALID",
+      "session_id không hợp lệ"
+    );
+  }
+
+  if (
+    !UUID_V4.test(
+      normalizedRequestId
+    )
+  ) {
+    fail(
+      "BLOCK_PUZZLE_REQUEST_ID_INVALID",
+      "request_id không hợp lệ"
+    );
+  }
+
+  if (
+    !replay ||
+    typeof replay !== "object" ||
+    Array.isArray(replay)
+  ) {
+    fail(
+      "BLOCK_PUZZLE_REPLAY_INVALID",
+      "Replay không hợp lệ"
+    );
+  }
+
+  const engine =
+    getBlockPuzzleEngineForContract({
+      engine_version:
+        replay.engineVersion,
+
+      rules_version:
+        replay.rulesVersion,
+
+      score_version:
+        replay.scoreVersion,
+
+      replay_version:
+        replay.replayVersion,
+    });
+
+  engine.validateReplayTranscript(
+    replay
+  );
+
+  const response =
+    await apiClient.post(
+      `${GAME_PATH}/session/${normalizedSessionId}/continue`,
+
+      {
+        request_id:
+          normalizedRequestId,
+
+        replay,
+      },
+
+      authConfig()
+    );
+
+  return (
+    normalizeAuthoritativeContinuePurchase(
+      unwrapResponse(
+        response
+      ),
+      normalizedSessionId
+    )
+  );
+}
