@@ -160,7 +160,7 @@ recoverAuthorizedBlockPuzzleRuntime(
       initial.state
         .scoreVersion ||
     recovered.state.moves !==
-      replay.moves.length
+      getReplayMoveCount(replay)
   ) {
     fail(
       "BLOCK_PUZZLE_RUNTIME_RECOVERY_MISMATCH",
@@ -295,6 +295,43 @@ applyAuthorizedBlockPuzzleMoveWithPresentation(
   );
 }
 
+function getReplayMoveCount(
+  replay
+) {
+  if (
+    Array.isArray(
+      replay?.moves
+    )
+  ) {
+    return replay.moves.length;
+  }
+
+  if (
+    Array.isArray(
+      replay?.events
+    )
+  ) {
+    return replay.events.reduce(
+      (
+        count,
+        event
+      ) =>
+        count +
+        (
+          event?.type === "move"
+            ? 1
+            : 0
+        ),
+      0
+    );
+  }
+
+  fail(
+    "BLOCK_PUZZLE_RUNTIME_REPLAY_INVALID",
+    "Local replay move stream is invalid"
+  );
+}
+
 export function
 assertTerminalBlockPuzzleRuntime(
   runtime
@@ -332,7 +369,7 @@ assertTerminalBlockPuzzleRuntime(
   if (
     runtime.replay.seed !==
       runtime.session.seed ||
-    runtime.replay.moves.length !==
+    getReplayMoveCount(runtime.replay) !==
       runtime.state.moves
   ) {
     fail(
