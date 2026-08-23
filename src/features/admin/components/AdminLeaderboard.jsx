@@ -402,7 +402,11 @@ function defaultConfig() {
         weekly_reset: true,
         display_name: "Cing Block Puzzle",
         icon: "🧩",
-        rewards: [],
+        rewards: [
+          { rank:1, points:0, label:"🥇 Top 1 tuần" },
+          { rank:2, points:0, label:"🥈 Top 2 tuần" },
+          { rank:3, points:0, label:"🥉 Top 3 tuần" },
+        ],
       },
 
       "black-pearl-rush": {
