@@ -1,5 +1,6 @@
 import * as engineV1 from "../engine/index.js";
 import * as engineV2 from "../engine/v2/index.js";
+import * as engineV3 from "../engine/v3/index.js";
 
 const CONTRACT_V1 =
   Object.freeze({
@@ -15,6 +16,14 @@ const CONTRACT_V2 =
     rulesVersion: 2,
     scoreVersion: 2,
     replayVersion: 2,
+  });
+
+const CONTRACT_V3 =
+  Object.freeze({
+    engineVersion: 2,
+    rulesVersion: 2,
+    scoreVersion: 2,
+    replayVersion: 3,
   });
 
 function matchesContract(
@@ -70,6 +79,15 @@ getBlockPuzzleEngineForContract({
     )
   ) {
     return engineV2;
+  }
+
+  if (
+    matchesContract(
+      contract,
+      CONTRACT_V3
+    )
+  ) {
+    return engineV3;
   }
 
   const error =
