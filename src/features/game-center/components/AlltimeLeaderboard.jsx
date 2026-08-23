@@ -2,9 +2,50 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import { getGame } from "@/games/registry/gameRegistry";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
 const MEDAL = ["🥇","🥈","🥉"];
+
+function renderGameIcon(game, size = 20) {
+  const registeredGame =
+    getGame(game?.game_key);
+
+  if (registeredGame?.iconUrl) {
+    return (
+      <img
+        src={registeredGame.iconUrl}
+        alt=""
+        width={size}
+        height={size}
+        style={{
+          width:size,
+          height:size,
+          objectFit:"contain",
+          display:"block",
+          borderRadius:
+            game?.game_key === "cing-block-puzzle"
+              ? Math.round(size * 0.22)
+              : 0,
+          flexShrink:0,
+        }}
+      />
+    );
+  }
+
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        fontSize:size,
+        lineHeight:1,
+        flexShrink:0,
+      }}
+    >
+      {game?.icon || "🎮"}
+    </span>
+  );
+}
 
 export default function AlltimeLeaderboard({ onClose }) {
   const [games,      setGames]      = useState([]);
@@ -82,7 +123,18 @@ export default function AlltimeLeaderboard({ onClose }) {
                   : "rgba(255,255,255,0.04)",
                 color:"white", fontSize:12, fontWeight: activeGame===g.game_key ? 900 : 500,
                 cursor:"pointer", boxShadow: activeGame===g.game_key ? "0 4px 12px rgba(212,83,28,0.4)" : "none",
-              }}>{g.icon} {g.display_name}</button>
+              }}>
+                <span
+                  style={{
+                    display:"inline-flex",
+                    alignItems:"center",
+                    gap:6,
+                  }}
+                >
+                  {renderGameIcon(g, 20)}
+                  <span>{g.display_name}</span>
+                </span>
+              </button>
             ))}
           </div>
         )}
