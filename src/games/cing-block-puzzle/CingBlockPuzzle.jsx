@@ -2349,14 +2349,22 @@ CingBlockPuzzle({
                   "0 18px 50px rgba(70,35,10,0.12)",
               }}
             >
-              <div
+              <img
+                src="/game-icons/cing-block-puzzle.png"
+                alt="Cing Block Puzzle"
+                width="96"
+                height="96"
                 style={{
-                  fontSize: 48,
-                  marginBottom: 8,
+                  width: 96,
+                  height: 96,
+                  borderRadius: 22,
+                  objectFit: "cover",
+                  display: "block",
+                  margin: "0 auto 12px",
+                  boxShadow:
+                    "0 14px 32px rgba(121,72,18,0.22)",
                 }}
-              >
-                🧩
-              </div>
+              />
 
               <h2
                 style={{

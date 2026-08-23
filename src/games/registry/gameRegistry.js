@@ -43,8 +43,8 @@ const gameRegistry = {
       "Cing Block Puzzle",
     description:
       "Xếp khối 8×8 · Phá hàng, phá cột · Leo bảng xếp hạng",
-    iconUrl: null,
-    iconFallback: "🧩",
+    iconUrl: "/game-icons/cing-block-puzzle.png",
+    iconFallback: "🎮",
     component: CingBlockPuzzle,
     status: "LIVE",
     leaderboardEnabled: true,

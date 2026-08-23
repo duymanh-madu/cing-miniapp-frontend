@@ -31,6 +31,7 @@ const GAME_NAMES = {
 const GAME_ICONS = {
   "black-pearl-rush": "/game-icons/black-pearl-rush.svg",
   "cing-stack-tower": "/game-icons/cing-stack-tower.svg",
+  "cing-block-puzzle": "/game-icons/cing-block-puzzle.png",
 };
 
 export default function GameLeaderboard({ gameKey, onClose }) {

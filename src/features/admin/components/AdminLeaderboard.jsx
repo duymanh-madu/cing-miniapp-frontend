@@ -12,7 +12,12 @@ const PERIODS = [
 const GAMES = [
   { key:"black-pearl-rush", label:"Bay cùng trân châu", icon:"🫧" },
   { key:"cing-stack-tower", label:"Xếp Tháp Cing", icon:"🧱" },
-  { key:"cing-block-puzzle", label:"Cing Block Puzzle", icon:"🧩" },
+  {
+    key:"cing-block-puzzle",
+    label:"Cing Block Puzzle",
+    icon:"🎮",
+    iconUrl:"/game-icons/cing-block-puzzle.png",
+  },
   { key:"chess-wins", label:"Kỳ thủ cờ vua — Thắng nhiều nhất", icon:"♟️" },
   { key:"chess-streak", label:"Kỳ thủ cờ vua — Chuỗi thắng dài nhất", icon:"🔥" },
 ];
@@ -30,6 +35,7 @@ function getGameEntries(config) {
       key: game.key,
       label: cfg.display_name || game.label,
       icon: cfg.icon || game.icon,
+      iconUrl: game.iconUrl || null,
     });
     seen.add(game.key);
   });
@@ -41,6 +47,7 @@ function getGameEntries(config) {
       key,
       label: cfg.display_name || key,
       icon: cfg.icon || "🎮",
+      iconUrl: null,
     });
   });
 
@@ -218,7 +225,21 @@ export default function AdminLeaderboard({ token }) {
             <div key={p.key} style={{ background:"#1a1a24", borderRadius:14, padding:"16px 20px", marginBottom:12, border:`1px solid ${isEnabled ? "#D4531C44" : "#2a2a38"}` }}>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12, gap:10, flexWrap:"wrap" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                  <span style={{ fontSize:20 }}>{p.icon}</span>
+                  {p.iconUrl ? (
+                    <img
+                      src={p.iconUrl}
+                      alt=""
+                      style={{
+                        width:28,
+                        height:28,
+                        borderRadius:7,
+                        objectFit:"cover",
+                        display:"block",
+                      }}
+                    />
+                  ) : (
+                    <span style={{ fontSize:20 }}>{p.icon}</span>
+                  )}
                   <div>
                     <p style={{ color:"white", fontWeight:800, margin:0 }}>Bảng xếp hạng {p.label}</p>
                     <p style={{ color:"#666", fontSize:11, margin:"2px 0 0" }}>{p.resetInfo}</p>
@@ -274,7 +295,21 @@ export default function AdminLeaderboard({ token }) {
             <div key={g.key} style={{ background:"#1a1a24", borderRadius:14, padding:"16px 20px", marginBottom:12, border:`1px solid ${isEnabled ? "#7c3aed44" : "#2a2a38"}` }}>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12, gap:10, flexWrap:"wrap" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                  <span style={{ fontSize:20 }}>{g.icon}</span>
+                  {g.iconUrl ? (
+                    <img
+                      src={g.iconUrl}
+                      alt=""
+                      style={{
+                        width:28,
+                        height:28,
+                        borderRadius:7,
+                        objectFit:"cover",
+                        display:"block",
+                      }}
+                    />
+                  ) : (
+                    <span style={{ fontSize:20 }}>{g.icon}</span>
+                  )}
                   <div>
                     <p style={{ color:"white", fontWeight:800, margin:0 }}>{g.label}</p>
                     <p style={{ color:"#666", fontSize:11, margin:"2px 0 0" }}>
@@ -401,7 +436,7 @@ function defaultConfig() {
         enabled: false,
         weekly_reset: true,
         display_name: "Cing Block Puzzle",
-        icon: "🧩",
+        icon: "🎮",
         rewards: [
           { rank:1, points:0, label:"🥇 Top 1 tuần" },
           { rank:2, points:0, label:"🥈 Top 2 tuần" },
