@@ -178,3 +178,18 @@ test(
     );
   }
 );
+
+test(
+  "terminal decision callback never self-references in hook dependencies",
+  () => {
+    assert.doesNotMatch(
+      component,
+      /const enterTerminalDecision[\s\S]*?\[\s*recoveryOwnerKey,\s*enterTerminalDecision,\s*\]/
+    );
+
+    assert.match(
+      component,
+      /const enterTerminalDecision[\s\S]*?\[\s*recoveryOwnerKey,\s*submitRuntime,\s*\]/
+    );
+  }
+);

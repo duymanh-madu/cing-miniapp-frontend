@@ -1032,7 +1032,7 @@ CingBlockPuzzle({
       },
       [
         recoveryOwnerKey,
-        enterTerminalDecision,
+        submitRuntime,
       ]
     );
 
@@ -2044,7 +2044,7 @@ CingBlockPuzzle({
       [
         phase,
         recoveryOwnerKey,
-        submitRuntime,
+        enterTerminalDecision,
       ]
     );
 
