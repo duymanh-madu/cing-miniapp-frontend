@@ -1,11 +1,11 @@
 const MIN_FINGER_CLEARANCE_PX =
-  54;
+  78;
 
 const MAX_FINGER_CLEARANCE_PX =
-  74;
+  108;
 
 const CELL_CLEARANCE_FACTOR =
-  1.55;
+  2.15;
 
 function finite(
   value

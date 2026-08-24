@@ -30,14 +30,14 @@ test(
       420
     );
 
-    assert.ok(
-      point.clearance >=
-      54
+    assert.equal(
+      point.clearance,
+      42 * 2.15
     );
 
-    assert.ok(
-      point.clearance <=
-      74
+    assert.equal(
+      point.clientY,
+      420 - (42 * 2.15)
     );
   }
 );
@@ -61,12 +61,12 @@ test(
 
     assert.equal(
       compact.clearance,
-      54
+      78
     );
 
     assert.equal(
       large.clearance,
-      74
+      108
     );
   }
 );
