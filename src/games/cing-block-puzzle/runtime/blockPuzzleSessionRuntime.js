@@ -455,16 +455,6 @@ applyAuthorizedBlockPuzzleContinue(
     );
   }
 
-  if (
-    runtime.session
-      ?.replay_version !== 3
-  ) {
-    fail(
-      "BLOCK_PUZZLE_CONTINUE_REPLAY_VERSION_INVALID",
-      "Continue requires Replay V3"
-    );
-  }
-
   const engine =
     getBlockPuzzleEngineForContract(
       runtime.session

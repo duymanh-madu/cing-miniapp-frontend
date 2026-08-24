@@ -92,3 +92,58 @@ test(
     );
   }
 );
+
+test(
+  "authority client accepts exact V4 authorized session",
+  () => {
+    const session =
+      normalizeAuthorizedSession(
+        authorizedSession({
+          engine_version: 3,
+          rules_version: 3,
+          score_version: 3,
+          replay_version: 4,
+        })
+      );
+
+    assert.equal(
+      session.engine_version,
+      3
+    );
+
+    assert.equal(
+      session.rules_version,
+      3
+    );
+
+    assert.equal(
+      session.score_version,
+      3
+    );
+
+    assert.equal(
+      session.replay_version,
+      4
+    );
+  }
+);
+
+test(
+  "authority client rejects mixed V4 session tuple",
+  () => {
+    assert.throws(
+      () =>
+        normalizeAuthorizedSession(
+          authorizedSession({
+            engine_version: 3,
+            rules_version: 3,
+            score_version: 2,
+            replay_version: 4,
+          })
+        ),
+      (error) =>
+        error?.code ===
+        "BLOCK_PUZZLE_SESSION_VERSION_MISMATCH"
+    );
+  }
+);
