@@ -995,12 +995,12 @@ CingArtilleryGame({
                     enterLandscapeBattleMode
                   }
                 >
-                  Mở chế độ ngang
+                  Thử chuyển sang ngang
                 </button>
 
                 <small>
-                  Nếu thiết bị không cho phép khóa
-                  hướng màn hình, hãy xoay ngang máy.
+                  Nếu Zalo không cho phép tự xoay,
+                  hãy bật xoay màn hình và xoay ngang điện thoại.
                 </small>
               </div>
             </div>

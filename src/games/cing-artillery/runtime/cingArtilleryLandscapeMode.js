@@ -121,6 +121,16 @@ tryLockLandscape() {
 
 export async function
 requestCingArtilleryLandscapeMode() {
+  /*
+   * Browser landscape APIs are best-effort only.
+   *
+   * Zalo/iOS may reject fullscreen and orientation
+   * locking even after an explicit user gesture.
+   *
+   * Do not call undocumented Zalo JS-bridge actions.
+   * The canonical success condition is always the
+   * real viewport becoming landscape.
+   */
   const fullscreen =
     await tryEnterFullscreen();
 
@@ -132,5 +142,7 @@ requestCingArtilleryLandscapeMode() {
     orientationLocked,
     landscape:
       isCingArtilleryLandscapeViewport(),
+    requiresPhysicalRotation:
+      !isCingArtilleryLandscapeViewport(),
   };
 }

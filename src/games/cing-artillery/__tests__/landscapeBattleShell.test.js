@@ -143,3 +143,35 @@ test(
     );
   }
 );
+
+
+test(
+  "landscape UX never claims host rotation succeeded before viewport changes",
+  () => {
+    assert.match(
+      landscape,
+      /requiresPhysicalRotation/u
+    );
+
+    assert.match(
+      game,
+      /Thử chuyển sang ngang/u
+    );
+
+    assert.match(
+      game,
+      /xoay ngang điện thoại/u
+    );
+  }
+);
+
+
+test(
+  "landscape runtime does not call undocumented Zalo bridge orientation actions",
+  () => {
+    assert.doesNotMatch(
+      landscape,
+      /CHANGE_AUTOROTATE|ZaloJSBridge|jsBridge|OrientationType/u
+    );
+  }
+);
