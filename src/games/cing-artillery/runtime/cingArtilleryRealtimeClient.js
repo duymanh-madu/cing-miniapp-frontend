@@ -22,6 +22,9 @@ const EVENT =
 
     START_ERROR:
       "cing-artillery:match:start-error",
+
+    BATTLE_SNAPSHOT:
+      "cing-artillery:match:battle-snapshot",
   });
 
 const ACK_TIMEOUT_MS =
@@ -165,6 +168,8 @@ createCingArtilleryRealtimeClient({
   onTurnState,
   onStartError,
   onDisconnected,
+  onBattleSnapshot,
+  onRecovered,
 }) {
   const token =
     requireAccessToken();
@@ -252,6 +257,12 @@ createCingArtilleryRealtimeClient({
   }
 
   let joinedMatchId =
+    null;
+
+  let connectedOnce =
+    false;
+
+  let recoveryInFlight =
     null;
 
   async function connect() {
@@ -372,22 +383,9 @@ createCingArtilleryRealtimeClient({
     );
   }
 
-  async function joinMatch(
-    matchId
+  async function performJoin(
+    id
   ) {
-    const id =
-      String(
-        matchId || ""
-      ).trim();
-
-    if (!id) {
-      throw new Error(
-        "Thiếu match identity Cing Piu Piu"
-      );
-    }
-
-    await connect();
-
     const data =
       await emitAcknowledged(
         socket,
@@ -419,6 +417,171 @@ createCingArtilleryRealtimeClient({
 
     return data;
   }
+
+  async function joinMatch(
+    matchId
+  ) {
+    const id =
+      String(
+        matchId || ""
+      ).trim();
+
+    if (!id) {
+      throw new Error(
+        "Thiếu match identity Cing Piu Piu"
+      );
+    }
+
+    await connect();
+
+    return performJoin(
+      id
+    );
+  }
+
+  async function readBattleSnapshot(
+    matchId =
+      joinedMatchId
+  ) {
+    const id =
+      String(
+        matchId || ""
+      ).trim();
+
+    if (!id) {
+      throw new Error(
+        "Thiếu match identity để đọc battle snapshot"
+      );
+    }
+
+    await connect();
+
+    const snapshot =
+      await emitAcknowledged(
+        socket,
+        EVENT.BATTLE_SNAPSHOT,
+        {
+          matchId:
+            id,
+        }
+      );
+
+    if (
+      snapshot?.match_id !==
+        id ||
+      !snapshot?.runtime_id ||
+      !snapshot?.combat_state_id ||
+      !snapshot?.viewer?.account_id ||
+      !snapshot?.world?.id ||
+      !snapshot?.world?.map_id ||
+      !snapshot?.vital?.id ||
+      !snapshot?.turn?.id
+    ) {
+      throw new Error(
+        "Battle snapshot Cing Piu Piu không hợp lệ"
+      );
+    }
+
+    return snapshot;
+  }
+
+  async function recoverJoinedMatch() {
+    if (
+      !joinedMatchId ||
+      recoveryInFlight
+    ) {
+      return recoveryInFlight;
+    }
+
+    const id =
+      joinedMatchId;
+
+    recoveryInFlight =
+      (async () => {
+        const authority =
+          await performJoin(
+            id
+          );
+
+        if (
+          typeof onRecovered ===
+          "function"
+        ) {
+          onRecovered(
+            authority
+          );
+        }
+
+        try {
+          const snapshot =
+            await readBattleSnapshot(
+              id
+            );
+
+          if (
+            typeof onBattleSnapshot ===
+            "function"
+          ) {
+            onBattleSnapshot(
+              snapshot
+            );
+          }
+        } catch (error) {
+          /*
+           * A reconnect may happen while both players are
+           * still waiting and combat authority does not yet
+           * exist. Rejoin itself remains authoritative.
+           *
+           * Once turn-state is emitted, the React boundary
+           * performs another canonical snapshot read.
+           */
+          if (
+            error?.code !==
+              "CING_ARTILLERY_BATTLE_SNAPSHOT_NOT_READY" &&
+            error?.code !==
+              "CING_ARTILLERY_BATTLE_SNAPSHOT_COMBAT_NOT_READY"
+          ) {
+            throw error;
+          }
+        }
+
+        return authority;
+      })();
+
+    try {
+      return await recoveryInFlight;
+    } finally {
+      recoveryInFlight =
+        null;
+    }
+  }
+
+  socket.on(
+    "connect",
+    () => {
+      if (!connectedOnce) {
+        connectedOnce =
+          true;
+
+        return;
+      }
+
+      if (!joinedMatchId) {
+        return;
+      }
+
+      void recoverJoinedMatch()
+        .catch(
+          () => {
+            /*
+             * Durable state is never compensated on
+             * transport recovery failure.
+             * Socket.IO continues its own reconnect cycle.
+             */
+          }
+        );
+    }
+  );
 
   async function leaveMatch() {
     if (
@@ -461,6 +624,7 @@ createCingArtilleryRealtimeClient({
   return {
     connect,
     joinMatch,
+    readBattleSnapshot,
     leaveMatch,
     destroy,
 

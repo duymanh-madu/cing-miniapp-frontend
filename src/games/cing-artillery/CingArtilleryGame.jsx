@@ -14,6 +14,18 @@ import {
   createCingArtilleryRealtimeClient,
 } from "./runtime/cingArtilleryRealtimeClient";
 
+import {
+  createPremiumArtilleryGame,
+} from "./engine/createPremiumArtilleryGame";
+
+import {
+  destroyPremiumArtilleryGame,
+} from "./engine/destroyPremiumArtilleryGame";
+
+import {
+  SNAPSHOT_EVENT,
+} from "./scenes/BattleScene";
+
 import "./CingArtilleryGame.css";
 
 const MATCHMAKING_POLL_MS =
@@ -205,6 +217,12 @@ CingArtilleryGame({
   const realtimeRef =
     useRef(null);
 
+  const battleMountRef =
+    useRef(null);
+
+  const battleGameRef =
+    useRef(null);
+
   const [phase, setPhase] =
     useState(
       PHASE.CHECKING
@@ -226,6 +244,9 @@ CingArtilleryGame({
     useState(null);
 
   const [turnState, setTurnState] =
+    useState(null);
+
+  const [battleSnapshot, setBattleSnapshot] =
     useState(null);
 
   const [errorMessage, setErrorMessage] =
@@ -322,9 +343,123 @@ CingArtilleryGame({
         if (realtime) {
           void realtime.destroy();
         }
+
+        const battleGame =
+          battleGameRef.current;
+
+        battleGameRef.current =
+          null;
+
+        if (battleGame) {
+          destroyPremiumArtilleryGame(
+            battleGame
+          );
+        }
       };
     },
     []
+  );
+
+  useEffect(
+    () => {
+      const combatStateId =
+        battleSnapshot
+          ?.combat_state_id;
+
+      if (
+        !combatStateId ||
+        !battleMountRef.current ||
+        battleGameRef.current
+      ) {
+        return;
+      }
+
+      let cancelled =
+        false;
+
+      void createPremiumArtilleryGame(
+        battleMountRef.current,
+        {
+          snapshot:
+            battleSnapshot,
+        }
+      )
+        .then(
+          (game) => {
+            if (cancelled) {
+              destroyPremiumArtilleryGame(
+                game
+              );
+
+              return;
+            }
+
+            battleGameRef.current =
+              game;
+          }
+        )
+        .catch(
+          (error) => {
+            if (
+              !aliveRef.current
+            ) {
+              return;
+            }
+
+            setErrorMessage(
+              error?.message ||
+              "Không thể dựng Battle Scene Cing Piu Piu"
+            );
+
+            setPhase(
+              PHASE.ERROR
+            );
+          }
+        );
+
+      return () => {
+        cancelled =
+          true;
+
+        const game =
+          battleGameRef.current;
+
+        battleGameRef.current =
+          null;
+
+        if (game) {
+          destroyPremiumArtilleryGame(
+            game
+          );
+        }
+      };
+    },
+    [
+      battleSnapshot
+        ?.combat_state_id,
+    ]
+  );
+
+  useEffect(
+    () => {
+      const game =
+        battleGameRef.current;
+
+      if (
+        !game ||
+        !battleSnapshot
+      ) {
+        return;
+      }
+
+      game.events.emit(
+        SNAPSHOT_EVENT,
+        battleSnapshot
+      );
+    },
+    [
+      battleSnapshot,
+    ]
   );
 
   async function
@@ -348,6 +483,10 @@ CingArtilleryGame({
     );
 
     setTurnState(
+      null
+    );
+
+    setBattleSnapshot(
       null
     );
 
@@ -476,9 +615,53 @@ CingArtilleryGame({
                 value
               );
 
-              setPhase(
-                PHASE.BATTLE_READY
-              );
+              void realtime
+                .readBattleSnapshot(
+                  matchDecision.match_id
+                )
+                .then(
+                  (snapshot) => {
+                    if (
+                      !aliveRef.current ||
+                      runId !==
+                        runRef.current
+                    ) {
+                      return;
+                    }
+
+                    setBattleSnapshot(
+                      snapshot
+                    );
+
+                    setTurnState(
+                      snapshot.turn
+                    );
+
+                    setPhase(
+                      PHASE.BATTLE_READY
+                    );
+                  }
+                )
+                .catch(
+                  (error) => {
+                    if (
+                      !aliveRef.current ||
+                      runId !==
+                        runRef.current
+                    ) {
+                      return;
+                    }
+
+                    setErrorMessage(
+                      error?.message ||
+                      "Không thể đọc battle snapshot Cing Piu Piu"
+                    );
+
+                    setPhase(
+                      PHASE.ERROR
+                    );
+                  }
+                );
             },
 
           onStartError:
@@ -500,6 +683,53 @@ CingArtilleryGame({
 
               setPhase(
                 PHASE.ERROR
+              );
+            },
+
+          onBattleSnapshot:
+            (snapshot) => {
+              if (
+                !aliveRef.current ||
+                runId !==
+                  runRef.current ||
+                snapshot?.match_id !==
+                  matchDecision.match_id
+              ) {
+                return;
+              }
+
+              setBattleSnapshot(
+                snapshot
+              );
+
+              setTurnState(
+                snapshot.turn
+              );
+
+              setPhase(
+                PHASE.BATTLE_READY
+              );
+            },
+
+          onRecovered:
+            (authority) => {
+              if (
+                !aliveRef.current ||
+                runId !==
+                  runRef.current ||
+                authority?.match_id !==
+                  matchDecision.match_id
+              ) {
+                return;
+              }
+
+              setJoinAuthority(
+                authority
+              );
+
+              setReadiness(
+                authority.readiness ||
+                null
               );
             },
 
@@ -603,6 +833,76 @@ CingArtilleryGame({
       PHASE.READY ||
     phase ===
       PHASE.ERROR;
+
+  if (
+    battleSnapshot &&
+    phase ===
+      PHASE.BATTLE_READY
+  ) {
+    return (
+      <div
+        className="cing-piu-piu cing-piu-piu--battle"
+      >
+        <div
+          className="cing-piu-piu__battle-shell"
+        >
+          <div
+            className="cing-piu-piu__battle-topbar"
+          >
+            <button
+              type="button"
+              className="cing-piu-piu__back"
+              aria-label="Rời trận đấu"
+              onClick={() =>
+                onExit?.()
+              }
+            >
+              ‹
+            </button>
+
+            <div
+              className="cing-piu-piu__battle-brand"
+            >
+              <span>
+                CING PIU PIU
+              </span>
+
+              <small>
+                PRIVATE BETA · REALTIME
+              </small>
+            </div>
+
+            <div
+              className="cing-piu-piu__battle-live"
+            >
+              LIVE
+            </div>
+          </div>
+
+          <div
+            className="cing-piu-piu__battle-stage"
+          >
+            <div
+              ref={battleMountRef}
+              className="cing-piu-piu__battle-canvas"
+            />
+          </div>
+
+          <div
+            className="cing-piu-piu__battle-authority"
+          >
+            <span>
+              PostgreSQL authority
+            </span>
+
+            <span>
+              Match {battleSnapshot.match_id}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

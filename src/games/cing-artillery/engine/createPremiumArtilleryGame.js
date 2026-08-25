@@ -2,11 +2,15 @@ import {
   PREMIUM_ARTILLERY_RENDER,
 } from "./premiumArtilleryConfig";
 
-import createEngineValidationScene
-  from "../scenes/EngineValidationScene";
+import createBattleScene
+  from "../scenes/BattleScene";
 
-export async function createPremiumArtilleryGame(
-  parent
+export async function
+createPremiumArtilleryGame(
+  parent,
+  {
+    snapshot,
+  } = {}
 ) {
   if (!parent) {
     throw new Error(
@@ -14,76 +18,89 @@ export async function createPremiumArtilleryGame(
     );
   }
 
+  if (!snapshot) {
+    throw new Error(
+      "Authoritative battle snapshot is required"
+    );
+  }
+
   const PhaserModule =
-    await import("phaser");
+    await import(
+      "phaser"
+    );
 
   const Phaser =
     PhaserModule.default ||
     PhaserModule;
 
-  const EngineValidationScene =
-    createEngineValidationScene(
-      Phaser
+  const BattleScene =
+    createBattleScene(
+      Phaser,
+      {
+        initialSnapshot:
+          snapshot,
+      }
     );
 
-  const game =
-    new Phaser.Game({
-      type:
-        Phaser.WEBGL,
+  return new Phaser.Game({
+    type:
+      Phaser.WEBGL,
 
-      parent,
+    parent,
 
-      width:
-        PREMIUM_ARTILLERY_RENDER.width,
+    width:
+      PREMIUM_ARTILLERY_RENDER
+        .width,
 
-      height:
-        PREMIUM_ARTILLERY_RENDER.height,
+    height:
+      PREMIUM_ARTILLERY_RENDER
+        .height,
 
-      backgroundColor:
-        PREMIUM_ARTILLERY_RENDER
-          .backgroundColor,
+    backgroundColor:
+      PREMIUM_ARTILLERY_RENDER
+        .backgroundColor,
 
-      transparent:
-        false,
+    transparent:
+      false,
 
+    antialias:
+      true,
+
+    roundPixels:
+      false,
+
+    pixelArt:
+      false,
+
+    render: {
       antialias:
         true,
 
-      roundPixels:
-        false,
+      antialiasGL:
+        true,
 
-      pixelArt:
-        false,
+      powerPreference:
+        "high-performance",
+    },
 
-      render: {
-        antialias:
-          true,
+    scale: {
+      mode:
+        Phaser.Scale.FIT,
 
-        antialiasGL:
-          true,
+      autoCenter:
+        Phaser.Scale.CENTER_BOTH,
 
-        powerPreference:
-          "high-performance",
-      },
+      width:
+        PREMIUM_ARTILLERY_RENDER
+          .width,
 
-      scale: {
-        mode:
-          Phaser.Scale.FIT,
+      height:
+        PREMIUM_ARTILLERY_RENDER
+          .height,
+    },
 
-        autoCenter:
-          Phaser.Scale.CENTER_BOTH,
-
-        width:
-          PREMIUM_ARTILLERY_RENDER.width,
-
-        height:
-          PREMIUM_ARTILLERY_RENDER.height,
-      },
-
-      scene: [
-        EngineValidationScene,
-      ],
-    });
-
-  return game;
+    scene: [
+      BattleScene,
+    ],
+  });
 }
