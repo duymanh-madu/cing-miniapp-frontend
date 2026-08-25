@@ -26,6 +26,11 @@ import {
   SNAPSHOT_EVENT,
 } from "./scenes/BattleScene";
 
+import {
+  isCingArtilleryLandscapeViewport,
+  requestCingArtilleryLandscapeMode,
+} from "./runtime/cingArtilleryLandscapeMode";
+
 import "./CingArtilleryGame.css";
 
 const MATCHMAKING_POLL_MS =
@@ -252,6 +257,85 @@ CingArtilleryGame({
   const [errorMessage, setErrorMessage] =
     useState("");
 
+  const [
+    landscapeReady,
+    setLandscapeReady,
+  ] =
+    useState(
+      () =>
+        isCingArtilleryLandscapeViewport()
+    );
+
+  useEffect(
+    () => {
+      const syncLandscape =
+        () => {
+          const next =
+            isCingArtilleryLandscapeViewport();
+
+          setLandscapeReady(
+            next
+          );
+
+          window
+            .requestAnimationFrame(
+              () => {
+                battleGameRef
+                  .current
+                  ?.scale
+                  ?.refresh?.();
+              }
+            );
+        };
+
+      syncLandscape();
+
+      window.addEventListener(
+        "resize",
+        syncLandscape,
+        {
+          passive: true,
+        }
+      );
+
+      window.addEventListener(
+        "orientationchange",
+        syncLandscape,
+        {
+          passive: true,
+        }
+      );
+
+      window.visualViewport
+        ?.addEventListener(
+          "resize",
+          syncLandscape,
+          {
+            passive: true,
+          }
+        );
+
+      return () => {
+        window.removeEventListener(
+          "resize",
+          syncLandscape
+        );
+
+        window.removeEventListener(
+          "orientationchange",
+          syncLandscape
+        );
+
+        window.visualViewport
+          ?.removeEventListener(
+            "resize",
+            syncLandscape
+          );
+      };
+    },
+    []
+  );
+
   useEffect(
     () => {
       aliveRef.current =
@@ -461,6 +545,25 @@ CingArtilleryGame({
       battleSnapshot,
     ]
   );
+
+  async function
+  enterLandscapeBattleMode() {
+    await requestCingArtilleryLandscapeMode();
+
+    window.setTimeout(
+      () => {
+        setLandscapeReady(
+          isCingArtilleryLandscapeViewport()
+        );
+
+        battleGameRef
+          .current
+          ?.scale
+          ?.refresh?.();
+      },
+      120
+    );
+  }
 
   async function
   startMatchmaking() {
@@ -841,11 +944,68 @@ CingArtilleryGame({
   ) {
     return (
       <div
-        className="cing-piu-piu cing-piu-piu--battle"
+        className={
+          `cing-piu-piu cing-piu-piu--battle ${
+            landscapeReady
+              ? "cing-piu-piu--landscape-ready"
+              : "cing-piu-piu--portrait-blocked"
+          }`
+        }
       >
         <div
           className="cing-piu-piu__battle-shell"
         >
+          {!landscapeReady && (
+            <div
+              className="cing-piu-piu__orientation-gate"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Chuyển Cing Piu Piu sang màn hình ngang"
+            >
+              <div
+                className="cing-piu-piu__orientation-card"
+              >
+                <div
+                  className="cing-piu-piu__orientation-device"
+                  aria-hidden="true"
+                >
+                  ↻
+                </div>
+
+                <p
+                  className="cing-piu-piu__orientation-kicker"
+                >
+                  BATTLE MODE · 16:9
+                </p>
+
+                <h2>
+                  Xoay ngang để chiến đấu
+                </h2>
+
+                <p>
+                  Cing Piu Piu được thiết kế theo
+                  màn hình ngang để giữ trọn bản đồ,
+                  HUD và không gian ngắm bắn.
+                </p>
+
+                <button
+                  type="button"
+                  className="cing-piu-piu__orientation-button"
+                  onClick={
+                    enterLandscapeBattleMode
+                  }
+                >
+                  Mở chế độ ngang
+                </button>
+
+                <small>
+                  Nếu thiết bị không cho phép khóa
+                  hướng màn hình, hãy xoay ngang máy.
+                </small>
+              </div>
+            </div>
+          )}
+
           <div
             className="cing-piu-piu__battle-topbar"
           >
