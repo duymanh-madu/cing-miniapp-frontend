@@ -4,6 +4,10 @@ import {
   runtimeLogger,
 } from "@/runtime/logger/runtimeLogger";
 
+import {
+  getAccessToken,
+} from "@/infra/auth/authStorage";
+
 /**
  * =====================================================
  * API CLIENT
@@ -38,6 +42,44 @@ const apiClient =
 
 apiClient.interceptors.request.use(
   (config) => {
+
+    const accessToken =
+      getAccessToken();
+
+    if (accessToken) {
+      const headers =
+        config.headers || {};
+
+      const hasExplicitAuthorization =
+        typeof headers.get === "function"
+          ? Boolean(
+              headers.get(
+                "Authorization"
+              )
+            )
+          : Boolean(
+              headers.Authorization ||
+              headers.authorization
+            );
+
+      if (!hasExplicitAuthorization) {
+        if (
+          typeof headers.set ===
+          "function"
+        ) {
+          headers.set(
+            "Authorization",
+            `Bearer ${accessToken}`
+          );
+        } else {
+          headers.Authorization =
+            `Bearer ${accessToken}`;
+        }
+
+        config.headers =
+          headers;
+      }
+    }
 
     runtimeLogger.info(
       "API",
