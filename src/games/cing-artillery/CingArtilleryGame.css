@@ -1,0 +1,377 @@
+.cing-piu-piu {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(
+      circle at 50% 18%,
+      rgba(255, 177, 66, 0.20),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 12% 80%,
+      rgba(0, 140, 170, 0.16),
+      transparent 32%
+    ),
+    linear-gradient(
+      180deg,
+      #101827 0%,
+      #07111f 48%,
+      #040912 100%
+    );
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.cing-piu-piu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.45;
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.025) 1px,
+      transparent 1px
+    );
+  background-size:
+    44px 44px;
+  mask-image:
+    linear-gradient(
+      to bottom,
+      black,
+      transparent 78%
+    );
+}
+
+.cing-piu-piu__shell {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 620px);
+  min-height: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding:
+    max(
+      calc(env(safe-area-inset-top) + 14px),
+      30px
+    )
+    20px
+    max(
+      calc(env(safe-area-inset-bottom) + 24px),
+      30px
+    );
+  display: flex;
+  flex-direction: column;
+}
+
+.cing-piu-piu__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cing-piu-piu__back {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 15px;
+  color: #fff;
+  background: rgba(255,255,255,.055);
+  backdrop-filter: blur(18px);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.cing-piu-piu__beta {
+  padding: 7px 11px;
+  border: 1px solid rgba(255,184,80,.28);
+  border-radius: 999px;
+  color: #ffc467;
+  background: rgba(255,168,54,.09);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.7px;
+}
+
+.cing-piu-piu__hero {
+  padding: 42px 6px 28px;
+  text-align: center;
+}
+
+.cing-piu-piu__orb {
+  position: relative;
+  width: 94px;
+  height: 94px;
+  margin: 0 auto 18px;
+  border: 1px solid rgba(255,198,109,.34);
+  border-radius: 30px;
+  background:
+    radial-gradient(
+      circle at 35% 28%,
+      #ffe1a8,
+      #ff9f31 35%,
+      #b84e19 72%,
+      #3d170e
+    );
+  box-shadow:
+    0 0 55px rgba(255,151,47,.25),
+    inset 0 1px 0 rgba(255,255,255,.45);
+  transform: rotate(-6deg);
+}
+
+.cing-piu-piu__orb::before {
+  content: "";
+  position: absolute;
+  width: 58px;
+  height: 3px;
+  left: -46px;
+  top: 47px;
+  border-radius: 99px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #ffc269
+    );
+  box-shadow:
+    0 0 18px #ff9f31;
+  transform: rotate(-18deg);
+}
+
+.cing-piu-piu__orb::after {
+  content: "";
+  position: absolute;
+  inset: 28px;
+  border-radius: 50%;
+  background: #fff2cc;
+  box-shadow:
+    0 0 22px #fff0bb,
+    0 0 45px #ffb34c;
+}
+
+.cing-piu-piu__eyebrow {
+  margin: 0 0 7px;
+  color: rgba(255,203,126,.72);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.cing-piu-piu__title {
+  margin: 0;
+  font-size: clamp(34px, 10vw, 52px);
+  line-height: .98;
+  font-weight: 1000;
+  letter-spacing: -1.8px;
+  text-shadow:
+    0 10px 38px rgba(0,0,0,.32);
+}
+
+.cing-piu-piu__subtitle {
+  max-width: 390px;
+  margin: 12px auto 0;
+  color: rgba(255,255,255,.55);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.cing-piu-piu__card {
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,.105);
+  border-radius: 25px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.085),
+      rgba(255,255,255,.025)
+    );
+  box-shadow:
+    0 26px 70px rgba(0,0,0,.27);
+  backdrop-filter: blur(22px);
+}
+
+.cing-piu-piu__card::after {
+  content: "";
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  right: -70px;
+  top: -80px;
+  border-radius: 50%;
+  background:
+    rgba(255,167,49,.10);
+  filter: blur(8px);
+}
+
+.cing-piu-piu__status-row {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+}
+
+.cing-piu-piu__status-icon {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  color: #ffd287;
+  background:
+    rgba(255,177,66,.105);
+  border:
+    1px solid rgba(255,190,85,.18);
+  font-size: 20px;
+}
+
+.cing-piu-piu__status-copy {
+  min-width: 0;
+}
+
+.cing-piu-piu__status-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.cing-piu-piu__status-text {
+  margin: 0;
+  color: rgba(255,255,255,.48);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cing-piu-piu__steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.cing-piu-piu__step {
+  min-height: 6px;
+  border-radius: 999px;
+  background:
+    rgba(255,255,255,.08);
+  overflow: hidden;
+}
+
+.cing-piu-piu__step--active {
+  background:
+    linear-gradient(
+      90deg,
+      #ef7b25,
+      #ffc15f
+    );
+  box-shadow:
+    0 0 16px rgba(255,164,57,.18);
+}
+
+.cing-piu-piu__features {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.cing-piu-piu__feature {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 13px;
+  border-radius: 16px;
+  background:
+    rgba(255,255,255,.035);
+  color: rgba(255,255,255,.72);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cing-piu-piu__feature strong {
+  color: #fff;
+}
+
+.cing-piu-piu__actions {
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.cing-piu-piu__primary {
+  width: 100%;
+  min-height: 54px;
+  border: 0;
+  border-radius: 18px;
+  color: #fff;
+  background:
+    linear-gradient(
+      135deg,
+      #d95e20,
+      #ff8d2f 55%,
+      #ffb44f
+    );
+  box-shadow:
+    0 15px 34px rgba(218,88,28,.27);
+  font-size: 14px;
+  font-weight: 950;
+  letter-spacing: .2px;
+  cursor: pointer;
+}
+
+.cing-piu-piu__primary:disabled {
+  opacity: .52;
+  cursor: default;
+  box-shadow: none;
+}
+
+.cing-piu-piu__error {
+  margin: 13px 0 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(255,94,94,.17);
+  border-radius: 14px;
+  color: #ffb0a9;
+  background:
+    rgba(150,30,30,.12);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.cing-piu-piu__match {
+  margin-top: 14px;
+  color: rgba(255,255,255,.35);
+  font-size: 10px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.cing-piu-piu__pulse {
+  animation:
+    cing-piu-piu-pulse 1.45s
+    ease-in-out infinite;
+}
+
+@keyframes cing-piu-piu-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: .72;
+  }
+
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}

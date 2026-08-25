@@ -153,7 +153,16 @@ function NoGamePlaysPopup({ onClose, userName = "Cing iu" }) {
 }
 
 export default function GameCenterPage() {
-  const games = getAllGames();
+  const [cingArtilleryVisible, setCingArtilleryVisible] =
+    useState(false);
+
+  const games =
+    getAllGames().filter(
+      (game) =>
+        game.id !== "cing-artillery" ||
+        cingArtilleryVisible
+    );
+
   const [activeGame, setActiveGame]       = useState(null);
   const [playingChess, setPlayingChess]   = useState(false);
 
@@ -176,6 +185,56 @@ export default function GameCenterPage() {
 
   const authenticated = useAuthStore(s => s.authenticated);
   const { isActivated, requireMember, MemberPrompt } = useMemberRequired();
+
+  /*
+   * Cing Piu Piu is private-beta only.
+   *
+   * Registry membership is not public discovery authority.
+   * The card stays hidden until the authenticated backend
+   * confirms this user may enter the private game surface.
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    setCingArtilleryVisible(false);
+
+    if (!authenticated) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    apiClient
+      .get("/game/cing-piu-piu/entry")
+      .then((response) => {
+        if (cancelled) {
+          return;
+        }
+
+        const entry =
+          response?.data?.data;
+
+        const visible =
+          entry?.ready === true ||
+          entry?.onboarding_required === true ||
+          entry?.state === "ready";
+
+        setCingArtilleryVisible(
+          visible
+        );
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCingArtilleryVisible(
+            false
+          );
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authenticated]);
   const profile       = useAuthStore(s => s.profile);
   const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
   const displayName = resolveProfileName(profile || runtimeIdentity, "Cing iu");
@@ -646,7 +705,9 @@ export default function GameCenterPage() {
               </p>
               <div style={{ display:"flex", gap:8 }}>
                 <button onClick={() => handlePlayGame(game.id)} style={{ background:"linear-gradient(135deg,#D4531C,#ff6b35)", color:"white", border:"none", borderRadius:10, padding:"8px 18px", fontSize:12, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 15px rgba(212,83,28,0.4)" }}>Chơi ngay</button>
-                <button onClick={() => requireMember(() => setShowBoard(game.id))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
+                {game.leaderboardEnabled !== false && (
+                  <button onClick={() => requireMember(() => setShowBoard(game.id))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
+                )}
               </div>
             </div>
           </div>

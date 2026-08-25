@@ -1,6 +1,7 @@
 import BlackPearlRush from "../black-pearl-rush";
 import CingStackTower from "../cing-stack-tower";
 import CingBlockPuzzle from "../cing-block-puzzle";
+import CingArtillery from "../cing-artillery";
 
 import {
   GAME_RUNTIME_AUTHORITY,
@@ -34,6 +35,30 @@ const gameRegistry = {
     runtimeAuthority:
       GAME_RUNTIME_AUTHORITY
         .LEGACY_GENERIC,
+  },
+
+  "cing-artillery": {
+    id: "cing-artillery",
+    name: "cing-artillery",
+    displayName:
+      "Cing Piu Piu",
+    description:
+      "Đấu pháo 1v1 realtime · Góc bắn · Lực bắn · Gió · Địa hình",
+    iconUrl:
+      null,
+    iconFallback:
+      "🎯",
+    component:
+      CingArtillery,
+    status:
+      "BETA",
+    privateBeta:
+      true,
+    leaderboardEnabled:
+      false,
+    runtimeAuthority:
+      GAME_RUNTIME_AUTHORITY
+        .SELF_MANAGED,
   },
 
   "cing-block-puzzle": {

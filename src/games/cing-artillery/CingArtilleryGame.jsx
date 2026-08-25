@@ -5,193 +5,800 @@ import {
 } from "react";
 
 import {
-  createPremiumArtilleryGame,
-} from "./engine/createPremiumArtilleryGame";
+  createCingArtilleryGameplaySession,
+  enterCingArtilleryMatchmaking,
+  getCingArtilleryEntry,
+} from "./runtime/cingArtilleryAuthorityClient";
 
 import {
-  destroyPremiumArtilleryGame,
-} from "./engine/destroyPremiumArtilleryGame";
+  createCingArtilleryRealtimeClient,
+} from "./runtime/cingArtilleryRealtimeClient";
 
-import {
-  detectPremiumDeviceCapability,
-} from "./platform/premiumDeviceCapability";
+import "./CingArtilleryGame.css";
 
-export default function CingArtilleryGame() {
-  const mountRef =
+const MATCHMAKING_POLL_MS =
+  1200;
+
+const PHASE =
+  Object.freeze({
+    CHECKING:
+      "checking",
+
+    READY:
+      "ready",
+
+    SESSION:
+      "session",
+
+    MATCHMAKING:
+      "matchmaking",
+
+    CONNECTING:
+      "connecting",
+
+    WAITING_REALTIME:
+      "waiting-realtime",
+
+    BATTLE_READY:
+      "battle-ready",
+
+    UNAVAILABLE:
+      "unavailable",
+
+    ONBOARDING:
+      "onboarding",
+
+    ERROR:
+      "error",
+  });
+
+function delay(
+  milliseconds
+) {
+  return new Promise(
+    (resolve) =>
+      window.setTimeout(
+        resolve,
+        milliseconds
+      )
+  );
+}
+
+function phaseStep(
+  phase
+) {
+  if (
+    phase === PHASE.SESSION ||
+    phase === PHASE.MATCHMAKING
+  ) {
+    return 1;
+  }
+
+  if (
+    phase === PHASE.CONNECTING ||
+    phase === PHASE.WAITING_REALTIME
+  ) {
+    return 2;
+  }
+
+  if (
+    phase === PHASE.BATTLE_READY
+  ) {
+    return 3;
+  }
+
+  return 0;
+}
+
+function statusFor(
+  phase,
+  readiness
+) {
+  switch (phase) {
+    case PHASE.CHECKING:
+      return {
+        icon: "◌",
+        title:
+          "Đang xác thực quyền truy cập",
+        text:
+          "Kiểm tra private-beta authority của tài khoản.",
+      };
+
+    case PHASE.READY:
+      return {
+        icon: "⚔",
+        title:
+          "Sẵn sàng chiến đấu",
+        text:
+          "Tìm một đối thủ thật và bắt đầu trận PvP realtime.",
+      };
+
+    case PHASE.SESSION:
+      return {
+        icon: "◆",
+        title:
+          "Đang mở phiên chiến đấu",
+        text:
+          "PostgreSQL đang thiết lập gameplay session của bạn.",
+      };
+
+    case PHASE.MATCHMAKING:
+      return {
+        icon: "⌁",
+        title:
+          "Đang tìm đối thủ",
+        text:
+          "Ghép cặp trực tiếp trên authority production.",
+      };
+
+    case PHASE.CONNECTING:
+      return {
+        icon: "↯",
+        title:
+          "Đã tìm thấy đối thủ",
+        text:
+          "Đang kết nối realtime tới máy chủ Mắt Bão.",
+      };
+
+    case PHASE.WAITING_REALTIME:
+      return {
+        icon: "◎",
+        title:
+          readiness?.both
+            ? "Cả hai đã sẵn sàng"
+            : "Đang chờ đối thủ vào trận",
+        text:
+          readiness?.both
+            ? "Máy chủ đang kích hoạt turn authority."
+            : "Room đã được xác thực. Trận bắt đầu khi đủ hai người.",
+      };
+
+    case PHASE.BATTLE_READY:
+      return {
+        icon: "✦",
+        title:
+          "Trận đấu đã sẵn sàng",
+        text:
+          "Realtime authority đã kích hoạt. Battle Scene sẽ nhận trạng thái này ở 5J3.",
+      };
+
+    case PHASE.ONBOARDING:
+      return {
+        icon: "◇",
+        title:
+          "Cần tạo nhân vật",
+        text:
+          "Tài khoản đã có quyền private beta nhưng chưa hoàn tất hồ sơ chiến binh.",
+      };
+
+    case PHASE.UNAVAILABLE:
+      return {
+        icon: "⊘",
+        title:
+          "Cing Piu Piu chưa khả dụng",
+        text:
+          "Tài khoản này hiện chưa thuộc nhóm thử nghiệm.",
+      };
+
+    case PHASE.ERROR:
+    default:
+      return {
+        icon: "!",
+        title:
+          "Không thể vào trận",
+        text:
+          "Authority đã chặn một bước không hợp lệ. Không có gameplay state nào được client tự sửa.",
+      };
+  }
+}
+
+export default function
+CingArtilleryGame({
+  onExit,
+}) {
+  const aliveRef =
+    useRef(true);
+
+  const runRef =
+    useRef(0);
+
+  const realtimeRef =
     useRef(null);
 
-  const gameRef =
-    useRef(null);
+  const [phase, setPhase] =
+    useState(
+      PHASE.CHECKING
+    );
 
-  const [state, setState] =
-    useState({
-      phase: "checking",
-      reason: null,
-    });
+  const [entry, setEntry] =
+    useState(null);
 
-  useEffect(() => {
-    let cancelled =
-      false;
+  const [session, setSession] =
+    useState(null);
 
-    const capability =
-      detectPremiumDeviceCapability();
+  const [decision, setDecision] =
+    useState(null);
 
-    if (!capability.supported) {
-      setState({
-        phase: "unsupported",
-        reason: capability.reason,
-      });
+  const [joinAuthority, setJoinAuthority] =
+    useState(null);
 
-      return undefined;
-    }
+  const [readiness, setReadiness] =
+    useState(null);
 
-    const boot =
-      async () => {
+  const [turnState, setTurnState] =
+    useState(null);
+
+  const [errorMessage, setErrorMessage] =
+    useState("");
+
+  useEffect(
+    () => {
+      aliveRef.current =
+        true;
+
+      const runId =
+        ++runRef.current;
+
+      void (async () => {
         try {
-          const game =
-            await createPremiumArtilleryGame(
-              mountRef.current
-            );
+          const value =
+            await getCingArtilleryEntry();
 
-          if (cancelled) {
-            destroyPremiumArtilleryGame(
-              game
+          if (
+            !aliveRef.current ||
+            runId !==
+              runRef.current
+          ) {
+            return;
+          }
+
+          setEntry(
+            value
+          );
+
+          if (
+            value?.ready ===
+              true &&
+            value?.state ===
+              "ready"
+          ) {
+            setPhase(
+              PHASE.READY
             );
 
             return;
           }
 
-          gameRef.current =
-            game;
+          if (
+            value
+              ?.onboarding_required ===
+              true
+          ) {
+            setPhase(
+              PHASE.ONBOARDING
+            );
 
-          setState({
-            phase: "ready",
-            reason: null,
-          });
-        } catch {
-          if (!cancelled) {
-            setState({
-              phase: "failed",
-              reason:
-                "ENGINE_BOOT_FAILED",
-            });
+            return;
           }
+
+          setPhase(
+            PHASE.UNAVAILABLE
+          );
+        } catch (error) {
+          if (
+            !aliveRef.current ||
+            runId !==
+              runRef.current
+          ) {
+            return;
+          }
+
+          setErrorMessage(
+            error?.response
+              ?.data?.message ||
+            error?.message ||
+            "Không thể kiểm tra quyền truy cập"
+          );
+
+          setPhase(
+            PHASE.UNAVAILABLE
+          );
+        }
+      })();
+
+      return () => {
+        aliveRef.current =
+          false;
+
+        runRef.current +=
+          1;
+
+        const realtime =
+          realtimeRef.current;
+
+        realtimeRef.current =
+          null;
+
+        if (realtime) {
+          void realtime.destroy();
         }
       };
+    },
+    []
+  );
 
-    void boot();
+  async function
+  startMatchmaking() {
+    if (
+      phase !== PHASE.READY &&
+      phase !== PHASE.ERROR
+    ) {
+      return;
+    }
 
-    return () => {
-      cancelled =
-        true;
+    const runId =
+      ++runRef.current;
+
+    setErrorMessage(
+      ""
+    );
+
+    setReadiness(
+      null
+    );
+
+    setTurnState(
+      null
+    );
+
+    setJoinAuthority(
+      null
+    );
+
+    try {
+      setPhase(
+        PHASE.SESSION
+      );
+
+      const currentSession =
+        await createCingArtilleryGameplaySession();
 
       if (
-        gameRef.current
+        !aliveRef.current ||
+        runId !==
+          runRef.current
       ) {
-        destroyPremiumArtilleryGame(
-          gameRef.current
+        return;
+      }
+
+      setSession(
+        currentSession
+      );
+
+      setPhase(
+        PHASE.MATCHMAKING
+      );
+
+      let matchDecision =
+        null;
+
+      while (
+        aliveRef.current &&
+        runId ===
+          runRef.current
+      ) {
+        matchDecision =
+          await enterCingArtilleryMatchmaking(
+            currentSession.id
+          );
+
+        if (
+          !aliveRef.current ||
+          runId !==
+            runRef.current
+        ) {
+          return;
+        }
+
+        setDecision(
+          matchDecision
         );
 
-        gameRef.current =
-          null;
+        if (
+          matchDecision.status ===
+            "matched"
+        ) {
+          break;
+        }
+
+        await delay(
+          MATCHMAKING_POLL_MS
+        );
       }
 
       if (
-        mountRef.current
+        !matchDecision?.match_id ||
+        !aliveRef.current ||
+        runId !==
+          runRef.current
       ) {
-        mountRef.current
-          .replaceChildren();
+        return;
       }
-    };
-  }, []);
 
-  if (
-    state.phase ===
-    "unsupported"
-  ) {
-    return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 200,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#07111f",
-          color: "white",
-          padding: 24,
-          textAlign: "center",
-        }}
-      >
-        Thiết bị hiện tại chưa đáp ứng
-        yêu cầu đồ họa của trò chơi.
-      </div>
-    );
+      setPhase(
+        PHASE.CONNECTING
+      );
+
+      const previousRealtime =
+        realtimeRef.current;
+
+      if (previousRealtime) {
+        await previousRealtime
+          .destroy();
+      }
+
+      const realtime =
+        createCingArtilleryRealtimeClient({
+          onReadiness:
+            (value) => {
+              if (
+                !aliveRef.current ||
+                runId !==
+                  runRef.current ||
+                value?.match_id !==
+                  matchDecision.match_id
+              ) {
+                return;
+              }
+
+              setReadiness(
+                value
+              );
+
+              setPhase(
+                PHASE.WAITING_REALTIME
+              );
+            },
+
+          onTurnState:
+            (value) => {
+              if (
+                !aliveRef.current ||
+                runId !==
+                  runRef.current ||
+                value?.match_id !==
+                  matchDecision.match_id
+              ) {
+                return;
+              }
+
+              setTurnState(
+                value
+              );
+
+              setPhase(
+                PHASE.BATTLE_READY
+              );
+            },
+
+          onStartError:
+            (value) => {
+              if (
+                !aliveRef.current ||
+                runId !==
+                  runRef.current ||
+                value?.match_id !==
+                  matchDecision.match_id
+              ) {
+                return;
+              }
+
+              setErrorMessage(
+                value?.error?.message ||
+                "Máy chủ không thể kích hoạt trận đấu"
+              );
+
+              setPhase(
+                PHASE.ERROR
+              );
+            },
+
+          onDisconnected:
+            () => {
+              if (
+                !aliveRef.current ||
+                runId !==
+                  runRef.current
+              ) {
+                return;
+              }
+
+              /*
+               * Socket.IO owns reconnect.
+               * Durable match/session state is not
+               * rewritten by transport disconnect.
+               */
+            },
+        });
+
+      realtimeRef.current =
+        realtime;
+
+      const authority =
+        await realtime.joinMatch(
+          matchDecision.match_id
+        );
+
+      if (
+        !aliveRef.current ||
+        runId !==
+          runRef.current
+      ) {
+        await realtime.destroy();
+
+        return;
+      }
+
+      setJoinAuthority(
+        authority
+      );
+
+      setReadiness(
+        authority.readiness ||
+        null
+      );
+
+      setPhase(
+        authority.readiness?.both
+          ? PHASE.WAITING_REALTIME
+          : PHASE.WAITING_REALTIME
+      );
+    } catch (error) {
+      if (
+        !aliveRef.current ||
+        runId !==
+          runRef.current
+      ) {
+        return;
+      }
+
+      setErrorMessage(
+        error?.response
+          ?.data?.message ||
+        error?.message ||
+        "Không thể bắt đầu Cing Piu Piu"
+      );
+
+      setPhase(
+        PHASE.ERROR
+      );
+    }
   }
 
-  if (
-    state.phase ===
-    "failed"
-  ) {
-    return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 200,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#07111f",
-          color: "white",
-          padding: 24,
-          textAlign: "center",
-        }}
-      >
-        Không thể khởi tạo engine trò chơi.
-      </div>
+  const status =
+    statusFor(
+      phase,
+      readiness
     );
-  }
+
+  const step =
+    phaseStep(
+      phase
+    );
+
+  const busy =
+    phase ===
+      PHASE.CHECKING ||
+    phase ===
+      PHASE.SESSION ||
+    phase ===
+      PHASE.MATCHMAKING ||
+    phase ===
+      PHASE.CONNECTING ||
+    phase ===
+      PHASE.WAITING_REALTIME;
+
+  const canStart =
+    phase ===
+      PHASE.READY ||
+    phase ===
+      PHASE.ERROR;
 
   return (
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 200,
-        overflow: "hidden",
-        background: "#07111f",
-      }}
+      className="cing-piu-piu"
     >
       <div
-        ref={mountRef}
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          overflow: "hidden",
-          touchAction: "none",
-        }}
-      />
-
-      {state.phase === "checking" && (
+        className="cing-piu-piu__shell"
+      >
         <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            background: "#07111f",
-            fontWeight: 800,
-          }}
+          className="cing-piu-piu__topbar"
         >
-          Đang khởi tạo engine...
+          <button
+            type="button"
+            className="cing-piu-piu__back"
+            aria-label="Quay lại Game Center"
+            onClick={() =>
+              onExit?.()
+            }
+          >
+            ‹
+          </button>
+
+          <div
+            className="cing-piu-piu__beta"
+          >
+            PRIVATE BETA
+          </div>
         </div>
-      )}
+
+        <section
+          className="cing-piu-piu__hero"
+        >
+          <div
+            className={
+              `cing-piu-piu__orb${
+                busy
+                  ? " cing-piu-piu__pulse"
+                  : ""
+              }`
+            }
+          />
+
+          <p
+            className="cing-piu-piu__eyebrow"
+          >
+            Cing Hu Tang Kinh Bắc
+          </p>
+
+          <h1
+            className="cing-piu-piu__title"
+          >
+            Cing Piu Piu
+          </h1>
+
+          <p
+            className="cing-piu-piu__subtitle"
+          >
+            Đối kháng pháo binh 1v1 realtime.
+            Góc bắn, lực bắn, gió và địa hình
+            quyết định từng phát đạn.
+          </p>
+        </section>
+
+        <section
+          className="cing-piu-piu__card"
+        >
+          <div
+            className="cing-piu-piu__status-row"
+          >
+            <div
+              className="cing-piu-piu__status-icon"
+            >
+              {status.icon}
+            </div>
+
+            <div
+              className="cing-piu-piu__status-copy"
+            >
+              <p
+                className="cing-piu-piu__status-title"
+              >
+                {status.title}
+              </p>
+
+              <p
+                className="cing-piu-piu__status-text"
+              >
+                {status.text}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="cing-piu-piu__steps"
+            aria-hidden="true"
+          >
+            {[1, 2, 3].map(
+              (value) => (
+                <div
+                  key={value}
+                  className={
+                    `cing-piu-piu__step${
+                      step >= value
+                        ? " cing-piu-piu__step--active"
+                        : ""
+                    }`
+                  }
+                />
+              )
+            )}
+          </div>
+
+          {phase === PHASE.READY && (
+            <div
+              className="cing-piu-piu__features"
+            >
+              <div
+                className="cing-piu-piu__feature"
+              >
+                ⚡ <strong>Realtime 1v1</strong>
+                {" "}trên máy chủ Việt Nam
+              </div>
+
+              <div
+                className="cing-piu-piu__feature"
+              >
+                🎯 PostgreSQL giữ toàn bộ
+                gameplay authority
+              </div>
+
+              <div
+                className="cing-piu-piu__feature"
+              >
+                🛡 Private beta — chưa mở
+                cho tài khoản ngoài danh sách
+              </div>
+            </div>
+          )}
+
+          {errorMessage && (
+            <p
+              className="cing-piu-piu__error"
+            >
+              {errorMessage}
+            </p>
+          )}
+
+          {decision?.match_id && (
+            <p
+              className="cing-piu-piu__match"
+            >
+              Match {decision.match_id}
+              {joinAuthority?.player
+                ? ` · ${joinAuthority.player}`
+                : ""}
+            </p>
+          )}
+
+          {turnState && (
+            <p
+              className="cing-piu-piu__match"
+            >
+              Turn {turnState.turn_number}
+              {" · "}
+              authority active
+            </p>
+          )}
+        </section>
+
+        <div
+          className="cing-piu-piu__actions"
+        >
+          <button
+            type="button"
+            className="cing-piu-piu__primary"
+            disabled={
+              !canStart
+            }
+            onClick={
+              startMatchmaking
+            }
+          >
+            {phase === PHASE.READY
+              ? "Tìm đối thủ"
+              : phase === PHASE.ERROR
+                ? "Thử kết nối lại"
+                : phase === PHASE.BATTLE_READY
+                  ? "Trận đấu đã sẵn sàng"
+                  : phase === PHASE.ONBOARDING
+                    ? "Cần hoàn tất nhân vật"
+                    : phase === PHASE.UNAVAILABLE
+                      ? "Chưa có quyền thử nghiệm"
+                      : "Đang kết nối..."}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
