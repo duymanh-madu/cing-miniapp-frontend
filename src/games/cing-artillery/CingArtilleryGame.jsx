@@ -36,6 +36,88 @@ import "./CingArtilleryGame.css";
 const MATCHMAKING_POLL_MS =
   1200;
 
+const SHOT_ANGLE_MIN_DEG =
+  10;
+
+const SHOT_ANGLE_MAX_DEG =
+  80;
+
+const SHOT_POWER_MIN =
+  0;
+
+const SHOT_POWER_MAX =
+  100;
+
+function createShotCommandId() {
+  const cryptoApi =
+    globalThis.crypto;
+
+  if (
+    typeof cryptoApi?.randomUUID ===
+    "function"
+  ) {
+    return cryptoApi.randomUUID();
+  }
+
+  if (
+    typeof cryptoApi?.getRandomValues !==
+    "function"
+  ) {
+    const error =
+      new Error(
+        "Thiết bị không hỗ trợ tạo shot command identity an toàn"
+      );
+
+    error.code =
+      "CING_PIU_PIU_SECURE_UUID_UNAVAILABLE";
+
+    throw error;
+  }
+
+  const bytes =
+    new Uint8Array(
+      16
+    );
+
+  cryptoApi.getRandomValues(
+    bytes
+  );
+
+  bytes[6] =
+    (
+      bytes[6] &
+      0x0f
+    ) |
+    0x40;
+
+  bytes[8] =
+    (
+      bytes[8] &
+      0x3f
+    ) |
+    0x80;
+
+  const hex =
+    Array.from(
+      bytes,
+      (value) =>
+        value
+          .toString(16)
+          .padStart(
+            2,
+            "0"
+          )
+    );
+
+  return [
+    hex.slice(0, 4).join(""),
+    hex.slice(4, 6).join(""),
+    hex.slice(6, 8).join(""),
+    hex.slice(8, 10).join(""),
+    hex.slice(10, 16).join(""),
+  ].join("-");
+}
+
 const PHASE =
   Object.freeze({
     CHECKING:
@@ -226,6 +308,15 @@ CingArtilleryGame({
     useRef(null);
 
   const battleGameRef =
+    useRef(null);
+
+  const battleSnapshotRef =
+    useRef(null);
+
+  const shotTurnLockRef =
+    useRef(null);
+
+  const battleMatchRef =
     useRef(null);
 
   const [phase, setPhase] =
@@ -446,6 +537,191 @@ CingArtilleryGame({
 
   useEffect(
     () => {
+      battleSnapshotRef.current =
+        battleSnapshot;
+
+      const matchId =
+        String(
+          battleSnapshot
+            ?.match_id ||
+          ""
+        ).trim();
+
+      if (
+        battleMatchRef.current !==
+          matchId
+      ) {
+        battleMatchRef.current =
+          matchId;
+
+        shotTurnLockRef.current =
+          null;
+      }
+    },
+    [
+      battleSnapshot,
+    ]
+  );
+
+  async function handleBattleFireIntent({
+    turnNumber,
+    angleDeg,
+    power,
+  }) {
+    const snapshot =
+      battleSnapshotRef.current;
+
+    const realtime =
+      realtimeRef.current;
+
+    if (
+      !snapshot ||
+      !realtime
+    ) {
+      throw new Error(
+        "Battle authority Cing Piu Piu chưa sẵn sàng"
+      );
+    }
+
+    const authoritativeTurnNumber =
+      Number(
+        snapshot.turn
+          ?.turn_number
+      );
+
+    if (
+      !Number.isInteger(
+        authoritativeTurnNumber
+      ) ||
+      Number(
+        turnNumber
+      ) !==
+        authoritativeTurnNumber
+    ) {
+      throw new Error(
+        "Lượt bắn Cing Piu Piu đã thay đổi"
+      );
+    }
+
+    if (
+      snapshot.turn
+        ?.active_account_id !==
+      snapshot.viewer
+        ?.account_id
+    ) {
+      throw new Error(
+        "Chưa tới lượt của bạn"
+      );
+    }
+
+    const normalizedAngle =
+      Number(
+        angleDeg
+      );
+
+    const normalizedPower =
+      Number(
+        power
+      );
+
+    if (
+      !Number.isFinite(
+        normalizedAngle
+      ) ||
+      normalizedAngle <
+        SHOT_ANGLE_MIN_DEG ||
+      normalizedAngle >
+        SHOT_ANGLE_MAX_DEG
+    ) {
+      throw new Error(
+        "Góc bắn Cing Piu Piu không hợp lệ"
+      );
+    }
+
+    if (
+      !Number.isFinite(
+        normalizedPower
+      ) ||
+      normalizedPower <
+        SHOT_POWER_MIN ||
+      normalizedPower >
+        SHOT_POWER_MAX
+    ) {
+      throw new Error(
+        "Lực bắn Cing Piu Piu không hợp lệ"
+      );
+    }
+
+    const shotLockKey =
+      `${snapshot.match_id}:${authoritativeTurnNumber}`;
+
+    if (
+      shotTurnLockRef.current ===
+        shotLockKey
+    ) {
+      throw new Error(
+        "Phát bắn của lượt này đã được gửi"
+      );
+    }
+
+    shotTurnLockRef.current =
+      shotLockKey;
+
+    try {
+      const shotCommand =
+        await realtime.sendShot({
+          matchId:
+            snapshot.match_id,
+
+          commandId:
+            createShotCommandId(),
+
+          turnNumber:
+            authoritativeTurnNumber,
+
+          angleDeg:
+            normalizedAngle,
+
+          power:
+            normalizedPower,
+        });
+
+      if (
+        !shotCommand?.id ||
+        Number(
+          shotCommand
+            ?.turn_number
+        ) !==
+          authoritativeTurnNumber
+      ) {
+        throw new Error(
+          "Shot command acknowledgement Cing Piu Piu không hợp lệ"
+        );
+      }
+
+      /*
+       * Durable ACK means only that the command was accepted.
+       *
+       * Do not mutate HP, position, terrain or turn here.
+       * FE-2 waits for canonical durable result and then
+       * refreshes the authoritative battle snapshot.
+       */
+      return shotCommand;
+    } catch (error) {
+      if (
+        shotTurnLockRef.current ===
+          shotLockKey
+      ) {
+        shotTurnLockRef.current =
+          null;
+      }
+
+      throw error;
+    }
+  }
+
+  useEffect(
+    () => {
       const combatStateId =
         battleSnapshot
           ?.combat_state_id;
@@ -466,6 +742,9 @@ CingArtilleryGame({
         {
           snapshot:
             battleSnapshot,
+
+          onFireIntent:
+            handleBattleFireIntent,
         }
       )
         .then(

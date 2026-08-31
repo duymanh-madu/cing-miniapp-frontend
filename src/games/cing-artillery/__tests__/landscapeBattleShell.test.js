@@ -130,7 +130,7 @@ test(
 
 
 test(
-  "5J4A remains presentation-only and cannot own shot gameplay",
+  "5J4A landscape utility remains presentation-only while BattleScene owns input presentation",
   () => {
     assert.doesNotMatch(
       landscape,
@@ -138,8 +138,13 @@ test(
     );
 
     assert.doesNotMatch(
+      landscape,
+      /sendShot|onFireIntent|fireShot/u
+    );
+
+    assert.match(
       game,
-      /emitShot|submitShot|sendShot/u
+      /handleBattleFireIntent/u
     );
   }
 );

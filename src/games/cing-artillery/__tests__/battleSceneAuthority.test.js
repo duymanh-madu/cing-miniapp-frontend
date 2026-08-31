@@ -23,10 +23,10 @@ test(
       );
 
     for (const token of [
-      "player_one_x",
-      "player_one_y",
-      "player_two_x",
-      "player_two_y",
+      "position_x",
+      "position_y",
+      "player_one",
+      "player_two",
       "player_one_current_hp",
       "player_two_current_hp",
       "active_account_id",
@@ -44,7 +44,12 @@ test(
 
     assert.doesNotMatch(
       source,
-      /max_hp|1000\s*HP|shot-command|angleDeg|power/u
+      /max_hp|1000\s*HP/u
+    );
+
+    assert.doesNotMatch(
+      source,
+      /world\.player_one_[xy]|world\.player_two_[xy]/u
     );
   }
 );
@@ -150,45 +155,306 @@ test(
 );
 
 test(
-  "React battle bridge cannot emit shot commands",
+  "realtime client exposes durable shot and result recovery transport",
   () => {
-    const game =
-      read(
-        "src/games/cing-artillery/CingArtilleryGame.jsx"
-      );
-
     const realtime =
       read(
         "src/games/cing-artillery/runtime/cingArtilleryRealtimeClient.js"
       );
 
     assert.match(
-      game,
-      /createPremiumArtilleryGame/u
+      realtime,
+      /cing-artillery:match:shot-command/u
     );
 
     assert.match(
-      game,
-      /battleSnapshot/u
+      realtime,
+      /cing-artillery:match:result-catchup/u
     );
 
     assert.match(
-      game,
-      /SNAPSHOT_EVENT/u
+      realtime,
+      /cing-artillery:match:result-stream-wake/u
     );
 
-    assert.doesNotMatch(
-      game,
-      /shot-command|angleDeg|turnNumber|commandId/u
+    assert.match(
+      realtime,
+      /function\s+sendShot/u
     );
 
-    /*
-     * Realtime transport still contains no public shot API
-     * in 5J3B. Shot integration belongs to a later task.
-     */
+    assert.match(
+      realtime,
+      /function\s+readResultCatchup/u
+    );
+
+    assert.match(
+      realtime,
+      /result_sequence/u
+    );
+
+    assert.match(
+      realtime,
+      /afterSequence/u
+    );
+
     assert.doesNotMatch(
       realtime,
-      /function\s+sendShot|submitShot|fireShot/u
+      /Number\([^)]*result_sequence/u
+    );
+  }
+);
+
+test(
+  "result wake uses bounded durable recovery before snapshot reconciliation",
+  () => {
+    const realtime =
+      read(
+        "src/games/cing-artillery/runtime/cingArtilleryRealtimeClient.js"
+      );
+
+    assert.match(
+      realtime,
+      /RESULT_CATCHUP_RETRY_DELAYS_MS/u
+    );
+
+    assert.match(
+      realtime,
+      /recoverDurableResults/u
+    );
+
+    assert.match(
+      realtime,
+      /requireResult/u
+    );
+
+    assert.match(
+      realtime,
+      /readResultCatchup/u
+    );
+
+    assert.match(
+      realtime,
+      /refreshCanonicalBattleSnapshot/u
+    );
+
+    assert.match(
+      realtime,
+      /onBattleSnapshot/u
+    );
+
+    assert.doesNotMatch(
+      realtime,
+      /setInterval\s*\(/u
+    );
+
+    assert.doesNotMatch(
+      realtime,
+      /while\s*\(\s*true\s*\)/u
+    );
+  }
+);
+
+test(
+  "reconnect recovers durable result cursor before canonical snapshot projection",
+  () => {
+    const realtime =
+      read(
+        "src/games/cing-artillery/runtime/cingArtilleryRealtimeClient.js"
+      );
+
+    assert.match(
+      realtime,
+      /recoverJoinedMatch/u
+    );
+
+    assert.match(
+      realtime,
+      /recoverDurableResults\(\{[\s\S]*?requireResult:\s*false/u
+    );
+
+    assert.match(
+      realtime,
+      /resultCursor/u
+    );
+
+    assert.match(
+      realtime,
+      /afterSequence/u
+    );
+  }
+);
+
+test(
+  "BattleScene emits only bounded fire intent and owns no shot outcome",
+  () => {
+    const scene =
+      read(
+        "src/games/cing-artillery/scenes/BattleScene.js"
+      );
+
+    const engine =
+      read(
+        "src/games/cing-artillery/engine/createPremiumArtilleryGame.js"
+      );
+
+    const game =
+      read(
+        "src/games/cing-artillery/CingArtilleryGame.jsx"
+      );
+
+    assert.match(
+      scene,
+      /onFireIntent/u
+    );
+
+    assert.match(
+      scene,
+      /AIM_ANGLE_MIN_DEG\s*=\s*10/u
+    );
+
+    assert.match(
+      scene,
+      /AIM_ANGLE_MAX_DEG\s*=\s*80/u
+    );
+
+    assert.match(
+      scene,
+      /POWER_MIN\s*=\s*0/u
+    );
+
+    assert.match(
+      scene,
+      /POWER_MAX\s*=\s*100/u
+    );
+
+    assert.match(
+      engine,
+      /onFireIntent/u
+    );
+
+    assert.match(
+      game,
+      /handleBattleFireIntent/u
+    );
+
+    assert.match(
+      game,
+      /realtime\.sendShot/u
+    );
+
+    assert.match(
+      game,
+      /createShotCommandId/u
+    );
+
+    assert.match(
+      game,
+      /shotTurnLockRef/u
+    );
+
+    assert.doesNotMatch(
+      scene,
+      /player_one_current_hp\s*=|player_two_current_hp\s*=|damage\s*=|winner\s*=/u
+    );
+  }
+);
+
+test(
+  "accepted shot acknowledgement cannot mutate canonical battle state",
+  () => {
+    const game =
+      read(
+        "src/games/cing-artillery/CingArtilleryGame.jsx"
+      );
+
+    assert.match(
+      game,
+      /Durable ACK means only that the command was accepted/u
+    );
+
+    assert.match(
+      game,
+      /await realtime\.sendShot/u
+    );
+
+    assert.doesNotMatch(
+      game,
+      /shotCommand[\s\S]{0,300}setBattleSnapshot\s*\(/u
+    );
+
+    assert.doesNotMatch(
+      game,
+      /shotCommand[\s\S]{0,300}setTurnState\s*\(/u
+    );
+  }
+);
+
+test(
+  "fire lock is scoped by canonical match and turn identity",
+  () => {
+    const game =
+      read(
+        "src/games/cing-artillery/CingArtilleryGame.jsx"
+      );
+
+    assert.match(
+      game,
+      /battleMatchRef/u
+    );
+
+    assert.match(
+      game,
+      /shotLockKey/u
+    );
+
+    assert.match(
+      game,
+      /snapshot\.match_id.*authoritativeTurnNumber/su
+    );
+
+    assert.match(
+      game,
+      /shotTurnLockRef\.current\s*=\s*null/u
+    );
+  }
+);
+
+test(
+  "BattleScene surfaces fire transport rejection without inventing gameplay state",
+  () => {
+    const scene =
+      read(
+        "src/games/cing-artillery/scenes/BattleScene.js"
+      );
+
+    assert.match(
+      scene,
+      /fireStatusText/u
+    );
+
+    assert.match(
+      scene,
+      /ĐANG GỬI/u
+    );
+
+    assert.match(
+      scene,
+      /ĐÃ NHẬN LỆNH/u
+    );
+
+    assert.match(
+      scene,
+      /KHÔNG THỂ BẮN/u
+    );
+
+    assert.match(
+      scene,
+      /catch\s*\(error\)/u
+    );
+
+    assert.doesNotMatch(
+      scene,
+      /fireStatusText[\s\S]{0,500}(damage|current_hp|winner|loser)\s*=/u
     );
   }
 );

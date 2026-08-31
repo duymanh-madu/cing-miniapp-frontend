@@ -25,10 +25,33 @@ const EVENT =
 
     BATTLE_SNAPSHOT:
       "cing-artillery:match:battle-snapshot",
+
+    SHOT_COMMAND:
+      "cing-artillery:match:shot-command",
+
+    RESULT_CATCHUP:
+      "cing-artillery:match:result-catchup",
+
+    RESULT_STREAM_WAKE:
+      "cing-artillery:match:result-stream-wake",
   });
 
 const ACK_TIMEOUT_MS =
   12000;
+
+const RESULT_CATCHUP_LIMIT =
+  32;
+
+const RESULT_CATCHUP_RETRY_DELAYS_MS =
+  Object.freeze([
+    0,
+    80,
+    160,
+    320,
+    640,
+    1000,
+    1400,
+  ]);
 
 function requireGameServerUrl() {
   const value =
@@ -169,6 +192,7 @@ createCingArtilleryRealtimeClient({
   onStartError,
   onDisconnected,
   onBattleSnapshot,
+  onResultStreamWake,
   onRecovered,
 }) {
   const token =
@@ -259,10 +283,16 @@ createCingArtilleryRealtimeClient({
   let joinedMatchId =
     null;
 
+  let resultCursor =
+    "0";
+
   let connectedOnce =
     false;
 
   let recoveryInFlight =
+    null;
+
+  let resultRecoveryInFlight =
     null;
 
   async function connect() {
@@ -439,6 +469,187 @@ createCingArtilleryRealtimeClient({
     );
   }
 
+  function normalizeResultSequence(
+    value
+  ) {
+    const sequence =
+      String(
+        value ?? ""
+      ).trim();
+
+    if (
+      !/^(0|[1-9][0-9]*)$/u.test(
+        sequence
+      )
+    ) {
+      throw new Error(
+        "Result cursor Cing Piu Piu không hợp lệ"
+      );
+    }
+
+    return sequence;
+  }
+
+  function compareResultSequence(
+    left,
+    right
+  ) {
+    const a =
+      normalizeResultSequence(
+        left
+      );
+
+    const b =
+      normalizeResultSequence(
+        right
+      );
+
+    if (a.length !== b.length) {
+      return a.length < b.length
+        ? -1
+        : 1;
+    }
+
+    if (a === b) {
+      return 0;
+    }
+
+    return a < b
+      ? -1
+      : 1;
+  }
+
+  function advanceResultCursor(
+    rows
+  ) {
+    let next =
+      resultCursor;
+
+    for (const row of rows) {
+      const sequence =
+        normalizeResultSequence(
+          row?.result_sequence
+        );
+
+      if (
+        compareResultSequence(
+          sequence,
+          next
+        ) <= 0
+      ) {
+        throw new Error(
+          "Result stream Cing Piu Piu không tăng đơn điệu"
+        );
+      }
+
+      next =
+        sequence;
+    }
+
+    resultCursor =
+      next;
+
+    return resultCursor;
+  }
+
+  async function readResultCatchup({
+    matchId =
+      joinedMatchId,
+    limit = 32,
+  } = {}) {
+    const id =
+      String(
+        matchId || ""
+      ).trim();
+
+    if (!id) {
+      throw new Error(
+        "Thiếu match identity để đọc result stream"
+      );
+    }
+
+    if (
+      !Number.isInteger(limit) ||
+      limit < 1 ||
+      limit > 100
+    ) {
+      throw new Error(
+        "Result stream limit Cing Piu Piu không hợp lệ"
+      );
+    }
+
+    await connect();
+
+    const data =
+      await emitAcknowledged(
+        socket,
+        EVENT.RESULT_CATCHUP,
+        {
+          matchId:
+            id,
+
+          afterSequence:
+            resultCursor,
+
+          limit,
+        }
+      );
+
+    if (
+      data?.match_id !== id ||
+      !data?.runtime_id ||
+      !Array.isArray(
+        data?.results
+      )
+    ) {
+      throw new Error(
+        "Result catch-up Cing Piu Piu không hợp lệ"
+      );
+    }
+
+    advanceResultCursor(
+      data.results
+    );
+
+    return data;
+  }
+
+  async function sendShot({
+    matchId =
+      joinedMatchId,
+    commandId,
+    turnNumber,
+    angleDeg,
+    power,
+  }) {
+    const id =
+      String(
+        matchId || ""
+      ).trim();
+
+    if (!id) {
+      throw new Error(
+        "Thiếu match identity để gửi shot command"
+      );
+    }
+
+    await connect();
+
+    return emitAcknowledged(
+      socket,
+      EVENT.SHOT_COMMAND,
+      {
+        matchId:
+          id,
+
+        commandId,
+        turnNumber,
+        angleDeg,
+        power,
+      }
+    );
+  }
+
   async function readBattleSnapshot(
     matchId =
       joinedMatchId
@@ -485,6 +696,129 @@ createCingArtilleryRealtimeClient({
     return snapshot;
   }
 
+  function waitForResultRecovery(
+    milliseconds
+  ) {
+    if (milliseconds <= 0) {
+      return Promise.resolve();
+    }
+
+    return new Promise(
+      (resolve) => {
+        window.setTimeout(
+          resolve,
+          milliseconds
+        );
+      }
+    );
+  }
+
+  async function refreshCanonicalBattleSnapshot(
+    matchId
+  ) {
+    const snapshot =
+      await readBattleSnapshot(
+        matchId
+      );
+
+    if (
+      typeof onBattleSnapshot ===
+      "function"
+    ) {
+      onBattleSnapshot(
+        snapshot
+      );
+    }
+
+    return snapshot;
+  }
+
+  async function recoverDurableResults({
+    matchId =
+      joinedMatchId,
+    requireResult =
+      false,
+  } = {}) {
+    const id =
+      String(
+        matchId || ""
+      ).trim();
+
+    if (!id) {
+      return null;
+    }
+
+    if (resultRecoveryInFlight) {
+      return resultRecoveryInFlight;
+    }
+
+    resultRecoveryInFlight =
+      (async () => {
+        for (
+          let index = 0;
+          index <
+            RESULT_CATCHUP_RETRY_DELAYS_MS.length;
+          index += 1
+        ) {
+          await waitForResultRecovery(
+            RESULT_CATCHUP_RETRY_DELAYS_MS[
+              index
+            ]
+          );
+
+          if (
+            joinedMatchId !== id
+          ) {
+            return null;
+          }
+
+          const data =
+            await readResultCatchup({
+              matchId:
+                id,
+
+              limit:
+                RESULT_CATCHUP_LIMIT,
+            });
+
+          if (
+            data.results.length > 0
+          ) {
+            await refreshCanonicalBattleSnapshot(
+              id
+            );
+
+            return data;
+          }
+
+          if (!requireResult) {
+            await refreshCanonicalBattleSnapshot(
+              id
+            );
+
+            return data;
+          }
+        }
+
+        /*
+         * A wake is advisory only.
+         *
+         * The worker may legitimately take longer than this
+         * bounded recovery window. Do not invent gameplay
+         * state and do not poll forever. A later wake or
+         * reconnect resumes from the durable cursor.
+         */
+        return null;
+      })();
+
+    try {
+      return await resultRecoveryInFlight;
+    } finally {
+      resultRecoveryInFlight =
+        null;
+    }
+  }
+
   async function recoverJoinedMatch() {
     if (
       !joinedMatchId ||
@@ -513,19 +847,13 @@ createCingArtilleryRealtimeClient({
         }
 
         try {
-          const snapshot =
-            await readBattleSnapshot(
-              id
-            );
+          await recoverDurableResults({
+            matchId:
+              id,
 
-          if (
-            typeof onBattleSnapshot ===
-            "function"
-          ) {
-            onBattleSnapshot(
-              snapshot
-            );
-          }
+            requireResult:
+              false,
+          });
         } catch (error) {
           /*
            * A reconnect may happen while both players are
@@ -555,6 +883,44 @@ createCingArtilleryRealtimeClient({
         null;
     }
   }
+
+  socket.on(
+    EVENT.RESULT_STREAM_WAKE,
+    (wake) => {
+      if (
+        !joinedMatchId ||
+        wake?.match_id !==
+          joinedMatchId
+      ) {
+        return;
+      }
+
+      if (
+        typeof onResultStreamWake ===
+        "function"
+      ) {
+        onResultStreamWake(
+          wake
+        );
+      }
+
+      void recoverDurableResults({
+        matchId:
+          joinedMatchId,
+
+        requireResult:
+          true,
+      }).catch(
+        () => {
+          /*
+           * Wake recovery is transport reconciliation only.
+           * Durable gameplay authority is never compensated
+           * or synthesized on a failed catch-up.
+           */
+        }
+      );
+    }
+  );
 
   socket.on(
     "connect",
@@ -625,8 +991,15 @@ createCingArtilleryRealtimeClient({
     connect,
     joinMatch,
     readBattleSnapshot,
+    readResultCatchup,
+    recoverDurableResults,
+    sendShot,
     leaveMatch,
     destroy,
+
+    getResultCursor:
+      () =>
+        resultCursor,
 
     isConnected:
       () =>

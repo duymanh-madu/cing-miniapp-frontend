@@ -5,6 +5,30 @@ import {
 const SNAPSHOT_EVENT =
   "cing-artillery:battle-snapshot";
 
+const AIM_ANGLE_MIN_DEG =
+  10;
+
+const AIM_ANGLE_MAX_DEG =
+  80;
+
+const AIM_ANGLE_STEP_DEG =
+  2;
+
+const POWER_MIN =
+  0;
+
+const POWER_MAX =
+  100;
+
+const POWER_STEP =
+  5;
+
+const DEFAULT_AIM_ANGLE_DEG =
+  45;
+
+const DEFAULT_POWER =
+  60;
+
 function displayHp(
   value
 ) {
@@ -101,6 +125,7 @@ createBattleScene(
   Phaser,
   {
     initialSnapshot,
+    onFireIntent,
   }
 ) {
   const mapAsset =
@@ -146,6 +171,30 @@ createBattleScene(
         null;
 
       this.lastTimerValue =
+        null;
+
+      this.aimAngleDeg =
+        DEFAULT_AIM_ANGLE_DEG;
+
+      this.shotPower =
+        DEFAULT_POWER;
+
+      this.firePendingTurn =
+        null;
+
+      this.angleText =
+        null;
+
+      this.powerText =
+        null;
+
+      this.fireButton =
+        null;
+
+      this.controlButtons =
+        [];
+
+      this.fireStatusText =
         null;
     }
 
@@ -443,6 +492,10 @@ createBattleScene(
         this.viewerText
       );
 
+      this.createBattleControls(
+        world
+      );
+
       this.game.events.on(
         SNAPSHOT_EVENT,
         this.handleSnapshot,
@@ -551,6 +604,487 @@ createBattleScene(
       };
     }
 
+    createControlButton({
+      world,
+      x,
+      y,
+      width,
+      label,
+      onPress,
+      accent =
+        0xffa33c,
+    }) {
+      const container =
+        this.add.container(
+          x,
+          y
+        );
+
+      const background =
+        this.add
+          .rectangle(
+            0,
+            0,
+            width,
+            34,
+            0x07111f,
+            0.90
+          )
+          .setStrokeStyle(
+            2,
+            accent,
+            0.90
+          )
+          .setInteractive({
+            useHandCursor:
+              true,
+          });
+
+      const text =
+        this.add
+          .text(
+            0,
+            0,
+            label,
+            {
+              fontFamily:
+                "Inter, Arial, sans-serif",
+
+              fontSize:
+                "14px",
+
+              fontStyle:
+                "bold",
+
+              color:
+                "#ffffff",
+            }
+          )
+          .setOrigin(
+            0.5
+          );
+
+      background.on(
+        "pointerdown",
+        () => {
+          if (
+            background.input
+              ?.enabled !==
+            true
+          ) {
+            return;
+          }
+
+          onPress();
+        }
+      );
+
+      container.add([
+        background,
+        text,
+      ]);
+
+      world.add(
+        container
+      );
+
+      this.controlButtons.push(
+        background
+      );
+
+      return {
+        container,
+        background,
+        text,
+      };
+    }
+
+    createBattleControls(
+      world
+    ) {
+      const y =
+        mapAsset.height -
+        92;
+
+      this.createControlButton({
+        world,
+        x:
+          84,
+        y,
+        width:
+          42,
+        label:
+          "−",
+        onPress:
+          () => {
+            this.setAimAngle(
+              this.aimAngleDeg -
+                AIM_ANGLE_STEP_DEG
+            );
+          },
+      });
+
+      this.angleText =
+        this.add
+          .text(
+            146,
+            y,
+            "",
+            {
+              fontFamily:
+                "Inter, Arial, sans-serif",
+
+              fontSize:
+                "14px",
+
+              fontStyle:
+                "bold",
+
+              color:
+                "#ffffff",
+
+              stroke:
+                "#07111f",
+
+              strokeThickness:
+                4,
+            }
+          )
+          .setOrigin(
+            0.5
+          );
+
+      world.add(
+        this.angleText
+      );
+
+      this.createControlButton({
+        world,
+        x:
+          208,
+        y,
+        width:
+          42,
+        label:
+          "+",
+        onPress:
+          () => {
+            this.setAimAngle(
+              this.aimAngleDeg +
+                AIM_ANGLE_STEP_DEG
+            );
+          },
+      });
+
+      this.createControlButton({
+        world,
+        x:
+          mapAsset.width -
+          250,
+        y,
+        width:
+          42,
+        label:
+          "−",
+        onPress:
+          () => {
+            this.setPower(
+              this.shotPower -
+                POWER_STEP
+            );
+          },
+        accent:
+          0x64c7ff,
+      });
+
+      this.powerText =
+        this.add
+          .text(
+            mapAsset.width -
+              174,
+            y,
+            "",
+            {
+              fontFamily:
+                "Inter, Arial, sans-serif",
+
+              fontSize:
+                "14px",
+
+              fontStyle:
+                "bold",
+
+              color:
+                "#ffffff",
+
+              stroke:
+                "#07111f",
+
+              strokeThickness:
+                4,
+            }
+          )
+          .setOrigin(
+            0.5
+          );
+
+      world.add(
+        this.powerText
+      );
+
+      this.createControlButton({
+        world,
+        x:
+          mapAsset.width -
+          98,
+        y,
+        width:
+          42,
+        label:
+          "+",
+        onPress:
+          () => {
+            this.setPower(
+              this.shotPower +
+                POWER_STEP
+            );
+          },
+        accent:
+          0x64c7ff,
+      });
+
+      this.fireButton =
+        this.createControlButton({
+          world,
+          x:
+            mapAsset.width /
+            2,
+          y,
+          width:
+            116,
+          label:
+            "BẮN",
+          accent:
+            0xffb347,
+          onPress:
+            () => {
+              void this.fireShot();
+            },
+        });
+
+      this.fireStatusText =
+        this.add
+          .text(
+            mapAsset.width /
+              2,
+            y + 30,
+            "",
+            {
+              fontFamily:
+                "Inter, Arial, sans-serif",
+
+              fontSize:
+                "11px",
+
+              fontStyle:
+                "bold",
+
+              color:
+                "#ffd7a3",
+
+              stroke:
+                "#07111f",
+
+              strokeThickness:
+                3,
+            }
+          )
+          .setOrigin(
+            0.5
+          );
+
+      world.add(
+        this.fireStatusText
+      );
+
+      this.refreshBattleControls();
+    }
+
+    setAimAngle(
+      value
+    ) {
+      this.aimAngleDeg =
+        Math.max(
+          AIM_ANGLE_MIN_DEG,
+          Math.min(
+            AIM_ANGLE_MAX_DEG,
+            Number(
+              value
+            )
+          )
+        );
+
+      this.refreshBattleControls();
+    }
+
+    setPower(
+      value
+    ) {
+      this.shotPower =
+        Math.max(
+          POWER_MIN,
+          Math.min(
+            POWER_MAX,
+            Number(
+              value
+            )
+          )
+        );
+
+      this.refreshBattleControls();
+    }
+
+    isViewerTurn() {
+      return (
+        this.snapshot
+          ?.turn
+          ?.active_account_id ===
+        this.snapshot
+          ?.viewer
+          ?.account_id
+      );
+    }
+
+    refreshBattleControls() {
+      this.angleText
+        ?.setText(
+          `GÓC ${this.aimAngleDeg}°`
+        );
+
+      this.powerText
+        ?.setText(
+          `LỰC ${this.shotPower}`
+        );
+
+      const turnNumber =
+        Number(
+          this.snapshot
+            ?.turn
+            ?.turn_number
+        );
+
+      const enabled =
+        this.isViewerTurn() &&
+        Number.isInteger(
+          turnNumber
+        ) &&
+        this.firePendingTurn !==
+          turnNumber;
+
+      for (
+        const control of
+        this.controlButtons
+      ) {
+        if (enabled) {
+          control
+            .setInteractive({
+              useHandCursor:
+                true,
+            })
+            .setAlpha(
+              1
+            );
+        } else {
+          control
+            .disableInteractive()
+            .setAlpha(
+              0.45
+            );
+        }
+      }
+
+      this.fireButton
+        ?.text
+        ?.setText(
+          this.firePendingTurn ===
+            turnNumber
+            ? "ĐÃ BẮN"
+            : "BẮN"
+        );
+    }
+
+    async fireShot() {
+      const turnNumber =
+        Number(
+          this.snapshot
+            ?.turn
+            ?.turn_number
+        );
+
+      if (
+        !this.isViewerTurn() ||
+        !Number.isInteger(
+          turnNumber
+        ) ||
+        this.firePendingTurn ===
+          turnNumber
+      ) {
+        return;
+      }
+
+      if (
+        typeof onFireIntent !==
+        "function"
+      ) {
+        throw new Error(
+          "Battle fire bridge Cing Piu Piu chưa được cấu hình"
+        );
+      }
+
+      this.firePendingTurn =
+        turnNumber;
+
+      this.fireStatusText
+        ?.setText(
+          "ĐANG GỬI..."
+        );
+
+      this.refreshBattleControls();
+
+      try {
+        await onFireIntent({
+          turnNumber,
+
+          angleDeg:
+            this.aimAngleDeg,
+
+          power:
+            this.shotPower,
+        });
+
+        this.fireStatusText
+          ?.setText(
+            "ĐÃ NHẬN LỆNH"
+          );
+      } catch (error) {
+        if (
+          this.firePendingTurn ===
+            turnNumber
+        ) {
+          this.firePendingTurn =
+            null;
+
+          this.fireStatusText
+            ?.setText(
+              error?.message ||
+              "KHÔNG THỂ BẮN"
+            );
+
+          this.refreshBattleControls();
+        }
+      }
+    }
+
     handleSnapshot(
       snapshot
     ) {
@@ -575,17 +1109,50 @@ createBattleScene(
       this.snapshot =
         snapshot;
 
-      const world =
-        snapshot.world;
+      const players =
+        snapshot.players;
+
+      const playerOne =
+        players?.player_one;
+
+      const playerTwo =
+        players?.player_two;
+
+      if (
+        !Number.isInteger(
+          Number(
+            playerOne?.position_x
+          )
+        ) ||
+        !Number.isInteger(
+          Number(
+            playerOne?.position_y
+          )
+        ) ||
+        !Number.isInteger(
+          Number(
+            playerTwo?.position_x
+          )
+        ) ||
+        !Number.isInteger(
+          Number(
+            playerTwo?.position_y
+          )
+        )
+      ) {
+        throw new Error(
+          "Mutable player world snapshot Cing Piu Piu không hợp lệ"
+        );
+      }
 
       this.playerOneMarker
         .container
         .setPosition(
           Number(
-            world.player_one_x
+            playerOne.position_x
           ),
           Number(
-            world.player_one_y
+            playerOne.position_y
           )
         );
 
@@ -593,10 +1160,10 @@ createBattleScene(
         .container
         .setPosition(
           Number(
-            world.player_two_x
+            playerTwo.position_x
           ),
           Number(
-            world.player_two_y
+            playerTwo.position_y
           )
         );
 
@@ -667,10 +1234,32 @@ createBattleScene(
           : "LƯỢT ĐỐI THỦ"
       );
 
+      const currentTurnNumber =
+        Number(
+          snapshot.turn
+            ?.turn_number
+        );
+
+      if (
+        this.firePendingTurn !==
+          null &&
+        this.firePendingTurn !==
+          currentTurnNumber
+      ) {
+        this.firePendingTurn =
+          null;
+
+        this.fireStatusText
+          ?.setText(
+            ""
+          );
+      }
+
       this.lastTimerValue =
         null;
 
       this.refreshTimer();
+      this.refreshBattleControls();
     }
 
     refreshTimer() {

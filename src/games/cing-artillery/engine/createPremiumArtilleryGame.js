@@ -10,6 +10,7 @@ createPremiumArtilleryGame(
   parent,
   {
     snapshot,
+    onFireIntent,
   } = {}
 ) {
   if (!parent) {
@@ -39,6 +40,8 @@ createPremiumArtilleryGame(
       {
         initialSnapshot:
           snapshot,
+
+        onFireIntent,
       }
     );
 

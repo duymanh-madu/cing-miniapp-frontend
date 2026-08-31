@@ -150,7 +150,7 @@ test(
 );
 
 test(
-  "5J2 lobby cannot emit gameplay shots",
+  "5J2 lobby remains separate from battle fire authority",
   () => {
     const source =
       read(
@@ -172,14 +172,19 @@ test(
       /joinMatch/u
     );
 
-    assert.doesNotMatch(
+    assert.match(
       source,
-      /shot-command/u
+      /handleBattleFireIntent/u
     );
 
-    assert.doesNotMatch(
+    assert.match(
       source,
-      /angleDeg|turnNumber|commandId/u
+      /snapshot\.turn[\s\S]*active_account_id/u
+    );
+
+    assert.match(
+      source,
+      /snapshot\.viewer[\s\S]*account_id/u
     );
   }
 );
