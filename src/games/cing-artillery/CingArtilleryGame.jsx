@@ -16,6 +16,7 @@ import {
 
 import {
   createPremiumArtilleryGame,
+  presentCanonicalArtilleryResult,
 } from "./engine/createPremiumArtilleryGame";
 
 import {
@@ -1065,6 +1066,35 @@ CingArtilleryGame({
 
               setPhase(
                 PHASE.ERROR
+              );
+            },
+
+          onCanonicalShotResult:
+            async (
+              canonicalResult
+            ) => {
+              if (
+                !aliveRef.current ||
+                runId !==
+                  runRef.current
+              ) {
+                throw new Error(
+                  "Battle lifecycle Cing Piu Piu không còn active"
+                );
+              }
+
+              const battleGame =
+                battleGameRef.current;
+
+              if (!battleGame) {
+                throw new Error(
+                  "Battle renderer Cing Piu Piu chưa sẵn sàng cho canonical result"
+                );
+              }
+
+              await presentCanonicalArtilleryResult(
+                battleGame,
+                canonicalResult
               );
             },
 

@@ -2,8 +2,9 @@ import {
   PREMIUM_ARTILLERY_RENDER,
 } from "./premiumArtilleryConfig";
 
-import createBattleScene
-  from "../scenes/BattleScene";
+import createBattleScene, {
+  CANONICAL_RESULT_EVENT,
+} from "../scenes/BattleScene";
 
 export async function
 createPremiumArtilleryGame(
@@ -106,4 +107,38 @@ createPremiumArtilleryGame(
       BattleScene,
     ],
   });
+}
+
+
+export function
+presentCanonicalArtilleryResult(
+  game,
+  result
+) {
+  if (
+    !game?.events ||
+    !result
+  ) {
+    return Promise.reject(
+      new Error(
+        "Canonical artillery presentation bridge không hợp lệ"
+      )
+    );
+  }
+
+  return new Promise(
+    (
+      resolve,
+      reject
+    ) => {
+      game.events.emit(
+        CANONICAL_RESULT_EVENT,
+        {
+          result,
+          resolve,
+          reject,
+        }
+      );
+    }
+  );
 }

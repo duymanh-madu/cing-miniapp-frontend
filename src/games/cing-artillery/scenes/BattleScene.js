@@ -5,6 +5,17 @@ import {
 const SNAPSHOT_EVENT =
   "cing-artillery:battle-snapshot";
 
+const CANONICAL_RESULT_EVENT =
+  "cing-artillery:canonical-shot-result";
+
+const PROJECTILE_PRESENTATION = Object.freeze({
+  minDurationMs: 360,
+  maxDurationMs: 920,
+  pixelsPerSecond: 720,
+  arcMinPx: 28,
+  arcMaxPx: 110,
+});
+
 const AIM_ANGLE_MIN_DEG =
   10;
 
@@ -238,6 +249,9 @@ createBattleScene(
           0,
           0
         );
+
+      this.world =
+        world;
 
       world.setScale(
         scaleX
@@ -502,6 +516,12 @@ createBattleScene(
         this
       );
 
+      this.game.events.on(
+        CANONICAL_RESULT_EVENT,
+        this.handleCanonicalResult,
+        this
+      );
+
       this.events.once(
         Phaser.Scenes.Events.SHUTDOWN,
         () => {
@@ -510,6 +530,24 @@ createBattleScene(
             this.handleSnapshot,
             this
           );
+
+          this.game.events.off(
+            CANONICAL_RESULT_EVENT,
+            this.handleCanonicalResult,
+            this
+          );
+
+          this.presentationTween
+            ?.stop();
+
+          this.presentationTween =
+            null;
+
+          this.presentationProjectile
+            ?.destroy();
+
+          this.presentationProjectile =
+            null;
         }
       );
 
@@ -1093,6 +1131,345 @@ createBattleScene(
       );
     }
 
+    handleCanonicalResult(
+      payload
+    ) {
+      const result =
+        payload?.result;
+
+      const resolve =
+        payload?.resolve;
+
+      const reject =
+        payload?.reject;
+
+      if (
+        typeof resolve !==
+          "function" ||
+        typeof reject !==
+          "function"
+      ) {
+        return;
+      }
+
+      void this
+        .presentCanonicalShot(
+          result
+        )
+        .then(
+          resolve,
+          reject
+        );
+    }
+
+    async presentCanonicalShot(
+      result
+    ) {
+      if (
+        !result ||
+        typeof result !==
+          "object" ||
+        !result.presentation
+      ) {
+        throw new Error(
+          "Canonical projectile presentation Cing Piu Piu không hợp lệ"
+        );
+      }
+
+      if (
+        this.presentationTween ||
+        this.presentationProjectile
+      ) {
+        throw new Error(
+          "Canonical projectile presentation Cing Piu Piu đang bận"
+        );
+      }
+
+      const {
+        start_x:
+          startX,
+        start_y:
+          startY,
+        impact_x:
+          impactX,
+        impact_y:
+          impactY,
+      } =
+        result.presentation;
+
+      if (
+        ![
+          startX,
+          startY,
+          impactX,
+          impactY,
+        ].every(
+          Number.isFinite
+        )
+      ) {
+        throw new Error(
+          "Canonical projectile geometry Cing Piu Piu không hợp lệ"
+        );
+      }
+
+      if (!this.world) {
+        throw new Error(
+          "Battle world Cing Piu Piu chưa sẵn sàng"
+        );
+      }
+
+      const distance =
+        Math.hypot(
+          impactX - startX,
+          impactY - startY
+        );
+
+      const duration =
+        Phaser.Math.Clamp(
+          (
+            distance /
+            PROJECTILE_PRESENTATION
+              .pixelsPerSecond
+          ) * 1000,
+          PROJECTILE_PRESENTATION
+            .minDurationMs,
+          PROJECTILE_PRESENTATION
+            .maxDurationMs
+        );
+
+      const arcHeight =
+        Phaser.Math.Clamp(
+          distance * 0.16,
+          PROJECTILE_PRESENTATION
+            .arcMinPx,
+          PROJECTILE_PRESENTATION
+            .arcMaxPx
+        );
+
+      const projectile =
+        this.add.container(
+          startX,
+          startY
+        );
+
+      const glow =
+        this.add.circle(
+          0,
+          0,
+          8,
+          0xffc45c,
+          0.22
+        );
+
+      const core =
+        this.add.circle(
+          0,
+          0,
+          4,
+          0xfff1b8,
+          1
+        );
+
+      core.setStrokeStyle(
+        2,
+        0xffa33c,
+        1
+      );
+
+      projectile.add([
+        glow,
+        core,
+      ]);
+
+      this.world.add(
+        projectile
+      );
+
+      this.presentationProjectile =
+        projectile;
+
+      const progress = {
+        value: 0,
+      };
+
+      await new Promise(
+        (resolve) => {
+          const finish =
+            () => {
+              projectile.setPosition(
+                impactX,
+                impactY
+              );
+
+              this.presentCanonicalImpact(
+                result,
+                impactX,
+                impactY
+              );
+
+              projectile.destroy();
+
+              if (
+                this.presentationProjectile ===
+                projectile
+              ) {
+                this.presentationProjectile =
+                  null;
+              }
+
+              this.presentationTween =
+                null;
+
+              resolve();
+            };
+
+          this.presentationTween =
+            this.tweens.add({
+              targets:
+                progress,
+
+              value:
+                1,
+
+              duration,
+
+              ease:
+                "Sine.easeInOut",
+
+              onUpdate:
+                () => {
+                  const t =
+                    progress.value;
+
+                  const x =
+                    Phaser.Math.Linear(
+                      startX,
+                      impactX,
+                      t
+                    );
+
+                  const baseY =
+                    Phaser.Math.Linear(
+                      startY,
+                      impactY,
+                      t
+                    );
+
+                  /*
+                   * Presentation-only curve.
+                   * Canonical gameplay outcome,
+                   * collision and impact endpoint
+                   * remain server authoritative.
+                   */
+                  const visualArc =
+                    Math.sin(
+                      Math.PI * t
+                    ) *
+                    arcHeight;
+
+                  projectile.setPosition(
+                    x,
+                    baseY -
+                      visualArc
+                  );
+                },
+
+              onComplete:
+                finish,
+            });
+        }
+      );
+    }
+
+    presentCanonicalImpact(
+      result,
+      x,
+      y
+    ) {
+      const outcome =
+        result?.outcome;
+
+      let accent;
+      let radius;
+
+      if (
+        outcome ===
+        "player_hit"
+      ) {
+        accent =
+          0xff765f;
+
+        radius =
+          24;
+      } else if (
+        outcome ===
+        "terrain_hit"
+      ) {
+        accent =
+          0xffb347;
+
+        radius =
+          21;
+      } else if (
+        outcome ===
+        "out_of_bounds"
+      ) {
+        accent =
+          0x8bd8ff;
+
+        radius =
+          14;
+      } else {
+        throw new Error(
+          "Canonical projectile outcome Cing Piu Piu không hỗ trợ"
+        );
+      }
+
+      const impact =
+        this.add.circle(
+          x,
+          y,
+          radius,
+          accent,
+          0.58
+        );
+
+      impact.setStrokeStyle(
+        3,
+        0xffffff,
+        0.88
+      );
+
+      this.world.add(
+        impact
+      );
+
+      this.tweens.add({
+        targets:
+          impact,
+
+        scale:
+          1.8,
+
+        alpha:
+          0,
+
+        duration:
+          outcome ===
+            "player_hit"
+            ? 280
+            : 220,
+
+        ease:
+          "Quad.easeOut",
+
+        onComplete:
+          () => {
+            impact.destroy();
+          },
+      });
+    }
+
     applySnapshot(
       snapshot
     ) {
@@ -1303,5 +1680,6 @@ createBattleScene(
 }
 
 export {
+  CANONICAL_RESULT_EVENT,
   SNAPSHOT_EVENT,
 };
