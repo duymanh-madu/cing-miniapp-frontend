@@ -120,16 +120,258 @@ function toPresentationNumber(
   text,
   field
 ) {
-  const value =
-    Number(text);
+  const exact =
+    BigInt(text);
 
   if (
-    !Number.isFinite(value)
+    exact <
+      BigInt(Number.MIN_SAFE_INTEGER) ||
+    exact >
+      BigInt(Number.MAX_SAFE_INTEGER)
   ) {
     fail(field);
   }
 
+  const value =
+    Number(exact);
+
+  if (!Number.isSafeInteger(value)) {
+    fail(field);
+  }
+
   return value;
+}
+
+function scaledIntegerToPresentationNumber(
+  scaledText,
+  scaleText,
+  field
+) {
+  const scaled =
+    BigInt(scaledText);
+
+  const scale =
+    BigInt(scaleText);
+
+  if (scale <= 0n) {
+    fail(field);
+  }
+
+  const integerPart =
+    scaled / scale;
+
+  const remainder =
+    scaled % scale;
+
+  const minSafe =
+    BigInt(Number.MIN_SAFE_INTEGER);
+
+  const maxSafe =
+    BigInt(Number.MAX_SAFE_INTEGER);
+
+  if (
+    integerPart < minSafe ||
+    integerPart > maxSafe ||
+    remainder < minSafe ||
+    remainder > maxSafe ||
+    scale > maxSafe
+  ) {
+    fail(field);
+  }
+
+  const value =
+    Number(integerPart) +
+    Number(remainder) /
+      Number(scale);
+
+  if (!Number.isFinite(value)) {
+    fail(field);
+  }
+
+  return value;
+}
+
+function projectTrajectoryPresentationV1(
+  input
+) {
+  const value =
+    objectValue(input);
+
+  const presentationVersion =
+    requiredInteger(
+      value.presentation_version,
+      "trajectory_presentation.presentation_version"
+    );
+
+  if (presentationVersion !== 1) {
+    fail(
+      "trajectory_presentation.presentation_version"
+    );
+  }
+
+  const fixedScaleText =
+    positiveIntegerText(
+      value.physics_fixed_scale,
+      "trajectory_presentation.physics_fixed_scale"
+    );
+
+  const fixedScale =
+    BigInt(fixedScaleText);
+
+  if (fixedScale <= 0n) {
+    fail(
+      "trajectory_presentation.physics_fixed_scale"
+    );
+  }
+
+  const sampleStride =
+    requiredInteger(
+      value.sample_stride,
+      "trajectory_presentation.sample_stride"
+    );
+
+  const sampleCount =
+    requiredInteger(
+      value.sample_count,
+      "trajectory_presentation.sample_count"
+    );
+
+  if (
+    sampleStride < 1 ||
+    sampleCount < 1 ||
+    sampleCount > 256 ||
+    !Array.isArray(value.samples) ||
+    value.samples.length !== sampleCount
+  ) {
+    fail(
+      "trajectory_presentation.samples"
+    );
+  }
+
+  let previousStepIndex = -1;
+  let previousElapsedMs = -1;
+
+  const samples =
+    value.samples.map(
+      (
+        sample,
+        index
+      ) => {
+        const item =
+          objectValue(sample);
+
+        const stepIndex =
+          requiredInteger(
+            item.step_index,
+            "trajectory_presentation.sample.step_index"
+          );
+
+        const elapsedMs =
+          requiredInteger(
+            item.elapsed_ms,
+            "trajectory_presentation.sample.elapsed_ms"
+          );
+
+        const xScaledText =
+          integerText(
+            item.x_scaled,
+            "trajectory_presentation.sample.x_scaled"
+          );
+
+        const yScaledText =
+          integerText(
+            item.y_scaled,
+            "trajectory_presentation.sample.y_scaled"
+          );
+
+        if (
+          stepIndex < 0 ||
+          elapsedMs < 0 ||
+          stepIndex <= previousStepIndex ||
+          elapsedMs <= previousElapsedMs
+        ) {
+          fail(
+            "trajectory_presentation.samples"
+          );
+        }
+
+        if (
+          index === 0 &&
+          (
+            stepIndex !== 0 ||
+            elapsedMs !== 0
+          )
+        ) {
+          fail(
+            "trajectory_presentation.first_sample"
+          );
+        }
+
+        previousStepIndex =
+          stepIndex;
+
+        previousElapsedMs =
+          elapsedMs;
+
+          const x =
+            scaledIntegerToPresentationNumber(
+              xScaledText,
+              fixedScaleText,
+              "trajectory_presentation.sample.x_scaled"
+            );
+
+          const y =
+            scaledIntegerToPresentationNumber(
+              yScaledText,
+              fixedScaleText,
+              "trajectory_presentation.sample.y_scaled"
+            );
+
+        if (
+          !Number.isFinite(x) ||
+          !Number.isFinite(y)
+        ) {
+          fail(
+            "trajectory_presentation.sample_coordinate"
+          );
+        }
+
+        return Object.freeze({
+          step_index:
+            stepIndex,
+
+          elapsed_ms:
+            elapsedMs,
+
+          x_scaled:
+            xScaledText,
+
+          y_scaled:
+            yScaledText,
+
+          x,
+
+          y,
+        });
+      }
+    );
+
+  return Object.freeze({
+    presentation_version:
+      presentationVersion,
+
+    physics_fixed_scale:
+      fixedScaleText,
+
+    sample_stride:
+      sampleStride,
+
+    sample_count:
+      sampleCount,
+
+    samples:
+      Object.freeze(samples),
+  });
 }
 
 function projectCanonicalResultV1(
@@ -224,41 +466,33 @@ function projectCanonicalResultV1(
     fail("impact_contact_denominator");
   }
 
-  const fixedScale =
-    toPresentationNumber(
-      fixedScaleText,
-      "impact_physics_fixed_scale"
-    );
+    const startX =
+      scaledIntegerToPresentationNumber(
+        startXText,
+        fixedScaleText,
+        "impact_start_x_scaled"
+      );
 
-  if (
-    fixedScale <= 0
-  ) {
-    fail("impact_physics_fixed_scale");
-  }
+    const startY =
+      scaledIntegerToPresentationNumber(
+        startYText,
+        fixedScaleText,
+        "impact_start_y_scaled"
+      );
 
-  const startX =
-    toPresentationNumber(
-      startXText,
-      "impact_start_x_scaled"
-    ) / fixedScale;
+    const deltaX =
+      scaledIntegerToPresentationNumber(
+        deltaXText,
+        fixedScaleText,
+        "impact_delta_x_scaled"
+      );
 
-  const startY =
-    toPresentationNumber(
-      startYText,
-      "impact_start_y_scaled"
-    ) / fixedScale;
-
-  const deltaX =
-    toPresentationNumber(
-      deltaXText,
-      "impact_delta_x_scaled"
-    ) / fixedScale;
-
-  const deltaY =
-    toPresentationNumber(
-      deltaYText,
-      "impact_delta_y_scaled"
-    ) / fixedScale;
+    const deltaY =
+      scaledIntegerToPresentationNumber(
+        deltaYText,
+        fixedScaleText,
+        "impact_delta_y_scaled"
+      );
 
   const impactX =
     toPresentationNumber(
@@ -438,6 +672,11 @@ function projectCanonicalResultV1(
       impact_y:
         impactY,
     }),
+
+    trajectory_presentation:
+      projectTrajectoryPresentationV1(
+        row.trajectory_presentation
+      ),
   });
 }
 

@@ -8,14 +8,6 @@ const SNAPSHOT_EVENT =
 const CANONICAL_RESULT_EVENT =
   "cing-artillery:canonical-shot-result";
 
-const PROJECTILE_PRESENTATION = Object.freeze({
-  minDurationMs: 360,
-  maxDurationMs: 920,
-  pixelsPerSecond: 720,
-  arcMinPx: 28,
-  arcMaxPx: 110,
-});
-
 const AIM_ANGLE_MIN_DEG =
   10;
 
@@ -548,6 +540,32 @@ createBattleScene(
 
           this.presentationProjectile =
             null;
+
+          this.presentationCameraTarget
+            ?.destroy();
+
+          this.presentationCameraTarget =
+            null;
+
+          this.presentationTrail
+            ?.destroy();
+
+          this.presentationTrail =
+            null;
+
+          this.cameras.main
+            ?.stopFollow();
+
+          this.cameras.main
+            ?.setZoom(
+              1
+            );
+
+          this.cameras.main
+            ?.setScroll(
+              0,
+              0
+            );
         }
       );
 
@@ -1169,7 +1187,8 @@ createBattleScene(
         !result ||
         typeof result !==
           "object" ||
-        !result.presentation
+        !result.presentation ||
+        !result.trajectory_presentation
       ) {
         throw new Error(
           "Canonical projectile presentation Cing Piu Piu không hợp lệ"
@@ -1197,15 +1216,25 @@ createBattleScene(
       } =
         result.presentation;
 
+      const trajectory =
+        result.trajectory_presentation;
+
+      const samples =
+        trajectory.samples;
+
       if (
-        ![
-          startX,
-          startY,
-          impactX,
-          impactY,
-        ].every(
-          Number.isFinite
-        )
+        !Number.isFinite(
+          startX
+        ) ||
+        !Number.isFinite(
+          startY
+        ) ||
+        !Array.isArray(
+          samples
+        ) ||
+        samples.length < 1 ||
+        samples.length !==
+          trajectory.sample_count
       ) {
         throw new Error(
           "Canonical projectile geometry Cing Piu Piu không hợp lệ"
@@ -1218,38 +1247,32 @@ createBattleScene(
         );
       }
 
-      const distance =
-        Math.hypot(
-          impactX - startX,
-          impactY - startY
-        );
+      const firstSample =
+        samples[0];
 
-      const duration =
-        Phaser.Math.Clamp(
-          (
-            distance /
-            PROJECTILE_PRESENTATION
-              .pixelsPerSecond
-          ) * 1000,
-          PROJECTILE_PRESENTATION
-            .minDurationMs,
-          PROJECTILE_PRESENTATION
-            .maxDurationMs
+      if (
+        !Number.isFinite(
+          firstSample?.x
+        ) ||
+        !Number.isFinite(
+          firstSample?.y
+        ) ||
+        firstSample.elapsed_ms !==
+          0 ||
+        firstSample.x !==
+          startX ||
+        firstSample.y !==
+          startY
+      ) {
+        throw new Error(
+          "Canonical projectile start Cing Piu Piu không nhất quán"
         );
-
-      const arcHeight =
-        Phaser.Math.Clamp(
-          distance * 0.16,
-          PROJECTILE_PRESENTATION
-            .arcMinPx,
-          PROJECTILE_PRESENTATION
-            .arcMaxPx
-        );
+      }
 
       const projectile =
         this.add.container(
-          startX,
-          startY
+          firstSample.x,
+          firstSample.y
         );
 
       const glow =
@@ -1288,98 +1311,324 @@ createBattleScene(
       this.presentationProjectile =
         projectile;
 
-      const progress = {
-        value: 0,
+      const presentationCamera =
+        this.cameras.main;
+
+      if (!presentationCamera) {
+        throw new Error(
+          "Battle presentation camera Cing Piu Piu chưa sẵn sàng"
+        );
+      }
+
+      const cameraState = {
+        scrollX:
+          presentationCamera.scrollX,
+        scrollY:
+          presentationCamera.scrollY,
+        zoom:
+          presentationCamera.zoom,
       };
 
-      await new Promise(
-        (resolve) => {
-          const finish =
-            () => {
-              projectile.setPosition(
-                impactX,
-                impactY
-              );
+      const worldScale =
+        this.world.scaleX;
 
-              this.presentCanonicalImpact(
-                result,
-                impactX,
-                impactY
-              );
+      if (
+        !Number.isFinite(
+          worldScale
+        ) ||
+        worldScale <= 0
+      ) {
+        throw new Error(
+          "Battle world scale Cing Piu Piu không hợp lệ"
+        );
+      }
 
-              projectile.destroy();
+      const cameraTarget =
+        this.add.zone(
+          firstSample.x *
+            worldScale,
+          firstSample.y *
+            worldScale,
+          1,
+          1
+        );
 
-              if (
-                this.presentationProjectile ===
-                projectile
-              ) {
-                this.presentationProjectile =
-                  null;
-              }
+      const trail =
+        this.add.graphics();
 
+      this.presentationCameraTarget =
+        cameraTarget;
+
+      this.presentationTrail =
+        trail;
+
+      presentationCamera.setZoom(
+        1.08
+      );
+
+      presentationCamera.startFollow(
+        cameraTarget,
+        false,
+        0.16,
+        0.16
+      );
+
+      try {
+        for (
+          let index = 1;
+          index < samples.length;
+          index += 1
+        ) {
+          const previous =
+            samples[
+              index - 1
+            ];
+
+          const next =
+            samples[
+              index
+            ];
+
+          const segmentDurationMs =
+            next.elapsed_ms -
+            previous.elapsed_ms;
+
+          if (
+            !Number.isFinite(
+              previous.x
+            ) ||
+            !Number.isFinite(
+              previous.y
+            ) ||
+            !Number.isFinite(
+              next.x
+            ) ||
+            !Number.isFinite(
+              next.y
+            ) ||
+            !Number.isInteger(
+              segmentDurationMs
+            ) ||
+            segmentDurationMs <= 0
+          ) {
+            throw new Error(
+              "Canonical projectile timeline Cing Piu Piu không hợp lệ"
+            );
+          }
+
+          const trailStartX =
+            previous.x *
+            worldScale;
+
+          const trailStartY =
+            previous.y *
+            worldScale;
+
+          const trailEndX =
+            next.x *
+            worldScale;
+
+          const trailEndY =
+            next.y *
+            worldScale;
+
+          trail.lineStyle(
+            2,
+            0xffd48a,
+            0.44
+          );
+
+          trail.beginPath();
+
+          trail.moveTo(
+            trailStartX,
+            trailStartY
+          );
+
+          trail.lineTo(
+            trailEndX,
+            trailEndY
+          );
+
+          trail.strokePath();
+
+          await new Promise(
+            (resolve) => {
               this.presentationTween =
-                null;
+                this.tweens.add({
+                  targets:
+                    projectile,
 
-              resolve();
-            };
+                  x:
+                    next.x,
+
+                  y:
+                    next.y,
+
+                  duration:
+                    segmentDurationMs,
+
+                  ease:
+                    "Linear",
+
+                  onUpdate:
+                    () => {
+                      cameraTarget.setPosition(
+                        projectile.x *
+                          worldScale,
+                        projectile.y *
+                          worldScale
+                      );
+                    },
+
+                  onComplete:
+                    () => {
+                      cameraTarget.setPosition(
+                        next.x *
+                          worldScale,
+                        next.y *
+                          worldScale
+                      );
+
+                      this.presentationTween =
+                        null;
+
+                      resolve();
+                    },
+                });
+            }
+          );
+        }
+
+        const terminalSample =
+          samples[
+            samples.length - 1
+          ];
+
+        let terminalX =
+          terminalSample.x;
+
+        let terminalY =
+          terminalSample.y;
+
+        if (
+          result.outcome ===
+            "player_hit" ||
+          result.outcome ===
+            "terrain_hit"
+        ) {
+          if (
+            !Number.isFinite(
+              impactX
+            ) ||
+            !Number.isFinite(
+              impactY
+            )
+          ) {
+            throw new Error(
+              "Canonical projectile impact Cing Piu Piu không hợp lệ"
+            );
+          }
+
+          /*
+           * Collision may occur between fixed-step samples.
+           * The durable trajectory intentionally stops before
+           * inventing any sample beyond exact collision.
+           *
+           * The exact canonical impact projection therefore owns
+           * the final collision endpoint.
+           */
+          terminalX =
+            impactX;
+
+          terminalY =
+            impactY;
+
+          projectile.setPosition(
+            impactX,
+            impactY
+          );
+        } else {
+          projectile.setPosition(
+            terminalX,
+            terminalY
+          );
+        }
+
+        presentationCamera.stopFollow();
+
+        presentationCamera.setZoom(
+          cameraState.zoom
+        );
+
+        presentationCamera.setScroll(
+          cameraState.scrollX,
+          cameraState.scrollY
+        );
+
+        this.presentCanonicalImpact(
+          result,
+          terminalX,
+          terminalY
+        );
+      } finally {
+        presentationCamera.stopFollow();
+
+        presentationCamera.setZoom(
+          cameraState.zoom
+        );
+
+        presentationCamera.setScroll(
+          cameraState.scrollX,
+          cameraState.scrollY
+        );
+
+        cameraTarget.destroy();
+
+        trail.destroy();
+
+        if (
+          this.presentationCameraTarget ===
+          cameraTarget
+        ) {
+          this.presentationCameraTarget =
+            null;
+        }
+
+        if (
+          this.presentationTrail ===
+          trail
+        ) {
+          this.presentationTrail =
+            null;
+        }
+
+        if (
+          this.presentationTween
+        ) {
+          this.presentationTween
+            .stop();
 
           this.presentationTween =
-            this.tweens.add({
-              targets:
-                progress,
-
-              value:
-                1,
-
-              duration,
-
-              ease:
-                "Sine.easeInOut",
-
-              onUpdate:
-                () => {
-                  const t =
-                    progress.value;
-
-                  const x =
-                    Phaser.Math.Linear(
-                      startX,
-                      impactX,
-                      t
-                    );
-
-                  const baseY =
-                    Phaser.Math.Linear(
-                      startY,
-                      impactY,
-                      t
-                    );
-
-                  /*
-                   * Presentation-only curve.
-                   * Canonical gameplay outcome,
-                   * collision and impact endpoint
-                   * remain server authoritative.
-                   */
-                  const visualArc =
-                    Math.sin(
-                      Math.PI * t
-                    ) *
-                    arcHeight;
-
-                  projectile.setPosition(
-                    x,
-                    baseY -
-                      visualArc
-                  );
-                },
-
-              onComplete:
-                finish,
-            });
+            null;
         }
-      );
+
+        if (
+          projectile.active
+        ) {
+          projectile.destroy();
+        }
+
+        if (
+          this.presentationProjectile ===
+          projectile
+        ) {
+          this.presentationProjectile =
+            null;
+        }
+      }
     }
+
 
     presentCanonicalImpact(
       result,
@@ -1389,75 +1638,287 @@ createBattleScene(
       const outcome =
         result?.outcome;
 
-      let accent;
-      let radius;
+      if (
+        !Number.isFinite(x) ||
+        !Number.isFinite(y)
+      ) {
+        throw new Error(
+          "Canonical impact presentation position Cing Piu Piu không hợp lệ"
+        );
+      }
 
       if (
-        outcome ===
-        "player_hit"
+        outcome !==
+          "player_hit" &&
+        outcome !==
+          "terrain_hit" &&
+        outcome !==
+          "out_of_bounds"
       ) {
-        accent =
-          0xff765f;
-
-        radius =
-          24;
-      } else if (
-        outcome ===
-        "terrain_hit"
-      ) {
-        accent =
-          0xffb347;
-
-        radius =
-          21;
-      } else if (
-        outcome ===
-        "out_of_bounds"
-      ) {
-        accent =
-          0x8bd8ff;
-
-        radius =
-          14;
-      } else {
         throw new Error(
           "Canonical projectile outcome Cing Piu Piu không hỗ trợ"
         );
       }
 
-      const impact =
+      const camera =
+        this.cameras.main;
+
+      if (!camera) {
+        throw new Error(
+          "Battle impact camera Cing Piu Piu chưa sẵn sàng"
+        );
+      }
+
+      if (
+        outcome ===
+        "out_of_bounds"
+      ) {
+        const missRing =
+          this.add.circle(
+            x,
+            y,
+            11,
+            0x8bd8ff,
+            0.12
+          );
+
+        missRing.setStrokeStyle(
+          2,
+          0xbfeaff,
+          0.62
+        );
+
+        this.world.add(
+          missRing
+        );
+
+        this.tweens.add({
+          targets:
+            missRing,
+
+          scale:
+            1.45,
+
+          alpha:
+            0,
+
+          duration:
+            180,
+
+          ease:
+            "Quad.easeOut",
+
+          onComplete:
+            () => {
+              missRing.destroy();
+            },
+        });
+
+        return;
+      }
+
+      const isPlayerHit =
+        outcome ===
+        "player_hit";
+
+      const accent =
+        isPlayerHit
+          ? 0xff6654
+          : 0xffa83d;
+
+      const coreRadius =
+        isPlayerHit
+          ? 18
+          : 16;
+
+      const ringRadius =
+        isPlayerHit
+          ? 28
+          : 25;
+
+      const flash =
         this.add.circle(
           x,
           y,
-          radius,
-          accent,
-          0.58
+          coreRadius,
+          0xffffff,
+          0.92
         );
 
-      impact.setStrokeStyle(
-        3,
-        0xffffff,
-        0.88
+      const core =
+        this.add.circle(
+          x,
+          y,
+          coreRadius,
+          accent,
+          0.72
+        );
+
+      const ring =
+        this.add.circle(
+          x,
+          y,
+          ringRadius,
+          accent,
+          0.08
+        );
+
+      ring.setStrokeStyle(
+        isPlayerHit
+          ? 4
+          : 3,
+        0xfff0cf,
+        0.92
       );
 
-      this.world.add(
-        impact
-      );
+      const smoke =
+        this.add.circle(
+          x,
+          y - 3,
+          isPlayerHit
+            ? 22
+            : 19,
+          0x5c6570,
+          0.34
+        );
+
+      this.world.add([
+        smoke,
+        ring,
+        core,
+        flash,
+      ]);
+
+      const debrisCount =
+        isPlayerHit
+          ? 8
+          : 10;
+
+      const debris = [];
+
+      for (
+        let index = 0;
+        index < debrisCount;
+        index += 1
+      ) {
+        const angle =
+          (
+            Math.PI *
+            2 *
+            index
+          ) /
+          debrisCount;
+
+        const distance =
+          (
+            isPlayerHit
+              ? 28
+              : 34
+          ) +
+          (
+            index % 3
+          ) *
+          4;
+
+        const fragment =
+          this.add.circle(
+            x,
+            y,
+            index % 2 === 0
+              ? 3
+              : 2,
+            isPlayerHit
+              ? 0xffd0a3
+              : 0xd8b07a,
+            0.92
+          );
+
+        this.world.add(
+          fragment
+        );
+
+        debris.push(
+          fragment
+        );
+
+        this.tweens.add({
+          targets:
+            fragment,
+
+          x:
+            x +
+            Math.cos(angle) *
+              distance,
+
+          y:
+            y +
+            Math.sin(angle) *
+              distance,
+
+          alpha:
+            0,
+
+          scale:
+            0.45,
+
+          duration:
+            240 +
+            (
+              index % 3
+            ) *
+            35,
+
+          ease:
+            "Quad.easeOut",
+
+          onComplete:
+            () => {
+              fragment.destroy();
+            },
+        });
+      }
 
       this.tweens.add({
         targets:
-          impact,
+          flash,
 
         scale:
-          1.8,
+          isPlayerHit
+            ? 2.1
+            : 1.8,
 
         alpha:
           0,
 
         duration:
-          outcome ===
-            "player_hit"
-            ? 280
+          isPlayerHit
+            ? 105
+            : 90,
+
+        ease:
+          "Quad.easeOut",
+
+        onComplete:
+          () => {
+            flash.destroy();
+          },
+      });
+
+      this.tweens.add({
+        targets:
+          core,
+
+        scale:
+          isPlayerHit
+            ? 2.0
+            : 1.75,
+
+        alpha:
+          0,
+
+        duration:
+          isPlayerHit
+            ? 250
             : 220,
 
         ease:
@@ -1465,9 +1926,78 @@ createBattleScene(
 
         onComplete:
           () => {
-            impact.destroy();
+            core.destroy();
           },
       });
+
+      this.tweens.add({
+        targets:
+          ring,
+
+        scale:
+          isPlayerHit
+            ? 2.35
+            : 2.05,
+
+        alpha:
+          0,
+
+        duration:
+          isPlayerHit
+            ? 330
+            : 285,
+
+        ease:
+          "Cubic.easeOut",
+
+        onComplete:
+          () => {
+            ring.destroy();
+          },
+      });
+
+      this.tweens.add({
+        targets:
+          smoke,
+
+        y:
+          y -
+          (
+            isPlayerHit
+              ? 24
+              : 20
+          ),
+
+        scale:
+          isPlayerHit
+            ? 1.75
+            : 1.55,
+
+        alpha:
+          0,
+
+        duration:
+          isPlayerHit
+            ? 430
+            : 360,
+
+        ease:
+          "Sine.easeOut",
+
+        onComplete:
+          () => {
+            smoke.destroy();
+          },
+      });
+
+      camera.shake(
+        isPlayerHit
+          ? 150
+          : 110,
+        isPlayerHit
+          ? 0.0065
+          : 0.0042
+      );
     }
 
     applySnapshot(
