@@ -1,3 +1,5 @@
+import { projectCanonicalResultV1 } from "../domain/cingArtilleryCanonicalResultProjectionV1.js";
+
 import {
   io,
 } from "socket.io-client";
@@ -193,6 +195,7 @@ createCingArtilleryRealtimeClient({
   onDisconnected,
   onBattleSnapshot,
   onResultStreamWake,
+  onCanonicalShotResult,
   onRecovered,
 }) {
   const token =
@@ -607,9 +610,7 @@ createCingArtilleryRealtimeClient({
       );
     }
 
-    advanceResultCursor(
-      data.results
-    );
+
 
     return data;
   }
@@ -733,11 +734,61 @@ createCingArtilleryRealtimeClient({
     return snapshot;
   }
 
+
+  function projectCanonicalResults(
+    rows
+  ) {
+    if (!Array.isArray(rows)) {
+      throw new Error(
+        "Canonical result batch Cing Piu Piu không hợp lệ"
+      );
+    }
+
+    return rows.map(
+      (row) =>
+        projectCanonicalResultV1(
+          row
+        )
+    );
+  }
+
+  async function presentCanonicalResults(
+    results
+  ) {
+    for (
+      const result of results
+    ) {
+      if (
+        typeof onCanonicalShotResult ===
+        "function"
+      ) {
+        await onCanonicalShotResult(
+          result
+        );
+      }
+
+      /*
+       * Cursor may advance only after this exact
+       * canonical result has crossed the presentation
+       * boundary successfully.
+       *
+       * It remains read-position state only.
+       */
+      advanceResultCursor([
+        result,
+      ]);
+    }
+  }
+
   async function recoverDurableResults({
     matchId =
       joinedMatchId,
+
     requireResult =
       false,
+
+    presentResults =
+      true,
   } = {}) {
     const id =
       String(
@@ -784,11 +835,54 @@ createCingArtilleryRealtimeClient({
           if (
             data.results.length > 0
           ) {
-            await refreshCanonicalBattleSnapshot(
-              id
-            );
+            const canonicalResults =
+              projectCanonicalResults(
+                data.results
+              );
 
-            return data;
+            if (
+              presentResults &&
+              typeof onCanonicalShotResult ===
+                "function"
+            ) {
+              /*
+               * Normal live path:
+               *
+               * durable result
+               * -> presentation
+               * -> cursor
+               * -> canonical aftermath snapshot
+               */
+              await presentCanonicalResults(
+                canonicalResults
+              );
+
+              await refreshCanonicalBattleSnapshot(
+                id
+              );
+            } else {
+              /*
+               * Reconnect / recovery fast-forward:
+               *
+               * Do not replay historical projectile
+               * presentation. Reconcile canonical world
+               * first, then consume the durable cursor.
+               */
+              await refreshCanonicalBattleSnapshot(
+                id
+              );
+
+              advanceResultCursor(
+                canonicalResults
+              );
+            }
+
+            return {
+              ...data,
+
+              results:
+                canonicalResults,
+            };
           }
 
           if (!requireResult) {
@@ -853,6 +947,9 @@ createCingArtilleryRealtimeClient({
 
             requireResult:
               false,
+
+          presentResults:
+            false,
           });
         } catch (error) {
           /*
