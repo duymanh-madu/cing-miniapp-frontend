@@ -29,6 +29,10 @@ import {
   registerCharacterAnimationsV1,
 } from "../presentation/cingArtilleryCharacterAnimationsV1";
 
+import {
+  createFiringPresentationV1,
+} from "../presentation/cingArtilleryFiringPresentationV1";
+
 
 import {
   projectMutableTerrainV1,
@@ -286,6 +290,9 @@ createBattleScene(
         null;
 
       this.aimGuideTip =
+        null;
+
+      this.firingPresentation =
         null;
 
       this.terrainTexture =
@@ -640,6 +647,69 @@ createBattleScene(
         world
       );
 
+      this.firingPresentation =
+        createFiringPresentationV1({
+          scene:
+            this,
+
+          world,
+
+          snapshot:
+            this.snapshot,
+
+          getAimAngleDeg:
+            () =>
+              this.aimAngleDeg,
+
+          getPower:
+            () =>
+              this.shotPower,
+
+          setPower:
+            value =>
+              this.setPower(
+                value
+              ),
+
+          isViewerTurn:
+            () =>
+              this.isViewerTurn(),
+
+          getCharacterController:
+            () => {
+              const viewer =
+                this.snapshot
+                  ?.viewer
+                  ?.account_id;
+
+              if (
+                this.snapshot
+                  ?.players
+                  ?.player_one
+                  ?.account_id ===
+                viewer
+              ) {
+                return this
+                  .playerOneCharacterController;
+              }
+
+              if (
+                this.snapshot
+                  ?.players
+                  ?.player_two
+                  ?.account_id ===
+                viewer
+              ) {
+                return this
+                  .playerTwoCharacterController;
+              }
+
+              return null;
+            },
+        });
+
+      this.bindCommercialFireButtonV1();
+
       this.game.events.on(
         SNAPSHOT_EVENT,
         this.handleSnapshot,
@@ -739,6 +809,12 @@ this.presentationTween
               0,
               0
             );
+
+          this.firingPresentation
+            ?.destroy?.();
+
+          this.firingPresentation =
+            null;
         }
       );
 
@@ -1459,6 +1535,98 @@ this.presentationTween
 
       this.refreshBattleControls();
       this.refreshCommercialBattleHudV1();
+    }
+
+    bindCommercialFireButtonV1() {
+      const background =
+        this.fireButton
+          ?.background;
+
+      if (!background) {
+        throw new Error(
+          "Cing Piu Piu commercial fire control chưa sẵn sàng"
+        );
+      }
+
+      /*
+       * Legacy button dispatches immediately on pointerdown.
+       * Commercial input instead charges while held and
+       * submits the bounded fire intent only on release.
+       */
+      background.removeAllListeners(
+        "pointerdown"
+      );
+
+      background.on(
+        "pointerdown",
+        () => {
+          if (
+            background.input
+              ?.enabled !==
+              true
+          ) {
+            return;
+          }
+
+          const started =
+            this.firingPresentation
+              ?.beginCharge?.();
+
+          if (!started) {
+            return;
+          }
+
+          this.fireButton
+            ?.text
+            ?.setText(
+              "GIỮ..."
+            );
+
+          this.fireStatusText
+            ?.setText(
+              "ĐANG NẠP LỰC"
+            );
+        }
+      );
+
+      const release =
+        () => {
+          if (
+            !this.firingPresentation
+              ?.releaseCharge?.()
+          ) {
+            return;
+          }
+
+          void this.fireShot();
+        };
+
+      background.on(
+        "pointerup",
+        release
+      );
+
+      background.on(
+        "pointerout",
+        () => {
+          if (
+            !this.firingPresentation
+              ?.isCharging?.()
+          ) {
+            return;
+          }
+
+          this.firingPresentation
+            .cancelCharge();
+
+          this.fireStatusText
+            ?.setText(
+              ""
+            );
+
+          this.refreshBattleControls();
+        }
+      );
     }
 
     setAimAngle(
@@ -2456,6 +2624,15 @@ this.presentationTween
           ?.setText(
             "ĐÃ NHẬN LỆNH"
           );
+
+        this.firingPresentation
+          ?.presentAcceptedFire?.({
+            angleDeg:
+              this.aimAngleDeg,
+
+            power:
+              this.shotPower,
+          });
       } catch (error) {
         if (
           this.firePendingTurn ===
@@ -2470,6 +2647,9 @@ this.presentationTween
               "KHÔNG THỂ BẮN"
             );
 
+          this.firingPresentation
+            ?.cancelCharge?.();
+
           this.refreshBattleControls();
       this.refreshCommercialBattleHudV1();
         }
@@ -2479,6 +2659,11 @@ this.presentationTween
     handleSnapshot(
       snapshot
     ) {
+      this.firingPresentation
+        ?.setSnapshot?.(
+          snapshot
+        );
+
       this.applySnapshot(
         snapshot
       );
