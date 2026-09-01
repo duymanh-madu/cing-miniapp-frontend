@@ -2497,7 +2497,6 @@ this.presentationTween
 
       this.refreshCommercialAimPresentationV1();
       this.refreshCommercialPowerPresentationV1();
-      this.refreshCommercialPowerPresentationV1();
 
     }
 
@@ -3086,7 +3085,7 @@ this.presentationTween
           cameraState.scrollY
         );
 
-        this.presentCanonicalImpact(
+        await this.presentCanonicalImpact(
           result,
           terminalX,
           terminalY
@@ -3150,7 +3149,408 @@ this.presentationTween
     }
 
 
-    presentCanonicalImpact(
+
+
+    resolveCanonicalHitPresentationTargetV1(
+      result
+    ) {
+      if (
+        result?.outcome !==
+          "player_hit" ||
+        typeof result
+          ?.target_account_id !==
+          "string" ||
+        !result.target_account_id
+      ) {
+        return null;
+      }
+
+      const targetAccountId =
+        result.target_account_id;
+
+      const playerOne =
+        this.snapshot
+          ?.players
+          ?.player_one;
+
+      const playerTwo =
+        this.snapshot
+          ?.players
+          ?.player_two;
+
+      if (
+        playerOne?.account_id ===
+        targetAccountId
+      ) {
+        return {
+          controller:
+            this.playerOneCharacterController,
+
+          renderer:
+            this.playerOneCharacterRenderer,
+        };
+      }
+
+      if (
+        playerTwo?.account_id ===
+        targetAccountId
+      ) {
+        return {
+          controller:
+            this.playerTwoCharacterController,
+
+          renderer:
+            this.playerTwoCharacterRenderer,
+        };
+      }
+
+      return null;
+    }
+
+    presentCanonicalPlayerHitFeedbackV1(
+      result,
+      x,
+      y
+    ) {
+      if (
+        result?.outcome !==
+        "player_hit"
+      ) {
+        return;
+      }
+
+      const target =
+        this.resolveCanonicalHitPresentationTargetV1(
+          result
+        );
+
+      target
+        ?.controller
+        ?.setState?.(
+          CHARACTER_STATE_V1.HIT
+        );
+
+      target
+        ?.renderer
+        ?.setState?.(
+          CHARACTER_STATE_V1.HIT
+        );
+
+      const damageText =
+        typeof result.damage ===
+          "string" &&
+        /^(0|[1-9][0-9]*)$/u.test(
+          result.damage
+        )
+          ? result.damage
+          : null;
+
+      if (
+        !damageText ||
+        damageText ===
+          "0"
+      ) {
+        return;
+      }
+
+      const label =
+        this.add
+          .text(
+            x,
+            y - 36,
+            `-${damageText}`,
+            {
+              fontFamily:
+                "Inter, Arial, sans-serif",
+
+              fontSize:
+                "19px",
+
+              fontStyle:
+                "bold",
+
+              color:
+                "#fff1d4",
+
+              stroke:
+                "#7a2212",
+
+              strokeThickness:
+                5,
+            }
+          )
+          .setOrigin(
+            0.5
+          )
+          .setDepth(
+            940
+          )
+          .setScale(
+            0.78
+          );
+
+      this.world.add(
+        label
+      );
+
+      this.tweens.add({
+        targets:
+          label,
+
+        y:
+          y - 62,
+
+        scaleX:
+          1.16,
+
+        scaleY:
+          1.16,
+
+        alpha:
+          0,
+
+        duration:
+          420,
+
+        ease:
+          "Cubic.easeOut",
+
+        onComplete:
+          () => {
+            label.destroy();
+          },
+      });
+    }
+
+    waitForCanonicalImpactPacingV1(
+      durationMs
+    ) {
+      if (
+        !Number.isInteger(
+          durationMs
+        ) ||
+        durationMs < 0 ||
+        durationMs > 100
+      ) {
+        throw new Error(
+          "Canonical impact pacing Cing Piu Piu không hợp lệ"
+        );
+      }
+
+      if (
+        durationMs ===
+        0
+      ) {
+        return Promise.resolve();
+      }
+
+      return new Promise(
+        resolve => {
+          this.time.delayedCall(
+            durationMs,
+            resolve
+          );
+        }
+      );
+    }
+
+    presentCanonicalVitalPulseV1(
+      previousSnapshot,
+      nextSnapshot
+    ) {
+      if (
+        !previousSnapshot ||
+        !nextSnapshot
+      ) {
+        return;
+      }
+
+      const previousOneHp =
+        Number(
+          previousSnapshot
+            ?.vital
+            ?.player_one_current_hp
+        );
+
+      const nextOneHp =
+        Number(
+          nextSnapshot
+            ?.vital
+            ?.player_one_current_hp
+        );
+
+      const previousTwoHp =
+        Number(
+          previousSnapshot
+            ?.vital
+            ?.player_two_current_hp
+        );
+
+      const nextTwoHp =
+        Number(
+          nextSnapshot
+            ?.vital
+            ?.player_two_current_hp
+        );
+
+      const pulse =
+        (
+          previousHp,
+          nextHp,
+          label,
+          fill
+        ) => {
+          if (
+            !Number.isFinite(
+              previousHp
+            ) ||
+            !Number.isFinite(
+              nextHp
+            ) ||
+            nextHp >= previousHp
+          ) {
+            return;
+          }
+
+          if (label) {
+            this.tweens.add({
+              targets:
+                label,
+
+              alpha:
+                0.42,
+
+              scaleX:
+                1.08,
+
+              scaleY:
+                1.08,
+
+              duration:
+                70,
+
+              yoyo:
+                true,
+
+              repeat:
+                1,
+
+              ease:
+                "Quad.easeOut",
+            });
+          }
+
+          if (fill) {
+            this.tweens.add({
+              targets:
+                fill,
+
+              alpha:
+                0.34,
+
+              scaleY:
+                1.55,
+
+              duration:
+                70,
+
+              yoyo:
+                true,
+
+              repeat:
+                1,
+
+              ease:
+                "Quad.easeOut",
+            });
+          }
+        };
+
+      pulse(
+        previousOneHp,
+        nextOneHp,
+        this.commercialHud
+          ?.playerOneHp,
+        this.playerOneHpFill
+      );
+
+      pulse(
+        previousTwoHp,
+        nextTwoHp,
+        this.commercialHud
+          ?.playerTwoHp,
+        this.playerTwoHpFill
+      );
+    }
+
+    presentCanonicalTurnHandoffV1(
+      previousSnapshot,
+      nextSnapshot
+    ) {
+      const previousTurn =
+        Number(
+          previousSnapshot
+            ?.turn
+            ?.turn_number
+        );
+
+      const nextTurn =
+        Number(
+          nextSnapshot
+            ?.turn
+            ?.turn_number
+        );
+
+      if (
+        !Number.isInteger(
+          previousTurn
+        ) ||
+        !Number.isInteger(
+          nextTurn
+        ) ||
+        previousTurn ===
+          nextTurn
+      ) {
+        return;
+      }
+
+      const turnState =
+        this.commercialHud
+          ?.turnState;
+
+      if (!turnState) {
+        return;
+      }
+
+      turnState
+        .setAlpha(
+          0.40
+        )
+        .setScale(
+          0.90
+        );
+
+      this.tweens.add({
+        targets:
+          turnState,
+
+        alpha:
+          1,
+
+        scaleX:
+          1,
+
+        scaleY:
+          1,
+
+        duration:
+          180,
+
+        ease:
+          "Back.easeOut",
+      });
+    }
+    async presentCanonicalImpact(
       result,
       x,
       y
@@ -3240,6 +3640,15 @@ this.presentationTween
       const isPlayerHit =
         outcome ===
         "player_hit";
+
+      if (isPlayerHit) {
+        this.presentCanonicalPlayerHitFeedbackV1(
+          result,
+          x,
+          y
+        );
+      }
+
 
       const accent =
         isPlayerHit
@@ -3518,11 +3927,21 @@ this.presentationTween
           ? 0.0065
           : 0.0042
       );
+
+      await this.waitForCanonicalImpactPacingV1(
+        isPlayerHit
+          ? 58
+          : 42
+      );
+
     }
 
     applySnapshot(
       snapshot
     ) {
+      const previousSnapshot =
+        this.snapshot;
+
       if (
         !snapshot ||
         snapshot.world?.map_id !==
@@ -3798,6 +4217,16 @@ this.presentationTween
       this.refreshTimer();
       this.refreshBattleControls();
       this.refreshCommercialBattleHudV1();
+
+      this.presentCanonicalVitalPulseV1(
+        previousSnapshot,
+        snapshot
+      );
+
+      this.presentCanonicalTurnHandoffV1(
+        previousSnapshot,
+        snapshot
+      );
     }
 
     refreshTimer() {

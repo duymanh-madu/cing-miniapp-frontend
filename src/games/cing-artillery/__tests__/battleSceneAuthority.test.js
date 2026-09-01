@@ -354,7 +354,7 @@ test(
 
     assert.doesNotMatch(
       scene,
-      /player_one_current_hp\s*=|player_two_current_hp\s*=|damage\s*=|winner\s*=/u
+      /player_one_current_hp\s*=(?!=)|player_two_current_hp\s*=(?!=)|damage\s*=(?!=)|winner\s*=(?!=)/u
     );
   }
 );

@@ -193,7 +193,7 @@ test(
 
     assert.doesNotMatch(
       block,
-      /setCurrentHp|terrainRevision|target_account_id\s*=|damage\s*=|physics\.add|overlap|collider/iu
+      /setCurrentHp|terrainRevision|target_account_id\s*=(?!=)|damage\s*=(?!=)|physics\.add|overlap|collider/iu
     );
   }
 );
