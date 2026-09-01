@@ -7,6 +7,10 @@ import {
   projectPlayerMotionV1,
 } from "../domain/cingArtilleryPlayerMotionProjectionV1";
 
+import {
+  projectCharacterPresentationV1,
+} from "../domain/cingArtilleryCharacterPresentationV1";
+
 
 import {
   projectMutableTerrainV1,
@@ -2430,6 +2434,33 @@ this.presentationTween
         players?.player_two;
 
 
+
+      const playerOneCharacter =
+        projectCharacterPresentationV1({
+          slot:
+            "player_one",
+
+          player:
+            playerOne,
+        });
+
+      const playerTwoCharacter =
+        projectCharacterPresentationV1({
+          slot:
+            "player_two",
+
+          player:
+            playerTwo,
+        });
+
+      this.characterPresentation =
+        Object.freeze({
+          player_one:
+            playerOneCharacter,
+
+          player_two:
+            playerTwoCharacter,
+        });
 
       this.applyAuthoritativePlayerMotion({
         marker:
