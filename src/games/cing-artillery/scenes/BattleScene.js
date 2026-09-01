@@ -16,6 +16,10 @@ import {
   createCharacterPresentationControllerV1,
 } from "../presentation/cingArtilleryCharacterControllerV1";
 
+import {
+  createCharacterRendererV1,
+} from "../presentation/cingArtilleryCharacterRendererV1";
+
 
 import {
   projectMutableTerrainV1,
@@ -2495,6 +2499,44 @@ this.presentationTween
           playerTwoCharacter
         );
 
+      if (
+        !this.playerOneCharacterRenderer &&
+        this.textures.exists(
+          "cing-piu-piu-character-male-idle-v1"
+        )
+      ) {
+        this.playerOneCharacterRenderer =
+          createCharacterRendererV1({
+            scene:
+              this,
+
+            container:
+              this.playerOneMarker.container,
+
+            identity:
+              playerOneCharacter,
+          });
+      }
+
+      if (
+        !this.playerTwoCharacterRenderer &&
+        this.textures.exists(
+          "cing-piu-piu-character-female-idle-v1"
+        )
+      ) {
+        this.playerTwoCharacterRenderer =
+          createCharacterRendererV1({
+            scene:
+              this,
+
+            container:
+              this.playerTwoMarker.container,
+
+            identity:
+              playerTwoCharacter,
+          });
+      }
+
       this.applyAuthoritativePlayerMotion({
         marker:
           this.playerOneMarker,
@@ -2552,6 +2594,38 @@ this.presentationTween
             ? CHARACTER_STATE_V1.FALL
             : CHARACTER_STATE_V1.IDLE
         );
+
+      if (
+        this.playerOneCharacterRenderer
+      ) {
+        this.playerOneCharacterRenderer
+          .setState(
+            this.playerOneCharacterController
+              .getState()
+          );
+
+        this.playerOneCharacterRenderer
+          .setActive(
+            this.playerOneCharacterController
+              .isActive()
+          );
+      }
+
+      if (
+        this.playerTwoCharacterRenderer
+      ) {
+        this.playerTwoCharacterRenderer
+          .setState(
+            this.playerTwoCharacterController
+              .getState()
+          );
+
+        this.playerTwoCharacterRenderer
+          .setActive(
+            this.playerTwoCharacterController
+              .isActive()
+          );
+      }
 
       this.playerOneHp.setText(
         `P1 · HP ${displayHp(
