@@ -107,3 +107,91 @@ test(
     }
   }
 );
+
+test(
+  "preload consumes resolver atlasImage and atlasData exactly",
+  async () => {
+    const {
+      preloadCharacterAssetsV1,
+    } =
+      await import(
+        "../presentation/cingArtilleryCharacterPreloadV1.js"
+      );
+
+    const calls = [];
+
+    const scene = {
+      load: {
+        atlas(
+          key,
+          image,
+          atlas
+        ) {
+          calls.push({
+            key,
+            image,
+            atlas,
+          });
+        },
+      },
+    };
+
+    const registrations =
+      preloadCharacterAssetsV1(
+        scene
+      );
+
+    assert.equal(
+      calls.length,
+      14
+    );
+
+    assert.equal(
+      registrations.length,
+      14
+    );
+
+    for (
+      const registration
+      of registrations
+    ) {
+      assert.equal(
+        typeof registration.image,
+        "string"
+      );
+
+      assert.equal(
+        typeof registration.atlas,
+        "string"
+      );
+
+      assert.equal(
+        registration.image.endsWith(
+          ".webp"
+        ),
+        true
+      );
+
+      assert.equal(
+        registration.atlas.endsWith(
+          ".json"
+        ),
+        true
+      );
+
+      assert.equal(
+        registration.image.includes(
+          "undefined"
+        ),
+        false
+      );
+
+      assert.equal(
+        registration.atlas.includes(
+          "undefined"
+        ),
+        false
+      );
+    }
+  }
+);

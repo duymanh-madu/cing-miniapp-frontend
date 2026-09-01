@@ -67,8 +67,8 @@ function preloadCharacterAssetsV1(
 
       scene.load.atlas(
         key,
-        asset.image,
-        asset.atlas
+        asset.atlasImage,
+        asset.atlasData
       );
 
       registrations.push(
@@ -77,9 +77,9 @@ function preloadCharacterAssetsV1(
           gender,
           state,
           image:
-            asset.image,
+            asset.atlasImage,
           atlas:
-            asset.atlas,
+            asset.atlasData,
         })
       );
     }

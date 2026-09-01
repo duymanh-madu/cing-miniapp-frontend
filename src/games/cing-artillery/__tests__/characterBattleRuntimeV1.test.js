@@ -52,7 +52,7 @@ test(
 );
 
 test(
-  "renderer activation is asset-gated to avoid missing texture runtime",
+  "renderer activation follows frozen gender identity instead of participant slot",
   () => {
     assert.match(
       sceneSource,
@@ -61,12 +61,31 @@ test(
 
     assert.match(
       sceneSource,
-      /cing-piu-piu-character-male-idle-v1/u
+      /characterTextureKeyForV1/u
     );
 
     assert.match(
       sceneSource,
-      /cing-piu-piu-character-female-idle-v1/u
+      /gender:\s*playerOneCharacter\.gender/u
+    );
+
+    assert.match(
+      sceneSource,
+      /gender:\s*playerTwoCharacter\.gender/u
+    );
+
+    assert.equal(
+      sceneSource.includes(
+        '"cing-piu-piu-character-male-idle-v1"'
+      ),
+      false
+    );
+
+    assert.equal(
+      sceneSource.includes(
+        '"cing-piu-piu-character-female-idle-v1"'
+      ),
+      false
     );
   }
 );

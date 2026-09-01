@@ -18,6 +18,7 @@ import {
 
 import {
   createCharacterRendererV1,
+  textureKeyFor as characterTextureKeyForV1,
 } from "../presentation/cingArtilleryCharacterRendererV1";
 
 
@@ -2502,7 +2503,13 @@ this.presentationTween
       if (
         !this.playerOneCharacterRenderer &&
         this.textures.exists(
-          "cing-piu-piu-character-male-idle-v1"
+          characterTextureKeyForV1({
+            gender:
+              playerOneCharacter.gender,
+
+            state:
+              CHARACTER_STATE_V1.IDLE,
+          })
         )
       ) {
         this.playerOneCharacterRenderer =
@@ -2521,7 +2528,13 @@ this.presentationTween
       if (
         !this.playerTwoCharacterRenderer &&
         this.textures.exists(
-          "cing-piu-piu-character-female-idle-v1"
+          characterTextureKeyForV1({
+            gender:
+              playerTwoCharacter.gender,
+
+            state:
+              CHARACTER_STATE_V1.IDLE,
+          })
         )
       ) {
         this.playerTwoCharacterRenderer =
