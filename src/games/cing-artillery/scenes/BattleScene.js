@@ -3,6 +3,12 @@ import {
 } from "../runtime/cingArtilleryMapAssets";
 
 import {
+  MOTION_STATE,
+  projectPlayerMotionV1,
+} from "../domain/cingArtilleryPlayerMotionProjectionV1";
+
+
+import {
   projectMutableTerrainV1,
 } from "../domain/cingArtilleryMutableTerrainProjectionV1";
 
@@ -163,6 +169,18 @@ createBattleScene(
 
       this.playerTwoMarker =
         null;
+
+      this.playerOneMotionTween =
+        null;
+
+      this.playerTwoMotionTween =
+        null;
+
+      this.playerOneMotionInitialized =
+        false;
+
+      this.playerTwoMotionInitialized =
+        false;
 
       this.playerOneHp =
         null;
@@ -555,7 +573,19 @@ createBattleScene(
             this
           );
 
-          this.presentationTween
+                      this.playerOneMotionTween
+              ?.stop();
+
+            this.playerOneMotionTween =
+              null;
+
+            this.playerTwoMotionTween
+              ?.stop();
+
+            this.playerTwoMotionTween =
+              null;
+
+this.presentationTween
             ?.stop();
 
           this.presentationTween =
@@ -759,6 +789,189 @@ createBattleScene(
 
       this.lastTerrainRevision =
         terrain.terrain_revision;
+    }
+
+    applyAuthoritativePlayerMotion({
+      marker,
+      player,
+      slot,
+    }) {
+      if (
+        !marker?.container ||
+        (
+          slot !==
+            "player_one" &&
+          slot !==
+            "player_two"
+        )
+      ) {
+        throw new Error(
+          "Player motion presentation Cing Piu Piu không hợp lệ"
+        );
+      }
+
+      const projected =
+        projectPlayerMotionV1(
+          player
+        );
+
+      const tweenKey =
+        slot ===
+          "player_one"
+          ? "playerOneMotionTween"
+          : "playerTwoMotionTween";
+
+      const initializedKey =
+        slot ===
+          "player_one"
+          ? "playerOneMotionInitialized"
+          : "playerTwoMotionInitialized";
+
+      const existingTween =
+        this[
+          tweenKey
+        ];
+
+      if (existingTween) {
+        existingTween.stop();
+
+        this[
+          tweenKey
+        ] =
+          null;
+      }
+
+      if (
+        this[
+          initializedKey
+        ] !==
+          true ||
+        projected.motion_state ===
+          MOTION_STATE.STABLE
+      ) {
+        marker
+          .container
+          .setPosition(
+            projected.position_x,
+            projected.position_y
+          );
+
+        marker
+          .container
+          .setAngle(
+            0
+          );
+
+        marker
+          .container
+          .setAlpha(
+            1
+          );
+
+        this[
+          initializedKey
+        ] =
+          true;
+
+        return projected;
+      }
+
+      /*
+       * Presentation only.
+       *
+       * The server owns the motion state and destination.
+       * Phaser only interpolates the currently displayed marker
+       * to the supplied authoritative coordinates.
+       */
+      const deltaX =
+        projected.position_x -
+        marker.container.x;
+
+      const deltaY =
+        projected.position_y -
+        marker.container.y;
+
+      const visualDistance =
+        Math.hypot(
+          deltaX,
+          deltaY
+        );
+
+      const durationMs =
+        Math.max(
+          90,
+          Math.min(
+            360,
+            Math.round(
+              visualDistance *
+              2.4
+            )
+          )
+        );
+
+      this[
+        tweenKey
+      ] =
+        this.tweens.add({
+          targets:
+            marker.container,
+
+          x:
+            projected.position_x,
+
+          y:
+            projected.position_y,
+
+          angle:
+            deltaX >= 0
+              ? 18
+              : -18,
+
+          alpha:
+            projected.position_y >
+              mapAsset.height
+              ? 0.30
+              : 1,
+
+          duration:
+            durationMs,
+
+          ease:
+            "Quad.easeIn",
+
+          onComplete:
+            () => {
+              marker
+                .container
+                .setPosition(
+                  projected.position_x,
+                  projected.position_y
+                );
+
+              if (
+                projected.position_y <=
+                  mapAsset.height
+              ) {
+                marker
+                  .container
+                  .setAlpha(
+                    1
+                  );
+              }
+
+              this[
+                tweenKey
+              ] =
+                null;
+            },
+        });
+
+      this[
+        initializedKey
+      ] =
+        true;
+
+      return projected;
     }
 
     createPlayerMarker({
@@ -2216,54 +2429,29 @@ createBattleScene(
       const playerTwo =
         players?.player_two;
 
-      if (
-        !Number.isInteger(
-          Number(
-            playerOne?.position_x
-          )
-        ) ||
-        !Number.isInteger(
-          Number(
-            playerOne?.position_y
-          )
-        ) ||
-        !Number.isInteger(
-          Number(
-            playerTwo?.position_x
-          )
-        ) ||
-        !Number.isInteger(
-          Number(
-            playerTwo?.position_y
-          )
-        )
-      ) {
-        throw new Error(
-          "Mutable player world snapshot Cing Piu Piu không hợp lệ"
-        );
-      }
 
-      this.playerOneMarker
-        .container
-        .setPosition(
-          Number(
-            playerOne.position_x
-          ),
-          Number(
-            playerOne.position_y
-          )
-        );
 
-      this.playerTwoMarker
-        .container
-        .setPosition(
-          Number(
-            playerTwo.position_x
-          ),
-          Number(
-            playerTwo.position_y
-          )
-        );
+      this.applyAuthoritativePlayerMotion({
+        marker:
+          this.playerOneMarker,
+
+        player:
+          playerOne,
+
+        slot:
+          "player_one",
+      });
+
+      this.applyAuthoritativePlayerMotion({
+        marker:
+          this.playerTwoMarker,
+
+        player:
+          playerTwo,
+
+        slot:
+          "player_two",
+      });
 
       const activeAccountId =
         snapshot.turn
