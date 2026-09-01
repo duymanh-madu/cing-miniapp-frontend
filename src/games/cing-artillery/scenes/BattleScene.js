@@ -69,6 +69,27 @@ const DEFAULT_AIM_ANGLE_DEG =
 const DEFAULT_POWER =
   60;
 
+const COMMERCIAL_HUD_V1 =
+  Object.freeze({
+    topBarHeight: 92,
+    playerPanelWidth: 286,
+    playerPanelHeight: 64,
+    centerPanelWidth: 154,
+    centerPanelHeight: 70,
+    controlPanelY: 490,
+    controlPanelHeight: 82,
+    hpBarWidth: 176,
+    hpBarHeight: 10,
+    powerBarWidth: 176,
+    powerBarHeight: 12,
+  });
+
+const HUD_DEPTH_V1 =
+  900;
+
+const CONTROL_DEPTH_V1 =
+  910;
+
 function displayHp(
   value
 ) {
@@ -248,6 +269,25 @@ createBattleScene(
 
       this.fireStatusText =
         null;
+
+      this.commercialHud =
+        null;
+
+      this.playerOneHpFill =
+        null;
+
+      this.playerTwoHpFill =
+        null;
+
+      this.powerBarFill =
+        null;
+
+      this.aimGuide =
+        null;
+
+      this.aimGuideTip =
+        null;
+
       this.terrainTexture =
         null;
 
@@ -593,6 +633,10 @@ createBattleScene(
       );
 
       this.createBattleControls(
+        world
+      );
+
+      this.createCommercialBattleHudV1(
         world
       );
 
@@ -1414,6 +1458,7 @@ this.presentationTween
       );
 
       this.refreshBattleControls();
+      this.refreshCommercialBattleHudV1();
     }
 
     setAimAngle(
@@ -1431,6 +1476,9 @@ this.presentationTween
         );
 
       this.refreshBattleControls();
+      this.refreshCommercialBattleHudV1();
+      this.refreshCommercialAimPresentationV1();
+
     }
 
     setPower(
@@ -1448,6 +1496,841 @@ this.presentationTween
         );
 
       this.refreshBattleControls();
+      this.refreshCommercialBattleHudV1();
+    }
+
+    createCommercialBattleHudV1(
+      world
+    ) {
+      const hud =
+        this.add.container(
+          0,
+          0
+        )
+          .setDepth(
+            HUD_DEPTH_V1
+          );
+
+      const topShade =
+        this.add.rectangle(
+          mapAsset.width / 2,
+          COMMERCIAL_HUD_V1.topBarHeight / 2,
+          mapAsset.width,
+          COMMERCIAL_HUD_V1.topBarHeight,
+          0x07111f,
+          0.72
+        );
+
+      const topLine =
+        this.add.rectangle(
+          mapAsset.width / 2,
+          COMMERCIAL_HUD_V1.topBarHeight,
+          mapAsset.width,
+          1,
+          0xffb454,
+          0.28
+        );
+
+      const createPlayerPanel =
+        ({
+          x,
+          accent,
+          align,
+          title,
+        }) => {
+          const panel =
+            this.add.container(
+              x,
+              14
+            );
+
+          const background =
+            this.add.rectangle(
+              0,
+              0,
+              COMMERCIAL_HUD_V1.playerPanelWidth,
+              COMMERCIAL_HUD_V1.playerPanelHeight,
+              0x07111f,
+              0.88
+            )
+              .setOrigin(
+                align === "left"
+                  ? 0
+                  : 1,
+                0
+              )
+              .setStrokeStyle(
+                1,
+                accent,
+                0.48
+              );
+
+          const innerX =
+            align === "left"
+              ? 16
+              : -16;
+
+          const textOrigin =
+            align === "left"
+              ? 0
+              : 1;
+
+          const name =
+            this.add.text(
+              innerX,
+              10,
+              title,
+              {
+                fontFamily:
+                  "Inter, Arial, sans-serif",
+                fontSize:
+                  "12px",
+                fontStyle:
+                  "bold",
+                color:
+                  "#ffffff",
+              }
+            )
+              .setOrigin(
+                textOrigin,
+                0
+              );
+
+          const hpTrackX =
+            align === "left"
+              ? 16
+              : -16 -
+                COMMERCIAL_HUD_V1.hpBarWidth;
+
+          const hpTrack =
+            this.add.rectangle(
+              hpTrackX,
+              39,
+              COMMERCIAL_HUD_V1.hpBarWidth,
+              COMMERCIAL_HUD_V1.hpBarHeight,
+              0x02060c,
+              0.86
+            )
+              .setOrigin(
+                0,
+                0
+              )
+              .setStrokeStyle(
+                1,
+                0xffffff,
+                0.12
+              );
+
+          const hpFill =
+            this.add.rectangle(
+              hpTrackX + 1,
+              40,
+              COMMERCIAL_HUD_V1.hpBarWidth - 2,
+              COMMERCIAL_HUD_V1.hpBarHeight - 2,
+              accent,
+              0.96
+            )
+              .setOrigin(
+                0,
+                0
+              );
+
+          const hp =
+            this.add.text(
+              innerX,
+              51,
+              "",
+              {
+                fontFamily:
+                  "Inter, Arial, sans-serif",
+                fontSize:
+                  "9px",
+                fontStyle:
+                  "bold",
+                color:
+                  "#dce8ef",
+              }
+            )
+              .setOrigin(
+                textOrigin,
+                0
+              );
+
+          panel.add([
+            background,
+            name,
+            hpTrack,
+            hpFill,
+            hp,
+          ]);
+
+          return {
+            panel,
+            name,
+            hp,
+            hpFill,
+          };
+        };
+
+      const left =
+        createPlayerPanel({
+          x: 18,
+          accent: 0xffa33c,
+          align: "left",
+          title: "CHIẾN BINH 1",
+        });
+
+      const right =
+        createPlayerPanel({
+          x: mapAsset.width - 18,
+          accent: 0x64c7ff,
+          align: "right",
+          title: "CHIẾN BINH 2",
+        });
+
+      const center =
+        this.add.container(
+          mapAsset.width / 2,
+          14
+        );
+
+      const centerBackground =
+        this.add.rectangle(
+          0,
+          0,
+          COMMERCIAL_HUD_V1.centerPanelWidth,
+          COMMERCIAL_HUD_V1.centerPanelHeight,
+          0x07111f,
+          0.92
+        )
+          .setOrigin(
+            0.5,
+            0
+          )
+          .setStrokeStyle(
+            1,
+            0xffc267,
+            0.52
+          );
+
+      const turnLabel =
+        this.add.text(
+          0,
+          8,
+          "TURN",
+          {
+            fontFamily:
+              "Inter, Arial, sans-serif",
+            fontSize:
+              "10px",
+            fontStyle:
+              "bold",
+            color:
+              "#ffc267",
+          }
+        )
+          .setOrigin(
+            0.5,
+            0
+          );
+
+      const timer =
+        this.add.text(
+          0,
+          22,
+          "",
+          {
+            fontFamily:
+              "Inter, Arial, sans-serif",
+            fontSize:
+              "26px",
+            fontStyle:
+              "bold",
+            color:
+              "#ffffff",
+          }
+        )
+          .setOrigin(
+            0.5,
+            0
+          );
+
+      const turnState =
+        this.add.text(
+          0,
+          52,
+          "",
+          {
+            fontFamily:
+              "Inter, Arial, sans-serif",
+            fontSize:
+              "9px",
+            fontStyle:
+              "bold",
+            color:
+              "#d7e5ef",
+          }
+        )
+          .setOrigin(
+            0.5,
+            0
+          );
+
+      center.add([
+        centerBackground,
+        turnLabel,
+        timer,
+        turnState,
+      ]);
+
+      const wind =
+        this.add.text(
+          mapAsset.width / 2,
+          94,
+          "",
+          {
+            fontFamily:
+              "Inter, Arial, sans-serif",
+            fontSize:
+              "11px",
+            fontStyle:
+              "bold",
+            color:
+              "#eef7ff",
+            backgroundColor:
+              "#07111fcc",
+            padding: {
+              x: 10,
+              y: 5,
+            },
+          }
+        )
+          .setOrigin(
+            0.5,
+            0
+          );
+
+      hud.add([
+        topShade,
+        topLine,
+        left.panel,
+        right.panel,
+        center,
+        wind,
+      ]);
+
+      world.add(
+        hud
+      );
+
+      this.commercialHud = {
+        container:
+          hud,
+        playerOneName:
+          left.name,
+        playerOneHp:
+          left.hp,
+        playerTwoName:
+          right.name,
+        playerTwoHp:
+          right.hp,
+        timer,
+        turnState,
+        wind,
+      };
+
+      this.playerOneHpFill =
+        left.hpFill;
+
+      this.playerTwoHpFill =
+        right.hpFill;
+
+      this.createCommercialAimPresentationV1(
+        world
+      );
+
+      this.createCommercialPowerPresentationV1(
+        world
+      );
+
+      this.refreshCommercialBattleHudV1();
+    }
+
+    createCommercialAimPresentationV1(
+      world
+    ) {
+      const guide =
+        this.add.graphics()
+          .setDepth(
+            CONTROL_DEPTH_V1
+          );
+
+      const tip =
+        this.add.circle(
+          0,
+          0,
+          4,
+          0xffc267,
+          0.98
+        )
+          .setDepth(
+            CONTROL_DEPTH_V1 + 1
+          );
+
+      world.add(
+        guide
+      );
+
+      world.add(
+        tip
+      );
+
+      this.aimGuide =
+        guide;
+
+      this.aimGuideTip =
+        tip;
+
+      this.refreshCommercialAimPresentationV1();
+    }
+
+    refreshCommercialAimPresentationV1() {
+      if (
+        !this.aimGuide ||
+        !this.aimGuideTip
+      ) {
+        return;
+      }
+
+      const viewer =
+        this.snapshot
+          ?.viewer
+          ?.account_id;
+
+      const one =
+        this.snapshot
+          ?.players
+          ?.player_one;
+
+      const two =
+        this.snapshot
+          ?.players
+          ?.player_two;
+
+      const active =
+        one?.account_id ===
+        viewer
+          ? one
+          : two?.account_id ===
+            viewer
+            ? two
+            : null;
+
+      const x =
+        Number(
+          active?.position_x
+        );
+
+      const y =
+        Number(
+          active?.position_y
+        );
+
+      const visible =
+        this.isViewerTurn() &&
+        Number.isFinite(x) &&
+        Number.isFinite(y);
+
+      this.aimGuide
+        .clear()
+        .setVisible(
+          visible
+        );
+
+      this.aimGuideTip
+        .setVisible(
+          visible
+        );
+
+      if (!visible) {
+        return;
+      }
+
+      const radians =
+        Phaser.Math.DegToRad(
+          this.aimAngleDeg
+        );
+
+      const facing =
+        one?.account_id ===
+        viewer
+          ? 1
+          : -1;
+
+      const length =
+        66;
+
+      const endX =
+        x +
+        Math.cos(
+          radians
+        ) *
+        length *
+        facing;
+
+      const endY =
+        y -
+        Math.sin(
+          radians
+        ) *
+        length;
+
+      this.aimGuide
+        .lineStyle(
+          3,
+          0xffc267,
+          0.88
+        )
+        .beginPath()
+        .moveTo(
+          x,
+          y - 28
+        )
+        .lineTo(
+          endX,
+          endY - 28
+        )
+        .strokePath();
+
+      this.aimGuideTip
+        .setPosition(
+          endX,
+          endY - 28
+        );
+    }
+
+    createCommercialPowerPresentationV1(
+      world
+    ) {
+      const x =
+        mapAsset.width / 2;
+
+      const y =
+        mapAsset.height - 84;
+
+      const panel =
+        this.add.container(
+          x,
+          y
+        )
+          .setDepth(
+            CONTROL_DEPTH_V1
+          );
+
+      const background =
+        this.add.rectangle(
+          0,
+          0,
+          238,
+          42,
+          0x07111f,
+          0.88
+        )
+          .setStrokeStyle(
+            1,
+            0xffb454,
+            0.38
+          );
+
+      const label =
+        this.add.text(
+          -106,
+          -14,
+          "LỰC",
+          {
+            fontFamily:
+              "Inter, Arial, sans-serif",
+            fontSize:
+              "9px",
+            fontStyle:
+              "bold",
+            color:
+              "#ffc267",
+          }
+        );
+
+      const track =
+        this.add.rectangle(
+          -106,
+          3,
+          COMMERCIAL_HUD_V1.powerBarWidth,
+          COMMERCIAL_HUD_V1.powerBarHeight,
+          0x02060c,
+          0.92
+        )
+          .setOrigin(
+            0,
+            0.5
+          )
+          .setStrokeStyle(
+            1,
+            0xffffff,
+            0.14
+          );
+
+      const fill =
+        this.add.rectangle(
+          -105,
+          3,
+          COMMERCIAL_HUD_V1.powerBarWidth - 2,
+          COMMERCIAL_HUD_V1.powerBarHeight - 2,
+          0xff9b32,
+          1
+        )
+          .setOrigin(
+            0,
+            0.5
+          );
+
+      const value =
+        this.add.text(
+          106,
+          -5,
+          "",
+          {
+            fontFamily:
+              "Inter, Arial, sans-serif",
+            fontSize:
+              "12px",
+            fontStyle:
+              "bold",
+            color:
+              "#ffffff",
+          }
+        )
+          .setOrigin(
+            1,
+            0.5
+          );
+
+      panel.add([
+        background,
+        label,
+        track,
+        fill,
+        value,
+      ]);
+
+      world.add(
+        panel
+      );
+
+      this.powerBarFill =
+        fill;
+
+      this.commercialHud.powerValue =
+        value;
+
+      this.refreshCommercialPowerPresentationV1();
+    }
+
+    refreshCommercialPowerPresentationV1() {
+      if (
+        !this.powerBarFill ||
+        !this.commercialHud
+          ?.powerValue
+      ) {
+        return;
+      }
+
+      const ratio =
+        Math.max(
+          0,
+          Math.min(
+            1,
+            this.shotPower /
+              POWER_MAX
+          )
+        );
+
+      this.powerBarFill.displayWidth =
+        (
+          COMMERCIAL_HUD_V1.powerBarWidth -
+          2
+        ) *
+        ratio;
+
+      this.commercialHud
+        .powerValue
+        .setText(
+          `${Math.round(
+            this.shotPower
+          )}%`
+        );
+    }
+
+    refreshCommercialBattleHudV1() {
+      const hud =
+        this.commercialHud;
+
+      if (!hud) {
+        return;
+      }
+
+      const snapshot =
+        this.snapshot;
+
+      const one =
+        snapshot
+          ?.players
+          ?.player_one;
+
+      const two =
+        snapshot
+          ?.players
+          ?.player_two;
+
+      const oneName =
+        one?.character
+          ?.character_name ||
+        "CHIẾN BINH 1";
+
+      const twoName =
+        two?.character
+          ?.character_name ||
+        "CHIẾN BINH 2";
+
+      hud.playerOneName
+        .setText(
+          oneName
+        );
+
+      hud.playerTwoName
+        .setText(
+          twoName
+        );
+
+      const oneHp =
+        Number(
+          one?.current_hp ??
+          snapshot
+            ?.players
+            ?.player_one_current_hp
+        );
+
+      const twoHp =
+        Number(
+          two?.current_hp ??
+          snapshot
+            ?.players
+            ?.player_two_current_hp
+        );
+
+      hud.playerOneHp
+        .setText(
+          `HP ${displayHp(
+            oneHp
+          )}`
+        );
+
+      hud.playerTwoHp
+        .setText(
+          `HP ${displayHp(
+            twoHp
+          )}`
+        );
+
+      /*
+       * No authoritative maximum-health contract exists here.
+       * Bars therefore communicate remaining absolute
+       * HP relative to the larger currently observed HP,
+       * never inventing a gameplay maximum.
+       */
+      const observedMax =
+        Math.max(
+          Number.isFinite(oneHp)
+            ? oneHp
+            : 0,
+          Number.isFinite(twoHp)
+            ? twoHp
+            : 0,
+          1
+        );
+
+      const setHpWidth =
+        (
+          object,
+          hp
+        ) => {
+          const ratio =
+            Number.isFinite(hp)
+              ? Math.max(
+                  0,
+                  Math.min(
+                    1,
+                    hp /
+                      observedMax
+                  )
+                )
+              : 0;
+
+          object.displayWidth =
+            (
+              COMMERCIAL_HUD_V1.hpBarWidth -
+              2
+            ) *
+            ratio;
+        };
+
+      setHpWidth(
+        this.playerOneHpFill,
+        oneHp
+      );
+
+      setHpWidth(
+        this.playerTwoHpFill,
+        twoHp
+      );
+
+      const remaining =
+        remainingSeconds(
+          snapshot
+            ?.turn
+            ?.turn_deadline_at
+        );
+
+      hud.timer
+        .setText(
+          remaining === null
+            ? "—"
+            : String(
+                remaining
+              )
+        );
+
+      hud.turnState
+        .setText(
+          this.isViewerTurn()
+            ? "LƯỢT CỦA BẠN"
+            : "LƯỢT ĐỐI THỦ"
+        );
+
+      const wind =
+        displayWind(
+          snapshot
+            ?.world
+            ?.initial_wind
+        );
+
+      hud.wind
+        .setText(
+          `GIÓ ĐẦU TRẬN  ${wind.arrow}  ${wind.text}`
+        );
+
+      this.refreshCommercialAimPresentationV1();
+      this.refreshCommercialPowerPresentationV1();
+      this.refreshCommercialPowerPresentationV1();
+
     }
 
     isViewerTurn() {
@@ -1556,6 +2439,7 @@ this.presentationTween
         );
 
       this.refreshBattleControls();
+      this.refreshCommercialBattleHudV1();
 
       try {
         await onFireIntent({
@@ -1587,6 +2471,7 @@ this.presentationTween
             );
 
           this.refreshBattleControls();
+      this.refreshCommercialBattleHudV1();
         }
       }
     }
@@ -2727,6 +3612,7 @@ this.presentationTween
 
       this.refreshTimer();
       this.refreshBattleControls();
+      this.refreshCommercialBattleHudV1();
     }
 
     refreshTimer() {
@@ -2765,6 +3651,27 @@ this.presentationTween
 
     update() {
       this.refreshTimer();
+
+      if (
+        this.commercialHud
+      ) {
+        const remaining =
+          remainingSeconds(
+            this.snapshot
+              ?.turn
+              ?.turn_deadline_at
+          );
+
+        this.commercialHud
+          .timer
+          .setText(
+            remaining === null
+              ? "—"
+              : String(
+                  remaining
+                )
+          );
+      }
     }
   };
 }
