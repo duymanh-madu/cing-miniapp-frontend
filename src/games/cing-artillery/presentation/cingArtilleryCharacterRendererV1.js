@@ -145,18 +145,22 @@ function createCharacterRendererV1({
     }
 
     if (
-      scene.anims &&
-      typeof scene.anims.exists ===
-        "function" &&
-      scene.anims.exists(
+      !scene.anims ||
+      typeof scene.anims.exists !==
+        "function" ||
+      !scene.anims.exists(
         key
       )
     ) {
-      sprite.play(
-        key,
-        true
+      throw new Error(
+        `CHARACTER_RENDERER_ANIMATION_MISSING_V1:${key}`
       );
     }
+
+    sprite.play(
+      key,
+      true
+    );
 
     return currentState;
   }

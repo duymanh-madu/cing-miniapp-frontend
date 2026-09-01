@@ -21,6 +21,14 @@ import {
   textureKeyFor as characterTextureKeyForV1,
 } from "../presentation/cingArtilleryCharacterRendererV1";
 
+import {
+  preloadCharacterAssetsV1,
+} from "../presentation/cingArtilleryCharacterPreloadV1";
+
+import {
+  registerCharacterAnimationsV1,
+} from "../presentation/cingArtilleryCharacterAnimationsV1";
+
 
 import {
   projectMutableTerrainV1,
@@ -266,9 +274,19 @@ createBattleScene(
             mapAsset.height,
         }
       );
+
+      preloadCharacterAssetsV1(
+        this
+      );
+
     }
 
     create() {
+
+      registerCharacterAnimationsV1(
+        this
+      );
+
       const scaleX =
         this.scale.width /
         mapAsset.width;

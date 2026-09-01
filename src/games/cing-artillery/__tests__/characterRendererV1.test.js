@@ -195,3 +195,32 @@ test(
     }
   }
 );
+
+test(
+  "commercial renderer requires registered production animation",
+  async () => {
+    const fs =
+      await import(
+        "node:fs/promises"
+      );
+
+    const source =
+      await fs.readFile(
+        new URL(
+          "../presentation/cingArtilleryCharacterRendererV1.js",
+          import.meta.url
+        ),
+        "utf8"
+      );
+
+    assert.match(
+      source,
+      /CHARACTER_RENDERER_ANIMATION_MISSING_V1/u
+    );
+
+    assert.match(
+      source,
+      /sprite\.play/u
+    );
+  }
+);
