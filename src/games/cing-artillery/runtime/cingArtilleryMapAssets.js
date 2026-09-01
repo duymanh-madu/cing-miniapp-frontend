@@ -22,6 +22,9 @@ const MAP_ASSETS =
 
         renderAsset:
           "/game-assets/cing-piu-piu/maps/phat-tich-mountain/v1/map.svg",
+
+        backgroundRenderAsset:
+          "/game-assets/cing-piu-piu/maps/phat-tich-mountain/v1/map-background.svg",
       }),
   });
 

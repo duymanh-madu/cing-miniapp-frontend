@@ -2,6 +2,15 @@ import {
   resolveCingArtilleryMapAsset,
 } from "../runtime/cingArtilleryMapAssets";
 
+import {
+  projectMutableTerrainV1,
+} from "../domain/cingArtilleryMutableTerrainProjectionV1";
+
+import {
+  rasterizeMutableTerrainV1,
+} from "../presentation/cingArtilleryTerrainRasterV1";
+
+
 const SNAPSHOT_EVENT =
   "cing-artillery:battle-snapshot";
 
@@ -199,12 +208,24 @@ createBattleScene(
 
       this.fireStatusText =
         null;
+      this.terrainTexture =
+        null;
+
+      this.terrainImage =
+        null;
+
+      this.lastTerrainRevision =
+        null;
+
+      this.terrainTextureKey =
+        `cing-piu-piu-terrain-${mapAsset.mapKey}-v${mapAsset.version}`;
+
     }
 
     preload() {
       this.load.svg(
-        "cing-piu-piu-map",
-        mapAsset.renderAsset,
+        "cing-piu-piu-map-background",
+        mapAsset.backgroundRenderAsset,
         {
           width:
             mapAsset.width,
@@ -254,13 +275,18 @@ createBattleScene(
           .image(
             mapAsset.width / 2,
             mapAsset.height / 2,
-            "cing-piu-piu-map"
+            "cing-piu-piu-map-background"
           )
           .setDisplaySize(
             mapAsset.width,
             mapAsset.height
           )
       );
+
+      this.createAuthoritativeTerrainSurface(
+        world
+      );
+
 
       world.add(
         this.add.rectangle(
@@ -553,6 +579,29 @@ createBattleScene(
           this.presentationTrail =
             null;
 
+            this.terrainImage
+              ?.destroy();
+
+            this.terrainImage =
+              null;
+
+            this.terrainTexture =
+              null;
+
+            this.lastTerrainRevision =
+              null;
+
+            if (
+              this.textures.exists(
+                this.terrainTextureKey
+              )
+            ) {
+              this.textures.remove(
+                this.terrainTextureKey
+              );
+            }
+
+
           this.cameras.main
             ?.stopFollow();
 
@@ -572,6 +621,144 @@ createBattleScene(
       this.applySnapshot(
         this.snapshot
       );
+    }
+
+    createAuthoritativeTerrainSurface(
+      world
+    ) {
+      if (
+        this.textures.exists(
+          this.terrainTextureKey
+        )
+      ) {
+        this.textures.remove(
+          this.terrainTextureKey
+        );
+      }
+
+      const texture =
+        this.textures.createCanvas(
+          this.terrainTextureKey,
+          mapAsset.width,
+          mapAsset.height
+        );
+
+      if (!texture) {
+        throw new Error(
+          "Mutable terrain texture Cing Piu Piu không thể khởi tạo"
+        );
+      }
+
+      this.terrainTexture =
+        texture;
+
+      this.terrainImage =
+        this.add
+          .image(
+            mapAsset.width / 2,
+            mapAsset.height / 2,
+            this.terrainTextureKey
+          )
+          .setDisplaySize(
+            mapAsset.width,
+            mapAsset.height
+          );
+
+      world.add(
+        this.terrainImage
+      );
+    }
+
+    applyAuthoritativeTerrain(
+      terrainInput
+    ) {
+      if (
+        !terrainInput ||
+        terrainInput
+          .collision_format !==
+          "bitmask_v1"
+      ) {
+        throw new Error(
+          "Mutable terrain format Cing Piu Piu không hợp lệ"
+        );
+      }
+
+      const terrain =
+        projectMutableTerrainV1(
+          terrainInput
+        );
+
+      if (
+        terrain.map_id !==
+          mapAsset.mapId ||
+        terrain.width_px !==
+          mapAsset.width ||
+        terrain.height_px !==
+          mapAsset.height
+      ) {
+        throw new Error(
+          "Mutable terrain Cing Piu Piu không khớp render map"
+        );
+      }
+
+      if (
+        terrain.terrain_revision ===
+        this.lastTerrainRevision
+      ) {
+        return;
+      }
+
+      if (
+        !this.terrainTexture
+      ) {
+        throw new Error(
+          "Mutable terrain texture Cing Piu Piu chưa sẵn sàng"
+        );
+      }
+
+      const pixels =
+        rasterizeMutableTerrainV1(
+          terrain
+        );
+
+      const context =
+        this.terrainTexture
+          .getContext();
+
+      if (!context) {
+        throw new Error(
+          "Mutable terrain canvas Cing Piu Piu chưa sẵn sàng"
+        );
+      }
+
+      const imageData =
+        context.createImageData(
+          terrain.width_px,
+          terrain.height_px
+        );
+
+      imageData.data.set(
+        pixels
+      );
+
+      context.clearRect(
+        0,
+        0,
+        terrain.width_px,
+        terrain.height_px
+      );
+
+      context.putImageData(
+        imageData,
+        0,
+        0
+      );
+
+      this.terrainTexture
+        .refresh();
+
+      this.lastTerrainRevision =
+        terrain.terrain_revision;
     }
 
     createPlayerMarker({
@@ -2012,6 +2199,10 @@ createBattleScene(
           "Battle snapshot Cing Piu Piu không khớp render map"
         );
       }
+
+      this.applyAuthoritativeTerrain(
+        snapshot.terrain
+      );
 
       this.snapshot =
         snapshot;

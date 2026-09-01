@@ -1,0 +1,453 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 960 540"
+  width="960"
+  height="540"
+>
+  <defs>
+    <linearGradient
+      id="sky"
+      x1="0"
+      y1="0"
+      x2="0"
+      y2="1"
+    >
+      <stop
+        offset="0%"
+        stop-color="#6A8FA8"
+      />
+      <stop
+        offset="38%"
+        stop-color="#AFC2C0"
+      />
+      <stop
+        offset="72%"
+        stop-color="#E7D7BC"
+      />
+      <stop
+        offset="100%"
+        stop-color="#F2DDC0"
+      />
+    </linearGradient>
+
+    <radialGradient
+      id="sunGlow"
+      cx="50%"
+      cy="50%"
+      r="50%"
+    >
+      <stop
+        offset="0%"
+        stop-color="#FFF6D5"
+        stop-opacity=".88"
+      />
+      <stop
+        offset="48%"
+        stop-color="#FFE6A8"
+        stop-opacity=".36"
+      />
+      <stop
+        offset="100%"
+        stop-color="#FFE6A8"
+        stop-opacity="0"
+      />
+    </radialGradient>
+
+    <linearGradient
+      id="farMountain"
+      x1="0"
+      y1="0"
+      x2="0"
+      y2="1"
+    >
+      <stop
+        offset="0%"
+        stop-color="#728B82"
+      />
+      <stop
+        offset="100%"
+        stop-color="#536A62"
+      />
+    </linearGradient>
+
+    <linearGradient
+      id="midMountain"
+      x1="0"
+      y1="0"
+      x2="0"
+      y2="1"
+    >
+      <stop
+        offset="0%"
+        stop-color="#4B685A"
+      />
+      <stop
+        offset="100%"
+        stop-color="#334C42"
+      />
+    </linearGradient>
+
+    <linearGradient
+      id="terrain"
+      x1="0"
+      y1="0"
+      x2="0"
+      y2="1"
+    >
+      <stop
+        offset="0%"
+        stop-color="#7E694A"
+      />
+      <stop
+        offset="13%"
+        stop-color="#66563F"
+      />
+      <stop
+        offset="34%"
+        stop-color="#514331"
+      />
+      <stop
+        offset="100%"
+        stop-color="#261F19"
+      />
+    </linearGradient>
+
+    <linearGradient
+      id="grass"
+      x1="0"
+      y1="0"
+      x2="0"
+      y2="1"
+    >
+      <stop
+        offset="0%"
+        stop-color="#647752"
+      />
+      <stop
+        offset="100%"
+        stop-color="#3D4D36"
+      />
+    </linearGradient>
+
+    <linearGradient
+      id="mist"
+      x1="0"
+      y1="0"
+      x2="1"
+      y2="0"
+    >
+      <stop
+        offset="0%"
+        stop-color="#F6E7D2"
+        stop-opacity="0"
+      />
+      <stop
+        offset="50%"
+        stop-color="#F6E7D2"
+        stop-opacity=".58"
+      />
+      <stop
+        offset="100%"
+        stop-color="#F6E7D2"
+        stop-opacity="0"
+      />
+    </linearGradient>
+
+    <linearGradient
+      id="buddhaStone"
+      x1="0"
+      y1="0"
+      x2="1"
+      y2="1"
+    >
+      <stop
+        offset="0%"
+        stop-color="#B7ADA0"
+      />
+      <stop
+        offset="55%"
+        stop-color="#8F897F"
+      />
+      <stop
+        offset="100%"
+        stop-color="#6F6D67"
+      />
+    </linearGradient>
+
+    <filter
+      id="softGlow"
+      x="-50%"
+      y="-50%"
+      width="200%"
+      height="200%"
+    >
+      <feGaussianBlur
+        stdDeviation="8"
+      />
+    </filter>
+  </defs>
+
+  <!-- SKY -->
+  <rect
+    width="960"
+    height="540"
+    fill="url(#sky)"
+  />
+
+  <circle
+    cx="760"
+    cy="104"
+    r="108"
+    fill="url(#sunGlow)"
+  />
+
+  <!-- DISTANT LOWLAND / KINH BAC HORIZON -->
+  <path
+    d="
+      M0 288
+      C90 270 170 278 252 267
+      C350 253 438 271 520 262
+      C610 252 700 265 790 254
+      C860 246 910 251 960 246
+      L960 340
+      L0 340 Z
+    "
+    fill="#91A499"
+    opacity=".24"
+  />
+
+  <path
+    d="
+      M0 315
+      C150 302 225 312 330 303
+      C450 293 540 308 650 299
+      C760 290 850 302 960 291
+    "
+    fill="none"
+    stroke="#D9CDB8"
+    stroke-width="4"
+    opacity=".28"
+  />
+
+  <!-- FAR PHAT TICH RIDGE -->
+  <path
+    d="
+      M0 304
+      C80 271 148 270 210 249
+      C285 222 340 236 402 208
+      C460 181 505 182 555 206
+      C612 233 680 220 740 240
+      C815 264 875 242 960 268
+      L960 365
+      L0 365 Z
+    "
+    fill="url(#farMountain)"
+    opacity=".58"
+  />
+
+  <!-- ICONIC GRAND BUDDHA ON SUMMIT -->
+  <g
+    id="phat-tich-grand-buddha"
+    transform="translate(505 139)"
+    opacity=".92"
+  >
+    <ellipse
+      cx="0"
+      cy="86"
+      rx="55"
+      ry="10"
+      fill="#33493F"
+      opacity=".34"
+    />
+
+    <ellipse
+      cx="0"
+      cy="81"
+      rx="44"
+      ry="8"
+      fill="#A79D8F"
+      opacity=".58"
+    />
+
+    <path
+      d="
+        M-38 76
+        C-30 61 -20 53 -10 48
+        C-18 41 -20 31 -16 22
+        C-12 12 -4 6 5 6
+        C14 6 23 12 26 22
+        C29 31 27 40 20 47
+        C33 52 42 62 47 76
+        C31 82 18 85 4 85
+        C-12 85 -26 82 -38 76 Z
+      "
+      fill="url(#buddhaStone)"
+    />
+
+    <circle
+      cx="5"
+      cy="26"
+      r="15"
+      fill="#A79F94"
+    />
+
+    <path
+      d="
+        M-21 55
+        C-8 47 11 46 30 55
+        C20 62 11 66 3 67
+        C-6 67 -14 63 -21 55 Z
+      "
+      fill="#8D877F"
+    />
+
+    <path
+      d="
+        M-49 77
+        Q0 52 51 77
+        L45 86
+        L-44 86 Z
+      "
+      fill="#7F7B74"
+    />
+
+    <ellipse
+      cx="5"
+      cy="25"
+      rx="28"
+      ry="28"
+      fill="none"
+      stroke="#F4DBA8"
+      stroke-width="3"
+      opacity=".42"
+    />
+
+    <ellipse
+      cx="5"
+      cy="25"
+      rx="37"
+      ry="37"
+      fill="#F5DDA9"
+      opacity=".12"
+      filter="url(#softGlow)"
+    />
+  </g>
+
+  <!-- MID MOUNTAIN -->
+  <path
+    d="
+      M0 344
+      C90 312 165 327 242 296
+      C315 267 382 282 445 255
+      C520 223 590 254 655 280
+      C730 311 812 279 960 318
+      L960 410
+      L0 410 Z
+    "
+    fill="url(#midMountain)"
+    opacity=".78"
+  />
+
+  <!-- PINE / FOREST RHYTHM -->
+  <g
+    fill="#294237"
+    opacity=".72"
+  >
+    <path d="M326 294 L340 246 L354 294 Z"/>
+    <path d="M351 287 L365 236 L379 287 Z"/>
+    <path d="M382 279 L397 226 L412 279 Z"/>
+    <path d="M594 287 L608 242 L622 287 Z"/>
+    <path d="M625 298 L639 249 L653 298 Z"/>
+    <path d="M667 306 L681 259 L695 306 Z"/>
+  </g>
+
+  <!-- TEMPLE COMPLEX ON SLOPE -->
+  <g
+    id="phat-tich-temple-silhouette"
+    transform="translate(458 256)"
+    opacity=".72"
+  >
+    <rect
+      x="-62"
+      y="14"
+      width="124"
+      height="25"
+      rx="2"
+      fill="#55483D"
+    />
+
+    <path
+      d="
+        M-83 16
+        Q-62 -2 -38 7
+        Q0 -15 38 7
+        Q62 -2 83 16
+        Q51 11 26 15
+        Q0 3 -26 15
+        Q-51 11 -83 16 Z
+      "
+      fill="#3B3833"
+    />
+
+    <rect
+      x="-10"
+      y="-10"
+      width="20"
+      height="24"
+      fill="#5A4A3D"
+    />
+
+    <path
+      d="
+        M-26 -8
+        Q0 -26 26 -8
+        Q12 -12 0 -11
+        Q-12 -12 -26 -8 Z
+      "
+      fill="#3A3732"
+    />
+  </g>
+
+  <!-- TEMPLE STEPS / SLOPE HINT -->
+  <path
+    d="
+      M427 319
+      L440 310
+      L452 303
+      L464 295
+      L475 288
+      L486 281
+    "
+    fill="none"
+    stroke="#C0AC8D"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-dasharray="10 8"
+    opacity=".38"
+  />
+
+  <!-- ATMOSPHERIC MIST -->
+  <rect
+    x="70"
+    y="242"
+    width="820"
+    height="100"
+    fill="url(#mist)"
+    opacity=".64"
+  />
+
+  <!-- AUTHORITATIVE MUTABLE TERRAIN IS RENDERED BY PHASER -->
+
+  <!-- VERY LIGHT FOREGROUND HAZE -->
+  <path
+    d="
+      M0 434
+      C180 413 280 427 420 419
+      C560 411 690 425 960 407
+      L960 540
+      L0 540 Z
+    "
+    fill="#1D251F"
+    opacity=".08"
+  />
+</svg>
