@@ -11,6 +11,11 @@ import {
   projectCharacterPresentationV1,
 } from "../domain/cingArtilleryCharacterPresentationV1";
 
+import {
+  CHARACTER_STATE_V1,
+  createCharacterPresentationControllerV1,
+} from "../presentation/cingArtilleryCharacterControllerV1";
+
 
 import {
   projectMutableTerrainV1,
@@ -341,6 +346,15 @@ createBattleScene(
             0xffa33c,
         });
 
+      this.playerOneCharacterController =
+        createCharacterPresentationControllerV1({
+          container:
+            this.playerOneMarker.container,
+
+          activeIndicator:
+            this.playerOneMarker.outer,
+        });
+
       this.playerTwoMarker =
         this.createPlayerMarker({
           world,
@@ -348,6 +362,15 @@ createBattleScene(
             "P2",
           accent:
             0x64c7ff,
+        });
+
+      this.playerTwoCharacterController =
+        createCharacterPresentationControllerV1({
+          container:
+            this.playerTwoMarker.container,
+
+          activeIndicator:
+            this.playerTwoMarker.outer,
         });
 
       this.playerOneHp =
@@ -2462,6 +2485,16 @@ this.presentationTween
             playerTwoCharacter,
         });
 
+      this.playerOneCharacterController
+        .bindIdentity(
+          playerOneCharacter
+        );
+
+      this.playerTwoCharacterController
+        .bindIdentity(
+          playerTwoCharacter
+        );
+
       this.applyAuthoritativePlayerMotion({
         marker:
           this.playerOneMarker,
@@ -2488,24 +2521,36 @@ this.presentationTween
         snapshot.turn
           ?.active_account_id;
 
-      this.playerOneMarker
-        .outer
-        .setAlpha(
+      this.playerOneCharacterController
+        .setActive(
           activeAccountId ===
             snapshot.vital
               ?.player_one_account_id
-            ? 1
-            : 0.55
         );
 
-      this.playerTwoMarker
-        .outer
-        .setAlpha(
+      this.playerTwoCharacterController
+        .setActive(
           activeAccountId ===
             snapshot.vital
               ?.player_two_account_id
-            ? 1
-            : 0.55
+        );
+
+      this.playerOneCharacterController
+        .setState(
+          playerOne
+            ?.motion_state ===
+            "falling"
+            ? CHARACTER_STATE_V1.FALL
+            : CHARACTER_STATE_V1.IDLE
+        );
+
+      this.playerTwoCharacterController
+        .setState(
+          playerTwo
+            ?.motion_state ===
+            "falling"
+            ? CHARACTER_STATE_V1.FALL
+            : CHARACTER_STATE_V1.IDLE
         );
 
       this.playerOneHp.setText(
