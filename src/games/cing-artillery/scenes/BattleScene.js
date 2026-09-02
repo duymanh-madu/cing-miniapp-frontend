@@ -196,6 +196,7 @@ createBattleScene(
   {
     initialSnapshot,
     onFireIntent,
+    onExitIntent,
   }
 ) {
   const mapAsset =
@@ -4004,7 +4005,7 @@ this.presentationTween
               mapAsset.width / 2,
               mapAsset.height / 2,
               430,
-              194,
+              236,
               0x101c2b,
               0.97
             )
@@ -4075,7 +4076,7 @@ this.presentationTween
           this.add
             .text(
               mapAsset.width / 2,
-              mapAsset.height / 2 + 58,
+              mapAsset.height / 2 + 48,
               "TRẬN ĐẤU ĐÃ KẾT THÚC",
               {
                 fontFamily:
@@ -4092,6 +4093,114 @@ this.presentationTween
               0.5
             );
 
+        const exitButton =
+          this.add
+            .rectangle(
+              mapAsset.width / 2,
+              mapAsset.height / 2 + 88,
+              154,
+              42,
+              0xf59a23,
+              1
+            )
+            .setStrokeStyle(
+              2,
+              0xffd38a,
+              1
+            )
+            .setInteractive({
+              useHandCursor:
+                true,
+            });
+
+        const exitLabel =
+          this.add
+            .text(
+              mapAsset.width / 2,
+              mapAsset.height / 2 + 88,
+              "THOÁT",
+              {
+                fontFamily:
+                  "Inter, Arial, sans-serif",
+
+                fontSize:
+                  "15px",
+
+                fontStyle:
+                  "bold",
+
+                color:
+                  "#ffffff",
+              }
+            )
+            .setOrigin(
+              0.5
+            );
+
+        exitButton.on(
+          "pointerdown",
+          () => {
+            if (
+              this.terminalExitRequested ===
+              true
+            ) {
+              return;
+            }
+
+            if (
+              typeof onExitIntent !==
+              "function"
+            ) {
+              throw new Error(
+                "Battle exit bridge Cing Piu Piu chưa được cấu hình"
+              );
+            }
+
+            this.terminalExitRequested =
+              true;
+
+            exitButton
+              .disableInteractive()
+              .setAlpha(
+                0.62
+              );
+
+            exitLabel.setText(
+              "ĐANG THOÁT..."
+            );
+
+            void Promise.resolve(
+              onExitIntent()
+            ).catch(
+              () => {
+                this.terminalExitRequested =
+                  false;
+
+                if (
+                  exitButton.active
+                ) {
+                  exitButton
+                    .setInteractive({
+                      useHandCursor:
+                        true,
+                    })
+                    .setAlpha(
+                      1
+                    );
+                }
+
+                if (
+                  exitLabel.active
+                ) {
+                  exitLabel.setText(
+                    "THOÁT"
+                  );
+                }
+              }
+            );
+          }
+        );
+
         this.terminalResultContainer =
           this.add
             .container(
@@ -4103,6 +4212,8 @@ this.presentationTween
                 title,
                 reasonText,
                 status,
+                exitButton,
+                exitLabel,
               ]
             )
             .setDepth(

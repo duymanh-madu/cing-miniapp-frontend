@@ -320,6 +320,9 @@ CingArtilleryGame({
   const battleMatchRef =
     useRef(null);
 
+  const exitLifecycleRef =
+    useRef(null);
+
   const [phase, setPhase] =
     useState(
       PHASE.CHECKING
@@ -746,6 +749,9 @@ CingArtilleryGame({
 
           onFireIntent:
             handleBattleFireIntent,
+
+          onExitIntent:
+            handleExitIntent,
         }
       )
         .then(
@@ -825,6 +831,65 @@ CingArtilleryGame({
       battleSnapshot,
     ]
   );
+
+  async function
+  handleExitIntent() {
+    if (
+      exitLifecycleRef.current
+    ) {
+      return exitLifecycleRef.current;
+    }
+
+    const lifecycle =
+      (async () => {
+        /*
+         * Single frontend owner for battle exit.
+         *
+         * Invalidate outstanding async work, leave realtime
+         * transport, destroy Phaser, then return control to
+         * the outer Game Center.
+         *
+         * No result, winner, rematch or gameplay authority
+         * is decided here.
+         */
+        runRef.current +=
+          1;
+
+        shotTurnLockRef.current =
+          null;
+
+        const realtime =
+          realtimeRef.current;
+
+        realtimeRef.current =
+          null;
+
+        const battleGame =
+          battleGameRef.current;
+
+        battleGameRef.current =
+          null;
+
+        try {
+          if (realtime) {
+            await realtime.destroy();
+          }
+        } finally {
+          if (battleGame) {
+            destroyPremiumArtilleryGame(
+              battleGame
+            );
+          }
+
+          onExit?.();
+        }
+      })();
+
+    exitLifecycleRef.current =
+      lifecycle;
+
+    return lifecycle;
+  }
 
   async function
   enterLandscapeBattleMode() {
@@ -1322,9 +1387,9 @@ CingArtilleryGame({
               type="button"
               className="cing-piu-piu__back"
               aria-label="Rời trận đấu"
-              onClick={() =>
-                onExit?.()
-              }
+              onClick={() => {
+                void handleExitIntent();
+              }}
             >
               ‹
             </button>
@@ -1387,9 +1452,9 @@ CingArtilleryGame({
             type="button"
             className="cing-piu-piu__back"
             aria-label="Quay lại Game Center"
-            onClick={() =>
-              onExit?.()
-            }
+            onClick={() => {
+                void handleExitIntent();
+              }}
           >
             ‹
           </button>
