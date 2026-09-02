@@ -12,6 +12,11 @@ import {
 } from "../domain/cingArtilleryCharacterPresentationV1";
 
 import {
+  TERMINAL_COMPLETION_REASON_V1,
+  projectTerminalPresentationV1,
+} from "../domain/cingArtilleryTerminalPresentationV1.js";
+
+import {
   CHARACTER_STATE_V1,
   createCharacterPresentationControllerV1,
 } from "../presentation/cingArtilleryCharacterControllerV1";
@@ -2578,6 +2583,9 @@ this.presentationTween
         );
 
       if (
+        this.terminalPresentation
+          ?.completed ===
+          true ||
         !this.isViewerTurn() ||
         !Number.isInteger(
           turnNumber
@@ -3936,6 +3944,200 @@ this.presentationTween
 
     }
 
+    presentCommercialTerminalResultV1() {
+      const terminal =
+        this.terminalPresentation;
+
+      if (
+        !terminal ||
+        terminal.completed !==
+          true
+      ) {
+        if (
+          this.terminalResultContainer
+        ) {
+          this.terminalResultContainer
+            .setVisible(
+              false
+            );
+        }
+
+        return;
+      }
+
+      const victory =
+        terminal.viewerResult ===
+        "victory";
+
+      const reason =
+        terminal.completionReason ===
+          TERMINAL_COMPLETION_REASON_V1
+            .FELL_OUT_OF_WORLD
+          ? (
+              victory
+                ? "ĐỐI THỦ RƠI KHỎI CHIẾN TRƯỜNG"
+                : "BẠN ĐÃ RƠI KHỎI CHIẾN TRƯỜNG"
+            )
+          : (
+              victory
+                ? "ĐÃ HẠ GỤC ĐỐI THỦ"
+                : "BẠN ĐÃ BỊ HẠ GỤC"
+            );
+
+      if (
+        !this.terminalResultContainer
+      ) {
+        const shade =
+          this.add
+            .rectangle(
+              mapAsset.width / 2,
+              mapAsset.height / 2,
+              mapAsset.width,
+              mapAsset.height,
+              0x06101c,
+              0.58
+            );
+
+        const panel =
+          this.add
+            .rectangle(
+              mapAsset.width / 2,
+              mapAsset.height / 2,
+              430,
+              194,
+              0x101c2b,
+              0.97
+            )
+            .setStrokeStyle(
+              3,
+              0xffb347,
+              0.92
+            );
+
+        const title =
+          this.add
+            .text(
+              mapAsset.width / 2,
+              mapAsset.height / 2 - 44,
+              "",
+              {
+                fontFamily:
+                  "Inter, Arial, sans-serif",
+
+                fontSize:
+                  "34px",
+
+                fontStyle:
+                  "bold",
+
+                color:
+                  "#fff2cf",
+
+                stroke:
+                  "#4c2208",
+
+                strokeThickness:
+                  6,
+              }
+            )
+            .setOrigin(
+              0.5
+            );
+
+        const reasonText =
+          this.add
+            .text(
+              mapAsset.width / 2,
+              mapAsset.height / 2 + 18,
+              "",
+              {
+                fontFamily:
+                  "Inter, Arial, sans-serif",
+
+                fontSize:
+                  "15px",
+
+                fontStyle:
+                  "bold",
+
+                color:
+                  "#ffd7a3",
+
+                align:
+                  "center",
+              }
+            )
+            .setOrigin(
+              0.5
+            );
+
+        const status =
+          this.add
+            .text(
+              mapAsset.width / 2,
+              mapAsset.height / 2 + 58,
+              "TRẬN ĐẤU ĐÃ KẾT THÚC",
+              {
+                fontFamily:
+                  "Inter, Arial, sans-serif",
+
+                fontSize:
+                  "11px",
+
+                color:
+                  "#aebdca",
+              }
+            )
+            .setOrigin(
+              0.5
+            );
+
+        this.terminalResultContainer =
+          this.add
+            .container(
+              0,
+              0,
+              [
+                shade,
+                panel,
+                title,
+                reasonText,
+                status,
+              ]
+            )
+            .setDepth(
+              1200
+            );
+
+        this.terminalResultTitle =
+          title;
+
+        this.terminalResultReason =
+          reasonText;
+
+        this.world.add(
+          this.terminalResultContainer
+        );
+      }
+
+      this.terminalResultTitle
+        .setText(
+          victory
+            ? "CHIẾN THẮNG"
+            : "THẤT BẠI"
+        );
+
+      this.terminalResultReason
+        .setText(
+          reason
+        );
+
+      this.terminalResultContainer
+        .setVisible(
+          true
+        );
+    }
+
     applySnapshot(
       snapshot
     ) {
@@ -3958,6 +4160,11 @@ this.presentationTween
 
       this.snapshot =
         snapshot;
+
+      this.terminalPresentation =
+        projectTerminalPresentationV1(
+          snapshot
+        );
 
       const players =
         snapshot.players;
@@ -4116,6 +4323,48 @@ this.presentationTween
         );
 
       if (
+        this.terminalPresentation
+          ?.completed ===
+        true
+      ) {
+        const winnerAccountId =
+          this.terminalPresentation
+            .winnerAccountId;
+
+        this.playerOneCharacterController
+          .setState(
+            playerOne
+              ?.account_id ===
+              winnerAccountId
+              ? CHARACTER_STATE_V1
+                  .VICTORY
+              : CHARACTER_STATE_V1
+                  .DEFEAT
+          );
+
+        this.playerTwoCharacterController
+          .setState(
+            playerTwo
+              ?.account_id ===
+              winnerAccountId
+              ? CHARACTER_STATE_V1
+                  .VICTORY
+              : CHARACTER_STATE_V1
+                  .DEFEAT
+          );
+
+        this.playerOneCharacterController
+          .setActive(
+            false
+          );
+
+        this.playerTwoCharacterController
+          .setActive(
+            false
+          );
+      }
+
+      if (
         this.playerOneCharacterRenderer
       ) {
         this.playerOneCharacterRenderer
@@ -4185,10 +4434,22 @@ this.presentationTween
           ?.account_id;
 
       this.viewerText.setText(
-        viewerTurn
-          ? "LƯỢT CỦA BẠN"
-          : "LƯỢT ĐỐI THỦ"
+        this.terminalPresentation
+          ?.completed ===
+          true
+          ? (
+              this.terminalPresentation
+                .viewerResult ===
+                "victory"
+                ? "CHIẾN THẮNG"
+                : "THẤT BẠI"
+            )
+          : viewerTurn
+            ? "LƯỢT CỦA BẠN"
+            : "LƯỢT ĐỐI THỦ"
       );
+
+      this.presentCommercialTerminalResultV1();
 
       const currentTurnNumber =
         Number(
