@@ -8,6 +8,7 @@ import {
   createCingArtilleryGameplaySession,
   enterCingArtilleryMatchmaking,
   getCingArtilleryEntry,
+  requestCingArtilleryRematch,
 } from "./runtime/cingArtilleryAuthorityClient";
 
 import {
@@ -321,6 +322,9 @@ CingArtilleryGame({
     useRef(null);
 
   const exitLifecycleRef =
+    useRef(null);
+
+  const rematchLifecycleRef =
     useRef(null);
 
   const [phase, setPhase] =
@@ -752,6 +756,9 @@ CingArtilleryGame({
 
           onExitIntent:
             handleExitIntent,
+
+          onRematchIntent:
+            handleRematchIntent,
         }
       )
         .then(
@@ -892,6 +899,236 @@ CingArtilleryGame({
   }
 
   async function
+  handleRematchIntent({
+    sourceMatchId,
+  } = {}) {
+    const sourceId =
+      String(
+        sourceMatchId ||
+        battleMatchRef.current ||
+        ""
+      ).trim();
+
+    if (!sourceId) {
+      throw new Error(
+        "Thiếu source match để đấu lại"
+      );
+    }
+
+    if (
+      rematchLifecycleRef.current
+    ) {
+      return rematchLifecycleRef.current;
+    }
+
+    const sourceRunId =
+      runRef.current;
+
+    const lifecycle =
+      (async () => {
+        let transitionStarted =
+          false;
+
+        try {
+          let rematchDecision =
+            null;
+
+          while (
+            aliveRef.current &&
+            sourceRunId ===
+              runRef.current
+          ) {
+            rematchDecision =
+              await requestCingArtilleryRematch(
+                sourceId
+              );
+
+            if (
+              !aliveRef.current ||
+              sourceRunId !==
+                runRef.current
+            ) {
+              return null;
+            }
+
+            if (
+              rematchDecision.status ===
+                "matched"
+            ) {
+              break;
+            }
+
+            await delay(
+              MATCHMAKING_POLL_MS
+            );
+          }
+
+          if (
+            !aliveRef.current ||
+            sourceRunId !==
+              runRef.current ||
+            rematchDecision?.status !==
+              "matched"
+          ) {
+            return null;
+          }
+
+          const nextMatchId =
+            String(
+              rematchDecision
+                .rematch_match_id ||
+              ""
+            ).trim();
+
+          if (!nextMatchId) {
+            throw new Error(
+              "Rematch Cing Piu Piu thiếu canonical match mới"
+            );
+          }
+
+          transitionStarted =
+            true;
+
+          const nextRunId =
+            ++runRef.current;
+
+          shotTurnLockRef.current =
+            null;
+
+          const previousRealtime =
+            realtimeRef.current;
+
+          realtimeRef.current =
+            null;
+
+          const previousGame =
+            battleGameRef.current;
+
+          battleGameRef.current =
+            null;
+
+          /*
+           * Mutual consent is complete at this point.
+           *
+           * Only now may the completed source battle be
+           * dismantled. Realtime leaves the old match first;
+           * Phaser follows. The next realtime client is created
+           * by connectCanonicalMatch and therefore owns a fresh
+           * durable result cursor starting from zero.
+           */
+          try {
+            if (previousRealtime) {
+              await previousRealtime.destroy();
+            }
+          } finally {
+            if (previousGame) {
+              destroyPremiumArtilleryGame(
+                previousGame
+              );
+            }
+          }
+
+          if (
+            !aliveRef.current ||
+            nextRunId !==
+              runRef.current
+          ) {
+            return null;
+          }
+
+          battleSnapshotRef.current =
+            null;
+
+          battleMatchRef.current =
+            null;
+
+          setBattleSnapshot(
+            null
+          );
+
+          setReadiness(
+            null
+          );
+
+          setTurnState(
+            null
+          );
+
+          setJoinAuthority(
+            null
+          );
+
+          const nextDecision =
+            Object.freeze({
+              status:
+                "matched",
+
+              match_id:
+                nextMatchId,
+            });
+
+          setDecision(
+            nextDecision
+          );
+
+          await connectCanonicalMatch(
+            nextDecision,
+            nextRunId
+          );
+
+          if (
+            !aliveRef.current ||
+            nextRunId !==
+              runRef.current
+          ) {
+            return null;
+          }
+
+          return Object.freeze({
+            status:
+              "matched",
+
+            rematch_match_id:
+              nextMatchId,
+          });
+        } catch (error) {
+          if (
+            transitionStarted &&
+            aliveRef.current
+          ) {
+            setErrorMessage(
+              error?.response
+                ?.data?.message ||
+              error?.message ||
+              "Không thể vào trận đấu lại"
+            );
+
+            setPhase(
+              PHASE.ERROR
+            );
+          }
+
+          throw error;
+        }
+      })();
+
+    rematchLifecycleRef.current =
+      lifecycle;
+
+    try {
+      return await lifecycle;
+    } finally {
+      if (
+        rematchLifecycleRef.current ===
+          lifecycle
+      ) {
+        rematchLifecycleRef.current =
+          null;
+      }
+    }
+  }
+
+  async function
   enterLandscapeBattleMode() {
     await requestCingArtilleryLandscapeMode();
 
@@ -907,6 +1144,261 @@ CingArtilleryGame({
           ?.refresh?.();
       },
       120
+    );
+  }
+
+  async function
+  connectCanonicalMatch(
+    matchDecision,
+    runId
+  ) {
+    setPhase(
+      PHASE.CONNECTING
+    );
+
+    const previousRealtime =
+      realtimeRef.current;
+
+    if (previousRealtime) {
+      await previousRealtime
+        .destroy();
+    }
+
+    const realtime =
+      createCingArtilleryRealtimeClient({
+        onReadiness:
+          (value) => {
+            if (
+              !aliveRef.current ||
+              runId !==
+                runRef.current ||
+              value?.match_id !==
+                matchDecision.match_id
+            ) {
+              return;
+            }
+
+            setReadiness(
+              value
+            );
+
+            setPhase(
+              PHASE.WAITING_REALTIME
+            );
+          },
+
+        onTurnState:
+          (value) => {
+            if (
+              !aliveRef.current ||
+              runId !==
+                runRef.current ||
+              value?.match_id !==
+                matchDecision.match_id
+            ) {
+              return;
+            }
+
+            setTurnState(
+              value
+            );
+
+            void realtime
+              .readBattleSnapshot(
+                matchDecision.match_id
+              )
+              .then(
+                (snapshot) => {
+                  if (
+                    !aliveRef.current ||
+                    runId !==
+                      runRef.current
+                  ) {
+                    return;
+                  }
+
+                  setBattleSnapshot(
+                    snapshot
+                  );
+
+                  setTurnState(
+                    snapshot.turn
+                  );
+
+                  setPhase(
+                    PHASE.BATTLE_READY
+                  );
+                }
+              )
+              .catch(
+                (error) => {
+                  if (
+                    !aliveRef.current ||
+                    runId !==
+                      runRef.current
+                  ) {
+                    return;
+                  }
+
+                  setErrorMessage(
+                    error?.message ||
+                    "Không thể đọc battle snapshot Cing Piu Piu"
+                  );
+
+                  setPhase(
+                    PHASE.ERROR
+                  );
+                }
+              );
+          },
+
+        onStartError:
+          (value) => {
+            if (
+              !aliveRef.current ||
+              runId !==
+                runRef.current ||
+              value?.match_id !==
+                matchDecision.match_id
+            ) {
+              return;
+            }
+
+            setErrorMessage(
+              value?.error?.message ||
+              "Máy chủ không thể kích hoạt trận đấu"
+            );
+
+            setPhase(
+              PHASE.ERROR
+            );
+          },
+
+        onCanonicalShotResult:
+          async (
+            canonicalResult
+          ) => {
+            if (
+              !aliveRef.current ||
+              runId !==
+                runRef.current
+            ) {
+              throw new Error(
+                "Battle lifecycle Cing Piu Piu không còn active"
+              );
+            }
+
+            const battleGame =
+              battleGameRef.current;
+
+            if (!battleGame) {
+              throw new Error(
+                "Battle renderer Cing Piu Piu chưa sẵn sàng cho canonical result"
+              );
+            }
+
+            await presentCanonicalArtilleryResult(
+              battleGame,
+              canonicalResult
+            );
+          },
+
+        onBattleSnapshot:
+          (snapshot) => {
+            if (
+              !aliveRef.current ||
+              runId !==
+                runRef.current ||
+              snapshot?.match_id !==
+                matchDecision.match_id
+            ) {
+              return;
+            }
+
+            setBattleSnapshot(
+              snapshot
+            );
+
+            setTurnState(
+              snapshot.turn
+            );
+
+            setPhase(
+              PHASE.BATTLE_READY
+            );
+          },
+
+        onRecovered:
+          (authority) => {
+            if (
+              !aliveRef.current ||
+              runId !==
+                runRef.current ||
+              authority?.match_id !==
+                matchDecision.match_id
+            ) {
+              return;
+            }
+
+            setJoinAuthority(
+              authority
+            );
+
+            setReadiness(
+              authority.readiness ||
+              null
+            );
+          },
+
+        onDisconnected:
+          () => {
+            if (
+              !aliveRef.current ||
+              runId !==
+                runRef.current
+            ) {
+              return;
+            }
+
+            /*
+             * Socket.IO owns reconnect.
+             * Durable match/session state is not
+             * rewritten by transport disconnect.
+             */
+          },
+      });
+
+    realtimeRef.current =
+      realtime;
+
+    const authority =
+      await realtime.joinMatch(
+        matchDecision.match_id
+      );
+
+    if (
+      !aliveRef.current ||
+      runId !==
+        runRef.current
+    ) {
+      await realtime.destroy();
+
+      return;
+    }
+
+    setJoinAuthority(
+      authority
+    );
+
+    setReadiness(
+      authority.readiness ||
+      null
+    );
+
+    setPhase(
+      authority.readiness?.both
+        ? PHASE.WAITING_REALTIME
+        : PHASE.WAITING_REALTIME
     );
   }
 
@@ -1012,253 +1504,9 @@ CingArtilleryGame({
         return;
       }
 
-      setPhase(
-        PHASE.CONNECTING
-      );
-
-      const previousRealtime =
-        realtimeRef.current;
-
-      if (previousRealtime) {
-        await previousRealtime
-          .destroy();
-      }
-
-      const realtime =
-        createCingArtilleryRealtimeClient({
-          onReadiness:
-            (value) => {
-              if (
-                !aliveRef.current ||
-                runId !==
-                  runRef.current ||
-                value?.match_id !==
-                  matchDecision.match_id
-              ) {
-                return;
-              }
-
-              setReadiness(
-                value
-              );
-
-              setPhase(
-                PHASE.WAITING_REALTIME
-              );
-            },
-
-          onTurnState:
-            (value) => {
-              if (
-                !aliveRef.current ||
-                runId !==
-                  runRef.current ||
-                value?.match_id !==
-                  matchDecision.match_id
-              ) {
-                return;
-              }
-
-              setTurnState(
-                value
-              );
-
-              void realtime
-                .readBattleSnapshot(
-                  matchDecision.match_id
-                )
-                .then(
-                  (snapshot) => {
-                    if (
-                      !aliveRef.current ||
-                      runId !==
-                        runRef.current
-                    ) {
-                      return;
-                    }
-
-                    setBattleSnapshot(
-                      snapshot
-                    );
-
-                    setTurnState(
-                      snapshot.turn
-                    );
-
-                    setPhase(
-                      PHASE.BATTLE_READY
-                    );
-                  }
-                )
-                .catch(
-                  (error) => {
-                    if (
-                      !aliveRef.current ||
-                      runId !==
-                        runRef.current
-                    ) {
-                      return;
-                    }
-
-                    setErrorMessage(
-                      error?.message ||
-                      "Không thể đọc battle snapshot Cing Piu Piu"
-                    );
-
-                    setPhase(
-                      PHASE.ERROR
-                    );
-                  }
-                );
-            },
-
-          onStartError:
-            (value) => {
-              if (
-                !aliveRef.current ||
-                runId !==
-                  runRef.current ||
-                value?.match_id !==
-                  matchDecision.match_id
-              ) {
-                return;
-              }
-
-              setErrorMessage(
-                value?.error?.message ||
-                "Máy chủ không thể kích hoạt trận đấu"
-              );
-
-              setPhase(
-                PHASE.ERROR
-              );
-            },
-
-          onCanonicalShotResult:
-            async (
-              canonicalResult
-            ) => {
-              if (
-                !aliveRef.current ||
-                runId !==
-                  runRef.current
-              ) {
-                throw new Error(
-                  "Battle lifecycle Cing Piu Piu không còn active"
-                );
-              }
-
-              const battleGame =
-                battleGameRef.current;
-
-              if (!battleGame) {
-                throw new Error(
-                  "Battle renderer Cing Piu Piu chưa sẵn sàng cho canonical result"
-                );
-              }
-
-              await presentCanonicalArtilleryResult(
-                battleGame,
-                canonicalResult
-              );
-            },
-
-          onBattleSnapshot:
-            (snapshot) => {
-              if (
-                !aliveRef.current ||
-                runId !==
-                  runRef.current ||
-                snapshot?.match_id !==
-                  matchDecision.match_id
-              ) {
-                return;
-              }
-
-              setBattleSnapshot(
-                snapshot
-              );
-
-              setTurnState(
-                snapshot.turn
-              );
-
-              setPhase(
-                PHASE.BATTLE_READY
-              );
-            },
-
-          onRecovered:
-            (authority) => {
-              if (
-                !aliveRef.current ||
-                runId !==
-                  runRef.current ||
-                authority?.match_id !==
-                  matchDecision.match_id
-              ) {
-                return;
-              }
-
-              setJoinAuthority(
-                authority
-              );
-
-              setReadiness(
-                authority.readiness ||
-                null
-              );
-            },
-
-          onDisconnected:
-            () => {
-              if (
-                !aliveRef.current ||
-                runId !==
-                  runRef.current
-              ) {
-                return;
-              }
-
-              /*
-               * Socket.IO owns reconnect.
-               * Durable match/session state is not
-               * rewritten by transport disconnect.
-               */
-            },
-        });
-
-      realtimeRef.current =
-        realtime;
-
-      const authority =
-        await realtime.joinMatch(
-          matchDecision.match_id
-        );
-
-      if (
-        !aliveRef.current ||
-        runId !==
-          runRef.current
-      ) {
-        await realtime.destroy();
-
-        return;
-      }
-
-      setJoinAuthority(
-        authority
-      );
-
-      setReadiness(
-        authority.readiness ||
-        null
-      );
-
-      setPhase(
-        authority.readiness?.both
-          ? PHASE.WAITING_REALTIME
-          : PHASE.WAITING_REALTIME
+      await connectCanonicalMatch(
+        matchDecision,
+        runId
       );
     } catch (error) {
       if (

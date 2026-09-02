@@ -197,6 +197,7 @@ createBattleScene(
     initialSnapshot,
     onFireIntent,
     onExitIntent,
+    onRematchIntent,
   }
 ) {
   const mapAsset =
@@ -4093,10 +4094,10 @@ this.presentationTween
               0.5
             );
 
-        const exitButton =
+        const rematchButton =
           this.add
             .rectangle(
-              mapAsset.width / 2,
+              mapAsset.width / 2 - 86,
               mapAsset.height / 2 + 88,
               154,
               42,
@@ -4113,10 +4114,158 @@ this.presentationTween
                 true,
             });
 
+        const rematchLabel =
+          this.add
+            .text(
+              mapAsset.width / 2 - 86,
+              mapAsset.height / 2 + 88,
+              "ĐẤU LẠI",
+              {
+                fontFamily:
+                  "Inter, Arial, sans-serif",
+
+                fontSize:
+                  "15px",
+
+                fontStyle:
+                  "bold",
+
+                color:
+                  "#ffffff",
+              }
+            )
+            .setOrigin(
+              0.5
+            );
+
+        rematchButton.on(
+          "pointerdown",
+          () => {
+            if (
+              this.terminalRematchRequested ===
+                true
+            ) {
+              return;
+            }
+
+            if (
+              typeof onRematchIntent !==
+                "function"
+            ) {
+              throw new Error(
+                "Battle rematch bridge Cing Piu Piu chưa được cấu hình"
+              );
+            }
+
+            this.terminalRematchRequested =
+              true;
+
+            rematchButton
+              .disableInteractive()
+              .setAlpha(
+                0.62
+              );
+
+            rematchLabel.setText(
+              "CHỜ ĐỐI THỦ..."
+            );
+
+            void Promise.resolve(
+              onRematchIntent({
+                sourceMatchId:
+                  this.snapshot
+                    ?.match_id,
+              })
+            ).then(
+              (result) => {
+                if (
+                  result?.status ===
+                    "waiting"
+                ) {
+                  if (
+                    rematchLabel.active
+                  ) {
+                    rematchLabel.setText(
+                      "CHỜ ĐỐI THỦ..."
+                    );
+                  }
+
+                  return;
+                }
+
+                if (
+                  result?.status ===
+                    "matched"
+                ) {
+                  if (
+                    rematchLabel.active
+                  ) {
+                    rematchLabel.setText(
+                      "ĐANG VÀO TRẬN..."
+                    );
+                  }
+
+                  return;
+                }
+
+                throw new Error(
+                  "Rematch presentation Cing Piu Piu không hợp lệ"
+                );
+              }
+            ).catch(
+              () => {
+                this.terminalRematchRequested =
+                  false;
+
+                if (
+                  rematchButton.active
+                ) {
+                  rematchButton
+                    .setInteractive({
+                      useHandCursor:
+                        true,
+                    })
+                    .setAlpha(
+                      1
+                    );
+                }
+
+                if (
+                  rematchLabel.active
+                ) {
+                  rematchLabel.setText(
+                    "ĐẤU LẠI"
+                  );
+                }
+              }
+            );
+          }
+        );
+
+        const exitButton =
+          this.add
+            .rectangle(
+              mapAsset.width / 2 + 86,
+              mapAsset.height / 2 + 88,
+              154,
+              42,
+              0x26384b,
+              1
+            )
+            .setStrokeStyle(
+              2,
+              0xffd38a,
+              1
+            )
+            .setInteractive({
+              useHandCursor:
+                true,
+            });
+
         const exitLabel =
           this.add
             .text(
-              mapAsset.width / 2,
+              mapAsset.width / 2 + 86,
               mapAsset.height / 2 + 88,
               "THOÁT",
               {
@@ -4212,6 +4361,8 @@ this.presentationTween
                 title,
                 reasonText,
                 status,
+                rematchButton,
+                rematchLabel,
                 exitButton,
                 exitLabel,
               ]

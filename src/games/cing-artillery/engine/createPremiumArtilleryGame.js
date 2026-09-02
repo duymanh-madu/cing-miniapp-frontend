@@ -13,6 +13,7 @@ createPremiumArtilleryGame(
     snapshot,
     onFireIntent,
     onExitIntent,
+    onRematchIntent,
   } = {}
 ) {
   if (!parent) {
@@ -45,6 +46,7 @@ createPremiumArtilleryGame(
 
         onFireIntent,
         onExitIntent,
+        onRematchIntent,
       }
     );
 

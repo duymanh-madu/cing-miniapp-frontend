@@ -71,6 +71,58 @@ createCingArtilleryGameplaySession() {
 }
 
 export async function
+requestCingArtilleryRematch(
+  sourceMatchId
+) {
+  const matchId =
+    String(
+      sourceMatchId || ""
+    ).trim();
+
+  if (!matchId) {
+    throw new Error(
+      "Thiếu source match Cing Piu Piu"
+    );
+  }
+
+  const response =
+    await apiClient.post(
+      `${BASE}/rematch`,
+      {
+        source_match_id:
+          matchId,
+      }
+    );
+
+  const decision =
+    unwrap(
+      response,
+      "Không thể yêu cầu đấu lại Cing Piu Piu"
+    );
+
+  if (
+    decision?.status !== "waiting" &&
+    decision?.status !== "matched"
+  ) {
+    throw new Error(
+      "Rematch Cing Piu Piu trả trạng thái không hợp lệ"
+    );
+  }
+
+  if (
+    decision.status === "matched" &&
+    !decision.rematch_match_id
+  ) {
+    throw new Error(
+      "Rematch Cing Piu Piu thiếu canonical match identity"
+    );
+  }
+
+  return decision;
+}
+
+
+export async function
 enterCingArtilleryMatchmaking(
   gameplaySessionId
 ) {
