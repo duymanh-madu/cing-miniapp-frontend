@@ -525,14 +525,16 @@
 
 
 /* =====================================================
- * CING PIU PIU — 5J4A
- * TRUE LANDSCAPE COMMERCIAL BATTLE SHELL
+ * CING PIU PIU — ROTATED LANDSCAPE SURFACE V1
  *
- * Important:
- * - no CSS 90-degree rotation
- * - no pointer-coordinate remapping
- * - Phaser remains a true 16:9 surface
- * - Zalo/iOS orientation lock is progressive only
+ * Zalo Mini App keeps the host viewport portrait.
+ * Phaser remains canonical landscape.
+ *
+ * On a portrait host the battle shell receives swapped
+ * viewport dimensions and rotates clockwise 90 degrees.
+ * Pointer input is inverse-mapped before Phaser handles it.
+ *
+ * Native landscape environments remain unrotated.
  * ===================================================== */
 
 .cing-piu-piu--battle {
@@ -731,166 +733,6 @@ span:first-child {
 }
 
 
-/* PORTRAIT SAFETY GATE */
-
-.cing-piu-piu__orientation-gate {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
-  box-sizing: border-box;
-  display: grid;
-  place-items: center;
-  padding:
-    max(
-      var(
-        --safe-top,
-        env(
-          safe-area-inset-top,
-          0px
-        )
-      ),
-      20px
-    )
-    22px
-    max(
-      var(
-        --safe-bottom,
-        env(
-          safe-area-inset-bottom,
-          0px
-        )
-      ),
-      20px
-    );
-  background:
-    radial-gradient(
-      circle at 50% 35%,
-      rgba(239,123,37,.22),
-      transparent 30%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(7,17,31,.96),
-      rgba(2,7,13,.995)
-    );
-  backdrop-filter:
-    blur(12px);
-}
-
-.cing-piu-piu__orientation-card {
-  width:
-    min(
-      100%,
-      390px
-    );
-  box-sizing:
-    border-box;
-  padding:
-    28px 24px 24px;
-  border:
-    1px solid
-    rgba(255,190,95,.18);
-  border-radius: 28px;
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255,255,255,.09),
-      rgba(255,255,255,.025)
-    );
-  box-shadow:
-    0 28px 80px
-    rgba(0,0,0,.38);
-  text-align: center;
-}
-
-.cing-piu-piu__orientation-device {
-  width: 88px;
-  height: 56px;
-  margin:
-    0 auto 18px;
-  display: grid;
-  place-items: center;
-  border:
-    3px solid
-    #ffad49;
-  border-radius: 16px;
-  color: #ffe2a7;
-  background:
-    linear-gradient(
-      145deg,
-      #101d2d,
-      #07111f
-    );
-  box-shadow:
-    0 0 36px
-    rgba(255,157,51,.20);
-  font-size: 26px;
-  font-weight: 900;
-}
-
-.cing-piu-piu__orientation-kicker {
-  margin: 0 0 8px;
-  color: #ffbd66;
-  font-size: 9px;
-  font-weight: 950;
-  letter-spacing: 2px;
-}
-
-.cing-piu-piu__orientation-card h2 {
-  margin: 0;
-  color: #fff8e9;
-  font-size: 25px;
-  line-height: 1.05;
-  font-weight: 1000;
-  letter-spacing: -.7px;
-}
-
-.cing-piu-piu__orientation-card
-> p:not(
-  .cing-piu-piu__orientation-kicker
-) {
-  max-width: 320px;
-  margin:
-    13px auto 0;
-  color:
-    rgba(255,255,255,.58);
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.cing-piu-piu__orientation-button {
-  width: 100%;
-  min-height: 50px;
-  margin-top: 22px;
-  border: 0;
-  border-radius: 16px;
-  color: #fff;
-  background:
-    linear-gradient(
-      135deg,
-      #d95e20,
-      #ff8d2f 55%,
-      #ffb44f
-    );
-  box-shadow:
-    0 14px 34px
-    rgba(218,88,28,.28);
-  font-size: 13px;
-  font-weight: 950;
-  cursor: pointer;
-}
-
-.cing-piu-piu__orientation-card
-small {
-  display: block;
-  margin-top: 12px;
-  color:
-    rgba(255,255,255,.34);
-  font-size: 9px;
-  line-height: 1.45;
-}
-
-
 /*
  * Landscape battle consumes the complete
  * physical viewport. Safe-area HUD remains
@@ -906,4 +748,79 @@ small {
   .cing-piu-piu__battle-stage {
     border-radius: 0;
   }
+}
+/* =====================================================
+ * ZALO PORTRAIT HOST → LANDSCAPE BATTLE SURFACE
+ * ===================================================== */
+
+.cing-piu-piu--rotated-landscape {
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+.cing-piu-piu--rotated-landscape
+.cing-piu-piu__battle-shell {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+
+  /*
+   * Swap host dimensions before rotation:
+   *
+   * landscape width  = portrait viewport height
+   * landscape height = portrait viewport width
+   */
+  width:
+    var(
+      --app-height,
+      100dvh
+    );
+
+  height:
+    var(
+      --app-width,
+      100vw
+    );
+
+  transform:
+    translate(
+      -50%,
+      -50%
+    )
+    rotate(90deg);
+
+  transform-origin:
+    50% 50%;
+
+  touch-action: none;
+  overscroll-behavior: none;
+
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.cing-piu-piu--rotated-landscape
+.cing-piu-piu__battle-stage,
+.cing-piu-piu--rotated-landscape
+.cing-piu-piu__battle-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.cing-piu-piu--rotated-landscape
+.cing-piu-piu__battle-canvas canvas {
+  touch-action: none;
+}
+
+.cing-piu-piu--rotated-landscape
+.cing-piu-piu__battle-brand,
+.cing-piu-piu--native-landscape
+.cing-piu-piu__battle-brand {
+  visibility: hidden;
+}
+
+.cing-piu-piu--native-landscape
+.cing-piu-piu__battle-shell {
+  transform: none;
 }

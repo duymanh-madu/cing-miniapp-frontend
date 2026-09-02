@@ -6,6 +6,153 @@ import createBattleScene, {
   CANONICAL_RESULT_EVENT,
 } from "../scenes/BattleScene";
 
+
+function clampUnitInterval(
+  value
+) {
+  return Math.max(
+    0,
+    Math.min(
+      1,
+      value
+    )
+  );
+}
+
+
+function installCingPiuPiuRotatedPointerAdapter(
+  game,
+  parent
+) {
+  const inputManager =
+    game?.input;
+
+  const originalTransformPointer =
+    inputManager
+      ?.transformPointer;
+
+  if (
+    typeof originalTransformPointer !==
+      "function"
+  ) {
+    return;
+  }
+
+  inputManager.transformPointer =
+    function transformCingPiuPiuPointer(
+      pointer,
+      pageX,
+      pageY,
+      wasTouch
+    ) {
+      const rotated =
+        parent
+          ?.closest?.(
+            ".cing-piu-piu--rotated-landscape"
+          );
+
+      if (!rotated) {
+        return originalTransformPointer.call(
+          this,
+          pointer,
+          pageX,
+          pageY,
+          wasTouch
+        );
+      }
+
+      const rect =
+        game
+          ?.canvas
+          ?.getBoundingClientRect?.();
+
+      if (
+        !rect ||
+        !(rect.width > 0) ||
+        !(rect.height > 0)
+      ) {
+        return originalTransformPointer.call(
+          this,
+          pointer,
+          pageX,
+          pageY,
+          wasTouch
+        );
+      }
+
+      const scrollX =
+        window.scrollX ||
+        window.pageXOffset ||
+        0;
+
+      const scrollY =
+        window.scrollY ||
+        window.pageYOffset ||
+        0;
+
+      const physicalX =
+        clampUnitInterval(
+          (
+            pageX -
+            rect.left -
+            scrollX
+          ) /
+          rect.width
+        );
+
+      const physicalY =
+        clampUnitInterval(
+          (
+            pageY -
+            rect.top -
+            scrollY
+          ) /
+          rect.height
+        );
+
+      /*
+       * Presentation rotates clockwise 90 degrees.
+       *
+       * Inverse normalized mapping:
+       *
+       * canonical X = physical Y
+       * canonical Y = 1 - physical X
+       *
+       * Gameplay authority itself remains unchanged.
+       */
+      const canonicalX =
+        physicalY;
+
+      const canonicalY =
+        1 -
+        physicalX;
+
+      const mappedPageX =
+        rect.left +
+        scrollX +
+        (
+          canonicalX *
+          rect.width
+        );
+
+      const mappedPageY =
+        rect.top +
+        scrollY +
+        (
+          canonicalY *
+          rect.height
+        );
+
+      return originalTransformPointer.call(
+        this,
+        pointer,
+        mappedPageX,
+        mappedPageY,
+        wasTouch
+      );
+    };
+}
+
 export async function
 createPremiumArtilleryGame(
   parent,
@@ -89,6 +236,16 @@ createPremiumArtilleryGame(
 
       powerPreference:
         "high-performance",
+    },
+
+    callbacks: {
+      postBoot:
+        game => {
+          installCingPiuPiuRotatedPointerAdapter(
+            game,
+            parent
+          );
+        },
     },
 
     scale: {

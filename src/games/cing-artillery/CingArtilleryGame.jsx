@@ -1569,65 +1569,14 @@ CingArtilleryGame({
         className={
           `cing-piu-piu cing-piu-piu--battle ${
             landscapeReady
-              ? "cing-piu-piu--landscape-ready"
-              : "cing-piu-piu--portrait-blocked"
+              ? "cing-piu-piu--native-landscape"
+              : "cing-piu-piu--rotated-landscape"
           }`
         }
       >
         <div
           className="cing-piu-piu__battle-shell"
         >
-          {!landscapeReady && (
-            <div
-              className="cing-piu-piu__orientation-gate"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Chuyển Cing Piu Piu sang màn hình ngang"
-            >
-              <div
-                className="cing-piu-piu__orientation-card"
-              >
-                <div
-                  className="cing-piu-piu__orientation-device"
-                  aria-hidden="true"
-                >
-                  ↻
-                </div>
-
-                <p
-                  className="cing-piu-piu__orientation-kicker"
-                >
-                  BATTLE MODE · 16:9
-                </p>
-
-                <h2>
-                  Xoay ngang để chiến đấu
-                </h2>
-
-                <p>
-                  Cing Piu Piu được thiết kế theo
-                  màn hình ngang để giữ trọn bản đồ,
-                  HUD và không gian ngắm bắn.
-                </p>
-
-                <button
-                  type="button"
-                  className="cing-piu-piu__orientation-button"
-                  onClick={
-                    enterLandscapeBattleMode
-                  }
-                >
-                  Thử chuyển sang ngang
-                </button>
-
-                <small>
-                  Nếu Zalo không cho phép tự xoay,
-                  hãy bật xoay màn hình và xoay ngang điện thoại.
-                </small>
-              </div>
-            </div>
-          )}
-
           <div
             className="cing-piu-piu__battle-topbar"
           >

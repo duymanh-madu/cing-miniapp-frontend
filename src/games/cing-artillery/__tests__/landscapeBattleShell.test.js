@@ -29,6 +29,11 @@ const landscape =
     "src/games/cing-artillery/runtime/cingArtilleryLandscapeMode.js"
   );
 
+const engine =
+  read(
+    "src/games/cing-artillery/engine/createPremiumArtilleryGame.js"
+  );
+
 const config =
   read(
     "src/games/cing-artillery/engine/premiumArtilleryConfig.js"
@@ -36,7 +41,7 @@ const config =
 
 
 test(
-  "5J4A preserves canonical 16:9 render authority",
+  "Rotated Surface V1 preserves canonical 16:9 render authority",
   () => {
     assert.match(
       config,
@@ -52,11 +57,21 @@ test(
 
 
 test(
-  "battle shell consumes live mobile viewport instead of portrait card layout",
+  "portrait Zalo host uses rotated landscape presentation",
   () => {
     assert.match(
+      game,
+      /cing-piu-piu--rotated-landscape/u
+    );
+
+    assert.match(
+      game,
+      /cing-piu-piu--native-landscape/u
+    );
+
+    assert.match(
       css,
-      /--app-width/u
+      /rotate\(90deg\)/u
     );
 
     assert.match(
@@ -66,80 +81,75 @@ test(
 
     assert.match(
       css,
-      /\.cing-piu-piu--battle[\s\S]*?height:[\s\S]*?--app-height/u
-    );
-
-    assert.match(
-      css,
-      /\.cing-piu-piu__battle-stage[\s\S]*?position:\s*absolute[\s\S]*?inset:\s*0/u
+      /--app-width/u
     );
   }
 );
 
 
 test(
-  "landscape mode uses real viewport orientation with progressive lock",
+  "portrait orientation gate cannot block gameplay",
   () => {
-    assert.match(
-      landscape,
-      /visualViewport/u
-    );
-
-    assert.match(
-      landscape,
-      /screen\.orientation[\s\S]*?\.lock/u
-    );
-
-    assert.match(
-      landscape,
-      /\.lock\(\s*"landscape"\s*\)/u
-    );
-
-    assert.match(
-      landscape,
-      /requestFullscreen/u
-    );
-  }
-);
-
-
-test(
-  "portrait fallback asks for physical rotation instead of CSS rotating gameplay",
-  () => {
-    assert.match(
+    assert.doesNotMatch(
       game,
       /cing-piu-piu__orientation-gate/u
     );
 
-    assert.match(
+    assert.doesNotMatch(
       game,
       /Xoay ngang để chiến đấu/u
     );
 
-    assert.match(
-      game,
-      /requestCingArtilleryLandscapeMode/u
-    );
-
     assert.doesNotMatch(
-      landscape,
-      /rotate\s*\(/u
+      game,
+      /Thử chuyển sang ngang/u
     );
   }
 );
 
 
 test(
-  "5J4A landscape utility remains presentation-only while BattleScene owns input presentation",
+  "rotated surface inverse maps pointer input",
+  () => {
+    assert.match(
+      engine,
+      /installCingPiuPiuRotatedPointerAdapter/u
+    );
+
+    assert.match(
+      engine,
+      /transformPointer/u
+    );
+
+    assert.match(
+      engine,
+      /canonicalX\s*=\s*physicalY/u
+    );
+
+    assert.match(
+      engine,
+      /canonicalY\s*=\s*1\s*-\s*physicalX/u
+    );
+
+    assert.match(
+      engine,
+      /originalTransformPointer\.call/u
+    );
+  }
+);
+
+
+test(
+  "rotated presentation owns no gameplay authority",
   () => {
     assert.doesNotMatch(
-      landscape,
-      /shot-command|angleDeg|power|damage|current_hp/u
+      engine,
+      /damage|current_hp|winner|trajectory/u
     );
 
     assert.doesNotMatch(
       landscape,
-      /sendShot|onFireIntent|fireShot/u
+      /shot-command|angleDeg|power|damage|current_hp/u
     );
 
     assert.match(
@@ -151,32 +161,16 @@ test(
 
 
 test(
-  "landscape UX never claims host rotation succeeded before viewport changes",
-  () => {
-    assert.match(
-      landscape,
-      /requiresPhysicalRotation/u
-    );
-
-    assert.match(
-      game,
-      /Thử chuyển sang ngang/u
-    );
-
-    assert.match(
-      game,
-      /xoay ngang điện thoại/u
-    );
-  }
-);
-
-
-test(
-  "landscape runtime does not call undocumented Zalo bridge orientation actions",
+  "undocumented Zalo autorotate bridge remains unused",
   () => {
     assert.doesNotMatch(
       landscape,
       /CHANGE_AUTOROTATE|ZaloJSBridge|jsBridge|OrientationType/u
+    );
+
+    assert.doesNotMatch(
+      engine,
+      /CHANGE_AUTOROTATE|ZaloJSBridge|OrientationType/u
     );
   }
 );
