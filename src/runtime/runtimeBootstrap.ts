@@ -140,6 +140,22 @@ async function openAuthenticatedRuntimeSession():
       accessToken
     );
 
+    /*
+     * A persisted JWT is authoritative only after the backend
+     * has accepted it above. Hydrate the application auth store
+     * at that boundary so cold-start sessions and fresh-login
+     * sessions expose the same authenticated state.
+     */
+    useAuthStore
+      .getState()
+      .setSession({
+        accessToken,
+        refreshToken,
+        profile:
+          session?.profile ||
+          null,
+      });
+
     return "authenticated";
 
   } catch (error: any) {
