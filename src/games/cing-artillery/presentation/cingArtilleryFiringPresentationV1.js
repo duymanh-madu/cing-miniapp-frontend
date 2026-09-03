@@ -52,33 +52,77 @@ function resolveViewerPlayerV1(
       ?.players
       ?.player_two;
 
+  let slot =
+    null;
+
+  let player =
+    null;
+
+  let opponent =
+    null;
+
   if (
     playerOne?.account_id ===
     viewerAccountId
   ) {
-    return {
-      slot: 1,
-      player:
-        playerOne,
-      facing:
-        1,
-    };
-  }
+    slot =
+      1;
 
-  if (
+    player =
+      playerOne;
+
+    opponent =
+      playerTwo;
+  } else if (
     playerTwo?.account_id ===
     viewerAccountId
   ) {
-    return {
-      slot: 2,
-      player:
-        playerTwo,
-      facing:
-        -1,
-    };
+    slot =
+      2;
+
+    player =
+      playerTwo;
+
+    opponent =
+      playerOne;
+  } else {
+    return null;
   }
 
-  return null;
+  const shooterX =
+    Number(
+      player?.position_x
+    );
+
+  const opponentX =
+    Number(
+      opponent?.position_x
+    );
+
+  if (
+    !Number.isFinite(
+      shooterX
+    ) ||
+    !Number.isFinite(
+      opponentX
+    ) ||
+    shooterX ===
+      opponentX
+  ) {
+    return null;
+  }
+
+  return {
+    slot,
+    player,
+    opponent,
+
+    facing:
+      opponentX >
+      shooterX
+        ? 1
+        : -1,
+  };
 }
 
 function createFiringPresentationV1({

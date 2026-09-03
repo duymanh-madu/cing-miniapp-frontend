@@ -77,11 +77,17 @@ test(
           player_one: {
             account_id:
               "account-a",
+
+            position_x:
+              760,
           },
 
           player_two: {
             account_id:
               "account-b",
+
+            position_x:
+              220,
           },
         },
       });
@@ -92,8 +98,18 @@ test(
     );
 
     assert.equal(
+      result.player.account_id,
+      "account-b"
+    );
+
+    assert.equal(
+      result.opponent.account_id,
+      "account-a"
+    );
+
+    assert.equal(
       result.facing,
-      -1
+      1
     );
   }
 );

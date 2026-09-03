@@ -2142,9 +2142,44 @@ this.presentationTween
           this.aimAngleDeg
         );
 
-      const facing =
+      const opponent =
         one?.account_id ===
         viewer
+          ? two
+          : two?.account_id ===
+              viewer
+            ? one
+            : null;
+
+      const opponentX =
+        Number(
+          opponent?.position_x
+        );
+
+      if (
+        !Number.isFinite(
+          opponentX
+        ) ||
+        opponentX ===
+          x
+      ) {
+        this.aimGuide
+          .clear()
+          .setVisible(
+            false
+          );
+
+        this.aimGuideTip
+          .setVisible(
+            false
+          );
+
+        return;
+      }
+
+      const facing =
+        opponentX >
+        x
           ? 1
           : -1;
 
