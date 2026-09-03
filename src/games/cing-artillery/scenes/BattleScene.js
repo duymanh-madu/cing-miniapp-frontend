@@ -80,16 +80,16 @@ const DEFAULT_POWER =
 
 const COMMERCIAL_HUD_V1 =
   Object.freeze({
-    topBarHeight: 92,
-    playerPanelWidth: 286,
-    playerPanelHeight: 64,
-    centerPanelWidth: 154,
-    centerPanelHeight: 70,
+    topBarHeight: 106,
+    playerPanelWidth: 236,
+    playerPanelHeight: 58,
+    centerPanelWidth: 142,
+    centerPanelHeight: 62,
     controlPanelY: 490,
     controlPanelHeight: 82,
-    hpBarWidth: 176,
+    hpBarWidth: 146,
     hpBarHeight: 10,
-    powerBarWidth: 176,
+    powerBarWidth: 148,
     powerBarHeight: 12,
   });
 
@@ -1379,6 +1379,9 @@ this.presentationTween
         mapAsset.width -
         104;
 
+      const powerControlOffset =
+        146;
+
       this.createControlButton({
         world,
         x:
@@ -1450,7 +1453,7 @@ this.presentationTween
         world,
         x:
           powerCenterX -
-          76,
+          powerControlOffset,
         y,
         width:
           46,
@@ -1467,40 +1470,18 @@ this.presentationTween
           0x64c7ff,
       });
 
+      /*
+       * Commercial power HUD owns the visible value/bar.
+       * Keep no duplicate legacy power readout.
+       */
       this.powerText =
-        this.add
-          .text(
-            powerCenterX,
-            y,
-            "",
-            {
-              fontFamily:
-                "Inter, Arial, sans-serif",
-              fontSize:
-                "15px",
-              fontStyle:
-                "bold",
-              color:
-                "#ffffff",
-              stroke:
-                "#07111f",
-              strokeThickness:
-                4,
-            }
-          )
-          .setOrigin(
-            0.5
-          );
-
-      world.add(
-        this.powerText
-      );
+        null;
 
       this.createControlButton({
         world,
         x:
           powerCenterX +
-          76,
+          powerControlOffset,
         y,
         width:
           46,
@@ -1741,7 +1722,7 @@ this.presentationTween
           const panel =
             this.add.container(
               x,
-              14
+              34
             );
 
           const background =
@@ -1874,7 +1855,7 @@ this.presentationTween
 
       const left =
         createPlayerPanel({
-          x: 18,
+          x: 72,
           accent: 0xffa33c,
           align: "left",
           title: "CHIẾN BINH 1",
@@ -1882,7 +1863,7 @@ this.presentationTween
 
       const right =
         createPlayerPanel({
-          x: mapAsset.width - 18,
+          x: mapAsset.width - 24,
           accent: 0x64c7ff,
           align: "right",
           title: "CHIẾN BINH 2",
@@ -1891,7 +1872,7 @@ this.presentationTween
       const center =
         this.add.container(
           mapAsset.width / 2,
-          14
+          34
         );
 
       const centerBackground =
@@ -1986,7 +1967,7 @@ this.presentationTween
       const wind =
         this.add.text(
           mapAsset.width / 2,
-          94,
+          103,
           "",
           {
             fontFamily:
@@ -2216,7 +2197,7 @@ this.presentationTween
         mapAsset.width / 2;
 
       const y =
-        mapAsset.height - 84;
+        mapAsset.height - 76;
 
       const panel =
         this.add.container(
@@ -2231,7 +2212,7 @@ this.presentationTween
         this.add.rectangle(
           0,
           0,
-          238,
+          196,
           42,
           0x07111f,
           0.88
@@ -2244,7 +2225,7 @@ this.presentationTween
 
       const label =
         this.add.text(
-          -106,
+          -86,
           -14,
           "LỰC",
           {
@@ -2261,7 +2242,7 @@ this.presentationTween
 
       const track =
         this.add.rectangle(
-          -106,
+          -86,
           3,
           COMMERCIAL_HUD_V1.powerBarWidth,
           COMMERCIAL_HUD_V1.powerBarHeight,
@@ -2280,7 +2261,7 @@ this.presentationTween
 
       const fill =
         this.add.rectangle(
-          -105,
+          -85,
           3,
           COMMERCIAL_HUD_V1.powerBarWidth - 2,
           COMMERCIAL_HUD_V1.powerBarHeight - 2,
@@ -2294,7 +2275,7 @@ this.presentationTween
 
       const value =
         this.add.text(
-          106,
+          86,
           -5,
           "",
           {
@@ -2332,6 +2313,7 @@ this.presentationTween
         value;
 
       this.refreshCommercialPowerPresentationV1();
+
     }
 
     refreshCommercialPowerPresentationV1() {
