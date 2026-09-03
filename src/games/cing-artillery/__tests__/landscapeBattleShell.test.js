@@ -41,7 +41,7 @@ const config =
 
 
 test(
-  "Responsive Surface V4A preserves canonical combat world authority",
+  "Rotated Surface V1 preserves canonical 16:9 render authority",
   () => {
     assert.match(
       config,

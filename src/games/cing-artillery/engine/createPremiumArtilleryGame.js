@@ -153,34 +153,6 @@ function installCingPiuPiuRotatedPointerAdapter(
     };
 }
 
-function getCingPiuPiuInitialRenderSize(
-  parent
-) {
-  const width =
-    Math.max(
-      1,
-      Math.round(
-        parent?.clientWidth ||
-        PREMIUM_ARTILLERY_RENDER.width
-      )
-    );
-
-  const height =
-    Math.max(
-      1,
-      Math.round(
-        parent?.clientHeight ||
-        PREMIUM_ARTILLERY_RENDER.height
-      )
-    );
-
-  return {
-    width,
-    height,
-  };
-}
-
-
 export async function
 createPremiumArtilleryGame(
   parent,
@@ -212,11 +184,6 @@ createPremiumArtilleryGame(
     PhaserModule.default ||
     PhaserModule;
 
-  const initialRenderSize =
-    getCingPiuPiuInitialRenderSize(
-      parent
-    );
-
   const BattleScene =
     createBattleScene(
       Phaser,
@@ -237,10 +204,12 @@ createPremiumArtilleryGame(
     parent,
 
     width:
-      initialRenderSize.width,
+      PREMIUM_ARTILLERY_RENDER
+        .width,
 
     height:
-      initialRenderSize.height,
+      PREMIUM_ARTILLERY_RENDER
+        .height,
 
     backgroundColor:
       PREMIUM_ARTILLERY_RENDER
@@ -280,18 +249,19 @@ createPremiumArtilleryGame(
     },
 
     scale: {
-      /*
-       * Render buffer follows the real logical battle viewport.
-       * Canonical gameplay geometry stays inside BattleScene.
-       */
       mode:
-        Phaser.Scale.RESIZE,
+        Phaser.Scale.FIT,
+
+      autoCenter:
+        Phaser.Scale.CENTER_BOTH,
 
       width:
-        initialRenderSize.width,
+        PREMIUM_ARTILLERY_RENDER
+          .width,
 
       height:
-        initialRenderSize.height,
+        PREMIUM_ARTILLERY_RENDER
+          .height,
     },
 
     scene: [

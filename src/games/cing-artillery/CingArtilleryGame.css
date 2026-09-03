@@ -525,7 +525,7 @@
 
 
 /* =====================================================
- * CING PIU PIU — RESPONSIVE BATTLE SURFACE V4A
+ * CING PIU PIU — FULLSCREEN BATTLE SURFACE V2
  *
  * The Zalo host may remain portrait permanently.
  *
@@ -627,14 +627,6 @@
 
 .cing-piu-piu--battle
 .cing-piu-piu__battle-canvas canvas {
-  /*
-   * V4A: Phaser RESIZE owns the real logical viewport.
-   * Canonical 960x540 gameplay is uniformly contained
-   * and centered by BattleScene.
-   */
-  position: absolute;
-  inset: 0;
-
   display: block;
 
   width: 100% !important;

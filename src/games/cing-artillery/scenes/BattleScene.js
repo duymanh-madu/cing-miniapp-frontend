@@ -341,6 +341,26 @@ createBattleScene(
         this
       );
 
+      const scaleX =
+        this.scale.width /
+        mapAsset.width;
+
+      const scaleY =
+        this.scale.height /
+        mapAsset.height;
+
+      if (
+        Math.abs(
+          scaleX -
+          scaleY
+        ) >
+        0.000001
+      ) {
+        throw new Error(
+          "Cing Piu Piu render surface không đồng tỷ lệ với combat world"
+        );
+      }
+
       const world =
         this.add.container(
           0,
@@ -350,16 +370,8 @@ createBattleScene(
       this.world =
         world;
 
-      /*
-       * Gameplay space remains exactly 960x540.
-       * The viewport only owns presentation projection.
-       */
-      this.applyResponsiveWorldProjection();
-
-      this.scale.on(
-        "resize",
-        this.applyResponsiveWorldProjection,
-        this
+      world.setScale(
+        scaleX
       );
 
       world.add(
@@ -642,6 +654,25 @@ createBattleScene(
         world
       );
 
+      /*
+       * Commercial HUD supersedes the original diagnostic
+       * battle text. Keep the objects alive for existing
+       * snapshot projection, but never render both layers.
+       */
+      [
+        this.playerOneHp,
+        this.playerTwoHp,
+        this.turnText,
+        this.timerText,
+        this.windText,
+        this.viewerText,
+      ].forEach(
+        item =>
+          item?.setVisible(
+            false
+          )
+      );
+
       this.firingPresentation =
         createFiringPresentationV1({
           scene:
@@ -732,12 +763,6 @@ createBattleScene(
             this
           );
 
-          this.scale.off(
-            "resize",
-            this.applyResponsiveWorldProjection,
-            this
-          );
-
                       this.playerOneMotionTween
               ?.stop();
 
@@ -823,87 +848,6 @@ this.presentationTween
         this.snapshot
       );
     }
-
-    applyResponsiveWorldProjection() {
-
-      if (!this.world) {
-        return;
-      }
-
-      const renderWidth =
-        this.scale.width;
-
-      const renderHeight =
-        this.scale.height;
-
-      if (
-        !Number.isFinite(
-          renderWidth
-        ) ||
-        !Number.isFinite(
-          renderHeight
-        ) ||
-        renderWidth <= 0 ||
-        renderHeight <= 0
-      ) {
-        throw new Error(
-          "Cing Piu Piu responsive render viewport không hợp lệ"
-        );
-      }
-
-      const worldScale =
-        Math.min(
-          renderWidth /
-            mapAsset.width,
-          renderHeight /
-            mapAsset.height
-        );
-
-      if (
-        !Number.isFinite(
-          worldScale
-        ) ||
-        worldScale <= 0
-      ) {
-        throw new Error(
-          "Cing Piu Piu responsive world scale không hợp lệ"
-        );
-      }
-
-      const projectedWidth =
-        mapAsset.width *
-        worldScale;
-
-      const projectedHeight =
-        mapAsset.height *
-        worldScale;
-
-      const offsetX =
-        (
-          renderWidth -
-          projectedWidth
-        ) /
-        2;
-
-      const offsetY =
-        (
-          renderHeight -
-          projectedHeight
-        ) /
-        2;
-
-      this.world.setPosition(
-        offsetX,
-        offsetY
-      );
-
-      this.world.setScale(
-        worldScale
-      );
-
-    }
-
-
 
     createAuthoritativeTerrainSurface(
       world
@@ -1410,17 +1354,39 @@ this.presentationTween
     createBattleControls(
       world
     ) {
+      /*
+       * Fullscreen V2 battle-control layout.
+       *
+       * Canonical gameplay remains 960x540.
+       * This method owns presentation placement only:
+       *
+       * LEFT   : aim angle
+       * CENTER : shot power
+       * RIGHT  : fire
+       */
       const y =
         mapAsset.height -
-        92;
+        76;
+
+      const angleCenterX =
+        136;
+
+      const powerCenterX =
+        mapAsset.width /
+        2;
+
+      const fireCenterX =
+        mapAsset.width -
+        104;
 
       this.createControlButton({
         world,
         x:
-          84,
+          angleCenterX -
+          62,
         y,
         width:
-          42,
+          46,
         label:
           "−",
         onPress:
@@ -1435,25 +1401,20 @@ this.presentationTween
       this.angleText =
         this.add
           .text(
-            146,
+            angleCenterX,
             y,
             "",
             {
               fontFamily:
                 "Inter, Arial, sans-serif",
-
               fontSize:
-                "14px",
-
+                "15px",
               fontStyle:
                 "bold",
-
               color:
                 "#ffffff",
-
               stroke:
                 "#07111f",
-
               strokeThickness:
                 4,
             }
@@ -1469,10 +1430,11 @@ this.presentationTween
       this.createControlButton({
         world,
         x:
-          208,
+          angleCenterX +
+          62,
         y,
         width:
-          42,
+          46,
         label:
           "+",
         onPress:
@@ -1487,11 +1449,11 @@ this.presentationTween
       this.createControlButton({
         world,
         x:
-          mapAsset.width -
-          250,
+          powerCenterX -
+          76,
         y,
         width:
-          42,
+          46,
         label:
           "−",
         onPress:
@@ -1508,26 +1470,20 @@ this.presentationTween
       this.powerText =
         this.add
           .text(
-            mapAsset.width -
-              174,
+            powerCenterX,
             y,
             "",
             {
               fontFamily:
                 "Inter, Arial, sans-serif",
-
               fontSize:
-                "14px",
-
+                "15px",
               fontStyle:
                 "bold",
-
               color:
                 "#ffffff",
-
               stroke:
                 "#07111f",
-
               strokeThickness:
                 4,
             }
@@ -1543,11 +1499,11 @@ this.presentationTween
       this.createControlButton({
         world,
         x:
-          mapAsset.width -
-          98,
+          powerCenterX +
+          76,
         y,
         width:
-          42,
+          46,
         label:
           "+",
         onPress:
@@ -1565,11 +1521,10 @@ this.presentationTween
         this.createControlButton({
           world,
           x:
-            mapAsset.width /
-            2,
+            fireCenterX,
           y,
           width:
-            116,
+            132,
           label:
             "BẮN",
           accent:
@@ -1583,26 +1538,20 @@ this.presentationTween
       this.fireStatusText =
         this.add
           .text(
-            mapAsset.width /
-              2,
-            y + 30,
+            fireCenterX,
+            y + 31,
             "",
             {
               fontFamily:
                 "Inter, Arial, sans-serif",
-
               fontSize:
                 "11px",
-
               fontStyle:
                 "bold",
-
               color:
                 "#ffd7a3",
-
               stroke:
                 "#07111f",
-
               strokeThickness:
                 3,
             }
@@ -1617,6 +1566,7 @@ this.presentationTween
 
       this.refreshBattleControls();
       this.refreshCommercialBattleHudV1();
+
     }
 
     bindCommercialFireButtonV1() {
@@ -2947,20 +2897,12 @@ this.presentationTween
         );
       }
 
-      const worldOffsetX =
-        this.world.x;
-
-      const worldOffsetY =
-        this.world.y;
-
       const cameraTarget =
         this.add.zone(
-          worldOffsetX +
-            firstSample.x *
-              worldScale,
-          worldOffsetY +
-            firstSample.y *
-              worldScale,
+          firstSample.x *
+            worldScale,
+          firstSample.y *
+            worldScale,
           1,
           1
         );
@@ -3029,24 +2971,20 @@ this.presentationTween
           }
 
           const trailStartX =
-            worldOffsetX +
             previous.x *
-              worldScale;
+            worldScale;
 
           const trailStartY =
-            worldOffsetY +
             previous.y *
-              worldScale;
+            worldScale;
 
           const trailEndX =
-            worldOffsetX +
             next.x *
-              worldScale;
+            worldScale;
 
           const trailEndY =
-            worldOffsetY +
             next.y *
-              worldScale;
+            worldScale;
 
           trail.lineStyle(
             2,
@@ -3090,24 +3028,20 @@ this.presentationTween
                   onUpdate:
                     () => {
                       cameraTarget.setPosition(
-                        worldOffsetX +
-                          projectile.x *
-                            worldScale,
-                        worldOffsetY +
-                          projectile.y *
-                            worldScale
+                        projectile.x *
+                          worldScale,
+                        projectile.y *
+                          worldScale
                       );
                     },
 
                   onComplete:
                     () => {
                       cameraTarget.setPosition(
-                        worldOffsetX +
-                          next.x *
-                            worldScale,
-                        worldOffsetY +
-                          next.y *
-                            worldScale
+                        next.x *
+                          worldScale,
+                        next.y *
+                          worldScale
                       );
 
                       this.presentationTween =
