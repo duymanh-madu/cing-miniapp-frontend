@@ -525,7 +525,7 @@
 
 
 /* =====================================================
- * CING PIU PIU — ASPECT-CORRECT BATTLE SURFACE V3
+ * CING PIU PIU — RESPONSIVE BATTLE SURFACE V4A
  *
  * The Zalo host may remain portrait permanently.
  *
@@ -628,41 +628,22 @@
 .cing-piu-piu--battle
 .cing-piu-piu__battle-canvas canvas {
   /*
-   * Phaser owns a canonical 16:9 render surface.
-   *
-   * Presentation may cover/crop the live Zalo viewport,
-   * but must never independently stretch width/height.
+   * V4A: Phaser RESIZE owns the real logical viewport.
+   * Canonical 960x540 gameplay is uniformly contained
+   * and centered by BattleScene.
    */
   position: absolute;
-
-  top: 50%;
-  left: 50%;
+  inset: 0;
 
   display: block;
 
-  width: auto !important;
-  height: auto !important;
-
-  min-width: 100% !important;
-  min-height: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
 
   max-width: none !important;
   max-height: none !important;
 
-  aspect-ratio: 16 / 9;
-
-  transform:
-    translate(
-      -50%,
-      -50%
-    );
-
-  transform-origin:
-    50% 50%;
-
   margin: 0 !important;
-
-  object-fit: cover;
 
   touch-action: none;
 }

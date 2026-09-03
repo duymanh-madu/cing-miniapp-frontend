@@ -341,26 +341,6 @@ createBattleScene(
         this
       );
 
-      const scaleX =
-        this.scale.width /
-        mapAsset.width;
-
-      const scaleY =
-        this.scale.height /
-        mapAsset.height;
-
-      if (
-        Math.abs(
-          scaleX -
-          scaleY
-        ) >
-        0.000001
-      ) {
-        throw new Error(
-          "Cing Piu Piu render surface không đồng tỷ lệ với combat world"
-        );
-      }
-
       const world =
         this.add.container(
           0,
@@ -370,8 +350,16 @@ createBattleScene(
       this.world =
         world;
 
-      world.setScale(
-        scaleX
+      /*
+       * Gameplay space remains exactly 960x540.
+       * The viewport only owns presentation projection.
+       */
+      this.applyResponsiveWorldProjection();
+
+      this.scale.on(
+        "resize",
+        this.applyResponsiveWorldProjection,
+        this
       );
 
       world.add(
@@ -744,6 +732,12 @@ createBattleScene(
             this
           );
 
+          this.scale.off(
+            "resize",
+            this.applyResponsiveWorldProjection,
+            this
+          );
+
                       this.playerOneMotionTween
               ?.stop();
 
@@ -829,6 +823,87 @@ this.presentationTween
         this.snapshot
       );
     }
+
+    applyResponsiveWorldProjection() {
+
+      if (!this.world) {
+        return;
+      }
+
+      const renderWidth =
+        this.scale.width;
+
+      const renderHeight =
+        this.scale.height;
+
+      if (
+        !Number.isFinite(
+          renderWidth
+        ) ||
+        !Number.isFinite(
+          renderHeight
+        ) ||
+        renderWidth <= 0 ||
+        renderHeight <= 0
+      ) {
+        throw new Error(
+          "Cing Piu Piu responsive render viewport không hợp lệ"
+        );
+      }
+
+      const worldScale =
+        Math.min(
+          renderWidth /
+            mapAsset.width,
+          renderHeight /
+            mapAsset.height
+        );
+
+      if (
+        !Number.isFinite(
+          worldScale
+        ) ||
+        worldScale <= 0
+      ) {
+        throw new Error(
+          "Cing Piu Piu responsive world scale không hợp lệ"
+        );
+      }
+
+      const projectedWidth =
+        mapAsset.width *
+        worldScale;
+
+      const projectedHeight =
+        mapAsset.height *
+        worldScale;
+
+      const offsetX =
+        (
+          renderWidth -
+          projectedWidth
+        ) /
+        2;
+
+      const offsetY =
+        (
+          renderHeight -
+          projectedHeight
+        ) /
+        2;
+
+      this.world.setPosition(
+        offsetX,
+        offsetY
+      );
+
+      this.world.setScale(
+        worldScale
+      );
+
+    }
+
+
 
     createAuthoritativeTerrainSurface(
       world
@@ -2872,12 +2947,20 @@ this.presentationTween
         );
       }
 
+      const worldOffsetX =
+        this.world.x;
+
+      const worldOffsetY =
+        this.world.y;
+
       const cameraTarget =
         this.add.zone(
-          firstSample.x *
-            worldScale,
-          firstSample.y *
-            worldScale,
+          worldOffsetX +
+            firstSample.x *
+              worldScale,
+          worldOffsetY +
+            firstSample.y *
+              worldScale,
           1,
           1
         );
@@ -2946,20 +3029,24 @@ this.presentationTween
           }
 
           const trailStartX =
+            worldOffsetX +
             previous.x *
-            worldScale;
+              worldScale;
 
           const trailStartY =
+            worldOffsetY +
             previous.y *
-            worldScale;
+              worldScale;
 
           const trailEndX =
+            worldOffsetX +
             next.x *
-            worldScale;
+              worldScale;
 
           const trailEndY =
+            worldOffsetY +
             next.y *
-            worldScale;
+              worldScale;
 
           trail.lineStyle(
             2,
@@ -3003,20 +3090,24 @@ this.presentationTween
                   onUpdate:
                     () => {
                       cameraTarget.setPosition(
-                        projectile.x *
-                          worldScale,
-                        projectile.y *
-                          worldScale
+                        worldOffsetX +
+                          projectile.x *
+                            worldScale,
+                        worldOffsetY +
+                          projectile.y *
+                            worldScale
                       );
                     },
 
                   onComplete:
                     () => {
                       cameraTarget.setPosition(
-                        next.x *
-                          worldScale,
-                        next.y *
-                          worldScale
+                        worldOffsetX +
+                          next.x *
+                            worldScale,
+                        worldOffsetY +
+                          next.y *
+                            worldScale
                       );
 
                       this.presentationTween =
