@@ -350,6 +350,12 @@ CingArtilleryGame({
   const [turnState, setTurnState] =
     useState(null);
 
+  const canonicalTurnRef =
+    useRef(
+      null
+    );
+
+
   const [battleSnapshot, setBattleSnapshot] =
     useState(null);
 
@@ -1199,6 +1205,39 @@ CingArtilleryGame({
               return;
             }
 
+            const canonicalTurnNumber =
+              Number(
+                value?.turn_number
+              );
+
+            if (
+              !Number.isInteger(
+                canonicalTurnNumber
+              ) ||
+              canonicalTurnNumber <= 0
+            ) {
+              return;
+            }
+
+            const knownTurnNumber =
+              Number(
+                canonicalTurnRef.current
+                  ?.turn_number
+              );
+
+            if (
+              Number.isInteger(
+                knownTurnNumber
+              ) &&
+              canonicalTurnNumber <
+                knownTurnNumber
+            ) {
+              return;
+            }
+
+            canonicalTurnRef.current =
+              value;
+
             setTurnState(
               value
             );
@@ -1217,12 +1256,38 @@ CingArtilleryGame({
                     return;
                   }
 
+                  const snapshotTurnNumber =
+                    Number(
+                      snapshot
+                        ?.turn
+                        ?.turn_number
+                    );
+
+                  const projectedSnapshot =
+                    !Number.isInteger(
+                      snapshotTurnNumber
+                    ) ||
+                    snapshotTurnNumber <
+                      canonicalTurnNumber
+                      ? Object.freeze({
+                          ...snapshot,
+                          turn:
+                            value,
+                        })
+                      : snapshot;
+
+                  const projectedTurn =
+                    projectedSnapshot.turn;
+
+                  canonicalTurnRef.current =
+                    projectedTurn;
+
                   setBattleSnapshot(
-                    snapshot
+                    projectedSnapshot
                   );
 
                   setTurnState(
-                    snapshot.turn
+                    projectedTurn
                   );
 
                   setPhase(
@@ -1314,6 +1379,37 @@ CingArtilleryGame({
             ) {
               return;
             }
+
+            const snapshotTurnNumber =
+              Number(
+                snapshot
+                  ?.turn
+                  ?.turn_number
+              );
+
+            const canonicalTurnNumber =
+              Number(
+                canonicalTurnRef.current
+                  ?.turn_number
+              );
+
+            if (
+              Number.isInteger(
+                canonicalTurnNumber
+              ) &&
+              (
+                !Number.isInteger(
+                  snapshotTurnNumber
+                ) ||
+                snapshotTurnNumber <
+                  canonicalTurnNumber
+              )
+            ) {
+              return;
+            }
+
+            canonicalTurnRef.current =
+              snapshot.turn;
 
             setBattleSnapshot(
               snapshot
