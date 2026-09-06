@@ -4,6 +4,7 @@ import { useMembership } from "@/features/home/hooks/useMembership";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
+import CustomerWalletList from "../components/CustomerWalletList";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
@@ -135,6 +136,10 @@ export default function MembershipPage() {
               Hạng: {tierName} · 1 điểm = 1.000đ
             </p>
           </div>
+
+
+          {/* CING WALLET */}
+          <CustomerWalletList />
 
           {/* HƯỚNG DẪN SỬ DỤNG */}
           <div style={{ background:"white", borderRadius:20, padding:"20px",
