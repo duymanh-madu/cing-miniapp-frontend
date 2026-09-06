@@ -7,6 +7,10 @@ import {
   useState,
 } from "react";
 
+import {
+  openOutApp,
+} from "zmp-sdk/apis";
+
 import apiClient from "@/infra/api/apiClient";
 
 const fmt = (value) =>
@@ -16,6 +20,50 @@ const fmt = (value) =>
 
 const PENDING_KEY =
   "cing_wallet_pending_topup_v1";
+
+async function openMomoPayment({
+  deeplinkMiniApp,
+  paymentUrl,
+}) {
+  const nativeUrl =
+    typeof deeplinkMiniApp === "string"
+      ? deeplinkMiniApp.trim()
+      : "";
+
+  const fallbackUrl =
+    typeof paymentUrl === "string"
+      ? paymentUrl.trim()
+      : "";
+
+  if (nativeUrl) {
+    try {
+      await openOutApp({
+        url: nativeUrl,
+      });
+
+      return;
+    } catch {
+      /*
+       * Zalo native bridge can be unavailable
+       * outside the Mini App runtime.
+       * Provider-hosted URL remains the safe
+       * compatibility fallback.
+       */
+    }
+  }
+
+  if (fallbackUrl) {
+    window.location.assign(
+      fallbackUrl
+    );
+
+    return;
+  }
+
+  throw new Error(
+    "Không nhận được liên kết thanh toán MoMo."
+  );
+}
 
 function safeMoney(value) {
   const amount =
@@ -207,6 +255,16 @@ function CustomerWalletList() {
           ?.paymentUrl || ""
     );
 
+  const [
+    reopenDeeplinkMiniApp,
+    setReopenDeeplinkMiniApp,
+  ] =
+    useState(
+      () =>
+        readPendingTopup()
+          ?.deeplinkMiniApp || ""
+    );
+
   const refreshInFlight =
     useRef(false);
 
@@ -317,6 +375,9 @@ function CustomerWalletList() {
               );
 
               setReopenUrl("");
+              setReopenDeeplinkMiniApp(
+                ""
+              );
 
               setNotice(
                 "Nạp Cing Wallet đã được xác nhận."
@@ -330,6 +391,10 @@ function CustomerWalletList() {
 
               setReopenUrl(
                 pending.paymentUrl ||
+                  ""
+              );
+              setReopenDeeplinkMiniApp(
+                pending.deeplinkMiniApp ||
                   ""
               );
 
@@ -563,13 +628,22 @@ function CustomerWalletList() {
           ? paymentSession.paymentUrl.trim()
           : "";
 
+      const deeplinkMiniApp =
+        typeof paymentSession.deeplinkMiniApp ===
+          "string"
+          ? paymentSession.deeplinkMiniApp.trim()
+          : "";
+
       const transactionCode =
         typeof paymentRecord.transaction_code ===
           "string"
           ? paymentRecord.transaction_code.trim()
           : "";
 
-      if (!paymentUrl) {
+      if (
+        !deeplinkMiniApp &&
+        !paymentUrl
+      ) {
         throw new Error(
           "Không nhận được liên kết thanh toán MoMo."
         );
@@ -587,6 +661,7 @@ function CustomerWalletList() {
           balance,
         transactionCode,
         paymentUrl,
+        deeplinkMiniApp,
         expiredAt:
           paymentSession.expired_at || null,
         createdAt:
@@ -604,19 +679,26 @@ function CustomerWalletList() {
       setReopenUrl(
         paymentUrl
       );
+      setReopenDeeplinkMiniApp(
+        deeplinkMiniApp
+      );
 
       setNotice(
         "Đã tạo phiên nạp. Sau khi thanh toán, hệ thống sẽ tự xác minh và cập nhật số dư."
       );
 
       /*
-       * Open the provider URL returned
-       * by backend authority.
+       * Prefer MoMo's Mini App native
+       * deeplink through Zalo's native
+       * bridge. Hosted payUrl remains
+       * compatibility fallback only.
+       *
        * No Wallet mutation happens here.
        */
-      window.location.assign(
-        paymentUrl
-      );
+      await openMomoPayment({
+        deeplinkMiniApp,
+        paymentUrl,
+      });
     } catch (e) {
       setError(
         e?.response?.data
@@ -1073,26 +1155,41 @@ function CustomerWalletList() {
             động đối soát.
           </p>
 
-          {reopenUrl && (
-            <a
-              href={
-                reopenUrl
-              }
+          {(reopenUrl ||
+            reopenDeeplinkMiniApp) && (
+            <button
+              type="button"
+              onClick={() => {
+                void openMomoPayment({
+                  deeplinkMiniApp:
+                    reopenDeeplinkMiniApp,
+                  paymentUrl:
+                    reopenUrl,
+                });
+              }}
               style={{
                 display:
                   "inline-block",
                 marginTop:
                   8,
+                padding:
+                  0,
+                border:
+                  "none",
+                background:
+                  "transparent",
                 color:
                   "#D4531C",
                 fontSize:
                   12,
                 fontWeight:
                   900,
+                cursor:
+                  "pointer",
               }}
             >
               Mở lại MoMo
-            </a>
+            </button>
           )}
         </div>
       )}

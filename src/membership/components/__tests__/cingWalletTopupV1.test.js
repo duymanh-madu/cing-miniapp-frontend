@@ -134,6 +134,11 @@ test(
 
     assert.match(
       walletSource,
+      /paymentSession\.deeplinkMiniApp/
+    );
+
+    assert.match(
+      walletSource,
       /paymentRecord\.transaction_code/
     );
 
@@ -154,7 +159,17 @@ test(
 
     assert.match(
       walletSource,
-      /window\.location\.assign\(\s*paymentUrl\s*\)/
+      /openOutApp\(\{\s*url:\s*nativeUrl\s*,?\s*\}\)/
+    );
+
+    assert.match(
+      walletSource,
+      /window\.location\.assign\(\s*fallbackUrl\s*\)/
+    );
+
+    assert.match(
+      walletSource,
+      /await openMomoPayment\(\{\s*deeplinkMiniApp\s*,\s*paymentUrl\s*,?\s*\}\)/
     );
 
     assert.doesNotMatch(
@@ -170,6 +185,36 @@ test(
     assert.doesNotMatch(
       walletSource,
       /CheckoutSDK/
+    );
+  }
+);
+
+test(
+  "pending topup preserves native Mini App handoff for reopen",
+  () => {
+    assert.match(
+      walletSource,
+      /deeplinkMiniApp/
+    );
+
+    assert.match(
+      walletSource,
+      /pending\.deeplinkMiniApp/
+    );
+
+    assert.match(
+      walletSource,
+      /reopenDeeplinkMiniApp/
+    );
+
+    assert.match(
+      walletSource,
+      /Mở lại MoMo/
+    );
+
+    assert.doesNotMatch(
+      walletSource,
+      /href=\{\s*reopenUrl\s*\}/
     );
   }
 );
