@@ -15,6 +15,15 @@ const walletSource =
     "utf8"
   );
 
+const checkoutBridgeSource =
+  readFileSync(
+    new URL(
+      "../../../infra/payment/zaloCheckoutBridge.js",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
 const membershipSource =
   readFileSync(
     new URL(
@@ -120,7 +129,7 @@ test(
 );
 
 test(
-  "topup consumes exact backend payment session contract",
+  "topup consumes backend Zalo Checkout authority contract",
   () => {
     assert.match(
       walletSource,
@@ -129,12 +138,7 @@ test(
 
     assert.match(
       walletSource,
-      /paymentSession\.paymentUrl/
-    );
-
-    assert.match(
-      walletSource,
-      /paymentSession\.deeplinkMiniApp/
+      /paymentSession\.zaloOrder/
     );
 
     assert.match(
@@ -149,75 +153,152 @@ test(
 
     assert.match(
       walletSource,
-      /paymentRecord\.payment_provider\s*!==\s*"momo"/
+      /paymentRecord\.payment_provider\s*!==\s*"zalo_checkout"/
     );
 
     assert.match(
       walletSource,
-      /paymentRecord\.payment_method\s*!==\s*"momo"/
+      /paymentRecord\.payment_method\s*!==\s*"zalo_checkout"/
     );
 
     assert.match(
       walletSource,
-      /openOutApp\(\{\s*url:\s*nativeUrl\s*,?\s*\}\)/
+      /zaloOrder\.orderId\.trim\(\)\s*!==\s*transactionCode/
     );
 
     assert.match(
       walletSource,
-      /window\.location\.assign\(\s*fallbackUrl\s*\)/
+      /Number\(\s*zaloOrder\.amount\s*\)\s*!==\s*amount/
     );
 
     assert.match(
       walletSource,
-      /await openMomoPayment\(\{\s*deeplinkMiniApp\s*,\s*paymentUrl\s*,?\s*\}\)/
+      /await requestZaloCheckoutFromShell\(\{[\s\S]*zaloOrder\.amount[\s\S]*zaloOrder\.item[\s\S]*zaloOrder\.desc[\s\S]*zaloOrder\.mac[\s\S]*zaloOrder\.extradata[\s\S]*zaloOrder\.method/
     );
 
     assert.doesNotMatch(
       walletSource,
-      /resolvePaymentUrl/
-    );
-
-    assert.doesNotMatch(
-      walletSource,
-      /resolveTransactionCode/
-    );
-
-    assert.doesNotMatch(
-      walletSource,
-      /CheckoutSDK/
+      /openOutApp|openMomoPayment|deeplinkMiniApp|paymentUrl|Mở lại MoMo/
     );
   }
 );
 
+
 test(
-  "pending topup preserves native Mini App handoff for reopen",
+  "Wallet and commerce share one Zalo Checkout native bridge",
   () => {
     assert.match(
       walletSource,
-      /deeplinkMiniApp/
+      /requestZaloCheckoutFromShell/
     );
 
     assert.match(
-      walletSource,
-      /pending\.deeplinkMiniApp/
+      checkoutBridgeSource,
+      /CheckoutSDK\.createOrder/
     );
 
     assert.match(
-      walletSource,
-      /reopenDeeplinkMiniApp/
+      checkoutBridgeSource,
+      /ZALO_CHECKOUT_CREATE_ORDER/
     );
 
     assert.match(
+      checkoutBridgeSource,
+      /ZALO_CHECKOUT_RESULT/
+    );
+
+    assert.match(
+      checkoutBridgeSource,
+      /90000/
+    );
+  }
+);
+
+
+test(
+  "pending topup stores canonical identity but no reusable provider handoff",
+  () => {
+    assert.match(
       walletSource,
-      /Mở lại MoMo/
+      /const pending = \{[\s\S]*amount,[\s\S]*baselineBalance:[\s\S]*transactionCode,[\s\S]*expiredAt:[\s\S]*createdAt:/
     );
 
     assert.doesNotMatch(
       walletSource,
-      /href=\{\s*reopenUrl\s*\}/
+      /pending\.(?:deeplinkMiniApp|paymentUrl|zaloOrder)/
+    );
+
+    assert.doesNotMatch(
+      walletSource,
+      /Mở lại/
     );
   }
 );
+
+
+test(
+  "backend terminal reconciliation releases failed pending topup",
+  () => {
+    assert.match(
+      walletSource,
+      /apiClient\.post\(\s*`\/payments\/reconcile\/\$\{encodeURIComponent\([\s\S]*pending\.transactionCode/
+    );
+
+    assert.match(
+      walletSource,
+      /payment_status ===[\s\S]*"failed"/
+    );
+
+    assert.match(
+      walletSource,
+      /reconciliation[\s\S]*\?\.status ===[\s\S]*"terminal_failed"/
+    );
+
+    assert.match(
+      walletSource,
+      /if \(terminalFailed\)[\s\S]*clearPendingTopup\(\)[\s\S]*setPendingTopup\(\s*null\s*\)/
+    );
+  }
+);
+
+
+test(
+  "frontend reconciliation failure is fail-closed",
+  () => {
+    const start =
+      walletSource.indexOf(
+        "let terminalFailed ="
+      );
+
+    const end =
+      walletSource.indexOf(
+        "if (terminalFailed)",
+        start
+      );
+
+    assert.ok(
+      start >= 0 &&
+      end > start
+    );
+
+    const region =
+      walletSource.slice(
+        start,
+        end
+      );
+
+    assert.match(
+      region,
+      /catch \{/
+    );
+
+    assert.doesNotMatch(
+      region,
+      /clearPendingTopup\(\)|setPendingTopup\(\s*null\s*\)|setBalance\(/
+    );
+  }
+);
+
 
 test(
   "wallet surface is mounted on membership page",

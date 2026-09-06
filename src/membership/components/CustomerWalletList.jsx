@@ -7,11 +7,11 @@ import {
   useState,
 } from "react";
 
-import {
-  openOutApp,
-} from "zmp-sdk/apis";
-
 import apiClient from "@/infra/api/apiClient";
+
+import {
+  requestZaloCheckoutFromShell,
+} from "@/infra/payment/zaloCheckoutBridge";
 
 const fmt = (value) =>
   `${new Intl.NumberFormat("vi-VN").format(
@@ -20,50 +20,6 @@ const fmt = (value) =>
 
 const PENDING_KEY =
   "cing_wallet_pending_topup_v1";
-
-async function openMomoPayment({
-  deeplinkMiniApp,
-  paymentUrl,
-}) {
-  const nativeUrl =
-    typeof deeplinkMiniApp === "string"
-      ? deeplinkMiniApp.trim()
-      : "";
-
-  const fallbackUrl =
-    typeof paymentUrl === "string"
-      ? paymentUrl.trim()
-      : "";
-
-  if (nativeUrl) {
-    try {
-      await openOutApp({
-        url: nativeUrl,
-      });
-
-      return;
-    } catch {
-      /*
-       * Zalo native bridge can be unavailable
-       * outside the Mini App runtime.
-       * Provider-hosted URL remains the safe
-       * compatibility fallback.
-       */
-    }
-  }
-
-  if (fallbackUrl) {
-    window.location.assign(
-      fallbackUrl
-    );
-
-    return;
-  }
-
-  throw new Error(
-    "Không nhận được liên kết thanh toán MoMo."
-  );
-}
 
 function safeMoney(value) {
   const amount =
@@ -247,24 +203,6 @@ function CustomerWalletList() {
       readPendingTopup()
     );
 
-  const [reopenUrl,
-    setReopenUrl] =
-    useState(
-      () =>
-        readPendingTopup()
-          ?.paymentUrl || ""
-    );
-
-  const [
-    reopenDeeplinkMiniApp,
-    setReopenDeeplinkMiniApp,
-  ] =
-    useState(
-      () =>
-        readPendingTopup()
-          ?.deeplinkMiniApp || ""
-    );
-
   const refreshInFlight =
     useRef(false);
 
@@ -374,33 +312,66 @@ function CustomerWalletList() {
                 null
               );
 
-              setReopenUrl("");
-              setReopenDeeplinkMiniApp(
-                ""
-              );
-
               setNotice(
                 "Nạp Cing Wallet đã được xác nhận."
               );
 
               setError("");
             } else {
-              setPendingTopup(
-                pending
-              );
+              let terminalFailed =
+                false;
 
-              setReopenUrl(
-                pending.paymentUrl ||
-                  ""
-              );
-              setReopenDeeplinkMiniApp(
-                pending.deeplinkMiniApp ||
-                  ""
-              );
+              try {
+                const reconcileRes =
+                  await apiClient.post(
+                    `/payments/reconcile/${encodeURIComponent(
+                      pending.transactionCode
+                    )}`
+                  );
 
-              setNotice(
-                "Giao dịch đang được hệ thống xác minh. Nếu bạn đã thanh toán, không cần nạp lại."
-              );
+                const reconciliation =
+                  reconcileRes.data
+                    ?.data ||
+                  {};
+
+                terminalFailed =
+                  reconciliation
+                    .payment_status ===
+                    "failed" ||
+                  reconciliation
+                    .reconciliation
+                    ?.status ===
+                    "terminal_failed";
+              } catch {
+                /*
+                 * Reconciliation failure is fail-closed.
+                 * Keep the pending transaction because
+                 * frontend presentation must never decide
+                 * financial finality.
+                 */
+              }
+
+              if (terminalFailed) {
+                clearPendingTopup();
+
+                setPendingTopup(
+                  null
+                );
+
+                setNotice(
+                  "Giao dịch nạp chưa hoàn tất. Bạn có thể tạo giao dịch mới."
+                );
+
+                setError("");
+              } else {
+                setPendingTopup(
+                  pending
+                );
+
+                setNotice(
+                  "Giao dịch đang được hệ thống xác minh. Nếu bạn đã thanh toán, không cần nạp lại."
+                );
+              }
             }
           }
         } catch (e) {
@@ -598,7 +569,7 @@ function CustomerWalletList() {
         amount
       ) {
         throw new Error(
-          "Số tiền giao dịch MoMo không khớp."
+          "Số tiền giao dịch thanh toán không khớp."
         );
       }
 
@@ -613,26 +584,17 @@ function CustomerWalletList() {
 
       if (
         paymentRecord.payment_provider !==
-          "momo" ||
+          "zalo_checkout" ||
         paymentRecord.payment_method !==
-          "momo"
+          "zalo_checkout"
       ) {
         throw new Error(
           "Sai phương thức thanh toán Cing Wallet."
         );
       }
 
-      const paymentUrl =
-        typeof paymentSession.paymentUrl ===
-          "string"
-          ? paymentSession.paymentUrl.trim()
-          : "";
-
-      const deeplinkMiniApp =
-        typeof paymentSession.deeplinkMiniApp ===
-          "string"
-          ? paymentSession.deeplinkMiniApp.trim()
-          : "";
+      const zaloOrder =
+        paymentSession.zaloOrder;
 
       const transactionCode =
         typeof paymentRecord.transaction_code ===
@@ -640,18 +602,42 @@ function CustomerWalletList() {
           ? paymentRecord.transaction_code.trim()
           : "";
 
-      if (
-        !deeplinkMiniApp &&
-        !paymentUrl
-      ) {
-        throw new Error(
-          "Không nhận được liên kết thanh toán MoMo."
-        );
-      }
-
       if (!transactionCode) {
         throw new Error(
           "Không nhận được mã giao dịch Cing Wallet."
+        );
+      }
+
+      if (
+        !zaloOrder ||
+        typeof zaloOrder !==
+          "object" ||
+        Number(
+          zaloOrder.amount
+        ) !== amount ||
+        typeof zaloOrder.orderId !==
+          "string" ||
+        zaloOrder.orderId.trim() !==
+          transactionCode ||
+        !Array.isArray(
+          zaloOrder.item
+        ) ||
+        zaloOrder.item.length ===
+          0 ||
+        typeof zaloOrder.desc !==
+          "string" ||
+        !zaloOrder.desc.trim() ||
+        typeof zaloOrder.mac !==
+          "string" ||
+        !zaloOrder.mac.trim() ||
+        typeof zaloOrder.extradata !==
+          "string" ||
+        typeof zaloOrder.method !==
+          "string" ||
+        !zaloOrder.method.trim()
+      ) {
+        throw new Error(
+          "Dữ liệu Zalo Checkout không hợp lệ."
         );
       }
 
@@ -660,8 +646,6 @@ function CustomerWalletList() {
         baselineBalance:
           balance,
         transactionCode,
-        paymentUrl,
-        deeplinkMiniApp,
         expiredAt:
           paymentSession.expired_at || null,
         createdAt:
@@ -676,28 +660,36 @@ function CustomerWalletList() {
         pending
       );
 
-      setReopenUrl(
-        paymentUrl
-      );
-      setReopenDeeplinkMiniApp(
-        deeplinkMiniApp
-      );
-
       setNotice(
         "Đã tạo phiên nạp. Sau khi thanh toán, hệ thống sẽ tự xác minh và cập nhật số dư."
       );
 
       /*
-       * Prefer MoMo's Mini App native
-       * deeplink through Zalo's native
-       * bridge. Hosted payUrl remains
-       * compatibility fallback only.
+       * Provider UI is presentation only.
        *
-       * No Wallet mutation happens here.
+       * The signed order comes from backend
+       * authority. Wallet credit remains owned
+       * exclusively by verified backend
+       * settlement/reconciliation.
        */
-      await openMomoPayment({
-        deeplinkMiniApp,
-        paymentUrl,
+      await requestZaloCheckoutFromShell({
+        amount:
+          zaloOrder.amount,
+
+        item:
+          zaloOrder.item,
+
+        desc:
+          zaloOrder.desc,
+
+        mac:
+          zaloOrder.mac,
+
+        extradata:
+          zaloOrder.extradata,
+
+        method:
+          zaloOrder.method,
       });
     } catch (e) {
       setError(
@@ -1155,42 +1147,6 @@ function CustomerWalletList() {
             động đối soát.
           </p>
 
-          {(reopenUrl ||
-            reopenDeeplinkMiniApp) && (
-            <button
-              type="button"
-              onClick={() => {
-                void openMomoPayment({
-                  deeplinkMiniApp:
-                    reopenDeeplinkMiniApp,
-                  paymentUrl:
-                    reopenUrl,
-                });
-              }}
-              style={{
-                display:
-                  "inline-block",
-                marginTop:
-                  8,
-                padding:
-                  0,
-                border:
-                  "none",
-                background:
-                  "transparent",
-                color:
-                  "#D4531C",
-                fontSize:
-                  12,
-                fontWeight:
-                  900,
-                cursor:
-                  "pointer",
-              }}
-            >
-              Mở lại MoMo
-            </button>
-          )}
         </div>
       )}
 

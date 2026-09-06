@@ -6,47 +6,11 @@ import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
-import { CheckoutSDK } from "zmp-sdk/apis";
+import {
+  requestZaloCheckoutFromShell,
+} from "@/infra/payment/zaloCheckoutBridge";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
-
-function requestZaloCheckoutFromShell(order) {
-  if (window.parent && window.parent !== window) {
-    return new Promise((resolve, reject) => {
-      const requestId = `checkout_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-
-      const timer = setTimeout(() => {
-        window.removeEventListener("message", onMessage);
-        reject(new Error("Zalo Checkout timeout"));
-      }, 90000);
-
-      function onMessage(event) {
-        const data = event.data || {};
-        if (data.type !== "ZALO_CHECKOUT_RESULT" || data.requestId !== requestId) return;
-
-        clearTimeout(timer);
-        window.removeEventListener("message", onMessage);
-
-        if (data.ok) {
-          resolve(data.data);
-        } else {
-          reject(data.error || new Error("Zalo Checkout failed"));
-        }
-      }
-
-      window.addEventListener("message", onMessage);
-
-      window.parent.postMessage({
-        type: "ZALO_CHECKOUT_CREATE_ORDER",
-        requestId,
-        order,
-      }, "*");
-    });
-  }
-
-  return CheckoutSDK.createOrder(order);
-}
-
 
 const STORE_LAT = 21.112148;
 const STORE_LNG = 105.948725;
