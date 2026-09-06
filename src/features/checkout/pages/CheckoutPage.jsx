@@ -400,6 +400,10 @@ export default function CheckoutPage(){
     }
   };
 
+  const [paymentMethod,setPaymentMethod]=useState("momo");
+
+  const walletSelected=paymentMethod==="cing_wallet";
+
   const total=Math.max(0, subtotal+shipFee-pointsDiscount-tierDiscount);
 
   async function handleOrder(){
@@ -415,6 +419,60 @@ export default function CheckoutPage(){
       const profilePhone = String(profile?.phone || profile?.phoneNumber || "").replace(/\D/g, "").replace(/^84/, "0");
       const submittedPhone = String(phone || "").replace(/\D/g, "").replace(/^84/, "0");
       const customerPhone = profilePhone || submittedPhone;
+
+      if(walletSelected){
+        if(pointsToUse!==0){
+          throw new Error(
+            "Cing Wallet hiện chưa hỗ trợ thanh toán kết hợp điểm. Vui lòng bỏ điểm tích lũy để tiếp tục."
+          );
+        }
+
+        const walletItems=items.map(i=>({
+          item_id:i.id,
+          item_code:i.code||i.id,
+          name:i.displayName||i.name,
+          price:i.price,
+          quantity:i.qty,
+          note:i.note||"",
+          toppings:i.toppings||[],
+          options:i.options||{},
+          customNote:i.customNote||"",
+        }));
+
+        const walletRes=await apiClient.post("/checkout/create",{
+          customer_name:name.trim(),
+          customer_phone:customerPhone,
+          shipping_address:address.trim(),
+          order_type:orderType,
+          destination_latitude:
+            orderType==="delivery" ? location?.lat ?? null : null,
+          destination_longitude:
+            orderType==="delivery" ? location?.lng ?? null : null,
+          items:walletItems,
+          submitted_shipping_fee:shipFee,
+          submitted_total_amount:total,
+          payment_method:"cing_wallet",
+          payment_provider:"cing_wallet",
+        });
+
+        const walletData=walletRes.data;
+
+        if(
+          walletData?.success!==true ||
+          walletData?.wallet_settlement?.success!==true ||
+          walletData?.wallet_settlement?.completed!==true ||
+          !walletData?.wallet_settlement?.order_id
+        ){
+          throw new Error(
+            walletData?.message ||
+            "Thanh toán Cing Wallet chưa hoàn tất. Vui lòng kiểm tra lại."
+          );
+        }
+
+        clearCart();
+        navigate("/order-success");
+        return;
+      }
 
       // 1. Tao don hang
       const orderPayload={
@@ -679,17 +737,59 @@ export default function CheckoutPage(){
       {/* THANH TOÁN */}
       <div style={{background:"white",margin:"10px 12px 0",borderRadius:16,padding:"12px 16px"}}>
         <p style={{fontSize:11,fontWeight:700,color:"#999",margin:"0 0 10px",letterSpacing:.5}}>THANH TOÁN</p>
-        <div style={{display:"flex",alignItems:"center",gap:12,padding:"6px 0"}}>
+
+        <button
+          type="button"
+          onClick={()=>{
+            setPaymentMethod("cing_wallet");
+            setPointsToUse(0);
+          }}
+          style={{
+            width:"100%",display:"flex",alignItems:"center",gap:12,
+            padding:"10px 0",border:"none",background:"transparent",
+            textAlign:"left",cursor:"pointer"
+          }}
+        >
+          <span style={{fontSize:24}}>🧡</span>
+          <div style={{flex:1}}>
+            <p style={{fontSize:13,fontWeight:700,color:"#1a1a1a",margin:0}}>Cing Wallet</p>
+            <p style={{fontSize:11,color:"#999",margin:0}}>Thanh toán bằng số dư Cing Wallet</p>
+          </div>
+          <div style={{
+            width:20,height:20,borderRadius:"50%",
+            border:walletSelected?"none":"1.5px solid #ddd",
+            background:walletSelected?"#D4531C":"white",
+            display:"flex",alignItems:"center",justifyContent:"center"
+          }}>
+            {walletSelected&&<div style={{width:8,height:8,borderRadius:"50%",background:"white"}}/>}
+          </div>
+        </button>
+
+        <div style={{height:1,background:"#f3f3f3",margin:"4px 0"}}/>
+
+        <button
+          type="button"
+          onClick={()=>setPaymentMethod("momo")}
+          style={{
+            width:"100%",display:"flex",alignItems:"center",gap:12,
+            padding:"10px 0",border:"none",background:"transparent",
+            textAlign:"left",cursor:"pointer"
+          }}
+        >
           <span style={{fontSize:24}}>💜</span>
           <div style={{flex:1}}>
             <p style={{fontSize:13,fontWeight:700,color:"#1a1a1a",margin:0}}>MoMo</p>
             <p style={{fontSize:11,color:"#999",margin:0}}>Ví điện tử MoMo</p>
           </div>
-          <div style={{width:20,height:20,borderRadius:"50%",background:"#D4531C",
-            display:"flex",alignItems:"center",justifyContent:"center"}}>
-            <div style={{width:8,height:8,borderRadius:"50%",background:"white"}}/>
+          <div style={{
+            width:20,height:20,borderRadius:"50%",
+            border:!walletSelected?"none":"1.5px solid #ddd",
+            background:!walletSelected?"#D4531C":"white",
+            display:"flex",alignItems:"center",justifyContent:"center"
+          }}>
+            {!walletSelected&&<div style={{width:8,height:8,borderRadius:"50%",background:"white"}}/>}
           </div>
-        </div>
+        </button>
       </div>
 
       {/* GHI CHÚ */}
@@ -728,7 +828,7 @@ export default function CheckoutPage(){
           )}
           <div style={{height:1,background:"#f0f0f0",margin:"6px 0"}}/>
           {/* ĐIỂM TÍCH LŨY — Dùng trực tiếp vào đơn */}
-          {availablePoints > 0 && (
+          {availablePoints > 0 && !walletSelected && (
             <div style={{marginBottom:8,padding:"12px",background:"#f0fdf4",borderRadius:10,border:"1px solid #bbf7d0"}}>
               <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
                 <span style={{fontSize:18}}>🎟</span>
@@ -787,7 +887,13 @@ export default function CheckoutPage(){
             background:(loading||shipStatus==="loading")?"#ddd":"#D4531C",
             color:"white",border:"none",fontSize:14,fontWeight:900,
             cursor:(loading||shipStatus==="loading")?"not-allowed":"pointer"}}>
-          {loading?"Đang xử lý...":total===0?"✅ Thanh toán bằng điểm — Miễn phí":"Thanh toán qua Zalo Checkout — "+fmt(total)}
+          {loading
+            ?"Đang xử lý..."
+            :walletSelected
+              ?"Thanh toán bằng Cing Wallet — "+fmt(total)
+              :total===0
+                ?"✅ Thanh toán bằng điểm — Miễn phí"
+                :"Thanh toán qua Zalo Checkout — "+fmt(total)}
         </button>
       </div>
     </div>
