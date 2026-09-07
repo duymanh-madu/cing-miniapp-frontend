@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useCartStore from "@/features/menu/store/cartStore";
 import { useMembership } from "@/features/home/hooks/useMembership";
@@ -12,39 +12,6 @@ import {
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
-const STORE_LAT = 21.112148;
-const STORE_LNG = 105.948725;
-
-function calcDistKm(lat1,lng1,lat2,lng2){
-  const R=6371,dL=(lat2-lat1)*Math.PI/180,dl=(lng2-lng1)*Math.PI/180;
-  const a=Math.sin(dL/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dl/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
-function calcShipFee(sub, km, tiers) {
-  if (km >= 10) return -1; // ngoài vùng → liên hệ
-  if (km < 2)   return 0;  // gần → miễn phí
-
-  // Dùng shipping_tiers từ config — match theo cả km VÀ giá trị đơn
-  if (tiers && tiers.length > 0) {
-    const tier = tiers.find(t =>
-      km  >= (t.min_km    ?? 0)         &&
-      km  <  (t.max_km    ?? 10)        &&
-      sub >= (t.min_order ?? 0)         &&
-      sub <= (t.max_order ?? 999999999)
-    );
-    if (tier) {
-      const fee = (tier.base_fee||0) + (tier.fee_per_km||0) * km;
-      return Math.round(fee / 1000) * 1000;
-    }
-  }
-
-  // Fallback hardcode nếu chưa có config
-  if(km<3)   return sub>=200000?0:sub>=100000?10000:15000;
-  if(km<5)   return sub>=200000?0:sub>=100000?15000:25000;
-  if(km<8)   return sub>=500000?0:sub>=200000?20000:sub>=100000?30000:35000;
-  return sub>=500000?0:sub>=200000?25000:sub>=100000?35000:50000;
-}
 
 const ORDER_TYPES=[
   {id:"dine_in",label:"Ăn tại quán",icon:"🪑"},
@@ -52,7 +19,7 @@ const ORDER_TYPES=[
   {id:"delivery",label:"Giao hàng",icon:"🛵"},
 ];
 
-function Field({label,value,onChange,placeholder,type="text"}){
+function Field({label,value,onChange,onBlur,placeholder,type="text"}){
   const [focus,setFocus]=useState(false);
   return(
     <div style={{marginBottom:12}}>
@@ -62,7 +29,11 @@ function Field({label,value,onChange,placeholder,type="text"}){
         style={{width:"100%",border:`1.5px solid ${focus?"#D4531C":"#f0f0f0"}`,
           borderRadius:10,padding:"10px 12px",fontSize:13,color:"#333",
           outline:"none",boxSizing:"border-box",background:"#fafafa"}}
-        onFocus={()=>setFocus(true)} onBlur={()=>setFocus(false)}/>
+        onFocus={()=>setFocus(true)}
+        onBlur={()=>{
+          setFocus(false);
+          onBlur?.(value);
+        }}/>
     </div>
   );
 }
@@ -88,18 +59,20 @@ export default function CheckoutPage(){
   const [phone,setPhone]=useState(profile?.phone||"");
   const [address,setAddress]=useState("");
   const [note,setNote]=useState("");
-  const [shippingTiers, setShippingTiers] = useState(null);
-
-  useEffect(() => {
-    apiClient.get("/app-config/public")
-      .then(r => {
-        const tiers = r.data?.data?.shipping_tiers;
-        if (tiers?.length) setShippingTiers(tiers);
-      }).catch(() => {});
-  }, []);
   const [shipFee,setShipFee]=useState(0);
   const [shipStatus,setShipStatus]=useState("idle"); // idle|loading|done|error|contact
   const [distKm,setDistKm]=useState(null);
+  /*
+   * deliveryCoords = current physical GPS position.
+   *
+   * deliveryCandidateToken = backend-signed authority for the
+   * typed destination the customer actually wants delivery to.
+   *
+   * These two concepts must remain separate.
+   */
+  const [deliveryCoords,setDeliveryCoords]=useState(null);
+  const [deliveryCandidateToken,setDeliveryCandidateToken]=useState("");
+  const deliveryAddressRevisionRef=useRef(0);
   const [locMsg,setLocMsg]=useState("");
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
@@ -200,169 +173,765 @@ export default function CheckoutPage(){
 
   useEffect(()=>{
     if(orderType!=="delivery"){
-      setShipFee(0);setDistKm(null);setShipStatus("idle");setLocMsg("");
+      /*
+       * Invalidate any async typed-address response that was
+       * started before fulfillment changed.
+       */
+      deliveryAddressRevisionRef.current += 1;
+
+      setShipFee(0);
+      setDistKm(null);
+      setDeliveryCoords(null);
+      setDeliveryCandidateToken("");
+      setShipStatus("idle");
+      setLocMsg("");
+
       return;
     }
 
     refreshShippingLocation();
-  },[orderType,subtotal,shippingTiers]);
+  },[orderType,subtotal]);
 
-  const decodeLocationToken = async (token, miniAccessToken = "") => {
-    const r = await apiClient.post("/shipping/decode-location", {
-      token,
-      amount: subtotal,
-      miniAccessToken,
-    });
 
-    if (r.data?.success && r.data?.latitude && r.data?.longitude) {
+  const decodeLocationToken = async (
+    token,
+    miniAccessToken = ""
+  ) => {
+    const r =
+      await apiClient.post(
+        "/shipping/decode-location",
+        {
+          token,
+          amount:
+            subtotal,
+          miniAccessToken,
+        }
+      );
+
+    if (
+      r.data?.success &&
+      r.data?.latitude &&
+      r.data?.longitude
+    ) {
       return {
-        latitude: parseFloat(r.data.latitude),
-        longitude: parseFloat(r.data.longitude),
+        latitude:
+          parseFloat(
+            r.data.latitude
+          ),
+
+        longitude:
+          parseFloat(
+            r.data.longitude
+          ),
       };
     }
 
-    throw new Error("Không decode được vị trí.");
+    throw new Error(
+      "Không decode được vị trí."
+    );
   };
 
-  const requestBrowserLocation = () => new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error("Thiết bị không hỗ trợ định vị."));
-      return;
-    }
 
-    navigator.geolocation.getCurrentPosition(
-      pos => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-      () => reject(new Error("Không lấy được vị trí. Vui lòng cho phép truy cập định vị.")),
-      { timeout: 10000, enableHighAccuracy: false }
-    );
-  });
+  const requestBrowserLocation =
+    () =>
+      new Promise(
+        (
+          resolve,
+          reject
+        ) => {
+          if (
+            !navigator.geolocation
+          ) {
+            reject(
+              new Error(
+                "Thiết bị không hỗ trợ định vị."
+              )
+            );
 
-  const requestShellLocation = () => new Promise((resolve, reject) => {
-    if (!window.parent || window.parent === window) {
-      reject(new Error("Không có shell Zalo."));
-      return;
-    }
+            return;
+          }
 
-    const requestId = `loc_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    const miniAccessToken = useRuntimeCustomerIdentityStore.getState().identity?.miniAccessToken || "";
+          navigator.geolocation
+            .getCurrentPosition(
+              pos =>
+                resolve({
+                  latitude:
+                    pos.coords
+                      .latitude,
 
-    const timer = setTimeout(() => {
-      window.removeEventListener("message", handler);
-      reject(new Error("Zalo location timeout."));
-    }, 10000);
+                  longitude:
+                    pos.coords
+                      .longitude,
+                }),
 
-    async function handler(e) {
-      const data = e.data || {};
-      if (data.type !== "ZALO_LOCATION_RESULT") return;
-      if (data.requestId && data.requestId !== requestId) return;
+              () =>
+                reject(
+                  new Error(
+                    "Không lấy được vị trí. Vui lòng cho phép truy cập định vị."
+                  )
+                ),
 
-      clearTimeout(timer);
-      window.removeEventListener("message", handler);
+              {
+                timeout:
+                  10000,
+
+                enableHighAccuracy:
+                  false,
+              }
+            );
+        }
+      );
+
+
+  const requestShellLocation =
+    () =>
+      new Promise(
+        (
+          resolve,
+          reject
+        ) => {
+          if (
+            !window.parent ||
+            window.parent ===
+              window
+          ) {
+            reject(
+              new Error(
+                "Không có shell Zalo."
+              )
+            );
+
+            return;
+          }
+
+          const requestId =
+            `loc_${Date.now()}_${Math.random()
+              .toString(36)
+              .slice(2)}`;
+
+          const miniAccessToken =
+            useRuntimeCustomerIdentityStore
+              .getState()
+              .identity
+              ?.miniAccessToken ||
+            "";
+
+          const timer =
+            setTimeout(
+              () => {
+                window
+                  .removeEventListener(
+                    "message",
+                    handler
+                  );
+
+                reject(
+                  new Error(
+                    "Zalo location timeout."
+                  )
+                );
+              },
+              10000
+            );
+
+          async function handler(
+            e
+          ) {
+            const data =
+              e.data ||
+              {};
+
+            if (
+              data.type !==
+              "ZALO_LOCATION_RESULT"
+            ) {
+              return;
+            }
+
+            if (
+              data.requestId &&
+              data.requestId !==
+                requestId
+            ) {
+              return;
+            }
+
+            clearTimeout(
+              timer
+            );
+
+            window
+              .removeEventListener(
+                "message",
+                handler
+              );
+
+            try {
+              if (
+                !data.success
+              ) {
+                throw new Error(
+                  data.error ||
+                  "Không lấy được vị trí."
+                );
+              }
+
+              if (
+                data.latitude &&
+                data.longitude
+              ) {
+                resolve({
+                  latitude:
+                    parseFloat(
+                      data.latitude
+                    ),
+
+                  longitude:
+                    parseFloat(
+                      data.longitude
+                    ),
+                });
+
+                return;
+              }
+
+              if (
+                data.token
+              ) {
+                resolve(
+                  await decodeLocationToken(
+                    data.token,
+                    data.miniAccessToken ||
+                      miniAccessToken
+                  )
+                );
+
+                return;
+              }
+
+              throw new Error(
+                "Không lấy được vị trí."
+              );
+            } catch (
+              err
+            ) {
+              reject(err);
+            }
+          }
+
+          window
+            .addEventListener(
+              "message",
+              handler
+            );
+
+          window.parent
+            .postMessage(
+              {
+                type:
+                  "REQUEST_ZALO_LOCATION",
+
+                requestId,
+
+                miniAccessToken,
+              },
+              "*"
+            );
+        }
+      );
+
+
+  const requestSdkLocation =
+    async () => {
+      const zmpSdk =
+        await import(
+          "zmp-sdk"
+        );
+
+      const result =
+        await zmpSdk
+          .getLocation();
+
+      if (
+        result?.latitude &&
+        result?.longitude
+      ) {
+        return {
+          latitude:
+            parseFloat(
+              result.latitude
+            ),
+
+          longitude:
+            parseFloat(
+              result.longitude
+            ),
+        };
+      }
+
+      if (
+        result?.token
+      ) {
+        const miniAccessToken =
+          useRuntimeCustomerIdentityStore
+            .getState()
+            .identity
+            ?.miniAccessToken ||
+          "";
+
+        return decodeLocationToken(
+          result.token,
+          result.miniAccessToken ||
+            miniAccessToken
+        );
+      }
+
+      throw new Error(
+        "Không lấy được vị trí."
+      );
+    };
+
+
+  const requestDeliveryLocation =
+    async () => {
+      try {
+        return await requestShellLocation();
+      } catch(e) {}
 
       try {
-        if (!data.success) throw new Error(data.error || "Không lấy được vị trí.");
+        return await requestSdkLocation();
+      } catch(e) {}
 
-        if (data.latitude && data.longitude) {
-          resolve({
-            latitude: parseFloat(data.latitude),
-            longitude: parseFloat(data.longitude),
-          });
-          return;
-        }
+      return requestBrowserLocation();
+    };
 
-        if (data.token) {
-          resolve(await decodeLocationToken(data.token, data.miniAccessToken || miniAccessToken));
-          return;
-        }
 
-        throw new Error("Không lấy được vị trí.");
-      } catch (err) {
-        reject(err);
+  const normalizeDeliveryCoords =
+    (
+      coords
+    ) => {
+      const latitude =
+        Number(
+          coords?.latitude
+        );
+
+      const longitude =
+        Number(
+          coords?.longitude
+        );
+
+      if (
+        !Number.isFinite(
+          latitude
+        ) ||
+        !Number.isFinite(
+          longitude
+        ) ||
+        latitude < -90 ||
+        latitude > 90 ||
+        longitude < -180 ||
+        longitude > 180
+      ) {
+        throw new Error(
+          "Vị trí giao hàng không hợp lệ."
+        );
       }
-    }
 
-    window.addEventListener("message", handler);
-    window.parent.postMessage({
-      type: "REQUEST_ZALO_LOCATION",
-      requestId,
-      miniAccessToken,
-    }, "*");
-  });
-
-  const requestSdkLocation = async () => {
-    const zmpSdk = await import("zmp-sdk");
-    const result = await zmpSdk.getLocation();
-
-    if (result?.latitude && result?.longitude) {
       return {
-        latitude: parseFloat(result.latitude),
-        longitude: parseFloat(result.longitude),
+        latitude,
+        longitude,
       };
-    }
+    };
 
-    if (result?.token) {
-      const miniAccessToken = useRuntimeCustomerIdentityStore.getState().identity?.miniAccessToken || "";
-      return decodeLocationToken(result.token, result.miniAccessToken || miniAccessToken);
-    }
 
-    throw new Error("Không lấy được vị trí.");
-  };
+  const resolveTypedShippingAddress =
+    async (
+      addressValue,
+      coordsOverride = null
+    ) => {
+      const addressText =
+        String(
+          addressValue ||
+          ""
+        ).trim();
 
-  const requestDeliveryLocation = async () => {
-    try { return await requestShellLocation(); } catch(e) {}
-    try { return await requestSdkLocation(); } catch(e) {}
-    return requestBrowserLocation();
-  };
+      if (
+        !addressText
+      ) {
+        throw new Error(
+          "Vui lòng nhập địa chỉ giao hàng"
+        );
+      }
 
-  const updateShippingFromLocation = async (coords) => {
-    const km = calcDistKm(coords.latitude, coords.longitude, STORE_LAT, STORE_LNG);
-    setDistKm(km);
+      const coords =
+        normalizeDeliveryCoords(
+          coordsOverride ||
+          deliveryCoords
+        );
 
-    try {
-      const r = await apiClient.get(`/shipping/estimate?lat=${coords.latitude}&lng=${coords.longitude}&amount=${subtotal}`);
-      if (r.data?.success && r.data?.ship_fee !== null) {
-        const fee = r.data.ship_fee;
+      /*
+       * Capture revision before request.
+       * If the customer edits address while the request is in
+       * flight, its response cannot restore an old capability.
+       */
+      const revision =
+        deliveryAddressRevisionRef
+          .current;
 
-        if (fee === -1) {
-          setShipFee(0);
-          setShipStatus("contact");
-          setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
-          return;
+      setShipStatus(
+        "loading"
+      );
+
+      setLocMsg(
+        "Đang xác nhận địa chỉ giao hàng..."
+      );
+
+      try {
+        const response =
+          await apiClient.post(
+            "/shipping/resolve-address",
+            {
+              address_text:
+                addressText,
+
+              current_latitude:
+                coords.latitude,
+
+              current_longitude:
+                coords.longitude,
+
+              order_amount:
+                subtotal,
+            }
+          );
+
+        const result =
+          response.data;
+
+        if (
+          revision !==
+          deliveryAddressRevisionRef
+            .current
+        ) {
+          return null;
         }
 
-        setShipFee(fee);
-        setShipStatus("done");
-        setLocMsg(`Khoảng cách: ${km.toFixed(1)} km`);
+        if (
+          result?.success !==
+            true ||
+          !result
+            ?.candidate_token
+        ) {
+          throw new Error(
+            result?.error ||
+            "Không xác nhận được địa chỉ giao hàng."
+          );
+        }
+
+        const fee =
+          Number(
+            result.shipping_fee
+          );
+
+        const rawDistance =
+          result
+            .shipping_distance_km;
+
+        const distance =
+          rawDistance === null ||
+          rawDistance ===
+            undefined ||
+          rawDistance === ""
+            ? null
+            : Number(
+                rawDistance
+              );
+
+        if (
+          !Number.isFinite(
+            fee
+          ) ||
+          fee < 0
+        ) {
+          throw new Error(
+            "Phí giao hàng không hợp lệ."
+          );
+        }
+
+        setDeliveryCandidateToken(
+          result
+            .candidate_token
+        );
+
+        setShipFee(
+          fee
+        );
+
+        if (
+          distance !== null &&
+          Number.isFinite(
+            distance
+          )
+        ) {
+          setDistKm(
+            distance
+          );
+        } else {
+          setDistKm(
+            null
+          );
+        }
+
+        setShipStatus(
+          "done"
+        );
+
+        const canonicalAddress =
+          String(
+            result
+              .formatted_address ||
+            addressText
+          ).trim();
+
+        const mismatchKm =
+          Number(
+            result
+              .mismatch_distance_km
+          );
+
+        if (
+          result.mismatch ===
+            true &&
+          Number.isFinite(
+            mismatchKm
+          )
+        ) {
+          setLocMsg(
+            `Địa chỉ giao hàng cách vị trí hiện tại ${mismatchKm.toFixed(1)} km · ${canonicalAddress}`
+          );
+        } else {
+          setLocMsg(
+            canonicalAddress
+          );
+        }
+
+        return result
+          .candidate_token;
+      } catch(e) {
+        if (
+          revision ===
+          deliveryAddressRevisionRef
+            .current
+        ) {
+          setDeliveryCandidateToken(
+            ""
+          );
+
+          setShipFee(
+            0
+          );
+
+          setDistKm(
+            null
+          );
+
+          setShipStatus(
+            "error"
+          );
+
+          setLocMsg(
+            e?.response
+              ?.data
+              ?.error ||
+            e?.message ||
+            "Không xác nhận được địa chỉ giao hàng."
+          );
+        }
+
+        throw e;
+      }
+    };
+
+
+  const handleDeliveryAddressChange =
+    (
+      value
+    ) => {
+      setAddress(
+        value
+      );
+
+      deliveryAddressRevisionRef
+        .current += 1;
+
+      setDeliveryCandidateToken(
+        ""
+      );
+
+      setShipFee(
+        0
+      );
+
+      setDistKm(
+        null
+      );
+
+      /*
+       * Existing GPS may remain valid as current-position evidence,
+       * but it is never sufficient authority for a changed typed
+       * delivery destination.
+       */
+      setShipStatus(
+        deliveryCoords
+          ? "address_pending"
+          : "idle"
+      );
+
+      setLocMsg(
+        String(
+          value ||
+          ""
+        ).trim()
+          ? "Địa chỉ đã thay đổi. Vui lòng xác nhận lại."
+          : ""
+      );
+    };
+
+
+  const handleDeliveryAddressBlur =
+    async (
+      value
+    ) => {
+      if (
+        orderType !==
+          "delivery" ||
+        !String(
+          value ||
+          ""
+        ).trim() ||
+        !deliveryCoords
+      ) {
         return;
       }
-    } catch(e) {}
 
-    const fee = calcShipFee(subtotal, km, shippingTiers);
-    if (fee === -1) {
-      setShipFee(0);
-      setShipStatus("contact");
-      setLocMsg(`Khoảng cách ${km.toFixed(1)}km > 10km. Nhà hàng sẽ liên hệ báo phí ship.`);
-    } else {
-      setShipFee(fee);
-      setShipStatus("done");
-      setLocMsg(`Khoảng cách: ${km.toFixed(1)} km (ước tính)`);
-    }
-  };
+      try {
+        await resolveTypedShippingAddress(
+          value
+        );
+      } catch(e) {
+        /*
+         * Error state/message is owned by
+         * resolveTypedShippingAddress().
+         */
+      }
+    };
 
-  const refreshShippingLocation = async () => {
-    setShipStatus("loading");
-    setLocMsg("");
 
-    try {
-      const coords = await requestDeliveryLocation();
-      await updateShippingFromLocation(coords);
-    } catch(e) {
-      console.warn("[LOCATION] failed", e.message);
-      setShipFee(0);
-      setShipStatus("denied");
-      setLocMsg("Không lấy được vị trí. Bấm để cho phép hoặc nhập địa chỉ, cửa hàng sẽ liên hệ phí ship.");
-    }
-  };
+  const refreshShippingLocation =
+    async () => {
+      deliveryAddressRevisionRef
+        .current += 1;
+
+      const revision =
+        deliveryAddressRevisionRef
+          .current;
+
+      setDeliveryCandidateToken(
+        ""
+      );
+
+      setShipFee(
+        0
+      );
+
+      setDistKm(
+        null
+      );
+
+      setShipStatus(
+        "loading"
+      );
+
+      setLocMsg(
+        "Đang lấy vị trí hiện tại..."
+      );
+
+      try {
+        const rawCoords =
+          await requestDeliveryLocation();
+
+        const coords =
+          normalizeDeliveryCoords(
+            rawCoords
+          );
+
+        if (
+          revision !==
+          deliveryAddressRevisionRef
+            .current
+        ) {
+          return;
+        }
+
+        setDeliveryCoords(
+          coords
+        );
+
+        if (
+          String(
+            address ||
+            ""
+          ).trim()
+        ) {
+          await resolveTypedShippingAddress(
+            address,
+            coords
+          );
+
+          return;
+        }
+
+        setShipStatus(
+          "address_pending"
+        );
+
+        setLocMsg(
+          "Đã lấy vị trí. Hãy nhập địa chỉ giao hàng."
+        );
+      } catch(e) {
+        if (
+          revision ===
+          deliveryAddressRevisionRef
+            .current
+        ) {
+          setDeliveryCoords(
+            null
+          );
+
+          setDeliveryCandidateToken(
+            ""
+          );
+
+          setShipFee(
+            0
+          );
+
+          setDistKm(
+            null
+          );
+
+          setShipStatus(
+            "denied"
+          );
+
+          setLocMsg(
+            e?.message ||
+            "Không lấy được vị trí. Vui lòng cho phép vị trí."
+          );
+        }
+      }
+    };
+
 
   const [paymentMethod,setPaymentMethod]=useState("momo");
 
@@ -371,217 +940,387 @@ export default function CheckoutPage(){
   const total=Math.max(0, subtotal+shipFee-pointsDiscount-tierDiscount);
 
   async function handleOrder(){
-    if(!name.trim()){setError("Vui lòng nhập họ tên");return;}
-    if(orderType==="delivery"&&!address.trim()){setError("Vui lòng nhập địa chỉ giao hàng");return;}
-    if(total > 0 && total < 1000){
-      setError("Số tiền thanh toán tối thiểu 1.000đ. Vui lòng dùng thêm điểm để thanh toán hoàn toàn bằng điểm, hoặc giảm số điểm sử dụng.");
+
+    if(!name.trim()){
+      setError("Vui lòng nhập họ tên");
       return;
     }
-    setLoading(true);setError("");
-    try{
-      const userId=profile?.id||profile?.userId||profile?.zalo_id||"guest-"+Date.now();
-      const profilePhone = String(profile?.phone || profile?.phoneNumber || "").replace(/\D/g, "").replace(/^84/, "0");
-      const submittedPhone = String(phone || "").replace(/\D/g, "").replace(/^84/, "0");
-      const customerPhone = profilePhone || submittedPhone;
 
-      if(walletSelected){
-        if(pointsToUse!==0){
-          throw new Error(
-            "Cing Wallet hiện chưa hỗ trợ thanh toán kết hợp điểm. Vui lòng bỏ điểm tích lũy để tiếp tục."
+    if(
+      orderType==="delivery" &&
+      !address.trim()
+    ){
+      setError("Vui lòng nhập địa chỉ giao hàng");
+      return;
+    }
+
+    if(
+      orderType==="delivery" &&
+      (
+        !deliveryCoords ||
+        !Number.isFinite(
+          Number(
+            deliveryCoords.latitude
+          )
+        ) ||
+        !Number.isFinite(
+          Number(
+            deliveryCoords.longitude
+          )
+        )
+      )
+    ){
+      setError(
+        "Vui lòng cho phép vị trí để tính phí giao hàng chính xác"
+      );
+      return;
+    }
+
+    let checkoutCandidateToken =
+      deliveryCandidateToken;
+
+    /*
+     * Blur normally resolves the typed address before submit.
+     *
+     * This fallback closes mobile keyboard / timing races:
+     * no financial checkout request may proceed without a fresh
+     * backend-signed candidate for the current typed destination.
+     */
+    if(
+      orderType==="delivery" &&
+      (
+        shipStatus!=="done" ||
+        !checkoutCandidateToken
+      )
+    ){
+      try{
+        checkoutCandidateToken =
+          await resolveTypedShippingAddress(
+            address,
+            deliveryCoords
           );
-        }
+      }catch(e){
+        setError(
+          e?.response?.data?.error ||
+          e?.response?.data?.message ||
+          e?.message ||
+          "Không xác nhận được địa chỉ giao hàng."
+        );
+        return;
+      }
 
-        const walletItems=items.map(i=>({
-          item_id:i.id,
-          item_code:i.code||i.id,
-          name:i.displayName||i.name,
-          price:i.price,
-          quantity:i.qty,
-          note:i.note||"",
-          toppings:i.toppings||[],
-          options:i.options||{},
-          customNote:i.customNote||"",
+      if(
+        !checkoutCandidateToken
+      ){
+        setError(
+          "Địa chỉ vừa thay đổi. Vui lòng xác nhận lại."
+        );
+        return;
+      }
+    }
+
+
+
+    setLoading(true);
+    setError("");
+
+
+    try{
+
+      const profilePhone =
+        String(
+          profile?.phone ||
+          profile?.phoneNumber ||
+          ""
+        )
+          .replace(/\D/g,"")
+          .replace(/^84/,"0");
+
+      const submittedPhone =
+        String(phone || "")
+          .replace(/\D/g,"")
+          .replace(/^84/,"0");
+
+      const customerPhone =
+        profilePhone ||
+        submittedPhone;
+
+
+      /*
+       * Client sends identity/presentation intent only.
+       *
+       * Financial authority lives entirely in /checkout/create:
+       *
+       * - catalog prices
+       * - shipping
+       * - membership tier
+       * - voucher discount
+       * - loyalty point value / usable points
+       * - final monetary remainder
+       * - final funding rail
+       */
+      const checkoutItems =
+        items.map((item)=>({
+
+          item_id:
+            item.item_id ||
+            item.id,
+
+          quantity:
+            item.qty,
+
+          customization_option_ids:
+            Array.isArray(
+              item.customization_option_ids
+            )
+              ? item.customization_option_ids
+              : [],
+
+          note:
+            item.note ||
+            item.customNote ||
+            "",
+
         }));
 
-        const walletRes=await apiClient.post("/checkout/create",{
-          customer_name:name.trim(),
-          customer_phone:customerPhone,
-          shipping_address:address.trim(),
-          order_type:orderType,
-          destination_latitude:
-            orderType==="delivery" ? location?.lat ?? null : null,
-          destination_longitude:
-            orderType==="delivery" ? location?.lng ?? null : null,
-          items:walletItems,
-          submitted_shipping_fee:shipFee,
-          submitted_total_amount:total,
-          payment_method:"cing_wallet",
-          payment_provider:"cing_wallet",
-        });
 
-        const walletData=walletRes.data;
+      const selectedPaymentMethod =
+        walletSelected
+          ? "cing_wallet"
+          : "momo";
+
+
+      const selectedPaymentProvider =
+        walletSelected
+          ? "cing_wallet"
+          : "zalo_checkout";
+
+
+      const checkoutRes =
+        await apiClient.post(
+          "/checkout/create",
+          {
+
+            customer_name:
+              name.trim(),
+
+            customer_phone:
+              customerPhone,
+
+            shipping_address:
+              orderType==="delivery"
+                ? address.trim()
+                : "",
+
+            note:
+              note || "",
+
+            order_type:
+              orderType,
+
+            destination_latitude:
+              orderType==="delivery"
+                ? deliveryCoords?.latitude ?? null
+                : null,
+
+            destination_longitude:
+              orderType==="delivery"
+                ? deliveryCoords?.longitude ?? null
+                : null,
+
+            candidate_token:
+              orderType==="delivery"
+                ? checkoutCandidateToken
+                : null,
+            items:
+              checkoutItems,
+
+            voucher_code:
+              selectedVoucher?.code ||
+              selectedVoucher?.voucher_code ||
+              null,
+
+            points_requested:
+              pointsToUse,
+
+            payment_method:
+              selectedPaymentMethod,
+
+            payment_provider:
+              selectedPaymentProvider,
+
+          }
+        );
+
+
+      const checkoutData =
+        checkoutRes.data;
+
+
+      if(
+        checkoutData?.success !== true ||
+        checkoutData?.checkout_validated !== true
+      ){
+
+        throw new Error(
+          checkoutData?.message ||
+          checkoutData?.error ||
+          "Checkout chưa được xác nhận."
+        );
+
+      }
+
+
+      /*
+       * Backend may canonicalize the final rail to points/internal
+       * when loyalty points cover the complete payable amount.
+       */
+      const pointsSettlement =
+        checkoutData?.points_settlement;
+
+
+      if(pointsSettlement){
 
         if(
-          walletData?.success!==true ||
-          walletData?.wallet_settlement?.success!==true ||
-          walletData?.wallet_settlement?.completed!==true ||
-          !walletData?.wallet_settlement?.order_id
+          pointsSettlement?.success !== true ||
+          pointsSettlement?.completed !== true ||
+          !pointsSettlement?.order_id
         ){
+
           throw new Error(
-            walletData?.message ||
-            "Thanh toán Cing Wallet chưa hoàn tất. Vui lòng kiểm tra lại."
+            checkoutData?.message ||
+            "Thanh toán bằng điểm chưa hoàn tất. Vui lòng kiểm tra lại."
           );
+
         }
 
+
         clearCart();
         navigate("/order-success");
         return;
+
       }
 
-      // 1. Tao don hang
-      const orderPayload={
-        user_id:userId,
-        customer_name:name.trim(),
-        shipping_address:address.trim(),
-        note: note || "",
-        payment_method:"momo",
-        payment_status:"pending",
-        status_code:"pending_payment",
-        items:items.map(i=>({
-          item_id:i.id,
-          item_code:i.code||i.id,
-          name:i.displayName||i.name,
-          price:i.price,
-          quantity:i.qty,
-          note:i.note||"",
-          toppings:i.toppings||[],
-          options:i.options||{},
-          customNote:i.customNote||"",
-        })),
-        subtotal,
-        shipping_fee:shipFee,
-        shipping_distance:distKm?Math.round(distKm*10)/10:null,
-        total_amount:total,
-        points_used:    pointsToUse,
-        tier_discount:  tierDiscount,
-        points_discount: pointsDiscount,
-      };
-      const orderRes = await apiClient.post("/orders/create", orderPayload);
-      const orderId = orderRes.data?.data?.id || orderRes.data?.order?.id;
 
-      // 2. Tạo Zalo Checkout payment session
-      // Neu tong tien = 0 (chi dung diem) -> khong can MoMo
-      if (total === 0 && pointsToUse > 0) {
-        const deductPhone = memberPhone || (profile?.phone||"").replace(/\D/g,"").replace(/^84/,"0");
-        if (!deductPhone) throw new Error("Không tìm thấy số điện thoại để trừ điểm");
-        await apiClient.post("/points/pay-with-points", {
-          user_id: deductPhone,
-          phone: deductPhone,
-          points: pointsToUse,
-          order_id: orderId,
-          order_data: {
-            order_id: orderId,
-            user_id: deductPhone,
-            customer_name: name.trim(),
-            customer_phone: deductPhone,
-            shipping_address: address.trim(),
-            order_type: orderType,
-            orderType,
-            note: note || "",
-            shipping_fee: shipFee,
-            items: items.map(i=>({
-              item_id: i.id,
-              item_code: i.code||i.id,
-              name: i.displayName||i.name,
-              price: i.price,
-              quantity: i.qty,
-              note: i.note||"",
-              toppings: i.toppings||[],
-              options: i.options||{},
-              customNote: i.customNote||"",
-            })),
-            subtotal,
-            total_amount: 0,
-            points_used: pointsToUse,
-          },
-        });
+      const walletSettlement =
+        checkoutData?.wallet_settlement;
+
+
+      if(walletSettlement){
+
+        if(
+          walletSettlement?.success !== true ||
+          walletSettlement?.completed !== true ||
+          !walletSettlement?.order_id
+        ){
+
+          throw new Error(
+            checkoutData?.message ||
+            "Thanh toán Cing Wallet chưa hoàn tất. Vui lòng kiểm tra lại."
+          );
+
+        }
+
+
         clearCart();
         navigate("/order-success");
         return;
+
       }
 
-      const paymentRes = await apiClient.post("/payments/create-session", {
-        user_id: userId,
-        customer_name: name.trim(),
-        customer_phone: customerPhone,
-        payment_provider: "zalo_checkout",
-        payment_method: "zalo_checkout",
-        total_amount: total,
-        subtotal,
-        shipping_fee: shipFee,
-        shipping_distance: distKm?Math.round(distKm*10)/10:0,
-        cart_snapshot: {
-          items,
-          customer_name: name.trim(),
-          customer_phone: customerPhone,
-          shipping_address: address.trim(),
-          order_type: orderType,
-          orderType,
-          shipping_fee: shipFee,
-          points_used: pointsToUse,
-          note: note || "",
-          tier_discount: tierDiscount,
-          points_discount: pointsDiscount,
-          subtotal,
-        },
-        shipping_address: address.trim(),
-        order_type: orderType,
-        orderType,
-        order_id: orderId,
-      });
 
-      const zaloOrder = paymentRes.data?.zaloOrder;
-      if (!zaloOrder) throw new Error("Không lấy được dữ liệu Zalo Checkout");
+      /*
+       * External payment session is created by the same canonical
+       * checkout request. There is no second create-session API.
+       *
+       * checkoutData.payment is paymentOrchestratorService result.
+       */
+      const paymentResult =
+        checkoutData?.payment;
+
+
+      const zaloOrder =
+        paymentResult?.zaloOrder;
+
+
+      if(!zaloOrder){
+
+        throw new Error(
+          "Không lấy được dữ liệu Zalo Checkout"
+        );
+
+      }
+
 
       const pendingTransactionCode =
-        paymentRes.data?.transaction_code ||
-        paymentRes.data?.transactionCode ||
-        paymentRes.data?.data?.transaction_code ||
-        paymentRes.data?.data?.transactionCode ||
+        paymentResult?.payment?.transaction_code ||
+        paymentResult?.payment?.transactionCode ||
+        paymentResult?.transaction_code ||
+        paymentResult?.transactionCode ||
         zaloOrder?.transaction_code ||
         zaloOrder?.transactionCode;
 
-      if (pendingTransactionCode) {
-        sessionStorage.setItem(pendingCheckoutKey, pendingTransactionCode);
+
+      if(pendingTransactionCode){
+
+        sessionStorage.setItem(
+          pendingCheckoutKey,
+          pendingTransactionCode
+        );
+
       }
 
-      try {
-        await requestZaloCheckoutFromShell({
-          amount: zaloOrder.amount,
-          item: zaloOrder.item,
-          desc: zaloOrder.desc,
-          mac: zaloOrder.mac,
-          extradata: zaloOrder.extradata,
-          method: zaloOrder.method,
-        });
-      } catch (sdkErr) {
-        console.error("[ZALO_CREATE_ORDER_CATCH]", sdkErr);
-        throw sdkErr;
-      }
+
+      await requestZaloCheckoutFromShell({
+
+        amount:
+          zaloOrder.amount,
+
+        item:
+          zaloOrder.item,
+
+        desc:
+          zaloOrder.desc,
+
+        mac:
+          zaloOrder.mac,
+
+        extradata:
+          zaloOrder.extradata,
+
+        method:
+          zaloOrder.method,
+
+      });
+
 
       return;
+
     }catch(e){
-      console.error("ZALO_CHECKOUT_ERROR", e);
 
-      try {
-      } catch {}
+      console.error(
+        "ZALO_CHECKOUT_ERROR",
+        e
+      );
 
-      const msg=e?.response?.data?.error||e?.response?.data?.message||e?.message||"Đặt hàng thất bại. Vui lòng thử lại.";
+
+      const msg =
+        e?.response?.data?.error ||
+        e?.response?.data?.message ||
+        e?.message ||
+        "Đặt hàng thất bại. Vui lòng thử lại.";
+
+
       setError(msg);
+
     }finally{
+
       setLoading(false);
+
     }
+
   }
+
 
   if(!items.length) return(
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
@@ -661,7 +1400,12 @@ export default function CheckoutPage(){
 
         {orderType==="delivery"&&(
           <div style={{marginTop:10,padding:"10px 12px",background:"#f9f9f9",borderRadius:10}}>
-            {shipStatus==="loading"&&<p style={{fontSize:12,color:"#999",margin:0}}>Đang lấy vị trí và tính phí ship...</p>}
+            {shipStatus==="loading"&&<p style={{fontSize:12,color:"#999",margin:0}}>{locMsg || "Đang xác nhận vị trí giao hàng..."}</p>}
+            {shipStatus==="address_pending"&&(
+              <p style={{fontSize:11,color:"#f57c00",margin:0}}>
+                {locMsg || "Vui lòng nhập và xác nhận địa chỉ giao hàng."}
+              </p>
+            )}
 
 {shipStatus==="denied"&&(
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
@@ -695,7 +1439,13 @@ export default function CheckoutPage(){
         <Field label="Họ và tên *" value={name} onChange={setName} placeholder="Nguyễn Văn A"/>
         <Field label="Số điện thoại" value={phone} onChange={setPhone} placeholder="0901234567" type="tel"/>
         {orderType==="delivery"&&
-          <Field label="Địa chỉ giao hàng *" value={address} onChange={setAddress} placeholder="Số nhà, đường, phường/xã..."/>}
+          <Field
+            label="Địa chỉ giao hàng *"
+            value={address}
+            onChange={handleDeliveryAddressChange}
+            onBlur={handleDeliveryAddressBlur}
+            placeholder="Số nhà, đường, phường/xã..."
+          />}
       </div>
 
       {/* THANH TOÁN */}
@@ -706,7 +1456,6 @@ export default function CheckoutPage(){
           type="button"
           onClick={()=>{
             setPaymentMethod("cing_wallet");
-            setPointsToUse(0);
           }}
           style={{
             width:"100%",display:"flex",alignItems:"center",gap:12,
@@ -792,7 +1541,7 @@ export default function CheckoutPage(){
           )}
           <div style={{height:1,background:"#f0f0f0",margin:"6px 0"}}/>
           {/* ĐIỂM TÍCH LŨY — Dùng trực tiếp vào đơn */}
-          {availablePoints > 0 && !walletSelected && (
+          {availablePoints > 0 && (
             <div style={{marginBottom:8,padding:"12px",background:"#f0fdf4",borderRadius:10,border:"1px solid #bbf7d0"}}>
               <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
                 <span style={{fontSize:18}}>🎟</span>

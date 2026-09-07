@@ -1,12 +1,35 @@
 import { create } from "zustand";
 
-const CART_KEY = "cing_cart_session";
+const CART_KEY = "cing_cart_session_v2";
+const LEGACY_CART_KEY = "cing_cart_session";
 
 function loadCart() {
   try {
-    const raw = sessionStorage.getItem(CART_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch(e) { return []; }
+    /*
+     * V1 stored human-readable modifier slugs and client prices.
+     * Those values cannot be migrated into financial ITEM-* IDs
+     * safely, so the old session is intentionally invalidated.
+     */
+    sessionStorage.removeItem(
+      LEGACY_CART_KEY
+    );
+
+    const raw =
+      sessionStorage.getItem(
+        CART_KEY
+      );
+
+    const parsed =
+      raw
+        ? JSON.parse(raw)
+        : [];
+
+    return Array.isArray(parsed)
+      ? parsed
+      : [];
+  } catch(e) {
+    return [];
+  }
 }
 
 function saveCart(items) {
@@ -14,16 +37,41 @@ function saveCart(items) {
 }
 
 function getCartKey(product) {
-  const toppingIds = Array.isArray(product.toppings)
-    ? product.toppings.map(t => t.id || t.label || t.name || String(t)).sort()
-    : [];
+  const productId =
+    String(
+      product.store_item_id ||
+      product.item_id ||
+      product.id ||
+      ""
+    ).trim();
+
+  const optionIds =
+    Array.isArray(
+      product.customization_option_ids
+    )
+      ? [
+          ...product
+            .customization_option_ids,
+        ]
+          .map(
+            value =>
+              String(
+                value
+              ).trim()
+          )
+          .filter(Boolean)
+          .sort()
+      : [];
 
   return JSON.stringify({
-    id: product.id,
-    price: product.price || 0,
-    options: product.options || {},
-    toppings: toppingIds,
-    note: String(product.note || "").trim(),
+    item_id:
+      productId,
+    customization_option_ids:
+      optionIds,
+    note:
+      String(
+        product.note || ""
+      ).trim(),
   });
 }
 
