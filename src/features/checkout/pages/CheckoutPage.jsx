@@ -1135,11 +1135,6 @@ export default function CheckoutPage(){
             items:
               checkoutItems,
 
-            voucher_code:
-              selectedVoucher?.code ||
-              selectedVoucher?.voucher_code ||
-              null,
-
             points_requested:
               pointsToUse,
 
