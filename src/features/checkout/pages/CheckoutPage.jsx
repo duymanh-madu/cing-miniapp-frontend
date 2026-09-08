@@ -13,6 +13,60 @@ import {
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
 
+const CHECKOUT_REQUEST_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+
+function canonicalizeCheckoutIntent(
+  value
+){
+  if(
+    value === null ||
+    value === undefined
+  ){
+    return null;
+  }
+
+  if(Array.isArray(value)){
+    return value.map(
+      canonicalizeCheckoutIntent
+    );
+  }
+
+  if(
+    typeof value === "object"
+  ){
+    return Object
+      .keys(value)
+      .sort()
+      .reduce(
+        (result,key)=>{
+          result[key] =
+            canonicalizeCheckoutIntent(
+              value[key]
+            );
+
+          return result;
+        },
+        {}
+      );
+  }
+
+  return value;
+}
+
+
+function createCheckoutIntentFingerprint(
+  value
+){
+  return JSON.stringify(
+    canonicalizeCheckoutIntent(
+      value
+    )
+  );
+}
+
+
 const ORDER_TYPES=[
   {id:"dine_in",label:"Ăn tại quán",icon:"🪑"},
   {id:"takeaway",label:"Mang về",icon:"🛍"},
@@ -78,6 +132,163 @@ export default function CheckoutPage(){
   const [error,setError]=useState("");
   const [pointsToUse, setPointsToUse] = useState(0);
   const pendingCheckoutKey = "cing_pending_checkout_transaction";
+  const checkoutIntentStorageKey =
+    "cing_checkout_request_intent_v1";
+
+  /*
+   * One UUID identifies one logical checkout intent.
+   *
+   * Exact network/UI retry reuses the UUID.
+   * Any material intent change gets a new UUID automatically when
+   * handleOrder recomputes the client lifecycle fingerprint.
+   *
+   * Backend checkout_fingerprint remains the financial authority.
+   */
+  const checkoutRequestIdRef =
+    useRef("");
+
+  const checkoutIntentFingerprintRef =
+    useRef("");
+
+
+  const clearCheckoutRequestIntent =
+    () => {
+      checkoutRequestIdRef.current =
+        "";
+
+      checkoutIntentFingerprintRef.current =
+        "";
+
+      try{
+        sessionStorage.removeItem(
+          checkoutIntentStorageKey
+        );
+      }catch(e){}
+    };
+
+
+  const hydrateCheckoutRequestIntent =
+    () => {
+      if(
+        checkoutRequestIdRef.current &&
+        checkoutIntentFingerprintRef.current
+      ){
+        return;
+      }
+
+      try{
+        const raw =
+          sessionStorage.getItem(
+            checkoutIntentStorageKey
+          );
+
+        if(!raw){
+          return;
+        }
+
+        const stored =
+          JSON.parse(raw);
+
+        const requestId =
+          String(
+            stored?.request_id ||
+            ""
+          ).trim();
+
+        const fingerprint =
+          String(
+            stored?.intent_fingerprint ||
+            ""
+          );
+
+        if(
+          CHECKOUT_REQUEST_ID_PATTERN
+            .test(requestId) &&
+          fingerprint
+        ){
+          checkoutRequestIdRef.current =
+            requestId.toLowerCase();
+
+          checkoutIntentFingerprintRef.current =
+            fingerprint;
+        }
+      }catch(e){
+        clearCheckoutRequestIntent();
+      }
+    };
+
+
+  const ensureCheckoutRequestId =
+    (
+      intentFingerprint
+    ) => {
+      const normalizedFingerprint =
+        String(
+          intentFingerprint ||
+          ""
+        );
+
+      if(!normalizedFingerprint){
+        throw new Error(
+          "Không thể xác lập phiên thanh toán an toàn."
+        );
+      }
+
+      hydrateCheckoutRequestIntent();
+
+      if(
+        checkoutRequestIdRef.current &&
+        checkoutIntentFingerprintRef.current ===
+          normalizedFingerprint
+      ){
+        return checkoutRequestIdRef.current;
+      }
+
+      if(
+        typeof globalThis.crypto
+          ?.randomUUID !==
+        "function"
+      ){
+        throw new Error(
+          "Thiết bị không hỗ trợ mã giao dịch an toàn. Vui lòng cập nhật ứng dụng."
+        );
+      }
+
+      const requestId =
+        globalThis.crypto
+          .randomUUID()
+          .toLowerCase();
+
+      if(
+        !CHECKOUT_REQUEST_ID_PATTERN
+          .test(requestId)
+      ){
+        throw new Error(
+          "Không thể tạo mã giao dịch an toàn."
+        );
+      }
+
+      checkoutRequestIdRef.current =
+        requestId;
+
+      checkoutIntentFingerprintRef.current =
+        normalizedFingerprint;
+
+      try{
+        sessionStorage.setItem(
+          checkoutIntentStorageKey,
+          JSON.stringify({
+            request_id:
+              requestId,
+
+            intent_fingerprint:
+              normalizedFingerprint,
+          })
+        );
+      }catch(e){}
+
+      return requestId;
+    };
 
   // Resume sau khi Zalo/MoMo trả app về checkout mà socket listener bị mất context.
   useEffect(() => {
@@ -107,6 +318,7 @@ export default function CheckoutPage(){
           )
         ) {
           sessionStorage.removeItem(pendingCheckoutKey);
+          clearCheckoutRequestIntent();
           clearCart();
           navigate("/order-success", { replace: true });
         }
@@ -135,6 +347,7 @@ export default function CheckoutPage(){
       if (socket?.connected) {
         socket.on("payment.success", () => {
           sessionStorage.removeItem(pendingCheckoutKey);
+          clearCheckoutRequestIntent();
           clearCart();
           navigate("/order-success");
         });
@@ -1160,10 +1373,73 @@ export default function CheckoutPage(){
           : "zalo_checkout";
 
 
+      /*
+       * Client-side fingerprint controls UUID lifecycle only.
+       *
+       * It intentionally includes every material customer intent
+       * submitted to checkout. It does NOT calculate money.
+       */
+      const checkoutIntentFingerprint =
+        createCheckoutIntentFingerprint({
+          order_type:
+            orderType,
+
+          customer_name:
+            name.trim(),
+
+          customer_phone:
+            customerPhone,
+
+          shipping_address:
+            orderType==="delivery"
+              ? address.trim()
+              : "",
+
+          note:
+            note || "",
+
+          destination_latitude:
+            orderType==="delivery"
+              ? deliveryCoords?.latitude ?? null
+              : null,
+
+          destination_longitude:
+            orderType==="delivery"
+              ? deliveryCoords?.longitude ?? null
+              : null,
+
+          candidate_token:
+            orderType==="delivery"
+              ? checkoutCandidateToken
+              : null,
+
+          items:
+            checkoutItems,
+
+          points_requested:
+            pointsToUse,
+
+          payment_method:
+            selectedPaymentMethod,
+
+          payment_provider:
+            selectedPaymentProvider,
+        });
+
+
+      const checkoutRequestId =
+        ensureCheckoutRequestId(
+          checkoutIntentFingerprint
+        );
+
+
       const checkoutRes =
         await apiClient.post(
           "/checkout/create",
           {
+
+            checkout_request_id:
+              checkoutRequestId,
 
             customer_name:
               name.trim(),
@@ -1254,6 +1530,7 @@ export default function CheckoutPage(){
         }
 
 
+        clearCheckoutRequestIntent();
         clearCart();
         navigate("/order-success");
         return;
@@ -1281,6 +1558,7 @@ export default function CheckoutPage(){
         }
 
 
+        clearCheckoutRequestIntent();
         clearCart();
         navigate("/order-success");
         return;
@@ -1361,6 +1639,22 @@ export default function CheckoutPage(){
         "ZALO_CHECKOUT_ERROR",
         e
       );
+
+
+      const checkoutErrorCode =
+        String(
+          e?.response?.data?.code ||
+          e?.response?.data?.error_code ||
+          e?.response?.data?.error ||
+          ""
+        );
+
+      if(
+        checkoutErrorCode ===
+          "COMMERCE_CHECKOUT_IDEMPOTENCY_CONFLICT"
+      ){
+        clearCheckoutRequestIntent();
+      }
 
 
       const msg =
