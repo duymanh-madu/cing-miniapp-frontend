@@ -17,6 +17,45 @@ const CHECKOUT_REQUEST_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 
+const ADDRESS_AUTOCOMPLETE_SESSION_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+
+const ADDRESS_AUTOCOMPLETE_DEBOUNCE_MS =
+  300;
+
+
+function createAddressAutocompleteSessionToken(){
+
+  const cryptoApi =
+    globalThis.crypto;
+
+  if(
+    !cryptoApi ||
+    typeof cryptoApi.randomUUID !==
+      "function"
+  ){
+    throw new Error(
+      "Thiết bị không hỗ trợ phiên tìm địa chỉ an toàn."
+    );
+  }
+
+  const token =
+    cryptoApi.randomUUID();
+
+  if(
+    !ADDRESS_AUTOCOMPLETE_SESSION_PATTERN
+      .test(token)
+  ){
+    throw new Error(
+      "Không tạo được phiên tìm địa chỉ an toàn."
+    );
+  }
+
+  return token;
+}
+
+
 function canonicalizeCheckoutIntent(
   value
 ){
@@ -92,6 +131,247 @@ function Field({label,value,onChange,onBlur,placeholder,type="text"}){
   );
 }
 
+function DeliveryAddressAutocompleteField({
+  value,
+  onChange,
+  onBlur,
+  onSelect,
+  suggestions,
+  status,
+  suggestionError,
+}){
+
+  const [focus,setFocus]=
+    useState(false);
+
+  const list =
+    Array.isArray(suggestions)
+      ? suggestions
+      : [];
+
+  const showPanel =
+    focus &&
+    (
+      status==="loading" ||
+      status==="resolving" ||
+      list.length>0 ||
+      Boolean(suggestionError)
+    );
+
+  return(
+    <div
+      style={{
+        marginBottom:12,
+        position:"relative",
+      }}
+    >
+      <p
+        style={{
+          fontSize:11,
+          fontWeight:600,
+          color:"#666",
+          margin:"0 0 5px",
+        }}
+      >
+        Địa chỉ giao hàng *
+      </p>
+
+      <input
+        type="text"
+        value={value}
+        onChange={e=>
+          onChange(
+            e.target.value
+          )
+        }
+        onFocus={()=>
+          setFocus(true)
+        }
+        onBlur={()=>{
+          setFocus(false);
+          onBlur?.(value);
+        }}
+        placeholder="Nhập số nhà, đường, phường/xã..."
+        autoComplete="off"
+        aria-autocomplete="list"
+        aria-expanded={showPanel}
+        style={{
+          width:"100%",
+          border:`1.5px solid ${focus?"#D4531C":"#f0f0f0"}`,
+          borderRadius:10,
+          padding:"10px 12px",
+          fontSize:13,
+          color:"#333",
+          outline:"none",
+          boxSizing:"border-box",
+          background:"#fafafa",
+        }}
+      />
+
+      {showPanel&&(
+        <div
+          role="listbox"
+          style={{
+            position:"absolute",
+            left:0,
+            right:0,
+            top:"100%",
+            zIndex:50,
+            marginTop:4,
+            background:"#fff",
+            border:"1px solid #eee",
+            borderRadius:10,
+            boxShadow:"0 8px 24px rgba(0,0,0,.12)",
+            overflow:"hidden",
+          }}
+        >
+          {status==="loading"&&(
+            <p
+              style={{
+                margin:0,
+                padding:"10px 12px",
+                fontSize:11,
+                color:"#777",
+              }}
+            >
+              Đang tìm địa chỉ...
+            </p>
+          )}
+
+          {status==="resolving"&&(
+            <p
+              style={{
+                margin:0,
+                padding:"10px 12px",
+                fontSize:11,
+                color:"#777",
+              }}
+            >
+              Đang xác nhận địa chỉ...
+            </p>
+          )}
+
+          {status!=="resolving"&&
+            list.map(
+              suggestion=>(
+                <button
+                  key={suggestion.place_id}
+                  type="button"
+                  role="option"
+                  onPointerDown={e=>{
+                    /*
+                     * Prevent blur from winning the selection race.
+                     * Selection remains the primary authority path.
+                     */
+                    e.preventDefault();
+                  }}
+                  onClick={()=>
+                    onSelect(
+                      suggestion
+                    )
+                  }
+                  style={{
+                    width:"100%",
+                    border:"none",
+                    borderBottom:"1px solid #f3f3f3",
+                    background:"#fff",
+                    textAlign:"left",
+                    padding:"10px 12px",
+                    cursor:"pointer",
+                  }}
+                >
+                  <div
+                    style={{
+                      display:"flex",
+                      gap:9,
+                      alignItems:"flex-start",
+                    }}
+                  >
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        fontSize:14,
+                        marginTop:1,
+                      }}
+                    >
+                      📍
+                    </span>
+
+                    <div
+                      style={{
+                        minWidth:0,
+                        flex:1,
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin:0,
+                          fontSize:12,
+                          fontWeight:700,
+                          color:"#333",
+                          lineHeight:1.35,
+                        }}
+                      >
+                        {
+                          suggestion.main_text ||
+                          suggestion.description
+                        }
+                      </p>
+
+                      {suggestion.secondary_text&&(
+                        <p
+                          style={{
+                            margin:"2px 0 0",
+                            fontSize:10,
+                            color:"#888",
+                            lineHeight:1.35,
+                          }}
+                        >
+                          {suggestion.secondary_text}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              )
+            )}
+
+          {suggestionError&&
+            status!=="loading"&&
+            status!=="resolving"&&
+            list.length===0&&(
+              <p
+                style={{
+                  margin:0,
+                  padding:"9px 12px",
+                  fontSize:10,
+                  color:"#999",
+                }}
+              >
+                Không tải được gợi ý. Bạn vẫn có thể nhập địa chỉ thủ công.
+              </p>
+            )}
+
+          <div
+            aria-label="Google Maps"
+            style={{
+              padding:"6px 12px",
+              textAlign:"right",
+              fontSize:9,
+              fontWeight:600,
+              color:"#888",
+              background:"#fafafa",
+            }}
+          >
+            Google Maps
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 export default function CheckoutPage(){
   const navigate=useNavigate();
   const items=useCartStore(s=>s.items);
@@ -127,10 +407,239 @@ export default function CheckoutPage(){
   const [deliveryCoords,setDeliveryCoords]=useState(null);
   const [deliveryCandidateToken,setDeliveryCandidateToken]=useState("");
   const deliveryAddressRevisionRef=useRef(0);
+
+  /*
+   * Google Places predictions are transient presentation state.
+   *
+   * Frontend never owns Google credentials, destination
+   * coordinates, road distance or shipping money authority.
+   */
+  const [addressSuggestions,setAddressSuggestions]=
+    useState([]);
+
+  const [addressSuggestionStatus,setAddressSuggestionStatus]=
+    useState("idle");
+
+  const [addressSuggestionError,setAddressSuggestionError]=
+    useState("");
+
+  const [selectedDeliveryPlaceId,setSelectedDeliveryPlaceId]=
+    useState("");
+
+  const addressAutocompleteSessionRef=
+    useRef("");
+
+  const addressAutocompleteQueryRevisionRef=
+    useRef(0);
+
   const [locMsg,setLocMsg]=useState("");
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
   const [pointsToUse, setPointsToUse] = useState(0);
+  useEffect(()=>{
+
+    const input =
+      String(
+        address ||
+        ""
+      ).trim();
+
+    /*
+     * A selected Place has already terminated its autocomplete
+     * session through backend /shipping/resolve-place.
+     */
+    if(
+      orderType!=="delivery" ||
+      selectedDeliveryPlaceId ||
+      input.length<2
+    ){
+      addressAutocompleteQueryRevisionRef
+        .current += 1;
+
+      setAddressSuggestions([]);
+
+      if(
+        orderType!=="delivery" ||
+        input.length<2
+      ){
+        setAddressSuggestionStatus(
+          "idle"
+        );
+
+        setAddressSuggestionError(
+          ""
+        );
+      }
+
+      return;
+    }
+
+    const queryRevision =
+      ++addressAutocompleteQueryRevisionRef
+        .current;
+
+    const destinationRevision =
+      deliveryAddressRevisionRef
+        .current;
+
+    setAddressSuggestionStatus(
+      "loading"
+    );
+
+    setAddressSuggestionError(
+      ""
+    );
+
+    const timer =
+      window.setTimeout(
+        async ()=>{
+
+          try{
+
+            let sessionToken =
+              addressAutocompleteSessionRef
+                .current;
+
+            if(
+              !ADDRESS_AUTOCOMPLETE_SESSION_PATTERN
+                .test(sessionToken)
+            ){
+              sessionToken =
+                createAddressAutocompleteSessionToken();
+
+              addressAutocompleteSessionRef
+                .current =
+                sessionToken;
+            }
+
+            const body = {
+              input,
+              session_token:
+                sessionToken,
+            };
+
+            const latitude =
+              Number(
+                deliveryCoords
+                  ?.latitude
+              );
+
+            const longitude =
+              Number(
+                deliveryCoords
+                  ?.longitude
+              );
+
+            /*
+             * Current GPS is suggestion bias/current-position
+             * evidence only.
+             */
+            if(
+              Number.isFinite(latitude) &&
+              Number.isFinite(longitude)
+            ){
+              body.current_latitude =
+                latitude;
+
+              body.current_longitude =
+                longitude;
+            }
+
+            const response =
+              await apiClient.post(
+                "/shipping/address-suggestions",
+                body
+              );
+
+            if(
+              queryRevision !==
+                addressAutocompleteQueryRevisionRef
+                  .current ||
+              destinationRevision !==
+                deliveryAddressRevisionRef
+                  .current
+            ){
+              return;
+            }
+
+            const suggestions =
+              Array.isArray(
+                response.data?.suggestions
+              )
+                ? response.data.suggestions
+                    .filter(
+                      suggestion =>
+                        Boolean(
+                          String(
+                            suggestion?.place_id ||
+                            ""
+                          ).trim()
+                        ) &&
+                        Boolean(
+                          String(
+                            suggestion?.description ||
+                            ""
+                          ).trim()
+                        )
+                    )
+                    .slice(
+                      0,
+                      5
+                    )
+                : [];
+
+            setAddressSuggestions(
+              suggestions
+            );
+
+            setAddressSuggestionStatus(
+              "done"
+            );
+
+          }catch(e){
+
+            if(
+              queryRevision !==
+                addressAutocompleteQueryRevisionRef
+                  .current ||
+              destinationRevision !==
+                deliveryAddressRevisionRef
+                  .current
+            ){
+              return;
+            }
+
+            setAddressSuggestions([]);
+
+            setAddressSuggestionStatus(
+              "error"
+            );
+
+            setAddressSuggestionError(
+              e?.response?.data?.error ||
+              e?.response?.data?.message ||
+              "Không tải được gợi ý địa chỉ."
+            );
+          }
+        },
+        ADDRESS_AUTOCOMPLETE_DEBOUNCE_MS
+      );
+
+    return ()=>{
+      window.clearTimeout(
+        timer
+      );
+    };
+
+  },[
+    address,
+    orderType,
+    selectedDeliveryPlaceId,
+    deliveryCoords?.latitude,
+    deliveryCoords?.longitude,
+  ]);
+
+
   const pendingCheckoutKey = "cing_pending_checkout_transaction";
   const checkoutIntentStorageKey =
     "cing_checkout_request_intent_v1";
@@ -396,6 +905,19 @@ export default function CheckoutPage(){
       setDistKm(null);
       setDeliveryCoords(null);
       setDeliveryCandidateToken("");
+
+      setSelectedDeliveryPlaceId("");
+
+      addressAutocompleteSessionRef.current = "";
+
+      addressAutocompleteQueryRevisionRef.current += 1;
+
+      setAddressSuggestions([]);
+
+      setAddressSuggestionStatus("idle");
+
+      setAddressSuggestionError("");
+
       setShipStatus("idle");
       setLocMsg("");
 
@@ -821,176 +1343,14 @@ export default function CheckoutPage(){
         const result =
           response.data;
 
-        if (
-          revision !==
-          deliveryAddressRevisionRef
-            .current
-        ) {
-          return null;
-        }
-
-        if (
-          result?.success !==
-            true ||
-          !result
-            ?.candidate_token
-        ) {
-          throw new Error(
-            result?.error ||
-            "Không xác nhận được địa chỉ giao hàng."
-          );
-        }
-
-        const manualShippingQuote =
-          result
-            ?.manual_shipping_quote_required ===
-            true;
-
-        const rawFee =
-          result.shipping_fee;
-
-        const fee =
-          rawFee === null ||
-          rawFee === undefined ||
-          rawFee === ""
-            ? null
-            : Number(
-                rawFee
-              );
-
-        const rawDistance =
-          result
-            .shipping_distance_km;
-
-        const distance =
-          rawDistance === null ||
-          rawDistance ===
-            undefined ||
-          rawDistance === ""
-            ? null
-            : Number(
-                rawDistance
-              );
-
-        if (
-          !manualShippingQuote &&
-          (
-            !Number.isFinite(
-              fee
-            ) ||
-            fee < 0
-          )
-        ) {
-          throw new Error(
-            "Phí giao hàng không hợp lệ."
-          );
-        }
-
-        setDeliveryCandidateToken(
-          result
-            .candidate_token
-        );
-
-        /*
-         * Manual quote orders intentionally collect no shipping
-         * amount inside checkout. Zero here is NOT free shipping.
-         * shipStatus="contact" carries that semantic explicitly.
-         */
-        setShipFee(
-          manualShippingQuote
-            ? 0
-            : fee
-        );
-
-        if (
-          distance !== null &&
-          Number.isFinite(
-            distance
-          )
-        ) {
-          setDistKm(
-            distance
-          );
-        } else {
-          setDistKm(
-            null
-          );
-        }
-
-        setShipStatus(
-          manualShippingQuote
-            ? "contact"
-            : "done"
-        );
-
-        const canonicalAddress =
-          String(
-            result
-              .formatted_address ||
-            addressText
-          ).trim();
-
-        const mismatchKm =
-          Number(
-            result
-              .mismatch_distance_km
-          );
-
-        const roadDistanceText =
-          distance !== null &&
-          Number.isFinite(
-            distance
-          )
-            ? `${distance.toFixed(1)} km theo đường bộ`
-            : "";
-
-        const partialMatch =
-          result
-            ?.address_match_partial ===
-            true;
-
-        /*
-         * GPS mismatch is advisory only.
-         *
-         * Do not make customers feel that their typed address is
-         * invalid merely because device GPS and the delivery point
-         * differ slightly. Only surface a material mismatch.
-         */
-        const materialMismatch =
-          result.mismatch ===
-            true &&
-          Number.isFinite(
-            mismatchKm
-          ) &&
-          mismatchKm >= 1;
-
-        const addressParts = [
-          canonicalAddress,
-
-          roadDistanceText,
-
-          partialMatch
-            ? "Địa chỉ đã được Maps xác định gần đúng"
-            : "",
-
-          materialMismatch
-            ? `Vị trí hiện tại cách điểm giao ${mismatchKm.toFixed(1)} km`
-            : "",
-
-          manualShippingQuote
-            ? (
-                result.shipping_quote_note ||
-                "Cửa hàng sẽ liên hệ lại để thống nhất đơn giá ship."
-              )
-            : "",
-        ].filter(Boolean);
-
-        setLocMsg(
-          addressParts.join(" · ")
-        );
-
-        return result
-          .candidate_token;
+        return applyShippingResolutionResult({
+          result,
+          revision,
+          addressFallback:
+            addressText,
+          canonicalizeAddress:
+            false,
+        });
       } catch(e) {
         if (
           revision ===
@@ -1027,6 +1387,347 @@ export default function CheckoutPage(){
     };
 
 
+  const applyShippingResolutionResult =
+    ({
+      result,
+      revision,
+      addressFallback,
+      canonicalizeAddress = false,
+    }) => {
+
+      if(
+        revision !==
+          deliveryAddressRevisionRef
+            .current
+      ){
+        return null;
+      }
+
+      if(
+        result?.success !== true ||
+        !result?.candidate_token
+      ){
+        throw new Error(
+          result?.error ||
+          "Không xác nhận được địa chỉ giao hàng."
+        );
+      }
+
+      const manualShippingQuote =
+        result
+          ?.manual_shipping_quote_required ===
+          true;
+
+      const rawFee =
+        result.shipping_fee;
+
+      const fee =
+        rawFee === null ||
+        rawFee === undefined ||
+        rawFee === ""
+          ? null
+          : Number(rawFee);
+
+      const rawDistance =
+        result.shipping_distance_km;
+
+      const distance =
+        rawDistance === null ||
+        rawDistance === undefined ||
+        rawDistance === ""
+          ? null
+          : Number(rawDistance);
+
+      if(
+        !manualShippingQuote &&
+        (
+          !Number.isFinite(fee) ||
+          fee < 0
+        )
+      ){
+        throw new Error(
+          "Phí giao hàng không hợp lệ."
+        );
+      }
+
+      const canonicalAddress =
+        String(
+          result.formatted_address ||
+          addressFallback ||
+          ""
+        ).trim();
+
+      if(
+        canonicalizeAddress &&
+        canonicalAddress
+      ){
+        setAddress(
+          canonicalAddress
+        );
+      }
+
+      setDeliveryCandidateToken(
+        result.candidate_token
+      );
+
+      /*
+       * Manual quote zero is not free shipping.
+       */
+      setShipFee(
+        manualShippingQuote
+          ? 0
+          : fee
+      );
+
+      if(
+        distance !== null &&
+        Number.isFinite(distance)
+      ){
+        setDistKm(
+          distance
+        );
+      }else{
+        setDistKm(
+          null
+        );
+      }
+
+      setShipStatus(
+        manualShippingQuote
+          ? "contact"
+          : "done"
+      );
+
+      const mismatchKm =
+        Number(
+          result.mismatch_distance_km
+        );
+
+      const roadDistanceText =
+        distance !== null &&
+        Number.isFinite(distance)
+          ? `${distance.toFixed(1)} km theo đường bộ`
+          : "";
+
+      const partialMatch =
+        result?.address_match_partial ===
+          true;
+
+      const materialMismatch =
+        result.mismatch === true &&
+        Number.isFinite(mismatchKm) &&
+        mismatchKm >= 1;
+
+      const addressParts = [
+        canonicalAddress,
+        roadDistanceText,
+
+        partialMatch
+          ? "Địa chỉ đã được Maps xác định gần đúng"
+          : "",
+
+        materialMismatch
+          ? `Vị trí hiện tại cách điểm giao ${mismatchKm.toFixed(1)} km`
+          : "",
+
+        manualShippingQuote
+          ? (
+              result.shipping_quote_note ||
+              "Cửa hàng sẽ liên hệ lại để thống nhất đơn giá ship."
+            )
+          : "",
+      ].filter(Boolean);
+
+      setLocMsg(
+        addressParts.join(" · ")
+      );
+
+      return result.candidate_token;
+    };
+
+
+  const resolveSelectedShippingPlace =
+    async (
+      suggestion
+    ) => {
+
+      const placeId =
+        String(
+          suggestion?.place_id ||
+          ""
+        ).trim();
+
+      if(!placeId){
+        throw new Error(
+          "Địa chỉ gợi ý không hợp lệ."
+        );
+      }
+
+      const sessionToken =
+        String(
+          addressAutocompleteSessionRef
+            .current ||
+          ""
+        ).trim();
+
+      if(
+        !ADDRESS_AUTOCOMPLETE_SESSION_PATTERN
+          .test(sessionToken)
+      ){
+        throw new Error(
+          "Phiên tìm địa chỉ đã hết hạn. Vui lòng nhập lại địa chỉ."
+        );
+      }
+
+      const coords =
+        normalizeDeliveryCoords(
+          deliveryCoords
+        );
+
+      const revision =
+        deliveryAddressRevisionRef
+          .current;
+
+      /*
+       * Selection owns this autocomplete session from here.
+       */
+      addressAutocompleteSessionRef
+        .current = "";
+
+      addressAutocompleteQueryRevisionRef
+        .current += 1;
+
+      setAddressSuggestions([]);
+
+      setAddressSuggestionStatus(
+        "resolving"
+      );
+
+      setAddressSuggestionError(
+        ""
+      );
+
+      setShipStatus(
+        "loading"
+      );
+
+      setLocMsg(
+        "Đang xác nhận địa chỉ đã chọn..."
+      );
+
+      try{
+
+        const response =
+          await apiClient.post(
+            "/shipping/resolve-place",
+            {
+              place_id:
+                placeId,
+
+              session_token:
+                sessionToken,
+
+              current_latitude:
+                coords.latitude,
+
+              current_longitude:
+                coords.longitude,
+
+              order_amount:
+                subtotal,
+            }
+          );
+
+        const result =
+          response.data;
+
+        /*
+         * Install the selected-Place lifecycle marker BEFORE
+         * canonical setAddress() occurs inside the shared projection.
+         *
+         * This prevents the address effect from ever observing a
+         * canonical address with an unselected autocomplete state.
+         * candidate_token remains the actual delivery authority.
+         */
+        setSelectedDeliveryPlaceId(
+          String(
+            result?.place_id ||
+            placeId
+          )
+        );
+
+        const candidateToken =
+          applyShippingResolutionResult({
+            result,
+            revision,
+            addressFallback:
+              suggestion.description,
+            canonicalizeAddress:
+              true,
+          });
+
+        if(!candidateToken){
+          /*
+           * A stale response must not leave a presentation marker
+           * behind after the destination revision has changed.
+           */
+          setSelectedDeliveryPlaceId(
+            ""
+          );
+
+          return null;
+        }
+
+        setAddressSuggestionStatus(
+          "idle"
+        );
+
+        return candidateToken;
+
+      }catch(e){
+
+        if(
+          revision ===
+            deliveryAddressRevisionRef
+              .current
+        ){
+          setSelectedDeliveryPlaceId(
+            ""
+          );
+
+          setDeliveryCandidateToken(
+            ""
+          );
+
+          setShipFee(
+            0
+          );
+
+          setDistKm(
+            null
+          );
+
+          setShipStatus(
+            "error"
+          );
+
+          setLocMsg(
+            e?.response?.data?.error ||
+            e?.response?.data?.message ||
+            e?.message ||
+            "Không xác nhận được địa chỉ đã chọn."
+          );
+
+          setAddressSuggestionStatus(
+            "error"
+          );
+        }
+
+        throw e;
+      }
+    };
+
+
   const handleDeliveryAddressChange =
     (
       value
@@ -1037,6 +1738,23 @@ export default function CheckoutPage(){
 
       deliveryAddressRevisionRef
         .current += 1;
+
+      addressAutocompleteQueryRevisionRef
+        .current += 1;
+
+      setSelectedDeliveryPlaceId(
+        ""
+      );
+
+      setAddressSuggestions([]);
+
+      setAddressSuggestionStatus(
+        "idle"
+      );
+
+      setAddressSuggestionError(
+        ""
+      );
 
       setDeliveryCandidateToken(
         ""
@@ -1083,10 +1801,29 @@ export default function CheckoutPage(){
           value ||
           ""
         ).trim() ||
-        !deliveryCoords
+        !deliveryCoords ||
+        selectedDeliveryPlaceId ||
+        addressSuggestionStatus ===
+          "resolving"
       ) {
         return;
       }
+
+      /*
+       * No prediction was selected. Abandon this autocomplete
+       * session and retain raw backend resolution as fallback.
+       */
+      addressAutocompleteSessionRef
+        .current = "";
+
+      addressAutocompleteQueryRevisionRef
+        .current += 1;
+
+      setAddressSuggestions([]);
+
+      setAddressSuggestionStatus(
+        "idle"
+      );
 
       try {
         await resolveTypedShippingAddress(
@@ -1111,6 +1848,26 @@ export default function CheckoutPage(){
           .current;
 
       setDeliveryCandidateToken(
+        ""
+      );
+
+      setSelectedDeliveryPlaceId(
+        ""
+      );
+
+      addressAutocompleteSessionRef
+        .current = "";
+
+      addressAutocompleteQueryRevisionRef
+        .current += 1;
+
+      setAddressSuggestions([]);
+
+      setAddressSuggestionStatus(
+        "idle"
+      );
+
+      setAddressSuggestionError(
         ""
       );
 
@@ -1157,9 +1914,16 @@ export default function CheckoutPage(){
             ""
           ).trim()
         ) {
-          await resolveTypedShippingAddress(
-            address,
-            coords
+          /*
+           * Updated GPS becomes Places bias/current-position
+           * evidence. Do not silently bypass autocomplete.
+           */
+          setShipStatus(
+            "address_pending"
+          );
+
+          setLocMsg(
+            "Đã cập nhật vị trí. Hãy chọn địa chỉ gợi ý phù hợp."
           );
 
           return;
@@ -1812,12 +2576,14 @@ export default function CheckoutPage(){
         <Field label="Họ và tên *" value={name} onChange={setName} placeholder="Nguyễn Văn A"/>
         <Field label="Số điện thoại" value={phone} onChange={setPhone} placeholder="0901234567" type="tel"/>
         {orderType==="delivery"&&
-          <Field
-            label="Địa chỉ giao hàng *"
+          <DeliveryAddressAutocompleteField
             value={address}
             onChange={handleDeliveryAddressChange}
             onBlur={handleDeliveryAddressBlur}
-            placeholder="Số nhà, đường, phường/xã..."
+            onSelect={resolveSelectedShippingPlace}
+            suggestions={addressSuggestions}
+            status={addressSuggestionStatus}
+            suggestionError={addressSuggestionError}
           />}
       </div>
 
