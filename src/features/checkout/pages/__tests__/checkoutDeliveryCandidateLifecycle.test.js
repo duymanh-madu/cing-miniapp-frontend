@@ -178,7 +178,7 @@ test(
 
     assert.match(
       region,
-      /setShipStatus\(\s*"done"\s*\)/
+      /setShipStatus\([\s\S]*manualShippingQuote[\s\S]*\?\s*"contact"[\s\S]*:\s*"done"[\s\S]*\)/
     );
   }
 );

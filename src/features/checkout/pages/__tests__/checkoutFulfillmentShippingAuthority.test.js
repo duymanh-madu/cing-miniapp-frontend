@@ -136,7 +136,7 @@ test(
 
     assert.match(
       source,
-      /setShipFee\(\s*fee\s*\)/
+      /setShipFee\([\s\S]*manualShippingQuote[\s\S]*\?\s*0[\s\S]*:\s*fee[\s\S]*\)/
     );
 
     assert.match(

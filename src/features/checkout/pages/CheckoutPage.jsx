@@ -628,10 +628,22 @@ export default function CheckoutPage(){
           );
         }
 
+        const manualShippingQuote =
+          result
+            ?.manual_shipping_quote_required ===
+            true;
+
+        const rawFee =
+          result.shipping_fee;
+
         const fee =
-          Number(
-            result.shipping_fee
-          );
+          rawFee === null ||
+          rawFee === undefined ||
+          rawFee === ""
+            ? null
+            : Number(
+                rawFee
+              );
 
         const rawDistance =
           result
@@ -648,10 +660,13 @@ export default function CheckoutPage(){
               );
 
         if (
-          !Number.isFinite(
-            fee
-          ) ||
-          fee < 0
+          !manualShippingQuote &&
+          (
+            !Number.isFinite(
+              fee
+            ) ||
+            fee < 0
+          )
         ) {
           throw new Error(
             "Phí giao hàng không hợp lệ."
@@ -663,8 +678,15 @@ export default function CheckoutPage(){
             .candidate_token
         );
 
+        /*
+         * Manual quote orders intentionally collect no shipping
+         * amount inside checkout. Zero here is NOT free shipping.
+         * shipStatus="contact" carries that semantic explicitly.
+         */
         setShipFee(
-          fee
+          manualShippingQuote
+            ? 0
+            : fee
         );
 
         if (
@@ -683,7 +705,9 @@ export default function CheckoutPage(){
         }
 
         setShipStatus(
-          "done"
+          manualShippingQuote
+            ? "contact"
+            : "done"
         );
 
         const canonicalAddress =
@@ -699,21 +723,58 @@ export default function CheckoutPage(){
               .mismatch_distance_km
           );
 
-        if (
+        const roadDistanceText =
+          distance !== null &&
+          Number.isFinite(
+            distance
+          )
+            ? `${distance.toFixed(1)} km theo đường bộ`
+            : "";
+
+        const partialMatch =
+          result
+            ?.address_match_partial ===
+            true;
+
+        /*
+         * GPS mismatch is advisory only.
+         *
+         * Do not make customers feel that their typed address is
+         * invalid merely because device GPS and the delivery point
+         * differ slightly. Only surface a material mismatch.
+         */
+        const materialMismatch =
           result.mismatch ===
             true &&
           Number.isFinite(
             mismatchKm
-          )
-        ) {
-          setLocMsg(
-            `Địa chỉ giao hàng cách vị trí hiện tại ${mismatchKm.toFixed(1)} km · ${canonicalAddress}`
-          );
-        } else {
-          setLocMsg(
-            canonicalAddress
-          );
-        }
+          ) &&
+          mismatchKm >= 1;
+
+        const addressParts = [
+          canonicalAddress,
+
+          roadDistanceText,
+
+          partialMatch
+            ? "Địa chỉ đã được Maps xác định gần đúng"
+            : "",
+
+          materialMismatch
+            ? `Vị trí hiện tại cách điểm giao ${mismatchKm.toFixed(1)} km`
+            : "",
+
+          manualShippingQuote
+            ? (
+                result.shipping_quote_note ||
+                "Cửa hàng sẽ liên hệ lại để thống nhất đơn giá ship."
+              )
+            : "",
+        ].filter(Boolean);
+
+        setLocMsg(
+          addressParts.join(" · ")
+        );
 
         return result
           .candidate_token;
@@ -989,7 +1050,10 @@ export default function CheckoutPage(){
     if(
       orderType==="delivery" &&
       (
-        shipStatus!=="done" ||
+        (
+          shipStatus!=="done" &&
+          shipStatus!=="contact"
+        ) ||
         !checkoutCandidateToken
       )
     ){
@@ -1411,15 +1475,35 @@ export default function CheckoutPage(){
               </div>
             )}
             {shipStatus==="error"&&<p style={{fontSize:11,color:"#e57373",margin:0}}>{locMsg}</p>}
-            {shipStatus==="contact"&&<p style={{fontSize:11,color:"#f57c00",margin:0}}>{locMsg}</p>}
+            {shipStatus==="contact"&&(
+              <div>
+                <p style={{fontSize:11,color:"#555",margin:0,fontWeight:600}}>
+                  {locMsg}
+                </p>
+                <p style={{fontSize:12,color:"#f57c00",fontWeight:800,margin:"4px 0 0"}}>
+                  Phí ship: Cửa hàng liên hệ
+                </p>
+              </div>
+            )}
+
             {shipStatus==="done"&&(
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <div>
-                  <p style={{fontSize:11,color:"#555",margin:0,fontWeight:600}}>{locMsg}</p>
+                  <p style={{fontSize:11,color:"#555",margin:0,fontWeight:600}}>
+                    {locMsg}
+                  </p>
+
+                  {Number.isFinite(distKm)&&(
+                    <p style={{fontSize:11,color:"#666",margin:"3px 0 0"}}>
+                      🚗 Quãng đường giao hàng: {distKm.toFixed(1)} km
+                    </p>
+                  )}
+
                   <p style={{fontSize:12,color:shipFee===0?"#2e7d32":"#D4531C",fontWeight:700,margin:"3px 0 0"}}>
                     {shipFee===0?"Miễn phí vận chuyển!":"Phí ship: "+fmt(shipFee)}
                   </p>
                 </div>
+
                 {shipFee===0&&<span style={{fontSize:10,background:"#e8f5e9",color:"#2e7d32",
                   padding:"3px 8px",borderRadius:8,fontWeight:700}}>FREE</span>}
               </div>
@@ -1529,8 +1613,23 @@ export default function CheckoutPage(){
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
               <span style={{fontSize:12,color:"#666"}}>Phí ship</span>
               <span style={{fontSize:12,fontWeight:700,
-                color:shipStatus==="loading"?"#999":shipFee===0?"#2e7d32":"#1a1a1a"}}>
-                {shipStatus==="loading"?"Đang tính...":shipFee===0?"Miễn phí":fmt(shipFee)}
+                color:
+                  shipStatus==="loading"
+                    ? "#999"
+                    : shipStatus==="contact"
+                      ? "#f57c00"
+                      : shipFee===0
+                        ? "#2e7d32"
+                        : "#1a1a1a"}}>
+                {
+                  shipStatus==="loading"
+                    ? "Đang tính..."
+                    : shipStatus==="contact"
+                      ? "Cửa hàng liên hệ"
+                      : shipFee===0
+                        ? "Miễn phí"
+                        : fmt(shipFee)
+                }
               </span>
             </div>
           )}
@@ -1578,8 +1677,14 @@ export default function CheckoutPage(){
               </div>
               {pointsToUse > 0 && (
                 <p style={{fontSize:11,color:"#059669",margin:"6px 0 0",fontWeight:600}}>
-                  Giảm {fmt(pointsDiscount)} — Còn thanh toán: {fmt(total)}
-                  {total === 0 ? " 🎉 Thanh toán hoàn toàn bằng điểm!" : " qua Zalo Checkout"}
+                  Giảm {fmt(pointsDiscount)} — Còn thanh toán trên app: {fmt(total)}
+                  {
+                    total === 0
+                      ? shipStatus==="contact"
+                        ? " · Phí ship cửa hàng sẽ liên hệ"
+                        : " 🎉 Thanh toán hoàn toàn bằng điểm!"
+                      : " qua Zalo Checkout"
+                  }
                 </p>
               )}
             </div>
@@ -1598,10 +1703,28 @@ export default function CheckoutPage(){
           {loading
             ?"Đang xử lý..."
             :walletSelected
-              ?"Thanh toán bằng Cing Wallet — "+fmt(total)
+              ?(
+                "Thanh toán bằng Cing Wallet — "+
+                fmt(total)+
+                (
+                  shipStatus==="contact"
+                    ?" · Chưa gồm phí ship"
+                    :""
+                )
+              )
               :total===0
-                ?"✅ Thanh toán bằng điểm — Miễn phí"
-                :"Thanh toán qua Zalo Checkout — "+fmt(total)}
+                ?shipStatus==="contact"
+                  ?"✅ Đặt hàng bằng điểm · Phí ship cửa hàng liên hệ"
+                  :"✅ Thanh toán bằng điểm — Miễn phí"
+                :(
+                  "Thanh toán qua Zalo Checkout — "+
+                  fmt(total)+
+                  (
+                    shipStatus==="contact"
+                      ?" · Chưa gồm phí ship"
+                      :""
+                  )
+                )}
         </button>
       </div>
     </div>
