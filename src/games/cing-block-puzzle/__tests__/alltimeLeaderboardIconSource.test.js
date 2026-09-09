@@ -42,7 +42,7 @@ test(
   () => {
     assert.doesNotMatch(
       source,
-      /\}\>\{g\.icon\}\s+\{g\.display_name\}/
+      /\}>\{g\.icon\}\s+\{g\.display_name\}/
     );
   }
 );

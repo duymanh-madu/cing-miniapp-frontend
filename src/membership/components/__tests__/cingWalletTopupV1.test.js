@@ -2,193 +2,220 @@ import {
   readFileSync,
 } from "node:fs";
 
-import test from "node:test";
+import test
+  from "node:test";
 
-import assert from "node:assert/strict";
+import assert
+  from "node:assert/strict";
 
-const walletSource =
-  readFileSync(
-    new URL(
-      "../CustomerWalletList.jsx",
-      import.meta.url
-    ),
-    "utf8"
+
+const read =
+  file =>
+    readFileSync(
+      new URL(
+        file,
+        import.meta.url
+      ),
+      "utf8"
+    );
+
+
+const topupHook =
+  read(
+    "../../../features/wallet/hooks/useWalletTopup.js"
+  );
+
+const topupDomain =
+  read(
+    "../../../features/wallet/domain/walletTopupDomain.js"
+  );
+
+const topupApi =
+  read(
+    "../../../features/wallet/api/walletTopupApi.js"
+  );
+
+const overviewApi =
+  read(
+    "../../../features/wallet/api/walletOverviewApi.js"
   );
 
 const checkoutBridgeSource =
-  readFileSync(
-    new URL(
-      "../../../infra/payment/zaloCheckoutBridge.js",
-      import.meta.url
-    ),
-    "utf8"
+  read(
+    "../../../infra/payment/zaloCheckoutBridge.js"
   );
 
 const membershipSource =
-  readFileSync(
-    new URL(
-      "../../pages/MembershipPage.jsx",
-      import.meta.url
-    ),
-    "utf8"
+  read(
+    "../../pages/MembershipPage.jsx"
   );
 
+const gatewaySource =
+  read(
+    "../../../features/wallet/components/WalletMembershipGateway.jsx"
+  );
+
+
 test(
-  "wallet topup posts amount only to authenticated authority",
+  "wallet top-up posts amount only to authenticated authority",
   () => {
     assert.match(
-      walletSource,
-      /apiClient\.post\(\s*"\/wallet\/topup\/session"\s*,\s*\{\s*amount\s*,?\s*\}/
+      topupApi,
+      /apiClient\.post\([\s\S]*"\/wallet\/topup\/session"[\s\S]*\{[\s\S]*amount/
     );
 
-    const topupStart =
-      walletSource.indexOf(
-        'apiClient.post(\n          "/wallet/topup/session"'
+    assert.doesNotMatch(
+      topupApi,
+      /user_id|phone|payment_provider\s*:|payment_method\s*:|bonus\s*:/
+    );
+
+    assert.doesNotMatch(
+      topupHook,
+      /apiClient\./
+    );
+  }
+);
+
+
+test(
+  "frontend never mutates Wallet balance from payment response",
+  () => {
+    assert.doesNotMatch(
+      topupHook,
+      /setBalance\s*\(/
+    );
+
+    assert.doesNotMatch(
+      topupHook,
+      /balance\s*\+\s*amount/
+    );
+
+    assert.match(
+      overviewApi,
+      /apiClient\.get\([\s\S]*"\/wallet"/
+    );
+  }
+);
+
+
+test(
+  "pending top-up fences duplicate session creation before financial call",
+  () => {
+    const guardIndex =
+      topupHook.indexOf(
+        "submitting ||"
+      );
+
+    const createIndex =
+      topupHook.indexOf(
+        "await createWalletTopupSession("
       );
 
     assert.ok(
-      topupStart >= 0
+      guardIndex >= 0
     );
 
-    const topupSlice =
-      walletSource.slice(
-        topupStart,
-        topupStart + 500
+    assert.ok(
+      createIndex >
+        guardIndex
+    );
+
+    const guardRegion =
+      topupHook.slice(
+        guardIndex,
+        createIndex
       );
 
-    assert.doesNotMatch(
-      topupSlice,
-      /user_id|phone|payment_provider|payment_method|bonus/
+    assert.match(
+      guardRegion,
+      /pendingTopup/
+    );
+
+    assert.match(
+      guardRegion,
+      /return;/
     );
   }
 );
 
-test(
-  "frontend never mutates wallet balance from payment response",
-  () => {
-    assert.doesNotMatch(
-      walletSource,
-      /setBalance\(\s*balance\s*\+\s*/
-    );
-
-    assert.doesNotMatch(
-      walletSource,
-      /setBalance\(\s*amount/
-    );
-
-    assert.match(
-      walletSource,
-      /apiClient\.get\(\s*"\/wallet"/
-    );
-  }
-);
 
 test(
-  "pending topup blocks duplicate session creation",
+  "pending top-up uses authoritative five-second recovery",
   () => {
     assert.match(
-      walletSource,
-      /submitting\s*\|\|\s*pendingTopup/
+      topupHook,
+      /RECONCILE_INTERVAL_MS\s*=\s*5_000/
     );
 
     assert.match(
-      walletSource,
-      /Boolean\(\s*pendingTopup\s*\)/
-    );
-
-    assert.match(
-      walletSource,
-      /không cần tạo thêm giao/
-    );
-  }
-);
-
-test(
-  "wallet refreshes authoritative state after returning from provider",
-  () => {
-    assert.match(
-      walletSource,
-      /visibilitychange/
-    );
-
-    assert.match(
-      walletSource,
-      /window\.addEventListener\(\s*"focus"/
-    );
-
-    assert.match(
-      walletSource,
+      topupHook,
       /window\.setInterval/
     );
 
     assert.match(
-      walletSource,
-      /refreshWallet/
+      topupHook,
+      /refreshOverview/
+    );
+
+    assert.match(
+      topupHook,
+      /reconcileWalletTopup/
     );
   }
 );
 
+
 test(
-  "topup consumes backend Zalo Checkout authority contract",
+  "top-up validates backend Zalo Checkout authority before provider handoff",
   () => {
     assert.match(
-      walletSource,
+      topupDomain,
       /paymentSession\?\.payment/
     );
 
     assert.match(
-      walletSource,
+      topupDomain,
       /paymentSession\.zaloOrder/
     );
 
     assert.match(
-      walletSource,
+      topupDomain,
       /paymentRecord\.transaction_code/
     );
 
     assert.match(
-      walletSource,
-      /paymentRecord\.payment_purpose\s*!==\s*"wallet_topup"/
+      topupDomain,
+      /paymentRecord\.payment_purpose\s*!==[\s\S]*"wallet_topup"/
     );
 
     assert.match(
-      walletSource,
-      /paymentRecord\.payment_provider\s*!==\s*"zalo_checkout"/
+      topupDomain,
+      /paymentRecord\.payment_provider\s*!==[\s\S]*"zalo_checkout"/
     );
 
     assert.match(
-      walletSource,
-      /paymentRecord\.payment_method\s*!==\s*"zalo_checkout"/
+      topupDomain,
+      /paymentRecord\.payment_method\s*!==[\s\S]*"zalo_checkout"/
     );
 
     assert.match(
-      walletSource,
-      /zaloOrder\.orderId\.trim\(\)\s*!==\s*transactionCode/
+      topupDomain,
+      /zaloOrder\.orderId\.trim\(\)\s*!==[\s\S]*transactionCode/
     );
 
     assert.match(
-      walletSource,
-      /Number\(\s*zaloOrder\.amount\s*\)\s*!==\s*amount/
-    );
-
-    assert.match(
-      walletSource,
-      /await requestZaloCheckoutFromShell\(\{[\s\S]*zaloOrder\.amount[\s\S]*zaloOrder\.item[\s\S]*zaloOrder\.desc[\s\S]*zaloOrder\.mac[\s\S]*zaloOrder\.extradata[\s\S]*zaloOrder\.method/
-    );
-
-    assert.doesNotMatch(
-      walletSource,
-      /openOutApp|openMomoPayment|deeplinkMiniApp|paymentUrl|Mở lại MoMo/
+      topupHook,
+      /await requestZaloCheckoutFromShell/
     );
   }
 );
 
 
 test(
-  "Wallet and commerce share one Zalo Checkout native bridge",
+  "Wallet and commerce share native Zalo Checkout bridge",
   () => {
     assert.match(
-      walletSource,
+      topupHook,
       /requestZaloCheckoutFromShell/
     );
 
@@ -206,126 +233,157 @@ test(
       checkoutBridgeSource,
       /ZALO_CHECKOUT_RESULT/
     );
+  }
+);
 
+
+test(
+  "pending identity contains canonical recovery identity and no reusable provider handoff",
+  () => {
     assert.match(
-      checkoutBridgeSource,
-      /90000/
+      topupDomain,
+      /pending:\s*\{[\s\S]*amount,[\s\S]*transactionCode,[\s\S]*paymentTransactionId:[\s\S]*null,[\s\S]*expiredAt:[\s\S]*createdAt:/
+    );
+
+    assert.doesNotMatch(
+      topupDomain,
+      /baselineBalance/
+    );
+
+    const pendingRegionStart =
+      topupDomain.indexOf(
+        "pending: {"
+      );
+
+    assert.ok(
+      pendingRegionStart >= 0
+    );
+
+    const pendingRegion =
+      topupDomain.slice(
+        pendingRegionStart,
+        pendingRegionStart + 900
+      );
+
+    assert.doesNotMatch(
+      pendingRegion,
+      /deeplinkMiniApp|paymentUrl|zaloOrder|mac:|extradata:|method:/
     );
   }
 );
 
 
 test(
-  "pending topup stores canonical identity but no reusable provider handoff",
+  "backend terminal reconciliation alone releases failed pending transaction",
   () => {
     assert.match(
-      walletSource,
-      /const pending = \{[\s\S]*amount,[\s\S]*baselineBalance:[\s\S]*transactionCode,[\s\S]*expiredAt:[\s\S]*createdAt:/
-    );
-
-    assert.doesNotMatch(
-      walletSource,
-      /pending\.(?:deeplinkMiniApp|paymentUrl|zaloOrder)/
-    );
-
-    assert.doesNotMatch(
-      walletSource,
-      /Mở lại/
-    );
-  }
-);
-
-
-test(
-  "backend terminal reconciliation releases failed pending topup",
-  () => {
-    assert.match(
-      walletSource,
-      /apiClient\.post\(\s*`\/payments\/reconcile\/\$\{encodeURIComponent\([\s\S]*pending\.transactionCode/
-    );
-
-    assert.match(
-      walletSource,
+      topupDomain,
       /payment_status ===[\s\S]*"failed"/
     );
 
     assert.match(
-      walletSource,
-      /reconciliation[\s\S]*\?\.status ===[\s\S]*"terminal_failed"/
+      topupDomain,
+      /terminal_failed/
     );
 
     assert.match(
-      walletSource,
-      /if \(terminalFailed\)[\s\S]*clearPendingTopup\(\)[\s\S]*setPendingTopup\(\s*null\s*\)/
+      topupHook,
+      /releasePendingAsFailed/
     );
   }
 );
 
 
 test(
-  "frontend reconciliation failure is fail-closed",
+  "frontend reconciliation transport failure stays fail-closed",
   () => {
-    const start =
-      walletSource.indexOf(
-        "let terminalFailed ="
-      );
-
-    const end =
-      walletSource.indexOf(
-        "if (terminalFailed)",
-        start
+    const reconcileIndex =
+      topupHook.indexOf(
+        "await reconcileWalletTopup("
       );
 
     assert.ok(
-      start >= 0 &&
-      end > start
+      reconcileIndex >= 0
     );
 
-    const region =
-      walletSource.slice(
-        start,
-        end
+    const catchIndex =
+      topupHook.indexOf(
+        "} catch {",
+        reconcileIndex
+      );
+
+    assert.ok(
+      catchIndex >
+        reconcileIndex
+    );
+
+    const postCatchIndex =
+      topupHook.indexOf(
+        "if (mounted.current)",
+        catchIndex
+      );
+
+    assert.ok(
+      postCatchIndex >
+        catchIndex
+    );
+
+    const catchRegion =
+      topupHook.slice(
+        catchIndex,
+        postCatchIndex
       );
 
     assert.match(
-      region,
-      /catch \{/
+      catchRegion,
+      /Transport\/reconciliation failure is fail closed/
     );
 
     assert.doesNotMatch(
-      region,
-      /clearPendingTopup\(\)|setPendingTopup\(\s*null\s*\)|setBalance\(/
+      catchRegion,
+      /releasePendingAsSuccess|releasePendingAsFailed|clearPendingWalletTopup|setBalance/
     );
   }
 );
 
 
 test(
-  "wallet surface is mounted on membership page",
+  "Membership delegates Wallet to premium product route",
   () => {
     assert.match(
       membershipSource,
-      /import CustomerWalletList/
+      /import WalletMembershipGateway/
     );
 
     assert.match(
       membershipSource,
-      /<CustomerWalletList \/>/
+      /<WalletMembershipGateway \/>/
+    );
+
+    assert.doesNotMatch(
+      membershipSource,
+      /wallet\/topup\/session|payments\/reconcile|requestZaloCheckoutFromShell|cing_wallet_pending_topup/
+    );
+
+    assert.match(
+      gatewaySource,
+      /navigate\([\s\S]*"\/wallet"/
+    );
+
+    assert.match(
+      gatewaySource,
+      /useWalletOverview/
     );
   }
 );
 
-test(
-  "wallet reads overview and promotion from backend authority",
-  () => {
-    assert.match(
-      walletSource,
-      /apiClient\.get\(\s*"\/wallet"/
-    );
 
-    assert.match(
-      walletSource,
-      /apiClient\.get\(\s*"\/wallet\/topup\/promotion"/
+test(
+  "Membership owns no Wallet top-up financial workflow",
+  () => {
+    assert.doesNotMatch(
+      membershipSource,
+      /wallet\/topup\/session|payments\/reconcile|requestZaloCheckoutFromShell|cing_wallet_pending_topup/
     );
   }
 );

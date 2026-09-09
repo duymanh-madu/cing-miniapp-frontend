@@ -207,7 +207,9 @@ export default function CommunityChat({ onClose }) {
         clearInterval(intervalId);
         attachEvents(s);
       } else {
-        if (attempts++ > 20) { clearInterval(intervalId); addLog("❌ Socket not available"); }
+        if (attempts++ > 20) {
+          clearInterval(intervalId);
+        }
       }
     };
 

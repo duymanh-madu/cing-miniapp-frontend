@@ -6,6 +6,9 @@ import { useEffect, useRef } from "react";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
+import useWalletOverview from "@/features/wallet/hooks/useWalletOverview";
+
+
 /* ── Barcode 1D dung JsBarcode (Code128 chuan ISO) ── */
 function Barcode({ value, width = 120, height = 40 }) {
   const svgRef = useRef(null);
@@ -126,9 +129,12 @@ function mapTierKey(raw) {
 export default function HomeMembershipCard() {
   const navigate = useNavigate();
   const profile = useAuthStore(s => s.profile);
-  const runtimePhone = useRuntimeCustomerIdentityStore
-    ? useRuntimeCustomerIdentityStore(s => s.identity?.phone || "")
-    : "";
+  const runtimePhone =
+    useRuntimeCustomerIdentityStore(
+      state =>
+        state.identity?.phone ||
+        ""
+    );
   const phone = (profile?.phone || profile?.phoneNumber || profile?.mobile || runtimePhone || "").replace(/\D/g,"").replace(/^84/,"0");
 
   /*
@@ -178,6 +184,14 @@ export default function HomeMembershipCard() {
     membershipPhone
   );
   const displayName = resolveProfileName(profile, membership?.name || "Hội viên"); // custom name ưu tiên
+
+  const {
+    balance: walletBalance,
+    loading: walletLoading,
+    error: walletError,
+  } = useWalletOverview({
+    enabled: Boolean(membership),
+  });
 
   const tierRaw = membership?.tierName || membership?.tierKey || "member";
   // Uu tien tierKey neu da biet (chinh xac hon)
@@ -404,66 +418,304 @@ export default function HomeMembershipCard() {
             </div>
           </div>
 
-          {/* Points */}
-          <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginBottom:12 }}>
-            <div>
-              <p style={{ color:"rgba(255,255,255,0.55)", fontSize:10, margin:"0 0 3px" }}>
+          {/* Financial summary: loyalty + Wallet */}
+          <div
+            style={{
+              display:"grid",
+              gridTemplateColumns:"minmax(0,1.08fr) minmax(0,.92fr)",
+              gap:14,
+              alignItems:"end",
+              marginBottom:12
+            }}
+          >
+            <div style={{minWidth:0}}>
+              <p
+                style={{
+                  color:"rgba(255,255,255,0.55)",
+                  fontSize:9.5,
+                  margin:"0 0 4px"
+                }}
+              >
                 Điểm tích lũy · 1đ = 1.000đ
               </p>
-              <p style={{ color:"white", fontSize:28, fontWeight:900, margin:0, lineHeight:1 }}>
+
+              <p
+                style={{
+                  color:"white",
+                  fontSize:26,
+                  fontWeight:900,
+                  margin:0,
+                  lineHeight:1,
+                  letterSpacing:"-.5px"
+                }}
+              >
                 {points.toLocaleString("vi-VN")}
-                <span style={{ fontSize:13, fontWeight:600, marginLeft:4 }}>điểm</span>
+                <span
+                  style={{
+                    fontSize:11,
+                    fontWeight:650,
+                    marginLeft:4,
+                    opacity:.88
+                  }}
+                >
+                  điểm
+                </span>
               </p>
             </div>
-            {/* Next tier progress */}
-            {cfg.next && !isPartner && (
-              <div style={{ textAlign:"right" }}>
-                <p style={{ color:"rgba(255,255,255,0.55)", fontSize:10, margin:"0 0 3px" }}>
-                  {cfg.next && remaining > 0 ? `→ ${cfg.next}: còn ${remaining.toLocaleString("vi-VN")}đ` : cfg.next ? `Sắp lên ${cfg.next}!` : ""}
+
+            <div
+              style={{
+                minWidth:0,
+                paddingLeft:13,
+                borderLeft:"1px solid rgba(255,255,255,.14)"
+              }}
+            >
+              <p
+                style={{
+                  color:"rgba(255,255,255,0.55)",
+                  fontSize:9.5,
+                  margin:"0 0 4px",
+                  letterSpacing:".35px"
+                }}
+              >
+                Cing Wallet
+              </p>
+
+              {walletLoading && walletBalance == null ? (
+                <div
+                  style={{
+                    width:"86%",
+                    height:23,
+                    borderRadius:7,
+                    background:"rgba(255,255,255,.12)"
+                  }}
+                />
+              ) : walletError && walletBalance == null ? (
+                <p
+                  style={{
+                    color:"rgba(255,255,255,.5)",
+                    fontSize:23,
+                    fontWeight:900,
+                    margin:0,
+                    lineHeight:1
+                  }}
+                >
+                  — — —
                 </p>
-                <div style={{ width:100, height:6, background:"rgba(255,255,255,0.2)", borderRadius:4 }}>
-                  <div style={{ width:progress+"%", height:"100%", borderRadius:4,
-                    background:"rgba(255,255,255,0.9)", transition:"width 0.8s ease" }}/>
-                </div>
+              ) : (
+                <p
+                  style={{
+                    color:"#fff3d7",
+                    fontSize:
+                      Number(walletBalance || 0) >= 10000000
+                        ? 20
+                        : 23,
+                    fontWeight:900,
+                    margin:0,
+                    lineHeight:1,
+                    letterSpacing:"-.45px",
+                    whiteSpace:"nowrap",
+                    fontVariantNumeric:"tabular-nums"
+                  }}
+                >
+                  {Number(walletBalance || 0).toLocaleString("vi-VN")}đ
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Tier progress */}
+          {cfg.next && !isPartner && (
+            <div
+              style={{
+                marginBottom:12
+              }}
+            >
+              <div
+                style={{
+                  display:"flex",
+                  justifyContent:"space-between",
+                  gap:10,
+                  alignItems:"center",
+                  marginBottom:5
+                }}
+              >
+                <p
+                  style={{
+                    color:"rgba(255,255,255,0.55)",
+                    fontSize:9.5,
+                    margin:0
+                  }}
+                >
+                  Tiến độ hạng
+                </p>
+
+                <p
+                  style={{
+                    color:"rgba(255,255,255,0.62)",
+                    fontSize:9.5,
+                    margin:0,
+                    textAlign:"right"
+                  }}
+                >
+                  {remaining > 0
+                    ? `→ ${cfg.next}: còn ${remaining.toLocaleString("vi-VN")}đ`
+                    : `Sắp lên ${cfg.next}!`}
+                </p>
               </div>
-            )}
-            {cfg.next && isPartner && (
-              <div style={{ textAlign:"right", minWidth:120 }}>
-                <p style={{ color:"rgba(255,255,255,0.55)", fontSize:10, margin:"0 0 5px" }}>
-                  → Đối tác thân thiết
+
+              <div
+                style={{
+                  width:"100%",
+                  height:5,
+                  background:"rgba(255,255,255,0.17)",
+                  borderRadius:4,
+                  overflow:"hidden"
+                }}
+              >
+                <div
+                  style={{
+                    width:progress+"%",
+                    height:"100%",
+                    borderRadius:4,
+                    background:"rgba(255,255,255,0.9)",
+                    transition:"width .8s ease"
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {cfg.next && isPartner && (
+            <div
+              style={{
+                marginBottom:12
+              }}
+            >
+              <div
+                style={{
+                  display:"flex",
+                  justifyContent:"space-between",
+                  gap:10,
+                  alignItems:"center",
+                  marginBottom:5
+                }}
+              >
+                <p
+                  style={{
+                    color:"rgba(255,255,255,0.55)",
+                    fontSize:9.5,
+                    margin:0
+                  }}
+                >
+                  Đối tác thân thiết
                 </p>
-                <div style={{ position:"relative", width:120, height:8, background:"rgba(255,255,255,0.15)", borderRadius:4, overflow:"hidden" }}>
-                  {/* Gap giua 2 nua */}
-                  <div style={{ position:"absolute", left:"50%", top:0, bottom:0, width:2, background:"rgba(0,0,0,0.4)", zIndex:2 }}/>
-                  {/* Nua thang truoc */}
-                  <div style={{
-                    position:"absolute", left:0, top:0, bottom:0,
-                    width: partnerProgress?.prev_qualified ? "50%" : Math.min(50, (partnerProgress?.prev_spent||0)/2000000*50) + "%",
-                    background: partnerProgress?.prev_qualified ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.6)",
-                    borderRadius:"4px 0 0 4px", transition:"width 0.8s ease"
-                  }}/>
-                  {/* Nua thang hien tai */}
-                  <div style={{
-                    position:"absolute", left:"50%", top:0, bottom:0,
-                    width: partnerProgress?.current_qualified ? "50%" : Math.min(50, (partnerProgress?.current_spent||0)/2000000*50) + "%",
-                    background: partnerProgress?.current_qualified ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.6)",
-                    borderRadius:"0 4px 4px 0", transition:"width 0.8s ease"
-                  }}/>
-                </div>
-                <p style={{ color:"rgba(255,255,255,0.4)", fontSize:9, margin:"3px 0 0" }}>
+
+                <p
+                  style={{
+                    color:"rgba(255,255,255,0.5)",
+                    fontSize:9,
+                    margin:0
+                  }}
+                >
                   {partnerProgress?.prev_qualified ? "✓" : "○"} T.trước · {partnerProgress?.current_qualified ? "✓" : "○"} T.này
                 </p>
               </div>
-            )}
-            {!cfg.next && cfg.supreme && (
-              <div style={{
-                background:"rgba(255,255,255,0.2)", borderRadius:12,
-                padding:"4px 10px",
-              }}>
-                <p style={{ color:"white", fontSize:10, fontWeight:800, margin:0 }}>🏆 Hạng tối thượng</p>
+
+              <div
+                style={{
+                  position:"relative",
+                  width:"100%",
+                  height:6,
+                  background:"rgba(255,255,255,0.15)",
+                  borderRadius:4,
+                  overflow:"hidden"
+                }}
+              >
+                <div
+                  style={{
+                    position:"absolute",
+                    left:"50%",
+                    top:0,
+                    bottom:0,
+                    width:2,
+                    background:"rgba(0,0,0,0.35)",
+                    zIndex:2
+                  }}
+                />
+
+                <div
+                  style={{
+                    position:"absolute",
+                    left:0,
+                    top:0,
+                    bottom:0,
+                    width:partnerProgress?.prev_qualified
+                      ? "50%"
+                      : Math.min(
+                          50,
+                          (partnerProgress?.prev_spent || 0) / 2000000 * 50
+                        ) + "%",
+                    background:partnerProgress?.prev_qualified
+                      ? "rgba(255,255,255,.9)"
+                      : "rgba(255,255,255,.58)",
+                    borderRadius:"4px 0 0 4px",
+                    transition:"width .8s ease"
+                  }}
+                />
+
+                <div
+                  style={{
+                    position:"absolute",
+                    left:"50%",
+                    top:0,
+                    bottom:0,
+                    width:partnerProgress?.current_qualified
+                      ? "50%"
+                      : Math.min(
+                          50,
+                          (partnerProgress?.current_spent || 0) / 2000000 * 50
+                        ) + "%",
+                    background:partnerProgress?.current_qualified
+                      ? "rgba(255,255,255,.9)"
+                      : "rgba(255,255,255,.58)",
+                    borderRadius:"0 4px 4px 0",
+                    transition:"width .8s ease"
+                  }}
+                />
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {!cfg.next && cfg.supreme && (
+            <div
+              style={{
+                marginBottom:12,
+                display:"flex",
+                justifyContent:"flex-end"
+              }}
+            >
+              <div
+                style={{
+                  background:"rgba(255,255,255,0.15)",
+                  border:"1px solid rgba(255,255,255,.12)",
+                  borderRadius:999,
+                  padding:"4px 10px"
+                }}
+              >
+                <p
+                  style={{
+                    color:"white",
+                    fontSize:9.5,
+                    fontWeight:800,
+                    margin:0
+                  }}
+                >
+                  🏆 Hạng tối thượng
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Divider */}
           <div style={{ height:1, background:"rgba(255,255,255,0.15)", margin:"0 0 12px" }}/>

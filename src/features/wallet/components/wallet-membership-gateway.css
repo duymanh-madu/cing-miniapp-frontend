@@ -1,0 +1,122 @@
+.wallet-membership-gateway {
+  margin-bottom: 16px;
+}
+
+.wallet-membership-gateway__surface {
+  width: 100%;
+  min-height: 112px;
+  padding: 17px;
+  border: 1px solid rgba(87,57,29,.08);
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(229,195,137,.16),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      #fffdf9,
+      #f7efe3
+    );
+  box-shadow:
+    0 10px 27px rgba(63,40,18,.07),
+    inset 0 1px rgba(255,255,255,.8);
+  color: #302015;
+  display: grid;
+  grid-template-columns:
+    auto
+    minmax(0,1fr)
+    auto;
+  align-items: center;
+  gap: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wallet-membership-gateway__icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      145deg,
+      #2c1d12,
+      #17100b
+    );
+  color: #e9c98f;
+  display: grid;
+  place-items: center;
+  box-shadow:
+    0 8px 18px rgba(43,27,14,.17);
+}
+
+.wallet-membership-gateway__body {
+  min-width: 0;
+}
+
+.wallet-membership-gateway__eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: #a47a4b;
+  font-size: 7px;
+  font-weight: 950;
+  letter-spacing: 1.8px;
+}
+
+.wallet-membership-gateway__body strong {
+  display: block;
+  color: #2d1e13;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: -.15px;
+}
+
+.wallet-membership-gateway__body p {
+  margin: 5px 0 0;
+  color: #8d7965;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.wallet-membership-gateway__aside {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  color: #8b6339;
+}
+
+.wallet-membership-gateway__aside > span {
+  color: #5b4026;
+  font-size: 11px;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.wallet-membership-gateway__aside svg {
+  opacity: .66;
+}
+
+@media (max-width: 390px) {
+  .wallet-membership-gateway__surface {
+    padding: 15px;
+    gap: 10px;
+  }
+
+  .wallet-membership-gateway__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+  }
+
+  .wallet-membership-gateway__body p {
+    display: none;
+  }
+
+  .wallet-membership-gateway__aside > span {
+    font-size: 10px;
+  }
+}

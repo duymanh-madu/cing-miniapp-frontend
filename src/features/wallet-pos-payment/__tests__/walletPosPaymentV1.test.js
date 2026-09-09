@@ -32,9 +32,15 @@ const manifestSource =
     "utf8"
   );
 
-const walletSource =
+const walletServicesSource =
   fs.readFileSync(
-    "src/membership/components/CustomerWalletList.jsx",
+    "src/features/wallet/components/WalletQuickServices.jsx",
+    "utf8"
+  );
+
+const walletPageSource =
+  fs.readFileSync(
+    "src/features/wallet/pages/WalletPage.jsx",
     "utf8"
   );
 
@@ -179,16 +185,21 @@ test(
 
 
 test(
-  "wallet card exposes POS QR scan entry",
+  "premium Wallet exposes POS QR scan entry",
   () => {
     assert.match(
-      walletSource,
-      /Quét QR thanh toán tại quầy/
+      walletServicesSource,
+      /Quét QR/
     );
 
     assert.match(
-      walletSource,
-      /navigate\(\s*"\/wallet\/pos-pay"\s*\)/
+      walletServicesSource,
+      /navigate\([\s\S]*"\/wallet\/pos-pay"/
+    );
+
+    assert.match(
+      walletPageSource,
+      /"\/wallet\/pos-pay"/
     );
   }
 );

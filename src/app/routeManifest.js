@@ -14,6 +14,13 @@ export const routeManifest = [
   { key:"membership-benefits", path:"/membership-benefits", loader:() => import("@/features/membership/pages/MembershipBenefitsPage") },
   { key:"loyalty",       path:"/loyalty",        loader:() => import("@/membership/pages/MembershipPage") },
   {
+    key:"wallet",
+    path:"/wallet",
+    feature:"wallet",
+    requireAuth:true,
+    loader:() => import("@/features/wallet")
+  },
+  {
     key:"wallet-pos-payment",
     path:"/wallet/pos-pay",
     feature:"wallet-pos-payment",

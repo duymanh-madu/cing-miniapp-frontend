@@ -11,14 +11,17 @@ import {
 export function useMembershipRealtime() {
 
   useEffect(() => {
+    const realtimeSocket =
+      getRuntimeSocket();
+
+    if (!realtimeSocket) {
+      return;
+    }
 
     connectMembershipRealtime({
-
       socket:
         realtimeSocket,
-
     });
-
   }, []);
 
 }

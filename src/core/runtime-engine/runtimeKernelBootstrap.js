@@ -2,7 +2,7 @@ import runtimeRegistry from "@/core/runtime/runtimeRegistry";
 
 import runtimeLifecycleManager from "@/core/runtime/runtimeLifecycleManager";
 
-class runtimeKernelBootstrap {
+class RuntimeKernelBootstrap {
 
   initialized =
     false;
@@ -44,7 +44,7 @@ class runtimeKernelBootstrap {
 }
 
 const runtimeKernelBootstrap =
-  new runtimeKernelBootstrap();
+  new RuntimeKernelBootstrap();
 
 export default
   runtimeKernelBootstrap;

@@ -4,7 +4,7 @@ import { useMembership } from "@/features/home/hooks/useMembership";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import apiClient from "@/infra/api/apiClient";
-import CustomerWalletList from "../components/CustomerWalletList";
+import WalletMembershipGateway from "@/features/wallet/components/WalletMembershipGateway";
 
 const fmt = p => new Intl.NumberFormat("vi-VN").format(p||0) + "đ";
 
@@ -16,7 +16,8 @@ export default function MembershipPage() {
   const navigate = useNavigate();
   const profile  = useAuthStore(s => s.profile);
   const phone    = (profile?.phone || profile?.phoneNumber || "").replace(/\D/g, "");
-  const { data: membership, isLoading } = useMembership(phone);
+  const { data: membership,
+    refetch: refetchMembership, isLoading } = useMembership(phone);
 
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const resolvedPhone = (() => {
@@ -138,8 +139,8 @@ export default function MembershipPage() {
           </div>
 
 
-          {/* CING WALLET */}
-          <CustomerWalletList />
+          {/* CING WALLET — premium product gateway */}
+          <WalletMembershipGateway />
 
           {/* HƯỚNG DẪN SỬ DỤNG */}
           <div style={{ background:"white", borderRadius:20, padding:"20px",
@@ -436,7 +437,12 @@ export default function MembershipPage() {
                       });
                       if (res.data?.success) {
                         setExchangeResult(res.data);
-                        setPoints(p => p - exchangePoints);
+                        /*
+                         * Points are backend/realtime authority.
+                         * Never derive the new loyalty balance locally
+                         * from the requested exchange amount.
+                         */
+                        await refetchMembership();
                       } else {
                         import("zmp-sdk").then(sdk => sdk.showToast?.({ text: res.data?.message || "Lỗi đổi voucher", duration: "long" }));
                       }
