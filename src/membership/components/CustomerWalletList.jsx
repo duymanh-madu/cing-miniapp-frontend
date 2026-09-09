@@ -13,6 +13,10 @@ import {
   requestZaloCheckoutFromShell,
 } from "@/infra/payment/zaloCheckoutBridge";
 
+import {
+  useNavigate,
+} from "react-router-dom";
+
 const fmt = (value) =>
   `${new Intl.NumberFormat("vi-VN").format(
     Number(value || 0)
@@ -165,6 +169,9 @@ function normalizePromotion(
 }
 
 function CustomerWalletList() {
+  const navigate =
+    useNavigate();
+
   const [walletLoading,
     setWalletLoading] =
     useState(true);
@@ -856,6 +863,41 @@ function CustomerWalletList() {
           Số dư hiển thị theo
           authority của hệ thống.
         </p>
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate(
+              "/wallet/pos-pay"
+            )
+          }
+          style={{
+            width:
+              "100%",
+            marginTop:
+              14,
+            border:
+              "1px solid rgba(255,255,255,0.34)",
+            borderRadius:
+              13,
+            padding:
+              "11px 14px",
+            background:
+              "rgba(255,255,255,0.14)",
+            color:
+              "white",
+            fontSize:
+              13,
+            fontWeight:
+              900,
+            cursor:
+              "pointer",
+            backdropFilter:
+              "blur(8px)",
+          }}
+        >
+          ▦ Quét QR thanh toán tại quầy
+        </button>
       </div>
 
       {promotion && (

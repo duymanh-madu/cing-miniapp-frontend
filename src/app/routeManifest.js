@@ -13,6 +13,13 @@ export const routeManifest = [
   { key:"my-orders", path:"/my-orders", loader:() => import("@/features/order-history/MyOrdersPage") },
   { key:"membership-benefits", path:"/membership-benefits", loader:() => import("@/features/membership/pages/MembershipBenefitsPage") },
   { key:"loyalty",       path:"/loyalty",        loader:() => import("@/membership/pages/MembershipPage") },
+  {
+    key:"wallet-pos-payment",
+    path:"/wallet/pos-pay",
+    feature:"wallet-pos-payment",
+    requireAuth:true,
+    loader:() => import("@/features/wallet-pos-payment")
+  },
   { key:"game-plays",    path:"/game-plays",     loader:() => import("@/features/game-plays/GamePlaysHistoryPage") },
   { key:"badge-store",   path:"/badge-store",    loader:() => import("@/features/badge-store/BadgeStorePage") },
   { key:"profile",       path:"/profile/:userId", loader:() => import("@/features/profile/ProfilePage") },

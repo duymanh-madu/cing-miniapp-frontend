@@ -8,7 +8,8 @@ function AppLayout({ children }) {
 
   const isUtilityRoute =
     location.pathname.startsWith("/shipper/") ||
-    location.pathname.startsWith("/admin");
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/wallet/pos-pay");
 
   return (
     <AppContainer>
