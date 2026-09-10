@@ -8,6 +8,14 @@ import {
 import apiClient from "@/infra/api/apiClient";
 import "./admin-wallet.css";
 
+let nextTierUiId = 0;
+
+function createTierUiId() {
+  nextTierUiId += 1;
+
+  return `cing-wallet-tier-${nextTierUiId}`;
+}
+
 const EMPTY_TIER = {
   min_topup_amount: "",
   bonus_amount: "",
@@ -135,6 +143,9 @@ function normalizePromotion(
       )
         ? data.tiers.map(
             tier => ({
+              _ui_id:
+                createTierUiId(),
+
               min_topup_amount:
                 String(
                   tier
@@ -456,6 +467,8 @@ export default function AdminWallet({
             ...current.tiers,
             {
               ...EMPTY_TIER,
+              _ui_id:
+                createTierUiId(),
             },
           ],
         })
@@ -1146,7 +1159,7 @@ export default function AdminWallet({
                     .filter(Boolean)
                     .join(" ")}
                   key={
-                    `${tier.min_topup_amount}-${index}`
+                    tier._ui_id
                   }
                 >
                   {tier.is_featured ? (
