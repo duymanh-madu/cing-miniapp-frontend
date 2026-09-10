@@ -793,3 +793,304 @@
   }
 }
 /* === CING HOME WALLET HERITAGE V2 END === */
+
+/* =====================================================
+   CING HOME WALLET V8
+   Approved luxury direction
+   Wallet glyph only, no brand logo
+   No three-line chip
+   ===================================================== */
+
+.cing-home-wallet--heritage-v2 {
+  background:
+    radial-gradient(
+      circle at 8% 6%,
+      rgba(255, 224, 157, .38) 0,
+      rgba(218, 150, 64, .18) 18%,
+      rgba(125, 67, 24, .07) 31%,
+      transparent 46%
+    ),
+    linear-gradient(
+      138deg,
+      #170b06 0%,
+      #251108 42%,
+      #321507 63%,
+      #190c06 100%
+    );
+
+  border:
+    1px solid
+    rgba(210, 157, 84, .31);
+
+  box-shadow:
+    0 18px 40px
+      rgba(44, 25, 12, .19),
+    inset 0 1px 0
+      rgba(255,255,255,.06);
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__surface {
+  min-height: 0;
+
+  padding:
+    18px
+    18px
+    16px;
+}
+
+
+/* Hide logo, use wallet icon surface */
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__logo-plaque {
+  width: 58px;
+  height: 58px;
+
+  padding: 0;
+
+  border-radius: 18px;
+
+  display: grid;
+  place-items: center;
+
+  background:
+    linear-gradient(
+      150deg,
+      rgba(112, 55, 18, .62),
+      rgba(41, 18, 7, .72)
+    );
+
+  border:
+    1px solid
+    rgba(227, 176, 99, .30);
+
+  box-shadow:
+    0 8px 20px
+      rgba(0,0,0,.13),
+    inset 0 1px 0
+      rgba(255,255,255,.08);
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__logo-plaque::before {
+  content: "";
+
+  position: absolute;
+
+  width: 135px;
+  height: 110px;
+
+  left: -38px;
+  top: -33px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 58% 54%,
+      rgba(255, 237, 193, .52),
+      rgba(226, 168, 81, .24) 35%,
+      rgba(133, 72, 23, .08) 58%,
+      transparent 76%
+    );
+
+  filter: blur(9px);
+
+  z-index: -1;
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__logo {
+  display: none;
+}
+
+
+/*
+  Wallet icon drawn in CSS.
+  No extra runtime dependency.
+*/
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__logo-plaque::after {
+  content: "";
+
+  width: 25px;
+  height: 18px;
+
+  border:
+    2px solid
+    #e6b35d;
+
+  border-radius: 6px;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    -4px -5px 0 -2px
+    transparent;
+}
+
+
+/* Remove top-right three line element */
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__header-chip {
+  display: none !important;
+}
+
+
+/* Sparse premium lines only */
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__ornament--fan {
+  width: 190px;
+  height: 190px;
+
+  right: -74px;
+  top: -38px;
+
+  border:
+    1px solid
+    rgba(205, 145, 71, .09);
+
+  opacity: .7;
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__ornament--fan::before {
+  inset: 31px;
+
+  border-color:
+    rgba(205, 145, 71, .07);
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__ornament--fan::after {
+  inset: 64px;
+
+  border-color:
+    rgba(205, 145, 71, .055);
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__ornament--wave {
+  left: 47%;
+  right: -18px;
+  bottom: 58px;
+
+  height: 72px;
+
+  border-bottom:
+    1px solid
+    rgba(207, 145, 68, .16);
+
+  opacity: .75;
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__ornament--wave::before {
+  left: -32px;
+  right: 42px;
+  bottom: -14px;
+
+  border-bottom:
+    1px solid
+    rgba(207, 145, 68, .09);
+}
+
+
+/* Home hierarchy */
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__header {
+  justify-content:
+    flex-start;
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__eyebrow {
+  color:
+    rgba(241, 203, 139, .96);
+
+  font-size: 10px;
+
+  letter-spacing:
+    2.8px;
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__balance {
+  margin-top: 6px;
+
+  color:
+    #fff7e9;
+
+  font-size:
+    clamp(
+      30px,
+      7.6vw,
+      38px
+    );
+
+  font-weight: 950;
+
+  letter-spacing:
+    -1.2px;
+
+  text-shadow:
+    0 8px 22px
+    rgba(0,0,0,.14);
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__message strong {
+  color:
+    rgba(255, 236, 203, .92);
+
+  font-size: 13px;
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__message span {
+  color:
+    rgba(242, 219, 184, .60);
+
+  font-size: 10px;
+}
+
+
+/* Actions */
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__actions {
+  background:
+    rgba(255,255,255,.025);
+
+  border-top:
+    1px solid
+    rgba(230, 181, 105, .11);
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__actions button {
+  min-height: 48px;
+
+  color:
+    rgba(255, 244, 228, .90);
+
+  background:
+    rgba(255,255,255,.022);
+
+  font-size: 12px;
+}
+
+.cing-home-wallet--heritage-v2
+.cing-home-wallet__actions button:first-child {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(230, 177, 92, .20),
+      rgba(129, 69, 23, .13)
+    );
+}

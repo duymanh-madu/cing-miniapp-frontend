@@ -124,3 +124,21 @@ test(
     );
   }
 );
+
+test(
+  "V8 removes top-right three-line wallet symbol",
+  () => {
+    const hero =
+      getHeroSegment();
+
+    assert.doesNotMatch(
+      hero,
+      /cing-wallet-hero__medallion/
+    );
+
+    assert.match(
+      css,
+      /cing-wallet-hero__medallion[\s\S]*display:\s*none/
+    );
+  }
+);

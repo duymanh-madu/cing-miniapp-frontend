@@ -90,3 +90,28 @@ test(
     );
   }
 );
+
+test(
+  "Home V8 removes top-right three-line chip",
+  () => {
+    assert.doesNotMatch(
+      source,
+      /cing-home-wallet__header-chip/
+    );
+
+    assert.match(
+      css,
+      /cing-home-wallet__header-chip[\s\S]*display:\s*none/
+    );
+  }
+);
+
+test(
+  "Home V8 does not display brand logo in card",
+  () => {
+    assert.match(
+      css,
+      /cing-home-wallet__logo[\s\S]*display:\s*none/
+    );
+  }
+);

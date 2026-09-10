@@ -140,14 +140,6 @@ export default function HomeWalletSnapshot() {
               />
             </div>
 
-            <div
-              className="cing-home-wallet__header-chip"
-              aria-hidden="true"
-            >
-              <span />
-              <span />
-              <span />
-            </div>
           </div>
 
           <div className="cing-home-wallet__body">

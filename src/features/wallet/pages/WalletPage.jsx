@@ -137,14 +137,6 @@ export default function WalletPage() {
             </div>
           </div>
 
-          <div
-            className="cing-wallet-hero__medallion"
-            aria-hidden="true"
-          >
-            <span />
-            <span />
-            <span />
-          </div>
         </div>
 
         {loading &&
