@@ -1,25 +1,12 @@
-import {
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import useWalletController
-  from "../hooks/useWalletController";
+import useWalletController from "../hooks/useWalletController";
 
-import WalletQuickServices
-  from "../components/WalletQuickServices";
-
-import WalletStatement
-  from "../components/WalletStatement";
-
-import WalletTopupPanel
-  from "../components/WalletTopupPanel";
+import WalletQuickServices from "../components/WalletQuickServices";
+import WalletStatement from "../components/WalletStatement";
+import WalletTopupPanel from "../components/WalletTopupPanel";
 
 import "./wallet-page.css";
-
-
-const CING_BRAND_LOGO_URL =
-  "/logo-cing.png";
-
 
 const fmtMoney =
   value =>
@@ -28,7 +15,6 @@ const fmtMoney =
     ).format(
       Number(value || 0)
     )}đ`;
-
 
 export default function WalletPage() {
   const navigate =
@@ -95,61 +81,70 @@ export default function WalletPage() {
         )}
       </header>
 
-      <section className="cing-wallet-hero cing-wallet-hero--heritage cing-wallet-hero--heritage-v6">
-          <div
-            className="cing-wallet-hero__kinhbac-art"
-            aria-hidden="true"
-          >
-            <svg
-              className="cing-wallet-hero__roofline"
-              viewBox="0 0 420 110"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M18 84 C82 82 112 64 151 39 C171 26 191 21 210 20 C229 21 249 26 269 39 C308 64 338 82 402 84"
-              />
-              <path
-                d="M70 84 C128 77 157 58 183 40 C193 33 202 29 210 28 C218 29 227 33 237 40 C263 58 292 77 350 84"
-              />
-              <path
-                d="M111 86 L309 86"
-              />
-            </svg>
+      <section className="cing-wallet-hero cing-wallet-hero--heritage cing-wallet-hero--heritage-v7">
+        <div
+          className="cing-wallet-hero__ambient"
+          aria-hidden="true"
+        />
 
-            <div className="cing-wallet-hero__quai-thao">
-              <span />
-            </div>
-          </div>
+        <div
+          className="cing-wallet-hero__grain"
+          aria-hidden="true"
+        />
 
+        <div
+          className="cing-wallet-hero__logo-halo"
+          aria-hidden="true"
+        />
+
+        <div
+          className="cing-wallet-hero__ornament cing-wallet-hero__ornament--roof"
+          aria-hidden="true"
+        >
+          <span />
+          <span />
+          <span />
+        </div>
+
+        <div
+          className="cing-wallet-hero__ornament cing-wallet-hero__ornament--fan"
+          aria-hidden="true"
+        />
+
+        <div
+          className="cing-wallet-hero__ornament cing-wallet-hero__ornament--wave"
+          aria-hidden="true"
+        />
+
+        <div className="cing-wallet-hero__top">
           <div className="cing-wallet-hero__identity">
-            <img
-              className="cing-wallet-hero__official-logo"
-              src={CING_BRAND_LOGO_URL}
-              alt="Cing Hu Tang Kinh Bắc"
-              loading="eager"
-              decoding="async"
-            />
+            <div className="cing-wallet-hero__brand-mark">
+              <img
+                src="/logo-cing.png"
+                alt="Cing Hu Tang Kinh Bắc"
+                className="cing-wallet-hero__official-logo"
+              />
+            </div>
 
-            <div className="cing-wallet-hero__identity-copy">
-              <strong>
-                CING HU TANG
-              </strong>
-              <span>
-                KINH BẮC
+            <div className="cing-wallet-hero__brand-copy">
+              <span className="cing-wallet-hero__eyebrow">
+                CING WALLET
+              </span>
+
+              <span className="cing-wallet-hero__balance-label">
+                SỐ DƯ KHẢ DỤNG
               </span>
             </div>
-
-            <div className="cing-wallet-hero__heritage-badge">
-              KINH BẮC
-            </div>
           </div>
 
-          <div className="cing-wallet-hero__wallet-title">
-            CING WALLET
+          <div
+            className="cing-wallet-hero__medallion"
+            aria-hidden="true"
+          >
+            <span />
+            <span />
+            <span />
           </div>
-
-          <div className="cing-wallet-hero__balance-label">
-          Số dư khả dụng
         </div>
 
         {loading &&
@@ -158,7 +153,7 @@ export default function WalletPage() {
         ) : error &&
           !hasBalance ? (
           <div className="cing-wallet-hero__amount cing-wallet-hero__amount--error">
-            Đang đồng bộ
+            — — —
           </div>
         ) : (
           <div className="cing-wallet-hero__amount">
@@ -209,28 +204,24 @@ export default function WalletPage() {
         promotionLoading={
           topup.promotionLoading
         }
-
         amountInput={
           topup.amountInput
         }
         onAmountChange={
           topup.setAmountInput
         }
-
         submitting={
           topup.submitting
         }
         pendingTopup={
           topup.pendingTopup
         }
-
         error={
           topup.error
         }
         notice={
           topup.notice
         }
-
         onSubmit={
           topup.submitTopup
         }

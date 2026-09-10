@@ -2188,3 +2188,387 @@
       );
   }
 }
+
+/* === CING WALLET HERITAGE CARD V7 START === */
+/*
+  CING WALLET HERITAGE CARD V7
+  Bigger visible logo + warm halo
+  Remove duplicated Kinh Bac text inside card
+  Add restrained Kinh Bac heritage ornaments
+*/
+
+.cing-wallet-hero--heritage-v7 {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  padding: 22px 20px 18px;
+  border-radius: 30px;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 12% 16%, rgba(255, 234, 196, .20), transparent 23%),
+    radial-gradient(circle at 88% 0%, rgba(228, 155, 71, .18), transparent 36%),
+    radial-gradient(circle at 20% 100%, rgba(183, 84, 30, .18), transparent 34%),
+    linear-gradient(135deg, #241109 0%, #381807 42%, #1f0f08 100%);
+  border: 1px solid rgba(221, 180, 116, .28);
+  box-shadow:
+    0 20px 42px rgba(54, 29, 12, .18),
+    inset 0 1px rgba(255,255,255,.08),
+    inset 0 0 0 1px rgba(123, 73, 28, .15);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ambient,
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__grain,
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__logo-halo,
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament {
+  position: absolute;
+  pointer-events: none;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ambient {
+  inset: 0;
+  background:
+    linear-gradient(120deg, rgba(255,255,255,.05), transparent 24%),
+    linear-gradient(180deg, rgba(255,255,255,.02), transparent 48%);
+  opacity: .85;
+  z-index: 0;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__grain {
+  inset: 0;
+  opacity: .16;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.10) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,.06) 0 1px, transparent 1.8px);
+  background-size: 22px 22px, 28px 28px;
+  mix-blend-mode: soft-light;
+  z-index: 0;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__logo-halo {
+  top: -22px;
+  left: -6px;
+  width: 170px;
+  height: 132px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 38% 42%, rgba(255, 243, 219, .58), rgba(247, 212, 152, .30) 38%, rgba(247, 212, 152, .08) 62%, transparent 74%);
+  filter: blur(10px);
+  z-index: 0;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--roof {
+  top: 12px;
+  left: 12px;
+  width: 118px;
+  height: 68px;
+  z-index: 0;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--roof span {
+  position: absolute;
+  inset: auto 0 auto auto;
+  display: block;
+  border-top: 1px solid rgba(231, 193, 132, .20);
+  border-radius: 999px;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--roof span:nth-child(1) {
+  top: 0;
+  left: 0;
+  width: 78px;
+  transform: rotate(-10deg);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--roof span:nth-child(2) {
+  top: 18px;
+  left: 12px;
+  width: 92px;
+  transform: rotate(-8deg);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--roof span:nth-child(3) {
+  top: 36px;
+  left: 26px;
+  width: 78px;
+  transform: rotate(-5deg);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--fan {
+  right: -8px;
+  top: 14px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  border: 1px solid rgba(228, 187, 119, .12);
+  opacity: .9;
+  z-index: 0;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--fan::before,
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--fan::after {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(228, 187, 119, .10);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--fan::after {
+  inset: 36px;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--wave {
+  left: 43%;
+  right: 18px;
+  bottom: 86px;
+  height: 76px;
+  border-bottom: 2px solid rgba(214, 160, 92, .26);
+  border-radius: 0 0 140px 140px;
+  z-index: 0;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__ornament--wave::before {
+  content: "";
+  position: absolute;
+  left: -34px;
+  right: 48px;
+  bottom: -18px;
+  height: 56px;
+  border-bottom: 1px solid rgba(214, 160, 92, .18);
+  border-radius: 0 0 140px 140px;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__top,
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__amount,
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__caption,
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__quick {
+  position: relative;
+  z-index: 1;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__brand-mark {
+  flex: 0 0 auto;
+  width: 96px;
+  height: 58px;
+  padding: 7px 10px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(160deg, rgba(255, 244, 224, .98), rgba(235, 201, 139, .92));
+  border: 1px solid rgba(255,255,255,.52);
+  box-shadow:
+    0 10px 24px rgba(235, 188, 110, .20),
+    inset 0 1px rgba(255,255,255,.82);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__official-logo {
+  width: 100%;
+  max-width: 76px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.18))
+    drop-shadow(0 4px 12px rgba(79, 43, 17, .14));
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__brand-copy {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+  min-width: 0;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__eyebrow {
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: rgba(244, 212, 156, .98);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__balance-label {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(230, 188, 119, .16);
+  color: rgba(255, 242, 215, .76);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__medallion {
+  position: relative;
+  flex: 0 0 auto;
+  width: 68px;
+  height: 68px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
+    linear-gradient(145deg, rgba(103, 55, 19, .74), rgba(45, 21, 8, .58));
+  border: 1px solid rgba(226, 180, 110, .18);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.10),
+    0 10px 22px rgba(19, 10, 5, .16);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__medallion span {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-top: 1px solid rgba(235, 204, 152, .34);
+  border-radius: 999px;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__medallion span:nth-child(1) {
+  top: 18px;
+  width: 36px;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__medallion span:nth-child(2) {
+  top: 30px;
+  width: 24px;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__medallion span:nth-child(3) {
+  top: 42px;
+  width: 40px;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__skeleton {
+  position: relative;
+  z-index: 1;
+  width: 196px;
+  max-width: 78%;
+  height: 62px;
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      100deg,
+      rgba(255,255,255,.08) 15%,
+      rgba(255,255,255,.18) 35%,
+      rgba(255,255,255,.08) 55%
+    );
+  background-size: 220% 100%;
+  animation: cingWalletHeroV7Skeleton 1.5s ease-in-out infinite;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__amount {
+  font-size: clamp(44px, 12vw, 72px);
+  line-height: .92;
+  font-weight: 950;
+  letter-spacing: -2px;
+  color: #fff8ee;
+  text-shadow: 0 10px 24px rgba(0,0,0,.16);
+  font-variant-numeric: tabular-nums;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__amount--error {
+  color: rgba(255,255,255,.60);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__caption {
+  margin-top: 12px;
+  max-width: 560px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: rgba(255, 239, 212, .70);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__quick {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__quick button {
+  min-height: 58px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -.15px;
+  border: 1px solid rgba(230, 190, 124, .18);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__quick button:first-child {
+  color: #261309;
+  background:
+    linear-gradient(145deg, #f6dfaf 0%, #e5b45c 100%);
+  box-shadow:
+    0 12px 26px rgba(238, 187, 104, .24),
+    inset 0 1px rgba(255,255,255,.86);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__quick button:last-child {
+  color: rgba(255, 247, 235, .92);
+  background:
+    linear-gradient(145deg, rgba(111, 55, 18, .54), rgba(48, 22, 9, .58));
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.08);
+}
+
+.cing-wallet-hero--heritage-v7 .cing-wallet-hero__quick button:active {
+  transform: translateY(1px) scale(.995);
+}
+
+@keyframes cingWalletHeroV7Skeleton {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .cing-wallet-hero--heritage-v7 {
+    padding: 20px 16px 16px;
+    border-radius: 28px;
+  }
+
+  .cing-wallet-hero--heritage-v7 .cing-wallet-hero__brand-mark {
+    width: 88px;
+    height: 54px;
+  }
+
+  .cing-wallet-hero--heritage-v7 .cing-wallet-hero__official-logo {
+    max-width: 68px;
+  }
+
+  .cing-wallet-hero--heritage-v7 .cing-wallet-hero__amount {
+    font-size: clamp(40px, 12.5vw, 60px);
+  }
+
+  .cing-wallet-hero--heritage-v7 .cing-wallet-hero__caption {
+    font-size: 14px;
+  }
+
+  .cing-wallet-hero--heritage-v7 .cing-wallet-hero__quick {
+    gap: 12px;
+  }
+}
+/* === CING WALLET HERITAGE CARD V7 END === */

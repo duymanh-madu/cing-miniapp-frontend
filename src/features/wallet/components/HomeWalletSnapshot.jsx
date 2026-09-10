@@ -5,9 +5,6 @@ import {
 import useWalletOverview
   from "../hooks/useWalletOverview";
 
-import WalletGlyph
-  from "./WalletGlyph";
-
 import "./home-wallet.css";
 
 const fmtMoney =
@@ -100,6 +97,7 @@ export default function HomeWalletSnapshot() {
     <section
       className={[
         "cing-home-wallet",
+        "cing-home-wallet--heritage-v2",
         state?.accent
           ? `cing-home-wallet--${state.accent}`
           : "",
@@ -117,48 +115,78 @@ export default function HomeWalletSnapshot() {
         }
         aria-label="Mở Cing Wallet"
       >
-        <div className="cing-home-wallet__orb">
-          <WalletGlyph
-            size={27}
-          />
-        </div>
+        <div
+          className="cing-home-wallet__ambient"
+          aria-hidden="true"
+        />
 
-        <div className="cing-home-wallet__body">
-          <div className="cing-home-wallet__eyebrow">
-            CING WALLET
+        <div
+          className="cing-home-wallet__ornament cing-home-wallet__ornament--fan"
+          aria-hidden="true"
+        />
+
+        <div
+          className="cing-home-wallet__ornament cing-home-wallet__ornament--wave"
+          aria-hidden="true"
+        />
+
+        <div className="cing-home-wallet__content">
+          <div className="cing-home-wallet__header">
+            <div className="cing-home-wallet__logo-plaque">
+              <img
+                src="/logo-cing.png"
+                alt="Cing Hu Tang Kinh Bắc"
+                className="cing-home-wallet__logo"
+              />
+            </div>
+
+            <div
+              className="cing-home-wallet__header-chip"
+              aria-hidden="true"
+            >
+              <span />
+              <span />
+              <span />
+            </div>
           </div>
 
-          {loading &&
-          resolvedBalance ===
-            null ? (
-            <div
-              className="cing-home-wallet__balance-skeleton"
-              aria-label="Đang tải số dư"
-            />
-          ) : error &&
+          <div className="cing-home-wallet__body">
+            <div className="cing-home-wallet__eyebrow">
+              CING WALLET
+            </div>
+
+            {loading &&
             resolvedBalance ===
               null ? (
-            <div className="cing-home-wallet__balance cing-home-wallet__balance--error">
-              Đang đồng bộ số dư
-            </div>
-          ) : (
-            <div className="cing-home-wallet__balance">
-              {fmtMoney(
-                resolvedBalance
-              )}
-            </div>
-          )}
+              <div
+                className="cing-home-wallet__balance-skeleton"
+                aria-label="Đang tải số dư"
+              />
+            ) : error &&
+              resolvedBalance ===
+                null ? (
+              <div className="cing-home-wallet__balance cing-home-wallet__balance--error">
+                — — —
+              </div>
+            ) : (
+              <div className="cing-home-wallet__balance">
+                {fmtMoney(
+                  resolvedBalance
+                )}
+              </div>
+            )}
 
-          <div className="cing-home-wallet__message">
-            <strong>
-              {state?.label ||
-                "Cing Wallet"}
-            </strong>
+            <div className="cing-home-wallet__message">
+              <strong>
+                {state?.label ||
+                  "Cing Wallet"}
+              </strong>
 
-            <span>
-              {state?.sub ||
-                "Số dư chi tiêu của bạn tại Cing"}
-            </span>
+              <span>
+                {state?.sub ||
+                  "Số dư chi tiêu của bạn tại Cing"}
+              </span>
+            </div>
           </div>
         </div>
 

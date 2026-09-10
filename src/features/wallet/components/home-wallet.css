@@ -480,3 +480,316 @@
     height: 55px;
   }
 }
+
+/* === CING HOME WALLET HERITAGE V2 START === */
+/*
+  Home Wallet Snapshot luxury refresh
+  Brighter official logo plaque
+  Compact premium surface
+  Heritage ornaments with restrained Kinh Bac feel
+*/
+
+.cing-home-wallet--heritage-v2 {
+  position: relative;
+  overflow: hidden;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 10% 18%, rgba(255, 235, 196, .20), transparent 24%),
+    radial-gradient(circle at 100% 0%, rgba(225, 149, 69, .17), transparent 34%),
+    linear-gradient(135deg, #241109 0%, #381707 46%, #201008 100%);
+  border: 1px solid rgba(220, 179, 113, .26);
+  box-shadow:
+    0 18px 38px rgba(41, 23, 11, .16),
+    inset 0 1px rgba(255,255,255,.08),
+    inset 0 0 0 1px rgba(122, 73, 27, .14);
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__surface {
+  position: relative;
+  width: 100%;
+  min-height: 170px;
+  padding: 16px 16px 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18px;
+  gap: 10px;
+  align-items: end;
+  border: 0;
+  background: transparent;
+  color: #fff9ef;
+  text-align: left;
+  cursor: pointer;
+  isolation: isolate;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__surface:active {
+  transform: scale(.994);
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__ambient,
+.cing-home-wallet--heritage-v2 .cing-home-wallet__ornament {
+  position: absolute;
+  pointer-events: none;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__ambient {
+  inset: 0;
+  background:
+    linear-gradient(120deg, rgba(255,255,255,.05), transparent 26%),
+    linear-gradient(180deg, rgba(255,255,255,.02), transparent 42%);
+  z-index: 0;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__ornament--fan {
+  right: -12px;
+  top: -8px;
+  width: 122px;
+  height: 122px;
+  border-radius: 50%;
+  border: 1px solid rgba(228, 187, 119, .12);
+  z-index: 0;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__ornament--fan::before,
+.cing-home-wallet--heritage-v2 .cing-home-wallet__ornament--fan::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(228, 187, 119, .10);
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__ornament--fan::before {
+  inset: 16px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__ornament--fan::after {
+  inset: 30px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__ornament--wave {
+  left: 42%;
+  right: 10px;
+  bottom: 42px;
+  height: 52px;
+  border-bottom: 2px solid rgba(214, 160, 92, .23);
+  border-radius: 0 0 90px 90px;
+  z-index: 0;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__ornament--wave::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  right: 34px;
+  bottom: -12px;
+  height: 38px;
+  border-bottom: 1px solid rgba(214, 160, 92, .17);
+  border-radius: 0 0 90px 90px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__content,
+.cing-home-wallet--heritage-v2 .cing-home-wallet__chevron {
+  position: relative;
+  z-index: 1;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__content {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__logo-plaque {
+  position: relative;
+  width: 92px;
+  height: 54px;
+  padding: 6px 10px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(160deg, rgba(255, 244, 224, .98), rgba(235, 201, 139, .92));
+  border: 1px solid rgba(255,255,255,.52);
+  box-shadow:
+    0 10px 22px rgba(235, 188, 110, .18),
+    inset 0 1px rgba(255,255,255,.82);
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__logo-plaque::before {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 82px;
+  left: -14px;
+  top: -15px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 42% 42%, rgba(255, 243, 219, .46), rgba(247, 212, 152, .22) 40%, transparent 70%);
+  filter: blur(10px);
+  z-index: -1;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__logo {
+  width: 100%;
+  max-width: 74px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.18))
+    drop-shadow(0 4px 12px rgba(79, 43, 17, .14));
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__header-chip {
+  position: relative;
+  width: 52px;
+  height: 32px;
+  border-radius: 999px;
+  background:
+    linear-gradient(145deg, rgba(102, 52, 18, .50), rgba(43, 20, 8, .56));
+  border: 1px solid rgba(229, 188, 121, .16);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.08);
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__header-chip span {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-top: 1px solid rgba(235, 204, 152, .34);
+  border-radius: 999px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__header-chip span:nth-child(1) {
+  top: 8px;
+  width: 26px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__header-chip span:nth-child(2) {
+  top: 14px;
+  width: 16px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__header-chip span:nth-child(3) {
+  top: 20px;
+  width: 22px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__body {
+  min-width: 0;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__eyebrow {
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 2.7px;
+  color: rgba(244, 212, 156, .96);
+  margin-bottom: 8px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__balance {
+  font-size: clamp(26px, 7vw, 34px);
+  line-height: .95;
+  font-weight: 950;
+  letter-spacing: -1px;
+  color: #fff9ef;
+  text-shadow: 0 10px 24px rgba(0,0,0,.14);
+  font-variant-numeric: tabular-nums;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__balance--error {
+  color: rgba(255,255,255,.58);
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__balance-skeleton {
+  width: 150px;
+  max-width: 72%;
+  height: 30px;
+  border-radius: 10px;
+  background:
+    linear-gradient(
+      100deg,
+      rgba(255,255,255,.08) 15%,
+      rgba(255,255,255,.16) 35%,
+      rgba(255,255,255,.08) 55%
+    );
+  background-size: 220% 100%;
+  animation: cingHomeWalletV2Skeleton 1.4s ease-in-out infinite;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__message {
+  margin-top: 8px;
+  display: grid;
+  gap: 4px;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__message strong {
+  color: rgba(255, 246, 230, .90);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__message span {
+  color: rgba(255, 241, 214, .58);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__chevron {
+  align-self: center;
+  color: rgba(255,255,255,.42);
+  font-size: 28px;
+  font-weight: 300;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.05);
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__actions button {
+  min-height: 46px;
+  border: 0;
+  color: rgba(255, 248, 237, .88);
+  background: rgba(255,255,255,.03);
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__actions button + button {
+  border-left: 1px solid rgba(255,255,255,.08);
+}
+
+.cing-home-wallet--heritage-v2 .cing-home-wallet__actions button:active {
+  background: rgba(255,255,255,.08);
+}
+
+.cing-home-wallet--heritage-v2.cing-home-wallet--premium {
+  border-color: rgba(232, 198, 132, .40);
+  box-shadow:
+    0 20px 42px rgba(74, 45, 17, .18),
+    inset 0 1px rgba(255,255,255,.08),
+    inset 0 0 0 1px rgba(141, 88, 36, .16);
+}
+
+@keyframes cingHomeWalletV2Skeleton {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+/* === CING HOME WALLET HERITAGE V2 END === */
