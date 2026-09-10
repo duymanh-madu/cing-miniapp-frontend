@@ -1559,3 +1559,126 @@
     font-size: 8.7px;
   }
 }
+
+
+/* =====================================================
+   CING WALLET FEATURED TOP-UP TIER V1
+   Presentation metadata only
+   ===================================================== */
+
+.cing-wallet-offer {
+  position: relative;
+  overflow: visible;
+}
+
+.cing-wallet-offer.is-featured {
+  border-color:
+    rgba(218,142,55,.48);
+  background:
+    radial-gradient(
+      circle at 92% 0%,
+      rgba(244,187,91,.22),
+      transparent 40%
+    ),
+    linear-gradient(
+      145deg,
+      #fffaf0,
+      #f3dfbd
+    );
+  box-shadow:
+    0 15px 31px rgba(152,84,22,.17),
+    inset 0 1px rgba(255,255,255,.88);
+}
+
+.cing-wallet-offer__hot {
+  position: absolute;
+  top: -9px;
+  right: 9px;
+  z-index: 2;
+  padding: 5px 8px;
+  border:
+    1px solid rgba(156,86,19,.17);
+  border-radius: 999px;
+  color: #4d2508;
+  background:
+    linear-gradient(
+      135deg,
+      #ffe1a0,
+      #e3a044
+    );
+  box-shadow:
+    0 5px 12px rgba(131,72,17,.18);
+  font-size: 8px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: .35px;
+}
+
+
+/* =====================================================
+   CING WALLET PREMIUM VISUAL SYSTEM V4.4
+   Premium brand seal
+   ===================================================== */
+
+.cing-wallet-hero__brand-logo {
+  position: relative;
+  width: 96px;
+  height: 48px;
+  padding: 6px 9px;
+  border-radius: 16px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 24% 12%, rgba(255,255,255,.72), transparent 38%),
+    linear-gradient(145deg, rgba(248,218,157,.92), rgba(218,161,79,.84));
+  border: 1px solid rgba(255,225,169,.56);
+  box-shadow:
+    0 11px 24px rgba(176,99,27,.20),
+    0 3px 7px rgba(27,12,4,.15),
+    inset 0 1px rgba(255,255,255,.70),
+    inset 0 -1px rgba(104,54,14,.16);
+}
+
+.cing-wallet-hero__brand-logo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(112deg, rgba(255,255,255,.28), transparent 31%, transparent 68%, rgba(255,255,255,.08));
+}
+
+.cing-wallet-hero__brand-logo img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter:
+    brightness(.76)
+    contrast(1.34)
+    saturate(.92)
+    drop-shadow(0 1px 1px rgba(255,255,255,.15));
+}
+
+.cing-wallet-hero__balance-label {
+  margin-top: 27px;
+  margin-bottom: 8px;
+  color: #deb878;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.55px;
+}
+
+@media (max-width: 380px) {
+  .cing-wallet-hero__brand-logo {
+    width: 90px;
+    height: 44px;
+    padding: 5px 8px;
+    border-radius: 15px;
+  }
+
+  .cing-wallet-hero__balance-label {
+    margin-top: 25px;
+  }
+}

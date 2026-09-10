@@ -63,6 +63,9 @@ export default function WalletTopupOffers({
                   selected
                     ? "is-selected"
                     : "",
+                    tier.isFeatured
+                      ? "is-featured"
+                      : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -72,6 +75,12 @@ export default function WalletTopupOffers({
                   )
                 }
               >
+                {tier.isFeatured ? (
+                  <span className="cing-wallet-offer__hot">
+                    🔥 ĐANG HOT
+                  </span>
+                ) : null}
+
                 <span className="cing-wallet-offer__eyebrow">
                   NẠP
                 </span>

@@ -231,6 +231,8 @@ test(
 
           receiveAmount:
             1_200_000,
+          isFeatured:
+            false,
         },
       ]
     );

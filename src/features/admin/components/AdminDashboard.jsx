@@ -18,6 +18,7 @@ import AdminAnalytics from './AdminAnalytics';
 import AdminOrders from './AdminOrders';
 import AdminDelivery from './AdminDelivery';
 import AdminPayments from './AdminPayments';
+import AdminWallet from "./AdminWallet";
 import AdminSystemHealth from './AdminSystemHealth';
 
 const ALL_TABS = [
@@ -36,6 +37,7 @@ const ALL_TABS = [
   { key:"orders_admin",  icon:"📦", label:"Đơn hàng" },
   { key:"delivery_admin", icon:"🚀", label:"Giao hàng" },
   { key:"payments_admin",icon:"💳", label:"Thanh toán" },
+  { key:"wallet_admin", icon:"💰", label:"Cing Wallet" },
   { key:"system_health",icon:"🛡", label:"System Health" },
   { key:"analytics_pro", icon:"📈", label:"Analytics" },
   { key:"management",   icon:"🔐", label:"Quản lý Admin" },
@@ -105,7 +107,14 @@ function getAllowedTabs(role) {
   // Phase 1 mềm: role lạ / chưa có role thì vẫn full quyền để tránh tự khóa admin hiện tại.
   const allowedKeys = ROLE_TABS[normalizedRole] || ROLE_TABS.super_admin;
 
-  return ALL_TABS.filter(t => allowedKeys.includes(t.key));
+  return ALL_TABS.filter(
+    t =>
+      allowedKeys.includes(t.key) &&
+      (
+        t.key !== "wallet_admin" ||
+        normalizedRole === "super_admin"
+      )
+  );
 }
 
 export default function AdminDashboard({ auth }) {
@@ -194,6 +203,7 @@ export default function AdminDashboard({ auth }) {
         {tab==="orders_admin"  && <AdminOrders token={auth.token} />}
         {tab==="delivery_admin" && <AdminDelivery token={auth.token} />}
         {tab==="payments_admin" && <AdminPayments token={auth.token} />}
+        {tab==="wallet_admin" && <AdminWallet token={auth.token} />}
         {tab==="system_health" && <AdminSystemHealth token={auth.token} />}
         {tab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
         {tab==="management"    && <AdminManagement token={auth.token} />}

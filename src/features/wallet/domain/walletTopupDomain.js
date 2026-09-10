@@ -229,6 +229,9 @@ export function normalizeWalletPromotion(
             minTopupAmount,
             bonusAmount,
             receiveAmount,
+            isFeatured:
+              tier?.is_featured ===
+              true,
           };
         }
       )
