@@ -393,87 +393,62 @@ export default function HomeMembershipCard() {
         {/* Content */}
         <div style={{ position:"relative", zIndex:1, padding:"18px 18px 14px" }}>
 
-          {/* Top row: brand + tier badge */}
-          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:12 }}>
-            <div>
-              <p style={{ color:"rgba(255,255,255,0.6)", fontSize:9, fontWeight:800,
-                letterSpacing:3, margin:"0 0 3px", textTransform:"uppercase" }}>
-                Cing Hu Tang Kinh Bắc
-              </p>
-              <p style={{ color:"white", fontSize:16, fontWeight:900, margin:0 }}>{displayName}</p>
-            </div>
-            {/* Tier badge */}
-            <div style={{
-              background:"rgba(255,255,255,0.2)",
-              backdropFilter:"blur(8px)",
-              border:"1px solid rgba(255,255,255,0.35)",
-              borderRadius:20, padding:"5px 12px",
-              display:"flex", alignItems:"center", gap:5,
-            }}>
-              <span style={{ fontSize:15 }}>{cfg.icon}</span>
-              <div>
-                <p style={{ color:"rgba(255,255,255,0.6)", fontSize:8, margin:0, fontWeight:700 }}>{cfg.group}</p>
-                <p style={{ color:"white", fontSize:11, fontWeight:900, margin:0 }}>{cfg.label}</p>
-              </div>
-            </div>
+          {/* Premium member identity + value architecture */}
+          <div
+            style={{
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"space-between",
+              gap:12,
+              marginBottom:14
+            }}
+          >
+            <p
+              style={{
+                color:"rgba(255,255,255,.66)",
+                fontSize:9,
+                fontWeight:850,
+                letterSpacing:3,
+                margin:0,
+                textTransform:"uppercase"
+              }}
+            >
+              Cing Hu Tang Kinh Bắc
+            </p>
+
+            <span
+              style={{
+                color:"rgba(255,255,255,.46)",
+                fontSize:8.5,
+                fontWeight:750,
+                letterSpacing:".4px"
+              }}
+            >
+              THẺ HỘI VIÊN
+            </span>
           </div>
 
-          {/* Financial summary: loyalty + Wallet */}
           <div
             style={{
               display:"grid",
-              gridTemplateColumns:"minmax(0,1.08fr) minmax(0,.92fr)",
-              gap:14,
-              alignItems:"end",
-              marginBottom:12
+              gridTemplateColumns:"minmax(0,1.04fr) minmax(0,.96fr)",
+              gap:15,
+              alignItems:"stretch",
+              marginBottom:14
             }}
           >
-            <div style={{minWidth:0}}>
-              <p
-                style={{
-                  color:"rgba(255,255,255,0.55)",
-                  fontSize:9.5,
-                  margin:"0 0 4px"
-                }}
-              >
-                Điểm tích lũy · 1đ = 1.000đ
-              </p>
-
-              <p
-                style={{
-                  color:"white",
-                  fontSize:26,
-                  fontWeight:900,
-                  margin:0,
-                  lineHeight:1,
-                  letterSpacing:"-.5px"
-                }}
-              >
-                {points.toLocaleString("vi-VN")}
-                <span
-                  style={{
-                    fontSize:11,
-                    fontWeight:650,
-                    marginLeft:4,
-                    opacity:.88
-                  }}
-                >
-                  điểm
-                </span>
-              </p>
-            </div>
-
+            {/* Left: Wallet first, loyalty points directly below */}
             <div
               style={{
                 minWidth:0,
-                paddingLeft:13,
-                borderLeft:"1px solid rgba(255,255,255,.14)"
+                paddingRight:14,
+                borderRight:"1px solid rgba(255,255,255,.14)"
               }}
             >
               <p
                 style={{
-                  color:"rgba(255,255,255,0.55)",
-                  fontSize:9.5,
+                  color:"rgba(255,255,255,.57)",
+                  fontSize:9,
                   margin:"0 0 4px",
                   letterSpacing:".35px"
                 }}
@@ -484,23 +459,24 @@ export default function HomeMembershipCard() {
               {walletLoading && walletBalance == null ? (
                 <div
                   style={{
-                    width:"86%",
-                    height:23,
+                    width:"82%",
+                    height:25,
                     borderRadius:7,
-                    background:"rgba(255,255,255,.12)"
+                    background:"rgba(255,255,255,.12)",
+                    marginBottom:13
                   }}
                 />
               ) : walletError && walletBalance == null ? (
                 <p
                   style={{
-                    color:"rgba(255,255,255,.5)",
-                    fontSize:23,
-                    fontWeight:900,
-                    margin:0,
-                    lineHeight:1
+                    color:"rgba(255,255,255,.58)",
+                    fontSize:12,
+                    fontWeight:800,
+                    margin:"0 0 13px",
+                    lineHeight:1.2
                   }}
                 >
-                  — — —
+                  Đang đồng bộ
                 </p>
               ) : (
                 <p
@@ -508,12 +484,12 @@ export default function HomeMembershipCard() {
                     color:"#fff3d7",
                     fontSize:
                       Number(walletBalance || 0) >= 10000000
-                        ? 20
-                        : 23,
-                    fontWeight:900,
-                    margin:0,
+                        ? 21
+                        : 25,
+                    fontWeight:950,
+                    margin:"0 0 14px",
                     lineHeight:1,
-                    letterSpacing:"-.45px",
+                    letterSpacing:"-.55px",
                     whiteSpace:"nowrap",
                     fontVariantNumeric:"tabular-nums"
                   }}
@@ -521,70 +497,193 @@ export default function HomeMembershipCard() {
                   {Number(walletBalance || 0).toLocaleString("vi-VN")}đ
                 </p>
               )}
-            </div>
-          </div>
 
-          {/* Tier progress */}
-          {cfg.next && !isPartner && (
+              <p
+                style={{
+                  color:"rgba(255,255,255,.53)",
+                  fontSize:9,
+                  margin:"0 0 4px"
+                }}
+              >
+                Điểm tích lũy · 1đ = 1.000đ
+              </p>
+
+              <p
+                style={{
+                  color:"white",
+                  fontSize:23,
+                  fontWeight:950,
+                  margin:0,
+                  lineHeight:1,
+                  letterSpacing:"-.45px",
+                  fontVariantNumeric:"tabular-nums"
+                }}
+              >
+                {points.toLocaleString("vi-VN")}
+                <span
+                  style={{
+                    fontSize:10.5,
+                    fontWeight:700,
+                    marginLeft:4,
+                    opacity:.84
+                  }}
+                >
+                  điểm
+                </span>
+              </p>
+            </div>
+
+            {/* Right: tier, distinction and advancement only */}
             <div
               style={{
-                marginBottom:12
+                minWidth:0,
+                display:"flex",
+                flexDirection:"column"
               }}
             >
+              <p
+                style={{
+                  color:"rgba(255,255,255,.48)",
+                  fontSize:8,
+                  fontWeight:750,
+                  margin:"0 0 4px",
+                  textTransform:"uppercase",
+                  letterSpacing:"1.2px"
+                }}
+              >
+                {cfg.group}
+              </p>
+
               <div
                 style={{
                   display:"flex",
-                  justifyContent:"space-between",
-                  gap:10,
                   alignItems:"center",
-                  marginBottom:5
+                  gap:7,
+                  marginBottom:9
                 }}
               >
-                <p
+                <span
                   style={{
-                    color:"rgba(255,255,255,0.55)",
-                    fontSize:9.5,
-                    margin:0
+                    width:30,
+                    height:30,
+                    borderRadius:11,
+                    display:"grid",
+                    placeItems:"center",
+                    flex:"0 0 auto",
+                    fontSize:16,
+                    background:"rgba(255,255,255,.17)",
+                    border:"1px solid rgba(255,255,255,.25)",
+                    boxShadow:"inset 0 1px rgba(255,255,255,.15)"
                   }}
                 >
-                  Tiến độ hạng
-                </p>
+                  {cfg.icon}
+                </span>
 
+                <div style={{minWidth:0}}>
+                  <p
+                    style={{
+                      color:"white",
+                      fontSize:11.5,
+                      lineHeight:1.1,
+                      fontWeight:950,
+                      margin:0
+                    }}
+                  >
+                    {cfg.label}
+                  </p>
+
+                  <p
+                    style={{
+                      color:"rgba(255,255,255,.51)",
+                      fontSize:8.3,
+                      lineHeight:1.15,
+                      fontWeight:700,
+                      margin:"3px 0 0"
+                    }}
+                  >
+                    {cfg.supreme
+                      ? "🏆 Hạng tối thượng"
+                      : cfg.next
+                        ? `Hướng tới ${cfg.next}`
+                        : cfg.desc}
+                  </p>
+                </div>
+              </div>
+
+              {cfg.next && !isPartner ? (
+                <div style={{marginTop:"auto"}}>
+                  <div
+                    style={{
+                      display:"flex",
+                      justifyContent:"space-between",
+                      gap:7,
+                      alignItems:"flex-end",
+                      marginBottom:5
+                    }}
+                  >
+                    <span
+                      style={{
+                        color:"rgba(255,255,255,.48)",
+                        fontSize:8.1,
+                        fontWeight:700
+                      }}
+                    >
+                      Tiến trình
+                    </span>
+
+                    <span
+                      style={{
+                        color:"rgba(255,255,255,.72)",
+                        fontSize:8.1,
+                        fontWeight:800,
+                        textAlign:"right"
+                      }}
+                    >
+                      {remaining > 0
+                        ? `Còn ${remaining.toLocaleString("vi-VN")}đ`
+                        : `Sắp lên ${cfg.next}`}
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      width:"100%",
+                      height:5,
+                      background:"rgba(255,255,255,.16)",
+                      borderRadius:999,
+                      overflow:"hidden"
+                    }}
+                  >
+                    <div
+                      style={{
+                        width:progress+"%",
+                        height:"100%",
+                        borderRadius:999,
+                        background:
+                          "linear-gradient(90deg,rgba(255,255,255,.72),#fff)",
+                        boxShadow:
+                          "0 0 10px rgba(255,255,255,.25)",
+                        transition:"width .8s ease"
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
                 <p
                   style={{
-                    color:"rgba(255,255,255,0.62)",
-                    fontSize:9.5,
-                    margin:0,
-                    textAlign:"right"
+                    color:"rgba(255,255,255,.45)",
+                    fontSize:8.3,
+                    lineHeight:1.35,
+                    margin:"auto 0 0"
                   }}
                 >
-                  {remaining > 0
-                    ? `→ ${cfg.next}: còn ${remaining.toLocaleString("vi-VN")}đ`
-                    : `Sắp lên ${cfg.next}!`}
+                  {cfg.supreme
+                    ? cfg.desc
+                    : "Quyền lợi theo hạng hiện tại"}
                 </p>
-              </div>
-
-              <div
-                style={{
-                  width:"100%",
-                  height:5,
-                  background:"rgba(255,255,255,0.17)",
-                  borderRadius:4,
-                  overflow:"hidden"
-                }}
-              >
-                <div
-                  style={{
-                    width:progress+"%",
-                    height:"100%",
-                    borderRadius:4,
-                    background:"rgba(255,255,255,0.9)",
-                    transition:"width .8s ease"
-                  }}
-                />
-              </div>
+              )}
             </div>
-          )}
+          </div>
 
           {cfg.next && isPartner && (
             <div

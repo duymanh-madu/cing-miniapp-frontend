@@ -52,7 +52,7 @@ export default function WalletTopupPanel({
         </h2>
 
         <span>
-          Giao dịch được tạo và xác minh bởi hệ thống thanh toán Cing.
+          Nạp trước để thanh toán nhanh hơn và nhận ưu đãi khi chương trình nạp đang diễn ra.
         </span>
       </div>
 
@@ -127,7 +127,7 @@ export default function WalletTopupPanel({
 
         {amountInput && (
           <p className="cing-wallet-topup__preview">
-            Số tiền yêu cầu{" "}
+            Bạn sẽ nạp{" "}
             <strong>
               {money(
                 amount
@@ -155,8 +155,7 @@ export default function WalletTopupPanel({
             </strong>
 
             <p>
-              Nếu bạn đã thanh toán, không cần tạo thêm giao dịch.
-              Hệ thống đang tự động đối soát với payment authority.
+              Giao dịch đang được xác nhận tự động. Vui lòng không tạo thêm một lần nạp cho cùng khoản tiền.
             </p>
           </div>
         </div>
@@ -180,19 +179,6 @@ export default function WalletTopupPanel({
         </p>
       )}
 
-      <div className="cing-wallet-topup__assurance">
-        <span>
-          ✓ Backend xác minh giao dịch
-        </span>
-
-        <span>
-          ✓ Không cộng tiền từ kết quả frontend
-        </span>
-
-        <span>
-          ✓ Tự động đối soát giao dịch pending
-        </span>
-      </div>
     </section>
   );
 }

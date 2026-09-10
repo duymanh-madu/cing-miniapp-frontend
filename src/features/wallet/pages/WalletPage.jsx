@@ -119,7 +119,7 @@ export default function WalletPage() {
         ) : error &&
           !hasBalance ? (
           <div className="cing-wallet-hero__amount cing-wallet-hero__amount--error">
-            — — —
+            Đang đồng bộ
           </div>
         ) : (
           <div className="cing-wallet-hero__amount">
@@ -130,7 +130,7 @@ export default function WalletPage() {
         )}
 
         <p className="cing-wallet-hero__caption">
-          Số dư được đọc trực tiếp từ Wallet authority của hệ thống.
+          Nạp trước một lần, thanh toán nhanh cho những lần ghé Cing tiếp theo.
         </p>
 
         <div className="cing-wallet-hero__quick">
