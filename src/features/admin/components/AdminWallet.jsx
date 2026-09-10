@@ -182,6 +182,339 @@ function backendErrorMessage(
   );
 }
 
+const WALLET_LEDGER_POLL_MS =
+  5_000;
+
+const WALLET_LEDGER_TYPES = [
+  {
+    value: "",
+    label: "Tất cả giao dịch",
+  },
+  {
+    value: "payment",
+    label: "Thanh toán",
+  },
+  {
+    value: "topup",
+    label: "Nạp tiền",
+  },
+  {
+    value: "topup_promotion",
+    label: "Bonus khuyến mại",
+  },
+  {
+    value: "refund",
+    label: "Hoàn tiền",
+  },
+  {
+    value: "reversal",
+    label: "Đảo giao dịch",
+  },
+  {
+    value: "admin_adjustment",
+    label: "Điều chỉnh",
+  },
+];
+
+function localTodayRange() {
+  const formatter =
+    new Intl.DateTimeFormat(
+      "en-CA",
+      {
+        timeZone:
+          "Asia/Ho_Chi_Minh",
+        year:
+          "numeric",
+        month:
+          "2-digit",
+        day:
+          "2-digit",
+      }
+    );
+
+  const parts =
+    Object.fromEntries(
+      formatter
+        .formatToParts(
+          new Date()
+        )
+        .filter(
+          part =>
+            part.type !==
+            "literal"
+        )
+        .map(
+          part => [
+            part.type,
+            part.value,
+          ]
+        )
+    );
+
+  const year =
+    Number(parts.year);
+
+  const month =
+    Number(parts.month);
+
+  const day =
+    Number(parts.day);
+
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) ||
+    !Number.isInteger(day)
+  ) {
+    throw new Error(
+      "CING_WALLET_ADMIN_BUSINESS_DAY_INVALID"
+    );
+  }
+
+  const nextDay =
+    new Date(
+      Date.UTC(
+        year,
+        month - 1,
+        day + 1
+      )
+    );
+
+  const nextYear =
+    nextDay
+      .getUTCFullYear();
+
+  const nextMonth =
+    String(
+      nextDay
+        .getUTCMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const nextDate =
+    String(
+      nextDay
+        .getUTCDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const currentMonth =
+    String(month)
+      .padStart(
+        2,
+        "0"
+      );
+
+  const currentDate =
+    String(day)
+      .padStart(
+        2,
+        "0"
+      );
+
+  return {
+    from:
+      `${year}-${currentMonth}-${currentDate}T00:00:00+07:00`,
+    to:
+      `${nextYear}-${nextMonth}-${nextDate}T00:00:00+07:00`,
+  };
+}
+
+function formatWalletDateTime(
+  value
+) {
+  if (!value) {
+    return "—";
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat(
+    "vi-VN",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }
+  ).format(date);
+}
+
+function walletTransactionTitle(
+  type
+) {
+  const labels = {
+    topup:
+      "Nạp tiền",
+    topup_promotion:
+      "Bonus khuyến mại",
+    payment:
+      "Thanh toán bằng Wallet",
+    refund:
+      "Hoàn tiền",
+    reversal:
+      "Đảo giao dịch",
+    admin_adjustment:
+      "Điều chỉnh số dư",
+  };
+
+  return (
+    labels[type] ||
+    type ||
+    "Giao dịch Wallet"
+  );
+}
+
+function normalizeLedgerTransaction(
+  row
+) {
+  const amount =
+    Number(
+      row?.amount
+    );
+
+  const balanceBefore =
+    Number(
+      row?.balance_before
+    );
+
+  const balanceAfter =
+    Number(
+      row?.balance_after
+    );
+
+  if (
+    typeof row?.id !==
+      "string" ||
+    !row.id ||
+    typeof row?.user_id !==
+      "string" ||
+    !row.user_id ||
+    !Number.isSafeInteger(
+      amount
+    ) ||
+    amount === 0 ||
+    !Number.isSafeInteger(
+      balanceBefore
+    ) ||
+    balanceBefore < 0 ||
+    !Number.isSafeInteger(
+      balanceAfter
+    ) ||
+    balanceAfter < 0 ||
+    balanceAfter !==
+      balanceBefore + amount ||
+    typeof row
+      ?.transaction_type !==
+      "string" ||
+    !row.transaction_type ||
+    typeof row?.created_at !==
+      "string" ||
+    Number.isNaN(
+      Date.parse(
+        row.created_at
+      )
+    )
+  ) {
+    throw new Error(
+      "CING_WALLET_ADMIN_LEDGER_PROJECTION_INVALID"
+    );
+  }
+
+  return {
+    id:
+      row.id,
+    user_id:
+      row.user_id,
+    transaction_type:
+      row.transaction_type,
+    amount,
+    balance_before:
+      balanceBefore,
+    balance_after:
+      balanceAfter,
+    reference_type:
+      typeof row
+        ?.reference_type ===
+        "string"
+        ? row.reference_type
+        : null,
+    reference_id:
+      typeof row
+        ?.reference_id ===
+        "string"
+        ? row.reference_id
+        : null,
+    reason:
+      typeof row?.reason ===
+        "string"
+        ? row.reason
+        : "",
+    note:
+      typeof row?.note ===
+        "string"
+        ? row.note
+        : "",
+    actor_type:
+      typeof row
+        ?.actor_type ===
+        "string"
+        ? row.actor_type
+        : "",
+    actor_id:
+      typeof row?.actor_id ===
+        "string"
+        ? row.actor_id
+        : null,
+    created_at:
+      new Date(
+        row.created_at
+      ).toISOString(),
+  };
+}
+
+function normalizeLedgerResponse(
+  data
+) {
+  if (
+    !data ||
+    !Array.isArray(
+      data.items
+    )
+  ) {
+    throw new Error(
+      "CING_WALLET_ADMIN_LEDGER_PROJECTION_INVALID"
+    );
+  }
+
+  return {
+    items:
+      data.items.map(
+        normalizeLedgerTransaction
+      ),
+    next_cursor:
+      typeof data.next_cursor ===
+        "string" &&
+      data.next_cursor
+        ? data.next_cursor
+        : null,
+  };
+}
+
 export default function AdminWallet({
   token,
 }) {
@@ -207,6 +540,54 @@ export default function AdminWallet({
   const [
     summary,
     setSummary,
+  ] =
+    useState(null);
+
+  const [
+    todaySummary,
+    setTodaySummary,
+  ] =
+    useState(null);
+
+  const [
+    ledgerItems,
+    setLedgerItems,
+  ] =
+    useState([]);
+
+  const [
+    ledgerNextCursor,
+    setLedgerNextCursor,
+  ] =
+    useState(null);
+
+  const [
+    ledgerType,
+    setLedgerType,
+  ] =
+    useState("");
+
+  const [
+    ledgerLoading,
+    setLedgerLoading,
+  ] =
+    useState(true);
+
+  const [
+    ledgerLoadingMore,
+    setLedgerLoadingMore,
+  ] =
+    useState(false);
+
+  const [
+    ledgerError,
+    setLedgerError,
+  ] =
+    useState("");
+
+  const [
+    ledgerUpdatedAt,
+    setLedgerUpdatedAt,
   ] =
     useState(null);
 
@@ -393,6 +774,246 @@ export default function AdminWallet({
     },
     [headers]
   );
+
+  useEffect(
+    () => {
+      let active = true;
+
+      setLedgerItems([]);
+      setLedgerNextCursor(
+        null
+      );
+      setLedgerLoading(
+        true
+      );
+      setLedgerError("");
+
+      async function refreshLiveWallet() {
+        try {
+          const today =
+            localTodayRange();
+
+          const params = {
+            limit: 50,
+          };
+
+          if (ledgerType) {
+            params
+              .transaction_type =
+              ledgerType;
+          }
+
+          const [
+            todayResponse,
+            ledgerResponse,
+          ] =
+            await Promise.all([
+              apiClient.get(
+                "/admin/wallet/summary",
+                {
+                  headers,
+                  params: today,
+                }
+              ),
+              apiClient.get(
+                "/admin/wallet/transactions",
+                {
+                  headers,
+                  params,
+                }
+              ),
+            ]);
+
+          if (!active) {
+            return;
+          }
+
+          const normalized =
+            normalizeLedgerResponse(
+              ledgerResponse
+                .data
+                ?.data
+            );
+
+          setTodaySummary(
+            todayResponse
+              .data
+              ?.data ??
+              null
+          );
+
+          setLedgerItems(
+            current => {
+              const incomingIds =
+                new Set(
+                  normalized
+                    .items
+                    .map(
+                      item =>
+                        item.id
+                    )
+                );
+
+              const preserved =
+                current.filter(
+                  item =>
+                    !incomingIds.has(
+                      item.id
+                    )
+                );
+
+              return [
+                ...normalized.items,
+                ...preserved,
+              ].slice(
+                0,
+                250
+              );
+            }
+          );
+
+          setLedgerNextCursor(
+            current =>
+              current ??
+              normalized
+                .next_cursor
+          );
+
+          setLedgerUpdatedAt(
+            new Date()
+          );
+
+          setLedgerError("");
+        } catch (
+          liveError
+        ) {
+          if (active) {
+            setLedgerError(
+              backendErrorMessage(
+                liveError
+              )
+            );
+          }
+        } finally {
+          if (active) {
+            setLedgerLoading(
+              false
+            );
+          }
+        }
+      }
+
+      refreshLiveWallet();
+
+      const intervalId =
+        window.setInterval(
+          refreshLiveWallet,
+          WALLET_LEDGER_POLL_MS
+        );
+
+      return () => {
+        active = false;
+
+        window.clearInterval(
+          intervalId
+        );
+      };
+    },
+    [
+      headers,
+      ledgerType,
+    ]
+  );
+
+  const loadMoreLedger =
+    async () => {
+      if (
+        !ledgerNextCursor ||
+        ledgerLoadingMore
+      ) {
+        return;
+      }
+
+      setLedgerLoadingMore(
+        true
+      );
+
+      try {
+        const params = {
+          limit: 50,
+          cursor:
+            ledgerNextCursor,
+        };
+
+        if (ledgerType) {
+          params
+            .transaction_type =
+            ledgerType;
+        }
+
+        const response =
+          await apiClient.get(
+            "/admin/wallet/transactions",
+            {
+              headers,
+              params,
+            }
+          );
+
+        const normalized =
+          normalizeLedgerResponse(
+            response
+              .data
+              ?.data
+          );
+
+        setLedgerItems(
+          current => {
+            const existing =
+              new Set(
+                current.map(
+                  item =>
+                    item.id
+                )
+              );
+
+            const additional =
+              normalized
+                .items
+                .filter(
+                  item =>
+                    !existing.has(
+                      item.id
+                    )
+                );
+
+            return [
+              ...current,
+              ...additional,
+            ];
+          }
+        );
+
+        setLedgerNextCursor(
+          normalized
+            .next_cursor
+        );
+
+        setLedgerError("");
+      } catch (
+        loadMoreError
+      ) {
+        setLedgerError(
+          backendErrorMessage(
+            loadMoreError
+          )
+        );
+      } finally {
+        setLedgerLoadingMore(
+          false
+        );
+      }
+    };
 
   const updateField =
     (
@@ -976,6 +1597,279 @@ export default function AdminWallet({
               : "Xem báo cáo"}
           </button>
         </div>
+      </section>
+
+      <section className="admin-wallet__section admin-wallet__section--live">
+        <div className="admin-wallet__section-head">
+          <div>
+            <p>
+              LIVE WALLET OPERATIONS
+            </p>
+            <h2>
+              Vận hành Cing Wallet hôm nay
+            </h2>
+          </div>
+
+          <div className="admin-wallet__live-state">
+            <span className="admin-wallet__live-dot" />
+            <div>
+              <strong>
+                Authority sync • 5 giây
+              </strong>
+              <small>
+                {ledgerUpdatedAt
+                  ? `Cập nhật ${formatWalletDateTime(
+                      ledgerUpdatedAt
+                    )}`
+                  : "Đang kết nối"}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-wallet__today-grid">
+          <article className="is-revenue">
+            <span>
+              Doanh thu Wallet hôm nay
+            </span>
+            <strong>
+              {formatMoney(
+                safeNonNegativeInteger(
+                  todaySummary
+                    ?.period_totals
+                    ?.wallet_spending
+                )
+              )}
+            </strong>
+            <small>
+              Giá trị thanh toán bằng Wallet
+            </small>
+          </article>
+
+          <article>
+            <span>
+              Tiền nạp hôm nay
+            </span>
+            <strong>
+              {formatMoney(
+                safeNonNegativeInteger(
+                  todaySummary
+                    ?.period_totals
+                    ?.real_money_topup
+                )
+              )}
+            </strong>
+            <small>
+              Tiền thật khách nạp vào ví
+            </small>
+          </article>
+
+          <article>
+            <span>
+              Bonus hôm nay
+            </span>
+            <strong>
+              {formatMoney(
+                safeNonNegativeInteger(
+                  todaySummary
+                    ?.period_totals
+                    ?.promotion_bonus
+                )
+              )}
+            </strong>
+            <small>
+              Giá trị khuyến mại phát hành
+            </small>
+          </article>
+
+          <article>
+            <span>
+              Số dư đang lưu hành
+            </span>
+            <strong>
+              {formatMoney(
+                safeNonNegativeInteger(
+                  todaySummary
+                    ?.current
+                    ?.total_wallet_balance
+                )
+              )}
+            </strong>
+            <small>
+              Tổng nghĩa vụ Wallet hiện tại
+            </small>
+          </article>
+        </div>
+
+        <div className="admin-wallet__ledger-head">
+          <div>
+            <p>
+              TRANSACTION LEDGER
+            </p>
+            <h3>
+              Lịch sử giao dịch gần thời gian thực
+            </h3>
+          </div>
+
+          <label className="admin-wallet__ledger-filter">
+            <span>
+              Loại giao dịch
+            </span>
+            <select
+              value={ledgerType}
+              onChange={
+                event =>
+                  setLedgerType(
+                    event.target.value
+                  )
+              }
+            >
+              {WALLET_LEDGER_TYPES.map(
+                option => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </option>
+                )
+              )}
+            </select>
+          </label>
+        </div>
+
+        {ledgerError ? (
+          <div className="admin-wallet__ledger-warning">
+            Không thể đồng bộ ledger: {ledgerError}
+          </div>
+        ) : null}
+
+        <div className="admin-wallet__ledger">
+          <div className="admin-wallet__ledger-columns">
+            <span>Thời gian</span>
+            <span>Khách hàng</span>
+            <span>Giao dịch</span>
+            <span>Tham chiếu</span>
+            <span>Số tiền</span>
+            <span>Số dư sau</span>
+          </div>
+
+          {ledgerLoading &&
+          ledgerItems.length === 0 ? (
+            <div className="admin-wallet__ledger-empty">
+              Đang đọc Wallet ledger…
+            </div>
+          ) : null}
+
+          {!ledgerLoading &&
+          ledgerItems.length === 0 ? (
+            <div className="admin-wallet__ledger-empty">
+              Chưa có giao dịch phù hợp.
+            </div>
+          ) : null}
+
+          {ledgerItems.map(
+            transaction => (
+              <article
+                key={transaction.id}
+                className="admin-wallet__ledger-row"
+              >
+                <div>
+                  <strong>
+                    {formatWalletDateTime(
+                      transaction.created_at
+                    )}
+                  </strong>
+                  <small>
+                    {transaction.actor_type ||
+                      "system"}
+                  </small>
+                </div>
+
+                <div>
+                  <strong>
+                    {transaction.user_id}
+                  </strong>
+                  <small>
+                    {transaction.actor_id
+                      ? `Actor: ${transaction.actor_id}`
+                      : "Authority tự động"}
+                  </small>
+                </div>
+
+                <div>
+                  <strong>
+                    {walletTransactionTitle(
+                      transaction.transaction_type
+                    )}
+                  </strong>
+                  <small>
+                    {transaction.reason ||
+                      transaction.note ||
+                      "—"}
+                  </small>
+                </div>
+
+                <div>
+                  <strong>
+                    {transaction.reference_id ||
+                      "—"}
+                  </strong>
+                  <small>
+                    {transaction.reference_type ||
+                      "Không có reference"}
+                  </small>
+                </div>
+
+                <div
+                  className={[
+                    "admin-wallet__ledger-amount",
+                    transaction.amount > 0
+                      ? "is-positive"
+                      : "is-negative",
+                  ].join(" ")}
+                >
+                  {transaction.amount > 0
+                    ? "+"
+                    : "−"}
+                  {formatMoney(
+                    Math.abs(
+                      transaction.amount
+                    )
+                  )}
+                </div>
+
+                <div className="admin-wallet__ledger-balance">
+                  <strong>
+                    {formatMoney(
+                      transaction.balance_after
+                    )}
+                  </strong>
+                  <small>
+                    Trước:{" "}
+                    {formatMoney(
+                      transaction.balance_before
+                    )}
+                  </small>
+                </div>
+              </article>
+            )
+          )}
+        </div>
+
+        {ledgerNextCursor ? (
+          <div className="admin-wallet__ledger-more">
+            <button
+              type="button"
+              onClick={loadMoreLedger}
+              disabled={ledgerLoadingMore}
+            >
+              {ledgerLoadingMore
+                ? "Đang tải…"
+                : "Xem thêm giao dịch cũ"}
+            </button>
+          </div>
+        ) : null}
       </section>
 
       <section className="admin-wallet__section">

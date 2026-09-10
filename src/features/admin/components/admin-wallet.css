@@ -495,3 +495,301 @@
       column;
   }
 }
+
+/* =====================================================
+   CING WALLET ADMIN V2 — LIVE OPERATIONS
+   ===================================================== */
+
+.admin-wallet__section--live {
+  overflow: hidden;
+}
+
+.admin-wallet__live-state {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  border: 1px solid rgba(91,190,115,.16);
+  border-radius: 13px;
+  background: rgba(46,127,66,.08);
+}
+
+.admin-wallet__live-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #76d58d;
+  box-shadow:
+    0 0 0 4px rgba(118,213,141,.09),
+    0 0 16px rgba(118,213,141,.30);
+}
+
+.admin-wallet__live-state strong,
+.admin-wallet__live-state small {
+  display: block;
+}
+
+.admin-wallet__live-state strong {
+  color: #cae9d0;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.admin-wallet__live-state small {
+  margin-top: 2px;
+  color: #718778;
+  font-size: 8px;
+}
+
+.admin-wallet__today-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4,minmax(0,1fr));
+  gap: 11px;
+  margin-top: 20px;
+}
+
+.admin-wallet__today-grid article {
+  position: relative;
+  min-width: 0;
+  min-height: 126px;
+  padding: 17px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.055);
+  border-radius: 17px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.035),
+      rgba(255,255,255,.014)
+    );
+}
+
+.admin-wallet__today-grid article.is-revenue {
+  border-color: rgba(229,157,74,.24);
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(223,134,48,.13),
+      transparent 48%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.045),
+      rgba(255,255,255,.014)
+    );
+}
+
+.admin-wallet__today-grid span,
+.admin-wallet__today-grid strong,
+.admin-wallet__today-grid small {
+  display: block;
+}
+
+.admin-wallet__today-grid span {
+  color: #938882;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.admin-wallet__today-grid strong {
+  margin-top: 9px;
+  color: #f1c47d;
+  font-size: clamp(17px,2vw,22px);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.admin-wallet__today-grid small {
+  margin-top: 10px;
+  color: #746d69;
+  font-size: 8.5px;
+  line-height: 1.45;
+}
+
+.admin-wallet__ledger-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 28px;
+  padding-top: 21px;
+  border-top: 1px solid rgba(255,255,255,.055);
+}
+
+.admin-wallet__ledger-head p {
+  margin: 0 0 6px;
+  color: #d99256;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.admin-wallet__ledger-head h3 {
+  margin: 0;
+  color: #fff8f1;
+  font-size: 17px;
+}
+
+.admin-wallet__ledger-filter {
+  width: min(220px,100%);
+}
+
+.admin-wallet__ledger-filter select {
+  width: 100%;
+  height: 40px;
+  margin-top: 6px;
+  padding: 0 11px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 11px;
+  outline: none;
+  color: #e9dfd7;
+  background: #0d0d11;
+  font: inherit;
+  font-size: 11px;
+}
+
+.admin-wallet__ledger-warning {
+  margin-top: 13px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,173,93,.18);
+  border-radius: 11px;
+  color: #e8b584;
+  background: rgba(171,91,29,.08);
+  font-size: 10px;
+}
+
+.admin-wallet__ledger {
+  margin-top: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.055);
+  border-radius: 16px;
+  background: rgba(0,0,0,.12);
+}
+
+.admin-wallet__ledger-columns,
+.admin-wallet__ledger-row {
+  display: grid;
+  grid-template-columns:
+    1.12fr 1fr 1.35fr 1.15fr .8fr .9fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-wallet__ledger-columns {
+  min-height: 38px;
+  padding: 0 14px;
+  color: #69635f;
+  background: rgba(255,255,255,.018);
+  border-bottom: 1px solid rgba(255,255,255,.045);
+  font-size: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.admin-wallet__ledger-row {
+  min-height: 72px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.038);
+}
+
+.admin-wallet__ledger-row:last-child {
+  border-bottom: 0;
+}
+
+.admin-wallet__ledger-row strong,
+.admin-wallet__ledger-row small {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-wallet__ledger-row strong {
+  color: #d8d0ca;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.admin-wallet__ledger-row small {
+  margin-top: 4px;
+  color: #69635f;
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+.admin-wallet__ledger-amount {
+  font-size: 12px;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.admin-wallet__ledger-amount.is-positive {
+  color: #85cf98;
+}
+
+.admin-wallet__ledger-amount.is-negative {
+  color: #e7aa7c;
+}
+
+.admin-wallet__ledger-balance strong {
+  color: #e8bd7f;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-wallet__ledger-empty {
+  padding: 34px 16px;
+  color: #746d68;
+  text-align: center;
+  font-size: 11px;
+}
+
+.admin-wallet__ledger-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.admin-wallet__ledger-more button {
+  min-height: 39px;
+  padding: 0 15px;
+  border: 1px solid rgba(217,146,77,.18);
+  border-radius: 11px;
+  color: #dca56e;
+  background: rgba(201,102,35,.07);
+  font-size: 10px;
+  font-weight: 850;
+}
+
+@media (max-width: 1050px) {
+  .admin-wallet__today-grid {
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+  }
+
+  .admin-wallet__ledger {
+    overflow-x: auto;
+  }
+
+  .admin-wallet__ledger-columns,
+  .admin-wallet__ledger-row {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-wallet__today-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-wallet__ledger-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-wallet__ledger-filter,
+  .admin-wallet__live-state {
+    width: 100%;
+  }
+}
