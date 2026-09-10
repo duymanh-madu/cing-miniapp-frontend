@@ -20,125 +20,113 @@ const css =
     "utf8"
   );
 
-function getHeroSegment() {
-  const start =
-    source.indexOf(
-      '<section className="cing-wallet-hero'
-    );
-  const end =
-    source.indexOf(
-      "<WalletQuickServices"
-    );
-
-  return source.slice(
-    start,
-    end
-  );
-}
 
 test(
-  "V7 uses illuminated official Cing logo block",
+  "V9 uses direct official logo with sunlight",
   () => {
-    const hero =
-      getHeroSegment();
-
     assert.match(
-      hero,
-      /cing-wallet-hero__brand-mark/
-    );
-
-    assert.match(
-      hero,
+      source,
       /src="\/logo-cing\.png"/
     );
 
     assert.match(
+      source,
+      /cing-wallet-v9__sunlight/
+    );
+
+    assert.match(
       css,
-      /cing-wallet-hero__logo-halo/
+      /cing-wallet-v9__sunlight/
     );
   }
 );
 
+
 test(
-  "V7 removes duplicated Cing Hu Tang and Kinh Bac hero text",
+  "V9 places Wallet title opposite the logo",
   () => {
-    const hero =
-      getHeroSegment();
+    const top =
+      source.indexOf(
+        "cing-wallet-v9__top"
+      );
+
+    const logo =
+      source.indexOf(
+        "cing-wallet-v9__logo-wrap"
+      );
+
+    const title =
+      source.indexOf(
+        "cing-wallet-v9__title"
+      );
 
     assert.ok(
-      !hero.includes(
-        "CING HU TANG"
-      )
+      top >= 0 &&
+      logo > top &&
+      title > logo
     );
+
+    assert.match(
+      css,
+      /cing-wallet-v9__top[\s\S]*justify-content:\s*space-between/
+    );
+  }
+);
+
+
+test(
+  "V9 balance label is flush-left directly above amount",
+  () => {
+    const label =
+      source.indexOf(
+        "cing-wallet-v9__balance-label"
+      );
+
+    const amount =
+      source.indexOf(
+        "cing-wallet-v9__amount"
+      );
 
     assert.ok(
-      !hero.includes(
-        "KINH BẮC"
-      )
+      label >= 0 &&
+      amount > label
     );
   }
 );
 
+
 test(
-  "V7 introduces restrained heritage ornaments",
+  "V9 removes coarse circular ornament system",
   () => {
-    const hero =
-      getHeroSegment();
-
-    assert.match(
-      hero,
-      /cing-wallet-hero__ornament--roof/
+    assert.doesNotMatch(
+      source,
+      /ornament--fan|ornament--wave|ornament--roof|medallion/
     );
 
     assert.match(
-      hero,
-      /cing-wallet-hero__ornament--fan/
-    );
-
-    assert.match(
-      hero,
-      /cing-wallet-hero__ornament--wave/
+      source,
+      /cing-wallet-v9__heritage-scene/
     );
   }
 );
 
-test(
-  "V7 preserves canonical Wallet actions",
-  () => {
-    const hero =
-      getHeroSegment();
 
+test(
+  "V9 preserves canonical Wallet actions",
+  () => {
     assert.match(
-      hero,
+      source,
       /Nạp tiền/
     );
 
     assert.match(
-      hero,
+      source,
       /Quét QR tại quầy/
     );
 
     assert.match(
-      hero,
+      source,
       /"\/wallet\/pos-pay"/
-    );
-  }
-);
-
-test(
-  "V8 removes top-right three-line wallet symbol",
-  () => {
-    const hero =
-      getHeroSegment();
-
-    assert.doesNotMatch(
-      hero,
-      /cing-wallet-hero__medallion/
-    );
-
-    assert.match(
-      css,
-      /cing-wallet-hero__medallion[\s\S]*display:\s*none/
     );
   }
 );

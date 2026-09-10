@@ -20,48 +20,83 @@ const css =
     "utf8"
   );
 
+
 test(
-  "Home snapshot uses official logo plaque and halo",
+  "Home V9 restores genuine WalletGlyph",
   () => {
     assert.match(
       source,
-      /cing-home-wallet--heritage-v2/
+      /import WalletGlyph/
     );
 
     assert.match(
       source,
-      /src="\/logo-cing\.png"/
+      /<WalletGlyph/
     );
 
     assert.match(
       source,
-      /cing-home-wallet__logo-plaque/
+      /size=\{31\}/
+    );
+  }
+);
+
+
+test(
+  "Home V9 does not render brand logo",
+  () => {
+    assert.doesNotMatch(
+      source,
+      /logo-cing\.png/
+    );
+  }
+);
+
+
+test(
+  "Home V9 uses refined heritage scene instead of coarse rings",
+  () => {
+    assert.match(
+      source,
+      /cing-home-wallet-v9__heritage/
+    );
+
+    assert.doesNotMatch(
+      source,
+      /ornament--fan|ornament--wave|header-chip/
+    );
+  }
+);
+
+
+test(
+  "Home V9 actions are independent and three dimensional",
+  () => {
+    assert.match(
+      source,
+      /cing-home-wallet-v9__action--primary/
+    );
+
+    assert.match(
+      source,
+      /cing-home-wallet-v9__action--secondary/
     );
 
     assert.match(
       css,
-      /cing-home-wallet__logo-plaque::before/
+      /cing-home-wallet-v9__actions[\s\S]*gap:\s*14px/
+    );
+
+    assert.match(
+      css,
+      /cing-home-wallet-v9__action--primary[\s\S]*box-shadow/
     );
   }
 );
 
-test(
-  "Home snapshot adds restrained heritage ornaments",
-  () => {
-    assert.match(
-      source,
-      /cing-home-wallet__ornament--fan/
-    );
-
-    assert.match(
-      source,
-      /cing-home-wallet__ornament--wave/
-    );
-  }
-);
 
 test(
-  "Home snapshot preserves canonical actions",
+  "Home V9 preserves canonical navigation actions",
   () => {
     assert.match(
       source,
@@ -70,48 +105,12 @@ test(
 
     assert.match(
       source,
-      /navigate\(\s*"\/wallet"/
-    );
-
-    assert.match(
-      source,
       /navigate\(\s*"\/menu"/
     );
-  }
-);
 
-test(
-  "Home snapshot no longer depends on generic WalletGlyph orb",
-  () => {
-    assert.ok(
-      !source.includes(
-        "WalletGlyph"
-      )
-    );
-  }
-);
-
-test(
-  "Home V8 removes top-right three-line chip",
-  () => {
-    assert.doesNotMatch(
+    assert.match(
       source,
-      /cing-home-wallet__header-chip/
-    );
-
-    assert.match(
-      css,
-      /cing-home-wallet__header-chip[\s\S]*display:\s*none/
-    );
-  }
-);
-
-test(
-  "Home V8 does not display brand logo in card",
-  () => {
-    assert.match(
-      css,
-      /cing-home-wallet__logo[\s\S]*display:\s*none/
+      /navigate\(\s*"\/wallet"/
     );
   }
 );
