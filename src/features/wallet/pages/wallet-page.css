@@ -641,3 +641,574 @@
     min-height: 88px;
   }
 }
+
+
+/* =====================================================
+   CING WALLET PREMIUM VISUAL SYSTEM V4
+   Presentation-only refinement.
+   Financial authority remains outside this stylesheet.
+   ===================================================== */
+
+.cing-wallet-page {
+  --cw-orange: #d4531c;
+  --cw-orange-hi: #ef7632;
+  --cw-obsidian: #120c08;
+  --cw-espresso: #24160d;
+  --cw-gold: #cf9648;
+  --cw-champagne: #f3d99f;
+  --cw-cream: #fbf7ef;
+  --cw-ink: #24170f;
+  --cw-muted: #8d7760;
+
+  background:
+    radial-gradient(
+      circle at 105% -5%,
+      rgba(213, 83, 28, .105),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at -12% 31%,
+      rgba(210, 164, 93, .09),
+      transparent 26%
+    ),
+    linear-gradient(
+      180deg,
+      #f8f1e6 0%,
+      #fffdf9 32%,
+      #faf7f2 100%
+    );
+}
+
+.cing-wallet-page__header {
+  margin-bottom: 18px;
+}
+
+.cing-wallet-page__header > button {
+  border:
+    1px solid rgba(82, 49, 22, .07);
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.96),
+      rgba(249,242,231,.88)
+    );
+  box-shadow:
+    0 8px 20px rgba(58,34,14,.07),
+    inset 0 1px rgba(255,255,255,.98);
+}
+
+.cing-wallet-page__header p {
+  color: #b0804c;
+  font-size: 7.7px;
+  letter-spacing: 2.45px;
+}
+
+.cing-wallet-page__header h1 {
+  font-size: 22px;
+  letter-spacing: -.52px;
+}
+
+.cing-wallet-hero {
+  border-radius: 30px;
+  padding: 23px 20px 20px;
+  background:
+    radial-gradient(
+      circle at 92% -2%,
+      rgba(255, 217, 145, .27),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at -8% 112%,
+      rgba(212, 83, 28, .24),
+      transparent 39%
+    ),
+    linear-gradient(
+      132deg,
+      #100a06 0%,
+      #1c110a 42%,
+      #34200f 73%,
+      #1b1009 100%
+    );
+  border:
+    1px solid rgba(237, 195, 116, .34);
+  box-shadow:
+    0 26px 54px rgba(57, 31, 11, .22),
+    0 7px 17px rgba(54, 30, 13, .11),
+    inset 0 1px rgba(255,255,255,.09);
+}
+
+.cing-wallet-hero::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 0;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 229, 177, .58),
+      transparent
+    );
+}
+
+.cing-wallet-hero__shine {
+  width: 220px;
+  height: 220px;
+  right: -110px;
+  top: -125px;
+  border:
+    1px solid rgba(255, 232, 189, .18);
+  box-shadow:
+    0 0 0 38px rgba(255,236,201,.028),
+    0 0 0 78px rgba(255,236,201,.017);
+}
+
+.cing-wallet-hero__brand {
+  color: rgba(246, 216, 157, .82);
+  letter-spacing: 2.35px;
+}
+
+.cing-wallet-hero__brand span {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  color: #24160b;
+  background:
+    radial-gradient(
+      circle at 29% 18%,
+      rgba(255,255,255,.85),
+      transparent 33%
+    ),
+    linear-gradient(
+      145deg,
+      #f6d997,
+      #cd9041
+    );
+  box-shadow:
+    0 10px 22px rgba(195, 123, 41, .24),
+    inset 0 1px rgba(255,255,255,.75);
+}
+
+.cing-wallet-hero__secure {
+  padding: 6px 9px;
+  border:
+    1px solid rgba(255, 236, 204, .09);
+  border-radius: 999px;
+  color:
+    rgba(255, 239, 213, .58);
+  background:
+    rgba(255,255,255,.035);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.cing-wallet-hero__amount {
+  margin-top: 34px;
+  color: #fffaf0;
+  font-size:
+    clamp(42px, 11vw, 53px);
+  letter-spacing: -2px;
+  text-shadow:
+    0 4px 22px rgba(252, 217, 155, .08);
+}
+
+.cing-wallet-hero__caption {
+  margin:
+    10px 0 21px;
+  max-width: 88%;
+  color:
+    rgba(255, 238, 210, .50);
+  font-size: 10.2px;
+}
+
+.cing-wallet-hero__quick {
+  gap: 10px;
+}
+
+.cing-wallet-hero__quick button {
+  min-height: 47px;
+  border-radius: 15px;
+  font-size: 10.8px;
+}
+
+.cing-wallet-hero__quick button:first-child {
+  color: #25170b;
+  background:
+    radial-gradient(
+      circle at 30% 0%,
+      rgba(255,255,255,.7),
+      transparent 43%
+    ),
+    linear-gradient(
+      145deg,
+      #f4d28b,
+      #c98839
+    );
+  box-shadow:
+    0 10px 22px rgba(183, 108, 31, .22),
+    inset 0 1px rgba(255,255,255,.62);
+}
+
+.cing-wallet-hero__quick button:last-child {
+  border:
+    1px solid rgba(255, 236, 207, .15);
+  color:
+    rgba(255, 247, 234, .91);
+  background:
+    rgba(255,255,255,.055);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.04);
+}
+
+.cing-wallet-services {
+  gap: 9px;
+  margin: 16px 0 27px;
+}
+
+.cing-wallet-services > button {
+  --service-color: #aa6b2d;
+  min-height: 91px;
+  padding: 11px 4px 10px;
+  border:
+    1px solid rgba(75,46,21,.07);
+  border-radius: 21px;
+  background:
+    radial-gradient(
+      circle at 50% -20%,
+      #ffffff,
+      rgba(255,255,255,.68) 42%,
+      rgba(250,245,237,.85) 100%
+    );
+  box-shadow:
+    0 11px 25px rgba(62, 37, 15, .07),
+    inset 0 1px rgba(255,255,255,.92);
+}
+
+.cing-wallet-service--topup {
+  --service-color: #c0752d;
+}
+
+.cing-wallet-service--qr {
+  --service-color: #d4531c;
+}
+
+.cing-wallet-service--order {
+  --service-color: #926020;
+}
+
+.cing-wallet-service--history {
+  --service-color: #6c5847;
+}
+
+.cing-wallet-services > button > span {
+  width: 43px;
+  height: 43px;
+  border-radius: 15px;
+  color: var(--service-color);
+  background:
+    radial-gradient(
+      circle at 32% 18%,
+      rgba(255,255,255,.95),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--service-color) 17%, white),
+      color-mix(in srgb, var(--service-color) 8%, white)
+    );
+  box-shadow:
+    0 8px 16px
+      color-mix(
+        in srgb,
+        var(--service-color) 12%,
+        transparent
+      ),
+    inset 0 0 0 1px
+      color-mix(
+        in srgb,
+        var(--service-color) 10%,
+        transparent
+      ),
+    inset 0 1px rgba(255,255,255,.9);
+}
+
+.cing-wallet-services > button > span svg {
+  width: 27px;
+  height: 27px;
+}
+
+.cing-wallet-services strong {
+  color: #332116;
+  font-size: 9.8px;
+  letter-spacing: -.1px;
+}
+
+.cing-wallet-section-title > p,
+.cing-wallet-section-heading p {
+  color: #b27b3e;
+  letter-spacing: 2.25px;
+}
+
+.cing-wallet-section-title > h2,
+.cing-wallet-section-heading h2 {
+  color: #24170f;
+  font-size: 19px;
+  letter-spacing: -.42px;
+}
+
+.cing-wallet-section-title > span {
+  color: #8d7862;
+  font-size: 9.8px;
+}
+
+.cing-wallet-topup {
+  padding: 19px;
+  border:
+    1px solid rgba(78,47,22,.075);
+  border-radius: 27px;
+  background:
+    linear-gradient(
+      154deg,
+      rgba(255,255,255,.97),
+      rgba(251,246,238,.94)
+    );
+  box-shadow:
+    0 17px 38px rgba(62, 37, 16, .075),
+    inset 0 1px rgba(255,255,255,.98);
+}
+
+.cing-wallet-offers__rail {
+  gap: 9px;
+}
+
+.cing-wallet-offer {
+  position: relative;
+  min-height: 116px;
+  padding: 13px 10px;
+  border:
+    1px solid rgba(154, 101, 42, .13);
+  border-radius: 19px;
+  background:
+    radial-gradient(
+      circle at 95% 0%,
+      rgba(220, 165, 81, .14),
+      transparent 38%
+    ),
+    linear-gradient(
+      155deg,
+      #fffefb,
+      #f7ecdc
+    );
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.96);
+}
+
+.cing-wallet-offer::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 2px;
+  opacity: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #c78336,
+      transparent
+    );
+}
+
+.cing-wallet-offer.is-selected {
+  border-color:
+    rgba(187, 119, 44, .58);
+  background:
+    radial-gradient(
+      circle at 95% 0%,
+      rgba(219, 153, 60, .23),
+      transparent 42%
+    ),
+    linear-gradient(
+      155deg,
+      #fffdf8,
+      #f2dfc1
+    );
+  box-shadow:
+    0 11px 24px rgba(139, 80, 25, .12),
+    inset 0 0 0 1px rgba(196, 125, 48, .11);
+}
+
+.cing-wallet-offer.is-selected::after {
+  opacity: 1;
+}
+
+.cing-wallet-offer__eyebrow {
+  color: #b47b3f;
+  letter-spacing: 1.65px;
+}
+
+.cing-wallet-offer > strong {
+  color: #291a10;
+  font-size: 15.5px;
+}
+
+.cing-wallet-offer__receive {
+  color: #745a3e;
+}
+
+.cing-wallet-offer__bonus {
+  color: #c15e20;
+}
+
+.cing-wallet-topup__input-shell {
+  height: 52px;
+  border:
+    1px solid rgba(80,47,22,.105);
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      145deg,
+      #fffefa,
+      #fbf6ef
+    );
+  box-shadow:
+    inset 0 1px 2px rgba(73, 42, 17, .025);
+}
+
+.cing-wallet-topup__input-shell:focus-within {
+  border-color:
+    rgba(212,83,28,.48);
+  box-shadow:
+    0 0 0 3px rgba(212,83,28,.07);
+}
+
+.cing-wallet-topup__submit {
+  height: 52px;
+  min-width: 98px;
+  border-radius: 16px;
+  color: #fff8ed;
+  background:
+    radial-gradient(
+      circle at 30% 0%,
+      rgba(255,255,255,.14),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      #e26728,
+      #c84918
+    );
+  box-shadow:
+    0 10px 22px rgba(194, 68, 18, .20),
+    inset 0 1px rgba(255,255,255,.18);
+}
+
+.cing-wallet-topup__pending {
+  border:
+    1px solid rgba(196, 129, 52, .16);
+  background:
+    linear-gradient(
+      145deg,
+      #fffaf1,
+      #fbf2e4
+    );
+}
+
+.cing-wallet-topup__pending-mark {
+  color: #9a5e22;
+  background:
+    linear-gradient(
+      145deg,
+      #f3dcae,
+      #e7c17e
+    );
+}
+
+.cing-wallet-topup__assurance {
+  border-top:
+    1px solid rgba(65,43,24,.055);
+}
+
+.cing-wallet-statement {
+  padding: 19px;
+  border:
+    1px solid rgba(75,46,22,.07);
+  border-radius: 27px;
+  background:
+    linear-gradient(
+      155deg,
+      rgba(255,255,255,.96),
+      rgba(250,246,240,.94)
+    );
+  box-shadow:
+    0 16px 36px rgba(61,36,15,.065),
+    inset 0 1px rgba(255,255,255,.96);
+}
+
+.cing-wallet-statement__row {
+  border-color:
+    rgba(71,45,25,.055);
+}
+
+.cing-wallet-statement__mark {
+  background:
+    linear-gradient(
+      145deg,
+      #f6e8d2,
+      #ecd1a8
+    );
+  color: #9f6429;
+}
+
+.cing-wallet-statement__amount.is-positive {
+  color: #9a5a21;
+}
+
+.cing-wallet-statement__amount.is-negative {
+  color: #c34b26;
+}
+
+@media (max-width: 380px) {
+  .cing-wallet-page {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+
+  .cing-wallet-hero {
+    padding:
+      21px 17px 18px;
+    border-radius: 27px;
+  }
+
+  .cing-wallet-services {
+    gap: 7px;
+  }
+
+  .cing-wallet-services > button {
+    min-height: 86px;
+    border-radius: 18px;
+  }
+
+  .cing-wallet-services > button > span {
+    width: 40px;
+    height: 40px;
+  }
+
+  .cing-wallet-topup,
+  .cing-wallet-statement {
+    padding: 16px;
+    border-radius: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cing-wallet-service,
+  .cing-wallet-offer,
+  .cing-wallet-hero__quick button {
+    transition: none !important;
+  }
+}

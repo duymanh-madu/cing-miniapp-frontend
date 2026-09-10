@@ -6,38 +6,63 @@ export default function WalletGlyph({
     <svg
       width={size}
       height={size}
-      viewBox="0 0 24 24"
+      viewBox="0 0 32 32"
       fill="none"
       aria-hidden="true"
     >
       <path
-        d="M4.75 6.5A2.75 2.75 0 0 1 7.5 3.75h8.25a2 2 0 0 1 2 2V7"
+        d="M7.25 9.15V7.8A4.3 4.3 0 0 1 11.55 3.5h10.2a2.75 2.75 0 0 1 2.75 2.75V9"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
+        opacity=".72"
       />
 
       <rect
-        x="3.75"
-        y="6.75"
-        width="16.5"
-        height="13.5"
-        rx="3"
+        x="4.5"
+        y="8.15"
+        width="23"
+        height="19"
+        rx="5.4"
+        fill="currentColor"
+        opacity=".16"
+      />
+
+      <rect
+        x="5.25"
+        y="8.9"
+        width="21.5"
+        height="17.5"
+        rx="4.65"
         stroke="currentColor"
         strokeWidth={strokeWidth}
       />
 
       <path
-        d="M15 11.25h5.25v4.5H15a2.25 2.25 0 0 1 0-4.5Z"
+        d="M20.4 14.1h6.35v7.15H20.4a3.575 3.575 0 1 1 0-7.15Z"
+        fill="currentColor"
+        opacity=".22"
+      />
+
+      <path
+        d="M20.4 14.1h6.35v7.15H20.4a3.575 3.575 0 1 1 0-7.15Z"
         stroke="currentColor"
         strokeWidth={strokeWidth}
       />
 
       <circle
-        cx="15.4"
-        cy="13.5"
-        r=".7"
+        cx="20.6"
+        cy="17.675"
+        r="1.15"
         fill="currentColor"
+      />
+
+      <path
+        d="M9.4 12.65h8.25"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        opacity=".65"
       />
     </svg>
   );

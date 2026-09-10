@@ -5,279 +5,167 @@ import {
 import WalletGlyph
   from "@/features/wallet/components/WalletGlyph";
 
+import "./home-quick-actions.css";
+
+
 function OrderGlyph() {
   return (
     <svg
-      viewBox="0 0 24 24"
-      width="25"
-      height="25"
-      fill="none"
+      viewBox="0 0 32 32"
       aria-hidden="true"
     >
       <path
-        d="M7 3.75h10l-1.1 16.5H8.1L7 3.75Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
+        className="cing-action-icon__soft"
+        d="M9.25 8.5h13.5l-1.15 16H10.4L9.25 8.5Z"
       />
       <path
-        d="M6.3 7.25h11.4M9 2.75h6"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
+        className="cing-action-icon__solid"
+        d="M11.2 7.25a4.8 4.8 0 0 1 9.6 0h-2.55a2.25 2.25 0 0 0-4.5 0H11.2Zm-1.95 1.3h13.5l-.25 3.25h-13l-.25-3.25Z"
       />
       <path
-        d="M14.6 8.25c.7 2.1-.2 4.6-2.2 5.9"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
+        className="cing-action-icon__detail"
+        d="M13.2 15.2h5.6M13.65 18.4h4.7"
       />
     </svg>
   );
 }
+
 
 function GameGlyph() {
   return (
     <svg
-      viewBox="0 0 24 24"
-      width="26"
-      height="26"
-      fill="none"
+      viewBox="0 0 32 32"
       aria-hidden="true"
     >
       <path
-        d="M7.8 7.25h8.4c2.2 0 3.7 1.3 4.15 3.35l.85 3.85c.55 2.5-2.45 4.1-4.2 2.35l-1.6-1.6H8.6L7 16.85c-1.7 1.7-4.75.15-4.2-2.35l.85-3.9C4.1 8.55 5.6 7.25 7.8 7.25Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
+        className="cing-action-icon__soft"
+        d="M10.2 10.25h11.6c3.1 0 5.05 1.8 5.65 4.75l.8 3.95c.7 3.35-3.25 5.45-5.6 3.05l-2.3-2.35h-8.7L9.35 22c-2.35 2.4-6.3.3-5.6-3.05l.8-3.95c.6-2.95 2.55-4.75 5.65-4.75Z"
       />
       <path
-        d="M7.5 10.2v3.1M5.95 11.75h3.1"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
+        className="cing-action-icon__solid"
+        d="M9.35 14.1h2.15v2.15h2.15v2.15H11.5v2.15H9.35V18.4H7.2v-2.15h2.15V14.1Z"
       />
       <circle
-        cx="16.2"
-        cy="10.8"
-        r=".8"
-        fill="currentColor"
+        className="cing-action-icon__solid"
+        cx="21.15"
+        cy="15.45"
+        r="1.55"
       />
       <circle
-        cx="18.05"
-        cy="12.65"
-        r=".8"
-        fill="currentColor"
+        className="cing-action-icon__solid"
+        cx="24.4"
+        cy="18.45"
+        r="1.55"
       />
     </svg>
   );
 }
+
 
 function BenefitsGlyph() {
   return (
     <svg
-      viewBox="0 0 24 24"
-      width="26"
-      height="26"
-      fill="none"
+      viewBox="0 0 32 32"
       aria-hidden="true"
     >
       <path
-        d="M5.2 9.6 3.8 6.3l4.15 1.1L10.15 3l1.85 4.4L13.85 3l2.2 4.4 4.15-1.1-1.4 3.3"
-        stroke="currentColor"
-        strokeWidth="1.65"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        className="cing-action-icon__soft"
+        d="M7.25 12.4h17.5l-1.4 12.35H8.65L7.25 12.4Z"
       />
       <path
-        d="M5.25 9.6h13.5l-1.05 9.65H6.3L5.25 9.6Z"
-        stroke="currentColor"
-        strokeWidth="1.65"
-        strokeLinejoin="round"
+        className="cing-action-icon__solid"
+        d="m6.05 10.4-1.8-5 5.6 1.65L13 2.8l3 5.3 3-5.3 3.15 4.25 5.6-1.65-1.8 5H6.05Z"
       />
       <path
-        d="M8 13.25h8"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
+        className="cing-action-icon__detail"
+        d="M11.2 16.2h9.6M12.3 19.45h7.4"
       />
     </svg>
   );
 }
 
+
 const ACTIONS = [
   {
-    key:
-      "order",
-    label:
-      "Đặt món",
-    path:
-      "/menu",
-    icon:
-      <OrderGlyph />,
-    bg:
-      "#fff5ed",
-    border:
-      "#fed7c2",
-    text:
-      "#cf4c17",
+    key: "order",
+    label: "Đặt món",
+    kicker: "Thưởng thức",
+    path: "/menu",
+    icon: <OrderGlyph />,
+    tone: "orange",
   },
   {
-    key:
-      "wallet",
-    label:
-      "Cing Wallet",
-    path:
-      "/wallet",
-    icon:
+    key: "wallet",
+    label: "Cing Wallet",
+    kicker: "Thanh toán",
+    path: "/wallet",
+    icon: (
       <WalletGlyph
-        size={26}
-      />,
-    bg:
-      "#f7f1e6",
-    border:
-      "#e8d5ad",
-    text:
-      "#7c5726",
+        size={29}
+        strokeWidth={1.7}
+      />
+    ),
+    tone: "wallet",
   },
   {
-    key:
-      "game",
-    label:
-      "Game Center",
-    path:
-      "/game-center",
-    icon:
-      <GameGlyph />,
-    bg:
-      "#f5f3ff",
-    border:
-      "#ddd6fe",
-    text:
-      "#6d4bd8",
+    key: "game",
+    label: "Game Center",
+    kicker: "Giải trí",
+    path: "/game-center",
+    icon: <GameGlyph />,
+    tone: "violet",
   },
   {
-    key:
-      "benefits",
-    label:
-      "Quyền lợi thành viên",
-    path:
-      "/membership-benefits",
-    icon:
-      <BenefitsGlyph />,
-    bg:
-      "#fff9e8",
-    border:
-      "#f4dfa2",
-    text:
-      "#a66d15",
+    key: "benefits",
+    label: "Quyền lợi thành viên",
+    kicker: "Đặc quyền",
+    path: "/membership-benefits",
+    icon: <BenefitsGlyph />,
+    tone: "gold",
   },
 ];
+
 
 export default function HomeQuickActions() {
   const navigate =
     useNavigate();
 
   return (
-    <div
-      style={{
-        display:
-          "grid",
-        gridTemplateColumns:
-          "repeat(4,1fr)",
-        gap:
-          10,
-      }}
+    <nav
+      className="cing-home-actions"
+      aria-label="Dịch vụ Cing"
     >
       {ACTIONS.map(
         action => (
           <button
             key={action.key}
             type="button"
+            className={[
+              "cing-home-action",
+              `cing-home-action--${action.tone}`,
+            ].join(" ")}
             onClick={() =>
               navigate(
                 action.path
               )
             }
-            style={{
-              minWidth:
-                0,
-              display:
-                "flex",
-              flexDirection:
-                "column",
-              alignItems:
-                "center",
-              justifyContent:
-                "center",
-              gap:
-                7,
-              minHeight:
-                78,
-              padding:
-                "13px 3px 11px",
-              borderRadius:
-                17,
-              border:
-                `1.25px solid ${action.border}`,
-              background:
-                action.bg,
-              color:
-                action.text,
-              cursor:
-                "pointer",
-              WebkitTapHighlightColor:
-                "transparent",
-              boxShadow:
-                "0 5px 14px rgba(35,25,12,.035)",
-            }}
           >
-            <span
-              style={{
-                width:
-                  32,
-                height:
-                  32,
-                display:
-                  "grid",
-                placeItems:
-                  "center",
-              }}
-            >
+            <span className="cing-home-action__icon">
               {action.icon}
             </span>
 
-            <span
-              style={{
-                maxWidth:
-                  "100%",
-                minHeight:
-                  24,
-                display:
-                  "flex",
-                alignItems:
-                  "center",
-                justifyContent:
-                  "center",
-                fontSize:
-                  9.7,
-                fontWeight:
-                  800,
-                lineHeight:
-                  1.18,
-                color:
-                  action.text,
-                textAlign:
-                  "center",
-                letterSpacing:
-                  "-.08px",
-              }}
-            >
-              {action.label}
+            <span className="cing-home-action__copy">
+              <strong>
+                {action.label}
+              </strong>
+
+              <small>
+                {action.kicker}
+              </small>
             </span>
           </button>
         )
       )}
-    </div>
+    </nav>
   );
 }

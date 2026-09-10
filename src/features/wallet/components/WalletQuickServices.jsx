@@ -10,8 +10,8 @@ function OrderIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      width="22"
-      height="22"
+      width="27"
+      height="27"
       fill="none"
       aria-hidden="true"
     >
@@ -36,8 +36,8 @@ function QrIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      width="22"
-      height="22"
+      width="27"
+      height="27"
       fill="none"
       aria-hidden="true"
     >
@@ -63,8 +63,8 @@ function HistoryIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      width="22"
-      height="22"
+      width="27"
+      height="27"
       fill="none"
       aria-hidden="true"
     >
@@ -117,6 +117,7 @@ export default function WalletQuickServices({
     <section className="cing-wallet-services">
       <button
         type="button"
+        className="cing-wallet-service cing-wallet-service--topup"
         onClick={
           onTopup
         }
@@ -134,6 +135,7 @@ export default function WalletQuickServices({
 
       <button
         type="button"
+        className="cing-wallet-service cing-wallet-service--qr"
         onClick={() =>
           navigate(
             "/wallet/pos-pay"
@@ -151,6 +153,7 @@ export default function WalletQuickServices({
 
       <button
         type="button"
+        className="cing-wallet-service cing-wallet-service--order"
         onClick={() =>
           navigate(
             "/menu"
@@ -168,6 +171,7 @@ export default function WalletQuickServices({
 
       <button
         type="button"
+        className="cing-wallet-service cing-wallet-service--history"
         onClick={
           scrollHistory
         }

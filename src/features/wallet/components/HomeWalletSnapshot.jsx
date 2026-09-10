@@ -139,7 +139,7 @@ export default function HomeWalletSnapshot() {
             resolvedBalance ===
               null ? (
             <div className="cing-home-wallet__balance cing-home-wallet__balance--error">
-              — — —
+              Đang đồng bộ số dư
             </div>
           ) : (
             <div className="cing-home-wallet__balance">

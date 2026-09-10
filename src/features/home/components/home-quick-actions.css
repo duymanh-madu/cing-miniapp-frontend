@@ -1,0 +1,295 @@
+.cing-home-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.cing-home-action {
+  --action-accent: #d4531c;
+  --action-accent-2: #f07a34;
+  --action-ink: #6b2c13;
+  position: relative;
+  min-width: 0;
+  min-height: 94px;
+  padding: 10px 4px 9px;
+  border: 1px solid rgba(83, 52, 24, .075);
+  border-radius: 21px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--action-ink);
+  background:
+    radial-gradient(
+      circle at 50% -15%,
+      rgba(255,255,255,.96),
+      rgba(255,255,255,.62) 41%,
+      rgba(255,255,255,.32) 70%
+    ),
+    linear-gradient(
+      155deg,
+      #fffdf9,
+      #f7efe5
+    );
+  box-shadow:
+    0 10px 23px rgba(68, 42, 17, .075),
+    inset 0 1px rgba(255,255,255,.92);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transform: translateZ(0);
+}
+
+.cing-home-action::after {
+  content: "";
+  position: absolute;
+  inset: auto 12px 0;
+  height: 2px;
+  border-radius: 999px 999px 0 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--action-accent),
+      transparent
+    );
+  opacity: .42;
+}
+
+.cing-home-action:active {
+  transform: scale(.975);
+}
+
+.cing-home-action--wallet {
+  --action-accent: #c28a3d;
+  --action-accent-2: #e4bd73;
+  --action-ink: #5a3a19;
+}
+
+.cing-home-action--violet {
+  --action-accent: #6f4de0;
+  --action-accent-2: #9a7bf2;
+  --action-ink: #5334b8;
+}
+
+.cing-home-action--gold {
+  --action-accent: #b98221;
+  --action-accent-2: #e0b451;
+  --action-ink: #79500f;
+}
+
+.cing-home-action__icon {
+  position: relative;
+  width: 43px;
+  height: 43px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  color: var(--action-accent);
+  background:
+    radial-gradient(
+      circle at 34% 20%,
+      rgba(255,255,255,.95),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--action-accent-2) 18%, white),
+      color-mix(in srgb, var(--action-accent) 11%, white)
+    );
+  box-shadow:
+    0 8px 16px color-mix(in srgb, var(--action-accent) 13%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--action-accent) 12%, transparent),
+    inset 0 1px rgba(255,255,255,.9);
+}
+
+.cing-home-action__icon svg {
+  width: 29px;
+  height: 29px;
+  display: block;
+}
+
+.cing-action-icon__soft {
+  fill: currentColor;
+  opacity: .18;
+}
+
+.cing-action-icon__solid {
+  fill: currentColor;
+}
+
+.cing-action-icon__detail {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+
+.cing-home-action__copy {
+  min-width: 0;
+  width: 100%;
+  display: grid;
+  gap: 1px;
+  text-align: center;
+}
+
+.cing-home-action__copy strong {
+  min-width: 0;
+  color: var(--action-ink);
+  font-size: 10.4px;
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -.13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cing-home-action__copy small {
+  color: color-mix(in srgb, var(--action-ink) 58%, white);
+  font-size: 7.7px;
+  line-height: 1.15;
+  font-weight: 750;
+  letter-spacing: .08px;
+}
+
+@media (max-width: 375px) {
+  .cing-home-actions {
+    gap: 7px;
+  }
+
+  .cing-home-action {
+    min-height: 90px;
+    border-radius: 19px;
+  }
+
+  .cing-home-action__icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .cing-home-action__copy strong {
+    font-size: 9.6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cing-home-action {
+    transition: none !important;
+  }
+}
+
+
+/* V4 commercial-label fit */
+.cing-home-action--gold .cing-home-action__copy strong {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.04;
+  max-width: 68px;
+  margin: 0 auto;
+}
+
+@media (max-width: 375px) {
+  .cing-home-action--gold .cing-home-action__copy strong {
+    max-width: 62px;
+    font-size: 9.1px;
+  }
+}
+
+
+/* =====================================================
+   V4.1 — Signature compact action system
+   ===================================================== */
+
+.cing-home-actions {
+  gap: 8px;
+}
+
+.cing-home-action {
+  min-height: 86px;
+  padding: 9px 3px 8px;
+  gap: 6px;
+  border-radius: 19px;
+  box-shadow:
+    0 7px 18px rgba(68,42,17,.06),
+    inset 0 1px rgba(255,255,255,.96);
+}
+
+.cing-home-action::after {
+  left: 17px;
+  right: 17px;
+  height: 2px;
+  opacity: .55;
+}
+
+.cing-home-action__icon {
+  width: 47px;
+  height: 47px;
+  border-radius: 16px;
+}
+
+.cing-home-action__icon svg {
+  width: 31px;
+  height: 31px;
+}
+
+.cing-home-action__copy strong {
+  font-size: 10.2px;
+  font-weight: 900;
+  letter-spacing: -.18px;
+}
+
+.cing-home-action__copy small {
+  display: none;
+}
+
+.cing-home-action--orange .cing-home-action__icon {
+  color: #d64f18;
+  background:
+    radial-gradient(circle at 30% 15%, #fff 0%, transparent 35%),
+    linear-gradient(145deg,#fff2e8,#fbd7c2);
+}
+
+.cing-home-action--wallet .cing-home-action__icon {
+  color: #694519;
+  background:
+    radial-gradient(circle at 30% 15%, rgba(255,255,255,.95), transparent 34%),
+    linear-gradient(145deg,#f7e4bd,#e8c47c);
+}
+
+.cing-home-action--violet .cing-home-action__icon {
+  color: #6641d8;
+  background:
+    radial-gradient(circle at 30% 15%, rgba(255,255,255,.96), transparent 34%),
+    linear-gradient(145deg,#eee9ff,#dcd3ff);
+}
+
+.cing-home-action--gold .cing-home-action__icon {
+  color: #9c6814;
+  background:
+    radial-gradient(circle at 30% 15%, rgba(255,255,255,.96), transparent 34%),
+    linear-gradient(145deg,#fff4cf,#f2d988);
+}
+
+.cing-home-action--gold .cing-home-action__copy strong {
+  max-width: 72px;
+  line-height: 1.06;
+}
+
+@media (max-width: 375px) {
+  .cing-home-action {
+    min-height: 82px;
+  }
+
+  .cing-home-action__icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .cing-home-action__icon svg {
+    width: 29px;
+    height: 29px;
+  }
+}
