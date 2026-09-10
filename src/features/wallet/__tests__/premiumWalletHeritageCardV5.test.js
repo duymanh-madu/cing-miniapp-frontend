@@ -21,47 +21,77 @@ const css =
   );
 
 test(
-  "Heritage Card uses local Cing asset",
+  "V6 uses the official local Cing logo as visible identity",
   () => {
     assert.match(
       page,
-      /["']\/logo-cing\.png["']/
+      /CING_BRAND_LOGO_URL\s*=\s*["']\/logo-cing\.png["']/
+    );
+
+    assert.match(
+      page,
+      /cing-wallet-hero__official-logo/
+    );
+
+    assert.match(
+      page,
+      /alt="Cing Hu Tang Kinh Bắc"/
     );
 
     assert.doesNotMatch(
       page,
-      /supabase\.co\/storage\/v1\/object\/public\/Logo/
+      /watermark-logo/
     );
   }
 );
 
 test(
-  "generic Wallet plaque composition is removed",
+  "V6 removes the artificial C KB seal",
   () => {
     assert.doesNotMatch(
-      page,
-      /WalletGlyph/
-    );
-
-    assert.doesNotMatch(
-      page,
-      /cing-wallet-hero__brand-logo/
-    );
-
-    assert.match(
-      page,
-      /cing-wallet-hero__brand-lockup/
-    );
-
-    assert.match(
       page,
       /cing-wallet-hero__kinhbac-seal/
     );
+
+    assert.doesNotMatch(
+      page,
+      /<span>C<\/span>/
+    );
+
+    assert.doesNotMatch(
+      page,
+      /<small>KB<\/small>/
+    );
   }
 );
 
 test(
-  "Cing Hu Tang Kinh Bac identity is explicit",
+  "V6 contains explicit Kinh Bac cultural motifs",
+  () => {
+    assert.match(
+      page,
+      /cing-wallet-hero__roofline/
+    );
+
+    assert.match(
+      page,
+      /cing-wallet-hero__quai-thao/
+    );
+
+    assert.match(
+      css,
+      /CING WALLET HERITAGE CARD V6/
+    );
+
+    assert.match(
+      css,
+      /Kinh Bac Signature/
+    );
+  }
+);
+
+test(
+  "V6 restores strong Cing brand hierarchy",
   () => {
     assert.match(
       page,
@@ -80,13 +110,13 @@ test(
 
     assert.match(
       css,
-      /CING WALLET HERITAGE CARD V5/
+      /cing-wallet-hero__official-logo/
     );
   }
 );
 
 test(
-  "canonical topup and POS actions remain unchanged",
+  "V6 preserves canonical Wallet actions",
   () => {
     assert.match(
       page,
@@ -101,6 +131,21 @@ test(
     assert.match(
       page,
       /Quét QR tại quầy/
+    );
+  }
+);
+
+test(
+  "V6 explicitly removes oversized V5 card minimum height",
+  () => {
+    assert.match(
+      css,
+      /cing-wallet-hero--heritage-v6[\s\S]*min-height:\s*0/
+    );
+
+    assert.doesNotMatch(
+      css,
+      /CING WALLET HERITAGE CARD V5/
     );
   }
 );

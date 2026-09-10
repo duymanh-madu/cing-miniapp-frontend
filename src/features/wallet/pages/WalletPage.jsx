@@ -95,50 +95,56 @@ export default function WalletPage() {
         )}
       </header>
 
-      <section className="cing-wallet-hero cing-wallet-hero--heritage">
+      <section className="cing-wallet-hero cing-wallet-hero--heritage cing-wallet-hero--heritage-v6">
           <div
-            className="cing-wallet-hero__heritage-pattern"
+            className="cing-wallet-hero__kinhbac-art"
             aria-hidden="true"
           >
-            <span />
-            <span />
-            <span />
-          </div>
-
-          <img
-            className="cing-wallet-hero__watermark-logo"
-            src={CING_BRAND_LOGO_URL}
-            alt=""
-            aria-hidden="true"
-            loading="eager"
-            decoding="async"
-          />
-
-          <div className="cing-wallet-hero__top">
-            <div className="cing-wallet-hero__brand-lockup">
-              <span className="cing-wallet-hero__brand-kicker">
-                CING HU TANG
-              </span>
-
-              <strong>
-                KINH BẮC
-              </strong>
-
-              <small>
-                BẮC NINH • HERITAGE WALLET
-              </small>
-            </div>
-
-            <div
-              className="cing-wallet-hero__kinhbac-seal"
-              aria-label="Cing Hu Tang Kinh Bắc"
+            <svg
+              className="cing-wallet-hero__roofline"
+              viewBox="0 0 420 110"
+              preserveAspectRatio="none"
             >
-              <span>C</span>
-              <small>KB</small>
+              <path
+                d="M18 84 C82 82 112 64 151 39 C171 26 191 21 210 20 C229 21 249 26 269 39 C308 64 338 82 402 84"
+              />
+              <path
+                d="M70 84 C128 77 157 58 183 40 C193 33 202 29 210 28 C218 29 227 33 237 40 C263 58 292 77 350 84"
+              />
+              <path
+                d="M111 86 L309 86"
+              />
+            </svg>
+
+            <div className="cing-wallet-hero__quai-thao">
+              <span />
             </div>
           </div>
 
-          <div className="cing-wallet-hero__wallet-signature">
+          <div className="cing-wallet-hero__identity">
+            <img
+              className="cing-wallet-hero__official-logo"
+              src={CING_BRAND_LOGO_URL}
+              alt="Cing Hu Tang Kinh Bắc"
+              loading="eager"
+              decoding="async"
+            />
+
+            <div className="cing-wallet-hero__identity-copy">
+              <strong>
+                CING HU TANG
+              </strong>
+              <span>
+                KINH BẮC
+              </span>
+            </div>
+
+            <div className="cing-wallet-hero__heritage-badge">
+              KINH BẮC
+            </div>
+          </div>
+
+          <div className="cing-wallet-hero__wallet-title">
             CING WALLET
           </div>
 
