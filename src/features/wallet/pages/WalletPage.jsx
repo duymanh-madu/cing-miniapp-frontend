@@ -20,6 +20,10 @@ import WalletTopupPanel
 import "./wallet-page.css";
 
 
+const CING_BRAND_LOGO_URL =
+  "https://umzcqpkfiscotijohloc.supabase.co/storage/v1/object/public/Logo/4891002C-3A39-435C-8D57-5DEA9B24937E.PNG";
+
+
 const fmtMoney =
   value =>
     `${new Intl.NumberFormat(
@@ -108,9 +112,18 @@ export default function WalletPage() {
             CING WALLET
           </div>
 
-          <span className="cing-wallet-hero__secure">
-            Số dư khả dụng
-          </span>
+          <div className="cing-wallet-hero__brand-logo">
+            <img
+              src={CING_BRAND_LOGO_URL}
+              alt="Cing Hu Tang Kinh Bắc"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+        </div>
+
+        <div className="cing-wallet-hero__balance-label">
+          Số dư khả dụng
         </div>
 
         {loading &&

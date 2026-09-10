@@ -1498,3 +1498,64 @@
     min-height: 48px;
   }
 }
+
+
+/* =====================================================
+   CING WALLET PREMIUM VISUAL SYSTEM V4.3
+   Brand logo + balance-label recomposition
+   ===================================================== */
+
+.cing-wallet-hero__brand-logo {
+  width: 86px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 3px 0 3px 8px;
+}
+
+.cing-wallet-hero__brand-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: right center;
+  filter:
+    brightness(1.08)
+    contrast(1.04)
+    drop-shadow(
+      0 4px 10px rgba(0,0,0,.16)
+    );
+}
+
+.cing-wallet-hero__balance-label {
+  margin-top: 30px;
+  margin-bottom: 7px;
+  color: rgba(247,220,170,.68);
+  font-size: 9.2px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: 1.35px;
+  text-transform: uppercase;
+}
+
+.cing-wallet-hero__amount {
+  margin-top: 0;
+}
+
+.cing-wallet-hero__secure {
+  display: none;
+}
+
+@media (max-width: 380px) {
+  .cing-wallet-hero__brand-logo {
+    width: 78px;
+    height: 38px;
+  }
+
+  .cing-wallet-hero__balance-label {
+    margin-top: 27px;
+    font-size: 8.7px;
+  }
+}
