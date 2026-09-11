@@ -1698,3 +1698,131 @@
       );
   }
 }
+
+/* =====================================================
+   CING HOME WALLET V9 PREMIUM SURFACE V2
+   Controlled espresso field + champagne material seam
+   ===================================================== */
+
+.cing-home-wallet--v9 {
+  background:
+    radial-gradient(
+      ellipse at 11% 9%,
+      rgba(226, 167, 92, .065) 0%,
+      rgba(226, 167, 92, .022) 24%,
+      transparent 43%
+    ),
+    linear-gradient(
+      146deg,
+      #331507 0%,
+      #281006 47%,
+      #190803 100%
+    );
+
+  border:
+    1px solid rgba(232, 190, 120, .56);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 240, 213, .045),
+    inset 0 1px 0 rgba(255, 229, 181, .105),
+    0 17px 38px rgba(54, 22, 8, .18);
+}
+
+
+.cing-home-wallet-v9__surface {
+  background:
+    linear-gradient(
+      116deg,
+      transparent 0%,
+      transparent 64.1%,
+      rgba(239, 199, 130, .48) 64.25%,
+      rgba(143, 87, 40, .30) 64.52%,
+      transparent 64.72%,
+      transparent 100%
+    ),
+    repeating-linear-gradient(
+      135deg,
+      transparent 0,
+      transparent 19px,
+      rgba(245, 211, 153, .014) 19px,
+      rgba(245, 211, 153, .014) 20px,
+      transparent 20px,
+      transparent 39px
+    );
+}
+
+
+.cing-home-wallet-v9__sunlight {
+  background:
+    radial-gradient(
+      ellipse at 61% 58%,
+      rgba(255, 239, 202, .19) 0%,
+      rgba(229, 174, 102, .075) 26%,
+      rgba(185, 111, 42, .018) 47%,
+      transparent 66%
+    );
+
+  filter:
+    none;
+
+  opacity:
+    .72;
+}
+
+
+.cing-home-wallet-v9__heritage {
+  opacity:
+    .20;
+
+  filter:
+    drop-shadow(
+      0 1px 0
+      rgba(255, 230, 187, .02)
+    );
+}
+
+
+.cing-home-wallet-v9__heritage path,
+.cing-home-wallet-v9__heritage circle {
+  stroke:
+    rgba(221, 168, 96, .48);
+}
+
+
+.cing-home-wallet-v9__heritage circle {
+  fill:
+    rgba(175, 103, 31, .035);
+}
+
+
+.cing-home-wallet-v9__emblem {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 230, 183, .12),
+    inset 0 0 0 1px rgba(236, 190, 117, .08),
+    0 8px 18px rgba(28, 11, 4, .24);
+}
+
+
+@media (max-width: 390px) {
+  .cing-home-wallet-v9__surface {
+    background:
+      linear-gradient(
+        116deg,
+        transparent 0%,
+        transparent 66.2%,
+        rgba(239, 199, 130, .42) 66.35%,
+        rgba(143, 87, 40, .26) 66.62%,
+        transparent 66.82%,
+        transparent 100%
+      ),
+      repeating-linear-gradient(
+        135deg,
+        transparent 0,
+        transparent 19px,
+        rgba(245, 211, 153, .012) 19px,
+        rgba(245, 211, 153, .012) 20px,
+        transparent 20px,
+        transparent 39px
+      );
+  }
+}
