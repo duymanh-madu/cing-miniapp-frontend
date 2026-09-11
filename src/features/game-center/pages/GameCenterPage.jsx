@@ -153,6 +153,19 @@ function NoGamePlaysPopup({ onClose, userName = "Cing iu" }) {
 }
 
 export default function GameCenterPage() {
+  /*
+   * Customer multiplayer availability is backend-authoritative.
+   *
+   * This flag affects only multiplayer customer surfaces.
+   * Offline gamification remains independent.
+   *
+   * Fail closed until the backend explicitly returns true.
+   */
+  const [
+    customerMultiplayerEnabled,
+    setCustomerMultiplayerEnabled,
+  ] = useState(false);
+
   const [cingArtilleryVisible, setCingArtilleryVisible] =
     useState(false);
 
@@ -160,11 +173,14 @@ export default function GameCenterPage() {
     getAllGames().filter(
       (game) =>
         game.id !== "cing-artillery" ||
-        cingArtilleryVisible
+        (
+          customerMultiplayerEnabled &&
+          cingArtilleryVisible
+        )
     );
 
-  const [activeGame, setActiveGame]       = useState(null);
-  const [playingChess, setPlayingChess]   = useState(false);
+  const [activeGame, setActiveGame]     = useState(null);
+  const [playingChess, setPlayingChess] = useState(false);
 
   useEffect(() => {
     setGamePlaying(playingChess || !!activeGame);
@@ -187,6 +203,38 @@ export default function GameCenterPage() {
   const { isActivated, requireMember, MemberPrompt } = useMemberRequired();
 
   /*
+   * Legal availability authority.
+   *
+   * The app never assumes multiplayer is available.
+   * Only an explicit TRUE from backend enables the surface.
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    setCustomerMultiplayerEnabled(false);
+
+    apiClient
+      .get("/app-config/public")
+      .then((response) => {
+        if (cancelled) return;
+
+        setCustomerMultiplayerEnabled(
+          response?.data?.data
+            ?.customer_multiplayer_enabled === true
+        );
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCustomerMultiplayerEnabled(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /*
    * Cing Piu Piu is private-beta only.
    *
    * Registry membership is not public discovery authority.
@@ -198,7 +246,10 @@ export default function GameCenterPage() {
 
     setCingArtilleryVisible(false);
 
-    if (!authenticated) {
+    if (
+      !authenticated ||
+      !customerMultiplayerEnabled
+    ) {
       return () => {
         cancelled = true;
       };
@@ -234,7 +285,10 @@ export default function GameCenterPage() {
     return () => {
       cancelled = true;
     };
-  }, [authenticated]);
+  }, [
+    authenticated,
+    customerMultiplayerEnabled,
+  ]);
   const profile       = useAuthStore(s => s.profile);
   const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
   const displayName = resolveProfileName(profile || runtimeIdentity, "Cing iu");
@@ -457,13 +511,33 @@ export default function GameCenterPage() {
   };
 
   const handlePlayChess = () => {
+    if (!customerMultiplayerEnabled) {
+      showToast(
+        "Tính năng thi đấu nhiều người chơi hiện đang tạm ngưng."
+      );
+      return;
+    }
+
     if (!requireMember()) return;
+
     setPlayingChess(true);
     trackGameStart("chess");
   };
 
   if (showChat) return <CommunityChat onClose={() => setShowChat(false)} />;
-  if (playingChess) return <ChessGame onExit={() => { trackGameStop("chess"); setPlayingChess(false); }} />;
+  if (
+    playingChess &&
+    customerMultiplayerEnabled
+  ) {
+    return (
+      <ChessGame
+        onExit={() => {
+          trackGameStop("chess");
+          setPlayingChess(false);
+        }}
+      />
+    );
+  }
 
   if (activeGame) {
     const game =
@@ -714,7 +788,8 @@ export default function GameCenterPage() {
         ))}
       </div>
 
-      {/* CHESS */}
+      {/* CHESS — multiplayer legal gate */}
+      {customerMultiplayerEnabled && (
       <div style={{ margin:"0 16px 16px", background:"linear-gradient(135deg,#0a0a1a,#1a1508)", borderRadius:20, padding:"20px", border:"1px solid rgba(255,215,0,0.25)", position:"relative", overflow:"hidden" }}>
         <div style={{ position:"absolute", top:-20, right:-20, width:120, height:120, borderRadius:"50%", background:"rgba(255,215,0,0.08)", filter:"blur(30px)" }}/>
         <div style={{ display:"flex", gap:14, alignItems:"flex-start" }}>
@@ -738,9 +813,14 @@ export default function GameCenterPage() {
           </div>
         </div>
       </div>
+      )}
 
       {showBoard     && <GameLeaderboard gameKey={showBoard} onClose={() => setShowBoard(null)} />}
-      {showChessLB   && <ChessLeaderboard onClose={() => setShowChessLB(false)} />}
+      {customerMultiplayerEnabled && showChessLB && (
+        <ChessLeaderboard
+          onClose={() => setShowChessLB(false)}
+        />
+      )}
       {showAlltimeLB && <AlltimeLeaderboard onClose={() => setShowAlltimeLB(false)} />}
 
       {showAuthModal && (
