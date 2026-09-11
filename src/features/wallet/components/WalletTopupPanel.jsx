@@ -11,6 +11,92 @@ const money =
     )}đ`;
 
 
+function formatCampaignDate(
+  value
+) {
+  if (!value) {
+    return null;
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return null;
+  }
+
+  const parts =
+    new Intl.DateTimeFormat(
+      "vi-VN",
+      {
+        timeZone:
+          "Asia/Ho_Chi_Minh",
+
+        hour12:
+          false,
+
+        hour:
+          "2-digit",
+
+        minute:
+          "2-digit",
+
+        day:
+          "2-digit",
+
+        month:
+          "2-digit",
+
+        year:
+          "numeric",
+      }
+    ).formatToParts(
+      date
+    );
+
+  const read =
+    type =>
+      parts.find(
+        part =>
+          part.type === type
+      )?.value || "";
+
+  const hour =
+    read("hour");
+
+  const minute =
+    read("minute");
+
+  const day =
+    read("day");
+
+  const month =
+    read("month");
+
+  const year =
+    read("year");
+
+  if (
+    !hour ||
+    !minute ||
+    !day ||
+    !month ||
+    !year
+  ) {
+    return null;
+  }
+
+  return (
+    `${hour}:${minute} ` +
+    `${day}/${month}/${year}`
+  );
+}
+
+
 export default function WalletTopupPanel({
   promotion,
   promotionLoading,
@@ -37,24 +123,95 @@ export default function WalletTopupPanel({
       amountInput || 0
     );
 
+  const activePromotion =
+    promotion?.active ===
+    true
+      ? promotion
+      : null;
+
+  const campaignName =
+    activePromotion?.name ||
+    null;
+
+  const campaignStartsAt =
+    formatCampaignDate(
+      activePromotion?.startsAt
+    );
+
+  const campaignEndsAt =
+    formatCampaignDate(
+      activePromotion?.endsAt
+    );
+
+
   return (
     <section
       id="cing-wallet-topup"
       className="cing-wallet-topup"
     >
-      <div className="cing-wallet-section-title">
-        <p>
-          WALLET TOP-UP
-        </p>
+      <div className="cing-wallet-promotion-head">
+        <div className="cing-wallet-promotion-head__meta">
+          <span className="cing-wallet-promotion-head__eyebrow">
+            WALLET TOP-UP
+          </span>
+
+          {activePromotion ? (
+            <span className="cing-wallet-promotion-head__status">
+              <i />
+              ĐANG DIỄN RA
+            </span>
+          ) : null}
+        </div>
 
         <h2>
-          Nạp Cing Wallet
+          {campaignName ||
+            "Nạp Cing Wallet"}
         </h2>
 
-        <span>
-          Nạp trước để thanh toán nhanh hơn và nhận ưu đãi khi chương trình nạp đang diễn ra.
-        </span>
+        {activePromotion ? (
+          <>
+            {(
+              campaignStartsAt ||
+              campaignEndsAt
+            ) && (
+              <div className="cing-wallet-promotion-head__period">
+                {campaignStartsAt && (
+                  <div>
+                    <span>
+                      Bắt đầu
+                    </span>
+
+                    <strong>
+                      {campaignStartsAt}
+                    </strong>
+                  </div>
+                )}
+
+                {campaignEndsAt && (
+                  <div>
+                    <span>
+                      Kết thúc
+                    </span>
+
+                    <strong>
+                      {campaignEndsAt}
+                    </strong>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <p className="cing-wallet-promotion-head__copy">
+              Chọn mốc nạp bên dưới để nhận đúng quyền lợi của chương trình đang áp dụng.
+            </p>
+          </>
+        ) : (
+          <p className="cing-wallet-promotion-head__copy">
+            Nạp trước để thanh toán nhanh hơn tại Cing.
+          </p>
+        )}
       </div>
+
 
       {promotionLoading ? (
         <div className="cing-wallet-offers-skeleton">
@@ -75,6 +232,7 @@ export default function WalletTopupPanel({
           }
         />
       )}
+
 
       <div className="cing-wallet-topup__composer">
         <label
@@ -137,6 +295,7 @@ export default function WalletTopupPanel({
         )}
       </div>
 
+
       {pendingTopup && (
         <div
           className="cing-wallet-topup__pending"
@@ -161,6 +320,7 @@ export default function WalletTopupPanel({
         </div>
       )}
 
+
       {notice && (
         <p
           className="cing-wallet-topup__notice"
@@ -178,7 +338,6 @@ export default function WalletTopupPanel({
           {error}
         </p>
       )}
-
     </section>
   );
 }

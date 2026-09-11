@@ -3627,3 +3627,348 @@
       13px;
   }
 }
+
+
+/* =====================================================
+   CING WALLET PROMOTION METADATA V1
+   Backend-authoritative campaign presentation
+   ===================================================== */
+
+.cing-wallet-promotion-head {
+  position: relative;
+
+  margin-bottom:
+    22px;
+
+  padding:
+    19px 20px 18px;
+
+  overflow:
+    hidden;
+
+  border:
+    1px solid
+    rgba(201, 140, 69, .18);
+
+  border-radius:
+    22px;
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(231, 148, 57, .10),
+      transparent 40%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 251, 244, .96),
+      rgba(250, 239, 222, .82)
+    );
+
+  box-shadow:
+    inset 0 1px 0
+      rgba(255,255,255,.84),
+    0 10px 28px
+      rgba(80, 45, 18, .055);
+}
+
+
+.cing-wallet-promotion-head::after {
+  content: "";
+
+  position: absolute;
+
+  width:
+    155px;
+
+  height:
+    155px;
+
+  right:
+    -76px;
+
+  top:
+    -90px;
+
+  border-radius:
+    50%;
+
+  border:
+    1px solid
+    rgba(193, 126, 53, .10);
+
+  pointer-events:
+    none;
+}
+
+
+.cing-wallet-promotion-head__meta {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    12px;
+
+  margin-bottom:
+    11px;
+}
+
+
+.cing-wallet-promotion-head__eyebrow {
+  color:
+    #ad6d2c;
+
+  font-size:
+    10px;
+
+  line-height:
+    1;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    2.7px;
+}
+
+
+.cing-wallet-promotion-head__status {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    6px;
+
+  padding:
+    6px 9px;
+
+  border-radius:
+    999px;
+
+  color:
+    #7a4a1b;
+
+  background:
+    rgba(234, 182, 95, .15);
+
+  border:
+    1px solid
+    rgba(194, 127, 49, .16);
+
+  font-size:
+    9px;
+
+  line-height:
+    1;
+
+  font-weight:
+    850;
+
+  letter-spacing:
+    .65px;
+}
+
+
+.cing-wallet-promotion-head__status i {
+  width:
+    7px;
+
+  height:
+    7px;
+
+  border-radius:
+    50%;
+
+  background:
+    #d5842c;
+
+  box-shadow:
+    0 0 0 4px
+      rgba(213, 132, 44, .10);
+}
+
+
+.cing-wallet-promotion-head h2 {
+  position:
+    relative;
+
+  z-index:
+    1;
+
+  max-width:
+    620px;
+
+  margin:
+    0;
+
+  color:
+    #29170d;
+
+  font-size:
+    clamp(
+      22px,
+      5.6vw,
+      31px
+    );
+
+  line-height:
+    1.13;
+
+  font-weight:
+    950;
+
+  letter-spacing:
+    -.6px;
+}
+
+
+.cing-wallet-promotion-head__period {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap:
+    10px;
+
+  margin-top:
+    16px;
+}
+
+
+.cing-wallet-promotion-head__period > div {
+  display:
+    grid;
+
+  gap:
+    5px;
+
+  min-width:
+    0;
+
+  padding:
+    11px 12px;
+
+  border-radius:
+    14px;
+
+  background:
+    rgba(255,255,255,.58);
+
+  border:
+    1px solid
+    rgba(182, 117, 48, .12);
+}
+
+
+.cing-wallet-promotion-head__period span {
+  color:
+    #9c7757;
+
+  font-size:
+    9px;
+
+  line-height:
+    1;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    1.2px;
+
+  text-transform:
+    uppercase;
+}
+
+
+.cing-wallet-promotion-head__period strong {
+  overflow:
+    hidden;
+
+  color:
+    #50311e;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.2;
+
+  font-weight:
+    900;
+
+  white-space:
+    nowrap;
+
+  text-overflow:
+    ellipsis;
+}
+
+
+.cing-wallet-promotion-head__copy {
+  margin:
+    13px 0 0;
+
+  max-width:
+    650px;
+
+  color:
+    #82654e;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.5;
+}
+
+
+/*
+  The campaign metadata block is now the single heading owner.
+  Tier rail no longer needs a duplicate generic title.
+*/
+
+.cing-wallet-offers {
+  margin-top:
+    0;
+}
+
+
+@media (max-width: 420px) {
+  .cing-wallet-promotion-head {
+    padding:
+      17px 16px 16px;
+
+    border-radius:
+      20px;
+  }
+
+  .cing-wallet-promotion-head__meta {
+    align-items:
+      flex-start;
+  }
+
+  .cing-wallet-promotion-head__period {
+    grid-template-columns:
+      1fr;
+  }
+
+  .cing-wallet-promotion-head__period strong {
+    font-size:
+      11px;
+  }
+}

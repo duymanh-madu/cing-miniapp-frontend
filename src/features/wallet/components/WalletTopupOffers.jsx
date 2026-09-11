@@ -25,21 +25,10 @@ export default function WalletTopupOffers({
   }
 
   return (
-    <section className="cing-wallet-offers">
-      <div className="cing-wallet-section-title">
-        <p>
-          TOP-UP PRIVILEGES
-        </p>
-
-        <h2>
-          Ưu đãi nạp nổi bật
-        </h2>
-
-        <span>
-          Chọn mức phù hợp và hệ thống sẽ áp dụng quyền lợi theo cấu hình hiện hành.
-        </span>
-      </div>
-
+    <section
+      className="cing-wallet-offers"
+      aria-label="Các mốc ưu đãi nạp Cing Wallet"
+    >
       <div className="cing-wallet-offers__rail">
         {promotion.tiers.map(
           (
@@ -60,12 +49,14 @@ export default function WalletTopupOffers({
                 type="button"
                 className={[
                   "cing-wallet-offer",
+
                   selected
                     ? "is-selected"
                     : "",
-                    tier.isFeatured
-                      ? "is-featured"
-                      : "",
+
+                  tier.isFeatured
+                    ? "is-featured"
+                    : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
