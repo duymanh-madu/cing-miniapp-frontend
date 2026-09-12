@@ -52,27 +52,6 @@ const layoutSource =
 
 
 test(
-  "scanner uses native Zalo scanQRCode and exact content field",
-  () => {
-    assert.match(
-      scannerSource,
-      /import\(\s*"zmp-sdk\/apis"\s*\)/
-    );
-
-    assert.match(
-      scannerSource,
-      /scanQRCode\(\)/
-    );
-
-    assert.match(
-      scannerSource,
-      /result\?\.content/
-    );
-  }
-);
-
-
-test(
   "scanner accepts only Cing Wallet signed capability prefix",
   () => {
     assert.match(
@@ -233,8 +212,33 @@ test(
 
 
 test(
-  "scanner bypasses hanging permission APIs and invokes scanQRCode directly",
+  "scanner V2 uses ZMACamera and never OPEN_QR",
   () => {
+    assert.match(
+      scannerSource,
+      /createCameraContext/
+    );
+
+    assert.match(
+      scannerSource,
+      /camera\.start\(\)/
+    );
+
+    assert.match(
+      scannerSource,
+      /camera\?\.stop\?\.\(\)/
+    );
+
+    assert.match(
+      scannerSource,
+      /facingMode:\s*"environment"/
+    );
+
+    assert.doesNotMatch(
+      scannerSource,
+      /scanQRCode/
+    );
+
     assert.doesNotMatch(
       scannerSource,
       /checkZaloCameraPermission/
@@ -247,52 +251,74 @@ test(
 
     assert.doesNotMatch(
       scannerSource,
-      /CING_WALLET_POS_CAMERA_CHECK_TIMEOUT/
-    );
-
-    assert.doesNotMatch(
-      scannerSource,
-      /CING_WALLET_POS_CAMERA_REQUEST_TIMEOUT/
-    );
-
-    assert.doesNotMatch(
-      scannerSource,
-      /CING_WALLET_POS_CAMERA_PERMISSION_DENIED/
-    );
-
-    assert.match(
-      scannerSource,
-      /scanQRCode/
-    );
-
-    assert.match(
-      scannerSource,
-      /withNativeTimeout/
-    );
-
-    assert.match(
-      scannerSource,
-      /CING_WALLET_POS_SCAN_TIMEOUT/
-    );
-
-    assert.match(
-      scannerSource,
-      /result\?\.content/
+      /CING_WALLET_POS_SCAN_NATIVE_FAILED/
     );
   }
 );
 
+
 test(
-  "POS scanner opens only from explicit customer action",
+  "scanner V2 decodes raw video pixels with jsQR",
+  () => {
+    assert.match(
+      scannerSource,
+      /import jsQR from "jsqr"/
+    );
+
+    assert.match(
+      scannerSource,
+      /drawImage\(/
+    );
+
+    assert.match(
+      scannerSource,
+      /getImageData\(/
+    );
+
+    assert.match(
+      scannerSource,
+      /jsQR\(/
+    );
+
+    assert.match(
+      scannerSource,
+      /decoded\?\.data/
+    );
+
+    assert.match(
+      scannerSource,
+      /normalizeCingWalletQrContent/
+    );
+  }
+);
+
+
+test(
+  "scanner V2 opens only from explicit customer action",
   () => {
     assert.doesNotMatch(
       pageSource,
-      /useEffect\s*\([\s\S]{0,250}handleScan\s*\(\s*\)/
+      /useEffect\s*\([\s\S]{0,300}handleScan\s*\(\s*\)/
     );
 
     assert.match(
       pageSource,
       /onClick\s*=\s*\{\s*handleScan\s*\}/
+    );
+
+    assert.match(
+      pageSource,
+      /const cameraVideoRef\s*=\s*useRef\(null\)/
+    );
+
+    assert.match(
+      pageSource,
+      /ref=\{cameraVideoRef\}/
+    );
+
+    assert.match(
+      pageSource,
+      /videoElement:\s*cameraVideoRef\.current/
     );
 
     assert.match(
@@ -304,41 +330,68 @@ test(
 
 
 test(
-  "scanner preserves native OPEN_QR rejection metadata",
+  "scanner V2 keeps camera element mounted before customer click",
+  () => {
+    assert.match(
+      pageSource,
+      /ref=\{cameraVideoRef\}/
+    );
+
+    assert.match(
+      pageSource,
+      /display:\s*scanning\s*\?\s*"block"\s*:\s*"none"/
+    );
+
+    assert.doesNotMatch(
+      pageSource,
+      /\{scanning\s*\?\s*\([\s\S]{0,400}<video/
+    );
+  }
+);
+
+
+test(
+  "scanner V2 stops camera and clears media element in finally",
   () => {
     assert.match(
       scannerSource,
-      /CING_WALLET_POS_SCAN_NATIVE_FAILED/
+      /finally\s*\{/
     );
 
     assert.match(
       scannerSource,
-      /wrapped\.nativeCode/
+      /camera\?\.stop\?\.\(\)/
     );
 
     assert.match(
       scannerSource,
-      /wrapped\.nativeMessage/
+      /videoElement\.pause\(\)/
     );
 
     assert.match(
       scannerSource,
-      /wrapped\.nativeApi/
+      /videoElement\.srcObject\s*=\s*null/
+    );
+  }
+);
+
+
+test(
+  "scanner V2 accepts only canonical Cing Wallet capability after decode",
+  () => {
+    assert.match(
+      scannerSource,
+      /CING_WALLET_PAY_V1\./
     );
 
     assert.match(
-      pageSource,
-      /Mã Zalo:/
+      scannerSource,
+      /startsWith\(\s*CAPABILITY_PREFIX\s*\)/
     );
 
     assert.match(
-      pageSource,
-      /nativeCode/
-    );
-
-    assert.match(
-      pageSource,
-      /nativeMessage/
+      scannerSource,
+      /return normalizeCingWalletQrContent\(\s*decoded\.data\s*\)/
     );
   }
 );

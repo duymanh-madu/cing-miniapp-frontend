@@ -48,34 +48,71 @@ function resolveApiError(
     return {
       code,
       message:
-        "Zalo chưa mở được trình quét QR. Vui lòng thử lại hoặc cập nhật ứng dụng Zalo.",
+        "Chưa nhận diện được mã QR Cing Wallet. Hãy đưa mã QR vào giữa khung và thử lại.",
     };
   }
 
 
   if (
     code ===
-    "CING_WALLET_POS_SCAN_NATIVE_FAILED"
+    "CING_WALLET_POS_CAMERA_PERMISSION_DENIED"
   ) {
-    const nativeCode =
-      error?.nativeCode ??
-      error?.cause?.code ??
-      "unknown";
-
-    const nativeMessage =
-      String(
-        error?.nativeMessage ||
-        error?.cause?.message ||
-        "Unknown native error"
-      ).slice(
-        0,
-        180
-      );
-
     return {
       code,
       message:
-        `Zalo không mở được trình quét QR. Mã Zalo: ${nativeCode}. Chi tiết: ${nativeMessage}`,
+        "Zalo chưa được phép sử dụng Camera. Vui lòng cấp quyền Camera cho Zalo trong Cài đặt điện thoại rồi thử lại.",
+    };
+  }
+
+  if (
+    code ===
+    "CING_WALLET_POS_CAMERA_NOT_FOUND"
+  ) {
+    return {
+      code,
+      message:
+        "Không tìm thấy camera khả dụng trên thiết bị.",
+    };
+  }
+
+  if (
+    code ===
+      "CING_WALLET_POS_CAMERA_START_TIMEOUT" ||
+    code ===
+      "CING_WALLET_POS_CAMERA_STREAM_TIMEOUT"
+  ) {
+    return {
+      code,
+      message:
+        "Camera chưa khởi động được. Vui lòng thử lại.",
+    };
+  }
+
+  if (
+    code ===
+    "CING_WALLET_POS_CAMERA_CONSTRAINT_FAILED"
+  ) {
+    return {
+      code,
+      message:
+        "Camera thiết bị chưa tương thích với chế độ quét này.",
+    };
+  }
+
+  if (
+    code ===
+      "CING_WALLET_POS_CAMERA_FAILED" ||
+    code ===
+      "CING_WALLET_POS_CAMERA_UNAVAILABLE" ||
+    code ===
+      "CING_WALLET_POS_CAMERA_ELEMENT_MISSING" ||
+    code ===
+      "CING_WALLET_POS_FRAME_CONTEXT_UNAVAILABLE"
+  ) {
+    return {
+      code,
+      message:
+        "Không thể mở camera quét QR. Vui lòng thử lại trên Zalo.",
     };
   }
 
@@ -178,6 +215,9 @@ WalletPosPaymentPage() {
   const scanInFlight =
     useRef(false);
 
+  const cameraVideoRef =
+    useRef(null);
+
   const confirmInFlight =
     useRef(false);
 
@@ -253,7 +293,10 @@ WalletPosPaymentPage() {
 
         try {
           const scanned =
-            await scanCingWalletPosQr();
+            await scanCingWalletPosQr({
+              videoElement:
+                cameraVideoRef.current,
+            });
 
           await loadPreview(
             scanned
@@ -552,6 +595,64 @@ WalletPosPaymentPage() {
               hãy quét mã QR đang hiển thị
               trên màn hình phụ.
             </p>
+
+            <div
+              style={{
+                display:
+                  scanning
+                    ? "block"
+                    : "none",
+                position:
+                  "relative",
+                width:
+                  "100%",
+                aspectRatio:
+                  "4 / 3",
+                margin:
+                  "0 0 18px",
+                borderRadius:
+                  18,
+                overflow:
+                  "hidden",
+                background:
+                  "#111",
+              }}
+            >
+              <video
+                ref={cameraVideoRef}
+                autoPlay
+                muted
+                playsInline
+                style={{
+                  width:
+                    "100%",
+                  height:
+                    "100%",
+                  objectFit:
+                    "cover",
+                  display:
+                    "block",
+                }}
+              />
+
+              <div
+                aria-hidden="true"
+                style={{
+                  position:
+                    "absolute",
+                  inset:
+                    "18%",
+                  border:
+                    "2px solid rgba(255,255,255,0.92)",
+                  borderRadius:
+                    18,
+                  boxShadow:
+                    "0 0 0 999px rgba(0,0,0,0.20)",
+                  pointerEvents:
+                    "none",
+                }}
+              />
+            </div>
 
             <button
               type="button"
