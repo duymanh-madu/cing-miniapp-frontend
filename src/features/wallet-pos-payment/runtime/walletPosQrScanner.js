@@ -51,15 +51,35 @@ export async function
 scanCingWalletPosQr() {
   try {
     const {
+
+      checkZaloCameraPermission,
+
+      requestCameraPermission,
+
       scanQRCode,
+
     } =
+
       await import(
+
         "zmp-sdk/apis"
+
       );
 
     if (
+
       typeof scanQRCode !==
+
+      "function" ||
+
+      typeof checkZaloCameraPermission !==
+
+      "function" ||
+
+      typeof requestCameraPermission !==
+
       "function"
+
     ) {
       throw createScannerError(
         "Thiết bị hiện tại chưa hỗ trợ quét QR trong Zalo.",
@@ -67,7 +87,52 @@ scanCingWalletPosQr() {
       );
     }
 
+    const currentPermission =
+
+      await checkZaloCameraPermission();
+
+    let cameraAllowed =
+
+      currentPermission?.userAllow ===
+
+      true;
+
+    if (
+
+      !cameraAllowed
+
+    ) {
+
+      const requestedPermission =
+
+        await requestCameraPermission();
+
+      cameraAllowed =
+
+        requestedPermission?.userAllow ===
+
+        true;
+
+      if (
+
+        !cameraAllowed
+
+      ) {
+
+        throw createScannerError(
+
+          "Cing Wallet chưa được phép sử dụng camera. Vui lòng cấp quyền camera cho Zalo trong cài đặt thiết bị rồi thử lại.",
+
+          "CING_WALLET_POS_CAMERA_PERMISSION_DENIED"
+
+        );
+
+      }
+
+    }
+
     const result =
+
       await scanQRCode();
 
     return normalizeCingWalletQrContent(
@@ -86,7 +151,7 @@ scanCingWalletPosQr() {
     }
 
     throw createScannerError(
-      "Không thể quét QR. Vui lòng thử lại.",
+      "Không thể mở camera quét QR trong Zalo. Vui lòng kiểm tra quyền camera và thử lại.",
       "CING_WALLET_POS_SCAN_FAILED",
       error
     );

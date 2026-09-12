@@ -1,6 +1,5 @@
 import {
   useCallback,
-  useEffect,
   useRef,
   useState,
 } from "react";
@@ -313,15 +312,6 @@ WalletPosPaymentPage() {
       ]
     );
 
-
-  useEffect(
-    () => {
-      handleScan();
-    },
-    [
-      handleScan,
-    ]
-  );
 
 
   const amount =

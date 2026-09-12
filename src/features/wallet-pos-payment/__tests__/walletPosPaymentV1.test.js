@@ -230,3 +230,88 @@ test(
     );
   }
 );
+
+
+test(
+  "scanner preflights native Zalo camera permission before scanQRCode",
+  () => {
+    assert.match(
+      scannerSource,
+      /checkZaloCameraPermission/
+    );
+
+    assert.match(
+      scannerSource,
+      /requestCameraPermission/
+    );
+
+    assert.match(
+      scannerSource,
+      /currentPermission\?\.userAllow\s*===\s*true/
+    );
+
+    assert.match(
+      scannerSource,
+      /requestedPermission\?\.userAllow\s*===\s*true/
+    );
+
+    assert.match(
+      scannerSource,
+      /CING_WALLET_POS_CAMERA_PERMISSION_DENIED/
+    );
+
+    const permissionCheckIndex =
+      scannerSource.indexOf(
+        "await checkZaloCameraPermission()"
+      );
+
+    const permissionRequestIndex =
+      scannerSource.indexOf(
+        "await requestCameraPermission()"
+      );
+
+    const scanIndex =
+      scannerSource.indexOf(
+        "await scanQRCode()"
+      );
+
+    assert.ok(
+      permissionCheckIndex >= 0
+    );
+
+    assert.ok(
+      permissionRequestIndex >
+        permissionCheckIndex
+    );
+
+    assert.ok(
+      scanIndex >
+        permissionRequestIndex
+    );
+
+    assert.match(
+      scannerSource,
+      /result\?\.content/
+    );
+  }
+);
+
+test(
+  "POS scanner opens only from explicit customer action",
+  () => {
+    assert.doesNotMatch(
+      pageSource,
+      /useEffect\s*\([\s\S]{0,250}handleScan\s*\(\s*\)/
+    );
+
+    assert.match(
+      pageSource,
+      /onClick\s*=\s*\{\s*handleScan\s*\}/
+    );
+
+    assert.match(
+      pageSource,
+      /Quét QR thanh toán/
+    );
+  }
+);
