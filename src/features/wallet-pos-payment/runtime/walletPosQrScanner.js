@@ -86,12 +86,11 @@ scanCingWalletPosQr() {
   try {
     const {
 
-      requestCameraPermission,
+
 
       scanQRCode,
 
     } =
-
       await import(
 
         "zmp-sdk/apis"
@@ -102,10 +101,6 @@ scanCingWalletPosQr() {
 
       typeof scanQRCode !==
 
-      "function" ||
-
-      typeof requestCameraPermission !==
-
       "function"
 
     ) {
@@ -113,41 +108,6 @@ scanCingWalletPosQr() {
         "Thiết bị hiện tại chưa hỗ trợ quét QR trong Zalo.",
         "CING_WALLET_POS_SCANNER_UNAVAILABLE"
       );
-    }
-
-    const requestedPermission =
-
-      await withNativeTimeout(
-        requestCameraPermission(),
-        {
-          timeoutMs: 6000,
-          code:
-            "CING_WALLET_POS_CAMERA_REQUEST_TIMEOUT",
-          message:
-            "Zalo chưa phản hồi yêu cầu cấp quyền camera.",
-        }
-      );
-
-    const cameraAllowed =
-
-      requestedPermission?.userAllow ===
-
-      true;
-
-    if (
-
-      !cameraAllowed
-
-    ) {
-
-      throw createScannerError(
-
-        "Cing Wallet chưa được phép sử dụng camera. Vui lòng cấp quyền camera cho Zalo trong cài đặt thiết bị rồi thử lại.",
-
-        "CING_WALLET_POS_CAMERA_PERMISSION_DENIED"
-
-      );
-
     }
 
     const result =

@@ -233,7 +233,7 @@ test(
 
 
 test(
-  "scanner bypasses hanging camera check and requests permission before scanQRCode",
+  "scanner bypasses hanging permission APIs and invokes scanQRCode directly",
   () => {
     assert.doesNotMatch(
       scannerSource,
@@ -242,51 +242,37 @@ test(
 
     assert.doesNotMatch(
       scannerSource,
-      /CING_WALLET_POS_CAMERA_CHECK_TIMEOUT/
-    );
-
-    assert.match(
-      scannerSource,
       /requestCameraPermission/
     );
 
-    assert.match(
+    assert.doesNotMatch(
       scannerSource,
-      /requestedPermission\?\.userAllow\s*===\s*true/
+      /CING_WALLET_POS_CAMERA_CHECK_TIMEOUT/
     );
 
-    assert.match(
+    assert.doesNotMatch(
       scannerSource,
       /CING_WALLET_POS_CAMERA_REQUEST_TIMEOUT/
     );
 
-    assert.match(
+    assert.doesNotMatch(
       scannerSource,
       /CING_WALLET_POS_CAMERA_PERMISSION_DENIED/
     );
 
     assert.match(
       scannerSource,
+      /scanQRCode/
+    );
+
+    assert.match(
+      scannerSource,
+      /withNativeTimeout/
+    );
+
+    assert.match(
+      scannerSource,
       /CING_WALLET_POS_SCAN_TIMEOUT/
-    );
-
-    const permissionRequestIndex =
-      scannerSource.indexOf(
-        "requestCameraPermission()"
-      );
-
-    const scanIndex =
-      scannerSource.indexOf(
-        "scanQRCode()"
-      );
-
-    assert.ok(
-      permissionRequestIndex >= 0
-    );
-
-    assert.ok(
-      scanIndex >
-        permissionRequestIndex
     );
 
     assert.match(

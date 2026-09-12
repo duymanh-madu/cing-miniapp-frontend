@@ -40,16 +40,6 @@ function resolveApiError(
     error?.code ||
     "";
 
-  if (
-    code ===
-    "CING_WALLET_POS_CAMERA_REQUEST_TIMEOUT"
-  ) {
-    return {
-      code,
-      message:
-        "Zalo không phản hồi yêu cầu cấp quyền camera. Vui lòng kiểm tra quyền Camera của Zalo trong Cài đặt điện thoại.",
-    };
-  }
 
   if (
     code ===
