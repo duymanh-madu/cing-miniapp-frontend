@@ -86,8 +86,6 @@ scanCingWalletPosQr() {
   try {
     const {
 
-      checkZaloCameraPermission,
-
       requestCameraPermission,
 
       scanQRCode,
@@ -106,10 +104,6 @@ scanCingWalletPosQr() {
 
       "function" ||
 
-      typeof checkZaloCameraPermission !==
-
-      "function" ||
-
       typeof requestCameraPermission !==
 
       "function"
@@ -121,22 +115,22 @@ scanCingWalletPosQr() {
       );
     }
 
-    const currentPermission =
+    const requestedPermission =
 
       await withNativeTimeout(
-        checkZaloCameraPermission(),
+        requestCameraPermission(),
         {
-          timeoutMs: 4000,
+          timeoutMs: 6000,
           code:
-            "CING_WALLET_POS_CAMERA_CHECK_TIMEOUT",
+            "CING_WALLET_POS_CAMERA_REQUEST_TIMEOUT",
           message:
-            "Zalo chưa phản hồi trạng thái quyền camera.",
+            "Zalo chưa phản hồi yêu cầu cấp quyền camera.",
         }
       );
 
-    let cameraAllowed =
+    const cameraAllowed =
 
-      currentPermission?.userAllow ===
+      requestedPermission?.userAllow ===
 
       true;
 
@@ -146,40 +140,13 @@ scanCingWalletPosQr() {
 
     ) {
 
-      const requestedPermission =
+      throw createScannerError(
 
-        await withNativeTimeout(
-          requestCameraPermission(),
-          {
-            timeoutMs: 6000,
-            code:
-              "CING_WALLET_POS_CAMERA_REQUEST_TIMEOUT",
-            message:
-              "Zalo chưa phản hồi yêu cầu cấp quyền camera.",
-          }
-        );
+        "Cing Wallet chưa được phép sử dụng camera. Vui lòng cấp quyền camera cho Zalo trong cài đặt thiết bị rồi thử lại.",
 
-      cameraAllowed =
+        "CING_WALLET_POS_CAMERA_PERMISSION_DENIED"
 
-        requestedPermission?.userAllow ===
-
-        true;
-
-      if (
-
-        !cameraAllowed
-
-      ) {
-
-        throw createScannerError(
-
-          "Cing Wallet chưa được phép sử dụng camera. Vui lòng cấp quyền camera cho Zalo trong cài đặt thiết bị rồi thử lại.",
-
-          "CING_WALLET_POS_CAMERA_PERMISSION_DENIED"
-
-        );
-
-      }
+      );
 
     }
 

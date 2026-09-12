@@ -42,17 +42,6 @@ function resolveApiError(
 
   if (
     code ===
-    "CING_WALLET_POS_CAMERA_CHECK_TIMEOUT"
-  ) {
-    return {
-      code,
-      message:
-        "Zalo không phản hồi khi kiểm tra quyền camera. Vui lòng đóng Mini App, mở lại trong Zalo rồi thử lại.",
-    };
-  }
-
-  if (
-    code ===
     "CING_WALLET_POS_CAMERA_REQUEST_TIMEOUT"
   ) {
     return {

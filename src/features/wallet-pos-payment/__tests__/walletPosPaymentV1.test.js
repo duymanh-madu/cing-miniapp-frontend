@@ -233,11 +233,16 @@ test(
 
 
 test(
-  "scanner preflights native Zalo camera permission before scanQRCode",
+  "scanner bypasses hanging camera check and requests permission before scanQRCode",
   () => {
-    assert.match(
+    assert.doesNotMatch(
       scannerSource,
       /checkZaloCameraPermission/
+    );
+
+    assert.doesNotMatch(
+      scannerSource,
+      /CING_WALLET_POS_CAMERA_CHECK_TIMEOUT/
     );
 
     assert.match(
@@ -247,27 +252,7 @@ test(
 
     assert.match(
       scannerSource,
-      /currentPermission\?\.userAllow\s*===\s*true/
-    );
-
-    assert.match(
-      scannerSource,
       /requestedPermission\?\.userAllow\s*===\s*true/
-    );
-
-    assert.match(
-      scannerSource,
-      /CING_WALLET_POS_CAMERA_PERMISSION_DENIED/
-    );
-
-    assert.match(
-      scannerSource,
-      /withNativeTimeout/
-    );
-
-    assert.match(
-      scannerSource,
-      /CING_WALLET_POS_CAMERA_CHECK_TIMEOUT/
     );
 
     assert.match(
@@ -277,14 +262,13 @@ test(
 
     assert.match(
       scannerSource,
-      /CING_WALLET_POS_SCAN_TIMEOUT/
+      /CING_WALLET_POS_CAMERA_PERMISSION_DENIED/
     );
 
-
-    const permissionCheckIndex =
-      scannerSource.indexOf(
-        "checkZaloCameraPermission()"
-      );
+    assert.match(
+      scannerSource,
+      /CING_WALLET_POS_SCAN_TIMEOUT/
+    );
 
     const permissionRequestIndex =
       scannerSource.indexOf(
@@ -297,12 +281,7 @@ test(
       );
 
     assert.ok(
-      permissionCheckIndex >= 0
-    );
-
-    assert.ok(
-      permissionRequestIndex >
-        permissionCheckIndex
+      permissionRequestIndex >= 0
     );
 
     assert.ok(
