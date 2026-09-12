@@ -301,3 +301,44 @@ test(
     );
   }
 );
+
+
+test(
+  "scanner preserves native OPEN_QR rejection metadata",
+  () => {
+    assert.match(
+      scannerSource,
+      /CING_WALLET_POS_SCAN_NATIVE_FAILED/
+    );
+
+    assert.match(
+      scannerSource,
+      /wrapped\.nativeCode/
+    );
+
+    assert.match(
+      scannerSource,
+      /wrapped\.nativeMessage/
+    );
+
+    assert.match(
+      scannerSource,
+      /wrapped\.nativeApi/
+    );
+
+    assert.match(
+      pageSource,
+      /Mã Zalo:/
+    );
+
+    assert.match(
+      pageSource,
+      /nativeCode/
+    );
+
+    assert.match(
+      pageSource,
+      /nativeMessage/
+    );
+  }
+);

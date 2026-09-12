@@ -52,6 +52,33 @@ function resolveApiError(
     };
   }
 
+
+  if (
+    code ===
+    "CING_WALLET_POS_SCAN_NATIVE_FAILED"
+  ) {
+    const nativeCode =
+      error?.nativeCode ??
+      error?.cause?.code ??
+      "unknown";
+
+    const nativeMessage =
+      String(
+        error?.nativeMessage ||
+        error?.cause?.message ||
+        "Unknown native error"
+      ).slice(
+        0,
+        180
+      );
+
+    return {
+      code,
+      message:
+        `Zalo không mở được trình quét QR. Mã Zalo: ${nativeCode}. Chi tiết: ${nativeMessage}`,
+    };
+  }
+
   if (
     code ===
     "CING_WALLET_INSUFFICIENT_BALANCE"

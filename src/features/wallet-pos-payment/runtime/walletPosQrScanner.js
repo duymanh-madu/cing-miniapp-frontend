@@ -138,11 +138,47 @@ scanCingWalletPosQr() {
       throw error;
     }
 
-    throw createScannerError(
-      "Không thể mở camera quét QR trong Zalo. Vui lòng kiểm tra quyền camera và thử lại.",
-      "CING_WALLET_POS_SCAN_FAILED",
-      error
-    );
+    const nativeCode =
+      error?.code ??
+      error?.error ??
+      "unknown";
+
+    const nativeMessage =
+      String(
+        error?.message ||
+        error?.errorMessage ||
+        "Unknown native error"
+      ).slice(
+        0,
+        180
+      );
+
+    const nativeApi =
+      String(
+        error?.api ||
+        "scanQRCode"
+      ).slice(
+        0,
+        80
+      );
+
+    const wrapped =
+      createScannerError(
+        "Zalo từ chối mở trình quét QR.",
+        "CING_WALLET_POS_SCAN_NATIVE_FAILED",
+        error
+      );
+
+    wrapped.nativeCode =
+      nativeCode;
+
+    wrapped.nativeMessage =
+      nativeMessage;
+
+    wrapped.nativeApi =
+      nativeApi;
+
+    throw wrapped;
   }
 }
 
