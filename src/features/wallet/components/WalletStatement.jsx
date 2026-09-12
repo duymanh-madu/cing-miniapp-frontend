@@ -37,11 +37,7 @@ function resolveTitle(
       );
 
     case "admin_adjustment":
-      return (
-        row.reason ||
-        row.note ||
-        "Điều chỉnh Cing Wallet"
-      );
+      return "Điều chỉnh số dư Cing Wallet";
 
     default:
       return (
@@ -52,6 +48,23 @@ function resolveTitle(
   }
 }
 
+
+
+function resolveDescription(
+  row
+) {
+  if (
+    row.transaction_type !==
+      "admin_adjustment"
+  ) {
+    return "";
+  }
+
+  return String(
+    row.note ||
+    ""
+  ).trim();
+}
 
 function resolveTime(
   createdAt
@@ -122,6 +135,10 @@ export default function WalletStatement({
 
               const positive =
                 amount > 0;
+              const description =
+                resolveDescription(
+                  transaction
+                );
 
               return (
                 <article
@@ -142,6 +159,13 @@ export default function WalletStatement({
                         transaction
                       )}
                     </strong>
+
+                    {description && (
+                      <p className="cing-wallet-statement__note">
+                        {description}
+                      </p>
+                    )}
+
 
                     <span>
                       {resolveTime(

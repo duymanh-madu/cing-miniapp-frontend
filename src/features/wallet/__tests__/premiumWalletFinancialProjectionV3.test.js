@@ -296,3 +296,49 @@ test(
     );
   }
 );
+
+
+test(
+  "admin adjustment statement hides internal reason and renders customer note separately",
+  () => {
+    assert.match(
+      statementSource,
+      /case ["']admin_adjustment["'][\s\S]*Điều chỉnh số dư Cing Wallet/
+    );
+
+    assert.match(
+      statementSource,
+      /function resolveDescription/
+    );
+
+    assert.match(
+      statementSource,
+      /row\.transaction_type !==[\s\S]*admin_adjustment/
+    );
+
+    assert.match(
+      statementSource,
+      /row\.note/
+    );
+
+    assert.match(
+      statementSource,
+      /cing-wallet-statement__note/
+    );
+
+    const adminCase =
+      statementSource.match(
+        /case ["']admin_adjustment["']:[\s\S]*?(?=default:)/
+      )?.[0] || "";
+
+    assert.notEqual(
+      adminCase,
+      ""
+    );
+
+    assert.doesNotMatch(
+      adminCase,
+      /row\.reason/
+    );
+  }
+);
