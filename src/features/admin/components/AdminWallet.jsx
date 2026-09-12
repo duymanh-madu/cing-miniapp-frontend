@@ -6,6 +6,7 @@ import {
 } from "react";
 
 import apiClient from "@/infra/api/apiClient";
+import AdminWalletAdjustmentPanel from "./AdminWalletAdjustmentPanel";
 import "./admin-wallet.css";
 
 let nextTierUiId = 0;
@@ -517,6 +518,7 @@ function normalizeLedgerResponse(
 
 export default function AdminWallet({
   token,
+  role,
 }) {
   const headers =
     useMemo(
@@ -632,6 +634,12 @@ export default function AdminWallet({
     setSuccess,
   ] =
     useState("");
+
+  const [
+    ledgerRefreshNonce,
+    setLedgerRefreshNonce,
+  ] =
+    useState(0);
 
   const loadPromotion =
     useCallback(
@@ -922,6 +930,7 @@ export default function AdminWallet({
     [
       headers,
       ledgerType,
+    ledgerRefreshNonce,
     ]
   );
 
@@ -1413,6 +1422,17 @@ export default function AdminWallet({
 
   return (
     <div className="admin-wallet">
+      <AdminWalletAdjustmentPanel
+        token={token}
+        role={role}
+        onAdjusted={() => {
+          setLedgerRefreshNonce(
+            current =>
+              current + 1
+          );
+        }}
+      />
+
       <header className="admin-wallet__hero">
         <div>
           <p className="admin-wallet__eyebrow">
