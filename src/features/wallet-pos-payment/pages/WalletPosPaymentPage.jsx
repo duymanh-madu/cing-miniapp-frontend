@@ -42,6 +42,39 @@ function resolveApiError(
 
   if (
     code ===
+    "CING_WALLET_POS_CAMERA_CHECK_TIMEOUT"
+  ) {
+    return {
+      code,
+      message:
+        "Zalo không phản hồi khi kiểm tra quyền camera. Vui lòng đóng Mini App, mở lại trong Zalo rồi thử lại.",
+    };
+  }
+
+  if (
+    code ===
+    "CING_WALLET_POS_CAMERA_REQUEST_TIMEOUT"
+  ) {
+    return {
+      code,
+      message:
+        "Zalo không phản hồi yêu cầu cấp quyền camera. Vui lòng kiểm tra quyền Camera của Zalo trong Cài đặt điện thoại.",
+    };
+  }
+
+  if (
+    code ===
+    "CING_WALLET_POS_SCAN_TIMEOUT"
+  ) {
+    return {
+      code,
+      message:
+        "Zalo chưa mở được trình quét QR. Vui lòng thử lại hoặc cập nhật ứng dụng Zalo.",
+    };
+  }
+
+  if (
+    code ===
     "CING_WALLET_INSUFFICIENT_BALANCE"
   ) {
     return {

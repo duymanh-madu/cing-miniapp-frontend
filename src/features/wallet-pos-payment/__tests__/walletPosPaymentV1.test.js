@@ -260,19 +260,40 @@ test(
       /CING_WALLET_POS_CAMERA_PERMISSION_DENIED/
     );
 
+    assert.match(
+      scannerSource,
+      /withNativeTimeout/
+    );
+
+    assert.match(
+      scannerSource,
+      /CING_WALLET_POS_CAMERA_CHECK_TIMEOUT/
+    );
+
+    assert.match(
+      scannerSource,
+      /CING_WALLET_POS_CAMERA_REQUEST_TIMEOUT/
+    );
+
+    assert.match(
+      scannerSource,
+      /CING_WALLET_POS_SCAN_TIMEOUT/
+    );
+
+
     const permissionCheckIndex =
       scannerSource.indexOf(
-        "await checkZaloCameraPermission()"
+        "checkZaloCameraPermission()"
       );
 
     const permissionRequestIndex =
       scannerSource.indexOf(
-        "await requestCameraPermission()"
+        "requestCameraPermission()"
       );
 
     const scanIndex =
       scannerSource.indexOf(
-        "await scanQRCode()"
+        "scanQRCode()"
       );
 
     assert.ok(

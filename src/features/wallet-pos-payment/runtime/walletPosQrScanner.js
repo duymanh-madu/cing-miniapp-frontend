@@ -2,6 +2,40 @@ const CAPABILITY_PREFIX =
   "CING_WALLET_PAY_V1.";
 
 
+function withNativeTimeout(
+  promise,
+  {
+    timeoutMs,
+    code,
+    message,
+  }
+) {
+  let timer;
+
+  const timeoutPromise =
+    new Promise((_, reject) => {
+      timer =
+        setTimeout(() => {
+          reject(
+            createScannerError(
+              message,
+              code
+            )
+          );
+        }, timeoutMs);
+    });
+
+  return Promise.race([
+    promise,
+    timeoutPromise,
+  ]).finally(() => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  });
+}
+
+
 function createScannerError(
   message,
   code,
@@ -89,7 +123,16 @@ scanCingWalletPosQr() {
 
     const currentPermission =
 
-      await checkZaloCameraPermission();
+      await withNativeTimeout(
+        checkZaloCameraPermission(),
+        {
+          timeoutMs: 4000,
+          code:
+            "CING_WALLET_POS_CAMERA_CHECK_TIMEOUT",
+          message:
+            "Zalo chưa phản hồi trạng thái quyền camera.",
+        }
+      );
 
     let cameraAllowed =
 
@@ -105,7 +148,16 @@ scanCingWalletPosQr() {
 
       const requestedPermission =
 
-        await requestCameraPermission();
+        await withNativeTimeout(
+          requestCameraPermission(),
+          {
+            timeoutMs: 6000,
+            code:
+              "CING_WALLET_POS_CAMERA_REQUEST_TIMEOUT",
+            message:
+              "Zalo chưa phản hồi yêu cầu cấp quyền camera.",
+          }
+        );
 
       cameraAllowed =
 
@@ -133,7 +185,16 @@ scanCingWalletPosQr() {
 
     const result =
 
-      await scanQRCode();
+      await withNativeTimeout(
+        scanQRCode(),
+        {
+          timeoutMs: 20000,
+          code:
+            "CING_WALLET_POS_SCAN_TIMEOUT",
+          message:
+            "Zalo chưa mở được trình quét QR.",
+        }
+      );
 
     return normalizeCingWalletQrContent(
       result?.content
