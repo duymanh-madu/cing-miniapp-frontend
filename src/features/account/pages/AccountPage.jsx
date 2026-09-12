@@ -21,6 +21,7 @@ const MENU_ITEMS = [
   { icon:"💎", label:"Store Danh Hiệu", path:"/badge-store", desc:"Khám phá tất cả danh hiệu" },
   { icon:"👑", label:"Đại Sảnh Danh Vọng", path:"/leaderboard", desc:"Bảng xếp hạng khách hàng" },
   { icon:"💬", label:"Chat với admin",     path:null,           desc:"Nhắn tin hỗ trợ trực tiếp", action:"chat_admin" },
+  { icon:"📋", label:"Thông tin & chính sách", path:"/legal", desc:"Điều khoản, bảo mật và hỗ trợ" },
 ];
 
 function resizeToBase64(file) {

@@ -5,6 +5,7 @@ export const routeManifest = [
   { key:"menu",          path:"/menu",           feature:"menu",          loader:() => import("@/features/menu") },
   { key:"leaderboard",   path:"/leaderboard",    feature:"leaderboard",   loader:() => import("@/features/leaderboard") },
   { key:"account",       path:"/account",        feature:"account",       loader:() => import("@/features/account") },
+  { key:"legal",         path:"/legal",          feature:"legal",         loader:() => import("@/features/legal/LegalCenterPage") },
   { key:"voucher",       path:"/voucher",       loader:() => import("@/features/voucher") },
   { key:"checkout",      path:"/checkout",       feature:"checkout",      loader:() => import("@/features/checkout") },
   { key:"admin", path:"/admin", loader:() => import("@/features/admin") },
