@@ -494,28 +494,9 @@ AdminWalletPosCounter({
       ];
 
       const handleRealtime =
-        payload => {
+        () => {
           if (disposed) {
             return;
-          }
-
-          if (
-            payload?.session_id &&
-            selectedId &&
-            payload.session_id ===
-              selectedId
-          ) {
-            if (
-              payload.status
-            ) {
-              setSelected(
-                previous => ({
-                  ...previous,
-                  status:
-                    payload.status,
-                })
-              );
-            }
           }
 
           void loadData({

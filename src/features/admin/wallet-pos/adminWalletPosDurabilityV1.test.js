@@ -269,3 +269,51 @@ test(
     );
   }
 );
+
+
+test(
+  "realtime payload never acts as canonical POS session authority",
+  () => {
+    const start =
+      counter.indexOf(
+        "const handleRealtime"
+      );
+
+    const end =
+      counter.indexOf(
+        "const attach",
+        start
+      );
+
+    assert.ok(
+      start >= 0,
+      "handleRealtime must exist"
+    );
+
+    assert.ok(
+      end > start,
+      "realtime handler boundary must exist"
+    );
+
+    const block =
+      counter.slice(
+        start,
+        end
+      );
+
+    assert.doesNotMatch(
+      block,
+      /payload(?:\?\.|\.)status/
+    );
+
+    assert.doesNotMatch(
+      block,
+      /setSelected\s*\(/
+    );
+
+    assert.match(
+      block,
+      /loadData\s*\(\s*\{[\s\S]*silent\s*:\s*true/
+    );
+  }
+);
