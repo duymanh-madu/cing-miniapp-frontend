@@ -1,0 +1,271 @@
+import fs from "node:fs";
+import path from "node:path";
+import test from "node:test";
+import assert from "node:assert/strict";
+
+
+const ROOT =
+  process.cwd();
+
+
+function read(
+  relative
+) {
+  return fs.readFileSync(
+    path.join(
+      ROOT,
+      relative
+    ),
+    "utf8"
+  );
+}
+
+
+const counter =
+  read(
+    "src/features/admin/wallet-pos/AdminWalletPosCounter.jsx"
+  );
+
+const api =
+  read(
+    "src/features/admin/wallet-pos/adminWalletPosApi.js"
+  );
+
+const runtimeSocket =
+  read(
+    "src/runtime/socket/runtimeSocketClient.ts"
+  );
+
+const walletApi =
+  read(
+    "src/features/wallet/api/walletOverviewApi.js"
+  );
+
+const statement =
+  read(
+    "src/features/wallet/components/WalletStatement.jsx"
+  );
+
+
+test(
+  "Counter QR recovery uses bounded backend read endpoint",
+  () => {
+    assert.match(
+      api,
+      /\/sessions\/\$\{encodeURIComponent\([\s\S]*\}\/qr/
+    );
+
+    assert.match(
+      counter,
+      /recoverWalletPosQr/
+    );
+
+    assert.match(
+      counter,
+      /recovered\.qr_content/
+    );
+  }
+);
+
+
+test(
+  "Counter does not recreate payment intent when page reloads",
+  () => {
+    const recoveryStart =
+      counter.indexOf(
+        "const recover ="
+      );
+
+    const recoveryEnd =
+      counter.indexOf(
+        "async function renderQr",
+        recoveryStart
+      );
+
+    assert.ok(
+      recoveryStart >= 0,
+      "QR recovery effect is missing"
+    );
+
+    assert.ok(
+      recoveryEnd >
+        recoveryStart,
+      "QR recovery effect boundary is invalid"
+    );
+
+    const recoveryBlock =
+      counter.slice(
+        recoveryStart,
+        recoveryEnd
+      );
+
+    assert.match(
+      recoveryBlock,
+      /recoverWalletPosQr\s*\(/
+    );
+
+    assert.doesNotMatch(
+      recoveryBlock,
+      /submitWalletPosAmount\s*\(/
+    );
+
+    assert.doesNotMatch(
+      recoveryBlock,
+      /createIposPosPayment\s*\(/
+    );
+
+    assert.match(
+      counter,
+      /tái tạo đúng QR của payment intent hiện hữu/
+    );
+  }
+);
+
+
+test(
+  "Counter binds exact shared runtime socket singleton",
+  () => {
+    assert.match(
+      counter,
+      /getRuntimeSocket/
+    );
+
+    assert.match(
+      runtimeSocket,
+      /let runtimeSocket:[\s\S]*Socket \| null/
+    );
+
+    assert.doesNotMatch(
+      counter,
+      /from "socket\.io-client"/
+    );
+
+    assert.doesNotMatch(
+      counter,
+      /\bio\s*\(/
+    );
+  }
+);
+
+
+test(
+  "Counter listens to exact Wallet POS realtime transitions",
+  () => {
+    for (
+      const event of [
+        "wallet.pos.session.discovered",
+        "wallet.pos.qr.ready",
+        "wallet.pos.payment.paid",
+        "wallet.pos.reconciliation.matched",
+        "wallet.pos.reconciliation.alert",
+      ]
+    ) {
+      assert.ok(
+        counter.includes(
+          `"${event}"`
+        ),
+        `missing ${event}`
+      );
+    }
+  }
+);
+
+
+test(
+  "socket listeners are cleaned up with same handler",
+  () => {
+    assert.match(
+      counter,
+      /socket\.on\([\s\S]*handleRealtime/
+    );
+
+    assert.match(
+      counter,
+      /socket\.off\([\s\S]*handleRealtime/
+    );
+  }
+);
+
+
+test(
+  "1.5 second polling remains realtime fallback",
+  () => {
+    assert.match(
+      counter,
+      /POLL_INTERVAL_MS\s*=\s*1500/
+    );
+
+    assert.match(
+      counter,
+      /setInterval/
+    );
+  }
+);
+
+
+test(
+  "Wallet transaction normalizer accepts customer-safe POS projection",
+  () => {
+    assert.match(
+      walletApi,
+      /pos_payment:/
+    );
+
+    assert.match(
+      walletApi,
+      /bill_reference:/
+    );
+
+    assert.match(
+      walletApi,
+      /pos_parent:/
+    );
+
+    assert.match(
+      walletApi,
+      /pos_id:/
+    );
+  }
+);
+
+
+test(
+  "Wallet statement identifies in-store Cing Wallet payment",
+  () => {
+    assert.match(
+      statement,
+      /reference_type ===[\s\S]*"pos_payment_intent"/
+    );
+
+    assert.match(
+      statement,
+      /Thanh toán tại quầy/
+    );
+
+    assert.match(
+      statement,
+      /Bill #\$\{bill\}/
+    );
+  }
+);
+
+
+test(
+  "customer history does not expose payment token or provider request identity",
+  () => {
+    const combined =
+      walletApi +
+      "\n" +
+      statement;
+
+    assert.doesNotMatch(
+      combined,
+      /payment_token_id/
+    );
+
+    assert.doesNotMatch(
+      combined,
+      /provider_request_key/
+    );
+  }
+);

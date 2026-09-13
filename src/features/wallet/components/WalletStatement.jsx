@@ -22,6 +22,13 @@ function resolveTitle(
       return "Khuyến mại nạp Cing Wallet";
 
     case "payment":
+      if (
+        row.reference_type ===
+          "pos_payment_intent"
+      ) {
+        return "Thanh toán tại quầy";
+      }
+
       return (
         row.note ||
         row.reason ||
@@ -53,6 +60,24 @@ function resolveTitle(
 function resolveDescription(
   row
 ) {
+  if (
+    row.reference_type ===
+      "pos_payment_intent"
+  ) {
+    const bill =
+      String(
+        row.pos_payment
+          ?.bill_reference ||
+        ""
+      ).trim();
+
+    if (bill) {
+      return `Bill #${bill}`;
+    }
+
+    return "Thanh toán Cing Wallet tại quầy";
+  }
+
   if (
     row.transaction_type !==
       "admin_adjustment"

@@ -19,6 +19,7 @@ import AdminOrders from './AdminOrders';
 import AdminDelivery from './AdminDelivery';
 import AdminPayments from './AdminPayments';
 import AdminWallet from "./AdminWallet";
+import AdminWalletPosCounter from "../wallet-pos/AdminWalletPosCounter";
 import AdminSystemHealth from './AdminSystemHealth';
 
 const ALL_TABS = [
@@ -38,6 +39,7 @@ const ALL_TABS = [
   { key:"delivery_admin", icon:"🚀", label:"Giao hàng" },
   { key:"payments_admin",icon:"💳", label:"Thanh toán" },
   { key:"wallet_admin", icon:"💰", label:"Cing Wallet" },
+  { key:"wallet_pos", icon:"▦", label:"Cing Pay" },
   { key:"system_health",icon:"🛡", label:"System Health" },
   { key:"analytics_pro", icon:"📈", label:"Analytics" },
   { key:"management",   icon:"🔐", label:"Quản lý Admin" },
@@ -204,6 +206,7 @@ export default function AdminDashboard({ auth }) {
         {tab==="delivery_admin" && <AdminDelivery token={auth.token} />}
         {tab==="payments_admin" && <AdminPayments token={auth.token} />}
         {tab==="wallet_admin" && <AdminWallet token={auth.token} role={role} />}
+        {tab==="wallet_pos" && <AdminWalletPosCounter token={auth.token} role={role} />}
         {tab==="system_health" && <AdminSystemHealth token={auth.token} />}
         {tab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
         {tab==="management"    && <AdminManagement token={auth.token} />}

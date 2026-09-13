@@ -196,6 +196,34 @@ export function projectWalletTransaction(
         row.note
       ),
 
+    pos_payment:
+      row.pos_payment &&
+      typeof row.pos_payment ===
+        "object" &&
+      !Array.isArray(
+        row.pos_payment
+      )
+        ? {
+            bill_reference:
+              optionalString(
+                row.pos_payment
+                  .bill_reference
+              ),
+
+            pos_parent:
+              optionalString(
+                row.pos_payment
+                  .pos_parent
+              ),
+
+            pos_id:
+              optionalString(
+                row.pos_payment
+                  .pos_id
+              ),
+          }
+        : null,
+
     created_at:
       createdAt,
   };
