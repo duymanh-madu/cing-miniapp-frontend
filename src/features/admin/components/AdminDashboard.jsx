@@ -50,6 +50,13 @@ const ALL_TABS = [
 const ROLE_TABS = {
   super_admin: ALL_TABS.map(t => t.key),
 
+  cashier: [
+    "stats",
+    "orders_admin",
+    "payments_admin",
+    "wallet_pos",
+  ],
+
   manager: [
     "stats",
     "missions",
@@ -106,8 +113,7 @@ const ROLE_TABS = {
 function getAllowedTabs(role) {
   const normalizedRole = String(role || "").toLowerCase();
 
-  // Phase 1 mềm: role lạ / chưa có role thì vẫn full quyền để tránh tự khóa admin hiện tại.
-  const allowedKeys = ROLE_TABS[normalizedRole] || ROLE_TABS.super_admin;
+  const allowedKeys = ROLE_TABS[normalizedRole] || [];
 
   return ALL_TABS.filter(
     t =>
@@ -120,9 +126,14 @@ function getAllowedTabs(role) {
 }
 
 export default function AdminDashboard({ auth }) {
-  const role = auth.admin?.role || "super_admin";
+  const role = auth.admin?.role || "";
   const TABS = getAllowedTabs(role);
-  const [tab, setTab] = useState(TABS[0]?.key || "stats");
+  const [tab, setTab] = useState(TABS[0]?.key || "");
+
+  const activeTab =
+    TABS.some(t => t.key === tab)
+      ? tab
+      : "";
 
   return (
     <div
@@ -190,28 +201,28 @@ export default function AdminDashboard({ auth }) {
     paddingBottom:"120px"
   }}
 >
-        {tab==="stats"     && <AdminStats token={auth.token} />}
-        {tab==="missions"  && <AdminMissions token={auth.token} />}
-        {tab==="notifications" && <AdminNotifications token={auth.token} />}
-        {tab==="games"     && <AdminGames token={auth.token} />}
-        {tab==="players"   && <AdminPlayers token={auth.token} />}
-        {tab==="appconfig" && <AdminAppConfig token={auth.token} />}
-        {tab==="cdp"       && <AdminCDP token={auth.token} />}
-        {tab==="leaderboard_admin" && <AdminLeaderboard token={auth.token} />}
-        {tab==="logs"      && <AdminLogs token={auth.token} />}
-        {tab==="monitor"      && <AdminMonitor token={auth.token} />}
-        {tab==="alltime_games" && <AdminAlltimeGames token={auth.token} />}
-        {tab==="daily_challenge" && <AdminDailyChallenge token={auth.token} />}
-        {tab==="orders_admin"  && <AdminOrders token={auth.token} />}
-        {tab==="delivery_admin" && <AdminDelivery token={auth.token} />}
-        {tab==="payments_admin" && <AdminPayments token={auth.token} />}
-        {tab==="wallet_admin" && <AdminWallet token={auth.token} role={role} />}
-        {tab==="wallet_pos" && <AdminWalletPosCounter token={auth.token} role={auth.admin?.role} />}
-        {tab==="system_health" && <AdminSystemHealth token={auth.token} />}
-        {tab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
-        {tab==="management"    && <AdminManagement token={auth.token} />}
-        {tab==="badges_admin"  && <AdminBadges token={auth.token} />}
-        {tab==="members_admin" && <AdminMembers token={auth.token} />}
+        {activeTab==="stats"     && <AdminStats token={auth.token} />}
+        {activeTab==="missions"  && <AdminMissions token={auth.token} />}
+        {activeTab==="notifications" && <AdminNotifications token={auth.token} />}
+        {activeTab==="games"     && <AdminGames token={auth.token} />}
+        {activeTab==="players"   && <AdminPlayers token={auth.token} />}
+        {activeTab==="appconfig" && <AdminAppConfig token={auth.token} />}
+        {activeTab==="cdp"       && <AdminCDP token={auth.token} />}
+        {activeTab==="leaderboard_admin" && <AdminLeaderboard token={auth.token} />}
+        {activeTab==="logs"      && <AdminLogs token={auth.token} />}
+        {activeTab==="monitor"      && <AdminMonitor token={auth.token} />}
+        {activeTab==="alltime_games" && <AdminAlltimeGames token={auth.token} />}
+        {activeTab==="daily_challenge" && <AdminDailyChallenge token={auth.token} />}
+        {activeTab==="orders_admin"  && <AdminOrders token={auth.token} />}
+        {activeTab==="delivery_admin" && <AdminDelivery token={auth.token} />}
+        {activeTab==="payments_admin" && <AdminPayments token={auth.token} />}
+        {activeTab==="wallet_admin" && <AdminWallet token={auth.token} role={role} />}
+        {activeTab==="wallet_pos" && <AdminWalletPosCounter token={auth.token} role={auth.admin?.role} />}
+        {activeTab==="system_health" && <AdminSystemHealth token={auth.token} />}
+        {activeTab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
+        {activeTab==="management"    && <AdminManagement token={auth.token} />}
+        {activeTab==="badges_admin"  && <AdminBadges token={auth.token} />}
+        {activeTab==="members_admin" && <AdminMembers token={auth.token} />}
       </div>
     </div>
   );

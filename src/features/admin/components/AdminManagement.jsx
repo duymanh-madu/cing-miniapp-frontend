@@ -14,7 +14,7 @@ const ROLES = [
 const ROLE_PERMISSIONS = {
   super_admin: ["Toàn quyền hệ thống"],
   manager:     ["Xem dashboard", "Quản lý đơn hàng", "Xem thanh toán", "Giao hàng", "Analytics", "Thông báo", "Chiến dịch"],
-  cashier:     ["Xem dashboard", "Quản lý đơn hàng", "Xem thanh toán"],
+  cashier:     ["Xem dashboard", "Quản lý đơn hàng", "Xem thanh toán", "Tạo QR Cing Pay tại cửa hàng được gán"],
   kitchen:     ["Xem đơn hàng", "Cập nhật trạng thái bếp"],
   shipper:     ["Xem giao hàng", "Cập nhật giao hàng"],
   delivery_admin: ["Quản lý đơn hàng", "Gán shipper", "Cập nhật trạng thái giao hàng", "Copy link shipper"],
@@ -29,11 +29,14 @@ const inp = {
 
 export default function AdminManagement({ token }) {
   const [admins, setAdmins]       = useState([]);
+  const [stores, setStores]       = useState([]);
   const [loading, setLoading]     = useState(true);
   const [tab, setTab]             = useState("list");
   const [msg, setMsg]             = useState("");
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm]           = useState({ username: "", password: "", role: "manager" });
+  const [form, setForm]           = useState({ username: "", password: "", role: "manager", store_id: "" });
+  const [editId, setEditId]       = useState(null);
+  const [editForm, setEditForm]   = useState({ role: "", store_id: "" });
   const [saving, setSaving]       = useState(false);
   const [pwForm, setPwForm]       = useState({ current_password: "", new_password: "", confirm: "" });
   const [pwMsg, setPwMsg]         = useState("");
@@ -49,7 +52,20 @@ export default function AdminManagement({ token }) {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, []);
+  const loadStores = async () => {
+    try {
+      const res = await apiClient.get("/admin/auth/stores", { headers: h });
+      setStores(res.data?.data || []);
+    } catch(e) {
+      console.error(e);
+      setStores([]);
+    }
+  };
+
+  useEffect(() => {
+    load();
+    loadStores();
+  }, []);
 
   const showMsg = (text, ms = 4000) => {
     setMsg(text);
@@ -60,6 +76,9 @@ export default function AdminManagement({ token }) {
     if (!form.username || !form.password || !form.role) {
       showMsg("❌ Vui lòng nhập đầy đủ thông tin"); return;
     }
+    if (form.role === "cashier" && !form.store_id) {
+      showMsg("❌ Thu ngân phải được gán cửa hàng Cing Pay"); return;
+    }
     if (form.password.length < 6) {
       showMsg("❌ Mật khẩu phải ít nhất 6 ký tự"); return;
     }
@@ -67,12 +86,58 @@ export default function AdminManagement({ token }) {
     try {
       await apiClient.post("/admin/auth/create", form, { headers: h });
       showMsg("✅ Tạo tài khoản thành công!");
-      setForm({ username: "", password: "", role: "manager" });
+      setForm({ username: "", password: "", role: "manager", store_id: "" });
       setShowCreate(false);
       load();
     } catch(e) {
       showMsg("❌ " + (e.response?.data?.message || e.message));
     } finally { setSaving(false); }
+  };
+
+  const startEditAdmin = (admin) => {
+    setEditId(admin.id);
+    setEditForm({
+      role: admin.role || "",
+      store_id: admin.store_id || "",
+    });
+  };
+
+  const saveAdmin = async () => {
+    if (!editId || !editForm.role) return;
+
+    if (
+      editForm.role === "cashier" &&
+      !editForm.store_id
+    ) {
+      showMsg("❌ Thu ngân phải được gán cửa hàng Cing Pay");
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      await apiClient.put(
+        `/admin/auth/account/${editId}`,
+        {
+          role: editForm.role,
+          store_id:
+            editForm.role === "cashier" ||
+            editForm.role === "super_admin"
+              ? (editForm.store_id || null)
+              : null,
+        },
+        { headers: h }
+      );
+
+      showMsg("✅ Đã cập nhật quyền tài khoản");
+      setEditId(null);
+      setEditForm({ role: "", store_id: "" });
+      await load();
+    } catch(e) {
+      showMsg("❌ " + (e.response?.data?.message || e.message));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const toggleAdmin = async (admin) => {
@@ -176,12 +241,44 @@ export default function AdminManagement({ token }) {
           </div>
           <div style={{ marginBottom:16 }}>
             <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Vai trò *</p>
-            <select value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))} style={inp}>
+            <select
+              value={form.role}
+              onChange={e => setForm(f => ({
+                ...f,
+                role: e.target.value,
+                store_id:
+                  e.target.value === "cashier" ||
+                  e.target.value === "super_admin"
+                    ? f.store_id
+                    : "",
+              }))}
+              style={inp}
+            >
               {ROLES.map(r => (
                 <option key={r.value} value={r.value}>{r.icon} {r.label}</option>
               ))}
             </select>
           </div>
+
+          {(form.role === "cashier" || form.role === "super_admin") && (
+            <div style={{ marginBottom:16 }}>
+              <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>
+                Cửa hàng Cing Pay {form.role === "cashier" ? "*" : ""}
+              </p>
+              <select
+                value={form.store_id}
+                onChange={e => setForm(f => ({ ...f, store_id: e.target.value }))}
+                style={inp}
+              >
+                <option value="">-- Chưa gán cửa hàng --</option>
+                {stores.map(store => (
+                  <option key={store.id} value={store.id}>
+                    {store.display_name} ({store.store_code})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           {form.role && (
             <div style={{ background:"rgba(255,255,255,0.03)", borderRadius:8, padding:"10px 12px", marginBottom:14 }}>
               <p style={{ color:"#888", fontSize:11, margin:"0 0 6px", fontWeight:700 }}>Quyền hạn:</p>
@@ -236,8 +333,28 @@ export default function AdminManagement({ token }) {
                   <p style={{ color:"#555", fontSize:11, margin:0 }}>
                     Tạo lúc: {new Date(a.created_at).toLocaleDateString("vi-VN")}
                   </p>
+                  {(a.role === "cashier" || a.role === "super_admin") && (
+                    <p style={{ color:"#777", fontSize:11, margin:"4px 0 0" }}>
+                      Cing Pay: {a.store?.display_name || "Chưa gán cửa hàng"}
+                    </p>
+                  )}
                 </div>
                 <div style={{ display:"flex", gap:8 }}>
+                  <button
+                    onClick={() => startEditAdmin(a)}
+                    style={{
+                      background:"rgba(33,150,243,0.15)",
+                      border:"1px solid #2196F3",
+                      color:"#2196F3",
+                      borderRadius:8,
+                      padding:"6px 12px",
+                      fontSize:11,
+                      fontWeight:700,
+                      cursor:"pointer"
+                    }}
+                  >
+                    ⚙️ Phân quyền
+                  </button>
                   <button onClick={() => { setResetId(a.id); setResetPw(""); }}
                     style={{ background:"rgba(255,152,0,0.15)", border:"1px solid #FF9800",
                       color:"#FF9800", borderRadius:8, padding:"6px 12px",
@@ -255,6 +372,115 @@ export default function AdminManagement({ token }) {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {editId && (
+        <div
+          style={{
+            position:"fixed",
+            inset:0,
+            background:"rgba(0,0,0,0.7)",
+            zIndex:999,
+            display:"flex",
+            alignItems:"center",
+            justifyContent:"center",
+            padding:16
+          }}
+          onClick={() => setEditId(null)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background:"#1a1a24",
+              borderRadius:16,
+              padding:24,
+              width:"100%",
+              maxWidth:440,
+              border:"1px solid #2a2a38"
+            }}
+          >
+            <p style={{ color:"white", fontSize:16, fontWeight:900, margin:"0 0 16px" }}>
+              ⚙️ Phân quyền tài khoản
+            </p>
+
+            <div style={{ marginBottom:14 }}>
+              <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>Vai trò *</p>
+              <select
+                value={editForm.role}
+                onChange={e => setEditForm(f => ({
+                  ...f,
+                  role: e.target.value,
+                  store_id:
+                    e.target.value === "cashier" ||
+                    e.target.value === "super_admin"
+                      ? f.store_id
+                      : "",
+                }))}
+                style={inp}
+              >
+                {ROLES.map(r => (
+                  <option key={r.value} value={r.value}>
+                    {r.icon} {r.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {(editForm.role === "cashier" || editForm.role === "super_admin") && (
+              <div style={{ marginBottom:18 }}>
+                <p style={{ color:"#666", fontSize:11, margin:"0 0 4px" }}>
+                  Cửa hàng Cing Pay {editForm.role === "cashier" ? "*" : ""}
+                </p>
+                <select
+                  value={editForm.store_id}
+                  onChange={e => setEditForm(f => ({ ...f, store_id: e.target.value }))}
+                  style={inp}
+                >
+                  <option value="">-- Chưa gán cửa hàng --</option>
+                  {stores.map(store => (
+                    <option key={store.id} value={store.id}>
+                      {store.display_name} ({store.store_code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div style={{ display:"flex", gap:8 }}>
+              <button
+                onClick={() => setEditId(null)}
+                style={{
+                  flex:1,
+                  background:"rgba(255,255,255,0.06)",
+                  border:"1px solid #333",
+                  color:"#aaa",
+                  borderRadius:10,
+                  padding:10,
+                  cursor:"pointer"
+                }}
+              >
+                Huỷ
+              </button>
+
+              <button
+                onClick={saveAdmin}
+                disabled={saving}
+                style={{
+                  flex:2,
+                  background:"#2196F3",
+                  border:"none",
+                  color:"white",
+                  borderRadius:10,
+                  padding:10,
+                  fontWeight:800,
+                  cursor:"pointer"
+                }}
+              >
+                {saving ? "Đang lưu..." : "💾 Lưu phân quyền"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
