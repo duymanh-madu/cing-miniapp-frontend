@@ -401,6 +401,15 @@ WalletPosPaymentPage() {
       payment?.amount || 0
     );
 
+  const storeDisplayName =
+    typeof payment
+      ?.store_display_name ===
+      "string"
+      ? payment
+          .store_display_name
+          .trim()
+      : "";
+
   const balance =
     Number(
       payment?.wallet_balance ||
@@ -753,6 +762,53 @@ WalletPosPaymentPage() {
                   amount
                 )}
               </p>
+
+              {storeDisplayName && (
+                <div
+                  style={{
+                    marginTop:
+                      16,
+                    paddingTop:
+                      14,
+                    borderTop:
+                      "1px solid rgba(255,255,255,0.14)",
+                  }}
+                >
+                  <p
+                    style={{
+                      margin:
+                        "0 0 4px",
+                      opacity:
+                        0.58,
+                      fontSize:
+                        10,
+                      textTransform:
+                        "uppercase",
+                      letterSpacing:
+                        1.4,
+                      fontWeight:
+                        800,
+                    }}
+                  >
+                    Thanh toán tại
+                  </p>
+
+                  <p
+                    style={{
+                      margin:
+                        0,
+                      fontSize:
+                        17,
+                      lineHeight:
+                        1.35,
+                      fontWeight:
+                        900,
+                    }}
+                  >
+                    {storeDisplayName}
+                  </p>
+                </div>
+              )}
 
               {payment
                 .bill_reference && (
