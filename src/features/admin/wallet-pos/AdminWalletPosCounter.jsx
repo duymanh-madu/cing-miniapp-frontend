@@ -463,6 +463,19 @@ AdminWalletPosCounter({
     useState([]);
 
   const [
+    alertStoreId,
+    setAlertStoreId,
+  ] =
+    useState("");
+
+  const [
+    alertStoreOptions,
+    setAlertStoreOptions,
+  ] =
+    useState([]);
+
+
+  const [
 
 
     resolutionDrafts,
@@ -579,85 +592,135 @@ AdminWalletPosCounter({
 
 
   const loadAlerts =
-
     useCallback(
-
       async ({
-
         strict = false,
-
       } = {}) => {
-
         if (!isSuperAdmin) {
-
           return [];
-
         }
 
         try {
-
           const next =
-
             await fetchWalletPosAlerts(
-
               token,
-
               {
-
                 status:
-
                   "open",
-
                 limit:
-
                   100,
-
+                storeId:
+                  alertStoreId ||
+                  null,
               }
-
             );
 
           if (
-
             mountedRef.current
-
           ) {
-
             setAlerts(
-
               next
-
             );
 
+            setAlertStoreOptions(
+              previous => {
+                const byId =
+                  new Map(
+                    previous.map(
+                      item => [
+                        item.store_id,
+                        item,
+                      ]
+                    )
+                  );
+
+                for (
+                  const item
+                  of next
+                ) {
+                  const storeId =
+                    typeof item
+                      ?.store_id ===
+                      "string"
+                      ? item
+                          .store_id
+                          .trim()
+                      : "";
+
+                  const displayName =
+                    typeof item
+                      ?.store_display_name ===
+                      "string"
+                      ? item
+                          .store_display_name
+                          .trim()
+                      : "";
+
+                  if (
+                    !storeId ||
+                    !displayName
+                  ) {
+                    continue;
+                  }
+
+                  byId.set(
+                    storeId,
+                    {
+                      store_id:
+                        storeId,
+
+                      store_code:
+                        typeof item
+                          ?.store_code ===
+                          "string"
+                          ? item
+                              .store_code
+                              .trim()
+                          : "",
+
+                      store_display_name:
+                        displayName,
+                    }
+                  );
+                }
+
+                return Array
+                  .from(
+                    byId.values()
+                  )
+                  .sort(
+                    (
+                      left,
+                      right
+                    ) =>
+                      left
+                        .store_display_name
+                        .localeCompare(
+                          right
+                            .store_display_name,
+                          "vi"
+                        )
+                  );
+              }
+            );
           }
 
           return next;
-
         } catch (
-
           alertError
-
         ) {
-
           if (strict) {
-
             throw alertError;
-
           }
 
           return null;
-
         }
-
       },
-
       [
-
+        alertStoreId,
         isSuperAdmin,
-
         token,
-
       ]
-
     );
 
 
@@ -2049,6 +2112,52 @@ AdminWalletPosCounter({
                 </strong>
               </summary>
 
+              <div className="cing-pay-counter__alert-filter">
+                <label>
+                  <span>
+                    Cửa hàng
+                  </span>
+
+                  <select
+                    value={
+                      alertStoreId
+                    }
+                    onChange={
+                      event =>
+                        setAlertStoreId(
+                          event
+                            .target
+                            .value
+                        )
+                    }
+                  >
+                    <option value="">
+                      Tất cả cửa hàng
+                    </option>
+
+                    {alertStoreOptions.map(
+                      store => (
+                        <option
+                          key={
+                            store.store_id
+                          }
+                          value={
+                            store.store_id
+                          }
+                        >
+                          {store
+                            .store_display_name}
+                          {store
+                            .store_code
+                            ? ` · ${store.store_code}`
+                            : ""}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </label>
+              </div>
+
               <div className="cing-pay-counter__alert-list">
                 {alerts.map(
 
@@ -2111,6 +2220,28 @@ AdminWalletPosCounter({
                         className="cing-pay-counter__alert"
 
                       >
+                        <div className="cing-pay-counter__alert-store">
+                          <span>
+                            Cửa hàng
+                          </span>
+
+                          <strong>
+                            {item
+                              .store_display_name ||
+                              "Không xác định"}
+                          </strong>
+
+                          {item
+                            .store_code
+                            ? (
+                              <small>
+                                {item
+                                  .store_code}
+                              </small>
+                            )
+                            : null}
+                        </div>
+
 
                         <div>
 

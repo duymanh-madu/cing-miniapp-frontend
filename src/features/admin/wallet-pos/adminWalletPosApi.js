@@ -115,6 +115,7 @@ fetchWalletPosAlerts(
   {
     status = "open",
     limit = 100,
+    storeId = null,
   } = {}
 ) {
   const query =
@@ -124,6 +125,21 @@ fetchWalletPosAlerts(
       limit:
         String(limit),
     });
+
+  const normalizedStoreId =
+    typeof storeId ===
+      "string"
+      ? storeId.trim()
+      : "";
+
+  if (
+    normalizedStoreId
+  ) {
+    query.set(
+      "store_id",
+      normalizedStoreId
+    );
+  }
 
   const response =
     await apiClient.get(
