@@ -206,7 +206,7 @@ export default function AdminDashboard({ auth }) {
         {tab==="delivery_admin" && <AdminDelivery token={auth.token} />}
         {tab==="payments_admin" && <AdminPayments token={auth.token} />}
         {tab==="wallet_admin" && <AdminWallet token={auth.token} role={role} />}
-        {tab==="wallet_pos" && <AdminWalletPosCounter token={auth.token} role={role} />}
+        {tab==="wallet_pos" && <AdminWalletPosCounter token={auth.token} role={auth.admin?.role} />}
         {tab==="system_health" && <AdminSystemHealth token={auth.token} />}
         {tab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
         {tab==="management"    && <AdminManagement token={auth.token} />}

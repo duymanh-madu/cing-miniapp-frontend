@@ -61,11 +61,16 @@ test(
 
 
 test(
-  "Counter reads only backend POS session authority",
+  "Counter V2 reads authoritative current manual session",
   () => {
     assert.match(
       api,
-      /\/admin\/wallet\/pos\/sessions/
+      /\/admin\/wallet\/pos\/manual-session/
+    );
+
+    assert.match(
+      counter,
+      /fetchCurrentWalletPosManualSession/
     );
 
     assert.doesNotMatch(
@@ -77,42 +82,42 @@ test(
 
 
 test(
-  "cashier sends only canonical amount to bounded endpoint",
+  "cashier create sends only amount and request_id",
   () => {
     assert.match(
       api,
-      /sessions\/\$\{encodeURIComponent\([\s\S]*\}\/amount/
+      /\/admin\/wallet\/pos\/manual-payment/
     );
 
     assert.match(
       api,
-      /\{\s*amount,\s*\}/
+      /\{\s*amount,\s*request_id:[\s\S]*requestId/
     );
 
     assert.doesNotMatch(
       api,
-      /user_id|wallet_balance|customer_id/i
+      /manual-payment[\s\S]{0,300}pos_parent|manual-payment[\s\S]{0,300}pos_id/
     );
   }
 );
 
 
 test(
-  "amount requires explicit cashier confirmation before freeze",
+  "cashier UX has no browser confirmation or bill identity entry",
   () => {
-    assert.match(
+    assert.doesNotMatch(
       counter,
       /window\.confirm/
     );
 
-    assert.match(
+    assert.doesNotMatch(
       counter,
-      /Xác nhận thu/
+      /sale_tran_id|bill_reference/
     );
 
     assert.match(
       counter,
-      /submitWalletPosAmount/
+      /TẠO QR/
     );
   }
 );
@@ -140,54 +145,87 @@ test(
 
 
 test(
-  "Counter follows paid and reconciliation state without financial mutation",
+  "paid state is operationally dominant and does not expose reconciliation workflow",
   () => {
     assert.match(
       counter,
-      /reconciliation_pending/
+      /ĐÃ THANH TOÁN/
     );
 
     assert.match(
       counter,
-      /reconciled/
-    );
-
-    assert.match(
-      counter,
-      /reconciliation_mismatch/
+      /Có thể hoàn tất hóa đơn trên iPOS/
     );
 
     assert.doesNotMatch(
       counter,
-      /wallet.*balance.*post|adjustment|refund/i
+      /Lệch đối soát/
     );
   }
 );
 
 
 test(
-  "Super Admin mismatch alerts are read-only",
+
+  "Super Admin mismatch alerts use dedicated resolution backoffice",
+
   () => {
+
     assert.match(
+
       api,
-      /\/reconciliation-alerts/
+
+      /resolveWalletPosAlert/
+
     );
 
     assert.match(
+
+      api,
+
+      /reconciliation-alerts\/\$\{encodeURIComponent\([\s\S]*\}\/resolve/
+
+    );
+
+    assert.match(
+
       counter,
+
       /Cảnh báo đối soát/
+
     );
 
-    assert.doesNotMatch(
-      api,
-      /reconciliation-alerts[\s\S]*post|reconciliation-alerts[\s\S]*put|reconciliation-alerts[\s\S]*patch/i
+    assert.match(
+
+      counter,
+
+      /XÁC NHẬN QUYẾT ĐỊNH/
+
     );
+
+    assert.match(
+
+      counter,
+
+      /resolveAlert/
+
+    );
+
+    assert.match(
+
+      counter,
+
+      /isSuperAdmin/
+
+    );
+
   }
+
 );
 
 
 test(
-  "polling fallback keeps Counter fresh when socket event is missed",
+  "polling fallback keeps current manual session fresh",
   () => {
     assert.match(
       counter,
@@ -201,23 +239,23 @@ test(
 
     assert.match(
       counter,
-      /fetchWalletPosSessions/
+      /fetchCurrentWalletPosManualSession/
     );
   }
 );
 
 
 test(
-  "Counter is responsive for tablet and phone",
+  "Counter remains responsive for tablet and phone",
   () => {
     assert.match(
       css,
-      /@media \(max-width: 900px\)/
+      /max-width: 760px/
     );
 
     assert.match(
       css,
-      /@media \(max-width: 520px\)/
+      /max-width: 440px/
     );
   }
 );

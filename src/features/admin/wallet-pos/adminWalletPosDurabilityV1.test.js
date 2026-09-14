@@ -106,17 +106,12 @@ test(
 
     assert.doesNotMatch(
       recoveryBlock,
-      /submitWalletPosAmount\s*\(/
+      /createWalletPosManualPayment\s*\(/
     );
 
     assert.doesNotMatch(
       recoveryBlock,
       /createIposPosPayment\s*\(/
-    );
-
-    assert.match(
-      counter,
-      /tái tạo đúng QR của payment intent hiện hữu/
     );
   }
 );
@@ -230,7 +225,7 @@ test(
 
 
 test(
-  "Wallet statement identifies in-store Cing Wallet payment",
+  "Wallet statement uses customer-safe in-store payment copy",
   () => {
     assert.match(
       statement,
@@ -239,10 +234,15 @@ test(
 
     assert.match(
       statement,
-      /Thanh toán tại quầy/
+      /Cing Wallet/
     );
 
     assert.match(
+      statement,
+      /store_display_name[\s\S]*Thanh toán đơn hàng tại cửa hàng[\s\S]*storeDisplayName/
+    );
+
+    assert.doesNotMatch(
       statement,
       /Bill #\$\{bill\}/
     );
@@ -308,12 +308,12 @@ test(
 
     assert.doesNotMatch(
       block,
-      /setSelected\s*\(/
+      /setCurrent\s*\(/
     );
 
     assert.match(
       block,
-      /loadData\s*\(\s*\{[\s\S]*silent\s*:\s*true/
+      /loadCurrent\s*\(\s*\{[\s\S]*silent\s*:\s*true/
     );
   }
 );

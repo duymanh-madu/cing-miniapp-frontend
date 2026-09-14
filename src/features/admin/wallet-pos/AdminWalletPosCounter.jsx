@@ -10,11 +10,12 @@ import QRCode
   from "qrcode";
 
 import {
+  createWalletPosManualPayment,
+  fetchCurrentWalletPosManualSession,
   fetchWalletPosAlerts,
-  fetchWalletPosSession,
-  fetchWalletPosSessions,
+  resolveWalletPosAlert,
+
   recoverWalletPosQr,
-  submitWalletPosAmount,
 } from "./adminWalletPosApi";
 
 import {
@@ -27,15 +28,157 @@ import "./admin-wallet-pos.css";
 const POLL_INTERVAL_MS =
   1500;
 
-const ACTIVE_STATUSES =
+const QR_RECOVERABLE_STATUS =
+  "qr_ready";
+
+const PAID_STATUSES =
   new Set([
-    "awaiting_amount",
-    "amount_frozen",
-    "qr_ready",
     "paid",
     "reconciliation_pending",
-    "reconciliation_mismatch",
   ]);
+
+const BASE_RESOLUTION_ACTIONS = [
+
+  {
+
+    value:
+
+      "manual_review",
+
+    label:
+
+      "Tiếp tục kiểm tra",
+
+  },
+
+  {
+
+    value:
+
+      "accept_as_is",
+
+    label:
+
+      "Chấp nhận hiện trạng",
+
+  },
+
+  {
+
+    value:
+
+      "pos_correction_confirmed",
+
+    label:
+
+      "Đã xác nhận sửa trên iPOS",
+
+  },
+
+];
+
+
+function getResolutionActions(
+
+  item
+
+) {
+
+  const actions = [
+
+    ...BASE_RESOLUTION_ACTIONS,
+
+  ];
+
+  if (
+
+    item?.alert_type ===
+
+      "amount_mismatch"
+
+  ) {
+
+    const difference =
+
+      Number(
+
+        item?.difference_amount
+
+      );
+
+    if (
+
+      Number.isFinite(
+
+        difference
+
+      ) &&
+
+      difference > 0
+
+    ) {
+
+      actions.push({
+
+        value:
+
+          "compensating_debit",
+
+        label:
+
+          "Thu bổ sung phần thiếu",
+
+      });
+
+    }
+
+    if (
+
+      Number.isFinite(
+
+        difference
+
+      ) &&
+
+      difference < 0
+
+    ) {
+
+      actions.push({
+
+        value:
+
+          "compensating_credit",
+
+        label:
+
+          "Hoàn lại phần thu thừa",
+
+      });
+
+    }
+
+  }
+
+  return actions;
+
+}
+
+
+const KEYS = [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "⌫",
+  "0",
+  "000",
+];
 
 
 function formatMoney(
@@ -76,130 +219,187 @@ function formatTime(
         "2-digit",
       second:
         "2-digit",
-      day:
-        "2-digit",
-      month:
-        "2-digit",
     }
   ).format(date);
 }
 
 
-function parseMoneyInput(
-  value
+function createRequestId() {
+  const cryptoApi =
+    globalThis.crypto;
+
+  if (
+    !cryptoApi
+  ) {
+    throw new Error(
+      "Thiết bị không hỗ trợ tạo mã giao dịch an toàn."
+    );
+  }
+
+  if (
+    typeof cryptoApi.randomUUID ===
+      "function"
+  ) {
+    return cryptoApi
+      .randomUUID();
+  }
+
+  if (
+    typeof cryptoApi.getRandomValues !==
+      "function"
+  ) {
+    throw new Error(
+      "Thiết bị không hỗ trợ tạo mã giao dịch an toàn."
+    );
+  }
+
+  const bytes =
+    new Uint8Array(16);
+
+  cryptoApi.getRandomValues(
+    bytes
+  );
+
+  bytes[6] =
+    (
+      bytes[6] &
+      0x0f
+    ) |
+    0x40;
+
+  bytes[8] =
+    (
+      bytes[8] &
+      0x3f
+    ) |
+    0x80;
+
+  const hex =
+    Array.from(
+      bytes,
+      item =>
+        item
+          .toString(16)
+          .padStart(
+            2,
+            "0"
+          )
+    );
+
+  return [
+    hex
+      .slice(
+        0,
+        4
+      )
+      .join(""),
+    hex
+      .slice(
+        4,
+        6
+      )
+      .join(""),
+    hex
+      .slice(
+        6,
+        8
+      )
+      .join(""),
+    hex
+      .slice(
+        8,
+        10
+      )
+      .join(""),
+    hex
+      .slice(
+        10,
+        16
+      )
+      .join(""),
+  ].join("-");
+}
+
+
+
+function appendAmountDigits(
+  current,
+  digits
 ) {
-  const digits =
-    String(value || "")
+  const next =
+    `${current}${digits}`
       .replace(
-        /[^\d]/g,
+        /^0+(?=\d)/,
         ""
+      )
+      .slice(
+        0,
+        10
       );
 
-  if (!digits) {
+  if (!next) {
     return "";
   }
 
-  return new Intl.NumberFormat(
-    "vi-VN"
-  ).format(
-    Number(digits)
+  const numeric =
+    Number(next);
+
+  if (
+    !Number.isSafeInteger(
+      numeric
+    ) ||
+    numeric <= 0
+  ) {
+    return "";
+  }
+
+  return String(
+    numeric
   );
 }
 
 
-function toIntegerAmount(
-  value
+function errorMessage(
+  error
 ) {
-  const raw =
-    String(value || "")
-      .replace(
-        /[^\d]/g,
-        ""
-      );
-
-  const number =
-    Number(raw);
+  const code =
+    error
+      ?.response
+      ?.data
+      ?.code;
 
   if (
-    !Number.isSafeInteger(
-      number
-    ) ||
-    number <= 0
+    code ===
+    "CING_WALLET_POS_MANUAL_POS_BUSY"
   ) {
-    return null;
-  }
-
-  return number;
-}
-
-
-function statusLabel(
-  status
-) {
-  const map = {
-    awaiting_amount:
-      "Chờ nhập số tiền",
-
-    amount_frozen:
-      "Đã khóa số tiền",
-
-    qr_ready:
-      "Đang chờ khách thanh toán",
-
-    paid:
-      "Đã thanh toán",
-
-    reconciliation_pending:
-      "Đã thanh toán · Chờ đối soát",
-
-    reconciled:
-      "Đã đối soát",
-
-    reconciliation_mismatch:
-      "Lệch đối soát",
-
-    cancelled:
-      "Đã hủy",
-
-    expired:
-      "Đã hết hạn",
-  };
-
-  return map[status] ||
-    status ||
-    "Không xác định";
-}
-
-
-function statusTone(
-  status
-) {
-  if (
-    status ===
-      "reconciled" ||
-    status ===
-      "paid"
-  ) {
-    return "success";
+    return "Giao dịch trước vẫn đang chờ hoàn tất. Vui lòng kiểm tra trạng thái thanh toán.";
   }
 
   if (
-    status ===
-      "reconciliation_pending" ||
-    status ===
-      "qr_ready"
+    code ===
+    "CING_WALLET_POS_COUNTER_IDENTITY_NOT_CONFIGURED"
   ) {
-    return "waiting";
+    return "Thiết bị Cing Pay chưa được cấu hình máy POS.";
   }
 
   if (
-    status ===
-      "reconciliation_mismatch"
+    code ===
+    "CING_WALLET_POS_COUNTER_DISABLED" ||
+    code ===
+    "CING_WALLET_POS_EPAYMENT_DISABLED"
   ) {
-    return "danger";
+    return "Cing Pay tại quầy hiện chưa được mở.";
   }
 
-  return "neutral";
+  return (
+    error
+      ?.response
+      ?.data
+      ?.message ||
+    error
+      ?.message ||
+    "Không thể xử lý Cing Pay."
+  );
 }
 
 
@@ -209,34 +409,16 @@ AdminWalletPosCounter({
   role,
 }) {
   const [
-    sessions,
-    setSessions,
-  ] =
-    useState([]);
-
-  const [
-    selectedId,
-    setSelectedId,
-  ] =
-    useState(null);
-
-  const [
-    selected,
-    setSelected,
-  ] =
-    useState(null);
-
-  const [
-    alerts,
-    setAlerts,
-  ] =
-    useState([]);
-
-  const [
-    amountInput,
-    setAmountInput,
+    amountDigits,
+    setAmountDigits,
   ] =
     useState("");
+
+  const [
+    current,
+    setCurrent,
+  ] =
+    useState(null);
 
   const [
     qrContent,
@@ -257,10 +439,16 @@ AdminWalletPosCounter({
     useState(false);
 
   const [
-    loading,
-    setLoading,
+    initialLoading,
+    setInitialLoading,
   ] =
     useState(true);
+
+  const [
+    refreshing,
+    setRefreshing,
+  ] =
+    useState(false);
 
   const [
     error,
@@ -269,15 +457,82 @@ AdminWalletPosCounter({
     useState("");
 
   const [
-    notice,
-    setNotice,
+    alerts,
+    setAlerts,
   ] =
-    useState("");
+    useState([]);
+
+  const [
+
+
+    resolutionDrafts,
+
+
+    setResolutionDrafts,
+
+
+  ] =
+
+
+    useState({});
+
+
+  const [
+
+
+    resolutionErrors,
+
+
+    setResolutionErrors,
+
+
+  ] =
+
+
+    useState({});
+
+
+  const [
+
+
+    resolvingAlertId,
+
+
+    setResolvingAlertId,
+
+
+  ] =
+
+
+    useState(null);
+
+
+  const resolutionRequestRef =
+
+
+    useRef(
+
+
+      new Map()
+
+
+    );
+
+
 
   const mountedRef =
     useRef(true);
 
-  const requestInFlightRef =
+  const loadInFlightRef =
+    useRef(false);
+
+  const requestIdRef =
+    useRef(null);
+
+  const paidLatchRef =
+    useRef(false);
+
+  const previousPaidRef =
     useRef(false);
 
 
@@ -288,67 +543,147 @@ AdminWalletPosCounter({
     "super_admin";
 
 
-  const activeSessions =
+  const amount =
     useMemo(
-      () =>
-        sessions.filter(
-          item =>
-            ACTIVE_STATUSES.has(
-              item.status
-            )
-        ),
+      () => {
+        const value =
+          Number(
+            amountDigits
+          );
+
+        return (
+          Number.isSafeInteger(
+            value
+          ) &&
+          value > 0
+        )
+          ? value
+          : 0;
+      },
       [
-        sessions,
+        amountDigits,
       ]
     );
 
 
-  const loadData =
+  const paid =
+    Boolean(
+      current &&
+      (
+        paidLatchRef.current ||
+        PAID_STATUSES.has(
+          current.status
+        )
+      )
+    );
+
+
+  const loadAlerts =
+
+    useCallback(
+
+      async ({
+
+        strict = false,
+
+      } = {}) => {
+
+        if (!isSuperAdmin) {
+
+          return [];
+
+        }
+
+        try {
+
+          const next =
+
+            await fetchWalletPosAlerts(
+
+              token,
+
+              {
+
+                status:
+
+                  "open",
+
+                limit:
+
+                  100,
+
+              }
+
+            );
+
+          if (
+
+            mountedRef.current
+
+          ) {
+
+            setAlerts(
+
+              next
+
+            );
+
+          }
+
+          return next;
+
+        } catch (
+
+          alertError
+
+        ) {
+
+          if (strict) {
+
+            throw alertError;
+
+          }
+
+          return null;
+
+        }
+
+      },
+
+      [
+
+        isSuperAdmin,
+
+        token,
+
+      ]
+
+    );
+
+
+  const loadCurrent =
     useCallback(
       async ({
         silent = false,
       } = {}) => {
         if (
-          requestInFlightRef.current
+          loadInFlightRef.current
         ) {
           return;
         }
 
-        requestInFlightRef.current =
+        loadInFlightRef.current =
           true;
 
         if (!silent) {
-          setLoading(true);
+          setRefreshing(true);
         }
 
         try {
-          const [
-            nextSessions,
-            nextAlerts,
-          ] =
-            await Promise.all([
-              fetchWalletPosSessions(
-                token,
-                {
-                  limit:
-                    30,
-                }
-              ),
-
-              isSuperAdmin
-                ? fetchWalletPosAlerts(
-                    token,
-                    {
-                      status:
-                        "open",
-                      limit:
-                        100,
-                    }
-                  )
-                : Promise.resolve(
-                    []
-                  ),
-            ]);
+          const next =
+            await fetchCurrentWalletPosManualSession(
+              token
+            );
 
           if (
             !mountedRef.current
@@ -356,55 +691,38 @@ AdminWalletPosCounter({
             return;
           }
 
-          setSessions(
-            nextSessions
-          );
+          if (
+            next &&
+            PAID_STATUSES.has(
+              next.status
+            )
+          ) {
+            paidLatchRef.current =
+              true;
+          }
 
-          setAlerts(
-            nextAlerts
-          );
+          if (next) {
+            setCurrent(
+              previous => ({
+                ...previous,
+                ...next,
+              })
+            );
+          } else if (
+            !paidLatchRef.current
+          ) {
+            setCurrent(
+              null
+            );
+            setQrContent(
+              ""
+            );
+            setQrDataUrl(
+              ""
+            );
+          }
 
           setError("");
-
-          if (
-            selectedId
-          ) {
-            const fresh =
-              nextSessions.find(
-                item =>
-                  item.id ===
-                  selectedId
-              );
-
-            if (fresh) {
-              setSelected(
-                previous => ({
-                  ...previous,
-                  ...fresh,
-                })
-              );
-            }
-          } else {
-            const first =
-              nextSessions.find(
-                item =>
-                  ACTIVE_STATUSES.has(
-                    item.status
-                  )
-              ) ||
-              nextSessions[0] ||
-              null;
-
-            if (first) {
-              setSelectedId(
-                first.id
-              );
-
-              setSelected(
-                first
-              );
-            }
-          }
         } catch (
           nextError
         ) {
@@ -412,30 +730,24 @@ AdminWalletPosCounter({
             mountedRef.current
           ) {
             setError(
-              nextError
-                ?.response
-                ?.data
-                ?.message ||
-              nextError
-                ?.message ||
-              "Không thể tải Cing Pay Counter."
+              errorMessage(
+                nextError
+              )
             );
           }
         } finally {
-          requestInFlightRef.current =
+          loadInFlightRef.current =
             false;
 
           if (
             mountedRef.current &&
             !silent
           ) {
-            setLoading(false);
+            setRefreshing(false);
           }
         }
       },
       [
-        isSuperAdmin,
-        selectedId,
         token,
       ]
     );
@@ -446,12 +758,27 @@ AdminWalletPosCounter({
       mountedRef.current =
         true;
 
-      void loadData();
+      const boot =
+        async () => {
+          await loadCurrent();
+
+          if (
+            mountedRef.current
+          ) {
+            setInitialLoading(
+              false
+            );
+          }
+
+          void loadAlerts();
+        };
+
+      void boot();
 
       const timer =
         window.setInterval(
           () => {
-            void loadData({
+            void loadCurrent({
               silent:
                 true,
             });
@@ -469,7 +796,8 @@ AdminWalletPosCounter({
       };
     },
     [
-      loadData,
+      loadAlerts,
+      loadCurrent,
     ]
   );
 
@@ -499,10 +827,12 @@ AdminWalletPosCounter({
             return;
           }
 
-          void loadData({
+          void loadCurrent({
             silent:
               true,
           });
+
+          void loadAlerts();
         };
 
       const attach =
@@ -527,14 +857,15 @@ AdminWalletPosCounter({
           socket =
             nextSocket;
 
-          events.forEach(
-            event => {
-              socket.on(
-                event,
-                handleRealtime
-              );
-            }
-          );
+          for (
+            const event
+            of events
+          ) {
+            socket.on(
+              event,
+              handleRealtime
+            );
+          }
         };
 
       attach();
@@ -550,66 +881,21 @@ AdminWalletPosCounter({
         }
 
         if (socket) {
-          events.forEach(
-            event => {
-              socket.off(
-                event,
-                handleRealtime
-              );
-            }
-          );
+          for (
+            const event
+            of events
+          ) {
+            socket.off(
+              event,
+              handleRealtime
+            );
+          }
         }
       };
     },
     [
-      loadData,
-      selectedId,
-    ]
-  );
-
-
-
-  useEffect(
-    () => {
-      if (!selectedId) {
-        return;
-      }
-
-      let cancelled =
-        false;
-
-      const load =
-        async () => {
-          try {
-            const next =
-              await fetchWalletPosSession(
-                token,
-                selectedId
-              );
-
-            if (
-              !cancelled &&
-              next
-            ) {
-              setSelected(
-                next
-              );
-            }
-          } catch {
-            void 0;
-          }
-        };
-
-      void load();
-
-      return () => {
-        cancelled =
-          true;
-      };
-    },
-    [
-      selectedId,
-      token,
+      loadAlerts,
+      loadCurrent,
     ]
   );
 
@@ -617,9 +903,9 @@ AdminWalletPosCounter({
   useEffect(
     () => {
       if (
-        !selected?.id ||
-        selected.status !==
-          "qr_ready" ||
+        !current?.id ||
+        current.status !==
+          QR_RECOVERABLE_STATUS ||
         qrContent
       ) {
         return;
@@ -634,7 +920,7 @@ AdminWalletPosCounter({
             const recovered =
               await recoverWalletPosQr(
                 token,
-                selected.id
+                current.id
               );
 
             if (
@@ -649,20 +935,19 @@ AdminWalletPosCounter({
               recovered.qr_content
             );
 
-            setSelected(
+            setCurrent(
               previous => ({
                 ...previous,
                 amount:
                   recovered.amount,
                 payment_intent_id:
-                  recovered.payment_intent_id,
+                  recovered
+                    .payment_intent_id,
                 status:
                   recovered.status,
+                expires_at:
+                  recovered.expires_at,
               })
-            );
-
-            setNotice(
-              "QR thanh toán đang hoạt động đã được khôi phục."
             );
           } catch (
             recoveryError
@@ -679,10 +964,16 @@ AdminWalletPosCounter({
 
             if (
               code ===
-                "CING_WALLET_POS_QR_RECOVERY_EXPIRED"
+              "CING_WALLET_POS_QR_RECOVERY_EXPIRED"
             ) {
               setError(
-                "QR thanh toán đã hết hạn. Không tạo lại intent cũ."
+                "QR thanh toán đã hết hạn."
+              );
+            } else {
+              setError(
+                errorMessage(
+                  recoveryError
+                )
               );
             }
           }
@@ -696,13 +987,12 @@ AdminWalletPosCounter({
       };
     },
     [
+      current?.id,
+      current?.status,
       qrContent,
-      selected?.id,
-      selected?.status,
       token,
     ]
   );
-
 
 
   useEffect(
@@ -712,7 +1002,10 @@ AdminWalletPosCounter({
 
       async function renderQr() {
         if (!qrContent) {
-          setQrDataUrl("");
+          setQrDataUrl(
+            ""
+          );
+
           return;
         }
 
@@ -738,7 +1031,7 @@ AdminWalletPosCounter({
         } catch {
           if (!cancelled) {
             setError(
-              "Không thể render QR thanh toán."
+              "Không thể hiển thị QR thanh toán."
             );
           }
         }
@@ -757,89 +1050,126 @@ AdminWalletPosCounter({
   );
 
 
-  const selectSession =
+  useEffect(
+    () => {
+      const nextPaid =
+        Boolean(
+          current &&
+          PAID_STATUSES.has(
+            current.status
+          )
+        );
+
+      if (
+        nextPaid &&
+        !previousPaidRef.current
+      ) {
+        paidLatchRef.current =
+          true;
+      }
+
+      previousPaidRef.current =
+        nextPaid;
+    },
+    [
+      current,
+    ]
+  );
+
+
+  const changeAmount =
     useCallback(
-      session => {
-        setSelectedId(
-          session.id
-        );
-
-        setSelected(
-          session
-        );
-
-        setAmountInput(
-          session.amount
-            ? new Intl.NumberFormat(
-                "vi-VN"
-              ).format(
-                Number(
-                  session.amount
-                )
-              )
-            : ""
-        );
-
-        setQrContent("");
-
-        setQrDataUrl("");
-
-        setNotice("");
-
-        setError("");
-      },
-      []
-    );
-
-
-  const submitAmount =
-    useCallback(
-      async () => {
+      next => {
         if (
-          !selected?.id ||
-          submitting
+          submitting ||
+          current
         ) {
           return;
         }
 
-        const amount =
-          toIntegerAmount(
-            amountInput
-          );
+        requestIdRef.current =
+          null;
 
-        if (!amount) {
-          setError(
-            "Nhập số tiền khách cần thanh toán."
-          );
-          return;
-        }
+        setAmountDigits(
+          next
+        );
 
-        const confirmed =
-          window.confirm(
-            `Xác nhận thu ${formatMoney(
-              amount
-            )} cho hóa đơn #${
-              selected.sale_tran_id
-            }? Sau bước này số tiền sẽ được khóa.`
-          );
-
-        if (!confirmed) {
-          return;
-        }
-
-        setSubmitting(true);
         setError("");
-        setNotice("");
+      },
+      [
+        current,
+        submitting,
+      ]
+    );
+
+
+  const pressKey =
+    useCallback(
+      key => {
+        if (
+          key ===
+          "⌫"
+        ) {
+          changeAmount(
+            amountDigits.slice(
+              0,
+              -1
+            )
+          );
+
+          return;
+        }
+
+        changeAmount(
+          appendAmountDigits(
+            amountDigits,
+            key
+          )
+        );
+      },
+      [
+        amountDigits,
+        changeAmount,
+      ]
+    );
+
+
+  const createQr =
+    useCallback(
+      async () => {
+        if (
+          submitting ||
+          current ||
+          !amount
+        ) {
+          return;
+        }
+
+        setSubmitting(
+          true
+        );
+
+        setError("");
 
         try {
+          const requestId =
+            requestIdRef.current ||
+            createRequestId();
+
+          requestIdRef.current =
+            requestId;
+
           const result =
-            await submitWalletPosAmount(
+            await createWalletPosManualPayment(
               token,
-              selected.id,
-              amount
+              {
+                amount,
+                requestId,
+              }
             );
 
           if (
+            !result?.session_id ||
             !result?.qr_content ||
             result.status !==
               "qr_ready"
@@ -849,29 +1179,38 @@ AdminWalletPosCounter({
             );
           }
 
+          if (
+            Number(
+              result.amount
+            ) !==
+            amount
+          ) {
+            throw new Error(
+              "Số tiền QR không khớp số tiền đã nhập."
+            );
+          }
+
+          setCurrent({
+            id:
+              result.session_id,
+            payment_intent_id:
+              result
+                .payment_intent_id,
+            amount:
+              result.amount,
+            amount_source:
+              result.amount_source,
+            status:
+              result.status,
+            expires_at:
+              result.expires_at,
+          });
+
           setQrContent(
             result.qr_content
           );
 
-          setSelected(
-            previous => ({
-              ...previous,
-              amount:
-                result.amount,
-              amount_source:
-                result.amount_source,
-              status:
-                result.status,
-              payment_intent_id:
-                result.intent_id,
-            })
-          );
-
-          setNotice(
-            "QR đã sẵn sàng. Mời khách mở Cing Wallet và quét mã."
-          );
-
-          await loadData({
+          void loadCurrent({
             silent:
               true,
           });
@@ -879,37 +1218,575 @@ AdminWalletPosCounter({
           nextError
         ) {
           setError(
-            nextError
-              ?.response
-              ?.data
-              ?.message ||
-            nextError
-              ?.message ||
-            "Không thể tạo QR thanh toán."
+            errorMessage(
+              nextError
+            )
           );
         } finally {
-          setSubmitting(false);
+          setSubmitting(
+            false
+          );
         }
       },
       [
-        amountInput,
-        loadData,
-        selected,
+        amount,
+        current,
+        loadCurrent,
         submitting,
         token,
       ]
     );
 
 
-  const paid =
-    selected?.status ===
-      "paid" ||
-    selected?.status ===
-      "reconciliation_pending" ||
-    selected?.status ===
-      "reconciled" ||
-    selected?.status ===
-      "reconciliation_mismatch";
+  const updateResolutionDraft =
+
+    useCallback(
+
+      (
+
+        alertId,
+
+        patch
+
+      ) => {
+
+        setResolutionDrafts(
+
+          previous => ({
+
+            ...previous,
+
+            [alertId]: {
+
+              ...(previous[alertId] ||
+
+                {}),
+
+              ...patch,
+
+            },
+
+          })
+
+        );
+
+        setResolutionErrors(
+
+          previous => {
+
+            if (
+
+              !previous[alertId]
+
+            ) {
+
+              return previous;
+
+            }
+
+            const next = {
+
+              ...previous,
+
+            };
+
+            delete next[alertId];
+
+            return next;
+
+          }
+
+        );
+
+      },
+
+      []
+
+    );
+
+
+  const resolveAlert =
+
+    useCallback(
+
+      async item => {
+
+        if (
+
+          !isSuperAdmin ||
+
+          !item?.id ||
+
+          resolvingAlertId
+
+        ) {
+
+          return;
+
+        }
+
+        const draft =
+
+          resolutionDrafts[
+
+            item.id
+
+          ] || {};
+
+        const resolutionAction =
+
+          String(
+
+            draft
+
+              .resolution_action ||
+
+            "manual_review"
+
+          )
+            .trim()
+            .toLowerCase();
+
+        const reasonCode =
+
+          String(
+
+            draft.reason_code ||
+
+            ""
+
+          )
+            .trim()
+            .toLowerCase();
+
+        const note =
+
+          String(
+
+            draft.note ||
+
+            ""
+
+          ).trim();
+
+        if (
+
+          !/^[a-z0-9][a-z0-9_]{1,63}$/
+
+            .test(
+
+              reasonCode
+
+            )
+
+        ) {
+
+          setResolutionErrors(
+
+            previous => ({
+
+              ...previous,
+
+              [item.id]:
+
+                "Mã lý do chỉ gồm chữ thường, số và dấu gạch dưới.",
+
+            })
+
+          );
+
+          return;
+
+        }
+
+        const allowedActions =
+
+          getResolutionActions(
+
+            item
+
+          ).map(
+
+            action =>
+
+              action.value
+
+          );
+
+        if (
+
+          !allowedActions.includes(
+
+            resolutionAction
+
+          )
+
+        ) {
+
+          setResolutionErrors(
+
+            previous => ({
+
+              ...previous,
+
+              [item.id]:
+
+                "Hành động này không phù hợp với chênh lệch hiện tại.",
+
+            })
+
+          );
+
+          return;
+
+        }
+
+        const isFinancial =
+
+          [
+
+            "compensating_debit",
+
+            "compensating_credit",
+
+          ].includes(
+
+            resolutionAction
+
+          );
+
+        if (
+
+          isFinancial &&
+
+          !note
+
+        ) {
+
+          setResolutionErrors(
+
+            previous => ({
+
+              ...previous,
+
+              [item.id]:
+
+                "Điều chỉnh số dư bắt buộc phải có ghi chú.",
+
+            })
+
+          );
+
+          return;
+
+        }
+
+        setResolvingAlertId(
+
+          item.id
+
+        );
+
+        setResolutionErrors(
+
+          previous => {
+
+            const next = {
+
+              ...previous,
+
+            };
+
+            delete next[
+
+              item.id
+
+            ];
+
+            return next;
+
+          }
+
+        );
+
+        try {
+
+          const fingerprint =
+
+            [
+
+              item.id,
+
+              resolutionAction,
+
+              reasonCode,
+
+              note,
+
+            ].join("|");
+
+          let requestId =
+
+            resolutionRequestRef
+
+              .current
+
+              .get(
+
+                fingerprint
+
+              );
+
+          if (!requestId) {
+
+            requestId =
+
+              createRequestId();
+
+            resolutionRequestRef
+
+              .current
+
+              .set(
+
+                fingerprint,
+
+                requestId
+
+              );
+
+          }
+
+          const result =
+
+            await resolveWalletPosAlert(
+
+              token,
+
+              item.id,
+
+              {
+
+                requestId,
+
+                resolutionAction,
+
+                reasonCode,
+
+                note:
+
+                  note ||
+
+                  null,
+
+              }
+
+            );
+
+          if (
+
+            !result
+
+              ?.resolution_id ||
+
+            result.alert_id !==
+
+              item.id
+
+          ) {
+
+            throw new Error(
+
+              "Backend chưa trả kết quả xử lý đối soát hợp lệ."
+
+            );
+
+          }
+
+          await loadAlerts({
+
+            strict:
+
+              true,
+
+          });
+
+          resolutionRequestRef
+
+            .current
+
+            .delete(
+
+              fingerprint
+
+            );
+
+          if (
+
+            mountedRef.current
+
+          ) {
+
+            setResolutionDrafts(
+
+              previous => {
+
+                const next = {
+
+                  ...previous,
+
+                };
+
+                delete next[
+
+                  item.id
+
+                ];
+
+                return next;
+
+              }
+
+            );
+
+          }
+
+        } catch (
+
+          nextError
+
+        ) {
+
+          if (
+
+            mountedRef.current
+
+          ) {
+
+            setResolutionErrors(
+
+              previous => ({
+
+                ...previous,
+
+                [item.id]:
+
+                  errorMessage(
+
+                    nextError
+
+                  ),
+
+              })
+
+            );
+
+          }
+
+        } finally {
+
+          if (
+
+            mountedRef.current
+
+          ) {
+
+            setResolvingAlertId(
+
+              null
+
+            );
+
+          }
+
+        }
+
+      },
+
+      [
+
+        isSuperAdmin,
+
+        loadAlerts,
+
+        resolutionDrafts,
+
+        resolvingAlertId,
+
+        token,
+
+      ]
+
+    );
+
+
+  const nextTransaction =
+    useCallback(
+      async () => {
+        paidLatchRef.current =
+          false;
+
+        previousPaidRef.current =
+          false;
+
+        requestIdRef.current =
+          null;
+
+        setCurrent(
+          null
+        );
+
+        setAmountDigits(
+          ""
+        );
+
+        setQrContent(
+          ""
+        );
+
+        setQrDataUrl(
+          ""
+        );
+
+        setError(
+          ""
+        );
+
+        await loadCurrent({
+          silent:
+            true,
+        });
+      },
+      [
+        loadCurrent,
+      ]
+    );
+
+
+  if (initialLoading) {
+    return (
+      <div className="cing-pay-counter">
+        <div className="cing-pay-counter__loading">
+          <span />
+          <strong>
+            Đang mở Cing Pay...
+          </strong>
+        </div>
+      </div>
+    );
+  }
+
+
+  const phase =
+    paid
+      ? "paid"
+      : current
+        ?.status ===
+        "qr_ready"
+        ? "qr"
+        : current
+          ? "recovering"
+          : "ready";
 
 
   return (
@@ -917,7 +1794,7 @@ AdminWalletPosCounter({
       <header className="cing-pay-counter__hero">
         <div>
           <p>
-            CING WALLET · POS COUNTER
+            CING WALLET · THANH TOÁN TẠI QUẦY
           </p>
 
           <h1>
@@ -925,488 +1802,758 @@ AdminWalletPosCounter({
           </h1>
 
           <span>
-            Nhập đúng số tiền trên POS → tạo QR → chờ khách xác nhận.
+            Nhập đúng tổng tiền đang hiển thị trên máy iPOS.
           </span>
         </div>
 
         <div className="cing-pay-counter__hero-status">
           <i />
-          Đang theo dõi giao dịch
+          Sẵn sàng
         </div>
       </header>
 
 
-      {error && (
-        <div className="cing-pay-counter__notice is-error">
-          {error}
-        </div>
-      )}
-
-      {notice && (
-        <div className="cing-pay-counter__notice is-success">
-          {notice}
-        </div>
-      )}
+      {error
+        ? (
+          <div className="cing-pay-counter__notice is-error">
+            {error}
+          </div>
+        )
+        : null}
 
 
-      <div className="cing-pay-counter__layout">
-        <aside className="cing-pay-counter__queue">
-          <div className="cing-pay-counter__section-title">
-            <div>
+      {phase ===
+        "ready"
+        ? (
+          <main className="cing-pay-counter__checkout">
+            <section className="cing-pay-counter__amount-card">
               <p>
-                HÓA ĐƠN TỪ IPOS
+                TỔNG TIỀN TRÊN iPOS
               </p>
 
-              <h2>
-                Đang chờ xử lý
-              </h2>
-            </div>
-
-            <span>
-              {activeSessions.length}
-            </span>
-          </div>
-
-          {loading ? (
-            <div className="cing-pay-counter__empty">
-              Đang tải...
-            </div>
-          ) : activeSessions.length === 0 ? (
-            <div className="cing-pay-counter__empty">
-              Chưa có hóa đơn mới từ iPOS.
-            </div>
-          ) : (
-            <div className="cing-pay-counter__queue-list">
-              {activeSessions.map(
-                session => (
-                  <button
-                    type="button"
-                    key={
-                      session.id
-                    }
-                    className={[
-                      "cing-pay-counter__queue-item",
-                      selectedId ===
-                      session.id
-                        ? "is-active"
-                        : "",
-                    ].join(" ")}
-                    onClick={() =>
-                      selectSession(
-                        session
-                      )
-                    }
-                  >
-                    <div>
-                      <strong>
-                        Bill #
-                        {
-                          session.sale_tran_id
-                        }
-                      </strong>
-
-                      <span>
-                        POS {
-                          session.pos_id
-                        }
-                      </span>
-                    </div>
-
-                    <small
-                      className={`is-${statusTone(
-                        session.status
-                      )}`}
-                    >
-                      {statusLabel(
-                        session.status
-                      )}
-                    </small>
-                  </button>
-                )
-              )}
-            </div>
-          )}
-        </aside>
-
-
-        <main className="cing-pay-counter__workspace">
-          {!selected ? (
-            <div className="cing-pay-counter__waiting">
-              <div>
-                ◎
+              <div className="cing-pay-counter__amount-display">
+                {amount
+                  ? formatMoney(
+                      amount
+                    )
+                  : "0đ"}
               </div>
 
+              <div className="cing-pay-counter__keypad">
+                {KEYS.map(
+                  key => (
+                    <button
+                      key={key}
+                      type="button"
+                      className={
+                        key ===
+                        "⌫"
+                          ? "is-backspace"
+                          : key ===
+                            "000"
+                            ? "is-thousand"
+                            : ""
+                      }
+                      disabled={
+                        submitting
+                      }
+                      onClick={
+                        () =>
+                          pressKey(
+                            key
+                          )
+                      }
+                    >
+                      {key}
+                    </button>
+                  )
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="cing-pay-counter__primary"
+                disabled={
+                  !amount ||
+                  submitting
+                }
+                onClick={
+                  createQr
+                }
+              >
+                {submitting
+                  ? "ĐANG TẠO QR..."
+                  : amount
+                    ? `TẠO QR ${formatMoney(
+                        amount
+                      )}`
+                    : "NHẬP SỐ TIỀN"}
+              </button>
+
+              <small className="cing-pay-counter__hint">
+                Số tiền chỉ được gửi lên hệ thống khi bấm Tạo QR.
+              </small>
+            </section>
+          </main>
+        )
+        : null}
+
+
+      {phase ===
+        "recovering"
+        ? (
+          <main className="cing-pay-counter__checkout">
+            <section className="cing-pay-counter__state-card">
+              <div className="cing-pay-counter__spinner" />
+
               <h2>
-                Chờ hóa đơn từ iPOS
+                Đang khôi phục giao dịch
               </h2>
 
               <p>
-                Khi Event 2 nhận diện bill, hóa đơn sẽ tự xuất hiện tại đây.
+                Hệ thống đang lấy trạng thái thanh toán hiện tại.
               </p>
-            </div>
-          ) : (
-            <>
-              <section className="cing-pay-counter__bill-head">
-                <div>
-                  <p>
-                    HÓA ĐƠN ĐANG CHỌN
-                  </p>
 
-                  <h2>
-                    #
-                    {
-                      selected.sale_tran_id
-                    }
-                  </h2>
+              <button
+                type="button"
+                className="cing-pay-counter__secondary"
+                disabled={
+                  refreshing
+                }
+                onClick={
+                  () =>
+                    loadCurrent()
+                }
+              >
+                TẢI LẠI
+              </button>
+            </section>
+          </main>
+        )
+        : null}
 
-                  <span>
-                    POS {
-                      selected.pos_id
-                    } · {
-                      selected.pos_parent
-                    }
-                  </span>
-                </div>
 
-                <strong
-                  className={`is-${statusTone(
-                    selected.status
-                  )}`}
-                >
-                  {statusLabel(
-                    selected.status
+      {phase ===
+        "qr"
+        ? (
+          <main className="cing-pay-counter__checkout">
+            <section className="cing-pay-counter__qr-card">
+              <div className="cing-pay-counter__qr-copy">
+                <p>
+                  KHÁCH CẦN THANH TOÁN
+                </p>
+
+                <strong>
+                  {formatMoney(
+                    current?.amount
                   )}
                 </strong>
-              </section>
 
+                <h2>
+                  Quét QR bằng Cing Wallet
+                </h2>
 
-              {selected.status ===
-                "awaiting_amount" && (
-                <section className="cing-pay-counter__amount-panel">
-                  <label>
-                    Số tiền khách cần trả
+                <span>
+                  Khách mở Cing Wallet và quét mã để xác nhận thanh toán.
+                </span>
 
-                    <div className="cing-pay-counter__amount-input">
-                      <input
-                        inputMode="numeric"
-                        autoComplete="off"
-                        value={
-                          amountInput
-                        }
-                        onChange={
-                          event =>
-                            setAmountInput(
-                              parseMoneyInput(
-                                event.target
-                                  .value
-                              )
-                            )
-                        }
-                        placeholder="0"
-                      />
+                <small>
+                  QR hiệu lực đến{" "}
+                  {formatTime(
+                    current?.expires_at
+                  )}
+                </small>
+              </div>
 
+              <div className="cing-pay-counter__qr">
+                {qrDataUrl
+                  ? (
+                    <img
+                      src={
+                        qrDataUrl
+                      }
+                      alt="QR thanh toán Cing Wallet"
+                    />
+                  )
+                  : (
+                    <div className="cing-pay-counter__qr-loading">
+                      <div className="cing-pay-counter__spinner" />
                       <span>
-                        đ
+                        Đang hiển thị QR...
                       </span>
                     </div>
-                  </label>
-
-                  <div className="cing-pay-counter__quick-amounts">
-                    {[
-                      50000,
-                      100000,
-                      200000,
-                      500000,
-                    ].map(
-                      value => (
-                        <button
-                          key={
-                            value
-                          }
-                          type="button"
-                          onClick={() =>
-                            setAmountInput(
-                              new Intl.NumberFormat(
-                                "vi-VN"
-                              ).format(
-                                value
-                              )
-                            )
-                          }
-                        >
-                          {formatMoney(
-                            value
-                          )}
-                        </button>
-                      )
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    className="cing-pay-counter__primary"
-                    disabled={
-                      submitting
-                    }
-                    onClick={
-                      submitAmount
-                    }
-                  >
-                    {submitting
-                      ? "Đang tạo QR..."
-                      : "Xác nhận số tiền & tạo QR"}
-                  </button>
-
-                  <p className="cing-pay-counter__amount-warning">
-                    Kiểm tra đúng total cuối cùng trên máy POS sau mọi hạng thành viên, voucher và giảm giá.
-                  </p>
-                </section>
-              )}
-
-
-              {selected.status !==
-                "awaiting_amount" && (
-                <section className="cing-pay-counter__payment-panel">
-                  <div className="cing-pay-counter__payment-amount">
-                    <span>
-                      Số tiền đã khóa
-                    </span>
-
-                    <strong>
-                      {formatMoney(
-                        selected.amount
-                      )}
-                    </strong>
-
-                    <small>
-                      Nguồn: {
-                        selected.amount_source ===
-                        "ipos_api"
-                          ? "iPOS API"
-                          : "Thu ngân xác nhận"
-                      }
-                    </small>
-                  </div>
-
-                  {qrDataUrl &&
-                    selected.status ===
-                      "qr_ready" && (
-                      <div className="cing-pay-counter__qr">
-                        <img
-                          src={
-                            qrDataUrl
-                          }
-                          alt="QR thanh toán Cing Wallet"
-                        />
-
-                        <strong>
-                          Mời khách quét bằng Cing Wallet
-                        </strong>
-
-                        <span>
-                          Không chụp màn hình QR để sử dụng lại.
-                        </span>
-                      </div>
-                    )}
-
-                  {selected.status ===
-                    "qr_ready" &&
-                    !qrDataUrl && (
-                      <div className="cing-pay-counter__qr-missing">
-                        <strong>
-                          Đang khôi phục QR
-                        </strong>
-
-                        <span>
-                          Hệ thống đang tái tạo đúng QR của payment intent hiện hữu, không tạo giao dịch mới.
-                        </span>
-                      </div>
-                    )}
-
-                  {paid && (
-                    <div
-                      className={[
-                        "cing-pay-counter__paid",
-                        selected.status ===
-                        "reconciliation_mismatch"
-                          ? "is-mismatch"
-                          : "",
-                      ].join(" ")}
-                    >
-                      <div>
-                        {selected.status ===
-                        "reconciliation_mismatch"
-                          ? "!"
-                          : "✓"}
-                      </div>
-
-                      <h2>
-                        {selected.status ===
-                        "reconciliation_mismatch"
-                          ? "Đã thanh toán · Cần kiểm tra đối soát"
-                          : "Đã thanh toán"}
-                      </h2>
-
-                      <strong>
-                        {formatMoney(
-                          selected.amount
-                        )}
-                      </strong>
-
-                      <p>
-                        {selected.status ===
-                        "reconciled"
-                          ? "Event 11 đã khớp hoàn toàn."
-                          : selected.status ===
-                            "reconciliation_mismatch"
-                            ? "Không thu thêm hoặc hoàn tiền tự động. Super Admin sẽ nhận cảnh báo."
-                            : "Có thể hoàn tất hóa đơn iPOS và chờ Event 11 đối soát."}
-                      </p>
-                    </div>
                   )}
-                </section>
-              )}
+              </div>
+
+              <div className="cing-pay-counter__waiting-payment">
+                <i />
+                Đang chờ khách thanh toán
+              </div>
+            </section>
+          </main>
+        )
+        : null}
 
 
-              <section className="cing-pay-counter__meta">
-                <div>
-                  <span>
-                    Bill iPOS
-                  </span>
-                  <strong>
-                    {
-                      selected.sale_tran_id
-                    }
-                  </strong>
-                </div>
+      {phase ===
+        "paid"
+        ? (
+          <main className="cing-pay-counter__checkout">
+            <section className="cing-pay-counter__paid">
+              <div className="cing-pay-counter__paid-icon">
+                ✓
+              </div>
 
-                <div>
-                  <span>
-                    Nhận Event 2
-                  </span>
-                  <strong>
-                    {formatTime(
-                      selected.last_event2_at
-                    )}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>
-                    Trạng thái
-                  </span>
-                  <strong>
-                    {statusLabel(
-                      selected.status
-                    )}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>
-                    Payment intent
-                  </span>
-                  <strong>
-                    {
-                      selected.payment_intent_id
-                        ? "Đã tạo"
-                        : "Chưa tạo"
-                    }
-                  </strong>
-                </div>
-              </section>
-            </>
-          )}
-        </main>
-      </div>
-
-
-      {isSuperAdmin && (
-        <section className="cing-pay-counter__alerts">
-          <div className="cing-pay-counter__section-title">
-            <div>
               <p>
-                SUPER ADMIN
+                CING WALLET
               </p>
 
               <h2>
-                Cảnh báo đối soát
+                ĐÃ THANH TOÁN
               </h2>
-            </div>
 
-            <span>
-              {alerts.length}
-            </span>
-          </div>
+              <strong>
+                {formatMoney(
+                  current?.amount
+                )}
+              </strong>
 
-          {alerts.length === 0 ? (
-            <div className="cing-pay-counter__empty is-good">
-              Không có cảnh báo đối soát đang mở.
-            </div>
-          ) : (
-            <div className="cing-pay-counter__alert-list">
-              {alerts.map(
-                alert => (
-                  <article
-                    key={
-                      alert.id
-                    }
-                    className="cing-pay-counter__alert"
-                  >
-                    <div>
-                      <strong>
-                        {alert.alert_type ===
-                        "amount_mismatch"
-                          ? "Lệch số tiền"
-                          : "Bill hoàn tất nhưng payment chưa settled"}
-                      </strong>
+              <span>
+                Có thể hoàn tất hóa đơn trên iPOS
+              </span>
 
-                      <span>
-                        Session {
-                          alert.session_id
+              <button
+                type="button"
+                className="cing-pay-counter__next"
+                onClick={
+                  nextTransaction
+                }
+              >
+                GIAO DỊCH TIẾP THEO
+              </button>
+            </section>
+          </main>
+        )
+        : null}
+
+
+      {isSuperAdmin &&
+      alerts.length > 0
+        ? (
+          <section className="cing-pay-counter__backoffice">
+            <details>
+              <summary>
+                Cảnh báo đối soát
+                <strong>
+                  {alerts.length}
+                </strong>
+              </summary>
+
+              <div className="cing-pay-counter__alert-list">
+                {alerts.map(
+
+                  item => {
+
+                    const draft =
+
+                      resolutionDrafts[
+
+                        item.id
+
+                      ] || {};
+
+                    const selectedAction =
+
+                      draft
+
+                        .resolution_action ||
+
+                      "manual_review";
+
+                    const actions =
+
+                      getResolutionActions(
+
+                        item
+
+                      );
+
+                    const resolving =
+
+                      resolvingAlertId ===
+
+                      item.id;
+
+                    const financial =
+
+                      [
+
+                        "compensating_debit",
+
+                        "compensating_credit",
+
+                      ].includes(
+
+                        selectedAction
+
+                      );
+
+                    return (
+
+                      <article
+
+                        key={
+
+                          item.id
+
                         }
-                      </span>
-                    </div>
 
-                    <div>
-                      <span>
-                        Cing
-                      </span>
-                      <strong>
-                        {formatMoney(
-                          alert.expected_amount
-                        )}
-                      </strong>
-                    </div>
+                        className="cing-pay-counter__alert"
 
-                    <div>
-                      <span>
-                        iPOS
-                      </span>
-                      <strong>
-                        {formatMoney(
-                          alert.actual_amount
-                        )}
-                      </strong>
-                    </div>
+                      >
 
-                    <div>
-                      <span>
-                        Chênh lệch
-                      </span>
-                      <strong className="is-danger">
-                        {formatMoney(
-                          alert.difference_amount
-                        )}
-                      </strong>
-                    </div>
-                  </article>
-                )
-              )}
-            </div>
-          )}
-        </section>
-      )}
+                        <div>
+
+                          <span>
+
+                            Loại cảnh báo
+
+                          </span>
+
+                          <strong>
+
+                            {item.alert_type ||
+
+                              "Cần kiểm tra"}
+
+                          </strong>
+
+                        </div>
+
+                        <div>
+
+                          <span>
+
+                            Cing Wallet
+
+                          </span>
+
+                          <strong>
+
+                            {formatMoney(
+
+                              item
+
+                                .expected_amount
+
+                            )}
+
+                          </strong>
+
+                        </div>
+
+                        <div>
+
+                          <span>
+
+                            iPOS
+
+                          </span>
+
+                          <strong>
+
+                            {formatMoney(
+
+                              item
+
+                                .actual_amount
+
+                            )}
+
+                          </strong>
+
+                        </div>
+
+                        <div>
+
+                          <span>
+
+                            Chênh lệch
+
+                          </span>
+
+                          <strong>
+
+                            {formatMoney(
+
+                              item
+
+                                .difference_amount
+
+                            )}
+
+                          </strong>
+
+                        </div>
+
+                        <div>
+
+                          <span>
+
+                            Phát hiện
+
+                          </span>
+
+                          <strong>
+
+                            {formatTime(
+
+                              item
+
+                                .last_detected_at ||
+
+                              item
+
+                                .first_detected_at
+
+                            )}
+
+                          </strong>
+
+                        </div>
+
+                        <div className="cing-pay-counter__resolution">
+
+                          <div className="cing-pay-counter__resolution-title">
+
+                            <strong>
+
+                              Xử lý đối soát
+
+                            </strong>
+
+                            <span>
+
+                              Hệ thống tự xác định khách hàng và số tiền điều chỉnh từ dữ liệu đối soát.
+
+                            </span>
+
+                          </div>
+
+                          <label>
+
+                            <span>
+
+                              Quyết định
+
+                            </span>
+
+                            <select
+
+                              value={
+
+                                selectedAction
+
+                              }
+
+                              disabled={
+
+                                resolving
+
+                              }
+
+                              onChange={
+
+                                event =>
+
+                                  updateResolutionDraft(
+
+                                    item.id,
+
+                                    {
+
+                                      resolution_action:
+
+                                        event
+
+                                          .target
+
+                                          .value,
+
+                                    }
+
+                                  )
+
+                              }
+
+                            >
+
+                              {actions.map(
+
+                                action => (
+
+                                  <option
+
+                                    key={
+
+                                      action.value
+
+                                    }
+
+                                    value={
+
+                                      action.value
+
+                                    }
+
+                                  >
+
+                                    {action.label}
+
+                                  </option>
+
+                                )
+
+                              )}
+
+                            </select>
+
+                          </label>
+
+                          <label>
+
+                            <span>
+
+                              Mã lý do
+
+                            </span>
+
+                            <input
+
+                              type="text"
+
+                              value={
+
+                                draft
+
+                                  .reason_code ||
+
+                                ""
+
+                              }
+
+                              disabled={
+
+                                resolving
+
+                              }
+
+                              maxLength={
+
+                                64
+
+                              }
+
+                              autoComplete="off"
+
+                              placeholder="vi_du: da_xac_minh"
+
+                              onChange={
+
+                                event =>
+
+                                  updateResolutionDraft(
+
+                                    item.id,
+
+                                    {
+
+                                      reason_code:
+
+                                        event
+
+                                          .target
+
+                                          .value,
+
+                                    }
+
+                                  )
+
+                              }
+
+                            />
+
+                          </label>
+
+                          <label className="is-note">
+
+                            <span>
+
+                              Ghi chú
+
+                              {financial
+
+                                ? " · bắt buộc"
+
+                                : ""}
+
+                            </span>
+
+                            <textarea
+
+                              value={
+
+                                draft.note ||
+
+                                ""
+
+                              }
+
+                              disabled={
+
+                                resolving
+
+                              }
+
+                              maxLength={
+
+                                1000
+
+                              }
+
+                              placeholder={
+
+                                financial
+
+                                  ? "Ghi rõ căn cứ điều chỉnh số dư"
+
+                                  : "Thông tin phục vụ kiểm tra"
+
+                              }
+
+                              onChange={
+
+                                event =>
+
+                                  updateResolutionDraft(
+
+                                    item.id,
+
+                                    {
+
+                                      note:
+
+                                        event
+
+                                          .target
+
+                                          .value,
+
+                                    }
+
+                                  )
+
+                              }
+
+                            />
+
+                          </label>
+
+                          {resolutionErrors[
+
+                            item.id
+
+                          ]
+
+                            ? (
+
+                              <div className="cing-pay-counter__resolution-error">
+
+                                {resolutionErrors[
+
+                                  item.id
+
+                                ]}
+
+                              </div>
+
+                            )
+
+                            : null}
+
+                          <button
+
+                            type="button"
+
+                            className="cing-pay-counter__resolve"
+
+                            disabled={
+
+                              resolving ||
+
+                              !String(
+
+                                draft
+
+                                  .reason_code ||
+
+                                ""
+
+                              ).trim() ||
+
+                              (
+
+                                financial &&
+
+                                !String(
+
+                                  draft.note ||
+
+                                  ""
+
+                                ).trim()
+
+                              )
+
+                            }
+
+                            onClick={
+
+                              () =>
+
+                                resolveAlert(
+
+                                  item
+
+                                )
+
+                            }
+
+                          >
+
+                            {resolving
+
+                              ? "ĐANG XỬ LÝ..."
+
+                              : "XÁC NHẬN QUYẾT ĐỊNH"}
+
+                          </button>
+
+                        </div>
+
+                      </article>
+
+                    );
+
+                  }
+
+                )}
+              </div>
+            </details>
+          </section>
+        )
+        : null}
     </div>
   );
 }

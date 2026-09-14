@@ -26,7 +26,7 @@ function resolveTitle(
         row.reference_type ===
           "pos_payment_intent"
       ) {
-        return "Thanh toán tại quầy";
+        return "Cing Wallet";
       }
 
       return (
@@ -64,18 +64,23 @@ function resolveDescription(
     row.reference_type ===
       "pos_payment_intent"
   ) {
-    const bill =
+    const storeDisplayName =
       String(
-        row.pos_payment
-          ?.bill_reference ||
+        row?.pos_payment
+          ?.store_display_name ||
         ""
       ).trim();
 
-    if (bill) {
-      return `Bill #${bill}`;
+    if (
+      storeDisplayName
+    ) {
+      return (
+        "Thanh toán đơn hàng tại cửa hàng " +
+        storeDisplayName
+      );
     }
 
-    return "Thanh toán Cing Wallet tại quầy";
+    return "Thanh toán đơn hàng tại cửa hàng";
   }
 
   if (
@@ -89,7 +94,9 @@ function resolveDescription(
     row.note ||
     ""
   ).trim();
+
 }
+
 
 function resolveTime(
   createdAt

@@ -137,3 +137,118 @@ fetchWalletPosAlerts(
     ? response.data.data
     : [];
 }
+
+
+export async function
+fetchCurrentWalletPosManualSession(
+  token
+) {
+  const response =
+    await apiClient.get(
+      "/admin/wallet/pos/manual-session",
+      authConfig(token)
+    );
+
+  return response?.data?.data ||
+    null;
+}
+
+
+export async function
+createWalletPosManualPayment(
+  token,
+  {
+    amount,
+    requestId,
+  }
+) {
+  const response =
+    await apiClient.post(
+      "/admin/wallet/pos/manual-payment",
+      {
+        amount,
+        request_id:
+          requestId,
+      },
+      authConfig(token)
+    );
+
+  return response?.data?.data ||
+    null;
+}
+
+
+export async function
+resolveWalletPosAlert(
+
+  token,
+
+  alertId,
+
+  {
+
+    requestId,
+
+    resolutionAction,
+
+    reasonCode,
+
+    note = null,
+
+  }
+
+) {
+
+  const payload = {
+
+    request_id:
+
+      requestId,
+
+    resolution_action:
+
+      resolutionAction,
+
+    reason_code:
+
+      reasonCode,
+
+  };
+
+  if (
+
+    typeof note ===
+
+      "string" &&
+
+    note.trim()
+
+  ) {
+
+    payload.note =
+
+      note.trim();
+
+  }
+
+  const response =
+
+    await apiClient.post(
+
+      `/admin/wallet/pos/reconciliation-alerts/${encodeURIComponent(
+
+        alertId
+
+      )}/resolve`,
+
+      payload,
+
+      authConfig(token)
+
+    );
+
+  return response?.data?.data ||
+
+    null;
+
+}

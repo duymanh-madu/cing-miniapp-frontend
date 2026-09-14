@@ -1,21 +1,23 @@
 .cing-pay-counter {
-  --cing-pay-espresso: #241810;
-  --cing-pay-brown: #5a3725;
-  --cing-pay-cream: #f8f3eb;
-  --cing-pay-gold: #d8ad68;
-  --cing-pay-orange: #d4531c;
-  --cing-pay-green: #176548;
-  --cing-pay-red: #a72d35;
+  --espresso: #241810;
+  --espresso-soft: #382319;
+  --cream: #f8f3eb;
+  --gold: #d8ad68;
+  --orange: #d4531c;
+  --green: #16704d;
+  --green-soft: #eaf8ef;
+  --red: #a72d35;
+
   min-height: 100%;
   padding: 18px;
   background:
     radial-gradient(
-      circle at 84% 0%,
-      rgba(216, 173, 104, 0.18),
-      transparent 35%
+      circle at 88% 0%,
+      rgba(216, 173, 104, 0.2),
+      transparent 34%
     ),
     #f5f1eb;
-  color: var(--cing-pay-espresso);
+  color: var(--espresso);
   box-sizing: border-box;
 }
 
@@ -23,50 +25,55 @@
   box-sizing: border-box;
 }
 
-.cing-pay-counter__hero,
-.cing-pay-counter__workspace,
-.cing-pay-counter__queue,
-.cing-pay-counter__alerts {
-  border: 1px solid rgba(95, 60, 35, 0.1);
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 18px 50px rgba(67, 42, 25, 0.08);
+.cing-pay-counter button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .cing-pay-counter__hero {
+  max-width: 980px;
+  margin: 0 auto 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 18px;
-  margin-bottom: 16px;
-  padding: 22px 24px;
+  padding: 20px 24px;
   border-radius: 24px;
   background:
     linear-gradient(
       135deg,
-      #261810,
-      #3b2619
+      #25170f,
+      #3d281b
     );
   color: #fff8ed;
+  box-shadow:
+    0 18px 50px
+    rgba(67, 42, 25, 0.12);
 }
 
 .cing-pay-counter__hero p,
-.cing-pay-counter__section-title p,
-.cing-pay-counter__bill-head p {
-  margin: 0 0 5px;
+.cing-pay-counter__amount-card > p,
+.cing-pay-counter__qr-copy > p,
+.cing-pay-counter__paid > p {
+  margin: 0;
   font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 1.8px;
-  opacity: 0.62;
+  font-weight: 950;
+  letter-spacing: 1.6px;
+  opacity: 0.64;
 }
 
 .cing-pay-counter__hero h1 {
-  margin: 0;
-  font-size: clamp(26px, 4vw, 38px);
+  margin: 3px 0 0;
+  font-size: clamp(
+    28px,
+    4vw,
+    40px
+  );
 }
 
 .cing-pay-counter__hero span {
   display: block;
-  margin-top: 5px;
+  margin-top: 4px;
   font-size: 12px;
   opacity: 0.72;
 }
@@ -74,30 +81,36 @@
 .cing-pay-counter__hero-status {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  padding: 9px 12px;
-  border: 1px solid rgba(238, 211, 162, 0.2);
+  gap: 9px;
+  padding: 9px 13px;
+  border: 1px solid
+    rgba(238, 211, 162, 0.22);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background:
+    rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 850;
 }
 
-.cing-pay-counter__hero-status i {
+.cing-pay-counter__hero-status i,
+.cing-pay-counter__waiting-payment i {
   width: 9px;
   height: 9px;
   border-radius: 50%;
   background: #50d890;
-  box-shadow: 0 0 0 5px rgba(80, 216, 144, 0.13);
+  box-shadow:
+    0 0 0 5px
+    rgba(80, 216, 144, 0.13);
 }
 
 .cing-pay-counter__notice {
-  margin-bottom: 14px;
-  padding: 12px 14px;
+  max-width: 980px;
+  margin: 0 auto 14px;
+  padding: 12px 15px;
   border-radius: 14px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 750;
 }
 
 .cing-pay-counter__notice.is-error {
@@ -106,514 +119,658 @@
   color: #9f1239;
 }
 
-.cing-pay-counter__notice.is-success {
-  border: 1px solid #bbf7d0;
-  background: #ecfdf5;
-  color: #166534;
+.cing-pay-counter__checkout {
+  max-width: 720px;
+  margin: 0 auto;
 }
 
-.cing-pay-counter__layout {
-  display: grid;
-  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.7fr);
-  gap: 16px;
+.cing-pay-counter__amount-card,
+.cing-pay-counter__qr-card,
+.cing-pay-counter__state-card,
+.cing-pay-counter__paid {
+  border: 1px solid
+    rgba(95, 60, 35, 0.1);
+  border-radius: 26px;
+  background:
+    rgba(255, 255, 255, 0.97);
+  box-shadow:
+    0 20px 60px
+    rgba(67, 42, 25, 0.09);
 }
 
-.cing-pay-counter__queue,
-.cing-pay-counter__workspace,
-.cing-pay-counter__alerts {
-  border-radius: 22px;
-}
-
-.cing-pay-counter__queue {
-  padding: 16px;
-  min-height: 520px;
-}
-
-.cing-pay-counter__workspace {
-  min-height: 520px;
-  padding: 20px;
-}
-
-.cing-pay-counter__section-title,
-.cing-pay-counter__bill-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.cing-pay-counter__section-title h2,
-.cing-pay-counter__bill-head h2 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.cing-pay-counter__section-title > span {
-  min-width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  background: #f1e7d8;
-  color: #684527;
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.cing-pay-counter__queue-list {
-  display: grid;
-  gap: 9px;
-  margin-top: 16px;
-}
-
-.cing-pay-counter__queue-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 13px;
-  border: 1px solid #eee2d3;
-  border-radius: 15px;
-  background: #fff;
-  text-align: left;
-  cursor: pointer;
-}
-
-.cing-pay-counter__queue-item.is-active {
-  border-color: #d7ab69;
-  background: #fffaf2;
-  box-shadow: 0 7px 20px rgba(116, 74, 41, 0.09);
-}
-
-.cing-pay-counter__queue-item strong,
-.cing-pay-counter__queue-item span {
-  display: block;
-}
-
-.cing-pay-counter__queue-item strong {
-  font-size: 13px;
-}
-
-.cing-pay-counter__queue-item span {
-  margin-top: 3px;
-  color: #8a7868;
-  font-size: 10px;
-}
-
-.cing-pay-counter__queue-item small,
-.cing-pay-counter__bill-head > strong {
-  padding: 6px 9px;
-  border-radius: 999px;
-  font-size: 9px;
-  font-weight: 900;
-}
-
-.cing-pay-counter .is-success {
-  background: #e9f8ef;
-  color: #176548;
-}
-
-.cing-pay-counter .is-waiting {
-  background: #fff4d8;
-  color: #8a5b0a;
-}
-
-.cing-pay-counter .is-danger {
-  background: #fff0f1;
-  color: #a72d35;
-}
-
-.cing-pay-counter .is-neutral {
-  background: #f2efeb;
-  color: #6f6258;
-}
-
-.cing-pay-counter__empty,
-.cing-pay-counter__waiting {
-  display: grid;
-  place-items: center;
-  min-height: 180px;
-  margin-top: 16px;
-  padding: 24px;
-  border: 1px dashed #dfd3c6;
-  border-radius: 17px;
-  color: #8d7e72;
+.cing-pay-counter__amount-card {
+  padding: 26px;
   text-align: center;
-  font-size: 12px;
 }
 
-.cing-pay-counter__empty.is-good {
-  min-height: 80px;
-  color: #176548;
-}
-
-.cing-pay-counter__waiting {
-  min-height: 460px;
-}
-
-.cing-pay-counter__waiting div {
-  font-size: 48px;
-  color: #cfab73;
-}
-
-.cing-pay-counter__waiting h2 {
-  margin: 8px 0 0;
-}
-
-.cing-pay-counter__waiting p {
-  margin: 6px 0 0;
-  max-width: 380px;
-  line-height: 1.6;
-}
-
-.cing-pay-counter__bill-head {
-  padding-bottom: 16px;
-  border-bottom: 1px solid #eee7df;
-}
-
-.cing-pay-counter__bill-head span {
-  display: block;
-  margin-top: 4px;
-  color: #897a6d;
-  font-size: 11px;
-}
-
-.cing-pay-counter__amount-panel,
-.cing-pay-counter__payment-panel {
-  padding: 26px 0;
-}
-
-.cing-pay-counter__amount-panel label {
-  display: block;
-  font-size: 11px;
-  font-weight: 900;
-  color: #6e5d50;
-}
-
-.cing-pay-counter__amount-input {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  padding: 12px 15px;
-  border: 2px solid #d9c29d;
-  border-radius: 18px;
-  background: #fffdf9;
-}
-
-.cing-pay-counter__amount-input input {
-  width: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: #261810;
-  font-size: clamp(34px, 7vw, 58px);
-  font-weight: 950;
-  letter-spacing: -2px;
-}
-
-.cing-pay-counter__amount-input span {
-  font-size: 20px;
-  font-weight: 900;
-  color: #95714a;
-}
-
-.cing-pay-counter__quick-amounts {
+.cing-pay-counter__amount-display {
+  min-height: 88px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 10px;
+  place-items: center;
+  margin: 8px 0 22px;
+  color: var(--espresso);
+  font-size: clamp(
+    46px,
+    9vw,
+    74px
+  );
+  font-weight: 950;
+  letter-spacing: -3px;
+  line-height: 1;
 }
 
-.cing-pay-counter__quick-amounts button {
+.cing-pay-counter__keypad {
+  max-width: 520px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+  gap: 10px;
+}
+
+.cing-pay-counter__keypad button {
+  min-height: 68px;
   border: 1px solid #eadbc8;
-  border-radius: 12px;
-  padding: 10px 6px;
-  background: #fff;
-  color: #60452f;
-  font-weight: 850;
+  border-radius: 17px;
+  background: #fffdf9;
+  color: var(--espresso);
+  font-size: 25px;
+  font-weight: 900;
   cursor: pointer;
+  box-shadow:
+    0 5px 14px
+    rgba(70, 45, 27, 0.045);
+}
+
+.cing-pay-counter__keypad button:active {
+  transform:
+    translateY(1px);
+  background: #f8efe3;
+}
+
+.cing-pay-counter__keypad button.is-backspace {
+  color: #815942;
+}
+
+.cing-pay-counter__keypad button.is-thousand {
+  color: #9a5b20;
+  font-size: 20px;
+}
+
+.cing-pay-counter__primary,
+.cing-pay-counter__secondary,
+.cing-pay-counter__next {
+  border: none;
+  cursor: pointer;
+  font-weight: 950;
 }
 
 .cing-pay-counter__primary {
-  width: 100%;
-  margin-top: 16px;
-  border: none;
-  border-radius: 15px;
-  padding: 15px 18px;
-  background: linear-gradient(
-    135deg,
-    #c54c1d,
-    #df6b25
+  width: min(
+    520px,
+    100%
   );
+  min-height: 58px;
+  margin-top: 18px;
+  padding: 15px 20px;
+  border-radius: 17px;
+  background:
+    linear-gradient(
+      135deg,
+      #bd4619,
+      #e16b24
+    );
   color: white;
-  font-size: 14px;
-  font-weight: 950;
-  box-shadow: 0 10px 24px rgba(197, 76, 29, 0.2);
-  cursor: pointer;
+  font-size: 16px;
+  box-shadow:
+    0 12px 28px
+    rgba(197, 76, 29, 0.22);
 }
 
-.cing-pay-counter__primary:disabled {
+.cing-pay-counter__primary:disabled,
+.cing-pay-counter__secondary:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
-.cing-pay-counter__amount-warning {
-  margin: 11px 2px 0;
-  color: #8c796a;
+.cing-pay-counter__hint {
+  display: block;
+  margin-top: 10px;
+  color: #948173;
   font-size: 10px;
-  line-height: 1.55;
 }
 
-.cing-pay-counter__payment-panel {
+.cing-pay-counter__qr-card {
+  padding: 24px;
   display: grid;
-  grid-template-columns: minmax(0, 0.75fr) minmax(260px, 1fr);
-  gap: 18px;
+  grid-template-columns:
+    minmax(220px, 0.8fr)
+    minmax(300px, 1fr);
+  gap: 22px;
   align-items: center;
 }
 
-.cing-pay-counter__payment-amount {
-  padding: 22px;
-  border-radius: 19px;
-  background: linear-gradient(
-    145deg,
-    #2a1b12,
-    #17100c
-  );
-  color: #fff8ee;
-}
-
-.cing-pay-counter__payment-amount span,
-.cing-pay-counter__payment-amount small,
-.cing-pay-counter__payment-amount strong {
+.cing-pay-counter__qr-copy strong {
   display: block;
+  margin: 8px 0 20px;
+  font-size: clamp(
+    40px,
+    7vw,
+    62px
+  );
+  letter-spacing: -2px;
 }
 
-.cing-pay-counter__payment-amount span {
-  font-size: 10px;
-  opacity: 0.62;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.cing-pay-counter__qr-copy h2 {
+  margin: 0;
+  font-size: 22px;
 }
 
-.cing-pay-counter__payment-amount strong {
+.cing-pay-counter__qr-copy span,
+.cing-pay-counter__qr-copy small {
+  display: block;
   margin-top: 8px;
-  font-size: clamp(30px, 6vw, 48px);
+  color: #79695d;
+  line-height: 1.5;
 }
 
-.cing-pay-counter__payment-amount small {
-  margin-top: 7px;
-  opacity: 0.55;
+.cing-pay-counter__qr-copy span {
+  font-size: 12px;
 }
 
-.cing-pay-counter__qr,
-.cing-pay-counter__qr-missing {
+.cing-pay-counter__qr-copy small {
+  font-size: 10px;
+}
+
+.cing-pay-counter__qr {
   display: grid;
   place-items: center;
-  text-align: center;
-  padding: 18px;
-  border-radius: 20px;
-  background: #fffaf4;
+  padding: 14px;
   border: 1px solid #ead8bc;
+  border-radius: 22px;
+  background: #fffaf4;
 }
 
 .cing-pay-counter__qr img {
-  width: min(100%, 360px);
+  width: min(
+    100%,
+    390px
+  );
   aspect-ratio: 1;
-  background: white;
+  padding: 8px;
   border-radius: 16px;
-  padding: 10px;
+  background: white;
 }
 
-.cing-pay-counter__qr strong {
-  margin-top: 12px;
-  font-size: 13px;
+.cing-pay-counter__qr-loading {
+  min-height: 300px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  color: #8a796b;
+  font-size: 11px;
 }
 
-.cing-pay-counter__qr span,
-.cing-pay-counter__qr-missing span {
-  margin-top: 5px;
-  color: #8b7b6e;
-  font-size: 10px;
+.cing-pay-counter__waiting-payment {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  padding: 12px;
+  border-radius: 14px;
+  background: #f6f2eb;
+  color: #6f604f;
+  font-size: 11px;
+  font-weight: 850;
 }
 
 .cing-pay-counter__paid {
-  grid-column: 1 / -1;
-  padding: 28px;
-  border: 1px solid #bfe7ce;
-  border-radius: 22px;
-  background: #eefaf3;
+  padding: 42px 28px;
   text-align: center;
+  border-color: #bae2c9;
+  background:
+    radial-gradient(
+      circle at 50% 10%,
+      rgba(64, 178, 116, 0.13),
+      transparent 42%
+    ),
+    #f1fbf5;
   color: #145d43;
 }
 
-.cing-pay-counter__paid.is-mismatch {
-  border-color: #efb8bd;
-  background: #fff2f3;
-  color: #9c2931;
-}
-
-.cing-pay-counter__paid > div {
-  width: 62px;
-  height: 62px;
+.cing-pay-counter__paid-icon {
+  width: 76px;
+  height: 76px;
   display: grid;
   place-items: center;
-  margin: 0 auto 10px;
+  margin: 0 auto 16px;
   border-radius: 50%;
-  background: rgba(23, 101, 72, 0.11);
-  font-size: 30px;
+  background: #d8f4e3;
+  font-size: 38px;
   font-weight: 950;
 }
 
-.cing-pay-counter__paid h2,
-.cing-pay-counter__paid p {
-  margin: 0;
+.cing-pay-counter__paid h2 {
+  margin: 6px 0 0;
+  font-size: clamp(
+    34px,
+    7vw,
+    54px
+  );
 }
 
-.cing-pay-counter__paid strong {
+.cing-pay-counter__paid > strong {
   display: block;
-  margin: 7px 0;
-  font-size: 32px;
+  margin: 8px 0;
+  font-size: clamp(
+    40px,
+    7vw,
+    60px
+  );
 }
 
-.cing-pay-counter__paid p {
-  font-size: 11px;
-  line-height: 1.55;
+.cing-pay-counter__paid > span {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
 }
 
-.cing-pay-counter__meta {
+.cing-pay-counter__next {
+  margin-top: 26px;
+  padding: 15px 24px;
+  border-radius: 16px;
+  background: #176548;
+  color: white;
+  font-size: 13px;
+}
+
+.cing-pay-counter__state-card {
+  min-height: 360px;
+  padding: 36px 24px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  place-items: center;
+  align-content: center;
+  text-align: center;
+}
+
+.cing-pay-counter__state-card h2 {
+  margin: 16px 0 0;
+}
+
+.cing-pay-counter__state-card p {
+  margin: 7px 0 18px;
+  color: #837365;
+  font-size: 12px;
+}
+
+.cing-pay-counter__secondary {
+  padding: 11px 16px;
+  border-radius: 13px;
+  background: #eee4d7;
+  color: #563d2b;
+}
+
+.cing-pay-counter__spinner,
+.cing-pay-counter__loading > span {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #e8ddcf;
+  border-top-color: #c65a24;
+  border-radius: 50%;
+  animation:
+    cing-pay-spin
+    0.7s
+    linear
+    infinite;
+}
+
+.cing-pay-counter__loading {
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  color: #715f50;
+}
+
+.cing-pay-counter__backoffice {
+  max-width: 980px;
+  margin: 18px auto 0;
+}
+
+.cing-pay-counter__backoffice details {
+  border: 1px solid #ead8d8;
+  border-radius: 18px;
+  background: #fffafa;
+  overflow: hidden;
+}
+
+.cing-pay-counter__backoffice summary {
+  display: flex;
+  align-items: center;
   gap: 9px;
-  padding-top: 16px;
-  border-top: 1px solid #eee7df;
+  padding: 14px 16px;
+  cursor: pointer;
+  color: #7e373b;
+  font-size: 12px;
+  font-weight: 900;
 }
 
-.cing-pay-counter__meta > div {
-  padding: 12px;
-  border-radius: 14px;
-  background: #f8f5f1;
-}
-
-.cing-pay-counter__meta span,
-.cing-pay-counter__meta strong {
-  display: block;
-}
-
-.cing-pay-counter__meta span {
-  color: #938275;
-  font-size: 9px;
-}
-
-.cing-pay-counter__meta strong {
-  margin-top: 4px;
-  font-size: 11px;
-  overflow-wrap: anywhere;
-}
-
-.cing-pay-counter__alerts {
-  margin-top: 16px;
-  padding: 18px;
+.cing-pay-counter__backoffice summary strong {
+  min-width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #f6dfe1;
+  font-size: 10px;
 }
 
 .cing-pay-counter__alert-list {
   display: grid;
-  gap: 9px;
-  margin-top: 14px;
+  gap: 8px;
+  padding: 0 14px 14px;
 }
 
 .cing-pay-counter__alert {
   display: grid;
-  grid-template-columns: minmax(200px, 2fr) repeat(3, minmax(100px, 1fr));
+  grid-template-columns:
+    minmax(180px, 1.4fr)
+    repeat(
+      2,
+      minmax(120px, 1fr)
+    );
   gap: 10px;
-  padding: 13px;
-  border: 1px solid #f0c7ca;
-  border-radius: 15px;
-  background: #fff7f7;
+  padding: 12px;
+  border: 1px solid #efd1d3;
+  border-radius: 13px;
+  background: white;
 }
 
-.cing-pay-counter__alert div span,
-.cing-pay-counter__alert div strong {
+.cing-pay-counter__alert span,
+.cing-pay-counter__alert strong {
   display: block;
 }
 
-.cing-pay-counter__alert div span {
-  color: #927b7d;
+.cing-pay-counter__alert span {
+  color: #9b8586;
   font-size: 9px;
 }
 
-.cing-pay-counter__alert div strong {
+.cing-pay-counter__alert strong {
   margin-top: 3px;
   font-size: 11px;
 }
 
-.cing-pay-counter__alert strong.is-danger {
-  padding: 0;
-  background: transparent;
+@keyframes cing-pay-spin {
+  to {
+    transform:
+      rotate(360deg);
+  }
 }
 
-@media (max-width: 900px) {
+@media (
+  max-width: 760px
+) {
   .cing-pay-counter {
     padding: 10px;
   }
 
   .cing-pay-counter__hero {
-    align-items: flex-start;
-    flex-direction: column;
-    border-radius: 18px;
+    padding: 17px;
+    border-radius: 19px;
   }
 
-  .cing-pay-counter__layout {
-    grid-template-columns: 1fr;
+  .cing-pay-counter__hero span {
+    display: none;
   }
 
-  .cing-pay-counter__queue {
-    min-height: auto;
+  .cing-pay-counter__amount-card,
+  .cing-pay-counter__qr-card,
+  .cing-pay-counter__paid {
+    border-radius: 20px;
   }
 
-  .cing-pay-counter__queue-list {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(230px, 82%);
-    overflow-x: auto;
-    padding-bottom: 4px;
+  .cing-pay-counter__amount-card {
+    padding: 18px 14px;
   }
 
-  .cing-pay-counter__workspace {
-    min-height: 460px;
+  .cing-pay-counter__keypad {
+    gap: 8px;
   }
 
-  .cing-pay-counter__payment-panel {
-    grid-template-columns: 1fr;
+  .cing-pay-counter__keypad button {
+    min-height: 60px;
   }
 
-  .cing-pay-counter__meta {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .cing-pay-counter__qr-card {
+    grid-template-columns:
+      1fr;
+    padding: 18px;
+  }
+
+  .cing-pay-counter__qr-copy {
+    text-align: center;
   }
 
   .cing-pay-counter__alert {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns:
+      1fr;
   }
 }
 
-@media (max-width: 520px) {
-  .cing-pay-counter__quick-amounts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (
+  max-width: 440px
+) {
+  .cing-pay-counter__hero-status {
+    display: none;
   }
 
-  .cing-pay-counter__amount-input input {
-    font-size: 40px;
+  .cing-pay-counter__amount-display {
+    font-size: 48px;
   }
 
-  .cing-pay-counter__workspace {
-    padding: 14px;
+  .cing-pay-counter__paid {
+    padding:
+      34px 18px;
+  }
+}
+
+
+.cing-pay-counter__resolution {
+
+  grid-column: 1 / -1;
+
+  display: grid;
+
+  grid-template-columns:
+
+    repeat(
+
+      2,
+
+      minmax(180px, 1fr)
+
+    );
+
+  gap: 10px;
+
+  margin-top: 4px;
+
+  padding-top: 12px;
+
+  border-top:
+
+    1px solid #f0dddd;
+
+}
+
+.cing-pay-counter__resolution-title {
+
+  grid-column: 1 / -1;
+
+}
+
+.cing-pay-counter__resolution-title strong,
+
+.cing-pay-counter__resolution-title span {
+
+  display: block;
+
+}
+
+.cing-pay-counter__resolution-title strong {
+
+  color: #623235;
+
+  font-size: 12px;
+
+}
+
+.cing-pay-counter__resolution-title span {
+
+  margin-top: 3px;
+
+  color: #9b8586;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+
+}
+
+.cing-pay-counter__resolution label {
+
+  display: grid;
+
+  gap: 5px;
+
+}
+
+.cing-pay-counter__resolution label > span {
+
+  color: #806f70;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+}
+
+.cing-pay-counter__resolution select,
+
+.cing-pay-counter__resolution input,
+
+.cing-pay-counter__resolution textarea {
+
+  width: 100%;
+
+  border:
+
+    1px solid #e9d7d8;
+
+  border-radius: 10px;
+
+  background: #fffdfd;
+
+  color: #412729;
+
+  font: inherit;
+
+  font-size: 11px;
+
+  outline: none;
+
+}
+
+.cing-pay-counter__resolution select,
+
+.cing-pay-counter__resolution input {
+
+  min-height: 40px;
+
+  padding: 8px 10px;
+
+}
+
+.cing-pay-counter__resolution textarea {
+
+  min-height: 74px;
+
+  padding: 10px;
+
+  resize: vertical;
+
+}
+
+.cing-pay-counter__resolution .is-note {
+
+  grid-column: 1 / -1;
+
+}
+
+.cing-pay-counter__resolution-error {
+
+  grid-column: 1 / -1;
+
+  padding: 9px 10px;
+
+  border-radius: 10px;
+
+  background: #fff1f2;
+
+  color: #9f1239;
+
+  font-size: 10px;
+
+  font-weight: 750;
+
+}
+
+.cing-pay-counter__resolve {
+
+  grid-column: 1 / -1;
+
+  min-height: 44px;
+
+  border: none;
+
+  border-radius: 11px;
+
+  background: #6f3438;
+
+  color: white;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  cursor: pointer;
+
+}
+
+.cing-pay-counter__resolve:disabled {
+
+  opacity: 0.42;
+
+  cursor: not-allowed;
+
+}
+
+@media (
+
+  max-width: 760px
+
+) {
+
+  .cing-pay-counter__resolution {
+
+    grid-template-columns:
+
+      1fr;
+
   }
 
-  .cing-pay-counter__meta {
-    grid-template-columns: 1fr;
-  }
-
-  .cing-pay-counter__alert {
-    grid-template-columns: 1fr;
-  }
 }
