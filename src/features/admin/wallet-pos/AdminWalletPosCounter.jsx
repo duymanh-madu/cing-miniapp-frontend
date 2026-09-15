@@ -11,6 +11,7 @@ import QRCode
 
 import {
   createWalletPosManualPayment,
+  cancelWalletPosManualSession,
   fetchCurrentWalletPosManualSession,
   fetchWalletPosAlerts,
   resolveWalletPosAlert,
@@ -439,6 +440,18 @@ AdminWalletPosCounter({
     useState(false);
 
   const [
+    cancellingSession,
+    setCancellingSession,
+  ] =
+    useState(false);
+
+  const [
+    mobileSummaryOpen,
+    setMobileSummaryOpen,
+  ] =
+    useState(false);
+
+  const [
     initialLoading,
     setInitialLoading,
   ] =
@@ -540,6 +553,12 @@ AdminWalletPosCounter({
     useRef(false);
 
   const requestIdRef =
+    useRef(null);
+
+  const cancelRequestIdRef =
+    useRef(null);
+
+  const cancelSessionIdRef =
     useRef(null);
 
   const paidLatchRef =
@@ -811,6 +830,145 @@ AdminWalletPosCounter({
         }
       },
       [
+        token,
+      ]
+    );
+
+
+  const canCancelCurrent =
+    Boolean(
+      current?.id &&
+      (
+        current.status ===
+          "amount_frozen" ||
+        current.status ===
+          "qr_ready"
+      )
+    );
+
+
+  useEffect(
+    () => {
+      // cancel-command-session-fence-v1
+      cancelRequestIdRef.current =
+        null;
+    },
+    [
+      current?.id,
+    ]
+  );
+
+
+  const cancelCurrentSession =
+    useCallback(
+      async () => {
+        if (
+          !canCancelCurrent ||
+          cancellingSession
+        ) {
+          return;
+        }
+
+        setCancellingSession(
+          true
+        );
+
+        setError("");
+
+        try {
+          if (
+            cancelSessionIdRef.current !==
+              current.id
+          ) {
+            cancelSessionIdRef.current =
+              current.id;
+
+            cancelRequestIdRef.current =
+              null;
+          }
+
+          const cancelRequestId =
+            cancelRequestIdRef.current ||
+            createRequestId();
+
+          cancelRequestIdRef.current =
+            cancelRequestId;
+
+          const result =
+            await cancelWalletPosManualSession(
+              token,
+              current.id,
+              {
+                requestId:
+                  cancelRequestId,
+                reason:
+                  "cashier_cancelled_current_session",
+              }
+            );
+
+          if (
+            result?.session_status !==
+              "cancelled"
+          ) {
+            throw new Error(
+              "Phiên thanh toán chưa được hủy an toàn."
+            );
+          }
+
+          paidLatchRef.current =
+            false;
+
+          previousPaidRef.current =
+            false;
+
+          setCurrent(
+            null
+          );
+
+          setQrContent(
+            ""
+          );
+
+          setQrDataUrl(
+            ""
+          );
+
+          requestIdRef.current =
+            null;
+
+          cancelRequestIdRef.current =
+            null;
+
+          cancelSessionIdRef.current =
+            null;
+
+          await loadCurrent({
+            silent:
+              true,
+          });
+        } catch (
+          cancelError
+        ) {
+          setError(
+            errorMessage(
+              cancelError
+            )
+          );
+        } finally {
+          if (
+            mountedRef.current
+          ) {
+            setCancellingSession(
+              false
+            );
+          }
+        }
+      },
+      [
+        canCancelCurrent,
+        cancellingSession,
+        current?.id,
+        loadCurrent,
         token,
       ]
     );
@@ -1854,6 +2012,15 @@ AdminWalletPosCounter({
 
   return (
     <div className="cing-pay-counter">
+      <div
+        className={
+          `cing-pay-counter__summary ${
+            mobileSummaryOpen
+              ? "is-open"
+              : "is-collapsed"
+          }`
+        }
+      >
       <header className="cing-pay-counter__hero">
         <div>
           <p>
@@ -1874,6 +2041,34 @@ AdminWalletPosCounter({
           Sẵn sàng
         </div>
       </header>
+      </div>
+
+      <button
+        type="button"
+        className="cing-pay-counter__mobile-focus-toggle"
+        aria-expanded={
+          mobileSummaryOpen
+        }
+        onClick={() =>
+          setMobileSummaryOpen(
+            value => !value
+          )
+        }
+      >
+        <span>
+          {mobileSummaryOpen
+            ? "Thu gọn tổng quan"
+            : "Mở tổng quan"}
+        </span>
+
+        <strong>
+          {current?.amount
+            ? formatMoney(
+                current.amount
+              )
+            : "Cing Pay"}
+        </strong>
+      </button>
 
 
       {error
@@ -2052,6 +2247,32 @@ AdminWalletPosCounter({
                 <i />
                 Đang chờ khách thanh toán
               </div>
+
+              {canCancelCurrent
+                ? (
+                  <div className="cing-pay-counter__cancel-session">
+                    <button
+                      type="button"
+                      disabled={
+                        cancellingSession
+                      }
+                      onClick={
+                        cancelCurrentSession
+                      }
+                    >
+                      {cancellingSession
+                        ? "ĐANG HỦY PHIÊN..."
+                        : "HỦY PHIÊN THANH TOÁN"}
+                    </button>
+
+                    <small>
+                      Chỉ hủy phiên đang chờ.
+                      Giao dịch đã thanh toán
+                      không thể hủy tại đây.
+                    </small>
+                  </div>
+                )
+                : null}
             </section>
           </main>
         )

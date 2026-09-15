@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./admin-dashboard-shell.css";
 import AdminStats from "./AdminStats";
 import AdminMissions from "./AdminMissions";
 import AdminGames from "./AdminGames";
@@ -129,6 +130,12 @@ export default function AdminDashboard({ auth }) {
   const role = auth.admin?.role || "";
   const TABS = getAllowedTabs(role);
   const [tab, setTab] = useState(TABS[0]?.key || "");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const selectTab = nextTab => {
+    setTab(nextTab);
+    setMobileNavOpen(false);
+  };
 
   const activeTab =
     TABS.some(t => t.key === tab)
@@ -136,17 +143,48 @@ export default function AdminDashboard({ auth }) {
       : "";
 
   return (
-    <div
-  style={{
-    minHeight:"100vh",
-    background:"#0f0f13",
-    display:"flex"
-  }}
->
+    <div className="admin-dashboard-shell">
+      <div className="admin-dashboard-mobilebar">
+        <button
+          type="button"
+          className="admin-dashboard-mobilebar__menu"
+          aria-expanded={mobileNavOpen}
+          aria-controls="admin-dashboard-sidebar"
+          onClick={() => setMobileNavOpen(true)}
+        >
+          ☰ Menu
+        </button>
+
+        <span className="admin-dashboard-mobilebar__title">
+          {TABS.find(item => item.key === activeTab)?.label || "Admin Panel"}
+        </span>
+
+        <span className="admin-dashboard-mobilebar__role">
+          {role}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        className={`admin-dashboard-backdrop${mobileNavOpen ? " is-open" : ""}`}
+        aria-label="Đóng menu quản trị"
+        onClick={() => setMobileNavOpen(false)}
+      />
+
       {/* SIDEBAR */}
-      <div style={{ width:220, background:"#1a1a24", borderRight:"1px solid #2a2a38",
-        display:"flex", flexDirection:"column", position:"sticky", top:0, height:"100dvh", zIndex:10, overflowY:"auto", overflowX:"hidden" }}>
-        <div style={{ padding:"24px 20px 16px", borderBottom:"1px solid #2a2a38" }}>
+      <aside
+        id="admin-dashboard-sidebar"
+        className={`admin-dashboard-sidebar${mobileNavOpen ? " is-open" : ""}`}
+      >
+        <div className="admin-dashboard-sidebar__identity">
+          <button
+            type="button"
+            className="admin-dashboard-sidebar__close"
+            aria-label="Đóng menu"
+            onClick={() => setMobileNavOpen(false)}
+          >
+            ×
+          </button>
           <p style={{ color:"#D4531C", fontSize:10, fontWeight:800,
             letterSpacing:3, margin:"0 0 4px" }}>CING HU TANG</p>
           <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0 }}>Admin Panel</p>
@@ -155,9 +193,9 @@ export default function AdminDashboard({ auth }) {
           </p>
           <p style={{ color:"#D4531C", fontSize:10, fontWeight:800, margin:"6px 0 0", textTransform:"uppercase" }}>{role}</p>
         </div>
-        <nav style={{ flex:1, padding:"12px 0 76px", overflowY:"auto", overflowX:"hidden", minHeight:0 }}>
+        <nav className="admin-dashboard-sidebar__nav">
           {TABS.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)}
+            <button key={t.key} onClick={() => selectTab(t.key)}
               style={{ width:"100%", display:"flex", alignItems:"center", gap:10,
                 padding:"11px 20px", border:"none", cursor:"pointer", textAlign:"left",
                 background: tab===t.key ? "rgba(212,83,28,0.15)" : "none",
@@ -169,17 +207,7 @@ export default function AdminDashboard({ auth }) {
             </button>
           ))}
         </nav>
-        <div style={{
-          position:"fixed",
-          left:0,
-          bottom:0,
-          width:220,
-          boxSizing:"border-box",
-          padding:"12px 20px calc(env(safe-area-inset-bottom, 0px) + 16px)",
-          borderTop:"1px solid #2a2a38",
-          background:"#1a1a24",
-          zIndex:30
-        }}>
+        <div className="admin-dashboard-sidebar__footer">
           <button onClick={auth.logout}
             style={{ width:"100%", background:"rgba(255,80,80,0.1)",
               border:"1px solid rgba(255,80,80,0.2)", borderRadius:8,
@@ -187,20 +215,10 @@ export default function AdminDashboard({ auth }) {
             Đăng xuất
           </button>
         </div>
-      </div>
+      </aside>
 
       {/* CONTENT */}
-      <div
-  style={{
-    marginLeft:0,
-    flex:1,
-    padding:"24px",
-    minHeight:"100vh",
-    overflowY:"auto",
-    overflowX:"hidden",
-    paddingBottom:"120px"
-  }}
->
+      <main className="admin-dashboard-content">
         {activeTab==="stats"     && <AdminStats token={auth.token} />}
         {activeTab==="missions"  && <AdminMissions token={auth.token} />}
         {activeTab==="notifications" && <AdminNotifications token={auth.token} />}
@@ -223,7 +241,7 @@ export default function AdminDashboard({ auth }) {
         {activeTab==="management"    && <AdminManagement token={auth.token} />}
         {activeTab==="badges_admin"  && <AdminBadges token={auth.token} />}
         {activeTab==="members_admin" && <AdminMembers token={auth.token} />}
-      </div>
+      </main>
     </div>
   );
 }

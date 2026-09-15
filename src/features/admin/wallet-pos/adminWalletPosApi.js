@@ -194,6 +194,51 @@ createWalletPosManualPayment(
 }
 
 
+
+export async function
+cancelWalletPosManualSession(
+  token,
+  sessionId,
+  {
+    requestId,
+    reason,
+  }
+) {
+  const normalizedSessionId =
+    String(
+      sessionId || ""
+    ).trim();
+
+  if (!normalizedSessionId) {
+    throw new Error(
+      "Thiếu mã phiên Cing Pay."
+    );
+  }
+
+  const response =
+    await apiClient.post(
+      `/admin/wallet/pos/manual-session/${encodeURIComponent(
+        normalizedSessionId
+      )}/cancel`,
+      {
+        request_id:
+          requestId,
+        reason,
+      },
+      {
+        headers:
+          authHeaders(
+            token
+          ),
+      }
+    );
+
+  return response
+    ?.data
+    ?.data;
+}
+
+
 export async function
 resolveWalletPosAlert(
 

@@ -814,3 +814,154 @@
   font-size: 11px;
   opacity: 0.62;
 }
+
+
+/* CING PAY MOBILE FOCUS V1 */
+
+.cing-pay-counter__mobile-focus-toggle {
+  display: none;
+}
+
+.cing-pay-counter__cancel-session {
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  margin-top: 2px;
+}
+
+.cing-pay-counter__cancel-session button {
+  min-height: 44px;
+  padding: 10px 17px;
+  border: 1px solid #e7b7b7;
+  border-radius: 14px;
+  background: #fff5f5;
+  color: #9d2932;
+  font-size: 11px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.cing-pay-counter__cancel-session button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cing-pay-counter__cancel-session small {
+  color: #9a7778;
+  font-size: 9px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+@media (
+  max-width: 760px
+) {
+  .cing-pay-counter {
+    width: 100%;
+    min-width: 0;
+    padding: 8px;
+  }
+
+  .cing-pay-counter__summary.is-collapsed
+  .cing-pay-counter__hero {
+    display: none;
+  }
+
+  .cing-pay-counter__summary.is-open
+  .cing-pay-counter__hero {
+    display: flex;
+  }
+
+  .cing-pay-counter__mobile-focus-toggle {
+    width: 100%;
+    max-width: 720px;
+    min-height: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin: 0 auto 8px;
+    padding: 9px 13px;
+    border: 1px solid
+      rgba(95, 60, 35, 0.12);
+    border-radius: 15px;
+    background:
+      rgba(255, 255, 255, 0.96);
+    color: var(--espresso);
+    box-shadow:
+      0 8px 24px
+      rgba(67, 42, 25, 0.07);
+    cursor: pointer;
+  }
+
+  .cing-pay-counter__mobile-focus-toggle span {
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .cing-pay-counter__mobile-focus-toggle strong {
+    color: #9a5b20;
+    font-size: 12px;
+  }
+
+  .cing-pay-counter__checkout,
+  .cing-pay-counter__notice,
+  .cing-pay-counter__backoffice {
+    width: 100%;
+    max-width: none;
+  }
+
+  .cing-pay-counter__amount-card {
+    width: 100%;
+    padding: 14px 10px;
+  }
+
+  .cing-pay-counter__amount-display {
+    min-height: 66px;
+    margin: 4px 0 12px;
+  }
+
+  .cing-pay-counter__keypad {
+    width: 100%;
+    max-width: none;
+  }
+
+  .cing-pay-counter__keypad button {
+    min-height: 62px;
+  }
+
+  .cing-pay-counter__primary {
+    width: 100%;
+    max-width: none;
+  }
+
+  .cing-pay-counter__qr-card {
+    width: 100%;
+  }
+}
+
+@media (
+  max-width: 440px
+) {
+  .cing-pay-counter {
+    padding: 6px;
+  }
+
+  .cing-pay-counter__mobile-focus-toggle {
+    border-radius: 13px;
+  }
+
+  .cing-pay-counter__amount-card {
+    padding: 12px 8px;
+  }
+
+  .cing-pay-counter__keypad {
+    gap: 7px;
+  }
+
+  .cing-pay-counter__keypad button {
+    min-height: 58px;
+    border-radius: 14px;
+  }
+}
