@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./admin-dashboard-shell.css";
 import AdminStats from "./AdminStats";
 import AdminMissions from "./AdminMissions";
@@ -127,6 +127,31 @@ function getAllowedTabs(role) {
 }
 
 export default function AdminDashboard({ auth }) {
+  useEffect(() => {
+    /*
+     * The Mini App globally optimizes touch input with
+     * touch-action: manipulation. Super Admin is different:
+     * its dense operational workspace intentionally supports
+     * native browser pinch zoom as well as horizontal/vertical pan.
+     *
+     * Scope the override to the Admin lifecycle and restore the
+     * exact previous inline authority when leaving Admin.
+     */
+    const root =
+      document.documentElement;
+
+    const previousTouchAction =
+      root.style.touchAction;
+
+    root.style.touchAction =
+      "auto";
+
+    return () => {
+      root.style.touchAction =
+        previousTouchAction;
+    };
+  }, []);
+
   const role = auth.admin?.role || "";
   const TABS = getAllowedTabs(role);
   const [tab, setTab] = useState(TABS[0]?.key || "");
@@ -219,6 +244,7 @@ export default function AdminDashboard({ auth }) {
 
       {/* CONTENT */}
       <main className="admin-dashboard-content">
+        <div className="admin-dashboard-workspace">
         {activeTab==="stats"     && <AdminStats token={auth.token} />}
         {activeTab==="missions"  && <AdminMissions token={auth.token} />}
         {activeTab==="notifications" && <AdminNotifications token={auth.token} />}
@@ -241,6 +267,7 @@ export default function AdminDashboard({ auth }) {
         {activeTab==="management"    && <AdminManagement token={auth.token} />}
         {activeTab==="badges_admin"  && <AdminBadges token={auth.token} />}
         {activeTab==="members_admin" && <AdminMembers token={auth.token} />}
+        </div>
       </main>
     </div>
   );

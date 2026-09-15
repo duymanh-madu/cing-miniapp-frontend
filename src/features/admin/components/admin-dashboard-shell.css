@@ -204,17 +204,28 @@
       );
 
     /*
-     * Mobile Admin is the canonical horizontal scroll surface.
-     *
-     * Dense operational tables, ledgers, grids and controls may be
-     * wider than the phone viewport. Keep the Admin shell itself
-     * viewport-bound while allowing the entire active workspace to
-     * pan horizontally by touch instead of clipping its right side.
+     * Mobile Admin content is the viewport-bound scrollport.
+     * The child workspace owns the wider operational canvas.
      */
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
-    touch-action: pan-x pan-y;
+
+    /*
+     * Preserve native browser gestures. Do not restrict the Admin
+     * workspace to pan-x/pan-y: native pinch zoom must remain eligible.
+     */
+    touch-action: auto;
+  }
+
+  /*
+   * One canonical wide operational canvas for every mounted Admin tab.
+   * Tables, ledgers, grids, filters and controls keep usable geometry
+   * instead of being compressed into the phone viewport.
+   */
+  .admin-dashboard-workspace {
+    width: max-content;
+    min-width: 900px;
   }
 }
 
