@@ -567,6 +567,9 @@ AdminWalletPosCounter({
   const previousPaidRef =
     useRef(false);
 
+  const dismissedPaidSessionIdRef =
+    useRef(null);
+
 
   const isSuperAdmin =
     String(
@@ -771,6 +774,58 @@ AdminWalletPosCounter({
             !mountedRef.current
           ) {
             return;
+          }
+
+          const dismissedPaidSessionId =
+            dismissedPaidSessionIdRef
+              .current;
+
+          const nextIsDismissedPaidSession =
+            Boolean(
+              next?.id &&
+              dismissedPaidSessionId &&
+              next.id ===
+                dismissedPaidSessionId &&
+              PAID_STATUSES.has(
+                next.status
+              )
+            );
+
+          if (
+            nextIsDismissedPaidSession
+          ) {
+            paidLatchRef.current =
+              false;
+
+            previousPaidRef.current =
+              false;
+
+            setCurrent(
+              null
+            );
+
+            setQrContent(
+              ""
+            );
+
+            setQrDataUrl(
+              ""
+            );
+
+            setError("");
+
+            return;
+          }
+
+          if (
+            next?.id &&
+            dismissedPaidSessionId &&
+            next.id !==
+              dismissedPaidSessionId
+          ) {
+            dismissedPaidSessionIdRef
+              .current =
+              null;
           }
 
           if (
@@ -1947,12 +2002,22 @@ AdminWalletPosCounter({
         /*
          * A paid session is terminal financial evidence.
          *
-         * "Giao dịch tiếp theo" is therefore a local
-         * operational reset only. Re-loading current here
-         * would rediscover the just-paid terminal session
-         * and immediately latch the cashier back onto the
-         * success screen.
+         * "Giao dịch tiếp theo" dismisses only the exact
+         * terminal session from the cashier presentation.
+         * Polling/realtime may continue to observe that
+         * backend record, but must not resurrect it.
          */
+        if (
+          current?.id &&
+          PAID_STATUSES.has(
+            current.status
+          )
+        ) {
+          dismissedPaidSessionIdRef
+            .current =
+            current.id;
+        }
+
         paidLatchRef.current =
           false;
 
@@ -1988,7 +2053,10 @@ AdminWalletPosCounter({
           ""
         );
       },
-      []
+      [
+        current?.id,
+        current?.status,
+      ]
     );
 
 
