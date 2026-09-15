@@ -1943,7 +1943,16 @@ AdminWalletPosCounter({
 
   const nextTransaction =
     useCallback(
-      async () => {
+      () => {
+        /*
+         * A paid session is terminal financial evidence.
+         *
+         * "Giao dịch tiếp theo" is therefore a local
+         * operational reset only. Re-loading current here
+         * would rediscover the just-paid terminal session
+         * and immediately latch the cashier back onto the
+         * success screen.
+         */
         paidLatchRef.current =
           false;
 
@@ -1951,6 +1960,12 @@ AdminWalletPosCounter({
           false;
 
         requestIdRef.current =
+          null;
+
+        cancelRequestIdRef.current =
+          null;
+
+        cancelSessionIdRef.current =
           null;
 
         setCurrent(
@@ -1972,15 +1987,8 @@ AdminWalletPosCounter({
         setError(
           ""
         );
-
-        await loadCurrent({
-          silent:
-            true,
-        });
       },
-      [
-        loadCurrent,
-      ]
+      []
     );
 
 

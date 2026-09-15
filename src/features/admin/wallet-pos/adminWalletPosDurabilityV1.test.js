@@ -208,21 +208,36 @@ test(
 
     assert.match(
       walletApi,
-      /bill_reference:/
+      /store_display_name:/
     );
 
     assert.match(
       walletApi,
-      /pos_parent:/
+      /row\.pos_payment[\s\S]*\.store_display_name/
     );
 
-    assert.match(
-      walletApi,
-      /pos_id:/
-    );
+    for (
+      const forbidden
+      of [
+        "bill_reference:",
+        "pos_parent:",
+        "pos_id:",
+        "store_id:",
+        "store_code:",
+        "provider_request_key:",
+        "payment_token_id:",
+      ]
+    ) {
+      assert.equal(
+        walletApi.includes(
+          forbidden
+        ),
+        false,
+        forbidden
+      );
+    }
   }
 );
-
 
 test(
   "Wallet statement uses customer-safe in-store payment copy",

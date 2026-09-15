@@ -204,22 +204,10 @@ export function projectWalletTransaction(
         row.pos_payment
       )
         ? {
-            bill_reference:
+            store_display_name:
               optionalString(
                 row.pos_payment
-                  .bill_reference
-              ),
-
-            pos_parent:
-              optionalString(
-                row.pos_payment
-                  .pos_parent
-              ),
-
-            pos_id:
-              optionalString(
-                row.pos_payment
-                  .pos_id
+                  .store_display_name
               ),
           }
         : null,
