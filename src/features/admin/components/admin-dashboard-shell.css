@@ -218,15 +218,6 @@
     touch-action: auto;
   }
 
-  /*
-   * One canonical wide operational canvas for every mounted Admin tab.
-   * Tables, ledgers, grids, filters and controls keep usable geometry
-   * instead of being compressed into the phone viewport.
-   */
-  .admin-dashboard-workspace {
-    width: max-content;
-    min-width: 900px;
-  }
 }
 
 @media (max-width: 440px) {
@@ -245,4 +236,37 @@
   .admin-dashboard-backdrop {
     transition: none;
   }
+}
+
+/*
+ * ============================================================
+ * ADMIN RESPONSIVE DATA TABLE AUTHORITY V2.2
+ * ============================================================
+ *
+ * The Admin workspace itself remains viewport-responsive.
+ * Only genuinely wide operational tables own horizontal scroll.
+ *
+ * This prevents mobile-native surfaces such as Cing Pay from
+ * inheriting an artificial desktop-width canvas.
+ */
+.admin-data-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/*
+ * Preserve readable operational geometry without widening the
+ * entire Admin page. The table alone owns intrinsic horizontal width.
+ */
+.admin-data-table-scroll > table {
+  width: 100%;
+  min-width: 760px;
+}
+
+.admin-data-table-scroll > table {
+  width: 100%;
+  min-width: 760px;
 }

@@ -244,7 +244,6 @@ export default function AdminDashboard({ auth }) {
 
       {/* CONTENT */}
       <main className="admin-dashboard-content">
-        <div className="admin-dashboard-workspace">
         {activeTab==="stats"     && <AdminStats token={auth.token} />}
         {activeTab==="missions"  && <AdminMissions token={auth.token} />}
         {activeTab==="notifications" && <AdminNotifications token={auth.token} />}
@@ -267,7 +266,6 @@ export default function AdminDashboard({ auth }) {
         {activeTab==="management"    && <AdminManagement token={auth.token} />}
         {activeTab==="badges_admin"  && <AdminBadges token={auth.token} />}
         {activeTab==="members_admin" && <AdminMembers token={auth.token} />}
-        </div>
       </main>
     </div>
   );

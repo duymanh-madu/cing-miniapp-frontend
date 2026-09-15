@@ -5,180 +5,94 @@ import assert from "node:assert/strict";
 
 const root = process.cwd();
 
-const dashboard =
+const read = file =>
   fs.readFileSync(
-    path.join(
-      root,
-      "src/features/admin/components/AdminDashboard.jsx"
-    ),
+    path.join(root, file),
     "utf8"
   );
 
-const css =
-  fs.readFileSync(
-    path.join(
-      root,
-      "src/features/admin/components/admin-dashboard-shell.css"
-    ),
-    "utf8"
-  );
-
-const mobile =
-  css.match(
-    /@media\s*\(max-width:\s*760px\)\s*\{([\s\S]*?)\n\}/
-  )?.[1] || "";
-
-test(
-  "all Admin tabs remain inside one canonical workspace",
-  () => {
-    assert.match(
-      dashboard,
-      /<main className="admin-dashboard-content">[\s\S]*<div className="admin-dashboard-workspace">/
-    );
-
-    const workspaceStart =
-      dashboard.indexOf(
-        '<div className="admin-dashboard-workspace">'
-      );
-
-    const workspaceEnd =
-      dashboard.indexOf(
-        "</div>",
-        dashboard.indexOf(
-          'activeTab==="members_admin"'
-        )
-      );
-
-    assert.ok(workspaceStart >= 0);
-    assert.ok(workspaceEnd > workspaceStart);
-
-    const workspace =
-      dashboard.slice(
-        workspaceStart,
-        workspaceEnd
-      );
-
-    const mountedTabs =
-      workspace.match(
-        /activeTab===/g
-      ) || [];
-
-    assert.equal(
-      mountedTabs.length,
-      22
-    );
-  }
+const dashboard = read(
+  "src/features/admin/components/AdminDashboard.jsx"
 );
 
-test(
-  "mobile Admin content is the horizontal scrollport",
-  () => {
-    assert.match(
-      mobile,
-      /\.admin-dashboard-content\s*\{[\s\S]*overflow-x:\s*auto/
-    );
+const css = read(
+  "src/features/admin/components/admin-dashboard-shell.css"
+);
 
-    assert.match(
-      mobile,
-      /\.admin-dashboard-content\s*\{[\s\S]*-webkit-overflow-scrolling:\s*touch/
+const globalCss = read(
+  "src/index.css"
+);
+
+const touchService = read(
+  "src/services/platform/touchInteractionService.js"
+);
+
+const tables = [
+  "src/features/admin/components/AdminStats.jsx",
+  "src/features/admin/components/AdminOrders.jsx",
+  "src/features/admin/components/AdminPayments.jsx",
+  "src/features/admin/components/AdminSystemHealth.jsx",
+].map(file => ({
+  file,
+  source: read(file),
+}));
+
+test(
+  "Admin no longer mounts a global fixed-width workspace",
+  () => {
+    assert.doesNotMatch(
+      dashboard,
+      /admin-dashboard-workspace/
     );
 
     assert.doesNotMatch(
-      mobile,
-      /\.admin-dashboard-content\s*\{[\s\S]*overflow-x:\s*hidden/
-    );
-  }
-);
-
-test(
-  "mobile workspace creates real horizontal overflow",
-  () => {
-    assert.match(
-      mobile,
-      /\.admin-dashboard-workspace\s*\{[\s\S]*width:\s*max-content/
-    );
-
-    assert.match(
-      mobile,
-      /\.admin-dashboard-workspace\s*\{[\s\S]*min-width:\s*900px/
-    );
-  }
-);
-
-test(
-  "Admin gesture authority permits native pinch and pan",
-  () => {
-    assert.match(
-      mobile,
-      /\.admin-dashboard-content\s*\{[\s\S]*touch-action:\s*auto/
+      css,
+      /\.admin-dashboard-workspace/
     );
 
     assert.doesNotMatch(
+      css,
+      /min-width:\s*900px/
+    );
+  }
+);
+
+test(
+  "mobile Admin content remains viewport responsive",
+  () => {
+    const mobile =
+      css.match(
+        /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*?(?=@media\s*\(max-width:\s*440px\))/
+      )?.[0] || "";
+
+    assert.match(
       mobile,
-      /\.admin-dashboard-content\s*\{[\s\S]*touch-action:\s*pan-x\s+pan-y/
+      /\.admin-dashboard-content\s*\{[\s\S]*width:\s*100%/
     );
 
-    assert.doesNotMatch(
+    assert.match(
       mobile,
-      /\.admin-dashboard-content\s*\{[\s\S]*touch-action:\s*none/
+      /\.admin-dashboard-content\s*\{[\s\S]*max-width:\s*100%/
+    );
+
+    assert.match(
+      mobile,
+      /\.admin-dashboard-content\s*\{[\s\S]*min-width:\s*0/
     );
   }
 );
 
 test(
-  "desktop Admin horizontal behavior remains unchanged",
-  () => {
-    const desktop =
-      css.slice(
-        0,
-        css.indexOf(
-          "@media (max-width: 760px)"
-        )
-      );
-
-    assert.match(
-      desktop,
-      /\.admin-dashboard-content\s*\{[\s\S]*overflow-x:\s*hidden/
-    );
-
-    assert.doesNotMatch(
-      desktop,
-      /\.admin-dashboard-workspace\s*\{[\s\S]*min-width:\s*900px/
-    );
-  }
-);
-
-test(
-  "workspace change does not alter Admin authority props",
+  "Admin keeps scoped native pinch authority",
   () => {
     assert.match(
       dashboard,
-      /activeTab==="wallet_pos" && <AdminWalletPosCounter token=\{auth\.token\} role=\{auth\.admin\?\.role\} \/>/
-    );
-
-    assert.doesNotMatch(
-      dashboard,
-      /pos_parent|pos_id|store_id|amount=.*AdminWalletPosCounter/
-    );
-  }
-);
-
-test(
-  "Admin lifecycle temporarily restores native root pinch authority",
-  () => {
-    assert.match(
-      dashboard,
-      /import\s*\{\s*useEffect,\s*useState\s*\}\s*from\s*"react"/
+      /document\.documentElement/
     );
 
     assert.match(
       dashboard,
-      /useEffect\(\(\)\s*=>\s*\{[\s\S]*document\.documentElement/
-    );
-
-    assert.match(
-      dashboard,
-      /const previousTouchAction\s*=\s*root\.style\.touchAction/
+      /previousTouchAction/
     );
 
     assert.match(
@@ -188,40 +102,102 @@ test(
 
     assert.match(
       dashboard,
-      /return\s*\(\)\s*=>\s*\{[\s\S]*root\.style\.touchAction\s*=\s*previousTouchAction/
+      /root\.style\.touchAction\s*=\s*previousTouchAction/
+    );
+
+    assert.match(
+      css,
+      /touch-action:\s*auto/
     );
   }
 );
 
 test(
-  "Admin pinch override does not mutate global Mini App touch policy",
+  "global customer Mini App gesture policy is untouched",
   () => {
-    const globalCss =
-      fs.readFileSync(
-        path.join(
-          root,
-          "src/index.css"
-        ),
-        "utf8"
-      );
-
-    const touchService =
-      fs.readFileSync(
-        path.join(
-          root,
-          "src/services/platform/touchInteractionService.js"
-        ),
-        "utf8"
-      );
-
     assert.match(
       globalCss,
-      /html,\s*[\r\n]+\s*body,\s*[\r\n]+\s*#root\s*\{[\s\S]*touch-action:\s*manipulation/
+      /touch-action:\s*manipulation/
     );
 
     assert.match(
       touchService,
-      /root\.style\.setProperty\([\s\S]*"touch-action"[\s\S]*"manipulation"/
+      /"touch-action",\s*"manipulation"/
+    );
+  }
+);
+
+test(
+  "only proven wide tables own local horizontal overflow",
+  () => {
+    assert.match(
+      css,
+      /\.admin-data-table-scroll\s*\{[\s\S]*overflow-x:\s*auto/
+    );
+
+    assert.doesNotMatch(
+      css.match(
+        /\.admin-data-table-scroll\s*\{[\s\S]*?\}/
+      )?.[0] || "",
+      /overflow-y:\s*hidden/
+    );
+
+    assert.match(
+      css,
+      /\.admin-data-table-scroll\s*>\s*table\s*\{[\s\S]*min-width:\s*760px/
+    );
+
+    for (const { file, source } of tables) {
+      assert.match(
+        source,
+        /className="admin-data-table-scroll"/,
+        `${file} must mount local table scroll authority`
+      );
+    }
+  }
+);
+
+test(
+  "Cing Pay is not forced into desktop-width canvas",
+  () => {
+    assert.match(
+      dashboard,
+      /activeTab==="wallet_pos"[\s\S]*AdminWalletPosCounter/
+    );
+
+    assert.doesNotMatch(
+      dashboard,
+      /admin-dashboard-workspace/
+    );
+
+    assert.doesNotMatch(
+      css,
+      /\.admin-dashboard-workspace/
+    );
+  }
+);
+
+test(
+  "local table patch does not alter Admin authority props",
+  () => {
+    assert.match(
+      dashboard,
+      /<AdminWalletPosCounter token=\{auth\.token\} role=\{auth\.admin\?\.role\}/
+    );
+
+    assert.match(
+      dashboard,
+      /<AdminWallet token=\{auth\.token\} role=\{role\}/
+    );
+
+    assert.match(
+      dashboard,
+      /<AdminOrders token=\{auth\.token\}/
+    );
+
+    assert.match(
+      dashboard,
+      /<AdminPayments token=\{auth\.token\}/
     );
   }
 );

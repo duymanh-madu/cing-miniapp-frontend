@@ -78,7 +78,7 @@ export default function AdminStats({ token }) {
           </div>
 
           {/* Table chi tiết */}
-          <div style={{ background:"#1a1a24", borderRadius:16, overflow:"hidden", border:"1px solid #2a2a38" }}>
+          <div className="admin-data-table-scroll" style={{ background:"#1a1a24", borderRadius:16, border:"1px solid #2a2a38" }}>
             <table style={{ width:"100%", borderCollapse:"collapse" }}>
               <thead>
                 <tr style={{ background:"#0d0d18" }}>

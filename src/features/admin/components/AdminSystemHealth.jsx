@@ -324,7 +324,7 @@ function RecoveryStats({ title, icon, stats }) {
 
 function JobsTable({ title, jobs, type, onRetry, onAccept, onRemove }) {
   return (
-    <div style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14, overflow:"hidden" }}>
+    <div className="admin-data-table-scroll" style={{ background:"#1a1a24", border:"1px solid #2a2a38", borderRadius:14 }}>
       <div style={{ padding:14, borderBottom:"1px solid #2a2a38" }}>
         <p style={{ color:"white", fontSize:14, fontWeight:900, margin:0 }}>{title}</p>
       </div>
