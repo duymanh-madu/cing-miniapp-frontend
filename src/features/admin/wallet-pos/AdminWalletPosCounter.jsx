@@ -570,6 +570,20 @@ AdminWalletPosCounter({
   const dismissedPaidSessionIdRef =
     useRef(null);
 
+  /*
+   * Cashier terminal presentation authority.
+   *
+   * Active payment lifecycle remains canonical in `current`.
+   * A terminal PAID receipt is retained separately so a later
+   * active-session poll returning null cannot erase the cashier's
+   * confirmation screen.
+   */
+  const [lastPaidSession, setLastPaidSession] =
+    useState(null);
+
+  const [qrRemainingSeconds, setQrRemainingSeconds] =
+    useState(null);
+
 
   const isSuperAdmin =
     String(
@@ -603,13 +617,27 @@ AdminWalletPosCounter({
 
   const paid =
     Boolean(
-      current &&
+      lastPaidSession ||
       (
-        paidLatchRef.current ||
-        PAID_STATUSES.has(
-          current.status
+        current &&
+        (
+          paidLatchRef.current ||
+          PAID_STATUSES.has(
+            current.status
+          )
         )
       )
+    );
+
+  const paidSession =
+    lastPaidSession ||
+    (
+      current &&
+      PAID_STATUSES.has(
+        current.status
+      )
+        ? current
+        : null
     );
 
 
@@ -836,6 +864,13 @@ AdminWalletPosCounter({
           ) {
             paidLatchRef.current =
               true;
+
+            setLastPaidSession(
+              previous => ({
+                ...previous,
+                ...next,
+              })
+            );
           }
 
           if (next) {
@@ -986,6 +1021,14 @@ AdminWalletPosCounter({
 
           setQrDataUrl(
             ""
+          );
+
+          setAmountDigits(
+            ""
+          );
+
+          setQrRemainingSeconds(
+            null
           );
 
           requestIdRef.current =
@@ -1342,6 +1385,10 @@ AdminWalletPosCounter({
       ) {
         paidLatchRef.current =
           true;
+
+        setLastPaidSession(
+          current
+        );
       }
 
       previousPaidRef.current =
@@ -1351,6 +1398,120 @@ AdminWalletPosCounter({
       current,
     ]
   );
+
+
+  useEffect(
+    () => {
+      if (
+        current?.status !==
+          "qr_ready" ||
+        !current?.expires_at
+      ) {
+        setQrRemainingSeconds(
+          null
+        );
+
+        return;
+      }
+
+      const expiresAt =
+        Date.parse(
+          current.expires_at
+        );
+
+      if (
+        !Number.isFinite(
+          expiresAt
+        )
+      ) {
+        setQrRemainingSeconds(
+          null
+        );
+
+        return;
+      }
+
+      const updateCountdown =
+        () => {
+          const remaining =
+            Math.max(
+              0,
+              Math.ceil(
+                (
+                  expiresAt -
+                  Date.now()
+                ) /
+                1000
+              )
+            );
+
+          setQrRemainingSeconds(
+            remaining
+          );
+        };
+
+      updateCountdown();
+
+      const timer =
+        window.setInterval(
+          updateCountdown,
+          1000
+        );
+
+      return () => {
+        window.clearInterval(
+          timer
+        );
+      };
+    },
+    [
+      current?.expires_at,
+      current?.status,
+    ]
+  );
+
+
+  const qrCountdownLabel =
+    useMemo(
+      () => {
+        if (
+          !Number.isFinite(
+            qrRemainingSeconds
+          )
+        ) {
+          return "--:--";
+        }
+
+        const total =
+          Math.max(
+            0,
+            qrRemainingSeconds
+          );
+
+        const minutes =
+          Math.floor(
+            total / 60
+          );
+
+        const seconds =
+          total % 60;
+
+        return `${String(
+          minutes
+        ).padStart(
+          2,
+          "0"
+        )}:${String(
+          seconds
+        ).padStart(
+          2,
+          "0"
+        )}`;
+      },
+      [
+        qrRemainingSeconds,
+      ]
+    );
 
 
   const changeAmount =
@@ -2008,14 +2169,11 @@ AdminWalletPosCounter({
          * backend record, but must not resurrect it.
          */
         if (
-          current?.id &&
-          PAID_STATUSES.has(
-            current.status
-          )
+          paidSession?.id
         ) {
           dismissedPaidSessionIdRef
             .current =
-            current.id;
+            paidSession.id;
         }
 
         paidLatchRef.current =
@@ -2023,6 +2181,14 @@ AdminWalletPosCounter({
 
         previousPaidRef.current =
           false;
+
+        setLastPaidSession(
+          null
+        );
+
+        setQrRemainingSeconds(
+          null
+        );
 
         requestIdRef.current =
           null;
@@ -2054,8 +2220,7 @@ AdminWalletPosCounter({
         );
       },
       [
-        current?.id,
-        current?.status,
+        paidSession?.id,
       ]
     );
 
@@ -2291,11 +2456,14 @@ AdminWalletPosCounter({
                   Khách mở Cing Wallet và quét mã để xác nhận thanh toán.
                 </span>
 
-                <small>
-                  QR hiệu lực đến{" "}
-                  {formatTime(
-                    current?.expires_at
-                  )}
+                <small className="cing-pay-counter__qr-countdown">
+                  <span>
+                    QR còn hiệu lực
+                  </span>
+
+                  <strong>
+                    {qrCountdownLabel}
+                  </strong>
                 </small>
               </div>
 
@@ -2374,7 +2542,7 @@ AdminWalletPosCounter({
 
               <strong>
                 {formatMoney(
-                  current?.amount
+                  paidSession?.amount
                 )}
               </strong>
 

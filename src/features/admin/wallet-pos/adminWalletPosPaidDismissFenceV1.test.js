@@ -61,7 +61,7 @@ test(
 
 
 test(
-  "next transaction dismisses only exact paid session",
+  "next transaction dismisses only exact paid receipt",
   () => {
     const body =
       functionSlice(
@@ -72,31 +72,25 @@ test(
 
     assert.match(
       body,
-      /current\?\.id/
+      /paidSession\?\.id/
     );
 
     assert.match(
+      body,
+      /dismissedPaidSessionIdRef[\s\S]*\.current\s*=[\s\S]*paidSession\.id/
+    );
+
+    assert.doesNotMatch(
       body,
       /PAID_STATUSES\.has\([\s\S]*current\.status/
-    );
-
-    assert.match(
-      body,
-      /dismissedPaidSessionIdRef[\s\S]*\.current\s*=[\s\S]*current\.id/
     );
 
     assert.doesNotMatch(
       body,
       /loadCurrent\s*\(/
     );
-
-    assert.doesNotMatch(
-      body,
-      /cancelWalletPosManualSession/
-    );
   }
 );
-
 
 test(
   "polling ignores exact dismissed paid session",

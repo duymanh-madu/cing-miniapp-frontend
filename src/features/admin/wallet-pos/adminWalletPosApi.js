@@ -225,12 +225,9 @@ cancelWalletPosManualSession(
           requestId,
         reason,
       },
-      {
-        headers:
-          authHeaders(
-            token
-          ),
-      }
+      authConfig(
+        token
+      )
     );
 
   return response

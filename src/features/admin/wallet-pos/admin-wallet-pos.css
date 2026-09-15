@@ -965,3 +965,21 @@
     border-radius: 14px;
   }
 }
+
+/* CING PAY CASHIER TERMINAL UX V2 */
+.cing-pay-counter__qr-countdown {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cing-pay-counter__qr-countdown span {
+  opacity: 0.72;
+}
+
+.cing-pay-counter__qr-countdown strong {
+  font-size: 1.08em;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
