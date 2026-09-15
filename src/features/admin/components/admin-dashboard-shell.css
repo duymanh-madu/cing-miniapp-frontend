@@ -202,7 +202,19 @@
         env(safe-area-inset-bottom, 0px) +
         32px
       );
-    overflow-x: hidden;
+
+    /*
+     * Mobile Admin is the canonical horizontal scroll surface.
+     *
+     * Dense operational tables, ledgers, grids and controls may be
+     * wider than the phone viewport. Keep the Admin shell itself
+     * viewport-bound while allowing the entire active workspace to
+     * pan horizontally by touch instead of clipping its right side.
+     */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
   }
 }
 
