@@ -2510,9 +2510,8 @@ AdminWalletPosCounter({
                     </button>
 
                     <small>
-                      Chỉ hủy phiên đang chờ.
-                      Giao dịch đã thanh toán
-                      không thể hủy tại đây.
+                      Hủy QR này để chỉnh lại số tiền
+                      trước khi khách thanh toán.
                     </small>
                   </div>
                 )
@@ -2557,7 +2556,7 @@ AdminWalletPosCounter({
                   nextTransaction
                 }
               >
-                GIAO DỊCH TIẾP THEO
+                TẠO ĐƠN THANH TOÁN MỚI
               </button>
             </section>
           </main>
