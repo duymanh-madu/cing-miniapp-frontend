@@ -287,48 +287,95 @@ test(
 
 
 test(
-  "realtime payload never acts as canonical POS session authority",
+  "realtime never replaces canonical active POS session authority",
   () => {
-    const start =
+    const genericStart =
       counter.indexOf(
         "const handleRealtime"
       );
 
-    const end =
+    const paidStart =
+      counter.indexOf(
+        "const handlePaidRealtime",
+        genericStart
+      );
+
+    const attachStart =
       counter.indexOf(
         "const attach",
-        start
+        paidStart
       );
 
     assert.ok(
-      start >= 0,
+      genericStart >= 0,
       "handleRealtime must exist"
     );
 
     assert.ok(
-      end > start,
+      paidStart > genericStart,
+      "dedicated paid realtime handler must exist"
+    );
+
+    assert.ok(
+      attachStart > paidStart,
       "realtime handler boundary must exist"
     );
 
-    const block =
+    const genericBlock =
       counter.slice(
-        start,
-        end
+        genericStart,
+        paidStart
       );
 
+    const paidBlock =
+      counter.slice(
+        paidStart,
+        attachStart
+      );
+
+    /*
+     * Non-terminal realtime events remain wake-up signals only.
+     * They must never consume payload lifecycle state.
+     */
     assert.doesNotMatch(
-      block,
+      genericBlock,
       /payload(?:\?\.|\.)status/
     );
 
     assert.doesNotMatch(
-      block,
+      genericBlock,
       /setCurrent\s*\(/
     );
 
     assert.match(
-      block,
+      genericBlock,
       /loadCurrent\s*\(\s*\{[\s\S]*silent\s*:\s*true/
+    );
+
+    /*
+     * wallet.pos.payment.paid is emitted after canonical backend
+     * settlement. It may accelerate terminal receipt presentation,
+     * but it still must never replace `current`, which remains owned
+     * by fetchCurrentWalletPosManualSession().
+     */
+    assert.match(
+      paidBlock,
+      /payload(?:\?\.|\.)status/
+    );
+
+    assert.match(
+      paidBlock,
+      /setLastPaidSession\s*\(/
+    );
+
+    assert.doesNotMatch(
+      paidBlock,
+      /setCurrent\s*\(/
+    );
+
+    assert.match(
+      paidBlock,
+      /handleRealtime\s*\(\s*\)/
     );
   }
 );

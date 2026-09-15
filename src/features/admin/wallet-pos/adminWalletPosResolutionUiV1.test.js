@@ -510,11 +510,11 @@ test(
 
 test(
 
-  "realtime remains notification-only",
+  "realtime cannot mutate reconciliation or active-session authority",
 
   () => {
 
-    const start =
+    const genericStart =
 
       counter.indexOf(
 
@@ -522,37 +522,70 @@ test(
 
       );
 
-    const end =
+    const paidStart =
+
+      counter.indexOf(
+
+        "const handlePaidRealtime",
+
+        genericStart
+
+      );
+
+    const attachStart =
 
       counter.indexOf(
 
         "const attach",
 
-        start
+        paidStart
 
       );
 
     assert.ok(
 
-      start >= 0 &&
-
-      end > start
+      genericStart >= 0 &&
+      paidStart > genericStart &&
+      attachStart > paidStart
 
     );
 
-    const body =
+    const genericBody =
 
       counter.slice(
 
-        start,
+        genericStart,
 
-        end
+        paidStart
 
       );
 
+    const paidBody =
+
+      counter.slice(
+
+        paidStart,
+
+        attachStart
+
+      );
+
+    /*
+     * Generic Wallet POS realtime remains notification-only:
+     * canonical HTTP readers refresh active session and alerts.
+     */
+
     assert.match(
 
-      body,
+      genericBody,
+
+      /loadCurrent/
+
+    );
+
+    assert.match(
+
+      genericBody,
 
       /loadAlerts/
 
@@ -560,7 +593,61 @@ test(
 
     assert.doesNotMatch(
 
-      body,
+      genericBody,
+
+      /payload(?:\?\.|\.)/
+
+    );
+
+    assert.doesNotMatch(
+
+      genericBody,
+
+      /setCurrent\s*\(/
+
+    );
+
+    assert.doesNotMatch(
+
+      genericBody,
+
+      /setAlerts\s*\(/
+
+    );
+
+    /*
+     * Canonical post-settlement PAID may accelerate only the
+     * terminal cashier receipt. It owns no active-session,
+     * reconciliation, command, or financial authority.
+     */
+
+    assert.match(
+
+      paidBody,
+
+      /setLastPaidSession\s*\(/
+
+    );
+
+    assert.match(
+
+      paidBody,
+
+      /handleRealtime\s*\(\s*\)/
+
+    );
+
+    assert.doesNotMatch(
+
+      paidBody,
+
+      /setCurrent\s*\(/
+
+    );
+
+    assert.doesNotMatch(
+
+      paidBody,
 
       /setAlerts\s*\(/
 
@@ -568,9 +655,25 @@ test(
 
     assert.doesNotMatch(
 
-      body,
+      paidBody,
 
-      /payload(?:\?\.|\.)/
+      /resolveWalletPosAlert\s*\(/
+
+    );
+
+    assert.doesNotMatch(
+
+      paidBody,
+
+      /createWalletPosManualPayment\s*\(/
+
+    );
+
+    assert.doesNotMatch(
+
+      paidBody,
+
+      /cancelWalletPosManualSession\s*\(/
 
     );
 

@@ -185,42 +185,87 @@ test(
 
 
 test(
-  "realtime remains notification-only",
+  "realtime preserves active-session authority while paid event accelerates terminal presentation",
   () => {
-    const start =
+    const genericStart =
       counter.indexOf(
         "const handleRealtime"
       );
 
-    const end =
+    const paidStart =
+      counter.indexOf(
+        "const handlePaidRealtime",
+        genericStart
+      );
+
+    const attachStart =
       counter.indexOf(
         "const attach",
-        start
+        paidStart
       );
 
-    const block =
-      counter.slice(
-        start,
-        end
-      );
-
-    assert.match(
-      block,
-      /loadCurrent\s*\(\s*\{[\s\S]*silent\s*:\s*true/
+    assert.ok(
+      genericStart >= 0
     );
 
+    assert.ok(
+      paidStart > genericStart
+    );
+
+    assert.ok(
+      attachStart > paidStart
+    );
+
+    const genericBlock =
+      counter.slice(
+        genericStart,
+        paidStart
+      );
+
+    const paidBlock =
+      counter.slice(
+        paidStart,
+        attachStart
+      );
+
+    // Non-terminal events remain notification-only.
     assert.doesNotMatch(
-      block,
+      genericBlock,
       /payload(?:\?\.|\.)status/
     );
 
     assert.doesNotMatch(
-      block,
+      genericBlock,
       /setCurrent\s*\(/
+    );
+
+    assert.match(
+      genericBlock,
+      /loadCurrent\s*\(/
+    );
+
+    // Canonical post-settlement PAID may retain receipt presentation.
+    assert.match(
+      paidBlock,
+      /payload(?:\?\.|\.)status/
+    );
+
+    assert.match(
+      paidBlock,
+      /setLastPaidSession\s*\(/
+    );
+
+    assert.doesNotMatch(
+      paidBlock,
+      /setCurrent\s*\(/
+    );
+
+    assert.match(
+      paidBlock,
+      /handleRealtime\s*\(\s*\)/
     );
   }
 );
-
 
 test(
   "cashier does not see session picker or reconciliation state machine",

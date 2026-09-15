@@ -1132,10 +1132,12 @@ AdminWalletPosCounter({
       let disposed =
         false;
 
+      const paidEvent =
+        "wallet.pos.payment.paid";
+
       const events = [
         "wallet.pos.session.discovered",
         "wallet.pos.qr.ready",
-        "wallet.pos.payment.paid",
         "wallet.pos.reconciliation.matched",
         "wallet.pos.reconciliation.alert",
       ];
@@ -1152,6 +1154,68 @@ AdminWalletPosCounter({
           });
 
           void loadAlerts();
+        };
+
+      const handlePaidRealtime =
+        payload => {
+          if (disposed) {
+            return;
+          }
+
+          const amount =
+            Number(
+              payload?.amount
+            );
+
+          const hasCanonicalPaidEvidence =
+            Boolean(
+              payload?.session_id &&
+              payload?.payment_intent_id &&
+              payload?.wallet_transaction_id &&
+              payload?.paid_at &&
+              PAID_STATUSES.has(
+                payload?.status
+              ) &&
+              Number.isSafeInteger(
+                amount
+              ) &&
+              amount > 0
+            );
+
+          if (
+            hasCanonicalPaidEvidence &&
+            payload.session_id !==
+              dismissedPaidSessionIdRef
+                .current
+          ) {
+            paidLatchRef.current =
+              true;
+
+            setLastPaidSession(
+              previous => ({
+                ...previous,
+                id:
+                  payload.session_id,
+                session_id:
+                  payload.session_id,
+                payment_intent_id:
+                  payload.payment_intent_id,
+                amount,
+                status:
+                  payload.status,
+                wallet_transaction_id:
+                  payload.wallet_transaction_id,
+                paid_at:
+                  payload.paid_at,
+              })
+            );
+          }
+
+          /*
+           * Realtime accelerates cashier presentation only.
+           * HTTP polling remains the durable convergence path.
+           */
+          handleRealtime();
         };
 
       const attach =
@@ -1185,6 +1249,11 @@ AdminWalletPosCounter({
               handleRealtime
             );
           }
+
+          socket.on(
+            paidEvent,
+            handlePaidRealtime
+          );
         };
 
       attach();
@@ -1209,6 +1278,11 @@ AdminWalletPosCounter({
               handleRealtime
             );
           }
+
+          socket.off(
+            paidEvent,
+            handlePaidRealtime
+          );
         }
       };
     },
