@@ -79,7 +79,7 @@ test(
   () => {
     const postBodies = [
       ...source.matchAll(
-        /apiClient\.post\([\s\S]*?\n\s*\{([\s\S]*?)\n\s*\},\n\s*\n\s*authConfig\(\)/g
+        /apiClient\.post\([\s\S]*?\n\s*\{([\s\S]*?)\n\s*\},\n\s*\n\s*(?:authConfig\(\)|config)/g
       ),
     ].map(
       (match) => match[1]

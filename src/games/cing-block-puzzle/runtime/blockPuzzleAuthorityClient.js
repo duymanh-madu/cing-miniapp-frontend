@@ -6,6 +6,11 @@ import apiClient from
   "../../../infra/api/apiClient.js";
 
 import {
+  recoverBackendAuthSession,
+} from
+  "../../../infra/auth/authRecovery.js";
+
+import {
   getCanonicalAccessToken,
 } from
   "../../../infra/auth/persistedAuthSession.js";
@@ -67,6 +72,40 @@ function authConfig() {
         `Bearer ${token}`,
     },
   };
+}
+
+async function requestWithAuthRecovery(
+  request
+) {
+  try {
+    return await request(
+      authConfig()
+    );
+  } catch (error) {
+    if (
+      Number(
+        error?.response?.status ||
+        0
+      ) !== 401
+    ) {
+      throw error;
+    }
+
+    await recoverBackendAuthSession();
+
+    /*
+     * Retry exactly once.
+     *
+     * authConfig() is rebuilt only after canonical session
+     * persistence, so this request reads the refreshed token.
+     *
+     * The caller closure preserves the original session ID,
+     * request_id and replay payload.
+     */
+    return request(
+      authConfig()
+    );
+  }
 }
 
 function unwrapResponse(
@@ -270,15 +309,18 @@ startAuthorizedBlockPuzzleSession({
   }
 
   const response =
-    await apiClient.post(
-      `${GAME_PATH}/session`,
+    await requestWithAuthRecovery(
+      (config) =>
+        apiClient.post(
+          `${GAME_PATH}/session`,
 
-      {
-        request_id:
-          normalizedRequestId,
-      },
+          {
+            request_id:
+              normalizedRequestId,
+          },
 
-      authConfig()
+          config
+        )
     );
 
   return (
@@ -358,14 +400,17 @@ submitAuthorizedBlockPuzzleReplay({
   );
 
   const response =
-    await apiClient.post(
-      `${GAME_PATH}/session/${normalizedSessionId}/submit`,
+    await requestWithAuthRecovery(
+      (config) =>
+        apiClient.post(
+          `${GAME_PATH}/session/${normalizedSessionId}/submit`,
 
-      {
-        replay,
-      },
+          {
+            replay,
+          },
 
-      authConfig()
+          config
+        )
     );
 
   return (
@@ -637,17 +682,20 @@ purchaseAuthorizedBlockPuzzleContinue({
   );
 
   const response =
-    await apiClient.post(
-      `${GAME_PATH}/session/${normalizedSessionId}/continue`,
+    await requestWithAuthRecovery(
+      (config) =>
+        apiClient.post(
+          `${GAME_PATH}/session/${normalizedSessionId}/continue`,
 
-      {
-        request_id:
-          normalizedRequestId,
+          {
+            request_id:
+              normalizedRequestId,
 
-        replay,
-      },
+            replay,
+          },
 
-      authConfig()
+          config
+        )
     );
 
   return (
