@@ -1,4 +1,8 @@
 import {
+  cloneBlockPuzzleSerializableValue,
+} from "./blockPuzzleWebviewCompatibility.js";
+
+import {
   getBlockPuzzleEngineForContract,
 } from "./blockPuzzleEngineRegistry.js";
 
@@ -173,7 +177,7 @@ recoverAuthorizedBlockPuzzleRuntime(
     state:
       recovered.state,
     replay:
-      structuredClone(
+      cloneBlockPuzzleSerializableValue(
         replay
       ),
     submission:

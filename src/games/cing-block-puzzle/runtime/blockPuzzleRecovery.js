@@ -1,4 +1,8 @@
 import {
+  cloneBlockPuzzleSerializableValue,
+} from "./blockPuzzleWebviewCompatibility.js";
+
+import {
   getBlockPuzzleEngineForContract,
 } from "./blockPuzzleEngineRegistry.js";
 
@@ -362,7 +366,7 @@ function normalizeEnvelope(
       ),
 
     replay:
-      structuredClone(
+      cloneBlockPuzzleSerializableValue(
         envelope.replay
       ),
   });

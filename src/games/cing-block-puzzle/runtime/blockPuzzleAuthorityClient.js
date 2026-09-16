@@ -1,3 +1,7 @@
+import {
+  createBlockPuzzleSecureUuidV4,
+} from "./blockPuzzleWebviewCompatibility.js";
+
 import apiClient from
   "../../../infra/api/apiClient.js";
 
@@ -240,20 +244,8 @@ normalizeAuthoritativeSubmission(
 
 export function
 createBlockPuzzleRequestId() {
-  if (
-    typeof globalThis.crypto
-      ?.randomUUID !==
-    "function"
-  ) {
-    fail(
-      "BLOCK_PUZZLE_REQUEST_ID_UNAVAILABLE",
-      "Không thể tạo request_id an toàn"
-    );
-  }
-
   return (
-    globalThis.crypto
-      .randomUUID()
+    createBlockPuzzleSecureUuidV4()
   );
 }
 
