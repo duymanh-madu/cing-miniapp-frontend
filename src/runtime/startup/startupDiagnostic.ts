@@ -82,3 +82,23 @@ export function markStartup(
 export function getStartupDiagnostic() {
   return state();
 }
+
+export function armStartupDiagnostic() {
+  try {
+    localStorage.setItem(
+      STARTUP_DIAGNOSTIC_STORAGE_KEY,
+      "1"
+    );
+  } catch {
+    return false;
+  }
+
+  const current = state();
+  current.enabled = true;
+
+  window.dispatchEvent(
+    new Event("cing:startup-diagnostic")
+  );
+
+  return true;
+}

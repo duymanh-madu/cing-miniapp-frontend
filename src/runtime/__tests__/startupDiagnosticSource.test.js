@@ -121,3 +121,39 @@ test(
     );
   }
 );
+
+
+test(
+  "loading gate can arm persisted diagnostic",
+  () => {
+    assert.match(
+      diagnostic,
+      /armStartupDiagnostic/
+    );
+
+    assert.match(
+      gate,
+      /armStartupDiagnostic/
+    );
+
+    assert.match(
+      gate,
+      /useRef/
+    );
+
+    assert.match(
+      gate,
+      /2500/
+    );
+
+    assert.match(
+      gate,
+      /onPointerDown/
+    );
+
+    assert.match(
+      gate,
+      /STARTUP DIAGNOSTIC ARMED/
+    );
+  }
+);

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { initializeApplication } from "../services/appBootstrapOrchestrator";
 import {
+  armStartupDiagnostic,
   getStartupDiagnostic,
   markStartup,
 } from "@/runtime/startup/startupDiagnostic";
@@ -8,6 +9,34 @@ import {
 function AppBootstrapGate({ children }) {
   const [ready, setReady] = useState(false);
   const [, setDiagnosticTick] = useState(0);
+  const [diagnosticArmed, setDiagnosticArmed] =
+    useState(false);
+  const diagnosticHoldRef = useRef(null);
+
+  const clearDiagnosticHold = () => {
+    if (diagnosticHoldRef.current !== null) {
+      window.clearTimeout(
+        diagnosticHoldRef.current
+      );
+      diagnosticHoldRef.current = null;
+    }
+  };
+
+  const startDiagnosticHold = () => {
+    clearDiagnosticHold();
+
+    diagnosticHoldRef.current =
+      window.setTimeout(() => {
+        diagnosticHoldRef.current = null;
+
+        if (armStartupDiagnostic()) {
+          setDiagnosticArmed(true);
+          setDiagnosticTick(
+            (value) => value + 1
+          );
+        }
+      }, 2500);
+  };
 
   markStartup("gate-render");
 
@@ -58,14 +87,31 @@ function AppBootstrapGate({ children }) {
         background:"#080810",
         color:"#fff"
       }}>
-        <div style={{
-          width:32,
-          height:32,
-          border:"3px solid #D4531C",
-          borderTop:"3px solid transparent",
-          borderRadius:"50%",
-          animation:"spin 1s linear infinite"
-        }}/>
+        <div
+          onPointerDown={startDiagnosticHold}
+          onPointerUp={clearDiagnosticHold}
+          onPointerCancel={clearDiagnosticHold}
+          onPointerLeave={clearDiagnosticHold}
+          style={{
+            width:32,
+            height:32,
+            border:"3px solid #D4531C",
+            borderTop:"3px solid transparent",
+            borderRadius:"50%",
+            animation:"spin 1s linear infinite",
+            touchAction:"none"
+          }}
+        />
+        {diagnosticArmed && (
+          <div style={{
+            marginTop:16,
+            fontSize:12,
+            fontFamily:"monospace",
+            opacity:0.9
+          }}>
+            STARTUP DIAGNOSTIC ARMED
+          </div>
+        )}
 
         {diagnostic.enabled && (
           <div style={{
