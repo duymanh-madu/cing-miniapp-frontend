@@ -18,6 +18,7 @@ const GENERIC_RUNTIME_NAMES = new Set([
   "guest",
   "hội viên",
   "hoi vien",
+  "cing iu",
 ]);
 
 function cleanRuntimeName(value: unknown) {
@@ -100,7 +101,11 @@ export async function initializeCustomerIdentityEngine() {
       oaFollowed: true,
     });
 
-    const resolvedFullName = pickRuntimeName(result?.fullName, fullName) || "Cing iu";
+    const resolvedFullName = pickRuntimeName(
+      result?.fullName,
+      fullName,
+      currentIdentity?.fullName
+    );
 
     store.setIdentity({
       customerId: result?.customerId || "",

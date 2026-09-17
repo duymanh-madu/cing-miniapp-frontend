@@ -673,12 +673,17 @@ const shellBootDataPromise =
   await initializeRuntimeSession();
 
   /*
-   * 2b. After a possible shell silent-login, establish the
-   * authenticated app-entry against the fresh backend JWT.
+   * 2b. A backend-authenticated persisted session was already opened
+   * above and must not pay for a duplicate /auth/session/open.
+   *
+   * Only recovery paths that may have established a fresh JWT from
+   * shell identity need to open that newly-created session here.
    */
   if (
-    authSessionResult !==
-      "transient_failure"
+    authSessionResult ===
+      "no_access_token" ||
+    authSessionResult ===
+      "auth_rejected"
   ) {
     await openAuthenticatedRuntimeSession();
   }
@@ -708,6 +713,7 @@ const shellBootDataPromise =
       store.setActivationStatus("activated");
       store.setProfileHydrated(true);
 
+      void (async () => {
       try {
         const profileRes = await apiClient.get(`/profile-update/profile/${storedPhone}`);
         const serverProfile = profileRes?.data?.data || {};
@@ -757,6 +763,7 @@ const shellBootDataPromise =
       } catch(e) {
         console.warn("[BOOT] hydrate display profile failed:", e);
       }
+      })();
     }
   } catch(e) {
     console.warn("[BOOT] restore persisted member failed:", e);
