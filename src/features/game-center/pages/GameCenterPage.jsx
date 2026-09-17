@@ -166,18 +166,8 @@ export default function GameCenterPage() {
     setCustomerMultiplayerEnabled,
   ] = useState(false);
 
-  const [cingArtilleryVisible, setCingArtilleryVisible] =
-    useState(false);
-
   const games =
-    getAllGames().filter(
-      (game) =>
-        game.id !== "cing-artillery" ||
-        (
-          customerMultiplayerEnabled &&
-          cingArtilleryVisible
-        )
-    );
+    getAllGames();
 
   const [activeGame, setActiveGame]     = useState(null);
   const [playingChess, setPlayingChess] = useState(false);
@@ -233,65 +223,6 @@ export default function GameCenterPage() {
       cancelled = true;
     };
   }, []);
-
-  /*
-   * Cing Piu Piu is private-beta only.
-   *
-   * Registry membership is not public discovery authority.
-   * The card stays hidden until the authenticated backend
-   * confirms this user may enter the private game surface.
-   */
-  useEffect(() => {
-    let cancelled = false;
-
-    setCingArtilleryVisible(false);
-
-    if (
-      !authenticated ||
-      !customerMultiplayerEnabled
-    ) {
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    apiClient
-      .get("/game/cing-piu-piu/entry")
-      .then((response) => {
-        if (cancelled) {
-          return;
-        }
-
-        const entry =
-          response?.data?.data;
-
-        const visible =
-          entry?.ready === true ||
-          entry?.onboarding_required === true ||
-          entry?.state === "ready";
-
-        setCingArtilleryVisible(
-          visible
-        );
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setCingArtilleryVisible(
-            false
-          );
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    authenticated,
-    customerMultiplayerEnabled,
-  ]);
-  const profile       = useAuthStore(s => s.profile);
-  const runtimeIdentity = useRuntimeCustomerIdentityStore(s => s.identity);
-  const displayName = resolveProfileName(profile || runtimeIdentity, "Cing iu");
 
   useEffect(() => {
     apiClient.get("/game/economy-policy")

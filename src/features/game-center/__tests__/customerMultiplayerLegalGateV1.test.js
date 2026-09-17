@@ -44,16 +44,6 @@ test(
 );
 
 test(
-  "Piu Piu requires multiplayer legal availability",
-  () => {
-    assert.match(
-      source,
-      /game\.id !== "cing-artillery"[\s\S]*customerMultiplayerEnabled[\s\S]*cingArtilleryVisible/
-    );
-  }
-);
-
-test(
   "Chess surface is behind multiplayer legal availability",
   () => {
     assert.match(

@@ -35,27 +35,6 @@ const gameModules = {
         .LEGACY_GENERIC,
   },
 
-  "cing-artillery": {
-    component:
-      lazy(
-        () =>
-          import(
-            "../../games/cing-artillery"
-          )
-      ),
-
-    /*
-     * Cing Piu Piu owns its complete realtime lifecycle:
-     * authenticated admission -> session -> matchmaking
-     * -> dedicated Mắt Bão Socket.IO transport.
-     *
-     * Never route this PvP runtime through generic
-     * offline-game play/score callbacks.
-     */
-    runtimeAuthority:
-      GAME_RUNTIME_AUTHORITY
-        .SELF_MANAGED,
-  },
 
   "cing-block-puzzle": {
     component:
