@@ -1,3 +1,4 @@
+import { markStartup } from "@/runtime/startup/startupDiagnostic";
 import { initializeRuntimeSocket, getRuntimeSocket } from "./socket/runtimeSocketClient";
 import { initializeRealtimeOrchestrator }    from "./realtime/runtimeRealtimeOrchestrator";
 import { initializeRuntimeStores }           from "../core/store/runtimeStoreOrchestrator";
@@ -557,6 +558,7 @@ async function requestShellBootData(): Promise<any> {
 }
 
 export async function bootstrapRuntime() {
+  markStartup("runtime-start");
 
   // 1. Request boot data từ shell (zalo_id, phone_token, mini_access_token)
   const persistedAtBoot = getPersistedAuthSession();
@@ -644,6 +646,10 @@ const shellBootDataPromise =
       ? await earlyAuthSessionPromise
       : await openAuthenticatedRuntimeSession();
 
+  markStartup(
+    `auth-${authSessionResult}`
+  );
+
   if (
     authSessionResult ===
       "auth_rejected"
@@ -686,8 +692,12 @@ const shellBootDataPromise =
     }
   }
 
+  markStartup("shell-recovery-complete");
+
   // 2. Restore runtime session metadata.
   await initializeRuntimeSession();
+
+  markStartup("runtime-session-ready");
 
   /*
    * 2b. A backend-authenticated persisted session was already opened
@@ -707,6 +717,8 @@ const shellBootDataPromise =
 
   // 3. Khởi tạo stores
   await initializeRuntimeStores();
+
+  markStartup("runtime-stores-ready");
 
   // 3b. Restore activated member identity from persisted auth/session.
   // Do not call Zalo phone permission again if we already have a valid phone.
@@ -793,7 +805,12 @@ const shellBootDataPromise =
 
   // 5. Socket + Realtime
   initializeRuntimeSocket();
+
+  markStartup("realtime-start");
+
   await initializeRealtimeOrchestrator();
+
+  markStartup("realtime-ready");
   try { registerMenuRealtime(); } catch(e) { console.warn("[MENU] register realtime failed", e); }
 
   // Expose identity store cho socket client
@@ -854,6 +871,8 @@ const shellBootDataPromise =
     });
   }
 
+
+  markStartup("runtime-ready");
 }
 
 import "@/runtime/control-plane/controlPlaneBridge";

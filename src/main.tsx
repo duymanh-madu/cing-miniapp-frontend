@@ -1,10 +1,14 @@
 import React from "react";
+import {
+  markStartup,
+} from "@/runtime/startup/startupDiagnostic";
+
+markStartup("main-entry");
 // Cache SHELL_BOOT_DATA sớm nhất — trước khi React mount
 (window as any).__shellBootData = null;
 window.addEventListener("message", (e: any) => {
   if (e.data?.type === "SHELL_BOOT_DATA") {
     (window as any).__shellBootData = e.data;
-    console.log("[BOOT] SHELL_BOOT_DATA cached:", e.data?.zaloId);
   }
 });
 import ReactDOM from "react-dom/client";
