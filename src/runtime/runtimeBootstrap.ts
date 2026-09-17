@@ -542,69 +542,90 @@ async function requestShellBootData(): Promise<any> {
 export async function bootstrapRuntime() {
 
   // 1. Request boot data từ shell (zalo_id, phone_token, mini_access_token)
-  const shellBootData = await requestShellBootData();
-  if (shellBootData?.zaloId || shellBootData?.phone) {
-    try {
-      const store = useRuntimeCustomerIdentityStore.getState();
-      const shellPhone = normalizeRuntimePhone((shellBootData as any)?.phone || "");
+  const persistedAtBoot = getPersistedAuthSession();
+  const canStartFromPersistedAuth = Boolean(
+    persistedAtBoot.accessToken
+  );
 
-      store.setIdentity({
-        zaloUserId: shellBootData.zaloId || "",
-        fullName: shellBootData.name || "",
-        avatar: shellBootData.avatar || "",
-        phone: shellPhone,
-        phoneToken: shellBootData.phoneToken || "",
-        miniAccessToken: shellBootData.miniAccessToken || "",
-        phoneGranted: !!(shellPhone || shellBootData.phoneToken),
-        memberActivated: !!shellPhone,
-      } as any);
+  /*
+   * Start backend validation immediately for returning members.
+   * The Zalo shell handshake is still preserved and consumed below;
+   * it is no longer forced to precede backend auth validation.
+   */
+  const earlyAuthSessionPromise =
+    canStartFromPersistedAuth
+      ? openAuthenticatedRuntimeSession()
+      : null;
 
-      if (shellPhone) {
+  async function reconcileShellBootData(
+    shellBootData: any
+  ) {
+    if (shellBootData?.zaloId || shellBootData?.phone) {
         try {
-          localStorage.setItem("__user_phone", shellPhone);
-        } catch {}
+          const store = useRuntimeCustomerIdentityStore.getState();
+          const shellPhone = normalizeRuntimePhone((shellBootData as any)?.phone || "");
 
-        store.setPermissionState({ phoneGranted: true, oaFollowed: true });
-        store.setActivationStatus("activated");
-        store.setProfileHydrated(true);
+          store.setIdentity({
+            zaloUserId: shellBootData.zaloId || "",
+            fullName: shellBootData.name || "",
+            avatar: shellBootData.avatar || "",
+            phone: shellPhone,
+            phoneToken: shellBootData.phoneToken || "",
+            miniAccessToken: shellBootData.miniAccessToken || "",
+            phoneGranted: !!(shellPhone || shellBootData.phoneToken),
+            memberActivated: !!shellPhone,
+          } as any);
 
-        if (
-          (shellBootData as any)?.cachedMember &&
-          shellBootData.zaloId
-        ) {
-          await openCachedMemberRuntimeEntry({
-            phone:
-              shellPhone,
+          if (shellPhone) {
+            try {
+              localStorage.setItem("__user_phone", shellPhone);
+            } catch {}
 
-            zaloUserId:
-              shellBootData.zaloId,
+            store.setPermissionState({ phoneGranted: true, oaFollowed: true });
+            store.setActivationStatus("activated");
+            store.setProfileHydrated(true);
+
+            if (
+              (shellBootData as any)?.cachedMember &&
+              shellBootData.zaloId
+            ) {
+              void openCachedMemberRuntimeEntry({
+                phone:
+                  shellPhone,
+
+                zaloUserId:
+                  shellBootData.zaloId,
+              });
+            }
+          } else if (shellBootData.phoneToken && shellBootData.miniAccessToken) {
+            store.setActivationStatus("checking");
+          }
+
+          console.log("[BOOT] Shell boot data applied:", {
+            zaloId: shellBootData.zaloId || "",
+            hasPhone: !!shellPhone,
+            cachedMember: !!(shellBootData as any)?.cachedMember,
           });
-        }
-      } else if (shellBootData.phoneToken && shellBootData.miniAccessToken) {
-        store.setActivationStatus("checking");
+        } catch(e) {}
       }
 
-      console.log("[BOOT] Shell boot data applied:", {
-        zaloId: shellBootData.zaloId || "",
-        hasPhone: !!shellPhone,
-        cachedMember: !!(shellBootData as any)?.cachedMember,
-      });
-    } catch(e) {}
-  }
+    }
+
+const shellBootDataPromise =
+    requestShellBootData();
+
+  const shellReconciliationPromise =
+    shellBootDataPromise.then(
+      reconcileShellBootData
+    );
 
   // 1b. Fallback: đọc params từ URL
   hydrateIdentityFromUrlParams();
 
-  /*
-   * 1c. Establish canonical backend authentication.
-   *
-   * Presence of a persisted access token does NOT prove
-   * that the token is still valid. Older WebView sessions
-   * may retain an expired JWT while the Zalo shell still
-   * holds valid silent-login credentials.
-   */
   const authSessionResult =
-    await openAuthenticatedRuntimeSession();
+    earlyAuthSessionPromise
+      ? await earlyAuthSessionPromise
+      : await openAuthenticatedRuntimeSession();
 
   if (
     authSessionResult ===
@@ -623,11 +644,29 @@ export async function bootstrapRuntime() {
 
   if (
     authSessionResult ===
-      "no_access_token" ||
-    authSessionResult ===
-      "auth_rejected"
+      "authenticated"
   ) {
-    await restoreActivatedMemberFromShellToken();
+    /*
+     * Only a backend-accepted persisted session may release the
+     * returning-member fast path. Shell reconciliation still runs
+     * asynchronously and preserves identity/app-open side effects.
+     */
+    void shellReconciliationPromise;
+  } else {
+    /*
+     * Any session not accepted by the backend remains conservative.
+     * Wait for shell identity before continuing recovery decisions.
+     */
+    await shellReconciliationPromise;
+
+    if (
+      authSessionResult ===
+        "no_access_token" ||
+      authSessionResult ===
+        "auth_rejected"
+    ) {
+      await restoreActivatedMemberFromShellToken();
+    }
   }
 
   // 2. Restore runtime session metadata.
