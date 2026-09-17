@@ -84,3 +84,40 @@ test(
     );
   }
 );
+
+
+test(
+  "diagnostic opt-in survives a cold WebView boot",
+  () => {
+    assert.match(
+      diagnostic,
+      /cing_startup_diagnostic/
+    );
+
+    assert.match(
+      diagnostic,
+      /localStorage\.setItem/
+    );
+
+    assert.match(
+      diagnostic,
+      /localStorage\.getItem/
+    );
+  }
+);
+
+
+test(
+  "diagnostic can be explicitly disarmed",
+  () => {
+    assert.match(
+      diagnostic,
+      /requested === "0"/
+    );
+
+    assert.match(
+      diagnostic,
+      /localStorage\.removeItem/
+    );
+  }
+);

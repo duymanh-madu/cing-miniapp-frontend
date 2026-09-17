@@ -12,11 +12,38 @@ declare global {
   }
 }
 
+const STARTUP_DIAGNOSTIC_STORAGE_KEY =
+  "cing_startup_diagnostic";
+
 function diagnosticEnabled() {
   try {
-    return new URLSearchParams(
-      window.location.search
-    ).get("startup_diag") === "1";
+    const requested =
+      new URLSearchParams(
+        window.location.search
+      ).get("startup_diag");
+
+    if (requested === "1") {
+      localStorage.setItem(
+        STARTUP_DIAGNOSTIC_STORAGE_KEY,
+        "1"
+      );
+
+      return true;
+    }
+
+    if (requested === "0") {
+      localStorage.removeItem(
+        STARTUP_DIAGNOSTIC_STORAGE_KEY
+      );
+
+      return false;
+    }
+
+    return (
+      localStorage.getItem(
+        STARTUP_DIAGNOSTIC_STORAGE_KEY
+      ) === "1"
+    );
   } catch {
     return false;
   }
