@@ -508,6 +508,23 @@ function hydrateIdentityFromUrlParams() {
 }
 
 async function requestShellBootData(): Promise<any> {
+  /*
+   * SHELL_BOOT_DATA may arrive before React/bootstrapRuntime mounts.
+   * main.tsx owns the earliest listener and caches that message.
+   * Consume it synchronously here so cold Zalo startup cannot miss
+   * an already-delivered shell identity and fall through to the
+   * 8-second recovery timeout.
+   */
+  const cachedShellBootData =
+    (window as any).__shellBootData;
+
+  if (
+    cachedShellBootData?.type ===
+      "SHELL_BOOT_DATA"
+  ) {
+    return cachedShellBootData;
+  }
+
   return new Promise((resolve) => {
     // Chờ SHELL_READY trước, sau đó mới request — giống flow follow OA
     const totalTimer = setTimeout(() => {
