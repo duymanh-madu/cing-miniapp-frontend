@@ -1,7 +1,3 @@
-import {
-  getStartupDiagnostic,
-} from "./startupDiagnostic";
-
 export type StartupLifecycleDiagnosticEvent = {
   event: string;
   at: number;
@@ -14,16 +10,6 @@ const STORAGE_KEY =
 const MAX_EVENTS = 80;
 
 let installed = false;
-
-function enabled() {
-  try {
-    return Boolean(
-      getStartupDiagnostic().enabled
-    );
-  } catch {
-    return false;
-  }
-}
 
 function readStored():
   StartupLifecycleDiagnosticEvent[] {
@@ -45,10 +31,6 @@ function readStored():
 export function recordStartupLifecycleEvent(
   event: string
 ) {
-  if (!enabled()) {
-    return;
-  }
-
   try {
     const next = [
       ...readStored(),

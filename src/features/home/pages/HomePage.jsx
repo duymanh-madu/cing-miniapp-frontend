@@ -1,13 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import HomeHero from "@/components/home/HomeHero";
 import {
-  armStartupDiagnostic,
-  getStartupDiagnostic,
-} from "@/runtime/startup/startupDiagnostic";
-import {
-  clearStartupLifecycleTrace,
   getStartupLifecycleTrace,
-  recordStartupLifecycleEvent,
 } from "@/runtime/startup/startupLifecycleDiagnostic";
 import AppPopup from "@/components/AppPopup";
 import HomeMenuPreview from "@/components/home/HomeMenuPreview";
@@ -18,22 +12,42 @@ import HomeGameTeaser from "@/features/home/components/HomeGameTeaser";
 import { PageContainer } from "@/components/ui";
 
 export default function HomePage() {
-  const holdRef = useRef(null);
-
-  const [diagnosticEnabled, setDiagnosticEnabled] =
-    useState(() => {
-      try {
-        return Boolean(
-          getStartupDiagnostic().enabled
-        );
-      } catch {
-        return false;
-      }
-    });
-
   const [trace, setTrace] = useState(() =>
     getStartupLifecycleTrace()
   );
+
+  const [showTrace, setShowTrace] = useState(false);
+
+  const tapCountRef = useRef(0);
+  const tapResetTimerRef = useRef(null);
+
+  const revealTrace = () => {
+    tapCountRef.current += 1;
+
+    if (tapResetTimerRef.current !== null) {
+      window.clearTimeout(
+        tapResetTimerRef.current
+      );
+    }
+
+    if (tapCountRef.current >= 7) {
+      tapCountRef.current = 0;
+      tapResetTimerRef.current = null;
+
+      setTrace(
+        getStartupLifecycleTrace()
+      );
+
+      setShowTrace(true);
+      return;
+    }
+
+    tapResetTimerRef.current =
+      window.setTimeout(() => {
+        tapCountRef.current = 0;
+        tapResetTimerRef.current = null;
+      }, 4000);
+  };
 
   useEffect(() => {
     const refresh = () => {
@@ -47,6 +61,8 @@ export default function HomePage() {
       refresh
     );
 
+    refresh();
+
     return () => {
       window.removeEventListener(
         "cing:startup-lifecycle-diagnostic",
@@ -55,56 +71,18 @@ export default function HomePage() {
     };
   }, []);
 
-  const clearHold = () => {
-    if (holdRef.current !== null) {
-      window.clearTimeout(
-        holdRef.current
-      );
-
-      holdRef.current = null;
-    }
-  };
-
-  const startHold = () => {
-    clearHold();
-
-    holdRef.current =
-      window.setTimeout(() => {
-        holdRef.current = null;
-
-        if (
-          armStartupDiagnostic()
-        ) {
-          clearStartupLifecycleTrace();
-
-          setDiagnosticEnabled(true);
-
-          recordStartupLifecycleEvent(
-            "diagnostic:armed"
-          );
-
-          setTrace(
-            getStartupLifecycleTrace()
-          );
-        }
-      }, 2500);
-  };
-
   return (
     <PageContainer className="pb-24">
       <AppPopup />
+
       <div
         className="px-4 pt-4"
-        onPointerDown={startHold}
-        onPointerUp={clearHold}
-        onPointerCancel={clearHold}
-        onPointerLeave={clearHold}
-        style={{ touchAction: "manipulation" }}
+        onClick={revealTrace}
       >
         <HomeHero />
       </div>
 
-      {diagnosticEnabled && (
+      {showTrace && trace.length > 0 && (
         <div
           style={{
             margin: "12px 16px 0",
@@ -124,10 +102,10 @@ export default function HomePage() {
               fontWeight: 700,
             }}
           >
-            LIFECYCLE DIAGNOSTIC ARMED
+            WARM RE-ENTRY TRACE
           </div>
 
-          {trace.slice(-24).map(
+          {trace.slice(-30).map(
             (item, index) => (
               <div
                 key={`${item.at}-${index}`}
@@ -144,11 +122,26 @@ export default function HomePage() {
           )}
         </div>
       )}
-      <div className="px-4 mt-6"><HomeQuickActions /></div>
-      <div className="px-4 mt-5"><HomeWalletSnapshot /></div>
-      <div className="px-4 mt-5"><HomeMembershipCard /></div>
-      <div className="px-4 mt-6"><HomeMenuPreview /></div>
-      <div className="px-4 mt-6 mb-4"><HomeGameTeaser /></div>
+
+      <div className="px-4 mt-6">
+        <HomeQuickActions />
+      </div>
+
+      <div className="px-4 mt-5">
+        <HomeWalletSnapshot />
+      </div>
+
+      <div className="px-4 mt-5">
+        <HomeMembershipCard />
+      </div>
+
+      <div className="px-4 mt-6">
+        <HomeMenuPreview />
+      </div>
+
+      <div className="px-4 mt-6 mb-4">
+        <HomeGameTeaser />
+      </div>
     </PageContainer>
   );
 }

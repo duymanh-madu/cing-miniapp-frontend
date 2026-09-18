@@ -79,14 +79,14 @@ test(
 );
 
 test(
-  "lifecycle recorder remains diagnostic gated",
+  "lifecycle recorder is automatic before React mount",
   () => {
-    assert.match(
+    assert.doesNotMatch(
       lifecycle,
-      /getStartupDiagnostic\(\)\.enabled/
+      /getStartupDiagnostic/
     );
 
-    assert.match(
+    assert.doesNotMatch(
       lifecycle,
       /if \(!enabled\(\)\)/
     );
@@ -94,26 +94,36 @@ test(
 );
 
 test(
-  "Home can explicitly arm and inspect lifecycle diagnostic",
+  "Home keeps lifecycle trace hidden behind explicit reveal gesture",
   () => {
     assert.match(
+      home,
+      /getStartupLifecycleTrace/
+    );
+
+    assert.match(
+      home,
+      /WARM RE-ENTRY TRACE/
+    );
+
+    assert.match(
+      home,
+      /showTrace/
+    );
+
+    assert.match(
+      home,
+      /tapCountRef\.current >= 7/
+    );
+
+    assert.doesNotMatch(
       home,
       /armStartupDiagnostic/
     );
 
-    assert.match(
-      home,
-      /2500/
-    );
-
-    assert.match(
+    assert.doesNotMatch(
       home,
       /LIFECYCLE DIAGNOSTIC ARMED/
-    );
-
-    assert.match(
-      home,
-      /getStartupLifecycleTrace/
     );
   }
 );
