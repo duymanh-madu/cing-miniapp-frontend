@@ -19,6 +19,7 @@ import {
   isDefinitiveAuthRecoveryRejection,
 } from "@/infra/auth/authRecovery";
 import { activateMiniAppUser } from "@/zalo/activation/activationApi";
+import { recoverLocalDeviceReauthSession } from "@/infra/auth/localDeviceReauth";
 import { getOrCreateRuntimeDeviceId } from "./session/runtimeDeviceIdentity";
 
 function normalizeRuntimePhone(value: unknown) {
@@ -574,18 +575,37 @@ export async function bootstrapRuntime() {
   // 1. Request boot data từ shell (zalo_id, phone_token, mini_access_token)
   const persistedAtBoot = getPersistedAuthSession();
   const canStartFromPersistedAuth = Boolean(
-    persistedAtBoot.accessToken
+    persistedAtBoot.accessToken ||
+    persistedAtBoot.refreshToken
   );
 
   /*
-   * Start backend validation immediately for returning members.
-   * The Zalo shell handshake is still preserved and consumed below;
-   * it is no longer forced to precede backend auth validation.
+   * Returning-member authority order:
+   *
+   * 1. Existing backend access/refresh credentials.
+   * 2. Durable frontend-held reauth credential.
+   * 3. Canonical Zalo login fallback after shell identity restore.
+   *
+   * Durable reauth begins immediately and does not wait for
+   * member-identity reconciliation.
    */
+  const localDeviceReauthPromise =
+    !persistedAtBoot.accessToken &&
+    !persistedAtBoot.refreshToken
+      ? recoverLocalDeviceReauthSession()
+      : null;
+
   const earlyAuthSessionPromise =
     canStartFromPersistedAuth
       ? openAuthenticatedRuntimeSession()
-      : null;
+      : localDeviceReauthPromise
+        ? localDeviceReauthPromise.then(
+            async (recovered) =>
+              recovered
+                ? openAuthenticatedRuntimeSession()
+                : "no_access_token"
+          )
+        : null;
 
   async function reconcileShellBootData(
     shellBootData: any

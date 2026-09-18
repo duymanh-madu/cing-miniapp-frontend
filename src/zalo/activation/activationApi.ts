@@ -1,6 +1,7 @@
 import { createSession } from "@/infra/auth/authSession";
 import useAuthStore from "@/stores/auth";
 import { getOrCreateRuntimeDeviceId } from "@/runtime/session/runtimeDeviceIdentity";
+import { registerLocalDeviceReauthCredential } from "@/infra/auth/localDeviceReauth";
 
 const BACKEND_URL =
   (import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api");
@@ -120,6 +121,31 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
         avatar: data.customer?.avatar || (canReuseExistingProfile ? existingProfile?.avatar : "") || input.avatar || "",
       },
     });
+
+    /*
+     * Canonical Zalo login is also the enrollment authority
+     * for durable returning-member reauthentication.
+     *
+     * Failure is deliberately non-fatal for this authenticated
+     * lifecycle. The next cold lifecycle will simply use the
+     * canonical Zalo fallback again.
+     */
+    /*
+     * Cached phone + Zalo identity remains a legacy login
+     * compatibility path only.
+     *
+     * Durable enrollment requires a fresh Zalo token pair;
+     * backend independently verifies the phone proof.
+     */
+    if (
+      input.phoneToken &&
+      input.miniAccessToken
+    ) {
+      await registerLocalDeviceReauthCredential(
+        input.phoneToken,
+        input.miniAccessToken
+      ).catch(() => false);
+    }
 
     try {
       if (resolvedPhone && resolvedPhone !== "pending") {
