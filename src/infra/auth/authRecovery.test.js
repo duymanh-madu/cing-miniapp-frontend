@@ -55,22 +55,30 @@ describe(
       mocks.getPersistedAuthSession.mockReset();
 
       mocks.getPersistedAuthSession.mockReturnValue({
+        session: {
+          accessToken:
+            "expired-access",
+
+          refreshToken:
+            "refresh-1",
+
+          profile: {
+            id:
+              "customer-1",
+
+            name:
+              "Old name",
+
+            localOnly:
+              "preserved",
+          },
+        },
+
         accessToken:
           "expired-access",
 
         refreshToken:
           "refresh-1",
-
-        profile: {
-          id:
-            "customer-1",
-
-          name:
-            "Old name",
-
-          localOnly:
-            "preserved",
-        },
       });
     });
 

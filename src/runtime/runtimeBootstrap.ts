@@ -13,6 +13,11 @@ import {
 import {
   clearStaleBackendAuthSession,
 } from "@/infra/auth/staleAuthRecovery";
+
+import {
+  recoverBackendAuthSession,
+  isDefinitiveAuthRecoveryRejection,
+} from "@/infra/auth/authRecovery";
 import { activateMiniAppUser } from "@/zalo/activation/activationApi";
 import { getOrCreateRuntimeDeviceId } from "./session/runtimeDeviceIdentity";
 
@@ -100,15 +105,14 @@ type AuthenticatedRuntimeSessionResult =
 
 async function openAuthenticatedRuntimeSession():
   Promise<AuthenticatedRuntimeSessionResult> {
-  const {
-    session,
-    accessToken,
-    refreshToken,
-  } = getPersistedAuthSession();
+  const persisted =
+    getPersistedAuthSession();
 
-  if (!accessToken) {
-    return "no_access_token";
-  }
+  const accessToken =
+    persisted.accessToken;
+
+  const refreshToken =
+    persisted.refreshToken;
 
   const installationId =
     getOrCreateRuntimeDeviceId();
@@ -134,34 +138,119 @@ async function openAuthenticatedRuntimeSession():
     );
   };
 
-  try {
+  const hydrateAcceptedSession = (
+    acceptedAccessToken: string
+  ) => {
+    const current =
+      getPersistedAuthSession();
 
+    useAuthStore
+      .getState()
+      .setSession({
+        accessToken:
+          acceptedAccessToken,
+
+        refreshToken:
+          current.refreshToken,
+
+        profile:
+          current.session?.profile ||
+          null,
+      });
+  };
+
+  const recoverAndOpen =
+    async ():
+      Promise<AuthenticatedRuntimeSessionResult> => {
+      let recovered: any;
+
+      try {
+        recovered =
+          await recoverBackendAuthSession();
+      } catch (error: any) {
+        return isDefinitiveAuthRecoveryRejection(
+          error
+        )
+          ? "auth_rejected"
+          : "transient_failure";
+      }
+
+      const recoveredAccessToken =
+        String(
+          recovered?.accessToken ||
+          ""
+        ).trim();
+
+      if (!recoveredAccessToken) {
+        return "auth_rejected";
+      }
+
+      try {
+        await openSession(
+          recoveredAccessToken
+        );
+
+        /*
+         * recoverBackendAuthSession() already persisted the
+         * canonical session through createSession().
+         * Re-hydrate from canonical storage only after the
+         * backend accepts the refreshed JWT.
+         */
+        hydrateAcceptedSession(
+          recoveredAccessToken
+        );
+
+        return "authenticated";
+      } catch (error: any) {
+        const status =
+          Number(
+            error?.response?.status ||
+            0
+          );
+
+        if (
+          status === 400 ||
+          status === 401 ||
+          status === 403
+        ) {
+          return "auth_rejected";
+        }
+
+        return "transient_failure";
+      }
+    };
+
+  /*
+   * Refresh-only cold start:
+   *
+   * A missing access token is not equivalent to an unauthenticated
+   * user while a canonical refresh token still exists.
+   *
+   * Recover through the single-flight canonical authority before
+   * falling back to the slower Zalo shell recovery path.
+   */
+  if (!accessToken) {
+    if (!refreshToken) {
+      return "no_access_token";
+    }
+
+    return recoverAndOpen();
+  }
+
+  try {
     await openSession(
       accessToken
     );
 
-    /*
-     * A persisted JWT is authoritative only after the backend
-     * has accepted it above. Hydrate the application auth store
-     * at that boundary so cold-start sessions and fresh-login
-     * sessions expose the same authenticated state.
-     */
-    useAuthStore
-      .getState()
-      .setSession({
-        accessToken,
-        refreshToken,
-        profile:
-          session?.profile ||
-          null,
-      });
+    hydrateAcceptedSession(
+      accessToken
+    );
 
     return "authenticated";
-
   } catch (error: any) {
-
     if (
-      error?.response?.status !== 401
+      error?.response?.status !==
+      401
     ) {
       return "transient_failure";
     }
@@ -169,90 +258,14 @@ async function openAuthenticatedRuntimeSession():
     if (!refreshToken) {
       return "auth_rejected";
     }
-
   }
 
-  try {
-
-    const refreshResponse =
-      await apiClient.post(
-        "/auth/refresh",
-        {
-          refreshToken,
-        }
-      );
-
-    const refreshed =
-      refreshResponse?.data?.data ||
-      refreshResponse?.data ||
-      {};
-
-    const nextAccessToken =
-      refreshed.accessToken ||
-      refreshed.access_token ||
-      "";
-
-    if (!nextAccessToken) {
-      return "auth_rejected";
-    }
-
-    const nextProfile = {
-      ...(session?.profile || {}),
-      ...(refreshed.customer || {}),
-    };
-
-    try {
-
-      localStorage.setItem(
-        "cing_access_token",
-        nextAccessToken
-      );
-
-      localStorage.setItem(
-        "cing_session",
-        JSON.stringify({
-          ...(session || {}),
-          accessToken:
-            nextAccessToken,
-          refreshToken,
-          profile:
-            nextProfile,
-        })
-      );
-
-    } catch {}
-
-    useAuthStore
-      .getState()
-      .setSession({
-        accessToken:
-          nextAccessToken,
-
-        refreshToken,
-
-        profile:
-          nextProfile,
-      });
-
-    await openSession(
-      nextAccessToken
-    );
-
-    return "authenticated";
-
-  } catch (error: any) {
-
-    if (
-      error?.response?.status === 400 ||
-      error?.response?.status === 401 ||
-      error?.response?.status === 403
-    ) {
-      return "auth_rejected";
-    }
-
-    return "transient_failure";
-
-  }
+  /*
+   * Persisted access token was rejected, but the refresh token
+   * remains authoritative. Reuse the same canonical recovery path
+   * instead of maintaining a second refresh implementation here.
+   */
+  return recoverAndOpen();
 }
 
 function syncAuthStoreAfterSilentRestore(profile: any) {

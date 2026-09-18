@@ -193,7 +193,12 @@ test("backend auth and stale-session recovery authorities remain", () => {
 
   assert.match(
     source,
-    /await apiClient\.post\(\s*"\/auth\/refresh"/
+    /recoverBackendAuthSession\(\)/
+  );
+
+  assert.match(
+    source,
+    /isDefinitiveAuthRecoveryRejection/
   );
 
   assert.match(
@@ -254,3 +259,113 @@ test("shell recovery timeout remains unchanged", () => {
     /8000/
   );
 });
+
+
+test(
+  "refresh-only persisted auth bypasses shell recovery",
+  () => {
+    assert.match(
+      source,
+      /if \(!accessToken\)\s*\{[\s\S]*if \(!refreshToken\)[\s\S]*return "no_access_token";[\s\S]*return recoverAndOpen\(\);/
+    );
+
+    assert.match(
+      source,
+      /recoverBackendAuthSession\(\)/
+    );
+  }
+);
+
+test(
+  "runtime bootstrap reuses canonical auth recovery instead of direct refresh",
+  () => {
+    const fnStart =
+      source.indexOf(
+        "async function openAuthenticatedRuntimeSession"
+      );
+
+    const fnEnd =
+      source.indexOf(
+        "function syncAuthStoreAfterSilentRestore",
+        fnStart
+      );
+
+    assert.ok(fnStart >= 0);
+    assert.ok(fnEnd > fnStart);
+
+    const fn =
+      source.slice(
+        fnStart,
+        fnEnd
+      );
+
+    assert.match(
+      fn,
+      /recoverBackendAuthSession\(\)/
+    );
+
+    assert.doesNotMatch(
+      fn,
+      /apiClient\.post\(\s*"\/auth\/refresh"/
+    );
+  }
+);
+
+test(
+  "definitive refresh rejection remains auth rejected while transient failure stays conservative",
+  () => {
+    const fnStart =
+      source.indexOf(
+        "async function openAuthenticatedRuntimeSession"
+      );
+
+    const fnEnd =
+      source.indexOf(
+        "function syncAuthStoreAfterSilentRestore",
+        fnStart
+      );
+
+    const fn =
+      source.slice(
+        fnStart,
+        fnEnd
+      );
+
+    assert.match(
+      fn,
+      /isDefinitiveAuthRecoveryRejection/
+    );
+
+    assert.match(
+      fn,
+      /\? "auth_rejected"\s*:\s*"transient_failure"/
+    );
+  }
+);
+
+test(
+  "freshly recovered token must still open backend runtime session",
+  () => {
+    const fnStart =
+      source.indexOf(
+        "async function openAuthenticatedRuntimeSession"
+      );
+
+    const fnEnd =
+      source.indexOf(
+        "function syncAuthStoreAfterSilentRestore",
+        fnStart
+      );
+
+    const fn =
+      source.slice(
+        fnStart,
+        fnEnd
+      );
+
+    assert.match(
+      fn,
+      /await openSession\(\s*recoveredAccessToken\s*\)/
+    );
+  }
+);

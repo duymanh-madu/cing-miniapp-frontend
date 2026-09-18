@@ -63,8 +63,9 @@ export async function recoverBackendAuthSession() {
       }
 
       const previousProfile =
-        persisted?.profile && typeof persisted.profile === "object"
-          ? persisted.profile
+        persisted?.session?.profile &&
+        typeof persisted.session.profile === "object"
+          ? persisted.session.profile
           : {};
 
       const refreshedCustomer =
