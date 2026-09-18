@@ -1,41 +1,18 @@
 export function
 getPersistedAuthSession() {
+  let storedAccessToken = null;
+  let storedRefreshToken = null;
+
   try {
-    const rawSession =
+    storedAccessToken =
       localStorage.getItem(
-        "cing_session"
+        "cing_access_token"
       );
 
-    const session =
-      rawSession
-        ? JSON.parse(
-            rawSession
-          )
-        : null;
-
-    const accessToken =
-      String(
-        session?.accessToken ||
-        localStorage.getItem(
-          "cing_access_token"
-        ) ||
-        ""
-      ).trim() || null;
-
-    const refreshToken =
-      String(
-        session?.refreshToken ||
-        localStorage.getItem(
-          "cing_refresh_token"
-        ) ||
-        ""
-      ).trim() || null;
-
-    return {
-      session,
-      accessToken,
-      refreshToken,
-    };
+    storedRefreshToken =
+      localStorage.getItem(
+        "cing_refresh_token"
+      );
   } catch {
     return {
       session: null,
@@ -43,6 +20,52 @@ getPersistedAuthSession() {
       refreshToken: null,
     };
   }
+
+  let session = null;
+
+  try {
+    const rawSession =
+      localStorage.getItem(
+        "cing_session"
+      );
+
+    session =
+      rawSession
+        ? JSON.parse(
+            rawSession
+          )
+        : null;
+  } catch {
+    /*
+     * cing_session is a convenience snapshot, not the sole
+     * persistence authority for backend credentials.
+     *
+     * A malformed snapshot must not hide independently
+     * persisted access/refresh tokens that can still be
+     * validated or recovered by the backend.
+     */
+    session = null;
+  }
+
+  const accessToken =
+    String(
+      session?.accessToken ||
+      storedAccessToken ||
+      ""
+    ).trim() || null;
+
+  const refreshToken =
+    String(
+      session?.refreshToken ||
+      storedRefreshToken ||
+      ""
+    ).trim() || null;
+
+  return {
+    session,
+    accessToken,
+    refreshToken,
+  };
 }
 
 export function
