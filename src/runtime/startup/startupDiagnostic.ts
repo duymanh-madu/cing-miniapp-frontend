@@ -1,3 +1,7 @@
+import {
+  recordStartupLifecycleEvent,
+} from "./startupLifecycleDiagnostic";
+
 export type StartupDiagnosticMark = {
   name: string;
   at: number;
@@ -63,6 +67,16 @@ function state() {
 export function markStartup(
   name: string
 ) {
+  /*
+   * Production-safe forensic persistence.
+   * Existing startup marks remain the single timing authority.
+   * Persist the boundary even when the visual startup diagnostic
+   * is not armed, so a failed warm run survives the next cold boot.
+   */
+  recordStartupLifecycleEvent(
+    `startup:${name}`
+  );
+
   const current = state();
 
   if (!current.enabled) {

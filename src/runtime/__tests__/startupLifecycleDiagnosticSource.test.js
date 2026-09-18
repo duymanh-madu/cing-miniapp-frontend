@@ -17,6 +17,11 @@ const home = fs.readFileSync(
   "utf8"
 );
 
+const startup = fs.readFileSync(
+  "src/runtime/startup/startupDiagnostic.ts",
+  "utf8"
+);
+
 test(
   "lifecycle recorder installs before React mount",
   () => {
@@ -124,6 +129,60 @@ test(
     assert.doesNotMatch(
       home,
       /LIFECYCLE DIAGNOSTIC ARMED/
+    );
+  }
+);
+
+
+test(
+  "existing startup marks persist before visual diagnostic gate",
+  () => {
+    assert.match(
+      startup,
+      /recordStartupLifecycleEvent/
+    );
+
+    assert.match(
+      startup,
+      /startup:\$\{name\}/
+    );
+
+    const persist =
+      startup.indexOf(
+        "recordStartupLifecycleEvent"
+      );
+
+    const visualGate =
+      startup.indexOf(
+        "if (!current.enabled)"
+      );
+
+    assert.ok(persist >= 0);
+    assert.ok(visualGate > persist);
+  }
+);
+
+test(
+  "recorder observes silent runtime crash signals",
+  () => {
+    assert.match(
+      lifecycle,
+      /window:error/
+    );
+
+    assert.match(
+      lifecycle,
+      /window:unhandledrejection/
+    );
+  }
+);
+
+test(
+  "hidden trace retains enough history for warm failure experiment",
+  () => {
+    assert.match(
+      home,
+      /trace\.slice\(-70\)/
     );
   }
 );

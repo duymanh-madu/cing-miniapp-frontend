@@ -133,4 +133,22 @@ export function installStartupLifecycleDiagnostic() {
       );
     }
   );
+
+  window.addEventListener(
+    "error",
+    () => {
+      recordStartupLifecycleEvent(
+        "window:error"
+      );
+    }
+  );
+
+  window.addEventListener(
+    "unhandledrejection",
+    () => {
+      recordStartupLifecycleEvent(
+        "window:unhandledrejection"
+      );
+    }
+  );
 }

@@ -105,7 +105,7 @@ export default function HomePage() {
             WARM RE-ENTRY TRACE
           </div>
 
-          {trace.slice(-30).map(
+          {trace.slice(-70).map(
             (item, index) => (
               <div
                 key={`${item.at}-${index}`}
