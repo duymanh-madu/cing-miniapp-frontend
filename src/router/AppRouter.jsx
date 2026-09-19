@@ -9,6 +9,7 @@ import AppLayout from "@/layouts/AppLayout";
 import AppLoadingScreen from "@/app/AppLoadingScreen";
 import { routeManifest } from "@/app/routeManifest";
 import useAuthStore from "@/stores/auth/authStore";
+import useAppBootstrapAuthState from "@/bootstrap/state/appBootstrapAuthState";
 
 const PAGE_NAMES = {
   "/":              "Trang chủ",
@@ -98,7 +99,21 @@ function getLazy(loader, key) {
 }
 
 function AuthRequired({ children }) {
-  const authenticated = useAuthStore(s => s.authenticated);
+  const authenticated =
+    useAuthStore(s => s.authenticated);
+
+  const initialAuthResolved =
+    useAppBootstrapAuthState(
+      s => s.initialAuthResolved
+    );
+
+  /*
+   * Home/router still renders immediately.
+   * Only protected routes wait for the initial backend-auth decision.
+   */
+  if (!authenticated && !initialAuthResolved) {
+    return <AppLoadingScreen />;
+  }
 
   if (!authenticated) {
     return (

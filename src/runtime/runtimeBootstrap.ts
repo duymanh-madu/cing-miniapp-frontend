@@ -4,6 +4,7 @@ import { initializeRuntimeStores }           from "../core/store/runtimeStoreOrc
 import { initializeRuntimeSession }          from "./session/runtimeSessionOrchestrator";
 import { useRuntimeCustomerIdentityStore }   from "./customer/runtimeCustomerIdentityStore";
 import registerMenuRealtime from "@/features/menu/realtime/registerMenuRealtime";
+import useAppBootstrapAuthState from "@/bootstrap/state/appBootstrapAuthState";
 import useAuthStore from "@/stores/auth/authStore";
 import apiClient from "@/infra/api/apiClient";
 import {
@@ -690,6 +691,9 @@ const shellBootDataPromise =
       ? await earlyAuthSessionPromise
       : await openAuthenticatedRuntimeSession();
 
+  let finalAuthSessionResult =
+    authSessionResult;
+
   if (
     authSessionResult ===
       "auth_rejected"
@@ -743,12 +747,28 @@ const shellBootDataPromise =
    * shell identity need to open that newly-created session here.
    */
   if (
-    authSessionResult ===
-      "no_access_token" ||
-    authSessionResult ===
-      "auth_rejected"
+    authSessionResult === "no_access_token" ||
+    authSessionResult === "auth_rejected"
   ) {
-    await openAuthenticatedRuntimeSession();
+    finalAuthSessionResult =
+      await openAuthenticatedRuntimeSession();
+  }
+
+  /*
+   * Global Home rendering is non-blocking.
+   * Protected routes must wait for a definitive cold-auth result
+   * before treating authenticated:false as a real logout.
+   *
+   * Transient infrastructure failure deliberately remains unresolved.
+   */
+  if (
+    finalAuthSessionResult === "authenticated" ||
+    finalAuthSessionResult === "no_access_token" ||
+    finalAuthSessionResult === "auth_rejected"
+  ) {
+    useAppBootstrapAuthState
+      .getState()
+      .markInitialAuthResolved();
   }
 
   // 3. Khởi tạo stores
