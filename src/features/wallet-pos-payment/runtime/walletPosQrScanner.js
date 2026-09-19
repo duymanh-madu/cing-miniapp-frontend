@@ -433,6 +433,193 @@ scanCingWalletPosQr(
 }
 
 
+
+const GALLERY_MAX_FILE_BYTES =
+  20 * 1024 * 1024;
+
+const GALLERY_MAX_DIMENSION =
+  2048;
+
+
+export async function
+scanCingWalletPosQrImage(
+  file
+) {
+  if (
+    !file ||
+    (
+      file.type &&
+      !file.type.startsWith(
+        "image/"
+      )
+    )
+  ) {
+    throw createScannerError(
+      "Vui lòng chọn một tệp hình ảnh.",
+      "CING_WALLET_POS_IMAGE_INVALID"
+    );
+  }
+
+  if (
+    file.size >
+    GALLERY_MAX_FILE_BYTES
+  ) {
+    throw createScannerError(
+      "Ảnh quá lớn. Vui lòng chọn ảnh nhỏ hơn 20 MB.",
+      "CING_WALLET_POS_IMAGE_TOO_LARGE"
+    );
+  }
+
+  const imageUrl =
+    URL.createObjectURL(
+      file
+    );
+
+  try {
+    const image =
+      new Image();
+
+    await new Promise(
+      (
+        resolve,
+        reject
+      ) => {
+        image.onload =
+          resolve;
+
+        image.onerror =
+          () => {
+            reject(
+              createScannerError(
+                "Không thể đọc ảnh đã chọn.",
+                "CING_WALLET_POS_IMAGE_READ_FAILED"
+              )
+            );
+          };
+
+        image.src =
+          imageUrl;
+      }
+    );
+
+    const originalWidth =
+      image.naturalWidth;
+
+    const originalHeight =
+      image.naturalHeight;
+
+    if (
+      !originalWidth ||
+      !originalHeight
+    ) {
+      throw createScannerError(
+        "Ảnh không hợp lệ.",
+        "CING_WALLET_POS_IMAGE_INVALID"
+      );
+    }
+
+    const scale =
+      Math.min(
+        1,
+        GALLERY_MAX_DIMENSION /
+          Math.max(
+            originalWidth,
+            originalHeight
+          )
+      );
+
+    const width =
+      Math.max(
+        1,
+        Math.round(
+          originalWidth *
+            scale
+        )
+      );
+
+    const height =
+      Math.max(
+        1,
+        Math.round(
+          originalHeight *
+            scale
+        )
+      );
+
+    const canvas =
+      document.createElement(
+        "canvas"
+      );
+
+    canvas.width =
+      width;
+
+    canvas.height =
+      height;
+
+    const context =
+      canvas.getContext(
+        "2d",
+        {
+          willReadFrequently:
+            true,
+        }
+      );
+
+    if (!context) {
+      throw createScannerError(
+        "Không thể xử lý ảnh QR.",
+        "CING_WALLET_POS_IMAGE_CONTEXT_FAILED"
+      );
+    }
+
+    context.drawImage(
+      image,
+      0,
+      0,
+      width,
+      height
+    );
+
+    const pixels =
+      context.getImageData(
+        0,
+        0,
+        width,
+        height
+      );
+
+    const decoded =
+      jsQR(
+        pixels.data,
+        pixels.width,
+        pixels.height,
+        {
+          inversionAttempts:
+            "attemptBoth",
+        }
+      );
+
+    if (
+      !decoded?.data
+    ) {
+      throw createScannerError(
+        "Không tìm thấy mã QR trong ảnh. Vui lòng chọn ảnh rõ nét hơn.",
+        "CING_WALLET_POS_IMAGE_QR_NOT_FOUND"
+      );
+    }
+
+    return normalizeCingWalletQrContent(
+      decoded.data
+    );
+  } finally {
+    URL.revokeObjectURL(
+      imageUrl
+    );
+  }
+}
+
+
 export {
   CAPABILITY_PREFIX,
 };

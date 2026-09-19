@@ -10,6 +10,7 @@ import {
 
 import {
   scanCingWalletPosQr,
+  scanCingWalletPosQrImage,
 } from "../runtime/walletPosQrScanner";
 
 import {
@@ -218,6 +219,15 @@ WalletPosPaymentPage() {
   const cameraVideoRef =
     useRef(null);
 
+  const galleryInputRef =
+    useRef(null);
+
+  const [
+    galleryScanning,
+    setGalleryScanning,
+  ] =
+    useState(false);
+
   const confirmInFlight =
     useRef(false);
 
@@ -320,6 +330,77 @@ WalletPosPaymentPage() {
       },
       [
         loadPreview,
+      ]
+    );
+
+
+
+  const handleGallerySelection =
+    useCallback(
+      async event => {
+        const input =
+          event.target;
+
+        const file =
+          input.files?.[0];
+
+        /*
+         * Clear immediately so selecting
+         * the same image again still
+         * produces a change event.
+         */
+        input.value =
+          "";
+
+        if (
+          !file ||
+          scanInFlight.current ||
+          loading
+        ) {
+          return;
+        }
+
+        scanInFlight.current =
+          true;
+
+        setGalleryScanning(
+          true
+        );
+
+        setError(null);
+        setResult(null);
+
+        try {
+          const scanned =
+            await scanCingWalletPosQrImage(
+              file
+            );
+
+          await loadPreview(
+            scanned
+          );
+        } catch (
+          nextError
+        ) {
+          setPayment(null);
+
+          setError(
+            resolveApiError(
+              nextError
+            )
+          );
+        } finally {
+          setGalleryScanning(
+            false
+          );
+
+          scanInFlight.current =
+            false;
+        }
+      },
+      [
+        loadPreview,
+        loading,
       ]
     );
 
@@ -517,7 +598,7 @@ WalletPosPaymentPage() {
                 "#8b7968",
             }}
           >
-            Thanh toán hóa đơn tại quầy
+            Thanh toán hóa đơn tại quầy hoặc từ xa
           </p>
         </div>
       </div>
@@ -600,9 +681,9 @@ WalletPosPaymentPage() {
                   1.6,
               }}
             >
-              Khi thu ngân chọn Cing Wallet,
-              hãy quét mã QR đang hiển thị
-              trên màn hình phụ.
+              Quét QR trên màn hình POS hoặc
+              chọn ảnh QR do Cing gửi
+              để thanh toán từ xa.
             </p>
 
             <div
@@ -667,6 +748,7 @@ WalletPosPaymentPage() {
               type="button"
               disabled={
                 scanning ||
+                galleryScanning ||
                 loading
               }
               onClick={
@@ -705,6 +787,87 @@ WalletPosPaymentPage() {
                   ? "Đang kiểm tra hóa đơn..."
                   : "Quét QR thanh toán"}
             </button>
+
+            <input
+              ref={
+                galleryInputRef
+              }
+              type="file"
+              accept="image/*"
+              aria-label="Chọn ảnh QR Cing Wallet"
+              onChange={
+                handleGallerySelection
+              }
+              style={{
+                display:
+                  "none",
+              }}
+            />
+
+            <button
+              type="button"
+              disabled={
+                scanning ||
+                galleryScanning ||
+                loading
+              }
+              onClick={() =>
+                galleryInputRef
+                  .current
+                  ?.click()
+              }
+              style={{
+                width:
+                  "100%",
+                marginTop:
+                  12,
+                border:
+                  "1px solid rgba(212,83,28,0.28)",
+                borderRadius:
+                  14,
+                padding:
+                  "14px 18px",
+                background:
+                  scanning ||
+                  galleryScanning ||
+                  loading
+                    ? "#f1ede9"
+                    : "#fff4e9",
+                color:
+                  "#9a431c",
+                fontSize:
+                  14,
+                fontWeight:
+                  900,
+                cursor:
+                  scanning ||
+                  galleryScanning ||
+                  loading
+                    ? "not-allowed"
+                    : "pointer",
+              }}
+            >
+              {galleryScanning
+                ? "Đang đọc ảnh QR..."
+                : "Chọn ảnh QR từ thư viện"}
+            </button>
+
+            <p
+              style={{
+                margin:
+                  "12px 0 0",
+                color:
+                  "#8b7968",
+                fontSize:
+                  11,
+                lineHeight:
+                  1.5,
+              }}
+            >
+              Dùng ảnh QR được Cing gửi
+              qua Zalo hoặc đã lưu
+              trong điện thoại.
+            </p>
           </section>
         )}
 
