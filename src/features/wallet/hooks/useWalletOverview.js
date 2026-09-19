@@ -9,6 +9,12 @@ import {
   fetchWalletOverview,
 } from "../api/walletOverviewApi";
 
+import useAuthStore
+  from "@/stores/auth/authStore";
+
+import useAppBootstrapAuthState
+  from "@/bootstrap/state/appBootstrapAuthState";
+
 const CACHE_TTL_MS =
   10_000;
 
@@ -65,6 +71,23 @@ export function invalidateWalletOverviewCache() {
 export default function useWalletOverview({
   enabled = true,
 } = {}) {
+  const authenticated =
+    useAuthStore(
+      current =>
+        current.authenticated
+    );
+
+  const initialAuthResolved =
+    useAppBootstrapAuthState(
+      current =>
+        current.initialAuthResolved
+    );
+
+  const walletReady =
+    enabled &&
+    initialAuthResolved &&
+    authenticated;
+
   const [
     state,
     setState,
@@ -73,7 +96,7 @@ export default function useWalletOverview({
       data:
         cachedSnapshot,
       loading:
-        enabled &&
+        walletReady &&
         !cachedSnapshot,
       refreshing:
         false,
@@ -90,7 +113,7 @@ export default function useWalletOverview({
         silent = false,
         force = true,
       } = {}) => {
-        if (!enabled) {
+        if (!walletReady) {
           return null;
         }
 
@@ -158,7 +181,7 @@ export default function useWalletOverview({
         }
       },
       [
-        enabled,
+        walletReady,
       ]
     );
 
@@ -167,7 +190,7 @@ export default function useWalletOverview({
       mounted.current =
         true;
 
-      if (enabled) {
+      if (walletReady) {
         refresh({
           force:
             false,
@@ -178,6 +201,10 @@ export default function useWalletOverview({
 
       const onWalletUpdated =
         () => {
+          if (!walletReady) {
+            return;
+          }
+
           invalidateWalletOverviewCache();
 
           refresh({
@@ -236,7 +263,7 @@ export default function useWalletOverview({
       };
     },
     [
-      enabled,
+      walletReady,
       refresh,
     ]
   );
