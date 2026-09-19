@@ -233,6 +233,7 @@ export async function
 scanCingWalletPosQr(
   {
     videoElement,
+    shouldCancel,
   } = {}
 ) {
   if (
@@ -300,6 +301,15 @@ scanCingWalletPosQr(
       videoElement
     );
 
+    if (
+      shouldCancel?.()
+    ) {
+      throw createScannerError(
+        "Đã dừng quét QR bằng camera.",
+        "CING_WALLET_POS_SCAN_CANCELLED"
+      );
+    }
+
     const readFrame =
       createFrameReader(
         videoElement
@@ -313,6 +323,15 @@ scanCingWalletPosQr(
         scanStartedAt <
       SCAN_TIMEOUT_MS
     ) {
+      if (
+        shouldCancel?.()
+      ) {
+        throw createScannerError(
+          "Đã dừng quét QR bằng camera.",
+          "CING_WALLET_POS_SCAN_CANCELLED"
+        );
+      }
+
       const frame =
         readFrame();
 
@@ -342,6 +361,15 @@ scanCingWalletPosQr(
       await wait(
         SCAN_INTERVAL_MS
       );
+
+      if (
+        shouldCancel?.()
+      ) {
+        throw createScannerError(
+          "Đã dừng quét QR bằng camera.",
+          "CING_WALLET_POS_SCAN_CANCELLED"
+        );
+      }
     }
 
     throw createScannerError(

@@ -222,6 +222,12 @@ WalletPosPaymentPage() {
   const galleryInputRef =
     useRef(null);
 
+  const cameraCancelRef =
+    useRef(false);
+
+  const pendingGalleryFileRef =
+    useRef(null);
+
   const [
     galleryScanning,
     setGalleryScanning,
@@ -285,73 +291,9 @@ WalletPosPaymentPage() {
     );
 
 
-  const handleScan =
+  const processGalleryFile =
     useCallback(
-      async () => {
-        if (
-          scanInFlight.current
-        ) {
-          return;
-        }
-
-        scanInFlight.current =
-          true;
-
-        setScanning(true);
-        setError(null);
-        setResult(null);
-
-        try {
-          const scanned =
-            await scanCingWalletPosQr({
-              videoElement:
-                cameraVideoRef.current,
-            });
-
-          await loadPreview(
-            scanned
-          );
-        } catch (
-          nextError
-        ) {
-          setPayment(null);
-
-          setError(
-            resolveApiError(
-              nextError
-            )
-          );
-        } finally {
-          setScanning(false);
-
-          scanInFlight.current =
-            false;
-        }
-      },
-      [
-        loadPreview,
-      ]
-    );
-
-
-
-  const handleGallerySelection =
-    useCallback(
-      async event => {
-        const input =
-          event.target;
-
-        const file =
-          input.files?.[0];
-
-        /*
-         * Clear immediately so selecting
-         * the same image again still
-         * produces a change event.
-         */
-        input.value =
-          "";
-
+      async file => {
         if (
           !file ||
           scanInFlight.current ||
@@ -401,6 +343,159 @@ WalletPosPaymentPage() {
       [
         loadPreview,
         loading,
+      ]
+    );
+
+
+  const handleScan =
+    useCallback(
+      async () => {
+        if (
+          scanInFlight.current
+        ) {
+          return;
+        }
+
+        scanInFlight.current =
+          true;
+
+        cameraCancelRef.current =
+          false;
+
+        setScanning(true);
+        setError(null);
+        setResult(null);
+
+        try {
+          const scanned =
+            await scanCingWalletPosQr({
+              videoElement:
+                cameraVideoRef.current,
+              shouldCancel:
+                () =>
+                  cameraCancelRef.current,
+            });
+
+          await loadPreview(
+            scanned
+          );
+        } catch (
+          nextError
+        ) {
+          if (
+            nextError?.code !==
+            "CING_WALLET_POS_SCAN_CANCELLED"
+          ) {
+            setPayment(null);
+
+            setError(
+              resolveApiError(
+                nextError
+              )
+            );
+          }
+        } finally {
+          setScanning(false);
+
+          scanInFlight.current =
+            false;
+
+          cameraCancelRef.current =
+            false;
+
+          const pendingFile =
+            pendingGalleryFileRef.current;
+
+          if (
+            pendingFile
+          ) {
+            pendingGalleryFileRef.current =
+              null;
+
+            await processGalleryFile(
+              pendingFile
+            );
+          }
+        }
+      },
+      [
+        loadPreview,
+        processGalleryFile,
+      ]
+    );
+
+
+
+  const handleGallerySelection =
+    useCallback(
+      async event => {
+        const input =
+          event.target;
+
+        const file =
+          input.files?.[0];
+
+        /*
+         * Clear immediately so selecting
+         * the same image again still
+         * produces a change event.
+         */
+        input.value =
+          "";
+
+        if (!file) {
+          return;
+        }
+
+        if (
+          scanning ||
+          cameraCancelRef.current
+        ) {
+          pendingGalleryFileRef.current =
+            file;
+
+          cameraCancelRef.current =
+            true;
+
+          return;
+        }
+
+        await processGalleryFile(
+          file
+        );
+      },
+      [
+        processGalleryFile,
+        scanning,
+      ]
+    );
+
+
+  const handleGalleryOpen =
+    useCallback(
+      () => {
+        if (
+          galleryScanning ||
+          loading
+        ) {
+          return;
+        }
+
+        if (
+          scanning
+        ) {
+          cameraCancelRef.current =
+            true;
+        }
+
+        galleryInputRef
+          .current
+          ?.click();
+      },
+      [
+        galleryScanning,
+        loading,
+        scanning,
       ]
     );
 
@@ -598,7 +693,7 @@ WalletPosPaymentPage() {
                 "#8b7968",
             }}
           >
-            Thanh toán hóa đơn tại quầy hoặc từ xa
+            Thanh toán hóa đơn tại quầy
           </p>
         </div>
       </div>
@@ -681,9 +776,9 @@ WalletPosPaymentPage() {
                   1.6,
               }}
             >
-              Quét QR trên màn hình POS hoặc
-              chọn ảnh QR do Cing gửi
-              để thanh toán từ xa.
+              Khi thu ngân chọn Cing Wallet,
+              hãy quét mã QR đang hiển thị
+              trên màn hình phụ.
             </p>
 
             <div
@@ -807,14 +902,11 @@ WalletPosPaymentPage() {
             <button
               type="button"
               disabled={
-                scanning ||
                 galleryScanning ||
                 loading
               }
-              onClick={() =>
-                galleryInputRef
-                  .current
-                  ?.click()
+              onClick={
+                handleGalleryOpen
               }
               style={{
                 width:
@@ -828,7 +920,6 @@ WalletPosPaymentPage() {
                 padding:
                   "14px 18px",
                 background:
-                  scanning ||
                   galleryScanning ||
                   loading
                     ? "#f1ede9"
@@ -840,7 +931,6 @@ WalletPosPaymentPage() {
                 fontWeight:
                   900,
                 cursor:
-                  scanning ||
                   galleryScanning ||
                   loading
                     ? "not-allowed"
@@ -852,22 +942,6 @@ WalletPosPaymentPage() {
                 : "Chọn ảnh QR từ thư viện"}
             </button>
 
-            <p
-              style={{
-                margin:
-                  "12px 0 0",
-                color:
-                  "#8b7968",
-                fontSize:
-                  11,
-                lineHeight:
-                  1.5,
-              }}
-            >
-              Dùng ảnh QR được Cing gửi
-              qua Zalo hoặc đã lưu
-              trong điện thoại.
-            </p>
           </section>
         )}
 

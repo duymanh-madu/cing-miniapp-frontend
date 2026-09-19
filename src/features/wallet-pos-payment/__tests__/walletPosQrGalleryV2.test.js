@@ -145,3 +145,114 @@ test(
     );
   }
 );
+
+test(
+  "camera can hand off to gallery without concurrent scanners",
+  () => {
+    assert.match(
+      runtime,
+      /shouldCancel/
+    );
+
+    assert.match(
+      runtime,
+      /CING_WALLET_POS_SCAN_CANCELLED/
+    );
+
+    assert.match(
+      page,
+      /cameraCancelRef/
+    );
+
+    assert.match(
+      page,
+      /pendingGalleryFileRef/
+    );
+
+    assert.match(
+      page,
+      /handleGalleryOpen/
+    );
+
+    assert.match(
+      page,
+      /await processGalleryFile\(\s*pendingFile\s*\)/
+    );
+  }
+);
+
+test(
+  "gallery button stays available while camera is scanning",
+  () => {
+    const buttons =
+      page.match(
+        /<button\b[\s\S]*?<\/button>/g
+      ) || [];
+
+    const galleryButtons =
+      buttons.filter(
+        button =>
+          button.includes(
+            "handleGalleryOpen"
+          )
+      );
+
+    assert.equal(
+      galleryButtons.length,
+      1
+    );
+
+    const galleryButton =
+      galleryButtons[0];
+
+    assert.match(
+      galleryButton,
+      /onClick=\{\s*handleGalleryOpen\s*\}/
+    );
+
+    const disabledMatch =
+      galleryButton.match(
+        /disabled=\{([\s\S]*?)\}/
+      );
+
+    assert.ok(
+      disabledMatch,
+      "gallery button disabled expression must exist"
+    );
+
+    assert.match(
+      disabledMatch[1],
+      /galleryScanning/
+    );
+
+    assert.match(
+      disabledMatch[1],
+      /loading/
+    );
+
+    assert.doesNotMatch(
+      disabledMatch[1],
+      /\bscanning\b/
+    );
+  }
+);
+
+test(
+  "gallery patch does not advertise remote payment",
+  () => {
+    assert.doesNotMatch(
+      page,
+      /thanh toán từ xa/i
+    );
+
+    assert.doesNotMatch(
+      page,
+      /QR được Cing gửi/i
+    );
+
+    assert.match(
+      page,
+      /Thanh toán hóa đơn tại quầy/
+    );
+  }
+);
