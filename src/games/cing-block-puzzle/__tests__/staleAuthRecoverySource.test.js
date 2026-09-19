@@ -18,6 +18,11 @@ const bootstrap =
     "src/runtime/runtimeBootstrap.ts"
   );
 
+const authAuthority =
+  read(
+    "src/infra/auth/authenticatedRuntimeSession.ts"
+  );
+
 const staleRecovery =
   read(
     "src/infra/auth/staleAuthRecovery.js"
@@ -27,8 +32,18 @@ test(
   "persisted token presence is not treated as authenticated proof",
   () => {
     assert.match(
-      bootstrap,
+      authAuthority,
       /AuthenticatedRuntimeSessionResult/
+    );
+
+    assert.match(
+      authAuthority,
+      /await openSession/
+    );
+
+    assert.match(
+      bootstrap,
+      /openAuthenticatedRuntimeSession/
     );
 
     assert.match(
@@ -60,13 +75,18 @@ test(
   "transient backend failures do not clear persisted auth",
   () => {
     assert.match(
-      bootstrap,
+      authAuthority,
       /transient_failure/
     );
 
     assert.match(
+      authAuthority,
+      /status\s*!==\s*401/
+    );
+
+    assert.match(
       bootstrap,
-      /status !== 401/
+      /authSessionResult ===[\s\S]*?"auth_rejected"[\s\S]*?clearStaleBackendAuthSession\(\)/
     );
   }
 );

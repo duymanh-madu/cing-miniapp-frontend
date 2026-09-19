@@ -1,5 +1,6 @@
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import { createSession } from "@/infra/auth/authSession";
 
 import {
   getPersistedAuthSession,
@@ -97,24 +98,78 @@ async function openAuthenticatedRuntimeSessionAuthority():
   };
 
   const hydrateAcceptedSession = (
-    acceptedAccessToken: string
+    acceptedAccessToken: string,
+    response: any
   ) => {
+    const customer =
+      response?.data?.data?.customer ||
+      response?.data?.customer;
+
+    const customerId =
+      String(customer?.id || "").trim();
+
+    const customerPhone =
+      String(customer?.phone || "")
+        .replace(/\\D/g, "")
+        .replace(/^84/, "0");
+
+    if (
+      !customerId ||
+      !customerPhone ||
+      customerPhone.length < 9
+    ) {
+      const error: any = new Error(
+        "Backend-accepted session has no valid customer identity."
+      );
+      error.code = "AUTH_SESSION_CUSTOMER_MISSING";
+      throw error;
+    }
+
     const current =
       getPersistedAuthSession();
 
-    useAuthStore
-      .getState()
-      .setSession({
-        accessToken:
-          acceptedAccessToken,
+    if (
+      current.accessToken !==
+      acceptedAccessToken
+    ) {
+      const error: any = new Error(
+        "Authenticated session changed before hydration."
+      );
+      error.code = "AUTH_SESSION_SUPERSEDED";
+      throw error;
+    }
 
-        refreshToken:
-          current.refreshToken,
 
-        profile:
-          current.session?.profile ||
-          null,
-      });
+    const existingProfile =
+      current.session?.profile &&
+      typeof current.session.profile === "object"
+        ? current.session.profile
+        : {};
+
+    const existingPhone =
+      String(existingProfile?.phone || "")
+        .replace(/\D/g, "")
+        .replace(/^84/, "0");
+
+    const sameCustomer =
+      String(existingProfile?.id || "").trim() ===
+        customerId &&
+      existingPhone === customerPhone;
+
+    const profile = {
+      ...(sameCustomer ? existingProfile : {}),
+      ...customer,
+      id: customerId,
+      phone: customerPhone,
+    };
+
+    createSession({
+      accessToken:
+        acceptedAccessToken,
+      refreshToken:
+        current.refreshToken,
+      profile,
+    });
   };
 
   const recoverAndOpen =
@@ -157,9 +212,10 @@ async function openAuthenticatedRuntimeSessionAuthority():
       }
 
       try {
-        await openSession(
-          recoveredAccessToken
-        );
+        const opened =
+          await openSession(
+            recoveredAccessToken
+          );
 
         /*
          * recoverBackendAuthSession() already persisted the
@@ -168,7 +224,8 @@ async function openAuthenticatedRuntimeSessionAuthority():
          * backend accepts the refreshed JWT.
          */
         hydrateAcceptedSession(
-          recoveredAccessToken
+          recoveredAccessToken,
+          opened
         );
 
         return "authenticated";
@@ -218,12 +275,14 @@ async function openAuthenticatedRuntimeSessionAuthority():
   }
 
   try {
-    await openSession(
-      accessToken
-    );
+    const opened =
+      await openSession(
+        accessToken
+      );
 
     hydrateAcceptedSession(
-      accessToken
+      accessToken,
+      opened
     );
 
     authenticatedRuntimeSessionDiagnostic =
