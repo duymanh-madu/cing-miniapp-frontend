@@ -521,13 +521,15 @@ function hydrateIdentityFromUrlParams() {
   }
 }
 
+const SHELL_BOOT_STARTUP_BUDGET_MS = 1200;
+
 async function requestShellBootData(): Promise<any> {
   /*
    * SHELL_BOOT_DATA may arrive before React/bootstrapRuntime mounts.
    * main.tsx owns the earliest listener and caches that message.
    * Consume it synchronously here so cold Zalo startup cannot miss
    * an already-delivered shell identity and fall through to the
-   * 8-second recovery timeout.
+   * bounded shell recovery timeout.
    */
   const cachedShellBootData =
     (window as any).__shellBootData;
@@ -541,10 +543,21 @@ async function requestShellBootData(): Promise<any> {
 
   return new Promise((resolve) => {
     // Chờ SHELL_READY trước, sau đó mới request — giống flow follow OA
+    /*
+     * Parent/iframe boot messaging is an immediate startup handshake.
+     *
+     * Do not hold AppBootstrapGate for the historical 8-second
+     * recovery window. main.tsx already captures an early
+     * SHELL_BOOT_DATA message before React mounts, and this function
+     * also requests the payload immediately.
+     *
+     * If no response arrives within the startup budget, continue the
+     * canonical fallback path instead of freezing Home rendering.
+     */
     const totalTimer = setTimeout(() => {
       window.removeEventListener("message", handler);
       resolve(null);
-    }, 8000);
+    }, SHELL_BOOT_STARTUP_BUDGET_MS);
 
     function handler(e: MessageEvent) {
       const data = e.data;

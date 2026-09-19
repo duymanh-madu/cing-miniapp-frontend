@@ -241,7 +241,7 @@ test("runtime stores and realtime authorities remain", () => {
   );
 });
 
-test("shell recovery timeout remains unchanged", () => {
+test("shell recovery timeout uses bounded startup budget", () => {
   const start =
     source.indexOf("async function requestShellBootData");
 
@@ -256,7 +256,7 @@ test("shell recovery timeout remains unchanged", () => {
 
   assert.match(
     source.slice(start, end),
-    /8000/
+    /SHELL_BOOT_STARTUP_BUDGET_MS/
   );
 });
 
