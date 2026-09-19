@@ -188,11 +188,54 @@ function AuthRequired({ children }) {
    * Home/router still renders immediately.
    * Only protected routes wait for the initial backend-auth decision.
    */
-  if (!authenticated && !initialAuthResolved) {
+  const routeRecoveryRejected =
+    routeAuthResult === "auth_rejected";
+
+  const routeRecoveryFailed =
+    routeAuthResult.startsWith("transient_failure") ||
+    routeAuthResult === "recovery_exception" ||
+    routeAuthResult === "unknown_result";
+
+  if (
+    !authenticated &&
+    !initialAuthResolved &&
+    !routeRecoveryRejected &&
+    !routeRecoveryFailed
+  ) {
     return (
       <RouteDiagnosticScreen
         phase={`AUTH_WAIT · ${routeAuthResult}`}
       />
+    );
+  }
+
+  if (
+    !authenticated &&
+    !initialAuthResolved &&
+    routeRecoveryFailed
+  ) {
+    return (
+      <div
+        role="alert"
+        style={{
+          minHeight:"70vh",
+          display:"flex",
+          flexDirection:"column",
+          alignItems:"center",
+          justifyContent:"center",
+          padding:"24px",
+          textAlign:"center"
+        }}
+      >
+        <div style={{ fontSize:40, marginBottom:16 }}>⚠️</div>
+        <h2 style={{ fontSize:20, fontWeight:900 }}>
+          Tạm thời chưa thể kết nối
+        </h2>
+        <p style={{ fontSize:14, color:"#666", lineHeight:1.6 }}>
+          Chưa thể xác minh phiên đăng nhập lúc này.
+          Vui lòng thử lại sau.
+        </p>
+      </div>
     );
   }
 

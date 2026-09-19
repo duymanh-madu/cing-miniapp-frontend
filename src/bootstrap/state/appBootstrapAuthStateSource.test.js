@@ -46,19 +46,27 @@ test("protected route waits only while cold auth is unresolved", () => {
   );
 });
 
-test("unauth redirect occurs after unresolved guard", () => {
+test("unauth redirect occurs after route recovery terminal guards", () => {
   const waiting =
     router.indexOf(
-      "!authenticated && !initialAuthResolved"
+      "if (\n    !authenticated &&\n    !initialAuthResolved &&"
+    );
+
+  const transient =
+    router.indexOf(
+      "routeRecoveryFailed\n  ) {",
+      waiting
     );
 
   const redirect =
     router.indexOf(
-      "if (!authenticated) {"
+      "if (!authenticated) {",
+      waiting
     );
 
   assert.ok(waiting >= 0);
-  assert.ok(redirect > waiting);
+  assert.ok(transient > waiting);
+  assert.ok(redirect > transient);
 });
 
 test("post-shell retry becomes final auth authority", () => {
