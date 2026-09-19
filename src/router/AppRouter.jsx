@@ -98,6 +98,38 @@ function getLazy(loader, key) {
   return lazyCache[key];
 }
 
+function RouteDiagnosticScreen({ phase }) {
+  return (
+    <div
+      style={{
+        minHeight:"100vh",
+        display:"flex",
+        alignItems:"center",
+        justifyContent:"center",
+        padding:"24px",
+        textAlign:"center"
+      }}
+    >
+      <div>
+        <div style={{
+          fontSize:"18px",
+          fontWeight:800,
+          marginBottom:"8px"
+        }}>
+          Loading...
+        </div>
+
+        <div style={{
+          fontSize:"12px",
+          opacity:0.55
+        }}>
+          {phase}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AuthRequired({ children }) {
   const authenticated =
     useAuthStore(s => s.authenticated);
@@ -112,7 +144,7 @@ function AuthRequired({ children }) {
    * Only protected routes wait for the initial backend-auth decision.
    */
   if (!authenticated && !initialAuthResolved) {
-    return <AppLoadingScreen />;
+    return <RouteDiagnosticScreen phase="AUTH_WAIT" />;
   }
 
   if (!authenticated) {
@@ -166,7 +198,7 @@ export default function AppRouter() {
         <PageTracker />
 
         <AppLayout>
-          <Suspense fallback={<AppLoadingScreen />}>
+          <Suspense fallback={<RouteDiagnosticScreen phase="LAZY_WAIT" />}>
             <Routes>
               {routeManifest.map(route => {
                 const Component = getLazy(route.loader, route.key);
