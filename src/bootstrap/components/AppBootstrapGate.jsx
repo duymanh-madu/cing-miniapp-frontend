@@ -1,25 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { initializeApplication } from "../services/appBootstrapOrchestrator";
 
+/**
+ * Application rendering must not be blocked by network/runtime bootstrap.
+ *
+ * Runtime bootstrap remains single-owner and fully governed by
+ * initializeApplication(), but Home/router may render immediately while
+ * identity/session/data hydrate asynchronously.
+ *
+ * Individual features already own their loading/enabled states and must
+ * not depend on a global full-screen startup gate.
+ */
 function AppBootstrapGate({ children }) {
-  const [ready, setReady] = useState(false);
-
   useEffect(() => {
-    async function boot() {
-      await initializeApplication();
-      setReady(true);
-    }
-    boot();
+    void initializeApplication();
   }, []);
-
-  if (!ready) {
-    return (
-      <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"#080810"}}>
-        <div style={{width:32,height:32,border:"3px solid #D4531C",borderTop:"3px solid transparent",borderRadius:"50%",animation:"spin 1s linear infinite"}}/>
-        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-      </div>
-    );
-  }
 
   return children;
 }
