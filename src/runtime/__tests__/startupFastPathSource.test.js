@@ -7,6 +7,11 @@ const source = fs.readFileSync(
   "utf8"
 );
 
+const authSessionSource = fs.readFileSync(
+  "src/infra/auth/authenticatedRuntimeSession.ts",
+  "utf8"
+);
+
 function bootstrapSource() {
   const start =
     source.indexOf("export async function bootstrapRuntime()");
@@ -187,17 +192,17 @@ test("cached-member app-open remains nonblocking", () => {
 
 test("backend auth and stale-session recovery authorities remain", () => {
   assert.match(
-    source,
+    authSessionSource,
     /await openSession\(\s*accessToken\s*\)/
   );
 
   assert.match(
-    source,
+    authSessionSource,
     /recoverBackendAuthSession\(\)/
   );
 
   assert.match(
-    source,
+    authSessionSource,
     /isDefinitiveAuthRecoveryRejection/
   );
 
@@ -265,12 +270,12 @@ test(
   "refresh-only persisted auth bypasses shell recovery",
   () => {
     assert.match(
-      source,
+      authSessionSource,
       /if \(!accessToken\)\s*\{[\s\S]*if \(!refreshToken\)[\s\S]*return "no_access_token";[\s\S]*return recoverAndOpen\(\);/
     );
 
     assert.match(
-      source,
+      authSessionSource,
       /recoverBackendAuthSession\(\)/
     );
   }
@@ -280,21 +285,18 @@ test(
   "runtime bootstrap reuses canonical auth recovery instead of direct refresh",
   () => {
     const fnStart =
-      source.indexOf(
-        "async function openAuthenticatedRuntimeSession"
+      authSessionSource.indexOf(
+        "async function openAuthenticatedRuntimeSessionAuthority"
       );
 
     const fnEnd =
-      source.indexOf(
-        "function syncAuthStoreAfterSilentRestore",
-        fnStart
-      );
+      authSessionSource.length;
 
     assert.ok(fnStart >= 0);
     assert.ok(fnEnd > fnStart);
 
     const fn =
-      source.slice(
+      authSessionSource.slice(
         fnStart,
         fnEnd
       );
@@ -315,18 +317,15 @@ test(
   "definitive refresh rejection remains auth rejected while transient failure stays conservative",
   () => {
     const fnStart =
-      source.indexOf(
-        "async function openAuthenticatedRuntimeSession"
+      authSessionSource.indexOf(
+        "async function openAuthenticatedRuntimeSessionAuthority"
       );
 
     const fnEnd =
-      source.indexOf(
-        "function syncAuthStoreAfterSilentRestore",
-        fnStart
-      );
+      authSessionSource.length;
 
     const fn =
-      source.slice(
+      authSessionSource.slice(
         fnStart,
         fnEnd
       );
@@ -347,18 +346,15 @@ test(
   "freshly recovered token must still open backend runtime session",
   () => {
     const fnStart =
-      source.indexOf(
-        "async function openAuthenticatedRuntimeSession"
+      authSessionSource.indexOf(
+        "async function openAuthenticatedRuntimeSessionAuthority"
       );
 
     const fnEnd =
-      source.indexOf(
-        "function syncAuthStoreAfterSilentRestore",
-        fnStart
-      );
+      authSessionSource.length;
 
     const fn =
-      source.slice(
+      authSessionSource.slice(
         fnStart,
         fnEnd
       );

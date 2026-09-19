@@ -10,6 +10,7 @@ import AppLoadingScreen from "@/app/AppLoadingScreen";
 import { routeManifest } from "@/app/routeManifest";
 import useAuthStore from "@/stores/auth/authStore";
 import useAppBootstrapAuthState from "@/bootstrap/state/appBootstrapAuthState";
+import { recoverProtectedRouteAuth } from "@/infra/auth/protectedRouteAuthRecovery";
 
 const PAGE_NAMES = {
   "/":              "Trang chủ",
@@ -138,6 +139,20 @@ function AuthRequired({ children }) {
     useAppBootstrapAuthState(
       s => s.initialAuthResolved
     );
+
+  useEffect(() => {
+    if (
+      authenticated ||
+      initialAuthResolved
+    ) {
+      return;
+    }
+
+    void recoverProtectedRouteAuth();
+  }, [
+    authenticated,
+    initialAuthResolved,
+  ]);
 
   /*
    * Home/router still renders immediately.

@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+
+const runtimeSource = fs.readFileSync(
+  "src/runtime/runtimeBootstrap.ts",
+  "utf8"
+);
 import path from "node:path";
 
 const bootstrapSource = fs.readFileSync(
@@ -90,7 +95,7 @@ test(
 );
 
 test(
-  "shell listener request and 8-second recovery remain intact",
+  "shell listener request and bounded startup recovery remain intact",
   () => {
     const source = requestShellSource();
 
@@ -106,7 +111,12 @@ test(
 
     assert.match(
       source,
-      /8000/
+      /SHELL_BOOT_STARTUP_BUDGET_MS/
+    );
+
+    assert.match(
+      runtimeSource,
+      /const SHELL_BOOT_STARTUP_BUDGET_MS = 1200;/
     );
   }
 );

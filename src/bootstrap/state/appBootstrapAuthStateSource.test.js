@@ -42,7 +42,7 @@ test("protected route waits only while cold auth is unresolved", () => {
 
   assert.match(
     router,
-    /return <AppLoadingScreen \/>/
+    /return <RouteDiagnosticScreen phase="AUTH_WAIT" \/>/
   );
 });
 
