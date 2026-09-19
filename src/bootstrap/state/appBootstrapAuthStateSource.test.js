@@ -42,11 +42,11 @@ test("protected route waits only while cold auth is unresolved", () => {
 
   assert.match(
     router,
-    /AUTH_WAIT · \$\{routeAuthResult\}/
+    /<RouteDiagnosticScreen\s*\/>/
   );
 });
 
-test("unauth redirect occurs after route recovery terminal guards", () => {
+test("unauthenticated terminal UI follows route recovery guards", () => {
   const waiting =
     router.indexOf(
       "if (\n    !authenticated &&\n    !initialAuthResolved &&"
@@ -58,7 +58,7 @@ test("unauth redirect occurs after route recovery terminal guards", () => {
       waiting
     );
 
-  const redirect =
+  const terminalUi =
     router.indexOf(
       "if (!authenticated) {",
       waiting
@@ -66,7 +66,7 @@ test("unauth redirect occurs after route recovery terminal guards", () => {
 
   assert.ok(waiting >= 0);
   assert.ok(transient > waiting);
-  assert.ok(redirect > transient);
+  assert.ok(terminalUi > transient);
 });
 
 test("post-shell retry becomes final auth authority", () => {

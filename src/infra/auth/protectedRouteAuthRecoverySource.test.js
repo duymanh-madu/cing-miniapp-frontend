@@ -101,7 +101,7 @@ test("route intent only retries while auth remains unresolved", () => {
 
   assert.match(
     router,
-    /AUTH_WAIT · \$\{routeAuthResult\}/
+    /<RouteDiagnosticScreen\s*\/>/
   );
 });
 

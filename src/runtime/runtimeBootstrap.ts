@@ -1,3 +1,4 @@
+import { commitProfileEnrichment } from "@/infra/auth/commitProfileEnrichment";
 import { initializeRuntimeSocket, getRuntimeSocket } from "./socket/runtimeSocketClient";
 import { initializeRealtimeOrchestrator }    from "./realtime/runtimeRealtimeOrchestrator";
 import { initializeRuntimeStores }           from "../core/store/runtimeStoreOrchestrator";
@@ -99,35 +100,23 @@ async function openCachedMemberRuntimeEntry({
 }
 
 function syncAuthStoreAfterSilentRestore(profile: any) {
-  const { session, accessToken, refreshToken } = getPersistedAuthSession();
+  const auth = useAuthStore.getState();
 
-  const nextProfile = {
-    ...(session?.profile || {}),
-    ...profile,
-  };
-
-  if (accessToken) {
-    useAuthStore.getState().setSession({
-      accessToken,
-      refreshToken,
-      profile: nextProfile,
-    });
-
-    try {
-      localStorage.setItem("cing_session", JSON.stringify({
-        ...(session || {}),
-        accessToken,
-        refreshToken,
-        profile: nextProfile,
-      }));
-    } catch {}
-
+  if (
+    !auth.authenticated ||
+    !auth.profile?.id ||
+    !auth.profile?.phone ||
+    !auth.refreshToken
+  ) {
     return;
   }
 
-  // Fallback: giữ profile nếu token chưa persist kịp,
-  // nhưng không giả authenticated khi chưa có accessToken.
-  useAuthStore.getState().updateProfile(nextProfile);
+  commitProfileEnrichment({
+    expectedCustomerId: auth.profile.id,
+    expectedPhone: auth.profile.phone,
+    expectedRefreshToken: auth.refreshToken,
+    profile,
+  });
 }
 
 async function restoreActivatedMemberFromShellToken() {
@@ -624,6 +613,16 @@ const shellBootDataPromise =
       store.setActivationStatus("activated");
       store.setProfileHydrated(true);
 
+      const profileRequestAuth = useAuthStore.getState();
+      const expectedCustomerId =
+        profileRequestAuth.authenticated
+          ? profileRequestAuth.profile?.id || ""
+          : "";
+      const expectedRefreshToken =
+        profileRequestAuth.authenticated
+          ? profileRequestAuth.refreshToken || ""
+          : "";
+
       void (async () => {
       try {
         const profileRes = await apiClient.get(`/profile-update/profile/${storedPhone}`);
@@ -654,14 +653,16 @@ const shellBootDataPromise =
           zalo_avatar: serverProfile.zalo_avatar || "",
         };
 
-        useAuthStore.getState().updateProfile(normalizedProfile);
-
-        localStorage.setItem("cing_session", JSON.stringify({
-          ...(session || {}),
-          accessToken: session?.accessToken,
-          refreshToken: session?.refreshToken,
+        const committed = commitProfileEnrichment({
+          expectedCustomerId,
+          expectedPhone: storedPhone,
+          expectedRefreshToken,
           profile: normalizedProfile,
-        }));
+        });
+
+        if (!committed) {
+          return;
+        }
 
         store.setIdentity({
           fullName: displayName,

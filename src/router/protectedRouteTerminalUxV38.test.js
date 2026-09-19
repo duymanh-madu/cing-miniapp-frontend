@@ -21,7 +21,7 @@ assert.ok(end > start);
 
 const authRequired = source.slice(start, end);
 
-test("auth rejection terminates route waiting", () => {
+test("auth rejection terminates route waiting without Home redirect", () => {
   assert.match(
     authRequired,
     /routeAuthResult === "auth_rejected"/
@@ -34,7 +34,12 @@ test("auth rejection terminates route waiting", () => {
 
   assert.match(
     authRequired,
-    /<Navigate to="\/" replace \/>/
+    /Cần đăng nhập/
+  );
+
+  assert.equal(
+    authRequired.includes('<Navigate to="/" replace />'),
+    false
   );
 });
 
@@ -113,14 +118,30 @@ test("no timing or logout work introduced", () => {
   );
 });
 
-test("wildcard redirect remains outside AuthRequired", () => {
+test("rejected auth remains blocked without forced Home navigation", () => {
+  assert.match(authRequired, /Cần đăng nhập/);
+
   assert.equal(
-    authRequired.split('<Navigate to="/" replace />').length - 1,
-    1
+    authRequired.includes('<Navigate to="/" replace />'),
+    false
   );
 
   assert.equal(
     source.split('<Navigate to="/" replace />').length - 1,
-    2
+    1
+  );
+});
+
+test("customer route loading hides technical diagnostics", () => {
+  assert.match(source, /Cing đang chuẩn bị cho bạn/);
+
+  assert.equal(
+    source.includes('phase={`AUTH_WAIT'),
+    false
+  );
+
+  assert.equal(
+    source.includes('phase="LAZY_WAIT"'),
+    false
   );
 });

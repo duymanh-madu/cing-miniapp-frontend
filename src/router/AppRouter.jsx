@@ -99,33 +99,26 @@ function getLazy(loader, key) {
   return lazyCache[key];
 }
 
-function RouteDiagnosticScreen({ phase }) {
+function RouteDiagnosticScreen() {
   return (
     <div
+      role="status"
+      aria-live="polite"
       style={{
-        minHeight:"100vh",
-        display:"flex",
-        alignItems:"center",
-        justifyContent:"center",
-        padding:"24px",
-        textAlign:"center"
+        minHeight: "70vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px",
+        textAlign: "center"
       }}
     >
-      <div>
-        <div style={{
-          fontSize:"18px",
-          fontWeight:800,
-          marginBottom:"8px"
-        }}>
-          Loading...
-        </div>
-
-        <div style={{
-          fontSize:"12px",
-          opacity:0.55
-        }}>
-          {phase}
-        </div>
+      <div style={{
+        fontSize: "15px",
+        fontWeight: 600,
+        color: "#6b4b35"
+      }}>
+        Cing đang chuẩn bị cho bạn...
       </div>
     </div>
   );
@@ -203,9 +196,7 @@ function AuthRequired({ children }) {
     !routeRecoveryFailed
   ) {
     return (
-      <RouteDiagnosticScreen
-        phase={`AUTH_WAIT · ${routeAuthResult}`}
-      />
+      <RouteDiagnosticScreen />
     );
   }
 
@@ -270,7 +261,7 @@ function AuthRequired({ children }) {
           Vui lòng đăng nhập qua Zalo<br/>để truy cập tính năng này
         </p>
 
-        <Navigate to="/" replace />
+
       </div>
     );
   }
@@ -290,7 +281,7 @@ export default function AppRouter() {
         <PageTracker />
 
         <AppLayout>
-          <Suspense fallback={<RouteDiagnosticScreen phase="LAZY_WAIT" />}>
+          <Suspense fallback={<RouteDiagnosticScreen />}>
             <Routes>
               {routeManifest.map(route => {
                 const Component = getLazy(route.loader, route.key);
