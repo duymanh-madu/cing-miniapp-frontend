@@ -20,6 +20,47 @@ export type AuthenticatedRuntimeSessionResult =
   | "auth_rejected"
   | "transient_failure";
 
+let authenticatedRuntimeSessionDiagnostic =
+  "pending";
+
+function classifyAuthTransportFailure(
+  stage: string,
+  error: any
+) {
+  const status =
+    Number(
+      error?.response?.status ||
+      0
+    );
+
+  if (status) {
+    return `${stage} · HTTP_${status}`;
+  }
+
+  const code =
+    String(
+      error?.code ||
+      ""
+    ).trim();
+
+  if (code) {
+    return `${stage} · ${code}`;
+  }
+
+  if (
+    error?.request &&
+    !error?.response
+  ) {
+    return `${stage} · NETWORK`;
+  }
+
+  return `${stage} · UNKNOWN`;
+}
+
+export function getAuthenticatedRuntimeSessionDiagnostic() {
+  return authenticatedRuntimeSessionDiagnostic;
+}
+
 async function openAuthenticatedRuntimeSessionAuthority():
   Promise<AuthenticatedRuntimeSessionResult> {
   const persisted =
@@ -85,11 +126,24 @@ async function openAuthenticatedRuntimeSessionAuthority():
         recovered =
           await recoverBackendAuthSession();
       } catch (error: any) {
-        return isDefinitiveAuthRecoveryRejection(
-          error
-        )
-          ? "auth_rejected"
-          : "transient_failure";
+        if (
+          isDefinitiveAuthRecoveryRejection(
+            error
+          )
+        ) {
+          authenticatedRuntimeSessionDiagnostic =
+            "refresh · AUTH_REJECTED";
+
+          return "auth_rejected";
+        }
+
+        authenticatedRuntimeSessionDiagnostic =
+          classifyAuthTransportFailure(
+            "refresh",
+            error
+          );
+
+        return "transient_failure";
       }
 
       const recoveredAccessToken =
@@ -130,8 +184,17 @@ async function openAuthenticatedRuntimeSessionAuthority():
           status === 401 ||
           status === 403
         ) {
+          authenticatedRuntimeSessionDiagnostic =
+            `open_refreshed · HTTP_${status}`;
+
           return "auth_rejected";
         }
+
+        authenticatedRuntimeSessionDiagnostic =
+          classifyAuthTransportFailure(
+            "open_refreshed",
+            error
+          );
 
         return "transient_failure";
       }
@@ -163,16 +226,28 @@ async function openAuthenticatedRuntimeSessionAuthority():
       accessToken
     );
 
+    authenticatedRuntimeSessionDiagnostic =
+      "open_existing · AUTHENTICATED";
+
     return "authenticated";
   } catch (error: any) {
     if (
       error?.response?.status !==
       401
     ) {
+      authenticatedRuntimeSessionDiagnostic =
+        classifyAuthTransportFailure(
+          "open_existing",
+          error
+        );
+
       return "transient_failure";
     }
 
     if (!refreshToken) {
+      authenticatedRuntimeSessionDiagnostic =
+        "open_existing · HTTP_401_NO_REFRESH";
+
       return "auth_rejected";
     }
   }

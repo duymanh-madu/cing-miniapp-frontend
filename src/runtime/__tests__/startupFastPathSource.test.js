@@ -337,7 +337,7 @@ test(
 
     assert.match(
       fn,
-      /\? "auth_rejected"\s*:\s*"transient_failure"/
+      /isDefinitiveAuthRecoveryRejection\([\s\S]*?return "auth_rejected";[\s\S]*?return "transient_failure";/
     );
   }
 );
