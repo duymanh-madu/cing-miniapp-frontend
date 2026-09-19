@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { LeaderboardResetPopup, PendingRewardsBadge, ChallengeWonPopup } from "@/features/rewards/components/RewardNotification";
@@ -140,6 +140,11 @@ function AuthRequired({ children }) {
       s => s.initialAuthResolved
     );
 
+  const [
+    routeAuthResult,
+    setRouteAuthResult,
+  ] = useState("pending");
+
   useEffect(() => {
     if (
       authenticated ||
@@ -148,7 +153,32 @@ function AuthRequired({ children }) {
       return;
     }
 
-    void recoverProtectedRouteAuth();
+    let active = true;
+
+    void recoverProtectedRouteAuth()
+      .then((recovery) => {
+        if (!active) {
+          return;
+        }
+
+        setRouteAuthResult(
+          recovery?.result ||
+          "unknown_result"
+        );
+      })
+      .catch(() => {
+        if (!active) {
+          return;
+        }
+
+        setRouteAuthResult(
+          "recovery_exception"
+        );
+      });
+
+    return () => {
+      active = false;
+    };
   }, [
     authenticated,
     initialAuthResolved,
@@ -159,7 +189,11 @@ function AuthRequired({ children }) {
    * Only protected routes wait for the initial backend-auth decision.
    */
   if (!authenticated && !initialAuthResolved) {
-    return <RouteDiagnosticScreen phase="AUTH_WAIT" />;
+    return (
+      <RouteDiagnosticScreen
+        phase={`AUTH_WAIT · ${routeAuthResult}`}
+      />
+    );
   }
 
   if (!authenticated) {
