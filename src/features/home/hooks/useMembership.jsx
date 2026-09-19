@@ -12,63 +12,6 @@ import {
   useMembershipStore,
 } from "@/membership/store/membershipStore";
 
-const MEMBERSHIP_SNAPSHOT_PREFIX =
-  "cing_membership_snapshot_v1:";
-
-function readMembershipSnapshot(phone) {
-  if (!phone) return null;
-
-  try {
-    const raw =
-      localStorage.getItem(
-        MEMBERSHIP_SNAPSHOT_PREFIX + phone
-      );
-
-    if (!raw) return null;
-
-    const parsed =
-      JSON.parse(raw);
-
-    if (
-      !parsed ||
-      typeof parsed !== "object" ||
-      !parsed.data ||
-      typeof parsed.data !== "object"
-    ) {
-      return null;
-    }
-
-    return parsed.data;
-  } catch {
-    return null;
-  }
-}
-
-function persistMembershipSnapshot(
-  phone,
-  data
-) {
-  if (
-    !phone ||
-    !data ||
-    typeof data !== "object"
-  ) {
-    return;
-  }
-
-  try {
-    localStorage.setItem(
-      MEMBERSHIP_SNAPSHOT_PREFIX + phone,
-      JSON.stringify({
-        version: 1,
-        savedAt:
-          Date.now(),
-        data,
-      })
-    );
-  } catch {}
-}
-
 function normalizePhone(
   value
 ) {
@@ -153,31 +96,14 @@ export function useMembership(
             }
           );
 
-        const data =
+        return (
           response.data?.data ||
-          null;
-
-        if (data) {
-          persistMembershipSnapshot(
-            phone,
-            data
-          );
-        }
-
-        return data;
+          null
+        );
       },
 
       enabled:
         !!phone,
-
-      initialData:
-        () =>
-          readMembershipSnapshot(
-            phone
-          ),
-
-      initialDataUpdatedAt:
-        () => 0,
 
       staleTime:
         5 * 60 * 1000,
