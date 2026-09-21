@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import HomeHero from "@/components/home/HomeHero";
 import AppPopup from "@/components/AppPopup";
 import HomeMenuPreview from "@/components/home/HomeMenuPreview";
@@ -17,6 +18,30 @@ export default function HomePage() {
       <div className="px-4 mt-5"><HomeMembershipCard /></div>
       <div className="px-4 mt-6"><HomeMenuPreview /></div>
       <div className="px-4 mt-6 mb-4"><HomeGameTeaser /></div>
+
+      <div className="px-4 mt-3 mb-4">
+        <Link
+          to="/legal"
+          aria-label="Thông tin và chính sách của Cing"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            padding: "14px 16px",
+            borderRadius: 16,
+            border: "1px solid #F0D7C6",
+            background: "#FFF8F3",
+            color: "#8B4828",
+            textDecoration: "none",
+            fontSize: 13,
+            fontWeight: 700,
+          }}
+        >
+          <span>Thông tin &amp; chính sách</span>
+          <span aria-hidden="true">›</span>
+        </Link>
+      </div>
     </PageContainer>
   );
 }

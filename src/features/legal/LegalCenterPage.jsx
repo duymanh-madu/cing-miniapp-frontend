@@ -8,7 +8,7 @@ const SECTIONS = [
       "Chủ thể kinh doanh: Hộ kinh doanh Nguyễn Duy Mạnh.",
       "Mã số đăng ký hộ kinh doanh: 21E8026948.",
       "Chủ hộ/Người đại diện: Nguyễn Duy Mạnh.",
-      "Địa chỉ cửa hàng: 576 Đường Trần Phú, Từ Sơn, Bắc Ninh.",
+      "Địa chỉ cửa hàng: Số 576 Trần Phú, Phường Từ Sơn, Thành phố Bắc Ninh, Việt Nam.",
       "Hotline: 0989585355.",
       "Email: cing.app.vn@gmail.com.",
       "Cing Hu Tang Kinh Bắc là tên thương mại được sử dụng để cung cấp các sản phẩm, dịch vụ, chương trình thành viên, ưu đãi, trò chơi và các tiện ích dành cho khách hàng trên ứng dụng Cing.",
@@ -259,7 +259,7 @@ export default function LegalCenterPage() {
               color: "#bbb",
             }}
           >
-            Cập nhật: 12/09/2026
+            Cập nhật: 21/09/2026
           </p>
         </div>
       </main>

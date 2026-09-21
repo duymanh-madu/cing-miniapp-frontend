@@ -431,7 +431,7 @@ export default function AccountPage() {
 
       <div style={{ padding:"20px 16px", textAlign:"center" }}>
         <p style={{ fontSize:12, color:"#ccc", margin:0 }}>Cing Hu Tang Kinh Bắc</p>
-        <p style={{ fontSize:11, color:"#ddd", margin:"4px 0 0" }}>576 Đường Trần Phú, Từ Sơn, Bắc Ninh</p>
+        <p style={{ fontSize:11, color:"#ddd", margin:"4px 0 0" }}>Số 576 Trần Phú, Phường Từ Sơn, Thành phố Bắc Ninh, Việt Nam</p>
       </div>
       </div>
     </div>
