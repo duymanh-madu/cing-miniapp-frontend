@@ -193,7 +193,7 @@ export default function LegalCenterPage() {
           aria-label="Xác nhận Bộ Công Thương"
           style={{ marginBottom: 14 }}
         >
-          <MoitConfirmedBadge />
+          <MoitConfirmedBadge size="large" />
         </section>
 
         {SECTIONS.map((section) => (
