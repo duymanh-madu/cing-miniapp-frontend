@@ -7,6 +7,7 @@ import HomeMembershipCard from "@/features/home/components/HomeMembershipCard";
 import HomeWalletSnapshot from "@/features/wallet/components/HomeWalletSnapshot";
 import HomeGameTeaser from "@/features/home/components/HomeGameTeaser";
 import { PageContainer } from "@/components/ui";
+import MoitConfirmedBadge from "@/features/legal/MoitConfirmedBadge";
 
 export default function HomePage() {
   return (
@@ -41,6 +42,10 @@ export default function HomePage() {
           <span>Thông tin &amp; chính sách</span>
           <span aria-hidden="true">›</span>
         </Link>
+      </div>
+
+      <div className="px-4 mt-3 mb-4">
+        <MoitConfirmedBadge />
       </div>
     </PageContainer>
   );

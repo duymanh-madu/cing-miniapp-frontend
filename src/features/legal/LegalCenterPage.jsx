@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import MoitConfirmedBadge from "./MoitConfirmedBadge";
 
 const SECTIONS = [
   {
@@ -187,6 +188,13 @@ export default function LegalCenterPage() {
             liên quan.
           </p>
         </div>
+
+        <section
+          aria-label="Xác nhận Bộ Công Thương"
+          style={{ marginBottom: 14 }}
+        >
+          <MoitConfirmedBadge />
+        </section>
 
         {SECTIONS.map((section) => (
           <section
