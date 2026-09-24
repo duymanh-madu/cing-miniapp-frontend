@@ -116,7 +116,7 @@ test("ordinary browsers retain HTTPS navigation", () => {
 test("failed Zalo WebView is visible to customer", () => {
   assert.match(
     badge,
-    /\.catch\(\(\) => \{\s*setLinkError/
+    /\.catch\(\(error\) => \{[\s\S]*setLinkError/
   );
 
   assert.match(
@@ -155,5 +155,28 @@ test("failed WebView offers a user-activated direct link", () => {
   assert.doesNotMatch(
     badge,
     /\.catch\([\s\S]*window\.open/
+  );
+});
+
+
+test("SDK error code is sanitized", () => {
+  assert.match(
+    badge,
+    /error\?\.errorCode/
+  );
+
+  assert.match(
+    badge,
+    /error\?\.code/
+  );
+
+  assert.match(
+    badge,
+    /\^\[a-zA-Z0-9_\.\-\]\{1,64\}\$/
+  );
+
+  assert.match(
+    badge,
+    /Mã phản hồi Zalo: \{linkErrorCode\}/
   );
 });

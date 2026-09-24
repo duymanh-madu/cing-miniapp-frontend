@@ -22,6 +22,7 @@ export default function MoitConfirmedBadge({
 }) {
   const [open, setOpen] = useState(false);
   const [linkError, setLinkError] = useState("");
+  const [linkErrorCode, setLinkErrorCode] = useState("");
 
   const isLarge = size === "large";
 
@@ -224,6 +225,7 @@ export default function MoitConfirmedBadge({
 
                 event.preventDefault();
                 setLinkError("");
+                setLinkErrorCode("");
 
                 openWebview({
                   url: MOIT_RECORD,
@@ -234,7 +236,25 @@ export default function MoitConfirmedBadge({
                   .then(() => {
                     setOpen(false);
                   })
-                  .catch(() => {
+                  .catch((error) => {
+                    const candidate =
+                      error?.errorCode ??
+                      error?.code ??
+                      error?.error_code ??
+                      error?.status;
+
+                    const code =
+                      typeof candidate === "number" ||
+                      typeof candidate === "string"
+                        ? String(candidate)
+                        : "";
+
+                    setLinkErrorCode(
+                      /^[a-zA-Z0-9_.-]{1,64}$/.test(code)
+                        ? code
+                        : "KHONG_CO_MA"
+                    );
+
                     setLinkError(
                       "Chưa mở được trang xác nhận trong Zalo. Vui lòng thử lại."
                     );
@@ -277,6 +297,18 @@ export default function MoitConfirmedBadge({
                   }}
                 >
                   {linkError}
+                  {linkErrorCode && (
+                    <span
+                      style={{
+                        display: "block",
+                        marginTop: 6,
+                        fontSize: 12,
+                        color: "#765D52",
+                      }}
+                    >
+                      Mã phản hồi Zalo: {linkErrorCode}
+                    </span>
+                  )}
                 </p>
 
                 <a
