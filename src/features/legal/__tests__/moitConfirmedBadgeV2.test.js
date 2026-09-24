@@ -124,3 +124,36 @@ test("failed Zalo WebView is visible to customer", () => {
     /role="alert"/
   );
 });
+
+
+test("failed WebView offers a user-activated direct link", () => {
+  assert.match(
+    badge,
+    /\{linkError && \(/
+  );
+
+  assert.match(
+    badge,
+    /Mở hồ sơ bằng liên kết trực tiếp/
+  );
+
+  assert.match(
+    badge,
+    /aria-label="Mở hồ sơ Bộ Công Thương bằng liên kết trực tiếp"/
+  );
+
+  assert.equal(
+    (badge.match(/href=\{MOIT_RECORD\}/g) || []).length,
+    2
+  );
+
+  assert.match(
+    badge,
+    /target="_blank"/
+  );
+
+  assert.doesNotMatch(
+    badge,
+    /\.catch\([\s\S]*window\.open/
+  );
+});

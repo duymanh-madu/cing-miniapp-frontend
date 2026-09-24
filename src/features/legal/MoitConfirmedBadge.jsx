@@ -262,17 +262,48 @@ export default function MoitConfirmedBadge({
             </a>
 
             {linkError && (
-              <p
-                role="alert"
+              <div
                 style={{
-                  margin: "12px 0 0",
-                  color: "#B42318",
-                  fontSize: 13,
-                  lineHeight: 1.5,
+                  marginTop: 14,
                 }}
               >
-                {linkError}
-              </p>
+                <p
+                  role="alert"
+                  style={{
+                    margin: "0 0 12px",
+                    color: "#B42318",
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {linkError}
+                </p>
+
+                <a
+                  href={MOIT_RECORD}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Mở hồ sơ Bộ Công Thương bằng liên kết trực tiếp"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: 48,
+                    borderRadius: 14,
+                    padding: "8px 14px",
+                    boxSizing: "border-box",
+                    border: "1px solid #D9501B",
+                    color: "#C74F1D",
+                    background: "#FFF7F0",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    textDecoration: "none",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  Mở hồ sơ bằng liên kết trực tiếp ↗
+                </a>
+              </div>
             )}
 
             <p
