@@ -1,5 +1,3 @@
-import { getSystemInfo } from "zmp-sdk/apis";
-
 const MOIT_RECORD =
   "https://online.gov.vn/nen-tang/d7214e45-6cad-4527-b5fa-3edec2fc45e1";
 
@@ -11,20 +9,8 @@ function isInsideZalo() {
     return false;
   }
 
-  try {
-    const info = getSystemInfo();
-
-    if (
-      typeof info?.zaloVersion === "string" &&
-      info.zaloVersion.trim()
-    ) {
-      return true;
-    }
-  } catch {
-    // Continue with WebView detection.
-  }
-
-  const userAgent = window.navigator?.userAgent || "";
+  const userAgent =
+    window.navigator?.userAgent || "";
 
   return /Zalo/i.test(userAgent);
 }
