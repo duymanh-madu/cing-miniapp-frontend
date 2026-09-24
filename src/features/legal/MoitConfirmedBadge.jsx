@@ -205,6 +205,24 @@ export default function MoitConfirmedBadge({
               href={MOIT_RECORD}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(event) => {
+                if (
+                  window.parent === window ||
+                  !/Zalo/i.test(window.navigator?.userAgent || "")
+                ) {
+                  return;
+                }
+
+                event.preventDefault();
+
+                window.parent.postMessage(
+                  {
+                    type: "OPEN_OUT_APP",
+                    url: MOIT_RECORD,
+                  },
+                  "*"
+                );
+              }}
               aria-label="Truy cập hồ sơ Cing Hu Tang Kinh Bắc trên Bộ Công Thương"
               style={{
                 display: "flex",

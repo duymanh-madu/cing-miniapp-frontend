@@ -80,42 +80,32 @@ test("both screen placements remain", () => {
 
 
 
-test("official HTML anchor uses standard navigation", () => {
-  assert.match(
-    badge,
-    /href=\{MOIT_RECORD\}/
-  );
 
-  assert.match(
-    badge,
-    /target="_blank"/
-  );
+test("MOIT uses historical shell bridge", () => {
+  assert.match(badge, /href=\{MOIT_RECORD\}/);
+  assert.match(badge, /type: "OPEN_OUT_APP"/);
+  assert.match(badge, /url: MOIT_RECORD/);
+  assert.match(badge, /window\.parent\.postMessage/);
+});
 
-  assert.match(
-    badge,
-    /rel="noopener noreferrer"/
-  );
+test("standalone browsers retain official HTML navigation", () => {
+  assert.match(badge, /window\.parent === window/);
+  assert.match(badge, /!\/Zalo\/i\.test/);
+  assert.match(badge, /target="_blank"/);
+  assert.match(badge, /rel="noopener noreferrer"/);
+});
 
+test("embedded Zalo delegates navigation to shell", () => {
   assert.equal(
     (badge.match(/href=\{MOIT_RECORD\}/g) || []).length,
     1
   );
-});
 
-test("official link does not intercept navigation", () => {
-  assert.doesNotMatch(
-    badge,
-    /openWebview|openOutApp|OPEN_OUT_APP/
-  );
+  assert.match(badge, /event\.preventDefault\(\)/);
 
   assert.doesNotMatch(
     badge,
-    /preventDefault|window\.open|location\.href/
-  );
-
-  assert.doesNotMatch(
-    badge,
-    /isInsideZalo|linkError|linkErrorCode/
+    /\bopenWebview\s*\(|\bopenOutApp\s*\(/
   );
 
   assert.doesNotMatch(
@@ -124,14 +114,7 @@ test("official link does not intercept navigation", () => {
   );
 });
 
-test("official customer action remains visible", () => {
-  assert.match(
-    badge,
-    /Xem hồ sơ xác nhận ↗/
-  );
-
-  assert.match(
-    badge,
-    /Trang xác nhận được cung cấp/
-  );
+test("MOIT customer action remains visible", () => {
+  assert.match(badge, /Xem hồ sơ xác nhận ↗/);
+  assert.match(badge, /Trang xác nhận được cung cấp/);
 });
