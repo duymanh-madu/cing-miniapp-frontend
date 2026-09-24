@@ -79,29 +79,8 @@ test("both screen placements remain", () => {
 });
 
 
-test("Zalo uses official in-app WebView", () => {
-  assert.match(
-    badge,
-    /import \{ openWebview \} from "zmp-sdk"/
-  );
 
-  assert.match(
-    badge,
-    /openWebview\(\{\s*url: MOIT_RECORD/
-  );
-
-  assert.match(
-    badge,
-    /style: "normal"/
-  );
-});
-
-test("ordinary browsers retain HTTPS navigation", () => {
-  assert.match(
-    badge,
-    /if \(!isInsideZalo\(\)\) \{\s*return;/
-  );
-
+test("official HTML anchor uses standard navigation", () => {
   assert.match(
     badge,
     /href=\{MOIT_RECORD\}/
@@ -111,72 +90,48 @@ test("ordinary browsers retain HTTPS navigation", () => {
     badge,
     /target="_blank"/
   );
-});
-
-test("failed Zalo WebView is visible to customer", () => {
-  assert.match(
-    badge,
-    /\.catch\(\(error\) => \{[\s\S]*setLinkError/
-  );
 
   assert.match(
     badge,
-    /role="alert"/
-  );
-});
-
-
-test("failed WebView offers a user-activated direct link", () => {
-  assert.match(
-    badge,
-    /\{linkError && \(/
-  );
-
-  assert.match(
-    badge,
-    /Mở hồ sơ bằng liên kết trực tiếp/
-  );
-
-  assert.match(
-    badge,
-    /aria-label="Mở hồ sơ Bộ Công Thương bằng liên kết trực tiếp"/
+    /rel="noopener noreferrer"/
   );
 
   assert.equal(
     (badge.match(/href=\{MOIT_RECORD\}/g) || []).length,
-    2
+    1
   );
+});
 
-  assert.match(
+test("official link does not intercept navigation", () => {
+  assert.doesNotMatch(
     badge,
-    /target="_blank"/
+    /openWebview|openOutApp|OPEN_OUT_APP/
   );
 
   assert.doesNotMatch(
     badge,
-    /\.catch\([\s\S]*window\.open/
+    /preventDefault|window\.open|location\.href/
+  );
+
+  assert.doesNotMatch(
+    badge,
+    /isInsideZalo|linkError|linkErrorCode/
+  );
+
+  assert.doesNotMatch(
+    badge,
+    /Mở hồ sơ bằng liên kết trực tiếp/
   );
 });
 
-
-test("SDK error code is sanitized", () => {
+test("official customer action remains visible", () => {
   assert.match(
     badge,
-    /error\?\.errorCode/
+    /Xem hồ sơ xác nhận ↗/
   );
 
   assert.match(
     badge,
-    /error\?\.code/
-  );
-
-  assert.match(
-    badge,
-    /\^\[a-zA-Z0-9_\.\-\]\{1,64\}\$/
-  );
-
-  assert.match(
-    badge,
-    /Mã phản hồi Zalo: \{linkErrorCode\}/
+    /Trang xác nhận được cung cấp/
   );
 });

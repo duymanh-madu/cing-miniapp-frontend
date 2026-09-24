@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { openWebview } from "zmp-sdk";
 
 const MOIT_RECORD =
   "https://online.gov.vn/nen-tang/d7214e45-6cad-4527-b5fa-3edec2fc45e1";
@@ -7,22 +6,10 @@ const MOIT_RECORD =
 const MOIT_BADGE_IMAGE =
   "https://fileserver.online.gov.vn/uploads/Resources/iconxacnhan/DaThongBao.png";
 
-function isInsideZalo() {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return /Zalo/i.test(
-    window.navigator?.userAgent || ""
-  );
-}
-
 export default function MoitConfirmedBadge({
   size = "default",
 }) {
   const [open, setOpen] = useState(false);
-  const [linkError, setLinkError] = useState("");
-  const [linkErrorCode, setLinkErrorCode] = useState("");
 
   const isLarge = size === "large";
 
@@ -218,48 +205,6 @@ export default function MoitConfirmedBadge({
               href={MOIT_RECORD}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(event) => {
-                if (!isInsideZalo()) {
-                  return;
-                }
-
-                event.preventDefault();
-                setLinkError("");
-                setLinkErrorCode("");
-
-                openWebview({
-                  url: MOIT_RECORD,
-                  config: {
-                    style: "normal",
-                  },
-                })
-                  .then(() => {
-                    setOpen(false);
-                  })
-                  .catch((error) => {
-                    const candidate =
-                      error?.errorCode ??
-                      error?.code ??
-                      error?.error_code ??
-                      error?.status;
-
-                    const code =
-                      typeof candidate === "number" ||
-                      typeof candidate === "string"
-                        ? String(candidate)
-                        : "";
-
-                    setLinkErrorCode(
-                      /^[a-zA-Z0-9_.-]{1,64}$/.test(code)
-                        ? code
-                        : "KHONG_CO_MA"
-                    );
-
-                    setLinkError(
-                      "Chưa mở được trang xác nhận trong Zalo. Vui lòng thử lại."
-                    );
-                  });
-              }}
               aria-label="Truy cập hồ sơ Cing Hu Tang Kinh Bắc trên Bộ Công Thương"
               style={{
                 display: "flex",
@@ -280,63 +225,6 @@ export default function MoitConfirmedBadge({
             >
               Xem hồ sơ xác nhận ↗
             </a>
-
-            {linkError && (
-              <div
-                style={{
-                  marginTop: 14,
-                }}
-              >
-                <p
-                  role="alert"
-                  style={{
-                    margin: "0 0 12px",
-                    color: "#B42318",
-                    fontSize: 13,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {linkError}
-                  {linkErrorCode && (
-                    <span
-                      style={{
-                        display: "block",
-                        marginTop: 6,
-                        fontSize: 12,
-                        color: "#765D52",
-                      }}
-                    >
-                      Mã phản hồi Zalo: {linkErrorCode}
-                    </span>
-                  )}
-                </p>
-
-                <a
-                  href={MOIT_RECORD}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Mở hồ sơ Bộ Công Thương bằng liên kết trực tiếp"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    minHeight: 48,
-                    borderRadius: 14,
-                    padding: "8px 14px",
-                    boxSizing: "border-box",
-                    border: "1px solid #D9501B",
-                    color: "#C74F1D",
-                    background: "#FFF7F0",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    textDecoration: "none",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  Mở hồ sơ bằng liên kết trực tiếp ↗
-                </a>
-              </div>
-            )}
 
             <p
               style={{
@@ -359,5 +247,4 @@ export default function MoitConfirmedBadge({
 export {
   MOIT_RECORD,
   MOIT_BADGE_IMAGE,
-  isInsideZalo,
 };
