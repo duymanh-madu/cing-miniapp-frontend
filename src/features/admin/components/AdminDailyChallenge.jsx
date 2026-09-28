@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import apiClient from "@/infra/api/apiClient";
 
 const GAME_OPTIONS = [
@@ -11,6 +11,9 @@ export default function AdminDailyChallenge({ token }) {
   const [challenges, setChallenges] = useState([]);
   const [msg, setMsg]   = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Stable request identity across ambiguous retries.
+  const pendingApplyRef = useRef(null);
   const h = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
@@ -24,25 +27,128 @@ export default function AdminDailyChallenge({ token }) {
       .catch(console.error);
   }, []);
 
+
   const reset = async () => {
-    if (!confirm("Xóa thách thức hôm nay? Config mới sẽ được áp dụng ngay.")) return;
+    if (
+      !confirm(
+        "Chỉ reset thách thức hôm nay của các game ngoài Revival. Black Pearl Rush và Cing Stack Tower không bị reset. Tiếp tục?"
+      )
+    ) {
+      return;
+    }
+
     try {
-      await apiClient.delete("/game/daily-challenge/reset", { headers: h });
-      setMsg("✅ Đã reset! Thách thức mới sẽ tạo tự động.");
-      setTimeout(() => setMsg(""), 3000);
-    } catch(e) { setMsg("❌ " + e.message); }
+      await apiClient.delete(
+        "/game/daily-challenge/reset",
+        { headers: h }
+      );
+
+      setMsg(
+        "✅ Đã reset thách thức của các game ngoài Revival."
+      );
+    } catch (error) {
+      setMsg(
+        "❌ " +
+        (
+          error?.response?.data?.message ||
+          error?.message ||
+          "Không thể reset"
+        )
+      );
+    }
   };
 
   const save = async () => {
+    if (saving) return;
+
     setSaving(true);
+
     try {
-      await apiClient.put("/app-config/1", {
-        daily_challenge_config: { challenges }
-      }, { headers: h });
-      await apiClient.post("/game/daily-challenge/sync-today", {}, { headers: h });
-      setMsg("✅ Đã lưu và áp dụng thách thức hôm nay!"); setTimeout(() => setMsg(""), 3000);
-    } catch(e) { setMsg("❌ " + e.message); }
-    setSaving(false);
+      /*
+       * Same content + ambiguous failure:
+       * reuse the same request UUID.
+       *
+       * Edited content:
+       * create a different Admin action.
+       */
+      const signature =
+        JSON.stringify(challenges);
+
+      if (
+        !pendingApplyRef.current ||
+        pendingApplyRef.current.signature !==
+          signature
+      ) {
+        const requestId =
+          globalThis.crypto?.randomUUID?.();
+
+        if (!requestId) {
+          throw new Error(
+            "Thiết bị không hỗ trợ tạo mã yêu cầu an toàn."
+          );
+        }
+
+        pendingApplyRef.current = {
+          signature,
+          requestId,
+        };
+      }
+
+      const pending =
+        pendingApplyRef.current;
+
+      const response =
+        await apiClient.post(
+          "/app-config/revival-challenges/apply",
+          {
+            apply_request_id:
+              pending.requestId,
+            challenges:
+              JSON.parse(pending.signature),
+          },
+          { headers: h }
+        );
+
+      if (
+        response.data?.success !== true
+      ) {
+        throw new Error(
+          "Chưa xác nhận được kết quả lưu cấu hình."
+        );
+      }
+
+      /*
+       * The backend has confirmed the
+       * committed Admin Apply result.
+       * A later Save is a new action.
+       */
+      pendingApplyRef.current =
+        null;
+
+      setMsg(
+        response.data?.data?.replayed
+          ? "✅ Cấu hình đã được áp dụng trước đó. Không tạo bản ghi trùng."
+          : "✅ Đã lưu và áp dụng cấu hình thách thức!"
+      );
+    } catch (error) {
+      const code =
+        error?.response?.data?.code;
+
+      /*
+       * The next attempt with unchanged
+       * content keeps its request UUID.
+       */
+      setMsg(
+        "❌ " +
+        (
+          code ||
+          error?.message ||
+          "Không thể xác nhận kết quả lưu"
+        )
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const update = (i, field, val) => setChallenges(prev => {
@@ -164,7 +270,7 @@ export default function AdminDailyChallenge({ token }) {
         style={{ width:"100%", background:"rgba(244,67,54,0.1)", border:"1px solid rgba(244,67,54,0.3)",
           color:"#f44336", borderRadius:12, padding:"12px",
           fontSize:13, fontWeight:700, cursor:"pointer", marginTop:8 }}>
-        🔄 Reset thách thức hôm nay (áp dụng config mới ngay)
+        🔄 Reset thách thức game ngoài Revival
       </button>
     </div>
   );

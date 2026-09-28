@@ -2,6 +2,7 @@ import * as engineV1 from "../engine/index.js";
 import * as engineV2 from "../engine/v2/index.js";
 import * as engineV3 from "../engine/v3/index.js";
 import * as engineV4 from "../engine/v4/index.js";
+import * as engineV5 from "../engine/v5/index.js";
 
 const CONTRACT_V1 =
   Object.freeze({
@@ -33,6 +34,14 @@ const CONTRACT_V4 =
     rulesVersion: 3,
     scoreVersion: 3,
     replayVersion: 4,
+  });
+
+const CONTRACT_V5 =
+  Object.freeze({
+    engineVersion: 4,
+    rulesVersion: 4,
+    scoreVersion: 3,
+    replayVersion: 5,
   });
 
 function matchesContract(
@@ -108,6 +117,15 @@ getBlockPuzzleEngineForContract({
     return engineV4;
   }
 
+  if (
+    matchesContract(
+      contract,
+      CONTRACT_V5
+    )
+  ) {
+    return engineV5;
+  }
+
   const error =
     new Error(
       "Unsupported Cing Block Puzzle deterministic engine contract"
@@ -124,4 +142,5 @@ export {
   CONTRACT_V2,
   CONTRACT_V3,
   CONTRACT_V4,
+  CONTRACT_V5,
 };

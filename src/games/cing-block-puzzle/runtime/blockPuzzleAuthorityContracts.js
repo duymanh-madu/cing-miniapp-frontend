@@ -101,7 +101,7 @@ normalizeAuthorizedSession(
   assertSafeInteger(
     raw.play_cost,
     "play_cost",
-    1
+    0
   );
 
   let engine;
@@ -147,7 +147,7 @@ normalizeAuthorizedSession(
   }
 
   if (
-    raw.play_cost !== 1
+    ![0, 1].includes(raw.play_cost)
   ) {
     fail(
       "BLOCK_PUZZLE_SESSION_ECONOMY_MISMATCH",

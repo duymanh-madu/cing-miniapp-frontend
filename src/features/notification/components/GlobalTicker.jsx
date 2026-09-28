@@ -45,6 +45,8 @@ export default function GlobalTicker() {
     let socket = null;
     let interval = null;
 
+    const revivalTickerSeen = new Set();
+
     const handleNotificationTicker = (data) => {
       const payload = data?.payload || data || {};
       const msg =
@@ -53,6 +55,28 @@ export default function GlobalTicker() {
         data?.notification?.message ||
         data?.message ||
         "";
+
+
+      const revival = payload?.notification;
+      const revivalId =
+        revival?.source_event ===
+        "cing_offline_revive_daily_reward"
+          ? String(revival?.id ?? "")
+          : "";
+
+      if (revivalId) {
+        if (!/^[1-9][0-9]*$/.test(revivalId)) return;
+        const key = "cing_revive_ticker_seen:" + revivalId;
+        if (revivalTickerSeen.has(key)) return;
+        try {
+          if (sessionStorage.getItem(key) === "1") return;
+        } catch (_) {}
+
+        if (msg) {
+          revivalTickerSeen.add(key);
+          try { sessionStorage.setItem(key, "1"); } catch (_) {}
+        }
+      }
 
       if (msg) addMessage(msg);
     };

@@ -7,6 +7,7 @@ import {
 
 import apiClient from "@/infra/api/apiClient";
 import AdminWalletAdjustmentPanel from "./AdminWalletAdjustmentPanel";
+import AdminGameRevenueV2 from "./AdminGameRevenueV2";
 import "./admin-wallet.css";
 
 let nextTierUiId = 0;
@@ -1618,6 +1619,10 @@ export default function AdminWallet({
           </button>
         </div>
       </section>
+
+      {import.meta.env.VITE_CING_GAME_REVENUE_ADMIN_UI_ENABLED === "true" && (
+        <AdminGameRevenueV2 token={token} />
+      )}
 
       <section className="admin-wallet__section admin-wallet__section--live">
         <div className="admin-wallet__section-head">

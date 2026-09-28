@@ -152,7 +152,6 @@ function normalizeSession(
       "rules_version",
       "score_version",
       "replay_version",
-      "play_cost",
     ]
   ) {
     if (
@@ -166,6 +165,28 @@ function normalizeSession(
         `Recovery ${key} không hợp lệ`
       );
     }
+  }
+
+  /*
+   * Preserve legacy paid sessions and Free Start
+   * sessions under the existing recovery V1 format.
+   *
+   * This is local recovery validation, not
+   * authority to issue or charge a game session.
+   */
+
+  if (
+    !Number.isSafeInteger(
+      session.play_cost
+    ) ||
+    ![0, 1].includes(
+      session.play_cost
+    )
+  ) {
+    fail(
+      "BLOCK_PUZZLE_RECOVERY_SESSION_INVALID",
+      "Recovery play_cost không hợp lệ"
+    );
   }
 
   if (

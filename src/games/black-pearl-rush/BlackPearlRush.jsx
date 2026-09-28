@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameStart }) {
+export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameStart, onChallengeProgress, onRevivalPending, revivalMode = false, resumeToken = 0 }) {
   const navigate = useNavigate();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -10,6 +10,13 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
   const animationRef = useRef(null);
   const scoreThrottleRef = useRef(0);
   const gameStartedRef = useRef(false);
+  const revivalResumeRef = useRef(null);
+
+  useEffect(() => {
+    if (resumeToken > 0) {
+      revivalResumeRef.current?.();
+    }
+  }, [resumeToken]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -136,6 +143,32 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
       }
     }
 
+    function resumeRevivedGame() {
+      if (disposed || !revivalMode || !game.dead) return;
+
+      // Continue the same authorized session.
+      // Accumulated score, combo and challenge state survive.
+      game.dead = false;
+      game.started = true;
+      game._deadNotified = false;
+      game.shake = 0;
+      game.obstacleTimer = 0;
+      game.obstacles = [];
+      palpha.fill(0);
+
+      game.pearl.x = 110;
+      game.pearl.y = H / 2;
+      game.pearl.vy = -8.2;
+      game.pearl.rot = 0;
+      game.pearl.squash = 1.22;
+
+      accumulator = 0;
+      lastTime = 0;
+      setUiScore(game.score);
+    }
+
+    revivalResumeRef.current = resumeRevivedGame;
+
     function resetGame() {
       game.started = false; game.dead = false;
       game.score = 0; game.combo = 0; game._challengeClaimed = false; game._deadNotified = false;
@@ -148,24 +181,29 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
 
     let startPending = false;
     let roundAuthorizationId = 0;
+    let disposed = false;
 
     async function authorizeStartedRound(authorizationId) {
-      if (startPending) return;
-      startPending = true;
-
       try {
-        if (!onGameStart) return;
+        // Gameplay cannot run before paid-session authority.
+        if (typeof onGameStart !== "function") return;
 
         const allowed = await onGameStart();
 
-        // Bỏ qua response cũ nếu round đã thay đổi.
-        if (authorizationId !== roundAuthorizationId) return;
-
-        if (allowed === false) {
-          resetGame();
+        // Ignore authorization after unmount or round change.
+        if (disposed || authorizationId !== roundAuthorizationId) {
+          return;
         }
+
+        if (allowed !== true) return;
+
+        // Capture the actual start time AFTER authorization.
+        startRound();
+      } catch {
+        // Game Center owns user-facing authorization errors.
+        // A failed request must never start gameplay.
       } finally {
-        if (authorizationId === roundAuthorizationId) {
+        if (!disposed && authorizationId === roundAuthorizationId) {
           startPending = false;
         }
       }
@@ -180,15 +218,22 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
     }
 
     function startAuthorizedRound() {
+      if (disposed || startPending) return;
+
+      // Fence synchronously before the first await.
+      startPending = true;
       roundAuthorizationId += 1;
       const authorizationId = roundAuthorizationId;
 
-      startRound();
       void authorizeStartedRound(authorizationId);
     }
 
     function jump() {
-      if (game.dead && !game._deadNotified) {
+      if (
+        !revivalMode &&
+        game.dead &&
+        !game._deadNotified
+      ) {
         game._deadNotified = true;
         if (onGameOver) onGameOver({
           bestCombo: game.bestCombo,
@@ -197,8 +242,9 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
       }
 
       if (game.dead) {
+        // Never start another paid round by tapping during Revival.
+        if (revivalMode) return;
         if (startPending) return;
-
         resetGame();
         startAuthorizedRound();
         return;
@@ -238,8 +284,23 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
 
       if (!game._deadNotified) {
         game._deadNotified = true;
-        if (onGameOver) await onGameOver({ bestCombo: game.bestCombo, score: game.score });
-        await refreshLeaderboard();
+        if (revivalMode) {
+          if (typeof onRevivalPending === "function") {
+            await onRevivalPending({
+              bestCombo: game.bestCombo,
+              score: game.score,
+              reason: "death",
+            });
+          }
+        } else {
+          if (onGameOver) {
+            await onGameOver({
+              bestCombo: game.bestCombo,
+              score: game.score,
+            });
+          }
+          await refreshLeaderboard();
+        }
       }
     }
 
@@ -271,7 +332,18 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
           // Trigger challenge claim khi dat combo 100
           if (game.combo >= 100 && !game._challengeClaimed) {
             game._challengeClaimed = true;
-            if (onGameOver) onGameOver({ bestCombo: game.combo, score: game.score });
+            if (typeof onChallengeProgress === "function") {
+              onChallengeProgress({
+                bestCombo: game.combo,
+                score: game.score,
+              });
+            } else if (onGameOver) {
+              // Legacy Game Center compatibility until Revival V2 is mounted.
+              onGameOver({
+                bestCombo: game.combo,
+                score: game.score,
+              });
+            }
           }
           playSound("score");
           burst(p.x, p.y, 8);
@@ -400,7 +472,11 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
         ctx.font = "900 26px Arial"; ctx.fillStyle = "#ffd166";
         ctx.fillText("BEST COMBO x" + game.bestCombo, W/2, H/2 + 10);
         ctx.font = "700 20px Arial"; ctx.fillStyle = "white";
-        ctx.fillText("TAP ĐỂ CHƠI LẠI", W/2, H/2 + 70);
+        ctx.fillText(
+          revivalMode ? "ĐANG CHỜ HỒI SINH" : "TAP ĐỂ CHƠI LẠI",
+          W/2,
+          H/2 + 70
+        );
       }
     }
 
@@ -434,6 +510,9 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
     canvas.addEventListener("pointerdown", handleTap, { passive: true });
 
     return () => {
+      disposed = true;
+      revivalResumeRef.current = null;
+      roundAuthorizationId += 1;
       cancelAnimationFrame(animationRef.current);
       canvas.removeEventListener("pointerdown", handleTap);
       document.removeEventListener("visibilitychange", onVisibility);

@@ -2,6 +2,10 @@ import {
   createBlockPuzzleSecureUuidV4,
 } from "./blockPuzzleWebviewCompatibility.js";
 
+import {
+  normalizeBlockPuzzleV5ReviveResponse,
+} from "./blockPuzzleV5ReviveResponse.js";
+
 import apiClient from
   "../../../infra/api/apiClient.js";
 
@@ -698,12 +702,32 @@ purchaseAuthorizedBlockPuzzleContinue({
         )
     );
 
-  return (
-    normalizeAuthoritativeContinuePurchase(
-      unwrapResponse(
-        response
-      ),
-      normalizedSessionId
-    )
-  );
+  const authoritativeResponse =
+    unwrapResponse(
+      response
+    );
+
+  /*
+   * Only the exact V5 replay contract selects
+   * Revive Credit response authority.
+   *
+   * Historical V3/V4 continue responses keep
+   * the existing loyalty points normalizer.
+   */
+
+  const isV5Revive =
+    replay.engineVersion === 4 &&
+    replay.rulesVersion === 4 &&
+    replay.scoreVersion === 3 &&
+    replay.replayVersion === 5;
+
+  return isV5Revive
+    ? normalizeBlockPuzzleV5ReviveResponse(
+        authoritativeResponse,
+        normalizedSessionId
+      )
+    : normalizeAuthoritativeContinuePurchase(
+        authoritativeResponse,
+        normalizedSessionId
+      );
 }

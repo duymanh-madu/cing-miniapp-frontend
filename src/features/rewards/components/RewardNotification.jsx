@@ -6,6 +6,8 @@ import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCusto
 import useAuthStore from "@/stores/auth/authStore";
 import { isGamePlaying, subscribeGamePlaying } from "@/runtime/game/gamePlayState";
 
+const revivalPopupSeen = new Set();
+
 export function ChallengeWonPopup() {
   const [data, setData] = useState(null);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
@@ -24,10 +26,35 @@ export function ChallengeWonPopup() {
 
   useEffect(() => {
     const show = (detail) => {
+      const id = detail?.revival_notification_id;
+      const key = id
+        ? "cing_revive_seen:" + detail.revival_user_id + ":" + id
+        : null;
+
+      if (key) {
+        if (revivalPopupSeen.has(key)) return;
+        try {
+          if (sessionStorage.getItem(key) === "1") return;
+        } catch (_) {}
+
+        if (pendingRef.current.some(
+          item =>
+            item?.revival_notification_id === id &&
+            item?.revival_user_id === detail.revival_user_id
+        )) return;
+      }
+
       if (shownRef.current || isGamePlaying()) {
         pendingRef.current.push(detail);
         return;
       }
+      if (key) {
+        revivalPopupSeen.add(key);
+        try {
+          sessionStorage.setItem(key, "1");
+        } catch (_) {}
+      }
+
       shownRef.current = true;
       setData(detail);
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -71,7 +98,26 @@ export function ChallengeWonPopup() {
             return n.length >= 9 ? n : "";
           })();
 
+          const isRevival =
+            notification?.source_event ===
+            "cing_offline_revive_daily_reward";
+
+          const revivalId = isRevival
+            ? String(notification?.id || "")
+            : "";
+
+          if (isRevival && (
+            !/^[1-9][0-9]*$/.test(revivalId) ||
+            String(popup?.notification_id || "") !== revivalId
+          )) {
+            return;
+          }
+
           show({
+            ...(isRevival ? {
+              revival_notification_id: revivalId,
+              revival_user_id: currentPhone,
+            } : {}),
             winner_user_id: currentPhone,
             winner_name: "Bạn",
             winner_avatar: "",

@@ -59,6 +59,10 @@ import {
   clearBlockPuzzleTerminalIntent,
 } from "./runtime/blockPuzzleTerminalIntentRecovery.js";
 
+import {
+  getBlockPuzzleMaxContinues,
+} from "./runtime/blockPuzzleContinueVersionPolicy.js";
+
 import blockPuzzleAudioRuntime from
   "./audio/blockPuzzleAudioRuntime.js";
 
@@ -695,6 +699,11 @@ CingBlockPuzzle({
         recoveredRuntime.state
           .ended
       ) {
+        const maxContinues =
+          getBlockPuzzleMaxContinues(
+            recoveredRuntime.session
+          );
+
         const intent =
           restoreBlockPuzzleTerminalIntent({
             ownerKey:
@@ -704,13 +713,17 @@ CingBlockPuzzle({
               recoveredRuntime
                 .session
                 .session_id,
+
+            session:
+              recoveredRuntime.session,
           });
 
         if (
           intent?.action ===
             "continue_pending" &&
           recoveredRuntime.state
-            .continuesUsed < 3
+            .continuesUsed <
+              maxContinues
         ) {
           setError(
             "Giao dịch mua mạng trước chưa hoàn tất trên thiết bị. Hãy thử lại để khôi phục đúng giao dịch."
@@ -723,7 +736,8 @@ CingBlockPuzzle({
           intent?.action ===
             "offer" &&
           recoveredRuntime.state
-            .continuesUsed < 3
+            .continuesUsed <
+              maxContinues
         ) {
           setError("");
 
@@ -961,9 +975,15 @@ CingBlockPuzzle({
           return;
         }
 
+        const maxContinues =
+          getBlockPuzzleMaxContinues(
+            terminalRuntime.session
+          );
+
         if (
           terminalRuntime.state
-            .continuesUsed >= 3
+            .continuesUsed >=
+              maxContinues
         ) {
           const persisted =
             persistBlockPuzzleTerminalIntent({
@@ -1045,10 +1065,21 @@ CingBlockPuzzle({
           !terminalRuntime ||
           terminalRuntime.state
             ?.ended !== true ||
-          terminalRuntime.state
-            .continuesUsed >= 3 ||
           continueInFlightRef
             .current
+        ) {
+          return;
+        }
+
+        const maxContinues =
+          getBlockPuzzleMaxContinues(
+            terminalRuntime.session
+          );
+
+        if (
+          terminalRuntime.state
+            .continuesUsed >=
+              maxContinues
         ) {
           return;
         }
@@ -1066,6 +1097,9 @@ CingBlockPuzzle({
               terminalRuntime
                 .session
                 .session_id,
+
+            session:
+              terminalRuntime.session,
           });
 
         const requestId =
@@ -1089,6 +1123,9 @@ CingBlockPuzzle({
               terminalRuntime
                 .session
                 .session_id,
+
+            session:
+              terminalRuntime.session,
 
             action:
               "continue_pending",
@@ -1164,7 +1201,16 @@ CingBlockPuzzle({
 
           clearBlockPuzzleTerminalIntent();
 
+          /*
+           * V5 balance_after is Revive Credit,
+           * NEVER iPOS loyalty points.
+           *
+           * Credit balance publication is a
+           * separate future integration gate.
+           */
+
           if (
+            maxContinues === 3 &&
             typeof window !==
               "undefined"
           ) {
@@ -2829,12 +2875,22 @@ CingBlockPuzzle({
                   {phase ===
                   PHASE.CONTINUE_PURCHASING
                     ? "Đang mua mạng..."
-                    : `Chơi tiếp — ${
-                        [5, 10, 20][
-                          runtime?.state
-                            ?.continuesUsed ?? 0
-                        ]
-                      } điểm`}
+                    : runtime?.session &&
+                        getBlockPuzzleMaxContinues(
+                          runtime.session
+                        ) === 5
+                      ? `Chơi tiếp — ${
+                          [1, 2, 4, 8, 16][
+                            runtime?.state
+                              ?.continuesUsed ?? 0
+                          ]
+                        } Revive Credit`
+                      : `Chơi tiếp — ${
+                          [5, 10, 20][
+                            runtime?.state
+                              ?.continuesUsed ?? 0
+                          ]
+                        } điểm`}
                 </button>
 
                 <button

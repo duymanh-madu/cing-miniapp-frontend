@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import useNotificationStore from "@/stores/notification/notificationStore";
+import CingGiftInboxV2 from "./CingGiftInboxV2";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
 export default function NotificationBellButton() {
@@ -21,7 +22,7 @@ export default function NotificationBellButton() {
     window.addEventListener("notification_received", handler);
     return () => window.removeEventListener("notification_received", handler);
   }, []);
-  const { notifications, unread, markAllRead, clearAll } = useNotificationStore();
+  const { notifications, unread, markLegacyRead, clearAll } = useNotificationStore();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -42,7 +43,7 @@ export default function NotificationBellButton() {
 
   return (
     <div ref={ref} style={{ position:"relative" }}>
-      <button onClick={() => { setOpen(o => !o); if (!open) markAllRead(); }}
+      <button onClick={() => { setOpen(o => !o); if (!open) markLegacyRead(); }}
         style={{ background:"rgba(255,255,255,0.15)", border:"none", borderRadius:12,
           width:42, height:42, display:"flex", alignItems:"center", justifyContent:"center",
           cursor:"pointer", position:"relative", backdropFilter:"blur(8px)" }}>
@@ -69,7 +70,14 @@ export default function NotificationBellButton() {
               Xóa tất cả
             </button>
           </div>
-          <div style={{ overflowY:"auto", flex:1 }}>
+          {
+              import.meta.env
+                .VITE_CING_GAME_GIFT_INBOX_V2_ENABLED === "true" &&
+              phone &&
+              phone !== "pending" &&
+              <CingGiftInboxV2 phone={phone} />
+            }
+            <div style={{ overflowY:"auto", flex:1 }}>
             {notifications.length === 0 ? (
               <p style={{ textAlign:"center", color:"#bbb", padding:"24px 16px", fontSize:13 }}>
                 Chưa có thông báo nào

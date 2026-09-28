@@ -6,6 +6,19 @@ const GAME_LABELS = {
   chess: "Kỳ thủ cờ vua",
 };
 
+/*
+ * Game Center V2 — free admission for the three
+ * offline games. The actual session remains owned
+ * by each game's backend/PostgreSQL authority.
+ *
+ * This does not represent a Revive Credit balance.
+ */
+const FREE_START_GAME_KEYS = new Set([
+  "cing-block-puzzle",
+  "cing-stack-tower",
+  "black-pearl-rush",
+]);
+
 function dailyChallengeLabel(c) {
   if (c?.label) return c.label;
   const gameName = GAME_LABELS[c?.game_key] || "trò chơi";
@@ -35,6 +48,21 @@ import AlltimeLeaderboard from "../components/AlltimeLeaderboard";
 import ChessGame from "../games/chess/ChessGame";
 import ChessLeaderboard from "../games/chess/ChessLeaderboard";
 import GamePlaysCard from "../components/GamePlaysCard";
+import CingOfflineRevivalGameV2 from "../components/CingOfflineRevivalGameV2";
+
+import ReviveCreditStorefrontV2 from
+  "../components/ReviveCreditStorefrontV2";
+
+const OFFLINE_REVIVAL_V2_ENABLED =
+  import.meta.env
+    .VITE_CING_OFFLINE_REVIVAL_UI_ENABLED ===
+  "true";
+
+const OFFLINE_REVIVAL_V2_GAMES =
+  new Set([
+    "cing-stack-tower",
+    "black-pearl-rush",
+  ]);
 
 // Lấy phone hợp lệ từ các store — bỏ qua "pending" và UUID
 function getPhone() {
@@ -239,6 +267,7 @@ export default function GameCenterPage() {
     gameEconomy?.games?.[gameKey] || null;
 
   const gameUsesPlay = (gameKey) =>
+    !FREE_START_GAME_KEYS.has(gameKey) &&
     Number(getGameEconomy(gameKey)?.play_cost || 0) > 0;
 
   useEffect(() => {
@@ -335,6 +364,26 @@ export default function GameCenterPage() {
         combo:       bestCombo || 0,
       });
     } catch(e) { console.warn("[GAME] score failed:", e.message); }
+
+    handleChallengeProgress({ bestCombo, gameKey });
+  };
+
+  const handleChallengeProgress = ({
+    bestCombo,
+    gameKey = activeGame || "black-pearl-rush",
+  }) => {
+    const phone = getPhone();
+    const userId =
+      phone ||
+      useAuthStore.getState().profile?.id ||
+      "";
+
+    if (!userId) return;
+
+    const playerName = resolveProfileName(
+      useAuthStore.getState().profile || profile,
+      "Cing iu"
+    );
 
     // Claim daily challenge chạy nền để không chặn refresh BXH ingame.
     if (bestCombo > 0) {
@@ -518,16 +567,44 @@ export default function GameCenterPage() {
         : {
             onGameOver:
               handleGameOver,
+            onChallengeProgress:
+              handleChallengeProgress,
 
             onRestart:
               handleRestart,
 
             onGameStart:
               () =>
-                consumeGamePlay(
-                  activeGame
-                ),
+                gameUsesPlay(activeGame)
+                  ? consumeGamePlay(activeGame)
+                  : true,
           };
+
+    if (
+      OFFLINE_REVIVAL_V2_ENABLED &&
+      OFFLINE_REVIVAL_V2_GAMES.has(
+        activeGame
+      ) &&
+      !isSelfManaged
+    ) {
+      return (
+        <CingOfflineRevivalGameV2
+          key={activeGame}
+          GameComp={GameComp}
+          gameKey={activeGame}
+          onExit={() => {
+            trackGameStop(activeGame);
+            setActiveGame(null);
+          }}
+          onShowLeaderboard={() =>
+            setShowBoard(activeGame)
+          }
+          onChallengeProgress={
+            handleChallengeProgress
+          }
+        />
+      );
+    }
 
     return (
       <>
@@ -672,11 +749,22 @@ export default function GameCenterPage() {
         </div>
       )}
 
-      <GamePlaysCard
-        onPlaysUpdate={setGamePlays}
-        refreshKey={gamePlaysRefreshKey}
-        economyPolicy={gameEconomy}
-      />
+      {OFFLINE_REVIVAL_V2_ENABLED &&
+        authenticated &&
+        isActivated &&
+        /^0[0-9]{9}$/.test(getPhone()) && (
+        <ReviveCreditStorefrontV2
+          userId={getPhone()}
+        />
+      )}
+
+      {!OFFLINE_REVIVAL_V2_ENABLED && (
+        <GamePlaysCard
+          onPlaysUpdate={setGamePlays}
+          refreshKey={gamePlaysRefreshKey}
+          economyPolicy={gameEconomy}
+        />
+      )}
 
       {/* GAME LIST */}
       <div style={{ padding:"0 16px" }}>
@@ -694,12 +782,12 @@ export default function GameCenterPage() {
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
                 <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>{game.displayName || game.name}</p>
                 {game.status==="LIVE" && <span style={{ background:"rgba(0,255,100,0.15)", color:"#00ff64", fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8, letterSpacing:1 }}>LIVE</span>}
-                {getGameEconomy(game.id)?.play_cost > 0 && (
+                {!FREE_START_GAME_KEYS.has(game.id) && getGameEconomy(game.id)?.play_cost > 0 && (
                   <span style={{ background:"rgba(255,215,0,0.12)", color:"#FFD700", fontSize:9, fontWeight:900, padding:"2px 7px", borderRadius:8, border:"1px solid rgba(255,215,0,0.25)" }}>
                     🎟 1 LƯỢT / VÁN
                   </span>
                 )}
-                {getGameEconomy(game.id)?.play_cost === 0 && (
+                {(FREE_START_GAME_KEYS.has(game.id) || getGameEconomy(game.id)?.play_cost === 0) && (
                   <span style={{ background:"rgba(0,255,150,0.12)", color:"#00e99a", fontSize:9, fontWeight:900, padding:"2px 7px", borderRadius:8, border:"1px solid rgba(0,255,150,0.22)" }}>
                     ♾ MIỄN PHÍ
                   </span>

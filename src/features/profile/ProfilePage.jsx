@@ -8,6 +8,13 @@ import { TierBadge, GemIconSm } from "@/membership/components/TierBadge";
 import { TierCard } from "@/membership/components/TierCard";
 import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
 import CharmChatBadge from "@/features/game-center/components/chat-badges/CharmChatBadge";
+import CingGameGiftPurchaseV2 from "@/features/game-center/components/CingGameGiftPurchaseV2";
+/* CING_GAME_GIFT_PURCHASE_V2_MOUNT_V1 */
+const CING_GIFT_PURCHASE_V2_ENABLED =
+  import.meta.env
+    .VITE_CING_GAME_GIFT_PURCHASE_V2_ENABLED ===
+    "true";
+
 
 injectTierBadgeStyles();
 
@@ -612,7 +619,14 @@ export default function ProfilePage() {
       <style>{`@keyframes liveFlash{0%,100%{opacity:1}50%{opacity:.35}}`}</style>
 
       {/* Gift Modal */}
-      {showGift && (
+      {showGift && CING_GIFT_PURCHASE_V2_ENABLED && (
+        <CingGameGiftPurchaseV2
+          recipientUserId={resolvedPhone}
+          recipientName={member?.name || "Cing iu"}
+          onClose={() => setShowGift(false)}
+        />
+      )}
+      {showGift && !CING_GIFT_PURCHASE_V2_ENABLED && (
         <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.75)", zIndex:9999, display:"flex", alignItems:"flex-end" }}
           onClick={() => { setShowGift(false); setGiftResult(null); }}>
           <div style={{ background:"#0f0f18", borderRadius:"24px 24px 0 0", width:"100%", padding:"24px 20px 48px", border:"1px solid rgba(255,80,120,.2)" }}

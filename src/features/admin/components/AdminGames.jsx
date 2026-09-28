@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import apiClient from "@/infra/api/apiClient";
+import AdminGameGiftCatalog from "./AdminGameGiftCatalog";
+import AdminReviveCreditPrice from "./AdminReviveCreditPrice";
+import AdminReviveCreditAdjustmentV2 from "./AdminReviveCreditAdjustmentV2";
 
 function isChessWinsGame(key, game) {
   return key === "chess-wins" || game?.score_label === "trận thắng";
@@ -45,7 +48,11 @@ function renderMetric(row, activeGame, currentGame) {
   );
 }
 
-export default function AdminGames({ token }) {
+const REVIVE_V2_ADMIN_ENABLED =
+  import.meta.env
+    .VITE_CING_OFFLINE_REVIVAL_UI_ENABLED === "true";
+
+export default function AdminGames({ token, role, adminId }) {
   const [games, setGames] = useState([]);
   const [scores, setScores] = useState({});
   const [loading, setLoading] = useState(true);
@@ -121,10 +128,16 @@ export default function AdminGames({ token }) {
 
   return (
     <div>
+      <AdminReviveCreditPrice token={token} role={role} />
+      <AdminGameGiftCatalog token={token} role={role} />
       <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 20px" }}>
         🎮 Quản lý Games
       </h2>
 
+      {REVIVE_V2_ADMIN_ENABLED ? (
+        <AdminReviveCreditAdjustmentV2 token={token} role={role} adminId={adminId} />
+      ) : (
+        <>
       <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px", border:"1px solid #2a2a38", marginBottom:20 }}>
         <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:1, margin:"0 0 12px", textTransform:"uppercase" }}>
           🎯 Điều chỉnh lượt chơi
@@ -168,6 +181,9 @@ export default function AdminGames({ token }) {
           </button>
         </div>
       </div>
+
+        </>
+      )}
 
       {loading ? (
         <p style={{ color:"#666" }}>Đang tải...</p>

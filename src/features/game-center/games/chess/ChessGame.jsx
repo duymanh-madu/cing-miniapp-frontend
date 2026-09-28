@@ -11,6 +11,13 @@ import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCusto
 import ChessLeaderboard from "./ChessLeaderboard";
 import { useMembership } from "@/features/home/hooks/useMembership";
 import apiClient from "@/infra/api/apiClient";
+import CingGameGiftPurchaseV2 from "@/features/game-center/components/CingGameGiftPurchaseV2";
+/* CING_GAME_GIFT_PURCHASE_V2_MOUNT_V1 */
+const CING_GIFT_PURCHASE_V2_ENABLED =
+  import.meta.env
+    .VITE_CING_GAME_GIFT_PURCHASE_V2_ENABLED ===
+    "true";
+
 import {
   CharmChatBadge,
   getHighestCharmBadge,
@@ -1303,7 +1310,14 @@ export default function ChessGame({ onExit }) {
           </div>
         )}
 
-        {showTip && (
+        {showTip && CING_GIFT_PURCHASE_V2_ENABLED && (
+          <CingGameGiftPurchaseV2
+            recipientUserId={opponent?.userId || opponent?.id || ""}
+            recipientName={opponent?.name || "đối thủ"}
+            onClose={() => setShowTip(false)}
+          />
+        )}
+        {showTip && !CING_GIFT_PURCHASE_V2_ENABLED && (
           <div onClick={() => setShowTip(false)}
             style={{ position:"fixed", inset:0, zIndex:9991, background:"rgba(0,0,0,0.7)",
               display:"flex", alignItems:"center", justifyContent:"center" }}>

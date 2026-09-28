@@ -1,3 +1,7 @@
+import {
+  getBlockPuzzleMaxContinues,
+} from "./blockPuzzleContinueVersionPolicy.js";
+
 const STORAGE_VERSION = 1;
 
 const STORAGE_KEY =
@@ -35,7 +39,8 @@ function normalizeOwnerKey(
 function normalizeIntent(
   value,
   expectedOwnerKey,
-  expectedSessionId = null
+  expectedSessionId = null,
+  session = null
 ) {
   if (
     !value ||
@@ -117,6 +122,34 @@ function normalizeIntent(
     );
   }
 
+  /*
+   * Existing V1 callers without a session
+   * retain the historical three-Continue limit.
+   *
+   * V5 callers must provide the exact authorized
+   * session. Storage schema remains unchanged.
+   */
+
+  if (
+    session !== null &&
+    session !== undefined
+  ) {
+    if (
+      !session ||
+      typeof session !== "object" ||
+      Array.isArray(session) ||
+      session.session_id !== sessionId
+    ) {
+      throw new Error(
+        "Block Puzzle terminal intent session contract mismatch"
+      );
+    }
+
+    getBlockPuzzleMaxContinues(
+      session
+    );
+  }
+
   const action =
     String(
       value.action || ""
@@ -149,6 +182,13 @@ function normalizeIntent(
         value.continue_index
       );
 
+    const maxContinues =
+      session
+        ? getBlockPuzzleMaxContinues(
+            session
+          )
+        : 3;
+
     if (
       !UUID_V4.test(
         requestId
@@ -157,7 +197,7 @@ function normalizeIntent(
         continueIndex
       ) ||
       continueIndex < 1 ||
-      continueIndex > 3
+      continueIndex > maxContinues
     ) {
       throw new Error(
         "Block Puzzle pending continue intent invalid"
@@ -209,6 +249,7 @@ export function
 persistBlockPuzzleTerminalIntent({
   ownerKey,
   sessionId,
+  session = null,
   action,
   requestId = null,
   continueIndex = null,
@@ -245,7 +286,8 @@ persistBlockPuzzleTerminalIntent({
             continueIndex,
         },
         ownerKey,
-        sessionId
+        sessionId,
+        session
       );
 
     target.setItem(
@@ -265,6 +307,7 @@ export function
 restoreBlockPuzzleTerminalIntent({
   ownerKey,
   sessionId,
+  session = null,
   storage,
 }) {
   const target =
@@ -289,7 +332,8 @@ restoreBlockPuzzleTerminalIntent({
     return normalizeIntent(
       JSON.parse(raw),
       ownerKey,
-      sessionId
+      sessionId,
+      session
     );
   } catch {
     try {

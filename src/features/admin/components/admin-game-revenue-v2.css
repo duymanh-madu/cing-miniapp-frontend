@@ -1,0 +1,15 @@
+.admin-game-revenue-v2__note{color:#c7bcb2;font-size:12px;line-height:1.6}
+.admin-game-revenue-v2__filters{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:16px 0}
+.admin-game-revenue-v2__filters label{display:grid;gap:5px;color:#e8c49d;font-size:12px;min-width:135px;flex:1}
+.admin-game-revenue-v2__filters input,.admin-game-revenue-v2__filters select{min-width:0;width:100%;padding:10px;border-radius:9px;border:1px solid #71533b;background:#211c1b;color:#fff}
+.admin-game-revenue-v2__filters button{padding:11px 16px;border:0;border-radius:9px;background:#d4531c;color:white;font-weight:700}
+.admin-game-revenue-v2__filters button:disabled{opacity:.5}
+.admin-game-revenue-v2__metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.admin-game-revenue-v2__metrics article{border:1px solid #67412d;border-radius:12px;padding:14px;display:grid;gap:8px;background:#241c1a}
+.admin-game-revenue-v2__metrics span{color:#cbb5a4;font-size:12px}
+.admin-game-revenue-v2__metrics strong{font-size:20px;color:#ffcf97;overflow-wrap:anywhere}
+.admin-game-revenue-v2__scroll{overflow-x:auto;max-width:100%}
+.admin-game-revenue-v2__scroll table{border-collapse:collapse;width:100%;min-width:840px;font-size:12px}
+.admin-game-revenue-v2__scroll th,.admin-game-revenue-v2__scroll td{padding:12px 9px;text-align:left;border-bottom:1px solid #63452d;overflow-wrap:anywhere}
+.admin-game-revenue-v2__scroll th{color:#f5c394}
+.admin-game-revenue-v2__error{color:#ff9c86}

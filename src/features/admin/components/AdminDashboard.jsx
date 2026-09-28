@@ -247,7 +247,7 @@ export default function AdminDashboard({ auth }) {
         {activeTab==="stats"     && <AdminStats token={auth.token} />}
         {activeTab==="missions"  && <AdminMissions token={auth.token} />}
         {activeTab==="notifications" && <AdminNotifications token={auth.token} />}
-        {activeTab==="games"     && <AdminGames token={auth.token} />}
+        {activeTab==="games"     && <AdminGames key={`${auth.admin?.id ?? "missing"}:${auth.token ?? ""}`} token={auth.token} role={role} adminId={auth.admin?.id == null ? "" : String(auth.admin.id)} />}
         {activeTab==="players"   && <AdminPlayers token={auth.token} />}
         {activeTab==="appconfig" && <AdminAppConfig token={auth.token} />}
         {activeTab==="cdp"       && <AdminCDP token={auth.token} />}

@@ -4,12 +4,23 @@ import { useNavigate } from "react-router-dom";
 const GAME_KEY = "cing-stack-tower";
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
 
-export default function CingStackTower({ onExit, onGameOver, onRestart, onGameStart }) {
+export default function CingStackTower({
+  onExit,
+  onGameOver,
+  onRestart,
+  onGameStart,
+  onRevivalPending,
+  onRevivalFinalize,
+  revivalMode = false,
+  resumeToken = 0,
+}) {
   const navigate = useNavigate();
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
   const scoreThrottleRef = useRef(0);
   const gameRef = useRef(null);
+  const revivalResumeRef = useRef(null);
+  const finalizeTimeoutRef = useRef(null);
 
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -20,6 +31,12 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     floor: 0,
     ended: false,
   });
+
+  useEffect(() => {
+    if (resumeToken > 0) {
+      revivalResumeRef.current?.();
+    }
+  }, [resumeToken]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -589,9 +606,16 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       if (!force && now - scoreThrottleRef.current < 160) return;
       scoreThrottleRef.current = now;
 
-      const timeLeft = game.started
-        ? Math.max(0, Math.ceil((ROUND_TIME - (now - game.startAt)) / 1000))
-        : 120;
+      const timeLeft = game.revivalPending
+        ? 0
+        : game.started
+          ? Math.max(
+              0,
+              Math.ceil(
+                (ROUND_TIME - (now - game.startAt)) / 1000
+              )
+            )
+          : 120;
 
       setUi({
         score: Math.max(0, Math.floor(game.score)),
@@ -599,6 +623,8 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         timeLeft,
         floor: game.floor,
         ended: game.ended,
+        revivalPending:
+          game.revivalPending === true,
       });
     }
 
@@ -611,24 +637,201 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       } catch {}
     }
 
-    async function finishRound(reason = "timeout") {
+    /*
+     * Timeout does not finalize a revival-enabled
+     * session. The backend coordinator owns the
+     * pending event and financial revival receipt.
+     */
+    async function finishRound(
+      reason = "timeout"
+    ) {
       if (game.submitted) return;
+
+      if (
+        reason === "timeout" &&
+        revivalMode &&
+        typeof onRevivalPending === "function"
+      ) {
+        if (game.revivalPending) return;
+
+        game.revivalPending = true;
+        game.ended = true;
+        game.started = false;
+
+        showMessage("HẾT GIỜ", 2000);
+        syncUi(true);
+
+        try {
+          await onRevivalPending({
+            gameKey: GAME_KEY,
+            reason: "timeout",
+            bestCombo: game.bestCombo,
+            score: Math.max(
+              0,
+              Math.floor(game.score)
+            ),
+            floor: game.floor,
+          });
+        } catch {
+          /*
+           * An uncertain coordinator outcome must
+           * not restart gameplay or submit a score.
+           * The player can retry through the parent
+           * or explicitly finish the round.
+           */
+          showMessage(
+            "CHƯA THỂ XÁC MINH HỒI SINH",
+            2000
+          );
+        }
+
+        return;
+      }
+
+      game.revivalPending = false;
       game.ended = true;
       game.started = false;
       game.submitted = true;
-      showMessage(reason === "timeout" ? "HẾT GIỜ" : "KẾT THÚC", 2000);
+
+      showMessage(
+        reason === "timeout"
+          ? "HẾT GIỜ"
+          : "KẾT THÚC",
+        2000
+      );
+
       syncUi(true);
 
       if (onGameOver) {
         await onGameOver({
           bestCombo: game.bestCombo,
-          score: Math.max(0, Math.floor(game.score)),
+          score: Math.max(
+            0,
+            Math.floor(game.score)
+          ),
           floor: game.floor,
         });
       }
 
       await fetchLeaderboard();
     }
+
+    function resumeRevivedGame() {
+      if (
+        disposed ||
+        !revivalMode ||
+        !game.revivalPending ||
+        game.submitted
+      ) {
+        return;
+      }
+
+      const now = performance.now();
+
+      /*
+       * Preserve tower, score, combo and floor.
+       * Restart ONLY the remaining round clock,
+       * with exactly thirty seconds.
+       */
+      game.startAt =
+        now - (ROUND_TIME - 30_000);
+
+      game.lastAt = now;
+      game.revivalPending = false;
+      game.ended = false;
+      game.started = true;
+
+      showMessage(
+        "HỒI SINH +30 GIÂY",
+        1200
+      );
+
+      if (!game.falling) {
+        spawnFalling(now);
+      }
+
+      syncUi(true);
+    }
+
+    revivalResumeRef.current =
+      resumeRevivedGame;
+
+    /*
+     * Game Center must finalize the PostgreSQL
+     * session. A frontend-only result is never
+     * sufficient to close a revival-enabled game.
+     */
+    finalizeTimeoutRef.current =
+      async () => {
+        if (
+          disposed ||
+          !game.revivalPending ||
+          game.submitted ||
+          finalizePending ||
+          typeof onRevivalFinalize !== "function"
+        ) {
+          return;
+        }
+
+        finalizePending = true;
+
+        try {
+          const receipt =
+            await onRevivalFinalize({
+              gameKey: GAME_KEY,
+              reason: "timeout",
+              bestCombo: Math.max(
+                0,
+                Math.floor(game.bestCombo)
+              ),
+              score: Math.max(
+                0,
+                Math.floor(game.score)
+              ),
+              floor: game.floor,
+            });
+
+          if (
+            !receipt ||
+            receipt.session_status !== "finalized"
+          ) {
+            throw new Error(
+              "TOWER_FINALIZE_RECEIPT_INVALID"
+            );
+          }
+
+          if (disposed) return;
+
+          /*
+           * Backend has already accepted the
+           * final result. Do not invoke the
+           * legacy onGameOver submission again.
+           */
+          game.revivalPending = false;
+          game.ended = true;
+          game.started = false;
+          game.submitted = true;
+
+          showMessage("ĐÃ LƯU ĐIỂM", 1600);
+          syncUi(true);
+
+          await fetchLeaderboard();
+        } catch {
+          /*
+           * An ambiguous request may already
+           * have committed. Preserve the
+           * pending state and request identity.
+           */
+          if (!disposed) {
+            showMessage(
+              "CHƯA XÁC MINH ĐƯỢC KẾT QUẢ",
+              2000
+            );
+          }
+        } finally {
+          finalizePending = false;
+        }
+      };
 
     function collapseTower() {
       playSound("fall", 0.9);
@@ -729,25 +932,31 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     }
 
     let startPending = false;
+    let finalizePending = false;
     let roundAuthorizationId = 0;
+    let disposed = false;
 
     async function authorizeStartedRound(authorizationId) {
-      if (startPending) return;
-      startPending = true;
-
       try {
-        if (!onGameStart) return;
+        // Gameplay cannot run before paid-session authority.
+        if (typeof onGameStart !== "function") return;
 
         const allowed = await onGameStart();
 
-        // Bỏ qua response cũ nếu round đã thay đổi.
-        if (authorizationId !== roundAuthorizationId) return;
-
-        if (allowed === false) {
-          resetRoundOnly();
+        // Ignore authorization after unmount or round change.
+        if (disposed || authorizationId !== roundAuthorizationId) {
+          return;
         }
+
+        if (allowed !== true) return;
+
+        // Capture the actual start time AFTER authorization.
+        startRound(performance.now());
+      } catch {
+        // Game Center owns user-facing authorization errors.
+        // A failed request must never start gameplay.
       } finally {
-        if (authorizationId === roundAuthorizationId) {
+        if (!disposed && authorizationId === roundAuthorizationId) {
           startPending = false;
         }
       }
@@ -764,10 +973,13 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     }
 
     function startAuthorizedRound(now) {
+      if (disposed || startPending) return;
+
+      // Fence synchronously before the first await.
+      startPending = true;
       roundAuthorizationId += 1;
       const authorizationId = roundAuthorizationId;
 
-      startRound(now);
       void authorizeStartedRound(authorizationId);
     }
 
@@ -776,6 +988,7 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
       const now = performance.now();
 
       if (game.ended) {
+        if (game.revivalPending) return;
         if (startPending) return;
 
         resetRoundOnly();
@@ -1186,6 +1399,10 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
     rafRef.current = requestAnimationFrame(loop);
 
     return () => {
+      disposed = true;
+      revivalResumeRef.current = null;
+      finalizeTimeoutRef.current = null;
+      roundAuthorizationId += 1;
       cancelAnimationFrame(rafRef.current);
       canvas.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("visibilitychange", onVisibility);
@@ -1202,6 +1419,94 @@ export default function CingStackTower({ onExit, onGameOver, onRestart, onGameSt
         />
 
         <Hud ui={ui} />
+
+        {revivalMode && ui.revivalPending && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 45,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background:
+                "rgba(24, 12, 6, 0.72)",
+              padding: 24,
+            }}
+          >
+            <div
+              style={{
+                width: "min(360px, 100%)",
+                padding: 24,
+                borderRadius: 22,
+                background: "#fff3df",
+                border:
+                  "1px solid #d9a06a",
+                textAlign: "center",
+                color: "#2b160b",
+              }}
+            >
+              <h2
+                style={{
+                  fontSize: 24,
+                  fontWeight: 900,
+                  margin: "0 0 10px",
+                }}
+              >
+                Hết giờ!
+              </h2>
+
+              <p>
+                Thành tích của bạn đang
+                được giữ lại để hồi sinh.
+              </p>
+
+              <p
+                style={{
+                  fontWeight: 800,
+                }}
+              >
+                Hồi sinh thành công:
+                +30 giây
+              </p>
+
+              <p
+                style={{
+                  fontSize: 12,
+                  opacity: 0.75,
+                }}
+              >
+                Chỉ tiếp tục khi hệ thống
+                xác nhận giao dịch.
+              </p>
+
+              <button
+                type="button"
+                disabled={
+                  typeof onRevivalFinalize !==
+                  "function"
+                }
+                onClick={() =>
+                  finalizeTimeoutRef.current?.()
+                }
+                style={{
+                  width: "100%",
+                  padding: 12,
+                  border: 0,
+                  borderRadius: 12,
+                  background: "#2b160b",
+                  color: "white",
+                  fontWeight: 800,
+                }}
+              >
+                {typeof onRevivalFinalize ===
+                "function"
+                  ? "Kết thúc và lưu điểm"
+                  : "Đang chờ hệ thống xác minh"}
+              </button>
+            </div>
+          </div>
+        )}
 
         <canvas
           ref={canvasRef}
