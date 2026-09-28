@@ -13,6 +13,7 @@ import {
   createOfflineRevivalRequestId,
   startOfflineRevivalSession,
   recoverOfflineRevivalSession,
+  abandonOfflineRevivalSession,
   markOfflineRevivalPending,
   purchaseOfflineRevival,
   finalizeOfflineRevivalSession,
@@ -349,6 +350,8 @@ export default function CingOfflineRevivalGameV2({
               startOfflineRevivalSession,
             recoverSession:
               recoverOfflineRevivalSession,
+            abandonSession:
+              abandonOfflineRevivalSession,
           });
       }
 

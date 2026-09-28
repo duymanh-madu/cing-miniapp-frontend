@@ -229,6 +229,38 @@ startOfflineRevivalSession({
 }
 
 export function
+abandonOfflineRevivalSession({
+  sessionId,
+  requestId,
+  expectedEventSeq,
+}) {
+  const payload = {
+    request_id:
+      requireUuid(
+        requestId,
+        "request_id"
+      ),
+
+    expected_event_seq:
+      requireSequence(
+        expectedEventSeq,
+        0
+      ),
+  };
+
+  return post(
+    "/session/" +
+      requireUuid(
+        sessionId,
+        "session_id"
+      ) +
+      "/abandon",
+    payload
+  );
+}
+
+
+export function
 markOfflineRevivalPending({
   sessionId,
   requestId,

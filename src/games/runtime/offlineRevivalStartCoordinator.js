@@ -2,6 +2,7 @@ import {
   readOfflineRevivalStartIntent,
   ensureOfflineRevivalStartIntent,
   authorizeOfflineRevivalStartIntent,
+  clearOfflineRevivalStartIntent,
 } from "./offlineRevivalStartIntent.js";
 
 const UUID =
@@ -29,7 +30,16 @@ function validateSession(
     (
       result.game_key !== undefined &&
       result.game_key !== gameKey
-    )
+    ) ||
+    !Number.isInteger(
+      result.event_seq
+    ) ||
+    result.event_seq < 0 ||
+    !Number.isInteger(
+      result.revives_used
+    ) ||
+    result.revives_used < 0 ||
+    result.revives_used > 5
   ) {
     fail(
       "OFFLINE_REVIVAL_START_RESPONSE_INVALID",
@@ -40,21 +50,83 @@ function validateSession(
   return result;
 }
 
+function validateAbandon(
+  result,
+  sessionId,
+  expectedEventSeq
+) {
+  if (
+    !result ||
+    (
+      result.applied !== true &&
+      result.applied !== false
+    ) ||
+    result.session_id !==
+      sessionId ||
+    result.session_status !==
+      "abandoned" ||
+    result.event_seq !==
+      expectedEventSeq ||
+    !Number.isInteger(
+      result.revives_used
+    ) ||
+    result.revives_used < 0 ||
+    result.revives_used > 5 ||
+    typeof result.abandoned_at !==
+      "string" ||
+    !Number.isFinite(
+      Date.parse(
+        result.abandoned_at
+      )
+    )
+  ) {
+    fail(
+      "OFFLINE_REVIVAL_ABANDON_RESPONSE_INVALID",
+      "Không thể xác minh việc đóng phiên cũ"
+    );
+  }
+
+  return result;
+}
+
 /*
- * Dependency injection keeps this coordinator
- * independent of HTTP, React and Vite aliases.
+ * Free-start durable admission:
  *
- * The application supplies the authenticated
- * start and recovery API operations.
+ * start_pending + recovered active:
+ *   POST may have committed while its response
+ *   was lost. The game was never authorized
+ *   locally, so authorize the same session.
+ *
+ * authorized + active/revive_pending:
+ *   Gameplay was previously authorized but the
+ *   current canvas is gone. The runtime cannot
+ *   reconstruct that gameplay state or its
+ *   in-memory pending result. Close that exact
+ *   backend session through safe-abandon before
+ *   creating a fresh session.
+ *
+ * finalized/abandoned:
+ *   Backend terminal state is authoritative.
+ *   Clear the exact durable fence and start fresh.
+ *
+ * Ambiguous recovery/abandon:
+ *   Keep the local fence and fail closed.
  */
-export function createOfflineRevivalStartCoordinator({
+
+export function
+createOfflineRevivalStartCoordinator({
   storage,
   startSession,
   recoverSession,
+  abandonSession,
 }) {
   if (
-    typeof startSession !== "function" ||
-    typeof recoverSession !== "function"
+    typeof startSession !==
+      "function" ||
+    typeof recoverSession !==
+      "function" ||
+    typeof abandonSession !==
+      "function"
   ) {
     fail(
       "OFFLINE_REVIVAL_START_CONFIG_INVALID",
@@ -68,10 +140,6 @@ export function createOfflineRevivalStartCoordinator({
     userId,
     gameKey,
   }) {
-    /*
-     * Synchronous fence: two taps cannot
-     * launch two concurrent HTTP starts.
-     */
     if (busy) {
       return {
         status: "busy",
@@ -87,79 +155,152 @@ export function createOfflineRevivalStartCoordinator({
         storage,
       };
 
-      const previous =
+      let previous =
         readOfflineRevivalStartIntent(
           identity
         );
 
-      /*
-       * Canvas gameplay is not reconstructible
-       * from the session ID alone.
-       *
-       * Do not silently replay an already
-       * authorized session as a new round.
-       */
-      if (
-        previous?.status === "authorized"
-      ) {
-        return {
-          status: "existing_session",
-          request_id:
+      if (previous) {
+        let recovered = null;
+
+        try {
+          recovered =
+            await recoverSession({
+              requestId:
+                previous.request_id,
+            });
+        } catch (error) {
+          const definitiveMissing =
+            error?.response?.status ===
+              404 &&
+            error?.response?.data
+              ?.code ===
+              "REVIVAL_SESSION_NOT_FOUND";
+
+          if (!definitiveMissing) {
+            throw error;
+          }
+
+          /*
+           * If an authorized session is
+           * definitively absent on backend,
+           * its local fence is stale.
+           *
+           * A start_pending fence remains so
+           * its exact request ID can replay.
+           */
+          if (
+            previous.status ===
+              "authorized"
+          ) {
+            clearOfflineRevivalStartIntent({
+              ...identity,
+              requestId:
+                previous.request_id,
+            });
+
+            previous = null;
+          }
+        }
+
+        if (recovered) {
+          validateSession(
+            recovered,
             previous.request_id,
-          session_id:
-            previous.session_id,
-        };
+            gameKey
+          );
+
+          if (
+            previous.status ===
+              "start_pending" &&
+            recovered.session_status ===
+              "active"
+          ) {
+            const authorized =
+              authorizeOfflineRevivalStartIntent({
+                ...identity,
+                requestId:
+                  previous.request_id,
+                sessionId:
+                  recovered.session_id,
+              });
+
+            return {
+              status: "ready",
+              request_id:
+                authorized.request_id,
+              session_id:
+                authorized.session_id,
+              recovered: true,
+              session: {
+                ...recovered,
+                applied: true,
+              },
+            };
+          }
+
+          if (
+            recovered.session_status ===
+              "active" ||
+            recovered.session_status ===
+              "revive_pending"
+          ) {
+            const abandonment =
+              await abandonSession({
+                sessionId:
+                  recovered.session_id,
+                requestId:
+                  previous.request_id,
+                expectedEventSeq:
+                  recovered.event_seq,
+              });
+
+            validateAbandon(
+              abandonment,
+              recovered.session_id,
+              recovered.event_seq
+            );
+          } else if (
+            recovered.session_status !==
+              "finalized" &&
+            recovered.session_status !==
+              "abandoned"
+          ) {
+            fail(
+              "OFFLINE_REVIVAL_RECOVERY_STATE_INVALID",
+              "Trạng thái phiên cũ không hợp lệ"
+            );
+          }
+
+          clearOfflineRevivalStartIntent({
+            ...identity,
+            requestId:
+              previous.request_id,
+          });
+
+          previous = null;
+        }
       }
 
       /*
-       * ensure() durably writes request_id
-       * before any business POST can occur.
+       * If start_pending recovery produced a
+       * definitive 404, ensure() returns the
+       * SAME request ID.
+       *
+       * Otherwise this creates one new durable
+       * free-start request.
        */
       const intent =
         ensureOfflineRevivalStartIntent(
           identity
         );
 
-      let session = null;
-      let recovered = false;
-
-      if (previous) {
-        /*
-         * Recover an unresolved POST first.
-         *
-         * Only definitive NOT_FOUND permits
-         * retrying POST with the SAME ID.
-         *
-         * Network errors, 401 failures and
-         * unknown 404 responses propagate.
-         */
-        try {
-          session =
-            await recoverSession({
-              requestId:
-                intent.request_id,
-            });
-
-          recovered = true;
-        } catch (error) {
-          if (
-            error?.response?.status !== 404 ||
-            error?.response?.data?.code !==
-              "REVIVAL_SESSION_NOT_FOUND"
-          ) {
-            throw error;
-          }
-        }
-      }
-
-      if (!session && !recovered) {
-        session =
-          await startSession({
-            requestId:
-              intent.request_id,
-            gameKey,
-          });
-      }
+      const session =
+        await startSession({
+          requestId:
+            intent.request_id,
+          gameKey,
+        });
 
       validateSession(
         session,
@@ -167,17 +308,22 @@ export function createOfflineRevivalStartCoordinator({
         gameKey
       );
 
-      /*
-       * The paid-start RPC owns this flag:
-       *
-       * applied=true  => newly created paid session
-       * applied=false => durable replay / existing session
-       *
-       * GET recovery never grants new-play authority.
-       */
-      const isFreshPaidStart =
-        !recovered &&
-        session.applied === true;
+      if (
+        session.applied !== true ||
+        session.session_status !==
+          "active"
+      ) {
+        return {
+          status:
+            "existing_session",
+          request_id:
+            intent.request_id,
+          session_id:
+            session.session_id,
+          session_status:
+            session.session_status,
+        };
+      }
 
       const authorized =
         authorizeOfflineRevivalStartIntent({
@@ -188,32 +334,13 @@ export function createOfflineRevivalStartCoordinator({
             session.session_id,
         });
 
-      /*
-       * A previously persisted start may
-       * already have reached pending or
-       * finalized while the client was away.
-       */
-      if (
-        !isFreshPaidStart ||
-        session.session_status !== "active"
-      ) {
-        return {
-          status: "existing_session",
-          request_id:
-            authorized.request_id,
-          session_id:
-            authorized.session_id,
-          session_status:
-            session.session_status,
-        };
-      }
-
       return {
         status: "ready",
         request_id:
           authorized.request_id,
         session_id:
           authorized.session_id,
+        recovered: false,
         session,
       };
     } finally {
