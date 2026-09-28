@@ -13,9 +13,41 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
   const revivalResumeRef = useRef(null);
 
   useEffect(() => {
-    if (resumeToken > 0) {
-      revivalResumeRef.current?.();
-    }
+    if (resumeToken <= 0) return undefined;
+
+    let cancelled = false;
+    let frame = 0;
+    let attempts = 0;
+
+    const applyResume = () => {
+      if (cancelled) return;
+
+      const applied =
+        revivalResumeRef.current?.();
+
+      if (applied === true) {
+        return;
+      }
+
+      attempts += 1;
+
+      if (attempts < 12) {
+        frame =
+          requestAnimationFrame(
+            applyResume
+          );
+      }
+    };
+
+    applyResume();
+
+    return () => {
+      cancelled = true;
+
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
+    };
   }, [resumeToken]);
 
   useEffect(() => {
@@ -144,7 +176,13 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
     }
 
     function resumeRevivedGame() {
-      if (disposed || !revivalMode || !game.dead) return;
+      if (
+        disposed ||
+        !revivalMode ||
+        !game.dead
+      ) {
+        return false;
+      }
 
       // Continue the same authorized session.
       // Accumulated score, combo and challenge state survive.
@@ -165,6 +203,8 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
       accumulator = 0;
       lastTime = 0;
       setUiScore(game.score);
+
+      return true;
     }
 
     revivalResumeRef.current = resumeRevivedGame;
@@ -184,26 +224,39 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
     let disposed = false;
 
     async function authorizeStartedRound(authorizationId) {
+      /*
+       * FREE START V2
+       *
+       * Gameplay is no longer a paid admission.
+       * Start the canvas synchronously on the user's tap.
+       * PostgreSQL session preparation continues in background.
+       *
+       * Revive and finalize remain backend-authoritative.
+       */
+      if (
+        disposed ||
+        authorizationId !== roundAuthorizationId
+      ) {
+        return;
+      }
+
+      startRound();
+
       try {
-        // Gameplay cannot run before paid-session authority.
-        if (typeof onGameStart !== "function") return;
-
-        const allowed = await onGameStart();
-
-        // Ignore authorization after unmount or round change.
-        if (disposed || authorizationId !== roundAuthorizationId) {
-          return;
+        if (typeof onGameStart === "function") {
+          await onGameStart();
         }
-
-        if (allowed !== true) return;
-
-        // Capture the actual start time AFTER authorization.
-        startRound();
       } catch {
-        // Game Center owns user-facing authorization errors.
-        // A failed request must never start gameplay.
+        /*
+         * Free gameplay remains playable.
+         * If session preparation failed, later revive/finalize
+         * will fail closed through Game Center authority.
+         */
       } finally {
-        if (!disposed && authorizationId === roundAuthorizationId) {
+        if (
+          !disposed &&
+          authorizationId === roundAuthorizationId
+        ) {
           startPending = false;
         }
       }

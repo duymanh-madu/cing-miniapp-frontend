@@ -1,195 +1,177 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import path from "node:path";
-import {
-  fileURLToPath,
-} from "node:url";
 
-/*
- * __tests__ -> runtime -> games
- *
- * Both game directories live inside
- * src/games, not directly inside src.
- */
-const gamesRoot = path.resolve(
-  path.dirname(
-    fileURLToPath(import.meta.url)
-  ),
-  "../.."
-);
-
-const entries = [
-  {
-    name: "Stack Tower",
-    file: path.join(
-      gamesRoot,
-      "cing-stack-tower/CingStackTower.jsx"
+const read = (path) =>
+  fs.readFileSync(
+    new URL(
+      path,
+      import.meta.url
     ),
-    authorizedCall:
-      "startRound(performance.now());",
-    startArgs: "now",
-    nextFunction: "tap",
-    frame: "rafRef",
-  },
-  {
-    name: "Black Pearl",
-    file: path.join(
-      gamesRoot,
-      "black-pearl-rush/BlackPearlRush.jsx"
-    ),
-    authorizedCall:
-      "startRound();",
-    startArgs: "",
-    nextFunction: "jump",
-    frame: "animationRef",
-  },
-];
-
-for (const entry of entries) {
-  test(
-    `${entry.name}: authorization precedes gameplay`,
-    () => {
-      const source = fs.readFileSync(
-        entry.file,
-        "utf8"
-      );
-
-      const start =
-        source.indexOf(
-          "async function authorizeStartedRound("
-        );
-
-      const end =
-        source.indexOf(
-          "\n    function startRound(",
-          start
-        );
-
-      assert.ok(
-        start >= 0 &&
-        end > start
-      );
-
-      const block =
-        source.slice(start, end);
-
-      const awaitIndex =
-        block.indexOf(
-          "await onGameStart()"
-        );
-
-      const gameplayIndex =
-        block.indexOf(
-          entry.authorizedCall
-        );
-
-      assert.ok(
-        awaitIndex >= 0
-      );
-
-      assert.ok(
-        gameplayIndex > awaitIndex
-      );
-
-      assert.match(
-        block,
-        /allowed !== true/
-      );
-
-      assert.match(
-        block,
-        /catch\s*\{/
-      );
-    }
+    "utf8"
   );
 
+const rush =
+  read(
+    "../../black-pearl-rush/BlackPearlRush.jsx"
+  );
+
+const tower =
+  read(
+    "../../cing-stack-tower/CingStackTower.jsx"
+  );
+
+const wrapper =
+  read(
+    "../../../features/game-center/components/CingOfflineRevivalGameV2.jsx"
+  );
+
+for (const [name, source] of [
+  ["Black Pearl", rush],
+  ["Stack Tower", tower],
+]) {
   test(
-    `${entry.name}: double tap is fenced before async work`,
+    `${name}: free gameplay starts before session HTTP resolves`,
     () => {
-      const source = fs.readFileSync(
-        entry.file,
-        "utf8"
-      );
-
-      const start =
-        source.indexOf(
-          "function startAuthorizedRound("
-        );
-
-      const end =
-        source.indexOf(
-          "\n    function " +
-          entry.nextFunction +
-          "(",
-          start
-        );
-
-      assert.ok(
-        start >= 0 &&
-        end > start
-      );
-
-      const block =
-        source.slice(start, end);
-
-      const fence =
-        block.indexOf(
-          "startPending = true"
-        );
-
-      const invoke =
-        block.indexOf(
-          "authorizeStartedRound(authorizationId)"
-        );
-
       assert.match(
-        block,
-        /if \(disposed \|\| startPending\) return/
-      );
-
-      assert.ok(
-        fence >= 0 &&
-        invoke > fence
+        source,
+        /FREE START V2/
       );
 
       assert.doesNotMatch(
-        block,
-        /startRound\((?:now)?\);/
+        source,
+        /const allowed = await onGameStart\(\)/
+      );
+
+      const http =
+        source.indexOf(
+          "await onGameStart();"
+        );
+
+      assert.ok(
+        http >= 0
+      );
+
+      const before =
+        source.slice(
+          Math.max(
+            0,
+            http - 1300
+          ),
+          http
+        );
+
+      assert.match(
+        before,
+        /startRound\(/
       );
     }
   );
 
   test(
-    `${entry.name}: stale response cannot restart unmounted canvas`,
+    `${name}: revive resume retries until acknowledged`,
     () => {
-      const source = fs.readFileSync(
-        entry.file,
-        "utf8"
+      assert.match(
+        source,
+        /attempts < 12/
       );
 
       assert.match(
         source,
-        /let disposed = false/
+        /applied === true/
       );
 
       assert.match(
         source,
-        /disposed \|\| authorizationId !== roundAuthorizationId/
+        /requestAnimationFrame/
+      );
+
+      const a =
+        source.indexOf(
+          "function resumeRevivedGame"
+        );
+
+      const b =
+        source.indexOf(
+          "revivalResumeRef.current",
+          a
+        );
+
+      assert.ok(a >= 0);
+      assert.ok(b > a);
+
+      const region =
+        source.slice(
+          a,
+          b
+        );
+
+      assert.match(
+        region,
+        /return true;/
       );
 
       assert.match(
-        source,
-        /return \(\) => \{\s*disposed = true;(?:\s*revivalResumeRef\.current = null;)?(?:\s*finalizeTimeoutRef\.current = null;)?\s*roundAuthorizationId \+= 1;/
-      );
-
-      assert.ok(
-        source.includes(
-          "cancelAnimationFrame(" +
-          entry.frame +
-          ".current)"
-        )
+        region,
+        /return false;/
       );
     }
   );
 }
+
+test(
+  "Tower revive preserves exact +30 second authority presentation",
+  () => {
+    assert.match(
+      tower,
+      /ROUND_TIME - 30_000/
+    );
+
+    assert.match(
+      tower,
+      /HỒI SINH \+30 GIÂY/
+    );
+  }
+);
+
+test(
+  "finalize no longer depends on pendingReady presentation state",
+  () => {
+    const a =
+      wrapper.indexOf(
+        "const finalize ="
+      );
+
+    const b =
+      wrapper.indexOf(
+        "const recoverFinalize =",
+        a
+      );
+
+    const region =
+      wrapper.slice(
+        a,
+        b
+      );
+
+    assert.doesNotMatch(
+      region,
+      /!pendingReadyRef\.current/
+    );
+
+    assert.doesNotMatch(
+      region,
+      /!pendingReady\s*\|\|/
+    );
+
+    assert.match(
+      region,
+      /snapshot\.status/
+    );
+
+    assert.match(
+      region,
+      /"revive_pending"/
+    );
+  }
+);

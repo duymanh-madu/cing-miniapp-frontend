@@ -762,7 +762,6 @@ export default function CingOfflineRevivalGameV2({
       if (
         !session ||
         !coordinator ||
-        !pendingReadyRef.current ||
         reviveUnknownRef.current ||
         mutationBusyRef.current
       ) {
@@ -1203,7 +1202,7 @@ export default function CingOfflineRevivalGameV2({
               type="button"
               disabled={
                 busy ||
-                !pendingReady ||
+                status !== "pending" ||
                 reviveUnknownRef.current ||
                 !pendingResultRef.current
               }

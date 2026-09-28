@@ -33,9 +33,41 @@ export default function CingStackTower({
   });
 
   useEffect(() => {
-    if (resumeToken > 0) {
-      revivalResumeRef.current?.();
-    }
+    if (resumeToken <= 0) return undefined;
+
+    let cancelled = false;
+    let frame = 0;
+    let attempts = 0;
+
+    const applyResume = () => {
+      if (cancelled) return;
+
+      const applied =
+        revivalResumeRef.current?.();
+
+      if (applied === true) {
+        return;
+      }
+
+      attempts += 1;
+
+      if (attempts < 12) {
+        frame =
+          requestAnimationFrame(
+            applyResume
+          );
+      }
+    };
+
+    applyResume();
+
+    return () => {
+      cancelled = true;
+
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
+    };
   }, [resumeToken]);
 
   useEffect(() => {
@@ -723,7 +755,7 @@ export default function CingStackTower({
         !game.revivalPending ||
         game.submitted
       ) {
-        return;
+        return false;
       }
 
       const now = performance.now();
@@ -751,6 +783,8 @@ export default function CingStackTower({
       }
 
       syncUi(true);
+
+      return true;
     }
 
     revivalResumeRef.current =
@@ -937,26 +971,36 @@ export default function CingStackTower({
     let disposed = false;
 
     async function authorizeStartedRound(authorizationId) {
+      /*
+       * FREE START V2
+       *
+       * Gameplay is free admission.
+       * Start immediately on tap; durable session authority
+       * continues in background.
+       */
+      if (
+        disposed ||
+        authorizationId !== roundAuthorizationId
+      ) {
+        return;
+      }
+
+      startRound(performance.now());
+
       try {
-        // Gameplay cannot run before paid-session authority.
-        if (typeof onGameStart !== "function") return;
-
-        const allowed = await onGameStart();
-
-        // Ignore authorization after unmount or round change.
-        if (disposed || authorizationId !== roundAuthorizationId) {
-          return;
+        if (typeof onGameStart === "function") {
+          await onGameStart();
         }
-
-        if (allowed !== true) return;
-
-        // Capture the actual start time AFTER authorization.
-        startRound(performance.now());
       } catch {
-        // Game Center owns user-facing authorization errors.
-        // A failed request must never start gameplay.
+        /*
+         * Free gameplay remains active.
+         * Revive/finalize still require backend authority.
+         */
       } finally {
-        if (!disposed && authorizationId === roundAuthorizationId) {
+        if (
+          !disposed &&
+          authorizationId === roundAuthorizationId
+        ) {
           startPending = false;
         }
       }
