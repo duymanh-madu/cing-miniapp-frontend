@@ -52,6 +52,45 @@ function fail(message) {
   throw new Error(message);
 }
 
+const REVIVAL_PRIMARY_ACTION_STYLE =
+  Object.freeze({
+    display: "block",
+    width: "100%",
+    minHeight: 48,
+    marginTop: 12,
+    padding: "12px 16px",
+    border: "none",
+    borderRadius: 14,
+    background:
+      "linear-gradient(135deg,#d4531c,#ff7a32)",
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: 900,
+    lineHeight: 1.25,
+    textAlign: "center",
+    appearance: "none",
+    WebkitAppearance: "none",
+  });
+
+const REVIVAL_SECONDARY_ACTION_STYLE =
+  Object.freeze({
+    display: "block",
+    width: "100%",
+    minHeight: 44,
+    marginTop: 10,
+    padding: "10px 14px",
+    border: "1px solid rgba(74,37,19,.22)",
+    borderRadius: 13,
+    background: "#fffaf3",
+    color: "#4a2513",
+    fontSize: 14,
+    fontWeight: 850,
+    lineHeight: 1.25,
+    textAlign: "center",
+    appearance: "none",
+    WebkitAppearance: "none",
+  });
+
 function phoneOf(value) {
   const digits = String(value || "")
     .replace(/\D/g, "")
@@ -255,6 +294,8 @@ export default function CingOfflineRevivalGameV2({
   const mutationBusyRef = useRef(false);
   const reviveUnknownRef = useRef(false);
   const pendingReadyRef = useRef(false);
+  const [pendingReady, setPendingReady] =
+    useState(false);
   const pendingResultRef = useRef(null);
   const finalizeUnknownRef = useRef(false);
 
@@ -422,6 +463,8 @@ export default function CingOfflineRevivalGameV2({
         coordinator;
 
       pendingReadyRef.current = false;
+
+      setPendingReady(false);
       pendingResultRef.current = null;
       reviveUnknownRef.current = false;
       finalizeUnknownRef.current = false;
@@ -502,6 +545,8 @@ export default function CingOfflineRevivalGameV2({
       }
 
       pendingReadyRef.current = false;
+
+      setPendingReady(false);
       setStatus("pending");
       setMessage("");
 
@@ -522,6 +567,8 @@ export default function CingOfflineRevivalGameV2({
         }
 
         pendingReadyRef.current = true;
+
+        setPendingReady(true);
 
         setRevivesUsed(
           result.state.revives_used
@@ -564,6 +611,7 @@ export default function CingOfflineRevivalGameV2({
         "revive_pending"
       ) {
         pendingReadyRef.current = true;
+        setPendingReady(true);
         setMessage("");
         return;
       }
@@ -640,6 +688,8 @@ export default function CingOfflineRevivalGameV2({
         }
 
         pendingReadyRef.current = false;
+
+        setPendingReady(false);
         pendingResultRef.current = null;
         reviveUnknownRef.current = false;
 
@@ -776,6 +826,7 @@ export default function CingOfflineRevivalGameV2({
         sessionRef.current = null;
         coordinatorRef.current = null;
         pendingReadyRef.current = false;
+        setPendingReady(false);
         pendingResultRef.current = null;
         finalizeUnknownRef.current = false;
 
@@ -906,7 +957,7 @@ export default function CingOfflineRevivalGameV2({
 
   const canRevive =
     status === "pending" &&
-    pendingReadyRef.current &&
+    pendingReady &&
     !reviveUnknownRef.current &&
     !finalizeUnknownRef.current &&
     nextCost !== null &&
@@ -1028,7 +1079,7 @@ export default function CingOfflineRevivalGameV2({
               {gameKey ===
               "cing-stack-tower"
                 ? "Hết giờ!"
-                : "Cing iu cần hồi sinh!"}
+                : "Cần hồi sinh để tiếp tục!"}
             </h2>
 
             <p>
@@ -1053,11 +1104,12 @@ export default function CingOfflineRevivalGameV2({
               </p>
             )}
 
-            {!pendingReadyRef.current && (
+            {!pendingReady && (
               <button
                 type="button"
                 disabled={busy}
                 onClick={retryPending}
+                style={REVIVAL_SECONDARY_ACTION_STYLE}
               >
                 Xác minh phiên
               </button>
@@ -1067,6 +1119,10 @@ export default function CingOfflineRevivalGameV2({
               type="button"
               disabled={!canRevive}
               onClick={() => revive(false)}
+              style={{
+                ...REVIVAL_PRIMARY_ACTION_STYLE,
+                opacity: canRevive ? 1 : 0.48,
+              }}
             >
               {busy
                 ? "Đang xác minh..."
@@ -1079,6 +1135,7 @@ export default function CingOfflineRevivalGameV2({
                 type="button"
                 disabled={busy}
                 onClick={() => revive(true)}
+                style={REVIVAL_SECONDARY_ACTION_STYLE}
               >
                 Xác minh giao dịch hồi sinh cũ
               </button>
@@ -1087,7 +1144,7 @@ export default function CingOfflineRevivalGameV2({
             {creditBalance !== null &&
               nextCost !== null &&
               creditBalance < nextCost &&
-              pendingReadyRef.current &&
+              pendingReady &&
               !reviveUnknownRef.current &&
               !finalizeUnknownRef.current && (
               <ReviveCreditPurchaseV2
@@ -1119,10 +1176,11 @@ export default function CingOfflineRevivalGameV2({
               type="button"
               disabled={
                 busy ||
-                !pendingReadyRef.current ||
+                !pendingReady ||
                 reviveUnknownRef.current ||
                 !pendingResultRef.current
               }
+              style={REVIVAL_SECONDARY_ACTION_STYLE}
               onClick={() => {
                 const result =
                   pendingResultRef.current;

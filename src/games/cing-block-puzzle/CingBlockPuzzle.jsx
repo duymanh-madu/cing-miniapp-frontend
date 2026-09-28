@@ -2484,7 +2484,7 @@ CingBlockPuzzle({
                   : phase ===
                     PHASE.START_ERROR
                     ? "Thử lại"
-                    : "Bắt đầu · 1 lượt"}
+                    : "Bắt đầu miễn phí"}
               </button>
             </div>
           ) : (
@@ -2827,7 +2827,7 @@ CingBlockPuzzle({
                     fontSize: 13,
                   }}
                 >
-                  Bạn có thể mua thêm mạng và
+                  Bạn có thể dùng Revive Credit để hồi sinh và
                   giữ nguyên điểm, bàn chơi và combo.
                 </p>
 
@@ -2874,7 +2874,7 @@ CingBlockPuzzle({
                 >
                   {phase ===
                   PHASE.CONTINUE_PURCHASING
-                    ? "Đang mua mạng..."
+                    ? "Đang hồi sinh..."
                     : runtime?.session &&
                         getBlockPuzzleMaxContinues(
                           runtime.session
@@ -2927,7 +2927,13 @@ CingBlockPuzzle({
                   Đã dùng {
                     runtime?.state
                       ?.continuesUsed ?? 0
-                  } / 3 mạng
+                  } / {
+                    runtime?.session
+                      ? getBlockPuzzleMaxContinues(
+                          runtime.session
+                        )
+                      : 0
+                  } lần hồi sinh
                 </div>
               </div>
             </div>
