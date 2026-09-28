@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -339,10 +340,13 @@ export default function CingOfflineRevivalGameV2({
     }, []);
 
   const start = useCallback(async () => {
+    if (sessionRef.current) {
+      return true;
+    }
+
     if (
       startBusyRef.current ||
-      mutationBusyRef.current ||
-      sessionRef.current
+      mutationBusyRef.current
     ) {
       return false;
     }
@@ -486,6 +490,29 @@ export default function CingOfflineRevivalGameV2({
       startBusyRef.current = false;
     }
   }, [gameKey, refreshBalance]);
+
+  /*
+   * CING FREE START PREWARM
+   */
+  useEffect(() => {
+    const timer =
+      window.setTimeout(() => {
+        if (
+          sessionRef.current ||
+          startBusyRef.current ||
+          mutationBusyRef.current
+        ) {
+          return;
+        }
+
+        void start();
+      }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [start]);
+
 
   const pending = useCallback(
     async ({
