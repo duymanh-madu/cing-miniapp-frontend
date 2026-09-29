@@ -306,6 +306,12 @@ export default function CingOfflineRevivalGameV2({
   const [resumeToken, setResumeToken] =
     useState(0);
 
+  const [roundKey, setRoundKey] =
+    useState(0);
+
+  const [finalResult, setFinalResult] =
+    useState(null);
+
   const [creditBalance, setCreditBalance] =
     useState(null);
 
@@ -857,6 +863,30 @@ export default function CingOfflineRevivalGameV2({
         pendingResultRef.current = null;
         finalizeUnknownRef.current = false;
 
+        setFinalResult({
+          score:
+            Math.max(
+              0,
+              Number(intent.score) || 0
+            ),
+
+          bestCombo:
+            Math.max(
+              0,
+              Number(intent.best_combo) || 0
+            ),
+
+          revivesUsed:
+            Math.max(
+              0,
+              Number(
+                coordinatorRef.current
+                  ?.snapshot?.()
+                  ?.revives_used
+              ) || 0
+            ),
+        });
+
         setStatus("finalized");
         setMessage("Đã lưu kết quả thành công.");
 
@@ -977,6 +1007,52 @@ export default function CingOfflineRevivalGameV2({
       }
     }, [gameKey]);
 
+  const playAnotherRound =
+    useCallback(() => {
+      if (
+        busy ||
+        status !== "finalized"
+      ) {
+        return;
+      }
+
+      /*
+       * The previous authoritative session has
+       * already been finalized.
+       *
+       * This resets LOCAL round state only.
+       * The next tap creates/attaches a brand-new
+       * free backend session.
+       */
+      sessionRef.current = null;
+      coordinatorRef.current = null;
+
+      startBusyRef.current = false;
+      mutationBusyRef.current = false;
+
+      pendingReadyRef.current = false;
+      pendingResultRef.current = null;
+
+      reviveUnknownRef.current = false;
+      finalizeUnknownRef.current = false;
+
+      setPendingReady(false);
+      setRevivesUsed(0);
+      setResumeToken(0);
+
+      setFinalResult(null);
+      setMessage("");
+      setBusy(false);
+      setStatus("idle");
+
+      setRoundKey(
+        current => current + 1
+      );
+    }, [
+      busy,
+      status,
+    ]);
+
   const nextCost =
     revivesUsed < 5
       ? 2 ** revivesUsed
@@ -995,6 +1071,7 @@ export default function CingOfflineRevivalGameV2({
   return (
     <>
       <GameComp
+        key={`${gameKey}:${roundKey}`}
         onExit={() => {
           if (
             sessionRef.current &&
@@ -1245,20 +1322,222 @@ export default function CingOfflineRevivalGameV2({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "#170d08",
+            padding:
+              "max(20px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom))",
+            background:
+              "linear-gradient(180deg, rgba(66,34,17,.58), rgba(44,22,11,.72))",
+            backdropFilter:
+              "blur(8px)",
+            WebkitBackdropFilter:
+              "blur(8px)",
           }}
         >
-          <button
-            type="button"
-            onClick={() => onExit?.()}
+          <div
+            style={{
+              width: "min(400px, 100%)",
+              padding: "26px 20px 20px",
+              borderRadius: 28,
+              background:
+                "linear-gradient(180deg,#fffaf2 0%,#ffeed8 100%)",
+              border:
+                "1px solid rgba(124,67,33,.14)",
+              boxShadow:
+                "0 28px 90px rgba(31,14,6,.32)",
+              color: "#35190d",
+              textAlign: "center",
+            }}
           >
-            Đã lưu kết quả · Về Game Center
-          </button>
+            <div
+              style={{
+                width: 62,
+                height: 62,
+                margin: "0 auto 13px",
+                borderRadius: "50%",
+                display: "grid",
+                placeItems: "center",
+                background:
+                  "linear-gradient(135deg,#ffb43c,#f56526)",
+                color: "#fff",
+                fontSize: 30,
+                fontWeight: 950,
+                boxShadow:
+                  "0 12px 30px rgba(224,92,29,.27)",
+              }}
+            >
+              ✓
+            </div>
+
+            <div
+              style={{
+                color: "#a3582d",
+                fontSize: 12,
+                fontWeight: 950,
+                letterSpacing: ".09em",
+                textTransform: "uppercase",
+              }}
+            >
+              Thành tích đã lưu
+            </div>
+
+            <h2
+              style={{
+                margin: "7px 0 5px",
+                fontSize: 27,
+                lineHeight: 1.12,
+                fontWeight: 950,
+              }}
+            >
+              {gameKey === "cing-stack-tower"
+                ? "Xếp Tháp Cing"
+                : "Bay cùng trân châu"}
+            </h2>
+
+            <div
+              style={{
+                marginBottom: 18,
+                color: "#7d553c",
+                fontSize: 14,
+                lineHeight: 1.45,
+              }}
+            >
+              Chơi tiếp để nâng thành tích
+              bảng xếp hạng
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(3,minmax(0,1fr))",
+                gap: 9,
+                marginBottom: 19,
+              }}
+            >
+              {[
+                [
+                  "ĐIỂM",
+                  finalResult?.score ?? 0,
+                ],
+                [
+                  "COMBO",
+                  finalResult?.bestCombo ?? 0,
+                ],
+                [
+                  "HỒI SINH",
+                  finalResult?.revivesUsed ?? 0,
+                ],
+              ].map(
+                ([label, value]) => (
+                  <div
+                    key={label}
+                    style={{
+                      padding:
+                        "13px 6px 12px",
+                      borderRadius: 16,
+                      background:
+                        "rgba(255,255,255,.72)",
+                      border:
+                        "1px solid rgba(115,61,31,.08)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        color: "#9a6849",
+                        fontSize: 10,
+                        fontWeight: 900,
+                        letterSpacing:
+                          ".06em",
+                      }}
+                    >
+                      {label}
+                    </div>
+
+                    <div
+                      style={{
+                        marginTop: 3,
+                        fontSize: 21,
+                        fontWeight: 950,
+                      }}
+                    >
+                      {value}
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={playAnotherRound}
+              style={{
+                width: "100%",
+                minHeight: 55,
+                border: 0,
+                borderRadius: 17,
+                background:
+                  "linear-gradient(135deg,#df4e19,#ff7b32)",
+                color: "#fff",
+                fontSize: 17,
+                fontWeight: 950,
+                boxShadow:
+                  "0 12px 28px rgba(211,73,21,.24)",
+              }}
+            >
+              Chơi ván mới
+            </button>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "1fr 1fr",
+                gap: 10,
+                marginTop: 10,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() =>
+                  onShowLeaderboard?.()
+                }
+                style={{
+                  minHeight: 46,
+                  borderRadius: 15,
+                  border:
+                    "1px solid rgba(88,45,25,.14)",
+                  background: "#fffaf3",
+                  color: "#4b2817",
+                  fontWeight: 850,
+                }}
+              >
+                🏆 Bảng xếp hạng
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  onExit?.()
+                }
+                style={{
+                  minHeight: 46,
+                  borderRadius: 15,
+                  border:
+                    "1px solid rgba(88,45,25,.14)",
+                  background: "#fffaf3",
+                  color: "#4b2817",
+                  fontWeight: 850,
+                }}
+              >
+                Game Center
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
       {message &&
-        status !== "pending" && (
+        status !== "pending" &&
+        status !== "finalized" && (
         <div
           role="alert"
           style={{
