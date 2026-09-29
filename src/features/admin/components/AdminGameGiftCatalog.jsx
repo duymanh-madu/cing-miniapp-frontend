@@ -153,7 +153,7 @@ function validateDraft(draft) {
       draft.charm_award
     )
   ) {
-    return "Charm phải là số nguyên dương.";
+    return "Điểm quyến rũ phải là số nguyên dương.";
   }
 
   const charm =
@@ -164,7 +164,7 @@ function validateDraft(draft) {
   if (
     charm > MAX_POINTS
   ) {
-    return "Charm vượt giới hạn cho phép.";
+    return "Điểm quyến rũ vượt giới hạn cho phép.";
   }
 
   return "";
@@ -465,7 +465,7 @@ export default function AdminGameGiftCatalog({
 
           <p>
             Quản lý vật phẩm tặng,
-            giá VND, điểm quy đổi và Charm.
+            giá VND, điểm quy đổi và Điểm quyến rũ.
           </p>
         </div>
 
@@ -649,7 +649,7 @@ export default function AdminGameGiftCatalog({
               />
 
               <Field
-                label="Charm thưởng"
+                label="Điểm quyến rũ thưởng"
                 value={draft.charm_award}
                 onChange={value =>
                   edit(
@@ -733,9 +733,9 @@ export default function AdminGameGiftCatalog({
             </button>
 
             <p className="cing-gift-admin-footnote">
-              Giá và Charm do PostgreSQL
+              Giá và Điểm quyến rũ do PostgreSQL
               kiểm tra; frontend không tự sửa
-              số dư Wallet, điểm hay Charm.
+              số dư Wallet, điểm hay Điểm quyến rũ.
             </p>
           </div>
         </div>

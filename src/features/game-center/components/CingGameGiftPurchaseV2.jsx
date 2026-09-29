@@ -14,6 +14,7 @@ import {
 
 import {
   normalizeGiftPhone,
+  normalizeGiftMessage,
   secureGiftRequestId,
   validateGiftCatalog,
   validateGiftReceipt,
@@ -115,6 +116,11 @@ CingGameGiftPurchaseV2({
 
   const [funding, setFunding] =
     useState("wallet");
+
+  const [
+    senderMessage,
+    setSenderMessage,
+  ] = useState("");
 
   const [confirming, setConfirming] =
     useState(false);
@@ -283,6 +289,7 @@ CingGameGiftPurchaseV2({
             setReceipt(null);
             setConfirming(false);
             setGiftId("");
+            setSenderMessage("");
             setError("");
             setBusy(false);
           }
@@ -311,6 +318,7 @@ CingGameGiftPurchaseV2({
 
     setCatalog([]);
     setGiftId("");
+    setSenderMessage("");
     setReceipt(null);
     setConfirming(false);
     setPending(null);
@@ -356,6 +364,11 @@ CingGameGiftPurchaseV2({
 
           setFunding(
             unresolved.funding
+          );
+
+          setSenderMessage(
+            unresolved.senderMessage ||
+              ""
           );
         } else {
           setError(
@@ -459,7 +472,11 @@ CingGameGiftPurchaseV2({
         pending.giftId !==
           selected.id ||
         pending.funding !==
-          funding
+          funding ||
+        pending.senderMessage !==
+          normalizeGiftMessage(
+            senderMessage
+          )
       )
     ) {
       setError(
@@ -484,6 +501,10 @@ CingGameGiftPurchaseV2({
           giftId:
             selected.id,
           funding,
+          senderMessage:
+            normalizeGiftMessage(
+              senderMessage
+            ),
           requestId:
             secureGiftRequestId(),
         };
@@ -507,6 +528,8 @@ CingGameGiftPurchaseV2({
               intent.giftId,
             request_id:
               intent.requestId,
+            sender_message:
+              intent.senderMessage,
           }
         );
 
@@ -609,6 +632,90 @@ CingGameGiftPurchaseV2({
           }
         </p>
 
+        {!receipt && (
+          <div
+            style={{
+              margin:
+                "0 0 16px",
+            }}
+          >
+            <label
+              htmlFor="cing-gift-message"
+              style={{
+                display: "block",
+                fontSize: 12,
+                fontWeight: 800,
+                color: "#ffd69b",
+                marginBottom: 7,
+              }}
+            >
+              Lời nhắn cho người nhận
+            </label>
+
+            <textarea
+              id="cing-gift-message"
+              value={senderMessage}
+              disabled={
+                busy ||
+                Boolean(pending)
+              }
+              maxLength={200}
+              rows={3}
+              placeholder="Ví dụ: Chúc Cing iu một ngày thật vui ✨"
+              onChange={event => {
+                setSenderMessage(
+                  event.target.value
+                );
+                setConfirming(false);
+              }}
+              style={{
+                width: "100%",
+                resize: "vertical",
+                minHeight: 76,
+                borderRadius: 13,
+                border:
+                  "1px solid rgba(255,176,92,.35)",
+                background:
+                  "rgba(255,255,255,.055)",
+                color: "#fff5e7",
+                padding: "11px 12px",
+                fontSize: 14,
+                lineHeight: 1.45,
+                boxSizing: "border-box",
+                outline: "none",
+              }}
+            />
+
+            <div
+              style={{
+                marginTop: 5,
+                textAlign: "right",
+                color: "#9e8777",
+                fontSize: 11,
+              }}
+            >
+              {
+                Array.from(
+                  senderMessage
+                ).length
+              }/200 ký tự
+            </div>
+
+            {pending && (
+              <p
+                style={{
+                  margin:
+                    "6px 0 0",
+                  color: "#c7ac98",
+                  fontSize: 11,
+                }}
+              >
+                Lời nhắn đã được khóa theo mã giao dịch đang chờ xác minh.
+              </p>
+            )}
+          </div>
+        )}
+
         {error && (
           <p
             role="alert"
@@ -658,8 +765,22 @@ CingGameGiftPurchaseV2({
               +{
                 receipt.charm_awarded
               }{" "}
-              Charm cho người nhận
+              Điểm quyến rũ cho người nhận
             </p>
+
+            {receipt.sender_message && (
+              <p
+                style={{
+                  padding: "10px 12px",
+                  borderRadius: 12,
+                  background:
+                    "rgba(255,255,255,.055)",
+                  color: "#ffe4bf",
+                }}
+              >
+                💌 {receipt.sender_message}
+              </p>
+            )}
 
             <p>
               Giá: {

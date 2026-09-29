@@ -14,6 +14,9 @@ const GIFT_ID =
 const MAX_POINTS =
   2147483647n;
 
+const MAX_MESSAGE_CHARS =
+  200;
+
 export function normalizeGiftPhone(value) {
   const digits =
     String(value || "")
@@ -29,6 +32,41 @@ export function normalizeGiftPhone(value) {
   return /^0[0-9]{9}$/.test(digits)
     ? digits
     : "";
+}
+
+export function normalizeGiftMessage(
+  value
+) {
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return null;
+  }
+
+  if (typeof value !== "string") {
+    throw new Error(
+      "Lời nhắn không hợp lệ."
+    );
+  }
+
+  const normalized =
+    value.trim();
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (
+    Array.from(normalized).length >
+      MAX_MESSAGE_CHARS
+  ) {
+    throw new Error(
+      `Lời nhắn tối đa ${MAX_MESSAGE_CHARS} ký tự.`
+    );
+  }
+
+  return normalized;
 }
 
 export function secureGiftRequestId() {
@@ -199,7 +237,10 @@ export function validateGiftReceipt(
     receipt.gift_id !==
       expected.giftId ||
     receipt.funding_source !==
-      expected.funding
+      expected.funding ||
+    normalizeGiftMessage(
+      receipt.sender_message
+    ) !== expected.senderMessage
   ) {
     throw new Error(
       "Biên nhận Gift không khớp giao dịch."
@@ -326,6 +367,10 @@ export function validateStoredGiftIntent(
     recipient: value.recipient,
     giftId: value.giftId,
     funding: value.funding,
+    senderMessage:
+      normalizeGiftMessage(
+        value.senderMessage
+      ),
     requestId:
       value.requestId.toLowerCase(),
   };
