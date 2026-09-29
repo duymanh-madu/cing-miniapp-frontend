@@ -574,7 +574,7 @@ export default function GameCenterPage() {
                     {m.label}
                   </p>
                   <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:0 }}>
-                    Phần thưởng: +{Number(m.revive_credits ?? m.plays ?? 0)} Revive Credit{m.points > 0 ? ` · +${m.points} điểm` : ""}
+                    Phần thưởng: +{Number(m.revive_credits ?? m.plays ?? 0)} Thẻ hồi sinh{m.points > 0 ? ` · +${m.points} điểm` : ""}
                   </p>
                 </div>
                 {m.completed ? (
@@ -590,7 +590,7 @@ export default function GameCenterPage() {
                         showToast(
                           `✅ Điểm danh thành công! +${Number(
                             m.revive_credits ?? m.plays ?? 0
-                          )} Revive Credit`
+                          )} Thẻ hồi sinh`
                         );
                       } else showToast(res.data?.message || "Đã điểm danh hôm nay rồi!");
                     } catch(e) { showToast("Lỗi điểm danh"); }

@@ -6,6 +6,7 @@ import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCusto
 import apiClient from "@/infra/api/apiClient";
 import { useMembership } from "@/features/home/hooks/useMembership";
 import { TierBadge } from "@/membership/components/TierBadge";
+import RevivePassIcon from "@/features/game-center/components/RevivePassIcon";
 import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
 injectTierBadgeStyles();
 
@@ -17,7 +18,7 @@ const MENU_ITEMS = [
   { icon:"📦", label:"Lịch sử đơn hàng",  path:"/orders",      desc:"Xem các đơn đã hoàn thành" },
   { icon:"🎟", label:"Voucher của tôi",    path:"/voucher",     desc:"Ưu đãi và mã giảm giá" },
   { icon:"⭐", label:"Điểm tích lũy",      path:"/loyalty",     desc:"Xem điểm và đổi quà" },
-  { icon:"✨", label:"Revive Credit",      path:"/game-plays",  desc:"Số dư và lịch sử Revive Credit" },
+  { icon:"revive-pass", label:"Thẻ hồi sinh", path:"/game-plays", desc:"Số dư và lịch sử Thẻ hồi sinh" },
   { icon:"💎", label:"Store Danh Hiệu", path:"/badge-store", desc:"Khám phá tất cả danh hiệu" },
   { icon:"👑", label:"Đại Sảnh Danh Vọng", path:"/leaderboard", desc:"Bảng xếp hạng khách hàng" },
   { icon:"💬", label:"Chat với admin",     path:null,           desc:"Nhắn tin hỗ trợ trực tiếp", action:"chat_admin" },
@@ -418,7 +419,7 @@ export default function AccountPage() {
                 cursor: (item.path || item.action) ? "pointer" : "default" }}>
               <div style={{ width:44, height:44, borderRadius:14, flexShrink:0,
                 background: item.action === "chat_admin" ? "#e8f5e9" : "#f5f5f5",
-                display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>{item.icon}</div>
+                display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>{item.icon === "revive-pass" ? <RevivePassIcon size={24} /> : item.icon}</div>
               <div style={{ flex:1 }}>
                 <p style={{ fontSize:14, fontWeight:700, color:"#1a1a1a", margin:"0 0 2px" }}>{item.label}</p>
                 <p style={{ fontSize:11, color:"#999", margin:0 }}>{item.desc}</p>

@@ -2877,7 +2877,7 @@ CingBlockPuzzle({
                     fontSize: 13,
                   }}
                 >
-                  Bạn có thể dùng Revive Credit để hồi sinh và
+                  Bạn có thể dùng Thẻ hồi sinh để tiếp tục và
                   giữ nguyên điểm, bàn chơi và combo.
                 </p>
 
@@ -2934,7 +2934,7 @@ CingBlockPuzzle({
                             runtime?.state
                               ?.continuesUsed ?? 0
                           ]
-                        } Revive Credit`
+                        } Thẻ hồi sinh`
                       : `Chơi tiếp — ${
                           [5, 10, 20][
                             runtime?.state

@@ -18,6 +18,9 @@ import {
 import useAuthStore from
   "@/stores/auth/authStore";
 
+import RevivePassIcon from
+  "@/features/game-center/components/RevivePassIcon";
+
 const fmtDate = value =>
   new Date(value).toLocaleString(
     "vi-VN",
@@ -125,15 +128,15 @@ function transactionPresentation(item) {
       label:
         game
           ? `Hồi sinh · ${game}`
-          : "Dùng Revive Credit",
+          : "Dùng Thẻ hồi sinh",
     };
   }
 
   return {
-    icon: "✨",
+    icon: "revive-pass",
     label:
       reason ||
-      "Nhận Revive Credit",
+      "Nhận Thẻ hồi sinh",
   };
 }
 
@@ -244,7 +247,7 @@ export default function GamePlaysHistoryPage() {
       .catch(() => {
         if (active) {
           setError(
-            "Chưa tải được thông tin Revive Credit."
+            "Chưa tải được thông tin Thẻ hồi sinh."
           );
         }
       })
@@ -330,7 +333,7 @@ export default function GamePlaysHistoryPage() {
               fontWeight: 950,
             }}
           >
-            ✨ Revive Credit
+            <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}><RevivePassIcon size={30} /><span>Thẻ hồi sinh</span></span>
           </h1>
         </div>
       </header>
@@ -362,7 +365,7 @@ export default function GamePlaysHistoryPage() {
         )}
 
         <section
-          aria-label="Số dư Revive Credit"
+          aria-label="Số dư Thẻ hồi sinh"
           style={{
             padding: "24px 20px",
             marginBottom: 14,
@@ -387,7 +390,7 @@ export default function GamePlaysHistoryPage() {
               color: "#d5af83",
             }}
           >
-            Credit hiện có
+            Thẻ hiện có
           </p>
 
           <div
@@ -419,7 +422,7 @@ export default function GamePlaysHistoryPage() {
         </section>
 
         <section
-          aria-label="Thống kê Revive Credit"
+          aria-label="Thống kê Thẻ hồi sinh"
           style={{
             display: "grid",
             gridTemplateColumns:
@@ -502,7 +505,7 @@ export default function GamePlaysHistoryPage() {
         </section>
 
         <section
-          aria-label="Lịch sử Revive Credit"
+          aria-label="Lịch sử Thẻ hồi sinh"
           style={{
             padding: 18,
             borderRadius: 22,
@@ -529,7 +532,7 @@ export default function GamePlaysHistoryPage() {
                 fontWeight: 900,
               }}
             >
-              Lịch sử Revive Credit
+              Lịch sử Thẻ hồi sinh
             </h2>
 
             <span
@@ -565,7 +568,7 @@ export default function GamePlaysHistoryPage() {
               }}
             >
               Chưa có giao dịch
-              Revive Credit
+              Thẻ hồi sinh
             </p>
           ) : (
             transactions.map(
@@ -614,9 +617,11 @@ export default function GamePlaysHistoryPage() {
                             : "rgba(244,67,54,.10)",
                       }}
                     >
-                      {
+                      {presentation.icon === "revive-pass" ? (
+                        <RevivePassIcon size={30} />
+                      ) : (
                         presentation.icon
-                      }
+                      )}
                     </div>
 
                     <div

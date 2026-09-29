@@ -162,8 +162,8 @@ export default function MembershipPage() {
               },
               {
                 icon:"🎮",
-                title:"Mua Revive Credit",
-                desc:"Dùng điểm tích lũy để mua Revive Credit trong Game Center. Giá điểm được quy đổi theo 1 điểm = 1.000đ.",
+                title:"Mua Thẻ hồi sinh",
+                desc:"Dùng điểm tích lũy để mua Thẻ hồi sinh trong Game Center. Giá điểm được quy đổi theo 1 điểm = 1.000đ.",
                 action:"Vào Game Center",
                 path:"/game-center",
                 color:"#7c3aed",

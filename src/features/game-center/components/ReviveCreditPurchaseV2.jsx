@@ -24,6 +24,9 @@ import {
   executeReviveCreditPurchase,
 } from "@/games/runtime/reviveCreditPurchaseFlow";
 
+import RevivePassIcon from
+  "./RevivePassIcon";
+
 /*
  * Points purchase is independently release-gated.
  *
@@ -96,7 +99,7 @@ export default function ReviveCreditPurchaseV2({
         if (active) {
           setMessage(previous =>
             previous ||
-            "Chưa đọc được giá Credit từ hệ thống."
+            "Chưa đọc được giá Thẻ hồi sinh từ hệ thống."
           );
         }
       })
@@ -138,7 +141,7 @@ export default function ReviveCreditPurchaseV2({
       onPurchased?.(receipt);
 
       setMessage(
-        `Đã nhận ${receipt.quantity} Revive Credit.`
+        `Đã nhận ${receipt.quantity} Thẻ hồi sinh.`
       );
     } catch (error) {
       setMessage(
@@ -201,28 +204,73 @@ export default function ReviveCreditPurchaseV2({
 
   return (
     <section
-      aria-label="Mua Revive Credit"
+      aria-label="Mua Thẻ hồi sinh"
       style={{
         marginTop: 16,
         padding: 14,
         borderRadius: 14,
-        background: "rgba(212,83,28,.09)",
-        border: "1px solid rgba(212,83,28,.25)",
+        background:
+          "linear-gradient(145deg,rgba(70,36,23,.72),rgba(26,16,19,.82))",
+        border:
+          "1px solid rgba(245,185,112,.22)",
+        boxShadow:
+          "inset 0 1px 0 rgba(255,245,225,.05), 0 10px 28px rgba(0,0,0,.18)",
       }}
     >
-      <strong>Mua Revive Credit</strong>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 12,
+        }}
+      >
+        <div
+          style={{
+            width: 42,
+            height: 42,
+            borderRadius: 14,
+            display: "grid",
+            placeItems: "center",
+            background: "rgba(255,212,154,.08)",
+            border: "1px solid rgba(255,212,154,.14)",
+          }}
+        >
+          <RevivePassIcon size={34} />
+        </div>
+        <div>
+          <div
+            style={{
+              fontSize: 15,
+              fontWeight: 950,
+              color: "#fff4df",
+            }}
+          >
+            Mua Thẻ hồi sinh
+          </div>
+          <div
+            style={{
+              marginTop: 2,
+              fontSize: 11,
+              color: "rgba(255,239,216,.58)",
+            }}
+          >
+            Tiếp tục ván chơi khi cần
+          </div>
+        </div>
+      </div>
 
       <p>
         {unresolved
           ? "Có giao dịch mua cũ cần xác minh."
           : purchaseContext === "storefront"
-            ? `Gói dự trữ ${quantity} Credit.`
-            : `Bạn cần thêm ${quantity} Credit.`}
+            ? `Gói dự trữ ${quantity} Thẻ hồi sinh.`
+            : `Bạn cần thêm ${quantity} Thẻ hồi sinh.`}
       </p>
 
       {!unresolved && price?.enabled && (
         <p>
-          Giá mỗi Credit:{" "}
+          Giá mỗi Thẻ:{" "}
           {money(price.price_vnd)}đ hoặc{" "}
           {money(price.points_cost)} điểm.
         </p>
@@ -254,7 +302,7 @@ export default function ReviveCreditPurchaseV2({
       {!unresolved && (
         <div
           role="group"
-          aria-label="Phương thức mua Credit"
+          aria-label="Phương thức mua Thẻ hồi sinh"
           style={{
             display: "flex",
             gap: 8,
@@ -266,6 +314,19 @@ export default function ReviveCreditPurchaseV2({
             disabled={busy}
             aria-pressed={method === "wallet"}
             onClick={() => setMethod("wallet")}
+            style={{
+              flex: 1,
+              minHeight: 42,
+              borderRadius: 12,
+              border: method === "wallet"
+                ? "1px solid #f2b46d"
+                : "1px solid rgba(255,255,255,.12)",
+              background: method === "wallet"
+                ? "linear-gradient(135deg,rgba(218,105,40,.32),rgba(246,174,86,.14))"
+                : "rgba(255,255,255,.045)",
+              color: method === "wallet" ? "#ffe4b6" : "rgba(255,255,255,.68)",
+              fontWeight: 850,
+            }}
           >
             Cing Wallet
           </button>
@@ -275,6 +336,19 @@ export default function ReviveCreditPurchaseV2({
             disabled={!POINTS_ENABLED || busy}
             aria-pressed={method === "points"}
             onClick={() => setMethod("points")}
+            style={{
+              flex: 1,
+              minHeight: 42,
+              borderRadius: 12,
+              border: method === "points"
+                ? "1px solid #f2b46d"
+                : "1px solid rgba(255,255,255,.12)",
+              background: method === "points"
+                ? "linear-gradient(135deg,rgba(218,105,40,.32),rgba(246,174,86,.14))"
+                : "rgba(255,255,255,.045)",
+              color: method === "points" ? "#ffe4b6" : "rgba(255,255,255,.68)",
+              fontWeight: 850,
+            }}
           >
             {POINTS_ENABLED
               ? "Điểm tích lũy"
@@ -290,7 +364,7 @@ export default function ReviveCreditPurchaseV2({
             ? "Cing Wallet"
             : "Điểm tích lũy"}
           {" · "}
-          {quantity} Credit.
+          {quantity} Thẻ hồi sinh.
         </p>
       )}
 
@@ -298,7 +372,7 @@ export default function ReviveCreditPurchaseV2({
         !loading &&
         price?.enabled === false && (
         <p>
-          Admin chưa mở bán Revive Credit.
+          Thẻ hồi sinh hiện chưa mở bán.
         </p>
       )}
 
@@ -312,12 +386,27 @@ export default function ReviveCreditPurchaseV2({
         onClick={() => {
           void purchase();
         }}
+        style={{
+          width: "100%",
+          minHeight: 48,
+          border: "none",
+          borderRadius: 14,
+          background: canSubmit
+            ? "linear-gradient(135deg,#d65a22,#f18b3d)"
+            : "rgba(255,255,255,.10)",
+          color: canSubmit ? "#fff" : "rgba(255,255,255,.40)",
+          fontSize: 13,
+          fontWeight: 950,
+          boxShadow: canSubmit
+            ? "0 10px 22px rgba(212,83,28,.25)"
+            : "none",
+        }}
       >
         {busy
           ? "Đang xác minh..."
           : unresolved
             ? "Xác minh giao dịch mua cũ"
-            : "Xác nhận mua Credit"}
+            : "Xác nhận mua Thẻ hồi sinh"}
       </button>
     </section>
   );

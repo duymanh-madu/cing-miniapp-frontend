@@ -24,12 +24,12 @@ const benefits =
 
 assert.match(
   membership,
-  /title:"Mua Revive Credit"/
+  /title:"Mua Thẻ hồi sinh"/
 );
 
 assert.match(
   membership,
-  /Dùng điểm tích lũy để mua Revive Credit trong Game Center/
+  /Dùng điểm tích lũy để mua Thẻ hồi sinh trong Game Center/
 );
 
 assert.match(
@@ -44,7 +44,7 @@ assert.doesNotMatch(
 
 assert.match(
   benefits,
-  /mua Revive Credit trong Game Center/
+  /mua Thẻ hồi sinh trong Game Center/
 );
 
 assert.doesNotMatch(
@@ -53,5 +53,5 @@ assert.doesNotMatch(
 );
 
 console.log(
-  "PASS: customer Membership wording is Revive Credit-only"
+  "PASS: customer Membership wording uses Thẻ hồi sinh"
 );

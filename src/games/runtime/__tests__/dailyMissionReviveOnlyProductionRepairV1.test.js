@@ -49,14 +49,14 @@ assert.doesNotMatch(
 
 assert.match(
   gameCenter,
-  /Phần thưởng:.*Revive Credit/
+  /Phần thưởng:.*Thẻ hồi sinh/
 );
 
 assert.match(
   gameCenter,
-  /Điểm danh thành công![\s\S]*Revive Credit/
+  /Điểm danh thành công![\s\S]*Thẻ hồi sinh/
 );
 
 console.log(
-  "PASS: frontend Daily Mission semantics are Revive Credit-only"
+  "PASS: frontend Daily Mission customer wording uses Thẻ hồi sinh"
 );

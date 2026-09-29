@@ -1186,13 +1186,13 @@ export default function CingOfflineRevivalGameV2({
                   ? "Chưa xác minh"
                   : creditBalance}
               </b>{" "}
-              Revive Credit
+              Thẻ hồi sinh
             </p>
 
             <p>
               {nextCost === null
                 ? "Đã sử dụng đủ 5 lần hồi sinh."
-                : `Lần hồi sinh tiếp theo: ${nextCost} Credit`}
+                : `Lần hồi sinh tiếp theo: ${nextCost} Thẻ hồi sinh`}
             </p>
 
             {message && (
@@ -1223,7 +1223,7 @@ export default function CingOfflineRevivalGameV2({
             >
               {busy
                 ? "Đang xác minh..."
-                : "Dùng Revive Credit"}
+                : "Dùng Thẻ hồi sinh"}
             </button>
 
             {reviveUnknownRef.current &&
@@ -1265,7 +1265,7 @@ export default function CingOfflineRevivalGameV2({
                 Bạn cần thêm{" "}
                 {nextCost -
                   creditBalance}{" "}
-                Credit để hồi sinh.
+                Thẻ hồi sinh để tiếp tục.
               </p>
             )}
 

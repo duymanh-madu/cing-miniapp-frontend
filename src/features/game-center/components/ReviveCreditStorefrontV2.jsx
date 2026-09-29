@@ -11,6 +11,9 @@ import {
 import ReviveCreditPurchaseV2 from
   "./ReviveCreditPurchaseV2";
 
+import RevivePassIcon from
+  "./RevivePassIcon";
+
 const PACKAGES = Object.freeze([
   1, 2, 5, 10,
 ]);
@@ -62,7 +65,7 @@ export default function ReviveCreditStorefrontV2({
       .catch(() => {
         if (active) {
           setError(
-            "Chưa xác minh được số dư Credit."
+            "Chưa xác minh được số dư Thẻ hồi sinh."
           );
         }
       })
@@ -79,17 +82,17 @@ export default function ReviveCreditStorefrontV2({
 
   return (
     <section
-      aria-label="Cửa hàng Revive Credit"
+      aria-label="Cửa hàng Thẻ hồi sinh"
       style={{
         margin: "0 16px 20px",
         padding: 18,
         borderRadius: 20,
         background:
-          "linear-gradient(145deg,#29150e,#160d17)",
+          "radial-gradient(circle at 12% 0%,rgba(240,145,72,.18),transparent 32%), linear-gradient(145deg,#24130e 0%,#160d12 55%,#0d0b10 100%)",
         border:
           "1px solid rgba(255,190,110,.38)",
         boxShadow:
-          "0 12px 32px rgba(0,0,0,.22)",
+          "0 18px 46px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,239,210,.06)",
         color: "#fff5e6",
       }}
     >
@@ -113,7 +116,16 @@ export default function ReviveCreditStorefrontV2({
           color: "#fff1d5",
         }}
       >
-        ✨ Kho Revive Credit
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <RevivePassIcon size={38} />
+          <span>Thẻ hồi sinh</span>
+        </span>
       </h2>
 
       <p
@@ -124,9 +136,9 @@ export default function ReviveCreditStorefrontV2({
           margin: "0 0 14px",
         }}
       >
-        Chơi miễn phí. Dự trữ Credit để
-        hồi sinh khi cần trong Bay cùng
-        trân châu và Xếp Tháp Cing.
+        Chơi miễn phí. Dự trữ Thẻ hồi sinh để
+        tiếp tục ván chơi khi cần trong Bay cùng
+        trân châu, Xếp Tháp Cing và các game hỗ trợ.
       </p>
 
       <div
@@ -147,7 +159,7 @@ export default function ReviveCreditStorefrontV2({
             marginBottom: 3,
           }}
         >
-          Credit hiện có
+          Thẻ hiện có
         </div>
 
         <strong
@@ -197,12 +209,12 @@ export default function ReviveCreditStorefrontV2({
               marginBottom: 10,
             }}
           >
-            Chọn số Credit muốn mua
+            Chọn số Thẻ hồi sinh muốn mua
           </div>
 
           <div
             role="group"
-            aria-label="Số lượng Revive Credit"
+            aria-label="Số lượng Thẻ hồi sinh"
             style={{
               display: "grid",
               gridTemplateColumns:

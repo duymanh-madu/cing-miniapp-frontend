@@ -60,7 +60,7 @@ test(
 
     assert.match(
       revival,
-      /Dùng Revive Credit/
+      /Dùng Thẻ hồi sinh/
     );
 
     assert.match(
@@ -100,7 +100,7 @@ test(
 
     assert.match(
       block,
-      /Revive Credit/
+      /Thẻ hồi sinh/
     );
 
     assert.doesNotMatch(

@@ -9,7 +9,7 @@ const MAX_BIGINT = 9223372036854775807n;
 
 function invalid() {
   throw new Error(
-    "Chưa xác minh được biên nhận Revive Credit."
+    "Chưa xác minh được giao dịch Thẻ hồi sinh."
   );
 }
 

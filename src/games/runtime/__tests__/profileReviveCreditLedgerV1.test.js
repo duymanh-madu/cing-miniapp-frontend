@@ -44,7 +44,7 @@ assert.match(
 
 assert.match(
   page,
-  /Lịch sử Revive Credit/
+  /Lịch sử Thẻ hồi sinh/
 );
 
 assert.doesNotMatch(
@@ -64,12 +64,12 @@ assert.doesNotMatch(
 
 assert.match(
   account,
-  /label:"Revive Credit"/
+  /label:"Thẻ hồi sinh"/
 );
 
 assert.match(
   account,
-  /Số dư và lịch sử Revive Credit/
+  /Số dư và lịch sử Thẻ hồi sinh/
 );
 
 assert.doesNotMatch(
@@ -78,5 +78,5 @@ assert.doesNotMatch(
 );
 
 console.log(
-  "PASS: customer Profile surface is Revive Credit-only"
+  "PASS: customer Profile surface uses Thẻ hồi sinh"
 );
