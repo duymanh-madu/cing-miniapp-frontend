@@ -39,8 +39,9 @@ test("verified historical receipt must match original user amount reason UUID",(
  for(const part of ['result.user_id !== payload.user_id','result.amount !== payload.amount','result.reason_code !== payload.reason_code','result?.request_id !== payload.request_id']) assert.ok(component.includes(part));
  assert.match(component,/clearPending\(adminId, (?:saved|payload)\.request_id\)/);
 });
-test("stale responses cannot unlock a new account; V1 still preserved",()=>{
+test("stale responses cannot unlock a new account; legacy Admin writer stays retired",()=>{
  assert.match(component,/epochRef\.current !== epoch/);
- assert.match(games,/REVIVE_V2_ADMIN_ENABLED/);
- assert.match(games,/\/admin\/players\/adjust-plays/);
+ assert.doesNotMatch(games,/REVIVE_V2_ADMIN_ENABLED/);
+ assert.doesNotMatch(games,/\/admin\/players\/adjust-plays/);
+ assert.match(games,/<AdminReviveCreditAdjustmentV2/);
 });

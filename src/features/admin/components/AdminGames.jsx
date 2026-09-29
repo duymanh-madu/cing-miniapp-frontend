@@ -48,20 +48,13 @@ function renderMetric(row, activeGame, currentGame) {
   );
 }
 
-const REVIVE_V2_ADMIN_ENABLED =
-  import.meta.env
-    .VITE_CING_OFFLINE_REVIVAL_UI_ENABLED === "true";
 
 export default function AdminGames({ token, role, adminId }) {
   const [games, setGames] = useState([]);
   const [scores, setScores] = useState({});
   const [loading, setLoading] = useState(true);
-  const [adjustUser, setAdjustUser] = useState("");
-  const [adjustAmount, setAdjustAmount] = useState(1);
-  const [msg, setMsg] = useState("");
   const [activeGame, setActiveGame] = useState(null);
 
-  const h = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
     let mounted = true;
@@ -102,27 +95,6 @@ export default function AdminGames({ token, role, adminId }) {
     };
   }, []);
 
-  const adjustPlays = async () => {
-    if (!adjustUser) return;
-
-    try {
-      await apiClient.post(
-        "/admin/players/adjust-plays",
-        {
-          user_id: adjustUser.replace(/\D/g, ""),
-          amount: Number(adjustAmount),
-        },
-        { headers: h }
-      );
-
-      setMsg(`✅ Đã ${Number(adjustAmount) > 0 ? "cộng" : "trừ"} ${Math.abs(adjustAmount)} lượt cho ${adjustUser}`);
-    } catch (e) {
-      setMsg("❌ " + (e.response?.data?.message || e.message));
-    }
-
-    setTimeout(() => setMsg(""), 3000);
-  };
-
   const currentGame = games.find(g => g.game_key === activeGame);
   const currentScores = scores[activeGame] || currentGame?.data || [];
 
@@ -134,56 +106,11 @@ export default function AdminGames({ token, role, adminId }) {
         🎮 Quản lý Games
       </h2>
 
-      {REVIVE_V2_ADMIN_ENABLED ? (
-        <AdminReviveCreditAdjustmentV2 token={token} role={role} adminId={adminId} />
-      ) : (
-        <>
-      <div style={{ background:"#1a1a24", borderRadius:14, padding:"20px", border:"1px solid #2a2a38", marginBottom:20 }}>
-        <p style={{ color:"#888", fontSize:11, fontWeight:700, letterSpacing:1, margin:"0 0 12px", textTransform:"uppercase" }}>
-          🎯 Điều chỉnh lượt chơi
-        </p>
-
-        {msg && (
-          <div style={{ color:msg.includes("✅") ? "#4CAF50" : "#f44336", fontSize:13, marginBottom:10 }}>
-            {msg}
-          </div>
-        )}
-
-        <div style={{ display:"flex", gap:8, marginBottom:8 }}>
-          <input
-            placeholder="SĐT người chơi"
-            value={adjustUser}
-            onChange={e => setAdjustUser(e.target.value)}
-            style={{ flex:2, background:"#2a2a38", border:"1px solid #333", borderRadius:8, padding:"9px 12px", color:"white", fontSize:13 }}
-          />
-
-          <input
-            type="number"
-            value={adjustAmount}
-            onChange={e => setAdjustAmount(e.target.value)}
-            style={{ flex:1, background:"#2a2a38", border:"1px solid #333", borderRadius:8, padding:"9px 12px", color:"white", fontSize:13, textAlign:"center" }}
-          />
-        </div>
-
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-          <button
-            onClick={() => { setAdjustAmount(Math.abs(adjustAmount)); adjustPlays(); }}
-            style={{ background:"rgba(76,175,80,0.2)", border:"1px solid #4CAF50", color:"#4CAF50", borderRadius:8, padding:"10px", fontWeight:700, cursor:"pointer" }}
-          >
-            ➕ Cộng lượt
-          </button>
-
-          <button
-            onClick={() => { setAdjustAmount(-Math.abs(adjustAmount)); adjustPlays(); }}
-            style={{ background:"rgba(244,67,54,0.2)", border:"1px solid #f44336", color:"#f44336", borderRadius:8, padding:"10px", fontWeight:700, cursor:"pointer" }}
-          >
-            ➖ Trừ lượt
-          </button>
-        </div>
-      </div>
-
-        </>
-      )}
+      <AdminReviveCreditAdjustmentV2
+        token={token}
+        role={role}
+        adminId={adminId}
+      />
 
       {loading ? (
         <p style={{ color:"#666" }}>Đang tải...</p>

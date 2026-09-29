@@ -47,18 +47,13 @@ import GameLeaderboard from "../components/GameLeaderboard";
 import AlltimeLeaderboard from "../components/AlltimeLeaderboard";
 import ChessGame from "../games/chess/ChessGame";
 import ChessLeaderboard from "../games/chess/ChessLeaderboard";
-import GamePlaysCard from "../components/GamePlaysCard";
 import CingOfflineRevivalGameV2 from "../components/CingOfflineRevivalGameV2";
 
 import ReviveCreditStorefrontV2 from
   "../components/ReviveCreditStorefrontV2";
 
-const OFFLINE_REVIVAL_V2_ENABLED =
-  import.meta.env
-    .VITE_CING_OFFLINE_REVIVAL_UI_ENABLED ===
-  "true";
 
-const OFFLINE_REVIVAL_V2_GAMES =
+const REVIVAL_V2_GAMES =
   new Set([
     "cing-stack-tower",
     "black-pearl-rush",
@@ -135,51 +130,6 @@ function showToast(msg) {
   }).catch(() => {});
 }
 
-function NoGamePlaysPopup({ onClose, userName = "Cing iu" }) {
-  return (
-    <div style={{
-      position:"fixed", inset:0, zIndex:10000,
-      background:"rgba(0,0,0,0.72)",
-      display:"flex", alignItems:"center", justifyContent:"center",
-      padding:20,
-    }}>
-      <div style={{
-        width:"min(340px, calc(100vw - 40px))",
-        background:"linear-gradient(180deg,#fffaf2,#fff1df)",
-        borderRadius:24,
-        padding:"24px 20px 20px",
-        textAlign:"center",
-        border:"1px solid rgba(212,83,28,0.25)",
-        boxShadow:"0 20px 60px rgba(0,0,0,0.35)",
-      }}>
-        <div style={{fontSize:48, marginBottom:8}}>🎮</div>
-        <h3 style={{margin:"0 0 8px", fontSize:20, fontWeight:950, color:"#2b160b"}}>
-          Hết lượt chơi rồi
-        </h3>
-        <p style={{margin:"0 0 18px", fontSize:13, lineHeight:1.55, color:"#7a5435", fontWeight:700}}>
-          {userName} hãy đặt hàng hoặc nhận nhiệm vụ để có thêm lượt chơi nhé.
-        </p>
-        <button
-          onClick={onClose}
-          style={{
-            width:"100%",
-            height:44,
-            border:"none",
-            borderRadius:14,
-            background:"linear-gradient(135deg,#D4531C,#FF6B35)",
-            color:"white",
-            fontSize:14,
-            fontWeight:900,
-            cursor:"pointer",
-          }}
-        >
-          Đã hiểu
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export default function GameCenterPage() {
   /*
    * Customer multiplayer availability is backend-authoritative.
@@ -211,9 +161,6 @@ export default function GameCenterPage() {
   const [challenges, setChallenges]       = useState([]);
   const [challenge, setChallenge]         = useState(null);
   const [missions,  setMissions]          = useState([]);
-  const [gamePlays, setGamePlays]         = useState(null);
-  const [noPlaysPopup, setNoPlaysPopup]   = useState(false);
-  const [gamePlaysRefreshKey, setGamePlaysRefreshKey] = useState(0);
   const [showChat, setShowChat]           = useState(false);
   const [gameEconomy, setGameEconomy]     = useState(null);
 
@@ -266,9 +213,6 @@ export default function GameCenterPage() {
   const getGameEconomy = (gameKey) =>
     gameEconomy?.games?.[gameKey] || null;
 
-  const gameUsesPlay = (gameKey) =>
-    !FREE_START_GAME_KEYS.has(gameKey) &&
-    Number(getGameEconomy(gameKey)?.play_cost || 0) > 0;
 
   useEffect(() => {
     apiClient.get("/game/daily-challenge")
@@ -404,71 +348,8 @@ export default function GameCenterPage() {
     }
   };
 
-  const showNoPlays = () => {
-    setGamePlays(0);
-    setNoPlaysPopup(true);
-  };
-
-  const consumeGamePlay = async (gameKey) => {
-    if (!requireMember()) return false;
-
-    const ph = getPhone();
-    if (!ph) {
-      showToast("Không tìm thấy tài khoản thành viên.");
-      return false;
-    }
-
-    if (!gameKey) {
-      showToast("Không xác định được trò chơi.");
-      return false;
-    }
-
-    if (gamePlays !== null && gamePlays <= 0) {
-      showNoPlays();
-      return false;
-    }
-
-    try {
-      const res = await apiClient.post("/game/use-play", {
-        user_id: ph,
-        game_key: gameKey,
-      });
-
-      if (!res.data?.success) {
-        throw new Error(res.data?.message || "Không thể sử dụng lượt chơi");
-      }
-
-      const remaining =
-        Number(res.data?.game_plays ?? res.data?.remaining ?? 0);
-
-      setGamePlays(Number.isFinite(remaining) ? remaining : 0);
-      return true;
-    } catch(e) {
-      const status = e?.response?.status;
-      const code = e?.response?.data?.code;
-      const message = e?.response?.data?.message || e.message || "";
-
-      if (status === 409 || code === "NO_GAME_PLAYS" || message.includes("hết lượt")) {
-        showNoPlays();
-        return false;
-      }
-
-      showToast("Không thể bắt đầu ván chơi. Vui lòng thử lại.");
-      return false;
-    }
-  };
-
   const handlePlayGame = (gameId) => {
     if (!requireMember()) return;
-
-    if (
-      gameUsesPlay(gameId) &&
-      gamePlays !== null &&
-      gamePlays <= 0
-    ) {
-      showNoPlays();
-      return;
-    }
 
     setTimeout(() => {
       setActiveGame(gameId);
@@ -476,19 +357,7 @@ export default function GameCenterPage() {
     }, 50);
   };
 
-  const handleRestart = () => {
-    if (
-      activeGame &&
-      gameUsesPlay(activeGame) &&
-      gamePlays !== null &&
-      gamePlays <= 0
-    ) {
-      showNoPlays();
-      return false;
-    }
-
-    return true;
-  };
+  const handleRestart = () => true;
 
   const handlePlayChess = () => {
     if (!customerMultiplayerEnabled) {
@@ -574,15 +443,11 @@ export default function GameCenterPage() {
               handleRestart,
 
             onGameStart:
-              () =>
-                gameUsesPlay(activeGame)
-                  ? consumeGamePlay(activeGame)
-                  : true,
+              () => true,
           };
 
     if (
-      OFFLINE_REVIVAL_V2_ENABLED &&
-      OFFLINE_REVIVAL_V2_GAMES.has(
+      REVIVAL_V2_GAMES.has(
         activeGame
       ) &&
       !isSelfManaged
@@ -644,26 +509,12 @@ export default function GameCenterPage() {
             }
           />
         )}
-
-        {noPlaysPopup && (
-          <NoGamePlaysPopup
-            userName={
-              displayName
-            }
-            onClose={() =>
-              setNoPlaysPopup(
-                false
-              )
-            }
-          />
-        )}
       </>
     );
   }
 
   return (
     <div style={{ minHeight:"100vh", background:"linear-gradient(180deg,#0a0a0f 0%,#12071a 50%,#0d0d1a 100%)", paddingBottom:100 }}>
-      {noPlaysPopup && <NoGamePlaysPopup userName={displayName} onClose={() => setNoPlaysPopup(false)} />}
       {/* HEADER */}
       <div style={{ padding:"16px 20px 16px", paddingTop:"max(env(safe-area-inset-top,0px) + 12px, 52px)", textAlign:"center" }}>
         <p style={{ color:"rgba(255,215,0,0.6)", fontSize:11, letterSpacing:4, fontWeight:700, margin:"0 0 6px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
@@ -723,7 +574,7 @@ export default function GameCenterPage() {
                     {m.label}
                   </p>
                   <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:0 }}>
-                    Phần thưởng: +{m.plays} lượt chơi{m.points > 0 ? ` · +${m.points} điểm` : ""}
+                    Phần thưởng: +{Number(m.revive_credits ?? m.plays ?? 0)} Revive Credit{m.points > 0 ? ` · +${m.points} điểm` : ""}
                   </p>
                 </div>
                 {m.completed ? (
@@ -736,8 +587,11 @@ export default function GameCenterPage() {
                       const res = await apiClient.post("/missions/checkin", { user_id: phone });
                       if (res.data?.success) {
                         setMissions(prev => prev.map(x => x.type === "checkin" ? {...x, completed:true} : x));
-                        setGamePlaysRefreshKey(v => v + 1);
-                        showToast(`✅ Điểm danh thành công! +${m.plays} lượt chơi`);
+                        showToast(
+                          `✅ Điểm danh thành công! +${Number(
+                            m.revive_credits ?? m.plays ?? 0
+                          )} Revive Credit`
+                        );
                       } else showToast(res.data?.message || "Đã điểm danh hôm nay rồi!");
                     } catch(e) { showToast("Lỗi điểm danh"); }
                   }}
@@ -755,20 +609,11 @@ export default function GameCenterPage() {
         </div>
       )}
 
-      {OFFLINE_REVIVAL_V2_ENABLED &&
-        authenticated &&
+      {authenticated &&
         isActivated &&
         /^0[0-9]{9}$/.test(getPhone()) && (
         <ReviveCreditStorefrontV2
           userId={getPhone()}
-        />
-      )}
-
-      {!OFFLINE_REVIVAL_V2_ENABLED && (
-        <GamePlaysCard
-          onPlaysUpdate={setGamePlays}
-          refreshKey={gamePlaysRefreshKey}
-          economyPolicy={gameEconomy}
         />
       )}
 
@@ -788,11 +633,6 @@ export default function GameCenterPage() {
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
                 <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>{game.displayName || game.name}</p>
                 {game.status==="LIVE" && <span style={{ background:"rgba(0,255,100,0.15)", color:"#00ff64", fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8, letterSpacing:1 }}>LIVE</span>}
-                {!FREE_START_GAME_KEYS.has(game.id) && getGameEconomy(game.id)?.play_cost > 0 && (
-                  <span style={{ background:"rgba(255,215,0,0.12)", color:"#FFD700", fontSize:9, fontWeight:900, padding:"2px 7px", borderRadius:8, border:"1px solid rgba(255,215,0,0.25)" }}>
-                    🎟 1 LƯỢT / VÁN
-                  </span>
-                )}
                 {(FREE_START_GAME_KEYS.has(game.id) || getGameEconomy(game.id)?.play_cost === 0) && (
                   <span style={{ background:"rgba(0,255,150,0.12)", color:"#00e99a", fontSize:9, fontWeight:900, padding:"2px 7px", borderRadius:8, border:"1px solid rgba(0,255,150,0.22)" }}>
                     ♾ MIỄN PHÍ

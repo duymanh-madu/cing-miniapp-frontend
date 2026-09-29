@@ -36,21 +36,6 @@ const adjustment = read(
 );
 
 test(
-  "V2 adjustment uses exact feature gate",
-  () => {
-    assert.match(
-      games,
-      /VITE_CING_OFFLINE_REVIVAL_UI_ENABLED/
-    );
-
-    assert.match(
-      games,
-      /REVIVE_V2_ADMIN_ENABLED/
-    );
-  }
-);
-
-test(
   "V2 mounts dedicated component",
   () => {
     assert.match(
@@ -61,21 +46,26 @@ test(
 );
 
 test(
-  "V1 remains available when V2 OFF",
+  "legacy Admin game-play adjustment is permanently absent",
   () => {
-    assert.match(
+    assert.doesNotMatch(
       games,
       /\/admin\/players\/adjust-plays/
     );
 
-    assert.match(
+    assert.doesNotMatch(
       games,
       /Điều chỉnh lượt chơi/
     );
 
+    assert.doesNotMatch(
+      games,
+      /REVIVE_V2_ADMIN_ENABLED|VITE_CING_OFFLINE_REVIVAL_UI_ENABLED/
+    );
+
     assert.match(
       games,
-      /REVIVE_V2_ADMIN_ENABLED\s*\?/
+      /<AdminReviveCreditAdjustmentV2/
     );
   }
 );

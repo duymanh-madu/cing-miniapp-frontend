@@ -336,7 +336,7 @@ export default function MembershipBenefitsPage() {
         border:"1px solid rgba(255,255,255,0.08)" }}>
         <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, margin:0, lineHeight:1.7, textAlign:"center" }}>
           💡 Hạng đối tác được xét duyệt theo chu kỳ tháng dựa trên tổng chi tiêu tích lũy.<br/>
-          Điểm tích lũy sẽ được reset sau khi nhận hoa hồng vào ngày đầu tháng, có thể dùng điểm để order đồ, đổi lượt chơi game hoặc thay đổi thông tin hồ sơ.
+          Điểm tích lũy sẽ được reset sau khi nhận hoa hồng vào ngày đầu tháng, có thể dùng điểm để order đồ, mua Revive Credit trong Game Center hoặc thay đổi thông tin hồ sơ.
         </p>
       </div>
       </div>

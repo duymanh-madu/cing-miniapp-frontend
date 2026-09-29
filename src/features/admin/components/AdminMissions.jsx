@@ -10,7 +10,7 @@ const CONDITION_TYPES = [
 
 const DEFAULT_MISSION = {
   type:"", label:"", description:"", icon:"🎯",
-  plays:1, points:0, enabled:true,
+  revive_credits:1, points:0, enabled:true,
   condition_type:"checkin", condition_value:0
 };
 
@@ -80,7 +80,7 @@ export default function AdminMissions({ token }) {
           <div style={{ flex:1 }}>
             <p style={{ color:"white", fontSize:13, fontWeight:700, margin:"0 0 2px" }}>{m.label}</p>
             <p style={{ color:"#555", fontSize:11, margin:0 }}>
-              +{m.plays} lượt · {CONDITION_TYPES.find(c=>c.value===m.condition_type)?.label}
+              +{Number(m.revive_credits ?? m.plays ?? 0)} Revive Credit · {CONDITION_TYPES.find(c=>c.value===m.condition_type)?.label}
               {m.condition_value > 0 ? ` ≥ ${new Intl.NumberFormat("vi-VN").format(m.condition_value)}` : ""}
             </p>
           </div>
@@ -122,7 +122,7 @@ export default function AdminMissions({ token }) {
               { label:"Type (key duy nhất)", field:"type", type:"text", placeholder:"checkin" },
               { label:"Tên nhiệm vụ", field:"label", type:"text", placeholder:"Điểm danh hàng ngày" },
               { label:"Mô tả", field:"description", type:"text", placeholder:"Mô tả ngắn..." },
-              { label:"Số lượt chơi thưởng", field:"plays", type:"number" },
+              { label:"Số Revive Credit thưởng", field:"revive_credits", type:"number" },
               { label:"Số điểm thưởng (tùy chọn)", field:"points", type:"number" },
             ].map(f => (
               <div key={f.field} style={{ marginBottom:12 }}>

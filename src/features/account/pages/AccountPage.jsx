@@ -17,7 +17,7 @@ const MENU_ITEMS = [
   { icon:"📦", label:"Lịch sử đơn hàng",  path:"/orders",      desc:"Xem các đơn đã hoàn thành" },
   { icon:"🎟", label:"Voucher của tôi",    path:"/voucher",     desc:"Ưu đãi và mã giảm giá" },
   { icon:"⭐", label:"Điểm tích lũy",      path:"/loyalty",     desc:"Xem điểm và đổi quà" },
-  { icon:"🎮", label:"Lượt chơi game",     path:"/game-plays",  desc:"Lịch sử lượt chơi game" },
+  { icon:"✨", label:"Revive Credit",      path:"/game-plays",  desc:"Số dư và lịch sử Revive Credit" },
   { icon:"💎", label:"Store Danh Hiệu", path:"/badge-store", desc:"Khám phá tất cả danh hiệu" },
   { icon:"👑", label:"Đại Sảnh Danh Vọng", path:"/leaderboard", desc:"Bảng xếp hạng khách hàng" },
   { icon:"💬", label:"Chat với admin",     path:null,           desc:"Nhắn tin hỗ trợ trực tiếp", action:"chat_admin" },

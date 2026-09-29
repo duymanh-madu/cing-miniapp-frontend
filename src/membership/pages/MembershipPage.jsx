@@ -162,8 +162,8 @@ export default function MembershipPage() {
               },
               {
                 icon:"🎮",
-                title:"Mua lượt chơi game",
-                desc:"Dùng 5 điểm để đổi lấy 1 lượt chơi game. Leo rank và nhận thưởng hấp dẫn.",
+                title:"Mua Revive Credit",
+                desc:"Dùng điểm tích lũy để mua Revive Credit trong Game Center. Giá điểm được quy đổi theo 1 điểm = 1.000đ.",
                 action:"Vào Game Center",
                 path:"/game-center",
                 color:"#7c3aed",

@@ -3,11 +3,10 @@ import apiClient from "@/infra/api/apiClient";
 
 const TABS = [
   { key:"all",            label:"Tất cả",          icon:"📋" },
+  { key:"revive_credit",  label:"Revive Credit",   icon:"✨" },
   { key:"points",         label:"Điểm bonus",       icon:"💎" },
-  { key:"games",          label:"Game",              icon:"🎮" },
-  { key:"plays_bought",   label:"Mua lượt chơi",     icon:"🎯" },
-  { key:"plays_given",    label:"Tặng lượt chơi",   icon:"🎁" },
-  { key:"rewards",        label:"Nhận quà BXH",      icon:"🏆" },
+  { key:"games",          label:"Game",             icon:"🎮" },
+  { key:"rewards",        label:"Nhận quà BXH",    icon:"🏆" },
   { key:"profile_changes",label:"Thay đổi hồ sơ",   icon:"👤" },
 ];
 
@@ -22,13 +21,86 @@ function fmtDate(str) {
 function getStyle(item) {
   if (item._type==="game")           return { color:"#1565C0", bg:"rgba(21,101,192,0.1)", icon:"🎮" };
   if (item._type==="points")         return { color:"#7B1FA2", bg:"rgba(123,31,162,0.1)", icon: item.amount>0?"⭐":"💸" };
-  if (item._type==="plays_bought")   return { color:"#FF9800", bg:"rgba(255,152,0,0.1)",  icon:"🎯" };
-  if (item._type==="plays_given")    return item.source==="admin"
-    ? { color:"#e879f9", bg:"rgba(232,121,249,0.1)",icon:"🎀" }
-    : { color:"#4CAF50", bg:"rgba(76,175,80,0.1)",  icon:"🎁" };
+  if (item._type==="revive_credit")  return item.amount >= 0
+    ? { color:"#4CAF50", bg:"rgba(76,175,80,0.1)", icon:"✨" }
+    : { color:"#FF7043", bg:"rgba(255,112,67,0.1)", icon:"🎮" };
+  if (item._type==="legacy_plays_bought" || item._type==="legacy_plays_given")
+    return { color:"#777", bg:"rgba(255,255,255,0.05)", icon:"🗄️" };
   if (item._type==="reward")         return { color:"#FFD700", bg:"rgba(255,215,0,0.1)",  icon:"🏆" };
   if (item._type==="profile_change") return { color:"#607D8B", bg:"rgba(96,125,139,0.1)",icon:"👤" };
   return { color:"#999", bg:"rgba(0,0,0,0.05)", icon:"📋" };
+}
+
+const GAME_LABEL = {
+  "black-pearl-rush": "Bay cùng trân châu",
+  "cing-stack-tower": "Xếp Tháp Cing",
+  "cing-block-puzzle": "Cing Block Puzzle",
+};
+
+function reviveSourceLabel(item) {
+  const ref =
+    String(item.reference_type || "")
+      .toLowerCase();
+
+  if (ref.includes("daily_mission")) {
+    return "Nhiệm vụ ngày";
+  }
+
+  if (
+    ref.includes("crm_order") ||
+    ref.includes("order_spending") ||
+    ref.includes("commerce")
+  ) {
+    return "Thưởng từ đơn hàng";
+  }
+
+  if (
+    ref.includes("wallet") &&
+    ref.includes("purchase")
+  ) {
+    return "Mua bằng Cing Wallet";
+  }
+
+  if (
+    ref.includes("points") &&
+    ref.includes("purchase")
+  ) {
+    return "Mua bằng điểm tích lũy";
+  }
+
+  if (ref.includes("admin")) {
+    return "Điều chỉnh quản trị";
+  }
+
+  if (Number(item.amount) < 0) {
+    const game =
+      GAME_LABEL[item.game_key] ||
+      item.game_key;
+
+    return game
+      ? `Hồi sinh · ${game}`
+      : "Dùng Revive Credit";
+  }
+
+  return (
+    item.reason ||
+    "Nhận Revive Credit"
+  );
+}
+
+function typeLabel(item) {
+  if (item._type === "revive_credit") {
+    return "Revive Credit";
+  }
+
+  if (
+    item._type === "legacy_plays_bought" ||
+    item._type === "legacy_plays_given"
+  ) {
+    return "Lịch sử V1";
+  }
+
+  return item._type;
 }
 
 const FIELD_LABEL = {
@@ -42,12 +114,30 @@ function getTitle(item) {
   const name = item.customer_name || item.player_name || id;
   if (item._type==="game")    return `${name} — ${item.game_key} — điểm ${fmt(item.score)}`;
   if (item._type==="points")  return `${id} — ${item.reason||item.event_name} — ${item.amount>0?"+":""}${item.amount} điểm ${item.newTotal!=null?`(còn ${item.new_total} điểm)`:""}`;
-  if (item._type==="plays_bought")  return `${id} — Mua ${item.amount} lượt (${item.points_used||0} điểm)`;
-  if (item._type==="plays_given") {
-    if (item.source === "admin") {
-      return `Admin "${item.admin||"admin"}" tặng ${id} ${item.amount>0?"+":""}${item.amount} lượt (còn ${item.new_total ?? "?"} lượt)`;
-    }
-    return `${id} nhận ${item.amount} lượt — ${item.reason||"Thưởng từ chi tiêu"} (còn ${item.new_total ?? "?"} lượt)`;
+  if (item._type==="revive_credit") {
+    const amount = Number(item.amount || 0);
+
+    return (
+      `${id} — ${reviveSourceLabel(item)} — ` +
+      `${amount > 0 ? "+" : ""}${fmt(amount)} Revive Credit ` +
+      `(số dư ${fmt(item.balance_before)} → ${fmt(item.balance_after)})`
+    );
+  }
+
+  if (item._type==="legacy_plays_bought") {
+    return `${id} — Lịch sử V1: mua ${item.amount} lượt`;
+  }
+
+  if (item._type==="legacy_plays_given") {
+    const origin =
+      item.source === "admin"
+        ? "điều chỉnh Admin"
+        : "thưởng tự động";
+
+    return (
+      `${id} — Lịch sử V1: ${origin} ` +
+      `${item.amount > 0 ? "+" : ""}${item.amount} lượt`
+    );
   }
   if (item._type==="reward") {
     const points = item.points ?? item.amount ?? item.event_data?.points ?? item.event_data?.amount ?? 0;
@@ -87,6 +177,8 @@ export default function AdminLogs({ token }) {
   const [tab, setTab]           = useState("all");
   const [logs, setLogs]         = useState([]);
   const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState("");
+  const [hasMore, setHasMore]   = useState(false);
   const [page, setPage]         = useState(1);
   const [search, setSearch]     = useState("");
   const [searchInput, setSearchInput] = useState("");
@@ -95,13 +187,44 @@ export default function AdminLogs({ token }) {
 
   const fetchLogs = async (t = tab, p = page, s = search) => {
     setLoading(true);
+    setError("");
+
     try {
       let url = `/admin/logs?filter=${t}&page=${p}&limit=50`;
-      if (s) url += `&search=${encodeURIComponent(s)}`;
-      const res = await apiClient.get(url, { headers: h });
-      setLogs(res.data?.data || []);
-    } catch(e) { console.error(e); }
-    finally { setLoading(false); }
+
+      if (s) {
+        url += `&search=${encodeURIComponent(s)}`;
+      }
+
+      const res =
+        await apiClient.get(
+          url,
+          {
+            headers: h,
+          }
+        );
+
+      setLogs(
+        res.data?.data || []
+      );
+
+      setHasMore(
+        res.data?.has_more === true
+      );
+    } catch (e) {
+      console.error(e);
+
+      setLogs([]);
+      setHasMore(false);
+
+      setError(
+        e?.response?.data?.error ||
+        e?.response?.data?.message ||
+        "Không thể tải nhật ký hoạt động."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchLogs(tab, 1, search); setPage(1); }, [tab, search]);
@@ -177,6 +300,20 @@ export default function AdminLogs({ token }) {
       {/* Log list */}
       {loading ? (
         <p style={{ color:"#555", textAlign:"center", padding:40 }}>Đang tải...</p>
+      ) : error ? (
+        <div style={{
+          margin:"18px 0",
+          padding:"14px 16px",
+          borderRadius:12,
+          background:"rgba(244,67,54,0.10)",
+          border:"1px solid rgba(244,67,54,0.28)",
+          color:"#ff8a80",
+          fontSize:12,
+          lineHeight:1.55,
+          textAlign:"center",
+        }}>
+          ⚠️ {error}
+        </div>
       ) : logs.length === 0 ? (
         <p style={{ color:"#555", textAlign:"center", padding:40 }}>Không có dữ liệu</p>
       ) : (
@@ -192,10 +329,25 @@ export default function AdminLogs({ token }) {
                     wordBreak:"break-word" }}>{getTitle(item)}</p>
                   <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
                     <span style={{ fontSize:10, color:st.color, background:st.bg,
-                      borderRadius:4, padding:"1px 6px", fontWeight:700 }}>{item._type}</span>
+                      borderRadius:4, padding:"1px 6px", fontWeight:700 }}>{typeLabel(item)}</span>
                     <span style={{ fontSize:10, color:"#555" }}>{fmtDate(item.created_at)}</span>
                     {item.status && <span style={{ fontSize:10, color:"#888" }}>{item.status}</span>}
-                    {item.source && <span style={{ fontSize:10, color:"#666" }}>via {item.source}</span>}
+                    {item._type==="revive_credit" && item.game_key && (
+                      <span style={{ fontSize:10, color:"#777" }}>
+                        {GAME_LABEL[item.game_key] || item.game_key}
+                      </span>
+                    )}
+                    {item._type==="revive_credit" && item.reference_type && (
+                      <span style={{ fontSize:10, color:"#666" }}>
+                        {item.reference_type}
+                        {item.reference_id ? ` · ${item.reference_id}` : ""}
+                      </span>
+                    )}
+                    {item.source && item._type!=="revive_credit" && (
+                      <span style={{ fontSize:10, color:"#666" }}>
+                        via {item.source}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -214,9 +366,9 @@ export default function AdminLogs({ token }) {
         </button>
         <span style={{ color:"#666", fontSize:12, padding:"6px 0" }}>Trang {page}</span>
         <button onClick={()=>{ const p=page+1; setPage(p); fetchLogs(tab,p,search); }}
-          disabled={logs.length<50}
+          disabled={!hasMore}
           style={{ background:"rgba(255,255,255,0.08)", border:"none", borderRadius:8,
-            padding:"6px 16px", color: logs.length<50?"#444":"white", cursor: logs.length<50?"not-allowed":"pointer", fontSize:12 }}>
+            padding:"6px 16px", color: !hasMore?"#444":"white", cursor: !hasMore?"not-allowed":"pointer", fontSize:12 }}>
           Sau →
         </button>
       </div>

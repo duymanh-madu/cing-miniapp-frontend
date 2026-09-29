@@ -207,9 +207,14 @@ test(
       /\/game\/leaderboard\/alltime-games/
     );
 
-    assert.match(
+    assert.doesNotMatch(
       games,
       /\/admin\/players\/adjust-plays/
+    );
+
+    assert.match(
+      games,
+      /<AdminReviveCreditAdjustmentV2/
     );
 
     assert.match(
