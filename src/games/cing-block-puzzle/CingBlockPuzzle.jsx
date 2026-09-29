@@ -1447,6 +1447,56 @@ CingBlockPuzzle({
             startError?.code ||
             "";
 
+          /*
+           * CING BLOCK PUZZLE V5
+           * VERSION SELF-RECOVERY
+           *
+           * After a production engine-contract cutover,
+           * stale browser recovery/request state must not
+           * permanently lock the customer out.
+           *
+           * This clears LOCAL recovery only.
+           * No backend session, score, Revive Credit,
+           * Wallet or loyalty mutation occurs here.
+           */
+          if (
+            code ===
+              "BLOCK_PUZZLE_UNSUPPORTED_VERSION" ||
+            code ===
+              "BLOCK_PUZZLE_UNSUPPORTED_ENGINE_CONTRACT" ||
+            code ===
+              "BLOCK_PUZZLE_SESSION_VERSION_MISMATCH" ||
+            code ===
+              "BLOCK_PUZZLE_RECOVERY_VERSION_UNSUPPORTED"
+          ) {
+            clearBlockPuzzleRecovery();
+            clearBlockPuzzleTerminalIntent();
+
+            requestIdRef.current =
+              null;
+
+            runtimeRef.current =
+              null;
+
+            if (
+              mountedRef.current
+            ) {
+              setRuntime(null);
+
+              setDrag(null);
+
+              setError(
+                "Đã làm mới phiên game. Bấm Bắt đầu để vào ván mới."
+              );
+
+              setPhase(
+                PHASE.IDLE
+              );
+            }
+
+            return;
+          }
+
           if (
             code ===
             "BLOCK_PUZZLE_SESSION_EXPIRED"

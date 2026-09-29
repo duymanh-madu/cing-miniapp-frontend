@@ -804,6 +804,7 @@ export default function CingOfflineRevivalGameV2({
       finalizeUnknownRef.current = true;
       mutationBusyRef.current = true;
       setBusy(true);
+      setMessage("Đang lưu kết quả...");
 
       try {
         const profile =
@@ -857,7 +858,7 @@ export default function CingOfflineRevivalGameV2({
         finalizeUnknownRef.current = false;
 
         setStatus("finalized");
-        setMessage("");
+        setMessage("Đã lưu kết quả thành công.");
 
         return receipt;
       } finally {
@@ -1038,8 +1039,7 @@ export default function CingOfflineRevivalGameV2({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background:
-              "rgba(14, 8, 5, .85)",
+            background: "#170d08",
             padding: 20,
           }}
         >
@@ -1049,7 +1049,11 @@ export default function CingOfflineRevivalGameV2({
                 "min(380px, 100%)",
               padding: 24,
               borderRadius: 22,
-              background: "#fff3df",
+              background: "#fff7ea",
+              boxShadow:
+                "0 24px 80px rgba(0,0,0,.38)",
+              border:
+                "1px solid rgba(116,65,33,.14)",
               color: "#2b160b",
               textAlign: "center",
             }}
@@ -1084,8 +1088,7 @@ export default function CingOfflineRevivalGameV2({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background:
-              "rgba(14, 8, 5, .82)",
+            background: "#170d08",
             padding: 20,
           }}
         >
@@ -1242,8 +1245,7 @@ export default function CingOfflineRevivalGameV2({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background:
-              "rgba(14, 8, 5, .85)",
+            background: "#170d08",
           }}
         >
           <button
@@ -1267,7 +1269,11 @@ export default function CingOfflineRevivalGameV2({
             zIndex: 12001,
             padding: 16,
             borderRadius: 14,
-            background: "#fff3df",
+            background: "#fff7ea",
+              boxShadow:
+                "0 24px 80px rgba(0,0,0,.38)",
+              border:
+                "1px solid rgba(116,65,33,.14)",
             color: "#2b160b",
           }}
         >
