@@ -30,7 +30,7 @@ import {
  * This component is NOT mounted while the
  * frontend Gift V2 feature flag is OFF.
  *
- * No client-supplied price, Charm award
+ * No client-supplied price or reward amount
  * or sender identity in the purchase payload.
  */
 
@@ -740,7 +740,7 @@ CingGameGiftPurchaseV2({
                 textAlign: "center",
               }}
             >
-              🎉
+              ✅
             </p>
 
             <h3
@@ -749,7 +749,7 @@ CingGameGiftPurchaseV2({
                 color: "#ffd69b",
               }}
             >
-              Đã tặng Gift thành công!
+              Đã tặng vật phẩm thành công!
             </h3>
 
             <p>
@@ -789,20 +789,6 @@ CingGameGiftPurchaseV2({
                 )
               }đ
             </p>
-
-            <p
-              style={{
-                fontSize: 11,
-                overflowWrap:
-                  "anywhere",
-                color: "#c7ac98",
-              }}
-            >
-              Mã giao dịch: {
-                receipt.request_id
-              }
-            </p>
-
             <button
               type="button"
               style={action}
@@ -894,7 +880,7 @@ CingGameGiftPurchaseV2({
                           gift.points_cost
                         } điểm · +{
                           gift.charm_award
-                        } Charm
+                        } Điểm quyến rũ
                       </span>
                     </button>
                   )

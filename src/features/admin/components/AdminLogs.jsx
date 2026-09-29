@@ -4,6 +4,7 @@ import apiClient from "@/infra/api/apiClient";
 const TABS = [
   { key:"all",            label:"Tất cả",          icon:"📋" },
   { key:"revive_credit",  label:"Revive Credit",   icon:"✨" },
+  { key:"gift",           label:"Tặng vật phẩm",    icon:"🎁" },
   { key:"points",         label:"Điểm bonus",       icon:"💎" },
   { key:"games",          label:"Game",             icon:"🎮" },
   { key:"rewards",        label:"Nhận quà BXH",    icon:"🏆" },
@@ -24,6 +25,8 @@ function getStyle(item) {
   if (item._type==="revive_credit")  return item.amount >= 0
     ? { color:"#4CAF50", bg:"rgba(76,175,80,0.1)", icon:"✨" }
     : { color:"#FF7043", bg:"rgba(255,112,67,0.1)", icon:"🎮" };
+  if (item._type==="gift")
+    return { color:"#FF9800", bg:"rgba(255,152,0,0.1)", icon:"🎁" };
   if (item._type==="legacy_plays_bought" || item._type==="legacy_plays_given")
     return { color:"#777", bg:"rgba(255,255,255,0.05)", icon:"🗄️" };
   if (item._type==="reward")         return { color:"#FFD700", bg:"rgba(255,215,0,0.1)",  icon:"🏆" };
@@ -93,6 +96,10 @@ function typeLabel(item) {
     return "Revive Credit";
   }
 
+  if (item._type === "gift") {
+    return "Tặng vật phẩm";
+  }
+
   if (
     item._type === "legacy_plays_bought" ||
     item._type === "legacy_plays_given"
@@ -121,6 +128,31 @@ function getTitle(item) {
       `${id} — ${reviveSourceLabel(item)} — ` +
       `${amount > 0 ? "+" : ""}${fmt(amount)} Revive Credit ` +
       `(số dư ${fmt(item.balance_before)} → ${fmt(item.balance_after)})`
+    );
+  }
+
+  if (item._type==="gift") {
+    const recipient =
+      item.recipient_user_id || "?";
+
+    const gift =
+      [
+        item.gift_icon,
+        item.gift_name,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+    const payment =
+      item.funding_source === "points"
+        ? `${fmt(item.points_cost)} điểm`
+        : `${fmt(item.price_vnd)}đ`;
+
+    return (
+      `${id} → ${recipient} — ` +
+      `Tặng ${gift || "vật phẩm"} — ` +
+      `${payment} — ` +
+      `+${fmt(item.charm_awarded)} Điểm quyến rũ`
     );
   }
 
@@ -343,6 +375,18 @@ export default function AdminLogs({ token }) {
                         {item.reference_id ? ` · ${item.reference_id}` : ""}
                       </span>
                     )}
+                    {item._type==="gift" && item.reference_id && (
+                      <span style={{ fontSize:10, color:"#666" }}>
+                        Mã giao dịch · {item.reference_id}
+                      </span>
+                    )}
+
+                    {item._type==="gift" && item.sender_message && (
+                      <span style={{ fontSize:10, color:"#777" }}>
+                        💌 {item.sender_message}
+                      </span>
+                    )}
+
                     {item.source && item._type!=="revive_credit" && (
                       <span style={{ fontSize:10, color:"#666" }}>
                         via {item.source}
