@@ -201,3 +201,21 @@ test(
     );
   }
 );
+
+test(
+  "Revive Credit wallet purchase uses customer Thẻ hồi sinh wording without rewriting ledger authority",
+  () => {
+    const body =
+      descriptionBody();
+
+    assert.match(
+      source,
+      /reference_type ===[\s\S]*"revive_credit_purchase"[\s\S]*return "Mua Thẻ hồi sinh bằng Cing Wallet"/
+    );
+
+    assert.doesNotMatch(
+      source,
+      /return "Mua Revive Credit bằng Cing Wallet"/
+    );
+  }
+);

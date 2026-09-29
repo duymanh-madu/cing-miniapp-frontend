@@ -29,6 +29,13 @@ function resolveTitle(
         return "Cing Wallet";
       }
 
+      if (
+        row.reference_type ===
+          "revive_credit_purchase"
+      ) {
+        return "Mua Thẻ hồi sinh bằng Cing Wallet";
+      }
+
       return (
         row.note ||
         row.reason ||
