@@ -11,6 +11,16 @@ const source =
     "utf8"
   );
 
+
+const gameCenterPageSource =
+  fs.readFileSync(
+    new URL(
+      "../../../features/game-center/pages/GameCenterPage.jsx",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
 test(
   "final result prioritizes continuous play",
   () => {
@@ -94,7 +104,7 @@ test(
 );
 
 test(
-  "result card exposes score combo and revive summary",
+  "result card exposes only score and combo summary",
   () => {
     assert.match(
       source,
@@ -106,9 +116,19 @@ test(
       /finalResult\?\.bestCombo/
     );
 
-    assert.match(
+    assert.doesNotMatch(
       source,
       /finalResult\?\.revivesUsed/
+    );
+
+    assert.doesNotMatch(
+      source,
+      /"HỒI SINH"/
+    );
+
+    assert.match(
+      source,
+      /repeat\(2,minmax\(0,1fr\)\)/
     );
   }
 );
@@ -119,6 +139,32 @@ test(
     assert.doesNotMatch(
       source,
       /Đã lưu kết quả · Về Game Center/
+    );
+  }
+);
+
+
+test(
+  "leaderboard action closes gameplay before opening board",
+  () => {
+    assert.match(
+      gameCenterPageSource,
+      /const gameKey\s*=\s*activeGame/
+    );
+
+    assert.match(
+      gameCenterPageSource,
+      /setActiveGame\(null\);[\s\S]*setShowBoard\(gameKey\);/
+    );
+  }
+);
+
+test(
+  "Game Center action clears leaderboard state before lobby",
+  () => {
+    assert.match(
+      gameCenterPageSource,
+      /setShowBoard\(null\);[\s\S]*setActiveGame\(null\);/
     );
   }
 );

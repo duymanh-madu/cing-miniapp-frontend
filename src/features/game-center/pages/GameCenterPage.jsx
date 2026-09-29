@@ -594,11 +594,17 @@ export default function GameCenterPage() {
           gameKey={activeGame}
           onExit={() => {
             trackGameStop(activeGame);
+            setShowBoard(null);
             setActiveGame(null);
           }}
-          onShowLeaderboard={() =>
-            setShowBoard(activeGame)
-          }
+          onShowLeaderboard={() => {
+            const gameKey =
+              activeGame;
+
+            trackGameStop(gameKey);
+            setActiveGame(null);
+            setShowBoard(gameKey);
+          }}
           onChallengeProgress={
             handleChallengeProgress
           }

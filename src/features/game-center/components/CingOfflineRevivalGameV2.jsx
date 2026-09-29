@@ -876,15 +876,6 @@ export default function CingOfflineRevivalGameV2({
               Number(intent.best_combo) || 0
             ),
 
-          revivesUsed:
-            Math.max(
-              0,
-              Number(
-                coordinatorRef.current
-                  ?.snapshot?.()
-                  ?.revives_used
-              ) || 0
-            ),
         });
 
         setStatus("finalized");
@@ -1408,7 +1399,7 @@ export default function CingOfflineRevivalGameV2({
               style={{
                 display: "grid",
                 gridTemplateColumns:
-                  "repeat(3,minmax(0,1fr))",
+                  "repeat(2,minmax(0,1fr))",
                 gap: 9,
                 marginBottom: 19,
               }}
@@ -1421,10 +1412,6 @@ export default function CingOfflineRevivalGameV2({
                 [
                   "COMBO",
                   finalResult?.bestCombo ?? 0,
-                ],
-                [
-                  "HỒI SINH",
-                  finalResult?.revivesUsed ?? 0,
                 ],
               ].map(
                 ([label, value]) => (
