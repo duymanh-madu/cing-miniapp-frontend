@@ -20,6 +20,10 @@ import {
   resetQueryCache,
 } from "@/query";
 
+import {
+  clearCachedZaloUserInfo,
+} from "@/runtime/customer/runtimeCustomerPermissionEngine";
+
 export function logout() {
 
   const accessToken =
@@ -52,6 +56,8 @@ export function logout() {
     .catch(() => false);
 
   destroySession();
+
+  clearCachedZaloUserInfo();
 
   resetQueryCache();
 

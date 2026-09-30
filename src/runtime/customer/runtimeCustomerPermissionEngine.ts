@@ -101,13 +101,34 @@ export function setCachedZaloUserInfo(info: { id: string; name: string; avatar: 
   _cachedUserInfo = info;
 }
 
-export async function getZaloUserInfo(): Promise<{ name?: string; avatar?: string; id?: string } | null> {
-  if (_cachedUserInfo?.id) return _cachedUserInfo;
-  // Fallback: request qua shell
+export function clearCachedZaloUserInfo() {
+  _cachedUserInfo = null;
+}
+
+export async function getZaloUserInfo(
+  options: {
+    forceRefresh?: boolean;
+    timeoutMs?: number;
+  } = {}
+): Promise<{ name?: string; avatar?: string; id?: string } | null> {
+  if (!options.forceRefresh && _cachedUserInfo?.id) {
+    return _cachedUserInfo;
+  }
+
+  // Request current Zalo account identity from shell.
   try {
     const result: any = await new Promise((resolve, reject) => {
       const requestId = `userinfo_${Date.now()}`;
-      const timer = setTimeout(() => { window.removeEventListener("message", handler); reject(new Error("timeout")); }, 15000);
+      const timeoutMs =
+        Number.isFinite(options.timeoutMs) &&
+        Number(options.timeoutMs) > 0
+          ? Number(options.timeoutMs)
+          : 15000;
+
+      const timer = setTimeout(() => {
+        window.removeEventListener("message", handler);
+        reject(new Error("timeout"));
+      }, timeoutMs);
       function handler(e: MessageEvent) {
         const data = e.data;
         if (!data || data.type !== "ZALO_USER_INFO_RESULT") return;

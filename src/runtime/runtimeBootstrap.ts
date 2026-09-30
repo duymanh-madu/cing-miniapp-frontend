@@ -17,6 +17,7 @@ import {
 } from "@/infra/auth/staleAuthRecovery";
 
 import { activateMiniAppUser } from "@/zalo/activation/activationApi";
+import { getZaloUserInfo } from "./customer/runtimeCustomerPermissionEngine";
 import { recoverLocalDeviceReauthSession } from "@/infra/auth/localDeviceReauth";
 import { getOrCreateRuntimeDeviceId } from "./session/runtimeDeviceIdentity";
 import {
@@ -154,8 +155,10 @@ async function restoreActivatedMemberFromShellToken() {
     const miniAccessToken =
       identity.miniAccessToken || "";
 
-    const zaloUserId =
-      identity.zaloUserId || "";
+    let zaloUserId =
+      String(
+        identity.zaloUserId || ""
+      ).trim();
 
     const hasCanonicalPhone =
       !!existingPhone;
@@ -165,6 +168,52 @@ async function restoreActivatedMemberFromShellToken() {
         phoneToken &&
         miniAccessToken
       );
+
+    /*
+     * Slow-device recovery:
+     *
+     * Shell boot may restore the member phone before the current
+     * Zalo account ID arrives. Never fall back to persisted
+     * __zalo_uid or the in-memory user-info cache here.
+     *
+     * Only when the runtime Zalo ID is genuinely missing, ask the
+     * shell for the current account identity and bypass the cache.
+     * Normal cold starts that already have shellBootData.zaloId
+     * pay no additional request or delay.
+     */
+    if (
+      !zaloUserId &&
+      (
+        hasCanonicalPhone ||
+        hasZaloTokenPair
+      )
+    ) {
+      const currentZaloUserInfo =
+        await getZaloUserInfo({
+          forceRefresh: true,
+          timeoutMs:
+            SHELL_BOOT_STARTUP_BUDGET_MS,
+        }).catch(() => null);
+
+      zaloUserId =
+        String(
+          currentZaloUserInfo?.id || ""
+        ).trim();
+
+      if (zaloUserId) {
+        store.setIdentity({
+          zaloUserId,
+          fullName:
+            identity.fullName ||
+            currentZaloUserInfo?.name ||
+            "",
+          avatar:
+            identity.avatar ||
+            currentZaloUserInfo?.avatar ||
+            "",
+        } as any);
+      }
+    }
 
     /*
      * Cached-member continuity:
