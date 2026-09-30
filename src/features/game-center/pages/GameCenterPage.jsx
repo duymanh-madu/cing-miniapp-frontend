@@ -32,6 +32,10 @@ import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import React, { useState, useEffect } from "react";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import useAppBootstrapAuthState from "@/bootstrap/state/appBootstrapAuthState";
+import {
+  openAuthenticatedRuntimeSession,
+} from "@/infra/auth/authenticatedRuntimeSession";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import CommunityChat from "../components/CommunityChat";
@@ -164,7 +168,40 @@ export default function GameCenterPage() {
   const [showChat, setShowChat]           = useState(false);
   const [gameEconomy, setGameEconomy]     = useState(null);
 
-  const authenticated = useAuthStore(s => s.authenticated);
+  /*
+   * A restored member phone is not proof that the canonical
+   * backend JWT is ready yet.
+   *
+   * Slow WebViews can restore member identity before backend
+   * authentication finishes, so game admission must use both
+   * authorities.
+   */
+  const authenticated =
+    useAuthStore(s => s.authenticated);
+
+  const initialAuthResolved =
+    useAppBootstrapAuthState(
+      s => s.initialAuthResolved
+    );
+
+  const [pendingGameId, setPendingGameId] =
+    useState(null);
+
+  const gameAuthAttemptRef =
+    React.useRef(false);
+
+  /*
+   * Read-refresh signal only.
+   *
+   * Daily Mission remains backend/ledger authoritative.
+   * A successful claim increments this signal so the
+   * storefront reads the committed Revive Credit balance.
+   */
+  const [
+    reviveBalanceRefreshSignal,
+    setReviveBalanceRefreshSignal,
+  ] = useState(0);
+
   const { isActivated, requireMember, MemberPrompt } = useMemberRequired();
 
   /*
@@ -348,14 +385,113 @@ export default function GameCenterPage() {
     }
   };
 
+  /*
+   * Game entry requires:
+   *
+   * 1. member identity;
+   * 2. backend-authenticated canonical session.
+   *
+   * No arbitrary timeout is used to hide cold-start races.
+   */
   const handlePlayGame = (gameId) => {
-    if (!requireMember()) return;
+    requireMember(() => {
+      setPendingGameId(gameId);
+    });
+  };
 
-    setTimeout(() => {
+  useEffect(() => {
+    if (!pendingGameId) {
+      return;
+    }
+
+    /*
+     * Auth store is hydrated synchronously by createSession()
+     * after /auth/session/open succeeds.
+     */
+    if (authenticated) {
+      const gameId = pendingGameId;
+
+      setPendingGameId(null);
       setActiveGame(gameId);
       trackGameStart(gameId);
-    }, 50);
-  };
+      return;
+    }
+
+    /*
+     * Local duplicate-attempt fence.
+     * openAuthenticatedRuntimeSession() itself also owns the
+     * canonical single-flight promise.
+     */
+    if (gameAuthAttemptRef.current) {
+      return;
+    }
+
+    gameAuthAttemptRef.current = true;
+
+    let active = true;
+
+    void openAuthenticatedRuntimeSession()
+      .then(result => {
+        if (!active) {
+          return;
+        }
+
+        if (result === "authenticated") {
+          /*
+           * Do not mount here directly.
+           * createSession() updates authenticated=true and the
+           * reactive branch above releases the pending intent.
+           */
+          return;
+        }
+
+        if (
+          result === "no_access_token" &&
+          !initialAuthResolved
+        ) {
+          /*
+           * Cold bootstrap may still be reconciling shell
+           * identity. Preserve the pending game intent.
+           */
+          return;
+        }
+
+        setPendingGameId(null);
+
+        if (result === "transient_failure") {
+          showToast(
+            "Chưa thể xác minh phiên đăng nhập. Vui lòng thử lại khi kết nối ổn định."
+          );
+          return;
+        }
+
+        showToast(
+          "Phiên đăng nhập chưa sẵn sàng. Vui lòng thử lại."
+        );
+      })
+      .catch(() => {
+        if (!active) {
+          return;
+        }
+
+        setPendingGameId(null);
+
+        showToast(
+          "Chưa thể xác minh phiên đăng nhập. Vui lòng thử lại."
+        );
+      })
+      .finally(() => {
+        gameAuthAttemptRef.current = false;
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [
+    pendingGameId,
+    authenticated,
+    initialAuthResolved,
+  ]);
 
   const handleRestart = () => true;
 
@@ -587,6 +723,15 @@ export default function GameCenterPage() {
                       const res = await apiClient.post("/missions/checkin", { user_id: phone });
                       if (res.data?.success) {
                         setMissions(prev => prev.map(x => x.type === "checkin" ? {...x, completed:true} : x));
+
+                        /*
+                         * Do not optimistically add Revive Credits.
+                         * Refetch the committed backend balance.
+                         */
+                        setReviveBalanceRefreshSignal(
+                          value => value + 1
+                        );
+
                         showToast(
                           `✅ Điểm danh thành công! +${Number(
                             m.revive_credits ?? m.plays ?? 0
@@ -614,6 +759,9 @@ export default function GameCenterPage() {
         /^0[0-9]{9}$/.test(getPhone()) && (
         <ReviveCreditStorefrontV2
           userId={getPhone()}
+          refreshSignal={
+            reviveBalanceRefreshSignal
+          }
         />
       )}
 

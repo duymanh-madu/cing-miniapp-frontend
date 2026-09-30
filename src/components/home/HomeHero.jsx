@@ -3,11 +3,40 @@ import RealtimeStatusBadge from '../system/RealtimeStatusBadge';
 import NotificationBellButton from '@/features/notification/components/NotificationBellButton';
 import useAuthStore from '@/stores/auth/authStore';
 import useRealtimeCustomerStore from '@/stores/customer/customerRuntimeStore';
+import { useRuntimeCustomerIdentityStore } from '@/runtime/customer/runtimeCustomerIdentityStore';
 
 function HomeHero() {
   const authProfile     = useAuthStore(s => s.profile);
   const customerProfile = useRealtimeCustomerStore(s => s.profile);
-  const displayName     = resolveProfileName(authProfile || customerProfile, 'Khách');
+
+  /*
+   * Runtime shell identity may become available before backend
+   * profile enrichment on slower devices.
+   *
+   * This is presentation fallback only. It grants no auth,
+   * Wallet, game or financial authority.
+   */
+  const runtimeName =
+    useRuntimeCustomerIdentityStore(
+      s => s.identity?.fullName || ""
+    );
+
+  const runtimeProfile =
+    runtimeName
+      ? { name: runtimeName }
+      : null;
+
+  const displayName =
+    resolveProfileName(
+      authProfile,
+      resolveProfileName(
+        customerProfile,
+        resolveProfileName(
+          runtimeProfile,
+          'Khách'
+        )
+      )
+    );
   const hour            = new Date().getHours();
   const greeting        = hour < 12 ? 'Chào buổi sáng' : hour < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
 

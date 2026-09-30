@@ -20,6 +20,7 @@ const PACKAGES = Object.freeze([
 
 export default function ReviveCreditStorefrontV2({
   userId,
+  refreshSignal = 0,
 }) {
   const [balance, setBalance] =
     useState(null);
@@ -78,7 +79,11 @@ export default function ReviveCreditStorefrontV2({
     return () => {
       active = false;
     };
-  }, [userId, refreshKey]);
+  }, [
+    userId,
+    refreshKey,
+    refreshSignal,
+  ]);
 
   return (
     <section
