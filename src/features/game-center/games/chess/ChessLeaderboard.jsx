@@ -4,6 +4,7 @@ import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import { useNavigate } from "react-router-dom";
+import LeaderboardBadgeChips from "@/features/leaderboard/components/LeaderboardBadgeChips";
 
 function getPhone() {
   const sources = [
@@ -24,6 +25,7 @@ export default function ChessLeaderboard({ onClose }) {
   const [tab,     setTab]     = useState("wins");
   const [data,    setData]    = useState(null);
   const [loading, setLoading] = useState(true);
+  const [privateRanks, setPrivateRanks] = useState(null);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const profilePhone = useAuthStore(s => s.profile?.phone);
   const navigate = useNavigate();
@@ -41,26 +43,137 @@ export default function ChessLeaderboard({ onClose }) {
     if (uid) { onClose(); setTimeout(() => navigate(`/profile/${uid}`), 150); }
   };
 
-  const fetchData = () => {
-    setLoading(true);
-    apiClient.get("/game/chess/leaderboard")
-      .then(r => setData(r.data?.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  const fetchData = ({ background = false } = {}) => {
+    if (!background) {
+      setLoading(true);
+    }
+
+    const publicRequest =
+      apiClient
+        .get("/game/chess/leaderboard")
+        .then(r => {
+          setData(r.data?.data);
+        })
+        .catch(() => {});
+
+    const privateRequest =
+      myPhone
+        ? apiClient
+            .get(
+              `/game/chess/leaderboard/user-rank/${myPhone}`
+            )
+            .then(r => {
+              setPrivateRanks(
+                r.data?.data || null
+              );
+            })
+            .catch(() => {})
+        : Promise.resolve();
+
+    return Promise
+      .all([
+        publicRequest,
+        privateRequest,
+      ])
+      .finally(() => {
+        if (!background) {
+          setLoading(false);
+        }
+      });
   };
 
   useEffect(() => {
     fetchData();
-    const GAME_SERVER = import.meta.env.VITE_GAME_SERVER_URL || "https://cing-backend-production.up.railway.app";
-    const s = io(`${GAME_SERVER}/chess`, { transports:["websocket"] });
-    s.on("chess:leaderboard_updated", fetchData);
-    return () => s.disconnect();
-  }, []);
 
-  const list = tab === "wins" ? (data?.topWins||[]) : (data?.topStreak||[]);
+    const GAME_SERVER =
+      import.meta.env.VITE_GAME_SERVER_URL ||
+      "https://cing-backend-production.up.railway.app";
+
+    const socket = io(
+      `${GAME_SERVER}/chess`,
+      { transports:["websocket"] }
+    );
+
+    let refreshTimer = null;
+
+    const refreshInBackground = () => {
+      if (refreshTimer) {
+        clearTimeout(refreshTimer);
+      }
+
+      refreshTimer = setTimeout(() => {
+        fetchData({ background:true });
+      }, 180);
+    };
+
+    socket.on(
+      "chess:leaderboard_updated",
+      refreshInBackground
+    );
+
+    const handleFocus = () =>
+      refreshInBackground();
+
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        refreshInBackground();
+      }
+    };
+
+    window.addEventListener(
+      "focus",
+      handleFocus
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibility
+    );
+
+    return () => {
+      if (refreshTimer) {
+        clearTimeout(refreshTimer);
+      }
+
+      socket.off(
+        "chess:leaderboard_updated",
+        refreshInBackground
+      );
+
+      socket.disconnect();
+
+      window.removeEventListener(
+        "focus",
+        handleFocus
+      );
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibility
+      );
+    };
+  }, [myPhone]);
+
+  const list = (
+    tab === "wins"
+      ? (data?.topWins || [])
+      : (data?.topStreak || [])
+  ).slice(0, 10);
+
   const top3 = list.slice(0,3);
   const rest = list.slice(3);
-  const myEntry = list.find(e => e.user_id === myPhone);
+  const myEntry = list.find(
+    e => String(e.user_id) === String(myPhone)
+  );
+
+  const privateRank =
+    tab === "wins"
+      ? privateRanks?.wins
+      : privateRanks?.streak;
+
+  const showPrivateRank =
+    Boolean(privateRank?.rank) &&
+    Number(privateRank.rank) > 10;
 
   return (
     <div style={{ position:"fixed", inset:0, zIndex:200,
@@ -70,14 +183,14 @@ export default function ChessLeaderboard({ onClose }) {
       {/* Header */}
       <div style={{ background:"linear-gradient(180deg,#050208,#0d0520)", flexShrink:0,
         paddingTop:"max(env(safe-area-inset-top,0px) + 8px, 48px)",
-        paddingBottom:0, borderBottom:"1px solid rgba(255,215,0,0.1)" }}>
+        paddingBottom:0, borderBottom:"1px solid rgba(232,201,139,0.1)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, padding:"0 16px 12px" }}>
           <button onClick={onClose} style={{ background:"rgba(255,255,255,0.06)",
             border:"1px solid rgba(255,255,255,0.1)", color:"white",
             borderRadius:12, width:38, height:38, cursor:"pointer", fontSize:18,
             display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
           <div style={{ flex:1, textAlign:"center" }}>
-            <p style={{ color:"rgba(255,215,0,0.6)", fontSize:10, fontWeight:800,
+            <p style={{ color:"rgba(232,201,139,0.6)", fontSize:10, fontWeight:800,
               letterSpacing:3, margin:"0 0 2px", textTransform:"uppercase" }}>BXH CỜ VUA</p>
             <h1 style={{ color:"white", fontSize:18, fontWeight:900, margin:0 }}>Kỳ thủ cờ vua ♟️</h1>
           </div>
@@ -89,26 +202,34 @@ export default function ChessLeaderboard({ onClose }) {
           {[{k:"wins",label:"🏆 Thắng nhiều nhất"},{k:"streak",label:"🔥 Chuỗi thắng dài nhất"}].map(t => (
             <button key={t.k} onClick={() => setTab(t.k)} style={{
               flex:1, padding:"8px", borderRadius:12, border:"none", cursor:"pointer",
-              background: tab===t.k ? "linear-gradient(135deg,#D4531C,#ff6b35)" : "rgba(255,255,255,0.06)",
+              background: tab===t.k ? "linear-gradient(135deg,#B66A3C,#D28A5A)" : "rgba(255,255,255,0.06)",
               color:"white", fontSize:12, fontWeight: tab===t.k ? 900 : 500,
-              boxShadow: tab===t.k ? "0 4px 12px rgba(212,83,28,0.4)" : "none",
+              boxShadow: tab===t.k ? "0 4px 12px rgba(182,106,60,0.4)" : "none",
             }}>{t.label}</button>
           ))}
         </div>
 
-        {/* Hạng của bạn */}
-        {myEntry && (
-          <div style={{ margin:"0 16px 12px", padding:"8px 14px",
-            background:"rgba(212,83,28,0.12)", border:"1px solid rgba(212,83,28,0.3)",
-            borderRadius:12, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-            <span style={{ color:"rgba(255,255,255,0.5)", fontSize:12 }}>Hạng của bạn</span>
-            <span style={{ color:"#D4531C", fontSize:14, fontWeight:900 }}>
-              #{myEntry.rank} · {tab==="wins" ? `${myEntry.wins} trận thắng` : `Chuỗi ${myEntry.best_streak}`}
+        {/* Private rank: only when current user is outside public Top 10 */}
+        {showPrivateRank && (
+          <div style={{ margin:"0 16px 12px", padding:"10px 14px",
+            background:"linear-gradient(135deg,rgba(182,106,60,0.14),rgba(232,201,139,0.06))",
+            border:"1px solid rgba(182,106,60,0.32)",
+            borderRadius:12, display:"flex", justifyContent:"space-between",
+            alignItems:"center", gap:12 }}>
+            <span style={{ color:"rgba(255,255,255,0.52)", fontSize:12 }}>
+              Vị trí của bạn
+            </span>
+            <span style={{ color:"#F0B782", fontSize:14, fontWeight:900 }}>
+              #{privateRank.rank} · {
+                tab === "wins"
+                  ? `${privateRank.score} trận thắng`
+                  : `Chuỗi ${privateRank.score}`
+              }
             </span>
           </div>
         )}
 
-        <div style={{ height:1, background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.15),transparent)", margin:"0 16px" }}/>
+        <div style={{ height:1, background:"linear-gradient(90deg,transparent,rgba(232,201,139,0.15),transparent)", margin:"0 16px" }}/>
       </div>
 
       {/* Content */}
@@ -140,6 +261,7 @@ export default function ChessLeaderboard({ onClose }) {
                         : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#C0C0C0",fontSize:22,fontWeight:900}}>{(top3[1].name||"?")[0]}</div>}
                     </div>
                     <p style={{fontSize:11,color:"#C0C0C0",fontWeight:800,margin:"0 0 3px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:85,marginLeft:"auto",marginRight:"auto"}}>{top3[1].name||"?"}</p>
+<LeaderboardBadgeChips entry={top3[1]} />
                     <div style={{background:"rgba(192,192,192,0.12)",borderRadius:8,padding:"3px 8px",display:"inline-block",border:"1px solid rgba(192,192,192,0.25)"}}>
                       <span style={{color:"#C0C0C0",fontSize:11,fontWeight:900}}>🥈 {tab==="wins"?top3[1].wins:top3[1].best_streak}</span>
                     </div>
@@ -149,18 +271,19 @@ export default function ChessLeaderboard({ onClose }) {
                 {/* Hạng 1 */}
                 {top3[0] && <div onClick={() => goProfile(top3[0].user_id)}
                   style={{ flex:1, textAlign:"center", cursor:"pointer", transform:"translateY(-20px)" }}>
-                  <div style={{fontSize:26,marginBottom:4,filter:"drop-shadow(0 0 8px rgba(255,215,0,0.8))"}}>👑</div>
+                  <div style={{fontSize:26,marginBottom:4,filter:"drop-shadow(0 0 8px rgba(232,201,139,0.8))"}}>👑</div>
                   <div style={{ width:76, height:76, borderRadius:38, margin:"0 auto 6px",
-                    border:"3px solid #FFD700", overflow:"hidden",
+                    border:"3px solid #E8C98B", overflow:"hidden",
                     background:"linear-gradient(135deg,#5a3a00,#c09000)",
-                    boxShadow:"0 0 24px rgba(255,215,0,0.6), 0 0 48px rgba(255,215,0,0.2)" }}>
+                    boxShadow:"0 0 24px rgba(232,201,139,0.6), 0 0 48px rgba(232,201,139,0.2)" }}>
                     {top3[0].avatar
                       ? <img src={top3[0].avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                      : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#FFD700",fontSize:28,fontWeight:900}}>{(top3[0].name||"?")[0]}</div>}
+                      : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#E8C98B",fontSize:28,fontWeight:900}}>{(top3[0].name||"?")[0]}</div>}
                   </div>
-                  <p style={{fontSize:13,color:"#FFD700",fontWeight:900,margin:"0 0 4px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:95,marginLeft:"auto",marginRight:"auto",textShadow:"0 0 8px rgba(255,215,0,0.6)"}}>{top3[0].name||"?"}</p>
-                  <div style={{background:"rgba(255,215,0,0.15)",borderRadius:8,padding:"4px 12px",display:"inline-block",border:"1px solid rgba(255,215,0,0.4)",boxShadow:"0 0 10px rgba(255,215,0,0.2)"}}>
-                    <span style={{color:"#FFD700",fontSize:13,fontWeight:900}}>🥇 {tab==="wins"?top3[0].wins:top3[0].best_streak}</span>
+                  <p style={{fontSize:13,color:"#E8C98B",fontWeight:900,margin:"0 0 4px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:95,marginLeft:"auto",marginRight:"auto",textShadow:"0 0 8px rgba(232,201,139,0.6)"}}>{top3[0].name||"?"}</p>
+<LeaderboardBadgeChips entry={top3[0]} />
+                  <div style={{background:"rgba(232,201,139,0.15)",borderRadius:8,padding:"4px 12px",display:"inline-block",border:"1px solid rgba(232,201,139,0.4)",boxShadow:"0 0 10px rgba(232,201,139,0.2)"}}>
+                    <span style={{color:"#E8C98B",fontSize:13,fontWeight:900}}>🥇 {tab==="wins"?top3[0].wins:top3[0].best_streak}</span>
                   </div>
                 </div>}
 
@@ -177,6 +300,7 @@ export default function ChessLeaderboard({ onClose }) {
                         : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#CD7F32",fontSize:22,fontWeight:900}}>{(top3[2].name||"?")[0]}</div>}
                     </div>
                     <p style={{fontSize:11,color:"#CD7F32",fontWeight:800,margin:"0 0 3px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:85,marginLeft:"auto",marginRight:"auto"}}>{top3[2].name||"?"}</p>
+<LeaderboardBadgeChips entry={top3[2]} />
                     <div style={{background:"rgba(205,127,50,0.12)",borderRadius:8,padding:"3px 8px",display:"inline-block",border:"1px solid rgba(205,127,50,0.25)"}}>
                       <span style={{color:"#CD7F32",fontSize:11,fontWeight:900}}>🥉 {tab==="wins"?top3[2].wins:top3[2].best_streak}</span>
                     </div>
@@ -187,9 +311,9 @@ export default function ChessLeaderboard({ onClose }) {
 
             {/* Divider */}
             <div style={{display:"flex",alignItems:"center",gap:10,padding:"0 16px 12px"}}>
-              <div style={{flex:1,height:1,background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.2))"}}/>
-              <span style={{color:"rgba(255,215,0,0.5)",fontSize:10,fontWeight:800,letterSpacing:2}}>TOP 4-100</span>
-              <div style={{flex:1,height:1,background:"linear-gradient(90deg,rgba(255,215,0,0.2),transparent)"}}/>
+              <div style={{flex:1,height:1,background:"linear-gradient(90deg,transparent,rgba(232,201,139,0.2))"}}/>
+              <span style={{color:"rgba(232,201,139,0.5)",fontSize:10,fontWeight:800,letterSpacing:2}}>TOP 10</span>
+              <div style={{flex:1,height:1,background:"linear-gradient(90deg,rgba(232,201,139,0.2),transparent)"}}/>
             </div>
 
             {/* Rest */}
@@ -200,22 +324,33 @@ export default function ChessLeaderboard({ onClose }) {
                 <div key={i} onClick={() => goProfile(e.user_id)}
                   style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 16px",
                     borderBottom:"1px solid rgba(255,255,255,0.04)",
-                    background: isMe ? "rgba(212,83,28,0.08)" : "transparent",
+                    background: isMe ? "rgba(182,106,60,0.08)" : "transparent",
                     cursor:"pointer" }}>
                   <span style={{ color:"rgba(255,255,255,0.3)", fontSize:13, fontWeight:700,
                     width:28, textAlign:"center", flexShrink:0 }}>{i+4}</span>
                   <div style={{ width:36, height:36, borderRadius:18, flexShrink:0, overflow:"hidden",
-                    background: isMe ? "linear-gradient(135deg,#D4531C,#ff6b35)" : "linear-gradient(135deg,#1a0a2e,#2d1254)",
+                    background: isMe ? "linear-gradient(135deg,#B66A3C,#D28A5A)" : "linear-gradient(135deg,#1a0a2e,#2d1254)",
                     display:"flex", alignItems:"center", justifyContent:"center",
                     fontSize:14, fontWeight:900, color: isMe?"white":"rgba(255,255,255,0.4)" }}>
                     {e.avatar ? <img src={e.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (e.name||"?")[0]?.toUpperCase()}
                   </div>
-                  <p style={{ flex:1, color: isMe?"#FFD700":"white", fontSize:13,
+                  <div
+                    style={{
+                      flex:1,
+                      minWidth:0,
+                      display:"flex",
+                      flexDirection:"column",
+                      alignItems:"flex-start",
+                    }}
+                  >
+                  <p style={{ color: isMe?"#E8C98B":"white", fontSize:13,
                     fontWeight: isMe?800:600, margin:0,
                     overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
                     {e.name||"Ẩn danh"}{isMe?" (bạn)":""}
                   </p>
-                  <span style={{ color: isMe?"#D4531C":"rgba(255,215,0,0.6)", fontSize:13, fontWeight:900, flexShrink:0 }}>
+<LeaderboardBadgeChips entry={e} align="start" />
+                  </div>
+                  <span style={{ color: isMe?"#B66A3C":"rgba(232,201,139,0.6)", fontSize:13, fontWeight:900, flexShrink:0 }}>
                     {val} {tab==="wins"?"trận":"chuỗi"}
                   </span>
                 </div>

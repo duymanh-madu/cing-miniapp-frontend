@@ -321,7 +321,7 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
 
     async function refreshLeaderboard() {
       try {
-        const res = await fetch((import.meta.env.VITE_API_BASE_URL || 'https://cing-backend-production.up.railway.app/api') + '/leaderboard/top-games/black-pearl-rush?limit=20');
+        const res = await fetch((import.meta.env.VITE_API_BASE_URL || 'https://cing-backend-production.up.railway.app/api') + '/leaderboard/top-games/black-pearl-rush');
         const data = await res.json();
         const rows = Array.isArray(data?.data) ? data.data : [];
         setLeaderboardData(rows);
@@ -601,12 +601,12 @@ export default function BlackPearlRush({ onExit, onGameOver, onRestart, onGameSt
           <div className="absolute inset-0 z-50 bg-black/70 flex items-center justify-center rounded-[32px] p-4">
             <div className="w-full bg-[#f6efe4] rounded-[28px] p-5 shadow-2xl border border-[#dccfb7]">
               <div className="flex items-center justify-between mb-5">
-                <div className="text-[#2b160b] font-black text-2xl">🏆 TOP 100</div>
+                <div className="text-[#2b160b] font-black text-2xl">🏆 TOP 10</div>
                 <button onClick={() => setShowLeaderboard(false)}
                   className="w-10 h-10 rounded-full bg-[#2b160b] text-white font-black">✕</button>
               </div>
               <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
-                {leaderboardData?.slice(0,20)?.map((player, index) => (
+                {leaderboardData?.slice(0,10)?.map((player, index) => (
                   <div key={player.id || index}
                     className={"flex items-center justify-between rounded-2xl px-4 py-3 " +
                       (player.isPlayer ? "bg-[#2b160b] text-white" : "bg-white/70")}>

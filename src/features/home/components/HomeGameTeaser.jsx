@@ -14,7 +14,7 @@ export default function HomeGameTeaser() {
             <h3 className="text-lg font-black mb-1">Bay cùng trân châu</h3>
             <p className="text-sm text-white/70 mb-3">Chơi ngay - Leo rank và nhận vô vàn phần thưởng</p>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold bg-white/20 px-3 py-1 rounded-full">🏆 Vinh danh top 100 gamer</span>
+              <span className="text-xs font-bold bg-white/20 px-3 py-1 rounded-full">🏆 Vinh danh Top 10 mỗi BXH</span>
             </div>
           </div>
           <div className="flex flex-col items-center gap-2 ml-4 shrink-0">

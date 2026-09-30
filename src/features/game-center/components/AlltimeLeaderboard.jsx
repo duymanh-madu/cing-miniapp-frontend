@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { getGame } from "@/games/registry/gameRegistry";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
+import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
+import LeaderboardBadgeChips from "@/features/leaderboard/components/LeaderboardBadgeChips";
 
 const MEDAL = ["🥇","🥈","🥉"];
 
@@ -51,6 +53,8 @@ export default function AlltimeLeaderboard({ onClose }) {
   const [games,      setGames]      = useState([]);
   const [activeGame, setActiveGame] = useState(null);
   const [loading,    setLoading]    = useState(true);
+  const [myRank,     setMyRank]     = useState(null);
+  const refreshTimerRef = useRef(null);
   const profile      = useAuthStore(s => s.profile);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const navigate     = useNavigate();
@@ -68,21 +72,156 @@ export default function AlltimeLeaderboard({ onClose }) {
     if (uid) { onClose(); setTimeout(() => navigate(`/profile/${uid}`), 150); }
   };
 
-  useEffect(() => {
-    apiClient.get("/game/leaderboard/alltime-games")
-      .then(r => {
-        const data = r.data?.data || [];
-        setGames(data);
-        if (data.length > 0) setActiveGame(data[0].game_key);
-      })
-      .catch(() => setGames([]))
-      .finally(() => setLoading(false));
+  const fetchBoards = useCallback(async ({ background = false } = {}) => {
+    if (!background) setLoading(true);
+
+    try {
+      const r = await apiClient.get("/game/leaderboard/alltime-games");
+      const next = r.data?.data || [];
+
+      setGames(next);
+
+      setActiveGame(current => {
+        if (
+          current &&
+          next.some(game => game.game_key === current)
+        ) {
+          return current;
+        }
+
+        return next[0]?.game_key || null;
+      });
+    } catch {
+      if (!background) setGames([]);
+    } finally {
+      if (!background) setLoading(false);
+    }
   }, []);
 
+  const fetchPrivateRank = useCallback(
+    async gameKey => {
+      if (!gameKey || !myId) {
+        setMyRank(null);
+        return;
+      }
+
+      try {
+        const r = await apiClient.get(
+          `/game/leaderboard/alltime-user-rank/${myId}/${gameKey}`
+        );
+
+        setMyRank(r.data?.data || null);
+      } catch {
+        setMyRank(null);
+      }
+    },
+    [myId]
+  );
+
+  useEffect(() => {
+    fetchBoards();
+  }, [fetchBoards]);
+
+  useEffect(() => {
+    fetchPrivateRank(activeGame);
+  }, [activeGame, fetchPrivateRank]);
+
+  useEffect(() => {
+    const scheduleRefresh = payload => {
+      if (
+        payload?.type === "game" &&
+        payload?.game_key &&
+        activeGame &&
+        payload.game_key !== activeGame
+      ) {
+        return;
+      }
+
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+      }
+
+      refreshTimerRef.current = setTimeout(() => {
+        fetchBoards({ background:true });
+
+        if (activeGame) {
+          fetchPrivateRank(activeGame);
+        }
+      }, 180);
+    };
+
+    const attach = () => {
+      const socket = getRuntimeSocket();
+
+      if (!socket) return;
+
+      socket.off(
+        "leaderboard.updated",
+        scheduleRefresh
+      );
+
+      socket.on(
+        "leaderboard.updated",
+        scheduleRefresh
+      );
+    };
+
+    attach();
+
+    const handleFocus = () => scheduleRefresh();
+
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        scheduleRefresh();
+      }
+    };
+
+    window.addEventListener(
+      "focus",
+      handleFocus
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibility
+    );
+
+    return () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+      }
+
+      getRuntimeSocket()?.off(
+        "leaderboard.updated",
+        scheduleRefresh
+      );
+
+      window.removeEventListener(
+        "focus",
+        handleFocus
+      );
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibility
+      );
+    };
+  }, [
+    activeGame,
+    fetchBoards,
+    fetchPrivateRank,
+  ]);
+
   const currentGame = games.find(g => g.game_key === activeGame);
-  const top3  = currentGame?.data?.slice(0,3) || [];
-  const rest  = currentGame?.data?.slice(3)   || [];
-  const myEntry = currentGame?.data?.find(e => String(e.user_id) === String(myId));
+  const publicRows = (currentGame?.data || []).slice(0, 10);
+  const top3 = publicRows.slice(0, 3);
+  const rest = publicRows.slice(3);
+  const myEntry = publicRows.find(
+    e => String(e.user_id) === String(myId)
+  );
+  const privateOutsideTop10 =
+    Boolean(myRank?.rank) &&
+    Number(myRank.rank) > 10;
   const scoreLabel = currentGame?.score_label || "điểm";
 
   return (
@@ -102,10 +241,10 @@ export default function AlltimeLeaderboard({ onClose }) {
             borderRadius:12, width:38, height:38, cursor:"pointer", fontSize:18,
             display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
           <div style={{ flex:1, textAlign:"center" }}>
-            <p style={{ color:"rgba(255,215,0,0.6)", fontSize:10, fontWeight:800,
+            <p style={{ color:"rgba(232,201,139,0.6)", fontSize:10, fontWeight:800,
               letterSpacing:3, margin:"0 0 2px", textTransform:"uppercase" }}>KỶ LỤC MỌI THỜI ĐẠI</p>
             <h1 style={{ color:"white", fontSize:18, fontWeight:900, margin:0,
-              textShadow:"0 0 20px rgba(255,215,0,0.3)" }}>🏆 Alltime Hall of Fame</h1>
+              textShadow:"0 0 20px rgba(232,201,139,0.3)" }}>ĐẠI SẢNH DANH VỌNG</h1>
           </div>
           <div style={{ width:38 }}/>
         </div>
@@ -119,10 +258,10 @@ export default function AlltimeLeaderboard({ onClose }) {
                 whiteSpace:"nowrap", padding:"7px 16px", borderRadius:20, flexShrink:0,
                 border: activeGame===g.game_key ? "none" : "1px solid rgba(255,255,255,0.1)",
                 background: activeGame===g.game_key
-                  ? "linear-gradient(135deg,#D4531C,#ff6b35)"
+                  ? "linear-gradient(135deg,#B66A3C,#D28A5A)"
                   : "rgba(255,255,255,0.04)",
                 color:"white", fontSize:12, fontWeight: activeGame===g.game_key ? 900 : 500,
-                cursor:"pointer", boxShadow: activeGame===g.game_key ? "0 4px 12px rgba(212,83,28,0.4)" : "none",
+                cursor:"pointer", boxShadow: activeGame===g.game_key ? "0 4px 12px rgba(182,106,60,0.4)" : "none",
               }}>
                 <span
                   style={{
@@ -139,19 +278,23 @@ export default function AlltimeLeaderboard({ onClose }) {
           </div>
         )}
 
-        {/* My rank bar */}
-        {myEntry && (
-          <div style={{ margin:"0 16px 12px", padding:"8px 14px",
-            background:"rgba(212,83,28,0.12)", border:"1px solid rgba(212,83,28,0.3)",
-            borderRadius:12, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-            <span style={{ color:"rgba(255,255,255,0.5)", fontSize:12 }}>Hạng của bạn</span>
-            <span style={{ color:"#D4531C", fontSize:14, fontWeight:900 }}>
-              Top {myEntry.rank} · {(myEntry.score||0).toLocaleString()} {scoreLabel}
+        {/* Private rank: only when current user is outside public Top 10 */}
+        {privateOutsideTop10 && (
+          <div style={{ margin:"0 16px 12px", padding:"10px 14px",
+            background:"linear-gradient(135deg,rgba(182,106,60,0.14),rgba(232,201,139,0.06))",
+            border:"1px solid rgba(182,106,60,0.32)",
+            borderRadius:12, display:"flex", justifyContent:"space-between",
+            alignItems:"center", gap:12 }}>
+            <span style={{ color:"rgba(255,255,255,0.52)", fontSize:12 }}>
+              Vị trí của bạn
+            </span>
+            <span style={{ color:"#F0B782", fontSize:14, fontWeight:900 }}>
+              #{myRank.rank} · {Number(myRank.score || 0).toLocaleString()} {scoreLabel}
             </span>
           </div>
         )}
 
-        <div style={{ height:1, background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.15),transparent)", margin:"0 16px" }}/>
+        <div style={{ height:1, background:"linear-gradient(90deg,transparent,rgba(232,201,139,0.15),transparent)", margin:"0 16px" }}/>
       </div>
 
       {/* Content */}
@@ -187,6 +330,7 @@ export default function AlltimeLeaderboard({ onClose }) {
                       maxWidth:85,marginLeft:"auto",marginRight:"auto"}}>
                       {top3[1].player_name||"?"}
                     </p>
+<LeaderboardBadgeChips entry={top3[1]} />
                     <div style={{background:"rgba(192,192,192,0.12)",borderRadius:8,
                       padding:"3px 8px",display:"inline-block",border:"1px solid rgba(192,192,192,0.25)"}}>
                       <span style={{color:"#C0C0C0",fontSize:11,fontWeight:900}}>
@@ -199,26 +343,27 @@ export default function AlltimeLeaderboard({ onClose }) {
                 {/* Hạng 1 */}
                 <div onClick={() => goProfile(top3[0].user_id)}
                   style={{ flex:1, textAlign:"center", cursor:"pointer", transform:"translateY(-20px)" }}>
-                  <div style={{fontSize:26,marginBottom:4,filter:"drop-shadow(0 0 8px rgba(255,215,0,0.8))"}}>👑</div>
+                  <div style={{fontSize:26,marginBottom:4,filter:"drop-shadow(0 0 8px rgba(232,201,139,0.8))"}}>👑</div>
                   <div style={{ width:76, height:76, borderRadius:38, margin:"0 auto 6px",
-                    border:"3px solid #FFD700", overflow:"hidden",
+                    border:"3px solid #E8C98B", overflow:"hidden",
                     background:"linear-gradient(135deg,#5a3a00,#c09000)",
-                    boxShadow:"0 0 24px rgba(255,215,0,0.6), 0 0 48px rgba(255,215,0,0.2)" }}>
+                    boxShadow:"0 0 24px rgba(232,201,139,0.6), 0 0 48px rgba(232,201,139,0.2)" }}>
                     {top3[0].avatar
                       ? <img src={top3[0].avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                      : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#FFD700",fontSize:28,fontWeight:900}}>{(top3[0].player_name||"?")[0]}</div>}
+                      : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#E8C98B",fontSize:28,fontWeight:900}}>{(top3[0].player_name||"?")[0]}</div>}
                   </div>
-                  <p style={{fontSize:13,color:"#FFD700",fontWeight:900,margin:"0 0 4px",
+                  <p style={{fontSize:13,color:"#E8C98B",fontWeight:900,margin:"0 0 4px",
                     overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",
                     maxWidth:95,marginLeft:"auto",marginRight:"auto",
-                    textShadow:"0 0 8px rgba(255,215,0,0.6)"}}>
+                    textShadow:"0 0 8px rgba(232,201,139,0.6)"}}>
                     {top3[0].player_name||"?"}
                   </p>
-                  <div style={{background:"rgba(255,215,0,0.15)",borderRadius:8,
+<LeaderboardBadgeChips entry={top3[0]} />
+                  <div style={{background:"rgba(232,201,139,0.15)",borderRadius:8,
                     padding:"4px 12px",display:"inline-block",
-                    border:"1px solid rgba(255,215,0,0.4)",
-                    boxShadow:"0 0 10px rgba(255,215,0,0.2)"}}>
-                    <span style={{color:"#FFD700",fontSize:13,fontWeight:900}}>
+                    border:"1px solid rgba(232,201,139,0.4)",
+                    boxShadow:"0 0 10px rgba(232,201,139,0.2)"}}>
+                    <span style={{color:"#E8C98B",fontSize:13,fontWeight:900}}>
                       🥇 {(top3[0].score||0).toLocaleString()}
                     </span>
                   </div>
@@ -241,6 +386,7 @@ export default function AlltimeLeaderboard({ onClose }) {
                       maxWidth:85,marginLeft:"auto",marginRight:"auto"}}>
                       {top3[2].player_name||"?"}
                     </p>
+<LeaderboardBadgeChips entry={top3[2]} />
                     <div style={{background:"rgba(205,127,50,0.12)",borderRadius:8,
                       padding:"3px 8px",display:"inline-block",border:"1px solid rgba(205,127,50,0.25)"}}>
                       <span style={{color:"#CD7F32",fontSize:11,fontWeight:900}}>
@@ -254,9 +400,9 @@ export default function AlltimeLeaderboard({ onClose }) {
 
             {/* Divider */}
             <div style={{display:"flex",alignItems:"center",gap:10,padding:"0 16px 12px"}}>
-              <div style={{flex:1,height:1,background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.2))"}}/>
-              <span style={{color:"rgba(255,215,0,0.5)",fontSize:10,fontWeight:800,letterSpacing:2}}>TOP 4-100</span>
-              <div style={{flex:1,height:1,background:"linear-gradient(90deg,rgba(255,215,0,0.2),transparent)"}}/>
+              <div style={{flex:1,height:1,background:"linear-gradient(90deg,transparent,rgba(232,201,139,0.2))"}}/>
+              <span style={{color:"rgba(232,201,139,0.5)",fontSize:10,fontWeight:800,letterSpacing:2}}>TOP 10</span>
+              <div style={{flex:1,height:1,background:"linear-gradient(90deg,rgba(232,201,139,0.2),transparent)"}}/>
             </div>
 
             {/* Rest */}
@@ -266,13 +412,13 @@ export default function AlltimeLeaderboard({ onClose }) {
                 <div key={i} onClick={() => goProfile(e.user_id)}
                   style={{ display:"flex", alignItems:"center", gap:12,
                     padding:"10px 16px", borderBottom:"1px solid rgba(255,255,255,0.04)",
-                    background: isMe ? "rgba(212,83,28,0.08)" : "transparent",
+                    background: isMe ? "rgba(182,106,60,0.08)" : "transparent",
                     cursor:"pointer" }}>
                   <span style={{ color:"rgba(255,255,255,0.3)", fontSize:13, fontWeight:700,
                     width:28, textAlign:"center", flexShrink:0 }}>{e.rank}</span>
                   <div style={{ width:36, height:36, borderRadius:18, flexShrink:0,
                     overflow:"hidden", background: isMe
-                      ? "linear-gradient(135deg,#D4531C,#ff6b35)"
+                      ? "linear-gradient(135deg,#B66A3C,#D28A5A)"
                       : "linear-gradient(135deg,#1a0a2e,#2d1254)",
                     display:"flex", alignItems:"center", justifyContent:"center",
                     fontSize:14, fontWeight:900,
@@ -281,12 +427,23 @@ export default function AlltimeLeaderboard({ onClose }) {
                       ? <img src={e.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
                       : (e.player_name||"?")[0]?.toUpperCase()}
                   </div>
-                  <p style={{ flex:1, color: isMe?"#FFD700":"white", fontSize:13,
+                  <div
+                    style={{
+                      flex:1,
+                      minWidth:0,
+                      display:"flex",
+                      flexDirection:"column",
+                      alignItems:"flex-start",
+                    }}
+                  >
+                  <p style={{ color: isMe?"#E8C98B":"white", fontSize:13,
                     fontWeight: isMe?800:600, margin:0,
                     overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
                     {e.player_name||"Ẩn danh"}{isMe?" (bạn)":""}
                   </p>
-                  <span style={{ color: isMe?"#D4531C":"rgba(255,215,0,0.6)",
+<LeaderboardBadgeChips entry={e} align="start" />
+                  </div>
+                  <span style={{ color: isMe?"#B66A3C":"rgba(232,201,139,0.6)",
                     fontSize:13, fontWeight:900, flexShrink:0 }}>
                     {(e.score||0).toLocaleString()}
                   </span>

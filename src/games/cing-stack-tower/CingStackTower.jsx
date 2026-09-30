@@ -662,7 +662,7 @@ export default function CingStackTower({
 
     async function fetchLeaderboard() {
       try {
-        const res = await fetch(`${API_BASE}/leaderboard/top-games/${GAME_KEY}?limit=20`);
+        const res = await fetch(`${API_BASE}/leaderboard/top-games/${GAME_KEY}`);
         const data = await res.json();
         const rows = Array.isArray(data?.data) ? data.data : [];
         setLeaderboardData(rows);
@@ -1578,7 +1578,7 @@ export default function CingStackTower({
                   </div>
                 )}
 
-                {leaderboardData.slice(0, 20).map((player, index) => (
+                {leaderboardData.slice(0, 10).map((player, index) => (
                   <div
                     key={player.id || `${player.user_id}-${index}`}
                     className={"flex items-center justify-between rounded-2xl px-4 py-3 " +

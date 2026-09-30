@@ -4,6 +4,7 @@ import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
+import LeaderboardBadgeChips from "@/features/leaderboard/components/LeaderboardBadgeChips";
 
 const MEDAL = ["🥇","🥈","🥉"];
 
@@ -95,8 +96,10 @@ export default function GameLeaderboard({ gameKey, onClose }) {
     }
   };
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async ({ background=false } = {}) => {
+    if (!background) {
+      setLoading(true);
+    }
     try {
       const r = await apiClient.get(`/leaderboard/top-games/${gameKey}`);
       const rows = r.data?.data || [];
@@ -113,7 +116,11 @@ export default function GameLeaderboard({ gameKey, onClose }) {
           .then(r2 => setMyRank(r2.data?.data)).catch(() => {});
       }
     } catch(e) { setData([]); }
-    finally { setLoading(false); }
+    finally {
+      if (!background) {
+        setLoading(false);
+      }
+    }
   };
 
   useEffect(() => {
@@ -144,15 +151,35 @@ export default function GameLeaderboard({ gameKey, onClose }) {
 
     attach();
 
+    const onVisible = () => {
+      if (
+        document.visibilityState === "visible"
+      ) {
+        fetchData({
+          background:true,
+        });
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      onVisible
+    );
+
     return () => {
       if (animationTimer.current) clearTimeout(animationTimer.current);
       getRuntimeSocket()?.off("leaderboard.updated", handleRealtimeLeaderboard);
+      document.removeEventListener(
+        "visibilitychange",
+        onVisible
+      );
     };
   }, [gameKey, profileId]);
 
   const phone = getPhone();
-  const top3  = data.slice(0, 3);
-  const rest  = data.slice(3);
+  const publicTop10 = data.slice(0, 10);
+  const top3  = publicTop10.slice(0, 3);
+  const rest  = publicTop10.slice(3);
 
   return (
     <div style={{ position:"fixed", inset:0, zIndex:200,
@@ -170,8 +197,8 @@ export default function GameLeaderboard({ gameKey, onClose }) {
           100% { transform: translateX(120%); opacity: 0; }
         }
         @keyframes cingChampionGlow {
-          0%, 100% { filter: drop-shadow(0 0 7px rgba(255,215,0,.28)); }
-          50% { filter: drop-shadow(0 0 18px rgba(255,215,0,.58)); }
+          0%, 100% { filter: drop-shadow(0 0 7px rgba(232,201,139,.28)); }
+          50% { filter: drop-shadow(0 0 18px rgba(232,201,139,.58)); }
         }
         @keyframes cingCrownPop {
           0% { transform: translateY(-16px) scale(.96); }
@@ -188,14 +215,14 @@ export default function GameLeaderboard({ gameKey, onClose }) {
       <div style={{ background:"linear-gradient(180deg,#0a0a0f,#12071a)",
         paddingTop:"max(env(safe-area-inset-top,0px) + 8px, 48px)",
         paddingBottom:12, paddingLeft:16, paddingRight:16,
-        borderBottom:"1px solid rgba(255,215,0,0.1)", flexShrink:0 }}>
+        borderBottom:"1px solid rgba(232,201,139,0.1)", flexShrink:0 }}>
         <div style={{ display:"flex", alignItems:"center", gap:12 }}>
           <button onClick={onClose} style={{ background:"rgba(255,255,255,0.06)",
             border:"1px solid rgba(255,255,255,0.1)", color:"white",
             borderRadius:12, width:38, height:38, cursor:"pointer", fontSize:18,
             display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
           <div style={{ flex:1, textAlign:"center" }}>
-            <p style={{ color:"rgba(255,215,0,0.6)", fontSize:10, fontWeight:800,
+            <p style={{ color:"rgba(232,201,139,0.6)", fontSize:10, fontWeight:800,
               letterSpacing:3, margin:"0 0 2px", textTransform:"uppercase" }}>BXH TUẦN</p>
             <h1 style={{ color:"white", fontSize:18, fontWeight:900, margin:0 }}>
               {GAME_NAMES[gameKey] || gameKey}
@@ -208,11 +235,11 @@ export default function GameLeaderboard({ gameKey, onClose }) {
         {rewards.length > 0 && (
           <div style={{ marginTop:10, display:"flex", gap:6 }}>
             {rewards.slice(0,3).map((r,i) => (
-              <div key={i} style={{ flex:1, background:"rgba(255,215,0,0.06)",
+              <div key={i} style={{ flex:1, background:"rgba(232,201,139,0.06)",
                 borderRadius:10, padding:"6px 4px", textAlign:"center",
-                border:"1px solid rgba(255,215,0,0.12)" }}>
+                border:"1px solid rgba(232,201,139,0.12)" }}>
                 <p style={{ fontSize:16, margin:"0 0 1px" }}>{MEDAL[i]}</p>
-                <p style={{ color:"#FFD700", fontSize:12, fontWeight:900, margin:"0 0 1px" }}>{r.points} điểm</p>
+                <p style={{ color:"#E8C98B", fontSize:12, fontWeight:900, margin:"0 0 1px" }}>{r.points} điểm</p>
                 <p style={{ color:"rgba(255,255,255,0.3)", fontSize:9, margin:0 }}>{r.label}</p>
               </div>
             ))}
@@ -220,13 +247,13 @@ export default function GameLeaderboard({ gameKey, onClose }) {
         )}
 
         {/* My rank */}
-        {myRank?.rank && (
+        {myRank?.rank && Number(myRank.rank) > 10 && (
           <div style={{ marginTop:8, padding:"8px 12px",
-            background:"rgba(255,215,0,0.08)", borderRadius:10,
+            background:"rgba(232,201,139,0.08)", borderRadius:10,
             display:"flex", justifyContent:"space-between", alignItems:"center",
-            border:"1px solid rgba(255,215,0,0.15)" }}>
+            border:"1px solid rgba(232,201,139,0.15)" }}>
             <span style={{ color:"rgba(255,255,255,0.5)", fontSize:12 }}>Hạng của bạn</span>
-            <span style={{ color:"#FFD700", fontSize:14, fontWeight:900 }}>Top {myRank.rank} · {myRank.score} điểm</span>
+            <span style={{ color:"#E8C98B", fontSize:14, fontWeight:900 }}>Top {myRank.rank} · {myRank.score} điểm</span>
           </div>
         )}
       </div>
@@ -261,6 +288,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
                       : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontSize:20,fontWeight:900}}>{(top3[1]?.player_name||"?")[0]}</div>}
                   </div>
                   <p style={{fontSize:11,color:"#C0C0C0",fontWeight:800,margin:"0 0 2px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:80,marginLeft:"auto",marginRight:"auto"}}>{top3[1]?.player_name||"?"}</p>
+<LeaderboardBadgeChips entry={top3[1]} />
                   <div style={{background:"rgba(192,192,192,0.15)",borderRadius:8,padding:"3px 8px",display:"inline-block"}}>
                     <span style={{color:"#C0C0C0",fontSize:12,fontWeight:900}}>🥈 {(top3[1]?.score||0).toLocaleString()}</span>
                   </div>
@@ -273,16 +301,17 @@ export default function GameLeaderboard({ gameKey, onClose }) {
                     animation: animatedIds.has(String(top3[0]?.user_id || "")) ? "cingCrownPop 1200ms cubic-bezier(.2,.9,.2,1)" : "cingChampionGlow 2.6s ease-in-out infinite" }}>
                   <div style={{fontSize:24,marginBottom:4}}>👑</div>
                   <div style={{ width:72, height:72, borderRadius:36, margin:"0 auto 6px",
-                    border:"3px solid #FFD700", overflow:"hidden",
+                    border:"3px solid #E8C98B", overflow:"hidden",
                     background:"linear-gradient(135deg,#5a3a00,#c09000)",
-                    boxShadow:"0 0 20px rgba(255,215,0,0.5)" }}>
+                    boxShadow:"0 0 20px rgba(232,201,139,0.5)" }}>
                     {top3[0]?.avatar
                       ? <img src={top3[0].avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                      : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#FFD700",fontSize:24,fontWeight:900}}>{(top3[0]?.player_name||"?")[0]}</div>}
+                      : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#E8C98B",fontSize:24,fontWeight:900}}>{(top3[0]?.player_name||"?")[0]}</div>}
                   </div>
-                  <p style={{fontSize:13,color:"#FFD700",fontWeight:900,margin:"0 0 2px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:90,marginLeft:"auto",marginRight:"auto"}}>{top3[0]?.player_name||"?"}</p>
-                  <div style={{background:"rgba(255,215,0,0.15)",borderRadius:8,padding:"4px 10px",display:"inline-block",border:"1px solid rgba(255,215,0,0.3)"}}>
-                    <span style={{color:"#FFD700",fontSize:13,fontWeight:900}}>🥇 {(top3[0]?.score||0).toLocaleString()}</span>
+                  <p style={{fontSize:13,color:"#E8C98B",fontWeight:900,margin:"0 0 2px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:90,marginLeft:"auto",marginRight:"auto"}}>{top3[0]?.player_name||"?"}</p>
+<LeaderboardBadgeChips entry={top3[0]} />
+                  <div style={{background:"rgba(232,201,139,0.15)",borderRadius:8,padding:"4px 10px",display:"inline-block",border:"1px solid rgba(232,201,139,0.3)"}}>
+                    <span style={{color:"#E8C98B",fontSize:13,fontWeight:900}}>🥇 {(top3[0]?.score||0).toLocaleString()}</span>
                   </div>
                 </div>
 
@@ -297,6 +326,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
                       : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#CD7F32",fontSize:20,fontWeight:900}}>{(top3[2]?.player_name||"?")[0]}</div>}
                   </div>
                   <p style={{fontSize:11,color:"#CD7F32",fontWeight:800,margin:"0 0 2px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:80,marginLeft:"auto",marginRight:"auto"}}>{top3[2]?.player_name||"?"}</p>
+<LeaderboardBadgeChips entry={top3[2]} />
                   <div style={{background:"rgba(205,127,50,0.15)",borderRadius:8,padding:"3px 8px",display:"inline-block"}}>
                     <span style={{color:"#CD7F32",fontSize:12,fontWeight:900}}>🥉 {(top3[2]?.score||0).toLocaleString()}</span>
                   </div>
@@ -306,9 +336,9 @@ export default function GameLeaderboard({ gameKey, onClose }) {
 
             {/* Divider */}
             <div style={{display:"flex",alignItems:"center",gap:10,padding:"0 16px 12px"}}>
-              <div style={{flex:1,height:1,background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.2))"}}/>
-              <span style={{color:"rgba(255,215,0,0.5)",fontSize:10,fontWeight:800,letterSpacing:2}}>TOP 4-100</span>
-              <div style={{flex:1,height:1,background:"linear-gradient(90deg,rgba(255,215,0,0.2),transparent)"}}/>
+              <div style={{flex:1,height:1,background:"linear-gradient(90deg,transparent,rgba(232,201,139,0.2))"}}/>
+              <span style={{color:"rgba(232,201,139,0.5)",fontSize:10,fontWeight:800,letterSpacing:2}}>TOP 10</span>
+              <div style={{flex:1,height:1,background:"linear-gradient(90deg,rgba(232,201,139,0.2),transparent)"}}/>
             </div>
 
             {/* Rest list */}
@@ -323,14 +353,14 @@ export default function GameLeaderboard({ gameKey, onClose }) {
                   style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 16px",
                     borderBottom:"1px solid rgba(255,255,255,0.04)",
                     background: isHot
-                      ? "linear-gradient(90deg, rgba(255,215,0,0.18), rgba(255,107,0,0.08), rgba(255,255,255,0.02))"
-                      : isMe ? "rgba(255,215,0,0.06)" : "transparent",
+                      ? "linear-gradient(90deg, rgba(232,201,139,0.18), rgba(255,107,0,0.08), rgba(255,255,255,0.02))"
+                      : isMe ? "rgba(232,201,139,0.06)" : "transparent",
                     cursor:"pointer",
                     position:"relative",
                     overflow:"hidden",
                     animation: isHot ? "cingRankPop 1050ms cubic-bezier(.2,.9,.2,1)" : "none",
                     transition:"background 220ms ease, box-shadow 220ms ease, transform 220ms ease",
-                    boxShadow: isHot ? "inset 0 0 0 1px rgba(255,215,0,0.18), 0 0 18px rgba(255,215,0,0.18)" : "none" }}>
+                    boxShadow: isHot ? "inset 0 0 0 1px rgba(232,201,139,0.18), 0 0 18px rgba(232,201,139,0.18)" : "none" }}>
                   {isHot && (
                     <span style={{ position:"absolute", inset:0,
                       background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.24), transparent)",
@@ -338,32 +368,43 @@ export default function GameLeaderboard({ gameKey, onClose }) {
                       pointerEvents:"none" }}/>
                   )}
 
-                  <span style={{ color: isHot ? "#FFD700" : "rgba(255,255,255,0.3)",
+                  <span style={{ color: isHot ? "#E8C98B" : "rgba(255,255,255,0.3)",
                     fontSize:13, fontWeight:900, width:28, textAlign:"center", flexShrink:0,
-                    textShadow: isHot ? "0 0 10px rgba(255,215,0,0.55)" : "none" }}>Top {rank}</span>
+                    textShadow: isHot ? "0 0 10px rgba(232,201,139,0.55)" : "none" }}>Top {rank}</span>
 
                   <div style={{ width:36, height:36, borderRadius:18, flexShrink:0, overflow:"hidden",
                     background:"linear-gradient(135deg,#1a0a2e,#2d1254)",
                     display:"flex", alignItems:"center", justifyContent:"center",
                     fontSize:14, fontWeight:900, color:"rgba(255,255,255,0.4)",
-                    border: isHot ? "1px solid rgba(255,215,0,0.55)" : "1px solid rgba(255,255,255,0.04)",
-                    boxShadow: isHot ? "0 0 14px rgba(255,215,0,0.35)" : "none" }}>
+                    border: isHot ? "1px solid rgba(232,201,139,0.55)" : "1px solid rgba(255,255,255,0.04)",
+                    boxShadow: isHot ? "0 0 14px rgba(232,201,139,0.35)" : "none" }}>
                     {entry.avatar ? <img src={entry.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (entry.player_name||"?")[0]?.toUpperCase()}
                   </div>
 
-                  <p style={{ flex:1, color: isHot ? "#FFE58A" : isMe?"#FFD700":"white", fontSize:13,
+                  <div
+                    style={{
+                      flex:1,
+                      minWidth:0,
+                      display:"flex",
+                      flexDirection:"column",
+                      alignItems:"flex-start",
+                    }}
+                  >
+                  <p style={{ color: isHot ? "#FFE58A" : isMe?"#E8C98B":"white", fontSize:13,
                     fontWeight: isHot || isMe ? 900 : 600, margin:0,
                     overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
                     {entry.player_name||"Ẩn danh"}{isMe?" (bạn)":""}
                   </p>
+<LeaderboardBadgeChips entry={entry} align="start" />
+                  </div>
 
                   <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:2, flexShrink:0 }}>
-                    <span style={{ color:"#FFD700", fontSize:13, fontWeight:900,
-                      textShadow: isHot ? "0 0 10px rgba(255,215,0,0.6)" : "none" }}>
+                    <span style={{ color:"#E8C98B", fontSize:13, fontWeight:900,
+                      textShadow: isHot ? "0 0 10px rgba(232,201,139,0.6)" : "none" }}>
                       {(entry.score||0).toLocaleString()}
                     </span>
                     {isHot && (
-                      <span style={{ color:"#12071a", background:"#FFD700", borderRadius:999,
+                      <span style={{ color:"#12071a", background:"#E8C98B", borderRadius:999,
                         padding:"1px 6px", fontSize:8, fontWeight:1000,
                         letterSpacing:.4, animation:"cingBadgePulse 900ms ease-in-out infinite" }}>
                         NEW BEST

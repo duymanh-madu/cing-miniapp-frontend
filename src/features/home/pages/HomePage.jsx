@@ -15,8 +15,8 @@ export default function HomePage() {
       <AppPopup />
       <div className="px-4 pt-4"><HomeHero /></div>
       <div className="px-4 mt-6"><HomeQuickActions /></div>
-      <div className="px-4 mt-5"><HomeWalletSnapshot /></div>
       <div className="px-4 mt-5"><HomeMembershipCard /></div>
+      <div className="px-4 mt-5"><HomeWalletSnapshot /></div>
       <div className="px-4 mt-6"><HomeMenuPreview /></div>
       <div className="px-4 mt-6 mb-4"><HomeGameTeaser /></div>
 
