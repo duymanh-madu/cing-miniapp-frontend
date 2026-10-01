@@ -1,0 +1,4201 @@
+.v8-royal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  color: #fff;
+
+  background:
+    #04020b;
+
+  isolation: isolate;
+}
+
+.v8-royal-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+
+  background-position:
+    center top;
+
+  background-size:
+    100% auto;
+
+  background-repeat:
+    no-repeat;
+
+  transform:
+    scale(1.002);
+}
+
+.v8-royal-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(2,1,8,.60) 0%,
+      rgba(2,1,8,.34) 16%,
+      rgba(2,1,8,.14) 34%,
+      rgba(2,1,8,.28) 55%,
+      rgba(2,1,8,.76) 78%,
+      #030109 100%
+    );
+}
+
+.v8-royal-root::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 35%,
+      transparent 0%,
+      transparent 32%,
+      rgba(2,1,8,.16) 58%,
+      rgba(2,1,8,.58) 100%
+    );
+}
+
+/* Header */
+
+.v8-royal-header {
+  position: relative;
+
+  flex-shrink: 0;
+
+  min-height: 176px;
+
+  padding:
+    max(
+      calc(env(safe-area-inset-top, 0px) + 11px),
+      48px
+    )
+    16px
+    12px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(2,1,8,.88),
+      rgba(4,2,12,.72) 62%,
+      rgba(4,2,12,.18)
+    );
+}
+
+.v8-royal-back {
+  position: absolute;
+  left: 16px;
+  top:
+    max(
+      calc(env(safe-area-inset-top, 0px) + 12px),
+      49px
+    );
+
+  width: 43px;
+  height: 43px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+
+  border-radius: 15px;
+
+  border:
+    1px solid
+    rgba(255,232,181,.22);
+
+  color: #fff;
+  font-size: 25px;
+
+  background:
+    rgba(8,5,17,.76);
+
+  box-shadow:
+    inset 0 1px
+      rgba(255,255,255,.04),
+    0 8px 22px
+      rgba(0,0,0,.28);
+
+  backdrop-filter:
+    blur(10px);
+}
+
+.v8-royal-heading {
+  max-width: 320px;
+  margin: 0 auto;
+
+  text-align: center;
+}
+
+.v8-royal-heading small {
+  display: block;
+
+  color: #f1d18b;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 3.8px;
+}
+
+.v8-royal-heading span {
+  display: block;
+
+  margin-top: 4px;
+
+  color:
+    rgba(244,213,150,.64);
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: 4.6px;
+}
+
+.v8-royal-heading h1 {
+  margin:
+    12px 0
+    0;
+
+  color: #fff7e8;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 26px;
+  line-height: 1.06;
+
+  font-weight: 700;
+
+  text-shadow:
+    0 2px 14px
+      rgba(0,0,0,.76),
+    0 0 20px
+      rgba(224,165,55,.17);
+}
+
+.v8-royal-heading p {
+  margin:
+    8px auto
+    0;
+
+  color:
+    rgba(255,248,235,.76);
+
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+/* Rewards */
+
+.v8-royal-rewards {
+  position: relative;
+  z-index: 6;
+
+  flex-shrink: 0;
+
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0,1fr));
+
+  gap: 7px;
+
+  margin:
+    0 13px
+    8px;
+
+  padding: 7px;
+
+  border-radius: 18px;
+
+  border:
+    1px solid
+    rgba(226,180,86,.18);
+
+  background:
+    rgba(7,4,14,.91);
+
+  box-shadow:
+    inset 0 1px
+      rgba(255,255,255,.025),
+    0 14px 30px
+      rgba(0,0,0,.28);
+
+  backdrop-filter:
+    blur(10px);
+}
+
+.v8-royal-reward {
+  min-width: 0;
+  min-height: 47px;
+
+  display: grid;
+  grid-template-columns:
+    27px
+    minmax(0,1fr);
+
+  align-items: center;
+  gap: 6px;
+
+  padding:
+    6px
+    7px;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(35,22,34,.82),
+      rgba(17,10,21,.86)
+    );
+}
+
+.v8-royal-reward__rank {
+  width: 27px;
+  height: 27px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 9px;
+
+  color: #1b0d05;
+
+  font-size: 13px;
+  font-weight: 1000;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fff1b5,
+      #dda035
+    );
+}
+
+.v8-royal-reward--2
+.v8-royal-reward__rank {
+  background:
+    linear-gradient(
+      145deg,
+      #fff,
+      #b6becc
+    );
+}
+
+.v8-royal-reward--3
+.v8-royal-reward__rank {
+  background:
+    linear-gradient(
+      145deg,
+      #ffd09b,
+      #ca7436
+    );
+}
+
+.v8-royal-reward__copy {
+  min-width: 0;
+}
+
+.v8-royal-reward__copy strong {
+  display: block;
+
+  color: #f5d58d;
+
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.v8-royal-reward__copy small {
+  display: block;
+
+  margin-top: 2px;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  color:
+    rgba(255,255,255,.44);
+
+  font-size: 8px;
+}
+
+/* Scroll body */
+
+.v8-royal-scroll {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  -webkit-overflow-scrolling:
+    touch;
+
+  padding-bottom:
+    calc(
+      96px +
+      env(safe-area-inset-bottom)
+    );
+}
+
+/* Loading / empty */
+
+.v8-royal-state {
+  min-height: 360px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 32px;
+
+  text-align: center;
+
+  color:
+    rgba(255,255,255,.60);
+}
+
+.v8-royal-state img {
+  width: 72px;
+  height: 72px;
+
+  object-fit: contain;
+
+  margin-bottom: 8px;
+}
+
+.v8-royal-state strong {
+  color: #fff8ea;
+
+  font-size: 15px;
+}
+
+.v8-royal-state span {
+  max-width: 250px;
+
+  color:
+    rgba(255,255,255,.52);
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Podium scene */
+
+.v8-royal-podium-scene {
+  position: relative;
+
+  width: 100%;
+  height: 474px;
+
+  overflow: hidden;
+
+  margin-top: 0;
+}
+
+.v8-royal-podium-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3,1,9,.18) 0%,
+      rgba(3,1,9,.04) 18%,
+      rgba(3,1,9,.08) 47%,
+      rgba(3,1,9,.52) 79%,
+      rgba(3,1,9,.90) 100%
+    );
+}
+
+.v8-royal-podium-shade {
+  position: absolute;
+  z-index: 1;
+
+  left: 5%;
+  right: 5%;
+  bottom: 18px;
+
+  height: 230px;
+
+  border-radius:
+    42% 42% 18px 18px;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 10%,
+      rgba(7,4,14,.20),
+      rgba(5,3,11,.56) 50%,
+      rgba(3,1,8,.82) 100%
+    );
+
+  filter:
+    blur(2px);
+}
+
+.v8-royal-podium-art {
+  position: absolute;
+  z-index: 2;
+
+  left: 50%;
+  bottom: -27px;
+
+  width: 107%;
+  height: auto;
+
+  transform:
+    translateX(-50%);
+
+  pointer-events: none;
+
+  filter:
+    saturate(.92)
+    brightness(.78)
+    contrast(1.06);
+}
+
+.v8-royal-podium-label {
+  position: absolute;
+  z-index: 5;
+
+  top: 14px;
+  left: 16px;
+  right: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 11px;
+
+  color:
+    rgba(245,211,140,.80);
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 4.4px;
+
+  text-shadow:
+    0 2px 10px
+      rgba(0,0,0,.9);
+}
+
+.v8-royal-podium-label span {
+  flex: 1;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(238,196,105,.52)
+    );
+}
+
+.v8-royal-podium-label span:last-child {
+  transform:
+    scaleX(-1);
+}
+
+/* Live champion overlays */
+
+.v8-royal-champion {
+  position: absolute;
+  z-index: 6;
+
+  text-align: center;
+
+  cursor: pointer;
+}
+
+.v8-royal-champion--empty {
+  visibility: hidden;
+}
+
+.v8-royal-champion--1 {
+  left: 50%;
+  top: 99px;
+
+  width: 176px;
+
+  transform:
+    translateX(-50%);
+}
+
+.v8-royal-champion--2 {
+  left: 3px;
+  top: 193px;
+
+  width: 116px;
+}
+
+.v8-royal-champion--3 {
+  right: 3px;
+  top: 193px;
+
+  width: 116px;
+}
+
+.v8-royal-avatar {
+  margin: 0 auto;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+
+  background:
+    rgba(8,5,18,.96);
+
+  color: #fff;
+
+  font-weight: 1000;
+
+  box-shadow:
+    inset 0 0 0 1px
+      rgba(255,255,255,.06),
+    0 7px 20px
+      rgba(0,0,0,.34);
+}
+
+.v8-royal-avatar--1 {
+  width: 104px;
+  height: 104px;
+
+  color: #211008;
+
+  font-size: 40px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fff1af,
+      #e5a73a
+    );
+}
+
+.v8-royal-avatar--2,
+.v8-royal-avatar--3 {
+  width: 72px;
+  height: 72px;
+
+  font-size: 27px;
+}
+
+.v8-royal-avatar--2 {
+  background:
+    linear-gradient(
+      145deg,
+      #391b64,
+      #170d2b
+    );
+}
+
+.v8-royal-avatar--3 {
+  color: #251205;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffc582,
+      #d17935
+    );
+}
+
+.v8-royal-avatar img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.v8-royal-champion__name {
+  margin:
+    10px auto
+    0;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  color: #fff8ea;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  text-shadow:
+    0 2px 9px
+      rgba(0,0,0,.95);
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__name {
+  max-width: 170px;
+
+  margin-top: 13px;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__name,
+.v8-royal-champion--3
+.v8-royal-champion__name {
+  max-width: 108px;
+}
+
+.v8-royal-champion__badges {
+  width: 100%;
+  max-width: 100%;
+
+  margin-top: 6px;
+
+  padding: 0 2px;
+
+  overflow: visible;
+}
+
+.v8-royal-champion__score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 7px;
+
+  border:
+    1px solid
+    rgba(241,195,98,.42);
+
+  color: #f9dd9c;
+
+  background:
+    rgba(11,6,15,.94);
+
+  box-shadow:
+    inset 0 1px
+      rgba(255,255,255,.04),
+    0 5px 16px
+      rgba(0,0,0,.35);
+
+  text-shadow:
+    0 2px 7px
+      rgba(0,0,0,.8);
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__score {
+  min-width: 158px;
+  min-height: 48px;
+
+  padding:
+    6px
+    12px;
+
+  border-radius: 16px;
+
+  font-size: 19px;
+  font-weight: 1000;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__score,
+.v8-royal-champion--3
+.v8-royal-champion__score {
+  min-width: 93px;
+  min-height: 34px;
+
+  padding:
+    4px
+    8px;
+
+  border-radius: 12px;
+
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.v8-royal-champion--hot {
+  animation:
+    v8RoyalRankPop
+    900ms
+    cubic-bezier(.2,.88,.22,1);
+}
+
+/* Top10 */
+
+.v8-royal-top10-title {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding:
+    0 15px;
+
+  margin:
+    -1px
+    0
+    12px;
+
+  color: #efd28e;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  letter-spacing: 6px;
+}
+
+.v8-royal-top10-title span {
+  flex: 1;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(237,195,103,.48)
+    );
+}
+
+.v8-royal-top10-title span:last-child {
+  transform:
+    scaleX(-1);
+}
+
+.v8-royal-top10 {
+  margin:
+    0 13px;
+
+  overflow: hidden;
+
+  border-radius: 22px;
+
+  border:
+    1px solid
+    rgba(223,179,88,.22);
+
+  background:
+    rgba(5,3,13,.96);
+
+  box-shadow:
+    0 15px 38px
+      rgba(0,0,0,.33),
+    inset 0 1px
+      rgba(255,255,255,.025);
+}
+
+.v8-royal-row {
+  width: 100%;
+
+  min-height: 74px;
+
+  display: grid;
+
+  grid-template-columns:
+    25px
+    42px
+    minmax(0,1fr)
+    auto
+    11px;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding:
+    9px
+    11px;
+
+  border: 0;
+  border-bottom:
+    1px solid
+    rgba(255,255,255,.045);
+
+  text-align: left;
+
+  color: inherit;
+
+  background:
+    transparent;
+}
+
+.v8-royal-row:last-child {
+  border-bottom: 0;
+}
+
+.v8-royal-row--me {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(225,167,52,.12),
+      transparent 76%
+    );
+}
+
+.v8-royal-row--hot {
+  animation:
+    v8RoyalRankPop
+    900ms
+    cubic-bezier(.2,.88,.22,1);
+}
+
+.v8-royal-row__rank {
+  color:
+    rgba(255,255,255,.43);
+
+  font-size: 12px;
+  font-weight: 950;
+
+  text-align: center;
+}
+
+.v8-royal-row-avatar {
+  width: 40px;
+  height: 40px;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+
+  color: #fff;
+
+  font-size: 15px;
+  font-weight: 950;
+
+  background:
+    linear-gradient(
+      145deg,
+      #53267f,
+      #261044
+    );
+}
+
+.v8-royal-row-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.v8-royal-row__main {
+  min-width: 0;
+}
+
+.v8-royal-row__name {
+  display: block;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  color: #fff8ea;
+
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.v8-royal-row__badges {
+  display: block;
+
+  margin-top: 3px;
+}
+
+.v8-royal-row__score {
+  color: #f2d28c;
+
+  font-size: 12px;
+  font-weight: 1000;
+
+  white-space: nowrap;
+}
+
+.v8-royal-row__arrow {
+  color:
+    rgba(255,220,158,.58);
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 21px;
+}
+
+/* Self card */
+
+.v8-royal-self {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    54px
+    minmax(0,1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 11px;
+
+  min-height: 106px;
+
+  margin:
+    14px
+    13px
+    0;
+
+  padding:
+    13px;
+
+  overflow: hidden;
+
+  border-radius: 22px;
+
+  border:
+    1px solid
+    rgba(243,194,91,.72);
+
+  background:
+    radial-gradient(
+      circle at 91% 50%,
+      rgba(213,151,40,.18),
+      transparent 36%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(55,34,31,.97),
+      rgba(12,7,18,.98)
+    );
+
+  box-shadow:
+    0 0 0 1px
+      rgba(111,67,20,.24),
+    0 14px 34px
+      rgba(0,0,0,.32);
+}
+
+.v8-royal-self::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+
+  border-radius: 16px;
+
+  border:
+    1px solid
+    rgba(255,222,145,.10);
+
+  pointer-events: none;
+}
+
+.v8-royal-self__crest {
+  position: relative;
+  z-index: 1;
+
+  width: 50px;
+  height: 50px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: #251104;
+
+  font-size: 19px;
+  font-weight: 1000;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffb62b,
+      #ea6b12
+    );
+}
+
+.v8-royal-self__main {
+  position: relative;
+  z-index: 1;
+
+  min-width: 0;
+}
+
+.v8-royal-self__main small {
+  display: block;
+
+  color:
+    rgba(255,255,255,.45);
+
+  font-size: 8px;
+  font-weight: 850;
+
+  letter-spacing: 1.2px;
+}
+
+.v8-royal-self__main > strong {
+  display: block;
+
+  margin-top: 3px;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  color: #fff8ea;
+
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.v8-royal-self__badges {
+  margin-top: 3px;
+}
+
+.v8-royal-self__rank {
+  position: relative;
+  z-index: 1;
+
+  text-align: right;
+}
+
+.v8-royal-self__rank b {
+  display: block;
+
+  color: #f4d68c;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 27px;
+  line-height: 1;
+}
+
+.v8-royal-self__rank span {
+  display: block;
+
+  margin-top: 6px;
+
+  color:
+    rgba(255,255,255,.50);
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+@keyframes v8RoyalRankPop {
+  0% {
+    opacity: .55;
+    transform:
+      translateY(5px)
+      scale(.99);
+  }
+
+  50% {
+    opacity: 1;
+    transform:
+      translateY(-2px)
+      scale(1.015);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+@media (max-width:390px) {
+  .v8-royal-heading h1 {
+    font-size: 24px;
+  }
+
+  .v8-royal-podium-scene {
+    height: 455px;
+  }
+
+  .v8-royal-champion--1 {
+    top: 98px;
+    width: 166px;
+  }
+
+  .v8-royal-champion--2 {
+    left: 0;
+    width: 110px;
+  }
+
+  .v8-royal-champion--3 {
+    right: 0;
+    width: 110px;
+  }
+
+  .v8-royal-avatar--1 {
+    width: 98px;
+    height: 98px;
+  }
+
+  .v8-royal-avatar--2,
+  .v8-royal-avatar--3 {
+    width: 68px;
+    height: 68px;
+  }
+
+  .v8-royal-champion--1
+  .v8-royal-champion__score {
+    min-width: 148px;
+    font-size: 18px;
+  }
+
+  .v8-royal-row {
+    grid-template-columns:
+      23px
+      39px
+      minmax(0,1fr)
+      auto
+      10px;
+
+    gap: 7px;
+
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .v8-royal-champion--hot,
+  .v8-royal-row--hot {
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   V8 B2.2 — PODIUM CALIBRATION R1
+   Artwork coordinates measured against iPhone preview.
+   Presentation only.
+   ========================================================= */
+
+/*
+ * Scene is intentionally compact now.
+ * TOP10 should follow podium without a large dead zone.
+ */
+.v8-royal-podium-scene {
+  height: 418px;
+}
+
+/*
+ * Artwork itself remains the visual authority.
+ * Slight scale reduction exposes the complete pedestal
+ * and gives live text a cleaner safe area.
+ */
+.v8-royal-podium-art {
+  width: 101%;
+  bottom: -15px;
+
+  filter:
+    saturate(.90)
+    brightness(.72)
+    contrast(1.08);
+}
+
+/*
+ * Keep artwork decorative and make live content
+ * visually dominant.
+ */
+.v8-royal-podium-shade {
+  left: 2%;
+  right: 2%;
+  bottom: 0;
+
+  height: 255px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5,3,11,.06) 0%,
+      rgba(5,3,11,.20) 29%,
+      rgba(5,3,11,.48) 60%,
+      rgba(3,1,8,.78) 100%
+    );
+
+  filter: none;
+}
+
+/*
+ * Ceremonial heading stays near the top edge
+ * and must not compete with crown art.
+ */
+.v8-royal-podium-label {
+  top: 10px;
+
+  color:
+    rgba(255,226,164,.88);
+
+  text-shadow:
+    0 2px 10px rgba(0,0,0,1);
+}
+
+/* ---------------------------------------------------------
+   TOP 1
+   --------------------------------------------------------- */
+
+.v8-royal-champion--1 {
+  top: 87px;
+  width: 164px;
+}
+
+/*
+ * The old 104px live avatar covered too much of
+ * the decorative gold medallion/rank seal.
+ */
+.v8-royal-avatar--1 {
+  width: 88px;
+  height: 88px;
+
+  font-size: 34px;
+
+  box-shadow:
+    0 0 0 2px rgba(255,231,160,.24),
+    0 6px 22px rgba(0,0,0,.38);
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__name {
+  max-width: 160px;
+
+  margin-top: 10px;
+
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__badges {
+  width: 158px;
+  margin:
+    5px auto
+    0;
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__score {
+  min-width: 150px;
+  min-height: 43px;
+
+  margin-top: 6px;
+
+  padding:
+    5px
+    10px;
+
+  border-radius: 14px;
+
+  font-size: 18px;
+
+  background:
+    rgba(8,4,12,.95);
+
+  border-color:
+    rgba(246,201,111,.58);
+}
+
+/* ---------------------------------------------------------
+   TOP 2 / TOP 3
+
+   These were ~80 CSS px too low relative to the artwork.
+   Move both into the circular medallion centers.
+   --------------------------------------------------------- */
+
+.v8-royal-champion--2,
+.v8-royal-champion--3 {
+  top: 112px;
+  width: 112px;
+}
+
+.v8-royal-champion--2 {
+  left: 8px;
+}
+
+.v8-royal-champion--3 {
+  right: 8px;
+}
+
+.v8-royal-avatar--2,
+.v8-royal-avatar--3 {
+  width: 62px;
+  height: 62px;
+
+  font-size: 23px;
+
+  box-shadow:
+    0 5px 18px rgba(0,0,0,.40);
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__name,
+.v8-royal-champion--3
+.v8-royal-champion__name {
+  max-width: 105px;
+
+  margin-top: 8px;
+
+  color: #fff9ee;
+
+  font-size: 11px;
+  line-height: 1.15;
+
+  text-shadow:
+    0 2px 8px rgba(0,0,0,1);
+}
+
+/*
+ * Badge stays below name but inside dark plaque zone.
+ */
+.v8-royal-champion--2
+.v8-royal-champion__badges,
+.v8-royal-champion--3
+.v8-royal-champion__badges {
+  width: 108px;
+
+  margin:
+    4px auto
+    0;
+}
+
+/*
+ * Scores now sit in the artwork's lower plaque.
+ */
+.v8-royal-champion--2
+.v8-royal-champion__score,
+.v8-royal-champion--3
+.v8-royal-champion__score {
+  min-width: 94px;
+  min-height: 33px;
+
+  margin-top: 5px;
+
+  padding:
+    4px
+    7px;
+
+  border-radius: 11px;
+
+  color: #ffe1a0;
+
+  font-size: 11px;
+
+  background:
+    rgba(7,4,12,.96);
+
+  border-color:
+    rgba(238,192,102,.45);
+}
+
+/* ---------------------------------------------------------
+   Canonical badge legibility inside ceremonial podium
+   --------------------------------------------------------- */
+
+.v8-royal-champion__badges
+> span {
+  gap: 3px !important;
+}
+
+.v8-royal-champion__badges
+> span
+> span {
+  max-width: 100% !important;
+
+  overflow: visible !important;
+
+  white-space: nowrap !important;
+
+  text-overflow: clip !important;
+
+  background:
+    rgba(7,4,13,.95) !important;
+
+  box-shadow:
+    0 3px 10px rgba(0,0,0,.38) !important;
+}
+
+/*
+ * Secondary players need slightly denser canonical badges,
+ * otherwise long labels collide with neighboring podium.
+ */
+.v8-royal-champion--2
+.v8-royal-champion__badges
+> span
+> span,
+.v8-royal-champion--3
+.v8-royal-champion__badges
+> span
+> span {
+  padding:
+    3px
+    6px !important;
+
+  font-size:
+    8px !important;
+}
+
+/*
+ * Top1 can retain a larger ceremonial badge.
+ */
+.v8-royal-champion--1
+.v8-royal-champion__badges
+> span
+> span {
+  padding:
+    3px
+    7px !important;
+
+  font-size:
+    9px !important;
+}
+
+/* ---------------------------------------------------------
+   TOP10 starts immediately after the podium
+   --------------------------------------------------------- */
+
+.v8-royal-top10-title {
+  margin:
+    2px
+    0
+    12px;
+}
+
+/*
+ * Reserve the right-hand floating-chat lane so a score
+ * cannot disappear beneath the customer-chat button.
+ */
+.v8-royal-top10 {
+  margin-right: 20px;
+}
+
+.v8-royal-row {
+  padding-right: 13px;
+}
+
+/*
+ * Preserve dense but highly legible ranking rows.
+ */
+.v8-royal-row__name {
+  color: #fffaf0;
+}
+
+.v8-royal-row__score {
+  color: #f7d88c;
+}
+
+/* ---------------------------------------------------------
+   Narrow iPhone calibration
+   --------------------------------------------------------- */
+
+@media (max-width:390px) {
+  .v8-royal-podium-scene {
+    height: 405px;
+  }
+
+  .v8-royal-podium-art {
+    width: 102%;
+    bottom: -12px;
+  }
+
+  .v8-royal-champion--1 {
+    top: 84px;
+    width: 158px;
+  }
+
+  .v8-royal-avatar--1 {
+    width: 84px;
+    height: 84px;
+  }
+
+  .v8-royal-champion--2,
+  .v8-royal-champion--3 {
+    top: 110px;
+    width: 106px;
+  }
+
+  .v8-royal-champion--2 {
+    left: 4px;
+  }
+
+  .v8-royal-champion--3 {
+    right: 4px;
+  }
+
+  .v8-royal-avatar--2,
+  .v8-royal-avatar--3 {
+    width: 59px;
+    height: 59px;
+  }
+
+  .v8-royal-champion--2
+  .v8-royal-champion__badges,
+  .v8-royal-champion--3
+  .v8-royal-champion__badges {
+    width: 102px;
+  }
+
+  .v8-royal-champion--1
+  .v8-royal-champion__score {
+    min-width: 144px;
+    font-size: 17px;
+  }
+}
+
+/* =========================================================
+   V8 B2.2 — CALIBRATION R2
+   Align live avatars to actual artwork medallion centers.
+   ========================================================= */
+
+/*
+ * TOP 1
+ * Artwork gold portrait cavity is substantially higher
+ * than the R1 live overlay.
+ */
+.v8-royal-champion--1 {
+  top: 31px;
+}
+
+.v8-royal-avatar--1 {
+  width: 92px;
+  height: 92px;
+
+  font-size: 35px;
+}
+
+/*
+ * Keep text underneath portrait cavity instead of
+ * dragging the entire card downward.
+ */
+.v8-royal-champion--1
+.v8-royal-champion__name {
+  margin-top: 12px;
+}
+
+/*
+ * TOP 2
+ * Move up into silver laurel cavity and inward.
+ */
+.v8-royal-champion--2 {
+  top: 48px;
+  left: 22px;
+}
+
+/*
+ * TOP 3
+ * Move up into bronze laurel cavity and inward.
+ */
+.v8-royal-champion--3 {
+  top: 48px;
+  right: 20px;
+}
+
+/*
+ * Secondary avatar diameters now better fill the
+ * decorative circular cavities.
+ */
+.v8-royal-avatar--2,
+.v8-royal-avatar--3 {
+  width: 68px;
+  height: 68px;
+
+  font-size: 25px;
+}
+
+/*
+ * Tighten live content after moving portraits upward.
+ */
+.v8-royal-champion--2
+.v8-royal-champion__name,
+.v8-royal-champion--3
+.v8-royal-champion__name {
+  margin-top: 9px;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__badges,
+.v8-royal-champion--3
+.v8-royal-champion__badges {
+  margin-top: 5px;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__score,
+.v8-royal-champion--3
+.v8-royal-champion__score {
+  margin-top: 6px;
+}
+
+/*
+ * Dark backing behind live labels.
+ * Artwork remains decorative; live data stays readable.
+ */
+.v8-royal-champion__name {
+  width: fit-content;
+
+  padding:
+    2px
+    5px;
+
+  border-radius: 7px;
+
+  background:
+    rgba(5,3,10,.46);
+}
+
+/*
+ * The central ceremonial title currently overlaps
+ * the top of the gold medallion.
+ * Move it slightly upward and reduce its visual weight.
+ */
+.v8-royal-podium-label {
+  top: 4px;
+
+  font-size: 9px;
+  letter-spacing: 3.8px;
+
+  opacity: .78;
+}
+
+/*
+ * Podium can now be shortened because all live data
+ * sits inside the intended artwork geometry.
+ */
+.v8-royal-podium-scene {
+  height: 368px;
+}
+
+.v8-royal-podium-art {
+  bottom: -9px;
+}
+
+/*
+ * Remove dead space before TOP10.
+ */
+.v8-royal-top10-title {
+  margin-top: 0;
+}
+
+/* iPhone narrow calibration */
+@media (max-width:390px) {
+  .v8-royal-podium-scene {
+    height: 356px;
+  }
+
+  .v8-royal-champion--1 {
+    top: 29px;
+  }
+
+  .v8-royal-avatar--1 {
+    width: 88px;
+    height: 88px;
+  }
+
+  .v8-royal-champion--2 {
+    top: 47px;
+    left: 18px;
+  }
+
+  .v8-royal-champion--3 {
+    top: 47px;
+    right: 18px;
+  }
+
+  .v8-royal-avatar--2,
+  .v8-royal-avatar--3 {
+    width: 65px;
+    height: 65px;
+  }
+}
+
+/* =========================================================
+   V8 B2.3 — BACKGROUND + COPY FIX
+   Goal:
+   - keep royal hall artwork locked to top-center
+   - prevent drift / misalignment between hero and podium scene
+   - preserve existing logic and podium calibration
+   ========================================================= */
+
+.v8-royal-shell,
+.v8-royal-page,
+.v8-royal-root {
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+
+/* Main hall hero artwork */
+.v8-royal-hero,
+.v8-royal-hero-bg,
+.v8-royal-header,
+.v8-royal-banner {
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+
+/* Scene wrapper around podium */
+.v8-royal-podium-scene,
+.v8-royal-stage,
+.v8-royal-scene,
+.v8-royal-scene-shell {
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% auto !important;
+  overflow: hidden !important;
+}
+
+/* If artwork is rendered as img instead of CSS background */
+.v8-royal-podium-art,
+.v8-royal-hero-art,
+.v8-royal-scene-art {
+  object-fit: cover !important;
+  object-position: center top !important;
+  display: block;
+}
+
+/*
+ * The blank vertical drift was mainly coming from scene height
+ * being too loose for the artwork anchor.
+ */
+.v8-royal-podium-scene {
+  min-height: 352px !important;
+  height: 352px !important;
+  padding-top: 10px !important;
+}
+
+/* Pull podium artwork up so the decorative throne aligns with live overlay */
+.v8-royal-podium-art {
+  top: 0 !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+
+/* Keep the "VINH DANH CING IU" title readable and attached to scene */
+.v8-royal-podium-label {
+  top: 8px !important;
+  opacity: 0.88 !important;
+}
+
+/* Reduce dead space before TOP 10 chamber */
+.v8-royal-top10-title,
+.v8-royal-top10-header {
+  margin-top: 8px !important;
+}
+
+/* Mobile calibration */
+@media (max-width: 430px) {
+  .v8-royal-podium-scene {
+    min-height: 340px !important;
+    height: 340px !important;
+  }
+}
+
+/* =========================================================
+   V8 B2.4 — INVALID PODIUM ASSET FENCE
+
+   Current royal-podium.webp has a portrait/full-scene canvas,
+   therefore it cannot be positioned as a standalone decorative
+   podium layer without destructive cropping.
+
+   Fence it out until a true transparent/cropped podium asset
+   replaces it.
+   ========================================================= */
+
+.v8-royal-podium-art {
+  display: none !important;
+}
+
+/*
+ * Remove the B2.3 positioning assumptions that depended on
+ * the invalid full-height podium bitmap.
+ */
+.v8-royal-podium-scene {
+  position: relative;
+
+  height: 356px !important;
+  min-height: 356px !important;
+
+  padding-top: 0 !important;
+
+  overflow: hidden !important;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 23%,
+      rgba(209,153,54,.12),
+      rgba(7,4,14,.18) 38%,
+      rgba(4,2,10,.76) 77%,
+      #030109 100%
+    ) !important;
+}
+
+/*
+ * Dark ceremonial stage behind live data.
+ */
+.v8-royal-podium-scene::after {
+  content: "";
+
+  position: absolute;
+  z-index: 1;
+
+  left: 4%;
+  right: 4%;
+  bottom: 8px;
+
+  height: 262px;
+
+  border-radius:
+    42% 42%
+    20px 20px;
+
+  border:
+    1px solid
+    rgba(229,183,88,.12);
+
+  background:
+    radial-gradient(
+      ellipse at 50% 5%,
+      rgba(221,168,63,.13),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(20,12,23,.35),
+      rgba(5,3,11,.82)
+    );
+
+  box-shadow:
+    inset 0 1px
+      rgba(255,227,159,.05);
+}
+
+/*
+ * Title now belongs to the live stage rather than
+ * being aligned to a bitmap.
+ */
+.v8-royal-podium-label {
+  top: 12px !important;
+  z-index: 8 !important;
+
+  color:
+    rgba(248,218,152,.84) !important;
+
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------
+   Live Top 3 — stable composition while asset is fenced
+   --------------------------------------------------------- */
+
+.v8-royal-champion {
+  z-index: 9;
+}
+
+.v8-royal-champion--1 {
+  left: 50%;
+  top: 58px;
+
+  width: 164px;
+
+  transform:
+    translateX(-50%);
+}
+
+.v8-royal-champion--2 {
+  left: 10px;
+  top: 111px;
+
+  width: 112px;
+}
+
+.v8-royal-champion--3 {
+  right: 10px;
+  top: 111px;
+
+  width: 112px;
+}
+
+.v8-royal-avatar {
+  border:
+    2px solid
+    rgba(244,211,143,.34);
+
+  box-shadow:
+    0 0 0 3px
+      rgba(11,7,18,.88),
+    0 8px 22px
+      rgba(0,0,0,.42);
+}
+
+.v8-royal-avatar--1 {
+  width: 90px;
+  height: 90px;
+}
+
+.v8-royal-avatar--2,
+.v8-royal-avatar--3 {
+  width: 66px;
+  height: 66px;
+}
+
+.v8-royal-champion__name {
+  color: #fffaf0;
+
+  background:
+    rgba(4,2,9,.80);
+
+  text-shadow:
+    0 2px 8px
+      rgba(0,0,0,1);
+}
+
+/*
+ * Give all live badges an opaque dark backing so artwork /
+ * hall lighting can never swallow the text.
+ */
+.v8-royal-champion__badges
+> span
+> span {
+  background:
+    rgba(5,3,11,.96) !important;
+}
+
+/* Score plaques remain live HTML, not baked artwork. */
+.v8-royal-champion__score {
+  background:
+    rgba(5,3,10,.97) !important;
+
+  border-color:
+    rgba(241,195,101,.42) !important;
+}
+
+/*
+ * No giant empty gap between hero and Top10.
+ */
+.v8-royal-top10-title {
+  position: relative;
+  z-index: 8;
+
+  margin-top:
+    5px !important;
+}
+
+/* Mobile */
+@media (max-width:390px) {
+  .v8-royal-podium-scene {
+    height: 344px !important;
+    min-height: 344px !important;
+  }
+
+  .v8-royal-champion--1 {
+    top: 56px;
+  }
+
+  .v8-royal-champion--2,
+  .v8-royal-champion--3 {
+    top: 109px;
+  }
+}
+
+/* =========================================================
+   V8 B2.5 — CODE-DRIVEN ROYAL PODIUM
+   Live data + CSS geometry only.
+   No podium bitmap.
+   ========================================================= */
+
+.v8-royal-podium-scene {
+  position: relative;
+
+  height: 408px !important;
+  min-height: 408px !important;
+
+  overflow: hidden !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(4,2,10,.04) 0%,
+      rgba(4,2,10,.18) 52%,
+      rgba(3,1,8,.72) 100%
+    ) !important;
+}
+
+/*
+ * One ceremonial floor only.
+ * No second background image.
+ */
+.v8-royal-podium-scene::after {
+  content: "";
+
+  position: absolute;
+  z-index: 1;
+
+  left: 5%;
+  right: 5%;
+  bottom: 18px;
+
+  height: 185px;
+
+  border-radius:
+    50% 50%
+    18px 18px;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(239,188,84,.16),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(10,6,16,.10),
+      rgba(4,2,10,.72)
+    );
+
+  border-top:
+    1px solid
+    rgba(235,191,103,.12);
+
+  pointer-events: none;
+}
+
+/* ---------- title ---------- */
+
+.v8-royal-podium-label {
+  top: 10px !important;
+  z-index: 12 !important;
+
+  color: #efd395 !important;
+
+  font-size: 10px !important;
+  letter-spacing: 4px !important;
+
+  text-shadow:
+    0 2px 8px rgba(0,0,0,1);
+}
+
+/* ---------- champion layout ---------- */
+
+.v8-royal-champion {
+  position: absolute;
+
+  z-index: 10;
+
+  text-align: center;
+
+  cursor: pointer;
+}
+
+.v8-royal-champion--1 {
+  left: 50%;
+  top: 64px;
+
+  width: 170px;
+
+  transform:
+    translateX(-50%);
+}
+
+.v8-royal-champion--2 {
+  left: 12px;
+  top: 125px;
+
+  width: 118px;
+}
+
+.v8-royal-champion--3 {
+  right: 12px;
+  top: 125px;
+
+  width: 118px;
+}
+
+/* ---------- medallion ---------- */
+
+.v8-royal-champion__medallion {
+  position: relative;
+
+  margin:
+    0 auto;
+
+  display: grid;
+  place-items: center;
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__medallion {
+  width: 132px;
+  height: 132px;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__medallion,
+.v8-royal-champion--3
+.v8-royal-champion__medallion {
+  width: 92px;
+  height: 92px;
+}
+
+/* ---------- outer ring ---------- */
+
+.v8-royal-champion__medallion::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-radius: 50%;
+
+  border:
+    3px solid
+    rgba(255,232,174,.56);
+
+  box-shadow:
+    inset 0 0 0 2px
+      rgba(8,4,13,.95),
+    0 0 0 1px
+      rgba(255,255,255,.04),
+    0 0 26px
+      rgba(223,161,49,.18);
+
+  pointer-events: none;
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__medallion::before {
+  border-color:
+    #eec25d;
+
+  box-shadow:
+    inset 0 0 0 3px rgba(8,4,13,.96),
+    0 0 0 1px rgba(255,242,202,.16),
+    0 0 36px rgba(225,164,46,.30);
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__medallion::before {
+  border-color:
+    #d6ddea;
+}
+
+.v8-royal-champion--3
+.v8-royal-champion__medallion::before {
+  border-color:
+    #d47a3c;
+}
+
+/* ---------- avatar ---------- */
+
+.v8-royal-avatar {
+  position: relative;
+  z-index: 5;
+
+  border: 0 !important;
+
+  box-shadow:
+    none !important;
+}
+
+.v8-royal-avatar--1 {
+  width: 112px !important;
+  height: 112px !important;
+
+  font-size: 42px !important;
+}
+
+.v8-royal-avatar--2,
+.v8-royal-avatar--3 {
+  width: 76px !important;
+  height: 76px !important;
+
+  font-size: 27px !important;
+}
+
+/* ---------- laurel ---------- */
+
+.v8-royal-champion__laurel {
+  position: absolute;
+  inset: -10px;
+
+  z-index: 2;
+
+  pointer-events: none;
+}
+
+.v8-royal-laurel {
+  position: absolute;
+
+  top: 20%;
+  bottom: 9%;
+
+  width: 28%;
+
+  opacity: .94;
+}
+
+.v8-royal-laurel--left {
+  left: -5px;
+
+  border-left:
+    4px solid
+    currentColor;
+
+  border-radius:
+    90% 0 0 90%;
+
+  transform:
+    rotate(-8deg);
+}
+
+.v8-royal-laurel--right {
+  right: -5px;
+
+  border-right:
+    4px solid
+    currentColor;
+
+  border-radius:
+    0 90% 90% 0;
+
+  transform:
+    rotate(8deg);
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__laurel {
+  color: #e5ad37;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__laurel {
+  color: #bec7d8;
+}
+
+.v8-royal-champion--3
+.v8-royal-champion__laurel {
+  color: #c76f38;
+}
+
+/*
+ * Small leaf marks.
+ */
+.v8-royal-laurel::before,
+.v8-royal-laurel::after {
+  content: "";
+
+  position: absolute;
+
+  width: 10px;
+  height: 18px;
+
+  border-radius:
+    90% 10% 90% 10%;
+
+  background:
+    currentColor;
+
+  opacity: .82;
+}
+
+.v8-royal-laurel--left::before {
+  left: -7px;
+  top: 14%;
+  transform: rotate(-38deg);
+}
+
+.v8-royal-laurel--left::after {
+  left: -8px;
+  bottom: 17%;
+  transform: rotate(-58deg);
+}
+
+.v8-royal-laurel--right::before {
+  right: -7px;
+  top: 14%;
+  transform: rotate(38deg);
+}
+
+.v8-royal-laurel--right::after {
+  right: -8px;
+  bottom: 17%;
+  transform: rotate(58deg);
+}
+
+/* ---------- crown ---------- */
+
+.v8-royal-champion__crown {
+  position: absolute;
+
+  z-index: 7;
+
+  left: 50%;
+  top: -26px;
+
+  width: 58px;
+  height: 32px;
+
+  transform:
+    translateX(-50%);
+
+  color: #eec15b;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__crown {
+  color: #d9e0ec;
+}
+
+.v8-royal-champion--3
+.v8-royal-champion__crown {
+  color: #d97b3c;
+}
+
+.v8-royal-crown__base {
+  position: absolute;
+
+  left: 6px;
+  right: 6px;
+  bottom: 2px;
+
+  height: 10px;
+
+  border-radius:
+    3px 3px 7px 7px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fff4c4,
+      currentColor
+    );
+
+  box-shadow:
+    0 0 10px
+    color-mix(
+      in srgb,
+      currentColor 42%,
+      transparent
+    );
+}
+
+.v8-royal-crown__tip {
+  position: absolute;
+
+  bottom: 10px;
+
+  width: 13px;
+  height: 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fff8d8,
+      currentColor
+    );
+
+  clip-path:
+    polygon(
+      50% 0%,
+      100% 100%,
+      0 100%
+    );
+}
+
+.v8-royal-crown__tip--1 {
+  left: 4px;
+}
+
+.v8-royal-crown__tip--2 {
+  left: 50%;
+
+  height: 26px;
+
+  transform:
+    translateX(-50%);
+}
+
+.v8-royal-crown__tip--3 {
+  right: 4px;
+}
+
+/* ---------- rank seal ---------- */
+
+.v8-royal-champion__rank-seal {
+  position: absolute;
+
+  z-index: 8;
+
+  right: -4px;
+  bottom: -4px;
+
+  min-width: 31px;
+  height: 31px;
+
+  padding:
+    0 6px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 11px;
+
+  border:
+    2px solid
+    rgba(255,255,255,.75);
+
+  color: #160b04;
+
+  font-size: 13px;
+  font-weight: 1000;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fff1b4,
+      #d9942e
+    );
+
+  box-shadow:
+    0 7px 16px
+      rgba(0,0,0,.36);
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__rank-seal {
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #aeb8ca
+    );
+}
+
+.v8-royal-champion--3
+.v8-royal-champion__rank-seal {
+  background:
+    linear-gradient(
+      145deg,
+      #ffd09d,
+      #c66e32
+    );
+}
+
+/* ---------- name ---------- */
+
+.v8-royal-champion__name {
+  width: fit-content;
+
+  margin:
+    10px auto
+    0;
+
+  padding:
+    3px
+    7px;
+
+  border-radius: 8px;
+
+  color: #fff9ef;
+
+  background:
+    rgba(4,2,9,.90);
+
+  text-shadow:
+    0 2px 8px
+      rgba(0,0,0,1);
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__name {
+  max-width: 168px;
+
+  font-size: 19px !important;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__name,
+.v8-royal-champion--3
+.v8-royal-champion__name {
+  max-width: 110px;
+
+  font-size: 11px !important;
+}
+
+/* ---------- canonical badges ---------- */
+
+.v8-royal-champion__badges {
+  margin:
+    5px auto
+    0 !important;
+
+  overflow: visible;
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__badges {
+  width: 164px !important;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__badges,
+.v8-royal-champion--3
+.v8-royal-champion__badges {
+  width: 112px !important;
+}
+
+.v8-royal-champion__badges
+> span
+> span {
+  background:
+    rgba(4,2,10,.97) !important;
+
+  white-space:
+    nowrap !important;
+
+  overflow:
+    visible !important;
+
+  text-overflow:
+    clip !important;
+}
+
+/* ---------- score plaque ---------- */
+
+.v8-royal-champion__score {
+  margin-top:
+    6px !important;
+
+  color:
+    #f8daa0 !important;
+
+  background:
+    rgba(4,2,9,.98) !important;
+
+  border:
+    1px solid
+    rgba(239,192,96,.46) !important;
+
+  box-shadow:
+    inset 0 1px
+      rgba(255,255,255,.04),
+    0 7px 18px
+      rgba(0,0,0,.35);
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__score {
+  min-width:
+    154px !important;
+
+  min-height:
+    45px !important;
+
+  font-size:
+    18px !important;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__score,
+.v8-royal-champion--3
+.v8-royal-champion__score {
+  min-width:
+    96px !important;
+
+  min-height:
+    34px !important;
+
+  font-size:
+    11px !important;
+}
+
+/* ---------- ornamental bases ---------- */
+
+.v8-royal-champion::after {
+  content: "";
+
+  display: block;
+
+  width: 82%;
+  height: 12px;
+
+  margin:
+    7px auto
+    0;
+
+  border-radius:
+    50%;
+
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(226,174,72,.23),
+      rgba(66,37,19,.12) 52%,
+      transparent 72%
+    );
+
+  border-top:
+    1px solid
+    rgba(233,191,101,.20);
+}
+
+.v8-royal-champion--1::after {
+  width: 98%;
+  height: 15px;
+
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(236,188,83,.32),
+      rgba(70,39,17,.15) 58%,
+      transparent 75%
+    );
+}
+
+/* ---------- TOP10 transition ---------- */
+
+.v8-royal-top10-title {
+  position: relative;
+  z-index: 10;
+
+  margin-top:
+    3px !important;
+}
+
+/*
+ * Keep the list exactly as current B2.4.
+ */
+.v8-royal-top10 {
+  background:
+    rgba(4,2,10,.97) !important;
+}
+
+/* narrow iPhone */
+@media (max-width:390px) {
+  .v8-royal-podium-scene {
+    height:
+      395px !important;
+
+    min-height:
+      395px !important;
+  }
+
+  .v8-royal-champion--1 {
+    top: 62px;
+    width: 162px;
+  }
+
+  .v8-royal-champion--2 {
+    left: 6px;
+    top: 123px;
+  }
+
+  .v8-royal-champion--3 {
+    right: 6px;
+    top: 123px;
+  }
+
+  .v8-royal-champion--1
+  .v8-royal-champion__medallion {
+    width: 126px;
+    height: 126px;
+  }
+
+  .v8-royal-avatar--1 {
+    width: 106px !important;
+    height: 106px !important;
+  }
+
+  .v8-royal-champion--2
+  .v8-royal-champion__medallion,
+  .v8-royal-champion--3
+  .v8-royal-champion__medallion {
+    width: 88px;
+    height: 88px;
+  }
+
+  .v8-royal-avatar--2,
+  .v8-royal-avatar--3 {
+    width: 72px !important;
+    height: 72px !important;
+  }
+}
+
+/* =========================================================
+   V8 B2.6 — PROFESSIONAL ROYAL MEDALLION
+   Replaces primitive CSS triangles / bracket laurels.
+   ========================================================= */
+
+.v8-royal-champion__medallion {
+  position: relative;
+
+  display: grid;
+  place-items: center;
+
+  isolation: isolate;
+}
+
+/*
+ * Premium SVG ornament owns:
+ * crown
+ * laurel
+ * metal ring
+ * bottom jewel
+ */
+.v8-royal-ornament {
+  position: absolute;
+
+  z-index: 2;
+
+  left: 50%;
+  top: 50%;
+
+  width: 154%;
+  height: 154%;
+
+  transform:
+    translate(-50%, -50%);
+
+  overflow: visible;
+
+  pointer-events: none;
+
+  filter:
+    drop-shadow(
+      0 8px 12px
+      rgba(0,0,0,.44)
+    );
+}
+
+.v8-royal-champion--1
+.v8-royal-ornament {
+  width: 160%;
+  height: 160%;
+
+  filter:
+    drop-shadow(
+      0 0 13px
+      rgba(220,164,61,.22)
+    )
+    drop-shadow(
+      0 9px 16px
+      rgba(0,0,0,.48)
+    );
+}
+
+.v8-royal-ornament__laurel {
+  opacity: .94;
+}
+
+/*
+ * Disable all old B2.5 primitive ornament geometry.
+ */
+.v8-royal-champion__crown,
+.v8-royal-champion__laurel,
+.v8-royal-laurel,
+.v8-royal-crown__tip,
+.v8-royal-crown__base {
+  display: none !important;
+}
+
+/*
+ * Disable B2.5 pseudo ring.
+ * SVG now owns the metal medallion frame.
+ */
+.v8-royal-champion__medallion::before {
+  display: none !important;
+}
+
+/* ---------- avatar ---------- */
+
+.v8-royal-avatar {
+  position: relative;
+
+  z-index: 5;
+
+  border-radius: 50%;
+
+  overflow: hidden;
+
+  background:
+    #130b21;
+
+  box-shadow:
+    inset 0 0 0 1px
+      rgba(255,255,255,.08) !important;
+}
+
+/*
+ * More breathing room between artwork ring and avatar.
+ */
+.v8-royal-avatar--1 {
+  width: 96px !important;
+  height: 96px !important;
+
+  font-size: 37px !important;
+}
+
+.v8-royal-avatar--2,
+.v8-royal-avatar--3 {
+  width: 65px !important;
+  height: 65px !important;
+
+  font-size: 24px !important;
+}
+
+/* ---------- rank seal ---------- */
+
+.v8-royal-champion__rank-seal {
+  z-index: 8;
+
+  right: 1px;
+  bottom: 2px;
+
+  min-width: 29px;
+  height: 29px;
+
+  padding: 0 6px;
+
+  border-radius: 50%;
+
+  border:
+    2px solid
+    #fff6d9;
+
+  font-size: 12px;
+
+  box-shadow:
+    0 5px 13px
+      rgba(0,0,0,.45);
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__rank-seal {
+  min-width: 33px;
+  height: 33px;
+
+  right: -1px;
+  bottom: 1px;
+}
+
+/* ---------- names ---------- */
+
+.v8-royal-champion__name {
+  margin-top: 13px;
+
+  padding:
+    3px
+    8px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(5,3,10,.84);
+
+  box-shadow:
+    inset 0 0 0 1px
+      rgba(255,255,255,.035);
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__name {
+  margin-top: 15px;
+
+  font-size: 19px !important;
+
+  color: #fff7e5;
+}
+
+/* ---------- badge spacing ---------- */
+
+.v8-royal-champion__badges {
+  margin-top:
+    5px !important;
+}
+
+/*
+ * Top2/Top3 need enough width for a real membership title
+ * without visually touching neighboring podiums.
+ */
+.v8-royal-champion--2,
+.v8-royal-champion--3 {
+  width: 122px;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__badges,
+.v8-royal-champion--3
+.v8-royal-champion__badges {
+  width: 118px !important;
+}
+
+/* ---------- podium placement ---------- */
+
+.v8-royal-champion--1 {
+  top: 61px;
+}
+
+.v8-royal-champion--2,
+.v8-royal-champion--3 {
+  top: 127px;
+}
+
+/*
+ * Slightly increase stage height because SVG crowns are
+ * now physically elegant rather than cramped CSS triangles.
+ */
+.v8-royal-podium-scene {
+  height: 414px !important;
+  min-height: 414px !important;
+}
+
+/* ---------- remove fake base ellipses ---------- */
+
+.v8-royal-champion::after {
+  width: 72%;
+  height: 8px;
+
+  opacity: .55;
+
+  margin-top: 8px;
+
+  border: 0;
+
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(222,169,70,.18),
+      transparent 72%
+    );
+}
+
+.v8-royal-champion--1::after {
+  width: 88%;
+  height: 10px;
+}
+
+/* ---------- top1 hierarchy ---------- */
+
+.v8-royal-champion--1
+.v8-royal-champion__score {
+  min-width:
+    150px !important;
+
+  color:
+    #ffe3a1 !important;
+
+  border-color:
+    rgba(240,194,101,.58) !important;
+
+  box-shadow:
+    inset 0 1px
+      rgba(255,255,255,.04),
+    0 0 15px
+      rgba(213,153,51,.10),
+    0 8px 18px
+      rgba(0,0,0,.38);
+}
+
+/* ---------- mobile ---------- */
+
+@media (max-width:390px) {
+  .v8-royal-podium-scene {
+    height: 402px !important;
+    min-height: 402px !important;
+  }
+
+  .v8-royal-champion--1 {
+    top: 60px;
+  }
+
+  .v8-royal-champion--2,
+  .v8-royal-champion--3 {
+    top: 126px;
+  }
+
+  .v8-royal-champion--2 {
+    left: 4px;
+  }
+
+  .v8-royal-champion--3 {
+    right: 4px;
+  }
+
+  .v8-royal-ornament {
+    width: 150%;
+    height: 150%;
+  }
+
+  .v8-royal-champion--1
+  .v8-royal-ornament {
+    width: 156%;
+    height: 156%;
+  }
+}
+
+/* =========================================================
+   V8 B2.7 — QUIET LUXURY TOP 3
+
+   Design principles:
+   - no crown
+   - no laurel
+   - no jewel
+   - no ornamental clutter
+   - thin metallic rings
+   - dark glass / black marble
+   - strong typography hierarchy
+   ========================================================= */
+
+/* Kill every previous decorative ornament defensively. */
+.v8-royal-ornament,
+.v8-royal-champion__crown,
+.v8-royal-champion__laurel,
+.v8-royal-laurel,
+.v8-royal-crown__tip,
+.v8-royal-crown__base {
+  display: none !important;
+}
+
+/* Removed from JSX, but keep hidden if stale HMR markup exists. */
+.v8-royal-podium-label,
+.v8-royal-top10-title {
+  display: none !important;
+}
+
+/* ---------- overall top3 scene ---------- */
+
+.v8-royal-podium-scene {
+  position: relative;
+
+  height: 348px !important;
+  min-height: 348px !important;
+
+  padding: 0 !important;
+
+  overflow: hidden !important;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 18%,
+      rgba(205,153,65,.105),
+      transparent 38%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(3,2,8,.02),
+      rgba(3,2,8,.18) 48%,
+      rgba(3,1,8,.72) 100%
+    ) !important;
+}
+
+/*
+ * One very subtle stage glow.
+ * No giant podium box.
+ */
+.v8-royal-podium-scene::after {
+  content: "";
+
+  position: absolute;
+  z-index: 1;
+
+  left: 13%;
+  right: 13%;
+  bottom: 18px;
+
+  height: 72px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(212,157,55,.13),
+      rgba(70,42,19,.05) 48%,
+      transparent 73%
+    );
+
+  border: 0;
+
+  pointer-events: none;
+}
+
+/* ---------- champion positions ---------- */
+
+.v8-royal-champion {
+  position: absolute;
+
+  z-index: 10;
+
+  text-align: center;
+
+  cursor: pointer;
+}
+
+.v8-royal-champion--1 {
+  left: 50%;
+  top: 42px;
+
+  width: 168px;
+
+  transform: translateX(-50%);
+}
+
+.v8-royal-champion--2 {
+  left: 14px;
+  top: 92px;
+
+  width: 116px;
+}
+
+.v8-royal-champion--3 {
+  right: 14px;
+  top: 92px;
+
+  width: 116px;
+}
+
+/* ---------- medallion ---------- */
+
+.v8-royal-champion__medallion {
+  position: relative;
+
+  display: grid;
+  place-items: center;
+
+  margin: 0 auto;
+
+  border-radius: 50%;
+
+  isolation: isolate;
+}
+
+/*
+ * Metallic outer ring.
+ * This is intentionally thin and jewelry-like.
+ */
+.v8-royal-champion__medallion::before {
+  content: "" !important;
+
+  display: block !important;
+
+  position: absolute;
+  inset: 0;
+
+  border-radius: 50%;
+
+  z-index: 1;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff2bd 0%,
+      #c99033 24%,
+      #71501f 42%,
+      #f0c86d 64%,
+      #8d611f 80%,
+      #fff0ad 100%
+    );
+
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.40);
+
+  pointer-events: none;
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__medallion {
+  width: 122px;
+  height: 122px;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__medallion,
+.v8-royal-champion--3
+.v8-royal-champion__medallion {
+  width: 86px;
+  height: 86px;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__medallion::before {
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #cdd3dc 24%,
+      #737b89 46%,
+      #eef1f6 67%,
+      #868e9b 82%,
+      #ffffff 100%
+    );
+}
+
+.v8-royal-champion--3
+.v8-royal-champion__medallion::before {
+  background:
+    linear-gradient(
+      135deg,
+      #ffd4a3 0%,
+      #c97735 25%,
+      #70401d 47%,
+      #e89a51 67%,
+      #8d4d22 82%,
+      #ffc989 100%
+    );
+}
+
+/*
+ * Inner dark separation ring.
+ */
+.v8-royal-champion__medallion::after {
+  content: "";
+
+  position: absolute;
+  inset: 4px;
+
+  z-index: 2;
+
+  border-radius: 50%;
+
+  background: #080511;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.07);
+
+  pointer-events: none;
+}
+
+/* ---------- avatar ---------- */
+
+.v8-royal-avatar {
+  position: relative;
+
+  z-index: 4;
+
+  overflow: hidden;
+
+  border: 0 !important;
+
+  border-radius: 50%;
+
+  box-shadow: none !important;
+}
+
+.v8-royal-avatar--1 {
+  width: 108px !important;
+  height: 108px !important;
+
+  font-size: 39px !important;
+}
+
+.v8-royal-avatar--2,
+.v8-royal-avatar--3 {
+  width: 74px !important;
+  height: 74px !important;
+
+  font-size: 26px !important;
+}
+
+/* ---------- rank seal ---------- */
+
+.v8-royal-champion__rank-seal {
+  position: absolute;
+
+  z-index: 8;
+
+  right: -3px;
+  bottom: -3px;
+
+  min-width: 29px;
+  height: 29px;
+
+  padding: 0 6px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  border:
+    2px solid
+    #f7e8bc;
+
+  color: #170c05;
+
+  font-size: 12px;
+  font-weight: 1000;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fff0b3,
+      #d3942f
+    );
+
+  box-shadow:
+    0 5px 14px rgba(0,0,0,.42);
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__rank-seal {
+  min-width: 33px;
+  height: 33px;
+
+  right: -2px;
+  bottom: -2px;
+
+  font-size: 13px;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__rank-seal {
+  border-color: #f2f4f7;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #aeb6c3
+    );
+}
+
+.v8-royal-champion--3
+.v8-royal-champion__rank-seal {
+  border-color: #ffe0ba;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffd3a0,
+      #c56e32
+    );
+}
+
+/* ---------- name ---------- */
+
+.v8-royal-champion__name {
+  width: fit-content;
+
+  margin:
+    10px auto
+    0 !important;
+
+  padding:
+    2px
+    7px;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  border-radius: 999px;
+
+  color: #fffaf1 !important;
+
+  background:
+    rgba(4,2,9,.80) !important;
+
+  box-shadow: none !important;
+
+  text-shadow:
+    0 2px 7px rgba(0,0,0,.92);
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__name {
+  max-width: 164px;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 18px !important;
+  font-weight: 700;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__name,
+.v8-royal-champion--3
+.v8-royal-champion__name {
+  max-width: 108px;
+
+  font-size: 11px !important;
+  font-weight: 850;
+}
+
+/* ---------- canonical badges ---------- */
+
+.v8-royal-champion__badges {
+  margin:
+    4px auto
+    0 !important;
+
+  overflow: visible;
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__badges {
+  width: 160px !important;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__badges,
+.v8-royal-champion--3
+.v8-royal-champion__badges {
+  width: 112px !important;
+}
+
+.v8-royal-champion__badges
+> span
+> span {
+  background:
+    rgba(4,2,9,.94) !important;
+
+  box-shadow:
+    none !important;
+
+  white-space:
+    nowrap !important;
+}
+
+/* ---------- score plaque ---------- */
+
+.v8-royal-champion__score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top:
+    6px !important;
+
+  border-radius: 12px !important;
+
+  border:
+    1px solid
+    rgba(216,168,76,.42) !important;
+
+  color:
+    #f6d991 !important;
+
+  background:
+    rgba(4,2,9,.96) !important;
+
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.035),
+    0 7px 18px rgba(0,0,0,.25) !important;
+}
+
+.v8-royal-champion--1
+.v8-royal-champion__score {
+  min-width: 148px !important;
+  min-height: 43px !important;
+
+  padding: 5px 12px;
+
+  font-size: 18px !important;
+  font-weight: 1000;
+}
+
+.v8-royal-champion--2
+.v8-royal-champion__score,
+.v8-royal-champion--3
+.v8-royal-champion__score {
+  min-width: 94px !important;
+  min-height: 32px !important;
+
+  padding: 4px 7px;
+
+  font-size: 11px !important;
+  font-weight: 950;
+}
+
+/*
+ * Kill the fake pedestal ellipse from earlier iterations.
+ */
+.v8-royal-champion::after {
+  display: none !important;
+}
+
+/* ---------- transition directly into rankings ---------- */
+
+.v8-royal-top10 {
+  margin-top: 8px !important;
+
+  background:
+    rgba(4,2,10,.97) !important;
+}
+
+/* ---------- mobile ---------- */
+
+@media (max-width:390px) {
+  .v8-royal-podium-scene {
+    height: 336px !important;
+    min-height: 336px !important;
+  }
+
+  .v8-royal-champion--1 {
+    top: 40px;
+    width: 162px;
+  }
+
+  .v8-royal-champion--2 {
+    left: 7px;
+    top: 90px;
+  }
+
+  .v8-royal-champion--3 {
+    right: 7px;
+    top: 90px;
+  }
+
+  .v8-royal-champion--1
+  .v8-royal-champion__medallion {
+    width: 116px;
+    height: 116px;
+  }
+
+  .v8-royal-avatar--1 {
+    width: 102px !important;
+    height: 102px !important;
+  }
+
+  .v8-royal-champion--2
+  .v8-royal-champion__medallion,
+  .v8-royal-champion--3
+  .v8-royal-champion__medallion {
+    width: 82px;
+    height: 82px;
+  }
+
+  .v8-royal-avatar--2,
+  .v8-royal-avatar--3 {
+    width: 70px !important;
+    height: 70px !important;
+  }
+}
+
+/* =========================================================
+   V8 B2.8 R2 — FETCH ERROR RECOVERY
+   ========================================================= */
+
+.v8-royal-state__retry {
+  margin-top: 12px;
+
+  min-width: 118px;
+  height: 40px;
+
+  padding: 0 18px;
+
+  border:
+    1px solid
+    rgba(238,193,99,.56);
+
+  border-radius: 999px;
+
+  color: #201106;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fff0b2,
+      #dda03b
+    );
+
+  box-shadow:
+    0 8px 20px
+    rgba(0,0,0,.28);
+}
+
+/* =========================================================
+   V8 B2.9 — CANONICAL BADGE ADAPTER
+   Visual authority belongs to membership/TierBadge.
+   This block controls layout only.
+   ========================================================= */
+
+.cing-leaderboard-canonical-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  gap: 4px;
+
+  width: 100%;
+  max-width: 100%;
+
+  margin-top: 4px;
+}
+
+.cing-leaderboard-canonical-badges[data-align="center"] {
+  justify-content: center;
+}
+
+.cing-leaderboard-canonical-badges[data-align="start"] {
+  justify-content: flex-start;
+}
+
+/*
+ * V8 must not repaint canonical membership/title badges.
+ * Previous broad descendant overrides are neutralized here.
+ */
+.v8-royal-champion__badges
+.cing-leaderboard-canonical-badges > span,
+.v8-royal-row__badges
+.cing-leaderboard-canonical-badges > span,
+.v8-royal-self__badges
+.cing-leaderboard-canonical-badges > span {
+  max-width: 100%;
+
+  margin: 0 !important;
+}
+
+/* =========================================================
+   V8 B2.9 — REWARD STRIP SPACING
+   Pull rewards closer to weekly subtitle.
+   ========================================================= */
+
+.v8-royal-header {
+  padding-bottom: 4px !important;
+}
+
+.v8-royal-heading p {
+  margin-bottom: 2px !important;
+}
+
+.v8-royal-rewards {
+  margin-top: -2px !important;
+  margin-bottom: 6px !important;
+}
+
+/* =========================================================
+   V8 B2.10 — FIXED ACHIEVEMENT GEOMETRY
+   ========================================================= */
+
+/*
+ * Text tier occupies a fixed-height slot.
+ * Score position must NEVER depend on title count.
+ */
+.v8-royal-champion__badges {
+  position: relative;
+
+  width: 100% !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  max-height: 28px !important;
+
+  margin-top: 4px !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: visible !important;
+}
+
+/*
+ * Exactly one canonical membership tier.
+ */
+.cing-leaderboard-membership-tier {
+  width: 100%;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+
+  overflow: visible;
+}
+
+.cing-leaderboard-membership-tier[data-align="center"] {
+  justify-content: center;
+}
+
+.cing-leaderboard-membership-tier[data-align="start"] {
+  justify-content: flex-start;
+}
+
+.cing-leaderboard-membership-tier__scale {
+  display: inline-flex;
+
+  width: max-content;
+  max-width: none;
+
+  flex: 0 0 auto;
+
+  white-space: nowrap;
+
+  transform-origin: center center;
+}
+
+/*
+ * Side podiums are narrow.
+ * Scale the canonical component as one unit rather than
+ * truncating or wrapping its official label.
+ */
+.v8-royal-champion--2
+.cing-leaderboard-membership-tier__scale,
+.v8-royal-champion--3
+.cing-leaderboard-membership-tier__scale {
+  transform: scale(.78);
+}
+
+.v8-royal-champion--1
+.cing-leaderboard-membership-tier__scale {
+  transform: scale(.90);
+}
+
+/*
+ * Rest-of-board rows have more horizontal space.
+ */
+.v8-royal-top10
+.cing-leaderboard-membership-tier__scale {
+  transform: scale(.92);
+  transform-origin: left center;
+}
+
+/* ---------------------------------------------------------
+   SPECIAL TITLE ICONS — AVATAR ONLY
+   --------------------------------------------------------- */
+
+.cing-leaderboard-avatar-title-icons {
+  position: absolute;
+
+  z-index: 9;
+
+  left: 50%;
+  bottom: -8px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 3px;
+
+  transform: translateX(-50%);
+
+  pointer-events: none;
+}
+
+.cing-leaderboard-avatar-title-icon {
+  display: grid;
+  place-items: center;
+
+  width: 24px;
+  height: 24px;
+
+  flex: 0 0 24px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(5,3,10,.96);
+
+  box-shadow:
+    0 4px 11px
+    rgba(0,0,0,.42);
+}
+
+/*
+ * TierBadge itself owns the live HOF/champion icon visual.
+ */
+.cing-leaderboard-avatar-title-icon > span {
+  margin: 0 !important;
+}
+
+/*
+ * Charm icon-only medallions.
+ * Kept compact to avoid competing with the avatar.
+ */
+.cing-leaderboard-avatar-title-icon--idol,
+.cing-leaderboard-avatar-title-icon--ngoi_sao,
+.cing-leaderboard-avatar-title-icon--minh_tinh {
+  font-size: 14px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.13);
+}
+
+.cing-leaderboard-avatar-title-icon--idol {
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #c8b7ff,
+      #4d328d 62%,
+      #160b35
+    );
+}
+
+.cing-leaderboard-avatar-title-icon--ngoi_sao {
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #fff1a4,
+      #9b6c00 62%,
+      #2d1c00
+    );
+}
+
+.cing-leaderboard-avatar-title-icon--minh_tinh {
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #ffc4dc,
+      #9f2454 62%,
+      #320817
+    );
+}
+
+/* ---------------------------------------------------------
+   FIXED SCORE LINE
+   --------------------------------------------------------- */
+
+.v8-royal-champion__score {
+  margin-top: 4px !important;
+}
+
+/*
+ * All three score cards start from the same logical vertical
+ * flow after a fixed 28px tier slot.
+ */
+.v8-royal-champion--1
+.v8-royal-champion__score,
+.v8-royal-champion--2
+.v8-royal-champion__score,
+.v8-royal-champion--3
+.v8-royal-champion__score {
+  position: relative;
+}
+
+/* ---------------------------------------------------------
+   REWARD STRIP — VISIBLY CLOSER TO SUBTITLE
+   --------------------------------------------------------- */
+
+/*
+ * Earlier margin adjustment was too subtle.
+ * Move the whole reward block upward independently of
+ * header artwork height.
+ */
+.v8-royal-rewards {
+  position: relative;
+  z-index: 12;
+
+  transform: translateY(-18px) !important;
+
+  margin-bottom: -18px !important;
+}
+
+/*
+ * Prevent unnecessary dead space at the bottom of heading.
+ */
+.v8-royal-header {
+  padding-bottom: 0 !important;
+}
+
+.v8-royal-heading p {
+  margin-bottom: 0 !important;
+}
+
+/* iPhone narrow width */
+@media (max-width:390px) {
+  .v8-royal-champion--2
+  .cing-leaderboard-membership-tier__scale,
+  .v8-royal-champion--3
+  .cing-leaderboard-membership-tier__scale {
+    transform: scale(.72);
+  }
+
+  .v8-royal-champion--1
+  .cing-leaderboard-membership-tier__scale {
+    transform: scale(.86);
+  }
+
+  .cing-leaderboard-avatar-title-icons {
+    gap: 2px;
+  }
+
+  .cing-leaderboard-avatar-title-icon {
+    width: 22px;
+    height: 22px;
+
+    flex-basis: 22px;
+  }
+}
+
+/* =========================================================
+   V8 B2.14 — TOP3 MEMBERSHIP TIER FIT
+
+   Goal:
+   - keep the accepted pre-B2.13 Top3 visual
+   - membership tier always centered under player name
+   - long labels such as "Hội viên Kim Cương" stay fully visible
+   - score geometry remains fixed
+   ========================================================= */
+
+/*
+ * Give the tier its own full-width lane.
+ * It must not inherit visual offset from avatar/rank positioning.
+ */
+.v8-royal-champion__badges {
+  position: relative !important;
+
+  left: 50% !important;
+
+  width: 132px !important;
+  max-width: 132px !important;
+
+  transform:
+    translateX(-50%) !important;
+
+  margin-top:
+    4px !important;
+
+  overflow:
+    visible !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/*
+ * Top1 has more horizontal room.
+ */
+.v8-royal-champion--1
+.v8-royal-champion__badges {
+  width: 162px !important;
+  max-width: 162px !important;
+}
+
+/*
+ * Top2 / Top3 require a lane wider than their avatar column.
+ * This prevents long membership titles from being pushed
+ * outward or clipped at the screen edge.
+ */
+.v8-royal-champion--2
+.v8-royal-champion__badges,
+.v8-royal-champion--3
+.v8-royal-champion__badges {
+  width: 138px !important;
+  max-width: 138px !important;
+}
+
+/*
+ * The canonical TierBadge stays a single line.
+ * We scale the whole component rather than truncating its label.
+ */
+.cing-leaderboard-membership-tier {
+  width: 100% !important;
+  max-width: 100% !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  overflow: visible !important;
+}
+
+.cing-leaderboard-membership-tier__scale {
+  display: inline-flex !important;
+
+  width: max-content !important;
+  max-width: none !important;
+
+  flex: 0 0 auto !important;
+
+  white-space: nowrap !important;
+
+  transform-origin:
+    center center !important;
+}
+
+/*
+ * Slightly smaller only on the narrow side podiums.
+ * Enough for "Hội viên Kim Cương" and
+ * "Đối tác Thân Thiết" to remain one line.
+ */
+.v8-royal-champion--2
+.cing-leaderboard-membership-tier__scale,
+.v8-royal-champion--3
+.cing-leaderboard-membership-tier__scale {
+  transform:
+    scale(.68) !important;
+}
+
+/*
+ * Top1 can remain more prominent.
+ */
+.v8-royal-champion--1
+.cing-leaderboard-membership-tier__scale {
+  transform:
+    scale(.86) !important;
+}
+
+/*
+ * Critical: do not let right-hand Top3 lane drift outward.
+ */
+.v8-royal-champion--3
+.v8-royal-champion__badges {
+  margin-left:
+    0 !important;
+
+  margin-right:
+    0 !important;
+}
+
+/*
+ * Fixed tier slot preserved so score cannot move vertically.
+ */
+.v8-royal-champion__badges {
+  height:
+    28px !important;
+
+  min-height:
+    28px !important;
+
+  max-height:
+    28px !important;
+}
+
+/*
+ * Score remains where it was in the accepted version.
+ */
+.v8-royal-champion__score {
+  margin-top:
+    4px !important;
+}
+
+/* Narrow iPhone calibration */
+@media (max-width:390px) {
+  .v8-royal-champion--2
+  .v8-royal-champion__badges,
+  .v8-royal-champion--3
+  .v8-royal-champion__badges {
+    width:
+      132px !important;
+
+    max-width:
+      132px !important;
+  }
+
+  .v8-royal-champion--2
+  .cing-leaderboard-membership-tier__scale,
+  .v8-royal-champion--3
+  .cing-leaderboard-membership-tier__scale {
+    transform:
+      scale(.64) !important;
+  }
+}
+
+/* =========================================================
+   V8 B2.15 — TOP4-10 BADGE ALIGNMENT
+
+   Restore left alignment under the customer name.
+   This does NOT apply to Top1/2/3.
+   ========================================================= */
+
+/*
+ * Only leaderboard list rows.
+ * Undo the global centering introduced in B2.14.
+ */
+.v8-royal-top10 .cing-leaderboard-membership-tier,
+.v8-royal-row .cing-leaderboard-membership-tier {
+  width: 100% !important;
+
+  max-width: 100% !important;
+
+  justify-content: flex-start !important;
+
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/*
+ * Keep the canonical icon and full tier label
+ * directly below the customer's name.
+ */
+.v8-royal-top10 .cing-leaderboard-membership-tier__scale,
+.v8-royal-row .cing-leaderboard-membership-tier__scale {
+  transform: none !important;
+  transform-origin: left center !important;
+
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/*
+ * Neutralize inherited center alignment on the
+ * existing badge wrapper, if present.
+ */
+.v8-royal-row__badges,
+.v8-royal-top10 .v8-royal-champion__badges {
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+/*
+ * Do not alter score position, avatar, name
+ * or ranking row geometry.
+ */

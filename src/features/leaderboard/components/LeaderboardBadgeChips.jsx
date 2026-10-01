@@ -1,28 +1,15 @@
-const BADGE_META = {
-  member:        { label:"Hội viên",            mark:"◆" },
-  loyal:         { label:"Hội viên Thân Thiết", mark:"◆" },
-  silver:        { label:"Hội viên Bạc",        mark:"◆" },
-  gold:          { label:"Hội viên Vàng",       mark:"◆" },
-  diamond:       { label:"Hội viên Kim Cương",  mark:"◆" },
-  partner:       { label:"Đối Tác",             mark:"◇" },
-  loyal_partner: { label:"Đối Tác Thân Thiết",  mark:"◇" },
-  champion:      { label:"Kiện tướng",          mark:"♛" },
-  hof_1:         { label:"Vương Giả",           mark:"Ⅰ" },
-  hof_2:         { label:"Phú Hào",             mark:"Ⅱ" },
-  hof_3:         { label:"Địa Chủ",              mark:"Ⅲ" },
-  idol:          { label:"Idol",                 mark:"✦" },
-  ngoi_sao:      { label:"Ngôi sao",             mark:"★" },
-  minh_tinh:     { label:"Minh tinh",            mark:"✧" },
-};
+import { TierBadge } from "@/membership/components/TierBadge";
+import { injectTierBadgeStyles } from "@/membership/components/TierBadgeStyles";
 
-const DISPLAY_ORDER = [
-  "hof_1",
-  "hof_2",
-  "hof_3",
-  "champion",
-  "minh_tinh",
-  "ngoi_sao",
-  "idol",
+injectTierBadgeStyles();
+
+/*
+ * Membership tier is the ONLY textual badge shown in leaderboard rows.
+ *
+ * Prefer crm_tier because this is the canonical current membership tier
+ * delivered by leaderboard projection. owned_badges is fallback only.
+ */
+const MEMBERSHIP_ORDER = [
   "loyal_partner",
   "partner",
   "diamond",
@@ -32,61 +19,146 @@ const DISPLAY_ORDER = [
   "member",
 ];
 
-export default function LeaderboardBadgeChips({
-  entry,
-  align = "center",
-}) {
+const MEMBERSHIP_KEYS = new Set(MEMBERSHIP_ORDER);
+
+const LIVE_KEYS = [
+  "hof_1",
+  "hof_2",
+  "hof_3",
+  "champion",
+];
+
+const CHARM_KEYS = [
+  "minh_tinh",
+  "ngoi_sao",
+  "idol",
+];
+
+/*
+ * These charm symbols follow the existing profile title language:
+ * idol = ✨
+ * ngoi_sao = ⭐
+ * minh_tinh = 🌟
+ *
+ * They are icon-only here. No duplicate title text.
+ */
+const CHARM_ICON = {
+  idol: "✨",
+  ngoi_sao: "⭐",
+  minh_tinh: "🌟",
+};
+
+const CHARM_LABEL = {
+  idol: "Idol",
+  ngoi_sao: "Ngôi sao",
+  minh_tinh: "Minh tinh",
+};
+
+export function resolveMembershipTier(entry) {
+  const crmTier = String(entry?.crm_tier || "").trim();
+
+  if (MEMBERSHIP_KEYS.has(crmTier)) {
+    return crmTier;
+  }
+
   const owned = Array.isArray(entry?.owned_badges)
     ? entry.owned_badges
     : [];
 
-  const keys = DISPLAY_ORDER.filter(
-    key => owned.includes(key) && BADGE_META[key]
+  return (
+    MEMBERSHIP_ORDER.find(key => owned.includes(key)) ||
+    null
+  );
+}
+
+export function LeaderboardAvatarTitleIcons({ entry }) {
+  const owned = Array.isArray(entry?.owned_badges)
+    ? entry.owned_badges
+    : [];
+
+  const live = LIVE_KEYS.filter(
+    key => owned.includes(key)
   );
 
-  if (!keys.length) return null;
+  const charms = CHARM_KEYS.filter(
+    key => owned.includes(key)
+  );
+
+  if (!live.length && !charms.length) {
+    return null;
+  }
 
   return (
     <span
-      aria-label="Danh hiệu đang sở hữu"
-      style={{
-        display:"flex",
-        flexWrap:"wrap",
-        justifyContent:
-          align === "start"
-            ? "flex-start"
-            : "center",
-        gap:4,
-        marginTop:5,
-        width:"100%",
-        maxWidth:"100%",
-      }}
+      className="cing-leaderboard-avatar-title-icons"
+      aria-label="Danh hiệu đặc biệt"
     >
-      {keys.map(key => (
+      {live.map(key => (
         <span
+          className="cing-leaderboard-avatar-title-icon"
           key={key}
-          style={{
-            display:"inline-flex",
-            alignItems:"center",
-            gap:4,
-            minHeight:18,
-            padding:"2px 7px",
-            borderRadius:999,
-            border:"1px solid rgba(232,201,139,.22)",
-            background:"linear-gradient(180deg,rgba(232,201,139,.10),rgba(255,255,255,.025))",
-            color:"#E8C98B",
-            fontSize:9,
-            lineHeight:1.25,
-            fontWeight:800,
-            letterSpacing:.15,
-            whiteSpace:"nowrap",
-            boxShadow:"inset 0 1px rgba(255,255,255,.03)",
-          }}
+          title={
+            key === "champion"
+              ? "Kiện tướng"
+              : key === "hof_1"
+                ? "Vương Giả"
+                : key === "hof_2"
+                  ? "Phú Hào"
+                  : "Địa Chủ"
+          }
         >
-          <span aria-hidden="true">{BADGE_META[key].mark}</span>
-          {BADGE_META[key].label}
+          <TierBadge
+            tierKey={
+              key === "champion"
+                ? "member"
+                : key
+            }
+            isChampion={key === "champion"}
+            size="sm"
+            showLabel={false}
+          />
         </span>
       ))}
+
+      {charms.map(key => (
+        <span
+          className={`cing-leaderboard-avatar-title-icon cing-leaderboard-avatar-title-icon--${key}`}
+          key={key}
+          title={CHARM_LABEL[key]}
+          aria-label={CHARM_LABEL[key]}
+        >
+          <span aria-hidden="true">
+            {CHARM_ICON[key]}
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+export default function LeaderboardBadgeChips({
+  entry,
+  align = "center",
+}) {
+  const tierKey = resolveMembershipTier(entry);
+
+  if (!tierKey) {
+    return null;
+  }
+
+  return (
+    <span
+      className="cing-leaderboard-membership-tier"
+      data-align={align}
+      aria-label="Hạng thành viên"
+    >
+      <span className="cing-leaderboard-membership-tier__scale">
+        <TierBadge
+          tierKey={tierKey}
+          size="sm"
+          showLabel={true}
+        />
+      </span>
     </span>
   );
 }
