@@ -4199,3 +4199,11 @@
  * Do not alter score position, avatar, name
  * or ranking row geometry.
  */
+
+
+/* V8 B2.16 — lower the accepted Game reward strip by 10px.
+   No champion, avatar, tier or score geometry changed. */
+.v8-royal-rewards {
+  transform: translateY(-8px) !important;
+  margin-bottom: -8px !important;
+}
