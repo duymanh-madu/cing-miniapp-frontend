@@ -219,7 +219,7 @@ export default function V8RoyalSpendingHall({
           <small>CING HU TANG KINH BẮC</small>
           <span>HALL OF FAME</span>
           <h1>Đại sảnh danh vọng</h1>
-          <p>Vinh danh những thành tích nổi bật của Cing iu</p>
+          <p>Vinh danh những Cing iu có "Sức hút" nhất</p>
         </div>
 
         <nav className="v8h-tabs" aria-label="Kỳ xếp hạng">

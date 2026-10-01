@@ -19,7 +19,7 @@
   z-index: -1;
   pointer-events: none;
   background-size: 100% auto;
-  background-repeat: repeat-y;
+  background-repeat: no-repeat;
   background-position: center top;
 }
 
@@ -477,4 +477,16 @@
   .v8h-root *, .v8h-root *::before, .v8h-root *::after {
     animation: none !important;
   }
+}
+
+
+/* B2.17 — ONE CONTINUOUS ROYAL HALL BACKGROUND */
+.v8h-background {
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center top !important;
+}
+
+.v8h-root {
+  background-color: #080510;
 }
