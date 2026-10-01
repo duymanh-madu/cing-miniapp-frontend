@@ -162,7 +162,7 @@ function HallSelf({ myRank, profile }) {
       </div>
 
       <div className="v8h-self__score">
-        <strong>#{myRank.rank}</strong>
+        <strong>Hạng {myRank.rank}</strong>
         <span>{money(amount(myRank))}</span>
       </div>
     </section>
@@ -264,14 +264,14 @@ export default function V8RoyalSpendingHall({
               <HallChampion entry={third} rank={3} onProfile={onProfile} />
             </section>
 
-            <HallSelf myRank={myRank} profile={profile} />
-
             <HallRows
               rows={publicRows.slice(3)}
               validPhone={validPhone}
               profile={profile}
               onProfile={onProfile}
             />
+
+            <HallSelf myRank={myRank} profile={profile} />
           </>
         )}
       </div>

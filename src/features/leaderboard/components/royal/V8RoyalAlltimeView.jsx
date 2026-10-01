@@ -14,6 +14,28 @@ import "./V8RoyalAlltimeView.css";
 const formatScore = value =>
   new Intl.NumberFormat("vi-VN").format(Number(value) || 0);
 
+const compactScore = (score, label) => {
+  const value = formatScore(score);
+  const unit = String(label || "").toLowerCase();
+
+  if (
+    unit.includes("chuỗi thắng") ||
+    unit.includes("streak")
+  ) {
+    return `${value} trận liên tiếp`;
+  }
+
+  if (
+    unit.includes("trận thắng") ||
+    unit.includes("thắng") ||
+    unit.includes("wins")
+  ) {
+    return `${value} trận thắng`;
+  }
+
+  return `${value} điểm`;
+};
+
 const playerName = entry =>
   entry?.player_name || entry?.name || "Ẩn danh";
 
@@ -60,7 +82,7 @@ function Champion({ entry, rank, scoreLabel, onProfile }) {
       </div>
 
       <strong className="v8a-champion__score">
-        {formatScore(entry.score)} {scoreLabel}
+        {compactScore(entry.score, scoreLabel)}
       </strong>
     </div>
   );
@@ -168,15 +190,6 @@ export default function V8RoyalAlltimeView({
               />
             </section>
 
-            {privateOutsideTop10 && (
-              <div className="v8a-self">
-                <span>Hạng của bạn</span>
-                <strong>
-                  #{myRank.rank} · {formatScore(myRank.score)} {scoreLabel}
-                </strong>
-              </div>
-            )}
-
             <section className="v8a-list" aria-label="Top 10 mọi thời đại">
               {rest.map((entry, index) => {
                 const rank = index + 4;
@@ -217,6 +230,15 @@ export default function V8RoyalAlltimeView({
                 );
               })}
             </section>
+
+            {privateOutsideTop10 && (
+              <div className="v8a-self">
+                <span>Hạng của bạn</span>
+                <strong>
+                  Hạng {myRank.rank} · {compactScore(myRank.score, scoreLabel)}
+                </strong>
+              </div>
+            )}
           </>
         )}
       </main>
