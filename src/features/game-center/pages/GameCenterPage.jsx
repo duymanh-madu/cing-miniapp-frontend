@@ -808,17 +808,65 @@ export default function GameCenterPage() {
         <div style={{ display:"flex", gap:14, alignItems:"flex-start" }}>
           <div style={{ width:52, height:52, borderRadius:14, flexShrink:0, background:"rgba(255,215,0,0.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28, border:"1px solid rgba(255,215,0,0.3)" }}>♟️</div>
           <div style={{ flex:1 }}>
-            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
-              <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>Kỳ thủ cờ vua</p>
-              <span style={{ background:"rgba(255,80,0,0.2)", color:"#FF6030", fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8 }}>MULTIPLAYER</span>
-              {getGameEconomy("chess")?.play_cost === 0 && (
-                <span style={{ background:"rgba(0,255,150,0.12)", color:"#00e99a", fontSize:9, fontWeight:900, padding:"2px 7px", borderRadius:8, border:"1px solid rgba(0,255,150,0.22)" }}>
-                  ♾ KHÔNG TRỪ LƯỢT
-                </span>
-              )}
-              <span style={{ background:"rgba(0,255,100,0.15)", color:"#00ff64", fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8 }}>NEW</span>
-            </div>
-            <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>PvP 1v1 · Chiếu hết đối thủ · Leo bảng danh vọng</p>
+            <div style={{
+                display:"flex",
+                flexDirection:"column",
+                alignItems:"flex-start",
+                gap:8,
+                marginBottom:10,
+                minWidth:0
+              }}>
+                <p style={{
+                  color:"white",
+                  fontSize:15,
+                  fontWeight:900,
+                  margin:0,
+                  whiteSpace:"nowrap",
+                  lineHeight:1.35,
+                  letterSpacing:"-0.25px"
+                }}>Kỳ thủ cờ vua</p>
+
+                <div style={{
+                  display:"flex",
+                  alignItems:"center",
+                  flexWrap:"wrap",
+                  gap:6,
+                  maxWidth:"100%"
+                }}>
+                  <span style={{
+                    background:"rgba(255,80,0,0.16)",
+                    color:"#FF8058",
+                    fontSize:9,
+                    fontWeight:900,
+                    padding:"5px 8px",
+                    borderRadius:8,
+                    border:"1px solid rgba(255,80,0,0.24)"
+                  }}>MULTIPLAYER</span>
+
+                  {getGameEconomy("chess")?.play_cost === 0 && (
+                    <span style={{
+                      background:"rgba(0,255,150,0.12)",
+                      color:"#00e99a",
+                      fontSize:9,
+                      fontWeight:900,
+                      padding:"5px 8px",
+                      borderRadius:8,
+                      border:"1px solid rgba(0,255,150,0.22)"
+                    }}>♾ MIỄN PHÍ</span>
+                  )}
+
+                  <span style={{
+                    background:"rgba(255,180,0,0.13)",
+                    color:"#FFD166",
+                    fontSize:9,
+                    fontWeight:900,
+                    padding:"5px 8px",
+                    borderRadius:8,
+                    border:"1px solid rgba(255,180,0,0.27)"
+                  }}>HOT</span>
+                </div>
+              </div>
+              <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>PvP 1v1 · Chiếu hết đối thủ · Leo bảng danh vọng</p>
             <div style={{ display:"flex", gap:8 }}>
               <button onClick={handlePlayChess} style={{ background:"linear-gradient(135deg,#8B6914,#FFD700)", color:"#1a0a00", border:"none", borderRadius:10, padding:"8px 18px", fontSize:12, fontWeight:800, cursor:"pointer" }}>♟ Tìm đối thủ</button>
               <button onClick={() => requireMember(() => setShowChessLB(true))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>

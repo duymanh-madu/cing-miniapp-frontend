@@ -191,17 +191,17 @@ export default function ChessLeaderboard({ onClose }) {
             display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
           <div style={{ flex:1, textAlign:"center" }}>
             <p style={{ color:"rgba(232,201,139,0.6)", fontSize:10, fontWeight:800,
-              letterSpacing:3, margin:"0 0 2px", textTransform:"uppercase" }}>BXH CỜ VUA</p>
-            <h1 style={{ color:"white", fontSize:18, fontWeight:900, margin:0 }}>Kỳ thủ cờ vua ♟️</h1>
+              letterSpacing:3, margin:"0 0 2px", textTransform:"uppercase" }}>BẢNG XẾP HẠNG</p>
+            <h1 style={{ color:"white", fontSize:18, fontWeight:900, margin:0 }}>♟ Kỳ thủ cờ vua</h1>
           </div>
           <div style={{ width:38 }}/>
         </div>
 
         {/* Tabs */}
-        <div style={{ display:"flex", gap:8, padding:"0 16px 12px" }}>
-          {[{k:"wins",label:"🏆 Thắng nhiều nhất"},{k:"streak",label:"🔥 Chuỗi thắng dài nhất"}].map(t => (
+        <div style={{ display:"grid", gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)", gap:8, padding:"0 16px 14px" }}>
+          {[{k:"wins",label:"🏆 Thắng nhiều nhất"},{k:"streak",label:"🔥 Chuỗi thắng"}].map(t => (
             <button key={t.k} onClick={() => setTab(t.k)} style={{
-              flex:1, padding:"8px", borderRadius:12, border:"none", cursor:"pointer",
+              minWidth:0, minHeight:44, padding:"10px 6px", borderRadius:13, border: tab===t.k ? "1px solid rgba(255,150,80,0.52)" : "1px solid rgba(255,255,255,0.1)", cursor:"pointer",
               background: tab===t.k ? "linear-gradient(135deg,#B66A3C,#D28A5A)" : "rgba(255,255,255,0.06)",
               color:"white", fontSize:12, fontWeight: tab===t.k ? 900 : 500,
               boxShadow: tab===t.k ? "0 4px 12px rgba(182,106,60,0.4)" : "none",
@@ -245,7 +245,7 @@ export default function ChessLeaderboard({ onClose }) {
           <>
             {/* Podium top 3 */}
             {top3.length >= 1 && (
-              <div style={{ padding:"24px 16px 16px", display:"flex", alignItems:"flex-end",
+              <div style={{ padding:"26px 16px 20px", display:"flex", alignItems:"flex-end",
                 justifyContent:"center", gap:10 }}>
 
                 {/* Hạng 2 */}
