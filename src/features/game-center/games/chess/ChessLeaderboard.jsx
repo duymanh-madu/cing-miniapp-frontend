@@ -1,3 +1,6 @@
+import { LeaderboardAvatarTitleIcons } from "@/features/leaderboard/components/LeaderboardBadgeChips";
+import royalHallBg from "@/features/leaderboard/assets/royal-hall/royal-hall-bg.webp";
+import "@/features/leaderboard/components/royal/V8RoyalGameLeaderboard.css";
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import apiClient from "@/infra/api/apiClient";
@@ -176,190 +179,312 @@ export default function ChessLeaderboard({ onClose }) {
     Number(privateRank.rank) > 10;
 
   return (
-    <div style={{ position:"fixed", inset:0, zIndex:200,
-      background:"linear-gradient(180deg,#050208 0%,#0d0520 50%,#050208 100%)",
-      display:"flex", flexDirection:"column" }}>
+    <div
+      className="v8-royal-root cing-chess-royal"
+      data-cing-chess-royal="R08C"
+    >
+      <div
+        className="v8-royal-bg"
+        style={{ backgroundImage:`url(${royalHallBg})` }}
+      />
 
-      {/* Header */}
-      <div style={{ background:"linear-gradient(180deg,#050208,#0d0520)", flexShrink:0,
-        paddingTop:"max(env(safe-area-inset-top,0px) + 8px, 48px)",
-        paddingBottom:0, borderBottom:"1px solid rgba(232,201,139,0.1)" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12, padding:"0 16px 12px" }}>
-          <button onClick={onClose} style={{ background:"rgba(255,255,255,0.06)",
-            border:"1px solid rgba(255,255,255,0.1)", color:"white",
-            borderRadius:12, width:38, height:38, cursor:"pointer", fontSize:18,
-            display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
-          <div style={{ flex:1, textAlign:"center" }}>
-            <p style={{ color:"rgba(232,201,139,0.6)", fontSize:10, fontWeight:800,
-              letterSpacing:3, margin:"0 0 2px", textTransform:"uppercase" }}>BẢNG XẾP HẠNG</p>
-            <h1 style={{ color:"white", fontSize:18, fontWeight:900, margin:0 }}>♟ Kỳ thủ cờ vua</h1>
-          </div>
-          <div style={{ width:38 }}/>
+      <header className="v8-royal-header">
+        <button
+          type="button"
+          className="v8-royal-back"
+          onClick={onClose}
+          aria-label="Quay lại"
+        >
+          ←
+        </button>
+
+        <div className="v8-royal-heading">
+          <small>CING HU TANG KINH BẮC</small>
+          <span>HALL OF FAME</span>
+          <h1>♟ Kỳ thủ cờ vua</h1>
+          <p>
+            {tab === "wins"
+              ? "Vinh danh 10 kỳ thủ thắng nhiều nhất"
+              : "Vinh danh 10 kỳ thủ có chuỗi thắng dài nhất"}
+          </p>
         </div>
+      </header>
 
-        {/* Tabs */}
-        <div style={{ display:"grid", gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)", gap:8, padding:"0 16px 14px" }}>
-          {[{k:"wins",label:"🏆 Thắng nhiều nhất"},{k:"streak",label:"🔥 Chuỗi thắng"}].map(t => (
-            <button key={t.k} onClick={() => setTab(t.k)} style={{
-              minWidth:0, minHeight:44, padding:"10px 6px", borderRadius:13, border: tab===t.k ? "1px solid rgba(255,150,80,0.52)" : "1px solid rgba(255,255,255,0.1)", cursor:"pointer",
-              background: tab===t.k ? "linear-gradient(135deg,#B66A3C,#D28A5A)" : "rgba(255,255,255,0.06)",
-              color:"white", fontSize:12, fontWeight: tab===t.k ? 900 : 500,
-              boxShadow: tab===t.k ? "0 4px 12px rgba(182,106,60,0.4)" : "none",
-            }}>{t.label}</button>
-          ))}
-        </div>
-
-        {/* Private rank: only when current user is outside public Top 10 */}
-        {showPrivateRank && (
-          <div style={{ margin:"0 16px 12px", padding:"10px 14px",
-            background:"linear-gradient(135deg,rgba(182,106,60,0.14),rgba(232,201,139,0.06))",
-            border:"1px solid rgba(182,106,60,0.32)",
-            borderRadius:12, display:"flex", justifyContent:"space-between",
-            alignItems:"center", gap:12 }}>
-            <span style={{ color:"rgba(255,255,255,0.52)", fontSize:12 }}>
-              Vị trí của bạn
-            </span>
-            <span style={{ color:"#F0B782", fontSize:14, fontWeight:900 }}>
-              #{privateRank.rank} · {
-                tab === "wins"
-                  ? `${privateRank.score} trận thắng`
-                  : `Chuỗi ${privateRank.score}`
-              }
-            </span>
-          </div>
-        )}
-
-        <div style={{ height:1, background:"linear-gradient(90deg,transparent,rgba(232,201,139,0.15),transparent)", margin:"0 16px" }}/>
+      <div
+        className="cing-chess-royal__tabs"
+        role="tablist"
+        aria-label="Chế độ bảng xếp hạng cờ vua"
+      >
+        {[
+          {key:"wins",label:"🏆 Thắng nhiều nhất"},
+          {key:"streak",label:"🔥 Chuỗi thắng"},
+        ].map(item => (
+          <button
+            key={item.key}
+            type="button"
+            role="tab"
+            aria-selected={tab === item.key}
+            className={
+              tab === item.key ? "is-active" : ""
+            }
+            onClick={() => setTab(item.key)}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
-      {/* Content */}
-      <div style={{ flex:1, overflowY:"auto", WebkitOverflowScrolling:"touch" }}>
+      <main className="v8-royal-scroll cing-chess-royal__scroll">
         {loading ? (
-          <div style={{ padding:"60px", textAlign:"center", color:"rgba(255,255,255,0.3)" }}>Đang tải...</div>
+          <div className="v8-royal-state">
+            Đang tải bảng xếp hạng...
+          </div>
         ) : list.length === 0 ? (
-          <div style={{ padding:"60px 24px", textAlign:"center", color:"rgba(255,255,255,0.3)" }}>
-            <div style={{ fontSize:48, marginBottom:12 }}>♟️</div>
-            <p>Chưa có dữ liệu. Hãy chơi để xếp hạng!</p>
+          <div className="v8-royal-state">
+            <strong>Chưa có dữ liệu cờ vua</strong>
+            <span>
+              Hãy tham gia thi đấu để ghi tên lên bảng danh vọng!
+            </span>
           </div>
         ) : (
           <>
-            {/* Podium top 3 */}
-            {top3.length >= 1 && (
-              <div style={{ padding:"26px 16px 20px", display:"flex", alignItems:"flex-end",
-                justifyContent:"center", gap:10 }}>
+            <section className="v8-royal-podium-scene">
+              <div className="v8-royal-podium-shade" />
 
-                {/* Hạng 2 */}
-                {top3[1] && (
-                  <div onClick={() => goProfile(top3[1].user_id)}
-                    style={{ flex:1, textAlign:"center", cursor:"pointer" }}>
-                    <div style={{ width:58, height:58, borderRadius:29, margin:"0 auto 6px",
-                      border:"2px solid #C0C0C0", overflow:"hidden",
-                      background:"linear-gradient(135deg,#333,#777)",
-                      boxShadow:"0 0 12px rgba(192,192,192,0.3)" }}>
-                      {top3[1].avatar
-                        ? <img src={top3[1].avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                        : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#C0C0C0",fontSize:22,fontWeight:900}}>{(top3[1].name||"?")[0]}</div>}
-                    </div>
-                    <p style={{fontSize:11,color:"#C0C0C0",fontWeight:800,margin:"0 0 3px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:85,marginLeft:"auto",marginRight:"auto"}}>{top3[1].name||"?"}</p>
-<LeaderboardBadgeChips entry={top3[1]} />
-                    <div style={{background:"rgba(192,192,192,0.12)",borderRadius:8,padding:"3px 8px",display:"inline-block",border:"1px solid rgba(192,192,192,0.25)"}}>
-                      <span style={{color:"#C0C0C0",fontSize:11,fontWeight:900}}>🥈 {tab==="wins"?top3[1].wins:top3[1].best_streak}</span>
-                    </div>
-                  </div>
-                )}
+              {[1,0,2].map(index => {
+                const entry = top3[index];
+                const rank = index + 1;
 
-                {/* Hạng 1 */}
-                {top3[0] && <div onClick={() => goProfile(top3[0].user_id)}
-                  style={{ flex:1, textAlign:"center", cursor:"pointer", transform:"translateY(-20px)" }}>
-                  <div style={{fontSize:26,marginBottom:4,filter:"drop-shadow(0 0 8px rgba(232,201,139,0.8))"}}>👑</div>
-                  <div style={{ width:76, height:76, borderRadius:38, margin:"0 auto 6px",
-                    border:"3px solid #E8C98B", overflow:"hidden",
-                    background:"linear-gradient(135deg,#5a3a00,#c09000)",
-                    boxShadow:"0 0 24px rgba(232,201,139,0.6), 0 0 48px rgba(232,201,139,0.2)" }}>
-                    {top3[0].avatar
-                      ? <img src={top3[0].avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                      : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#E8C98B",fontSize:28,fontWeight:900}}>{(top3[0].name||"?")[0]}</div>}
-                  </div>
-                  <p style={{fontSize:13,color:"#E8C98B",fontWeight:900,margin:"0 0 4px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:95,marginLeft:"auto",marginRight:"auto",textShadow:"0 0 8px rgba(232,201,139,0.6)"}}>{top3[0].name||"?"}</p>
-<LeaderboardBadgeChips entry={top3[0]} />
-                  <div style={{background:"rgba(232,201,139,0.15)",borderRadius:8,padding:"4px 12px",display:"inline-block",border:"1px solid rgba(232,201,139,0.4)",boxShadow:"0 0 10px rgba(232,201,139,0.2)"}}>
-                    <span style={{color:"#E8C98B",fontSize:13,fontWeight:900}}>🥇 {tab==="wins"?top3[0].wins:top3[0].best_streak}</span>
-                  </div>
-                </div>}
+                if (!entry) {
+                  return (
+                    <div
+                      key={rank}
+                      className={
+                        `v8-royal-champion v8-royal-champion--${rank} v8-royal-champion--empty`
+                      }
+                    />
+                  );
+                }
 
-                {/* Hạng 3 */}
-                {top3[2] && (
-                  <div onClick={() => goProfile(top3[2].user_id)}
-                    style={{ flex:1, textAlign:"center", cursor:"pointer" }}>
-                    <div style={{ width:58, height:58, borderRadius:29, margin:"0 auto 6px",
-                      border:"2px solid #CD7F32", overflow:"hidden",
-                      background:"linear-gradient(135deg,#3a2000,#7a5020)",
-                      boxShadow:"0 0 12px rgba(205,127,50,0.3)" }}>
-                      {top3[2].avatar
-                        ? <img src={top3[2].avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                        : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"#CD7F32",fontSize:22,fontWeight:900}}>{(top3[2].name||"?")[0]}</div>}
+                const name =
+                  entry.player_name || entry.name || "Cing iu";
+                const score = tab === "wins"
+                  ? Number(entry.wins || 0)
+                  : Number(entry.best_streak || 0);
+
+                return (
+                  <article
+                    key={entry.user_id || rank}
+                    className={
+                      `v8-royal-champion v8-royal-champion--${rank}`
+                    }
+                    onClick={() => goProfile(entry.user_id)}
+                  >
+                    <div className="v8-royal-champion__medallion">
+                      <div
+                        className={
+                          `v8-royal-avatar v8-royal-avatar--${rank}`
+                        }
+                      >
+                        {entry.avatar ? (
+                          <img src={entry.avatar} alt="" />
+                        ) : (
+                          <span>{name[0]?.toUpperCase() || "?"}</span>
+                        )}
+                      </div>
+
+                      <LeaderboardAvatarTitleIcons entry={entry} />
+
+                      <span className="v8-royal-champion__rank-seal">
+                        {rank}
+                      </span>
                     </div>
-                    <p style={{fontSize:11,color:"#CD7F32",fontWeight:800,margin:"0 0 3px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",maxWidth:85,marginLeft:"auto",marginRight:"auto"}}>{top3[2].name||"?"}</p>
-<LeaderboardBadgeChips entry={top3[2]} />
-                    <div style={{background:"rgba(205,127,50,0.12)",borderRadius:8,padding:"3px 8px",display:"inline-block",border:"1px solid rgba(205,127,50,0.25)"}}>
-                      <span style={{color:"#CD7F32",fontSize:11,fontWeight:900}}>🥉 {tab==="wins"?top3[2].wins:top3[2].best_streak}</span>
+
+                    <h3
+                      className="v8-royal-champion__name"
+                      title={name}
+                    >
+                      {name}
+                    </h3>
+
+                    <div className="v8-royal-champion__badges">
+                      <LeaderboardBadgeChips
+                        entry={entry}
+                        align="center"
+                      />
                     </div>
-                  </div>
-                )}
-              </div>
+
+                    <div
+                      className="v8-royal-champion__score"
+                      aria-label={
+                        tab === "wins"
+                          ? `${score} trận thắng`
+                          : `Chuỗi thắng ${score}`
+                      }
+                    >
+                      {score.toLocaleString("vi-VN")}
+                    </div>
+                  </article>
+                );
+              })}
+            </section>
+
+            {rest.length > 0 && (
+              <section className="v8-royal-top10">
+                {rest.map((entry,index) => {
+                  const name =
+                    entry.player_name || entry.name || "Cing iu";
+                  const rank = index + 4;
+                  const score = tab === "wins"
+                    ? Number(entry.wins || 0)
+                    : Number(entry.best_streak || 0);
+                  const isMe =
+                    Boolean(myPhone) &&
+                    String(entry.user_id) === String(myPhone);
+
+                  return (
+                    <button
+                      type="button"
+                      key={entry.user_id || rank}
+                      className={
+                        isMe
+                          ? "v8-royal-row v8-royal-row--me"
+                          : "v8-royal-row"
+                      }
+                      onClick={() => goProfile(entry.user_id)}
+                    >
+                      <span className="v8-royal-row__rank">
+                        {rank}
+                      </span>
+
+                      <div className="v8-royal-row-avatar">
+                        {entry.avatar ? (
+                          <img src={entry.avatar} alt="" />
+                        ) : (
+                          <span>
+                            {name[0]?.toUpperCase() || "?"}
+                          </span>
+                        )}
+                      </div>
+
+                      <span className="v8-royal-row__main">
+                        <strong className="v8-royal-row__name">
+                          {name}{isMe ? " (bạn)" : ""}
+                        </strong>
+
+                        <span className="v8-royal-row__badges">
+                          <LeaderboardBadgeChips
+                            entry={entry}
+                            align="start"
+                          />
+                        </span>
+                      </span>
+
+                      <strong className="v8-royal-row__score">
+                        {score.toLocaleString("vi-VN")}
+                      </strong>
+
+                      <span className="v8-royal-row__arrow">
+                        ›
+                      </span>
+                    </button>
+                  );
+                })}
+              </section>
             )}
 
-            {/* Divider */}
-            <div style={{display:"flex",alignItems:"center",gap:10,padding:"0 16px 12px"}}>
-              <div style={{flex:1,height:1,background:"linear-gradient(90deg,transparent,rgba(232,201,139,0.2))"}}/>
-              <span style={{color:"rgba(232,201,139,0.5)",fontSize:10,fontWeight:800,letterSpacing:2}}>TOP 10</span>
-              <div style={{flex:1,height:1,background:"linear-gradient(90deg,rgba(232,201,139,0.2),transparent)"}}/>
-            </div>
+            {showPrivateRank && (
+              <section className="v8-royal-self">
+                <div className="v8-royal-self__crest">♟</div>
 
-            {/* Rest */}
-            {rest.map((e, i) => {
-              const isMe = e.user_id === myPhone;
-              const val  = tab === "wins" ? e.wins : e.best_streak;
-              return (
-                <div key={i} onClick={() => goProfile(e.user_id)}
-                  style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 16px",
-                    borderBottom:"1px solid rgba(255,255,255,0.04)",
-                    background: isMe ? "rgba(182,106,60,0.08)" : "transparent",
-                    cursor:"pointer" }}>
-                  <span style={{ color:"rgba(255,255,255,0.3)", fontSize:13, fontWeight:700,
-                    width:28, textAlign:"center", flexShrink:0 }}>{i+4}</span>
-                  <div style={{ width:36, height:36, borderRadius:18, flexShrink:0, overflow:"hidden",
-                    background: isMe ? "linear-gradient(135deg,#B66A3C,#D28A5A)" : "linear-gradient(135deg,#1a0a2e,#2d1254)",
-                    display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:14, fontWeight:900, color: isMe?"white":"rgba(255,255,255,0.4)" }}>
-                    {e.avatar ? <img src={e.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : (e.name||"?")[0]?.toUpperCase()}
-                  </div>
-                  <div
-                    style={{
-                      flex:1,
-                      minWidth:0,
-                      display:"flex",
-                      flexDirection:"column",
-                      alignItems:"flex-start",
-                    }}
-                  >
-                  <p style={{ color: isMe?"#E8C98B":"white", fontSize:13,
-                    fontWeight: isMe?800:600, margin:0,
-                    overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
-                    {e.name||"Ẩn danh"}{isMe?" (bạn)":""}
-                  </p>
-<LeaderboardBadgeChips entry={e} align="start" />
-                  </div>
-                  <span style={{ color: isMe?"#B66A3C":"rgba(232,201,139,0.6)", fontSize:13, fontWeight:900, flexShrink:0 }}>
-                    {val} {tab==="wins"?"trận":"chuỗi"}
-                  </span>
+                <div className="v8-royal-self__main">
+                  <small>THÀNH TÍCH CỦA BẠN</small>
+                  <strong>
+                    {tab === "wins"
+                      ? "Số trận thắng"
+                      : "Chuỗi thắng dài nhất"}
+                  </strong>
                 </div>
-              );
-            })}
-            <div style={{height:40}}/>
+
+                <div className="v8-royal-self__rank">
+                  <b>#{privateRank.rank}</b>
+                  <span>{privateRank.score}</span>
+                </div>
+              </section>
+            )}
           </>
         )}
-      </div>
+      </main>
+
+      <style>{`
+        .cing-chess-royal__tabs {
+          position: relative;
+          z-index: 5;
+          display: grid;
+          grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+          flex-shrink: 0;
+          gap: 8px;
+          padding: 10px 16px 14px;
+          background: rgba(8,4,16,0.91);
+          border-bottom: 1px solid rgba(232,201,139,0.25);
+        }
+
+        .cing-chess-royal__tabs button {
+          min-width: 0;
+          min-height: 44px;
+          padding: 9px 5px;
+          border-radius: 12px;
+          border: 1px solid rgba(232,201,139,0.24);
+          color: #f6e7c8;
+          background: rgba(16,9,26,0.85);
+          font-size: 12px;
+          font-weight: 700;
+        }
+
+        .cing-chess-royal__tabs button.is-active {
+          color: #160b05;
+          border-color: #e8c98b;
+          background: linear-gradient(135deg,#f5db9a,#c58c4d);
+          font-weight: 900;
+        }
+
+        .cing-chess-royal__scroll {
+          min-height: 0;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .cing-chess-royal .v8-royal-champion {
+          min-width: 0;
+        }
+
+        .cing-chess-royal .v8-royal-champion__name {
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .cing-chess-royal .v8-royal-champion__badges {
+          min-width: 0;
+          max-width: 100%;
+        }
+
+        .cing-chess-royal .v8-royal-row__main {
+          min-width: 0;
+        }
+
+        @media (max-width: 390px) {
+          .cing-chess-royal__tabs {
+            padding-left: 10px;
+            padding-right: 10px;
+            gap: 6px;
+          }
+
+          .cing-chess-royal__tabs button {
+            font-size: 11px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
