@@ -490,3 +490,74 @@
 .v8h-root {
   background-color: #080510;
 }
+
+
+/* =========================================================
+   CING_ROYAL_BADGE_R10D
+   Spending Hall only — initial Top 3 membership stability.
+
+   Transform scaling affects visual size, not line wrapping.
+   Give the canonical badge intrinsic unwrapped width, then
+   preserve the existing podium-specific visual scaling.
+
+   No global TierBadge or other leaderboard changes.
+   ========================================================= */
+
+.v8h-root .v8h-champion__tier {
+  min-width: 0;
+  overflow: visible;
+}
+
+.v8h-root .v8h-champion__tier
+.cing-leaderboard-membership-tier {
+  display: inline-flex !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+}
+
+.v8h-root .v8h-champion__tier
+.cing-leaderboard-membership-tier__scale {
+  display: inline-flex !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+}
+
+.v8h-root .v8h-champion__tier
+.cing-leaderboard-membership-tier__scale *,
+.v8h-root .v8h-champion__tier
+.cing-leaderboard-membership-tier__scale {
+  white-space: nowrap !important;
+  flex-wrap: nowrap !important;
+}
+
+.v8h-root .v8h-champion__tier
+.cing-leaderboard-membership-tier__scale > * {
+  flex-shrink: 0;
+}
+
+/* Preserve the accepted Top 3 visual scale. */
+
+.v8h-root .v8h-champion--2
+.cing-leaderboard-membership-tier__scale,
+.v8h-root .v8h-champion--3
+.cing-leaderboard-membership-tier__scale {
+  transform: scale(.65) !important;
+  transform-origin: center center !important;
+}
+
+.v8h-root .v8h-champion--1
+.cing-leaderboard-membership-tier__scale {
+  transform: scale(.85) !important;
+  transform-origin: center center !important;
+}
