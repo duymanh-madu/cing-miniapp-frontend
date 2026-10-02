@@ -561,3 +561,73 @@
   transform: scale(.85) !important;
   transform-origin: center center !important;
 }
+
+
+/* =========================================================
+   CING_ROYAL_TITLES_R11B
+   Spending Hall: acquired Alltime title icons on avatar rim.
+
+   These are owned hof_1 / hof_2 / hof_3 (and other existing
+   acquired title icons), NOT current weekly podium ranks.
+
+   No changes to canonical title ownership or award logic.
+   ========================================================= */
+
+.v8h-root .v8h-champion .v8h-avatar {
+  position: relative;
+  overflow: visible;
+  isolation: isolate;
+}
+
+/* Keep the special title centered on the bottom avatar rim.
+   Its visual midpoint sits approximately on the outer edge. */
+
+.v8h-root .v8h-champion .v8h-avatar
+.cing-leaderboard-avatar-title-icons {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: auto;
+  right: auto;
+  bottom: -11px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: max-content;
+  max-width: none;
+  pointer-events: none;
+}
+
+/* Preserve the existing title artwork, glow and colors.
+   Fix only badge geometry inside the avatar boundary. */
+
+.v8h-root .v8h-champion .v8h-avatar
+.cing-leaderboard-avatar-title-icon {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+
+/* Avoid the special title visually touching the player name. */
+
+.v8h-root .v8h-champion__name {
+  margin-top: 17px;
+}
+
+.v8h-root .v8h-champion--1 .v8h-champion__name {
+  margin-top: 17px;
+}
+
+/* The smaller list-row avatars must retain their old layout. */
+
+.v8h-root .v8h-avatar--small
+.cing-leaderboard-avatar-title-icons {
+  display: none;
+}

@@ -139,7 +139,7 @@ const HOF_CONFIG = {
     bg:         "linear-gradient(135deg,#080030,#1840cc,#5080ff,#90b8ff,#1840cc)",
     color:      "#80a0ff",
     border:     "#2050ee",
-    stars:      4,
+    stars:      4.5,
     glow:       "0 0 22px rgba(40,80,255,.65), 0 0 55px rgba(40,80,220,.35)",
     royal:      true,
     borderAnim: "linear-gradient(90deg,#080030,#1840cc,#5080ff,#b0c8ff,#fff4,#5080ff,#1840cc,#080030)",
