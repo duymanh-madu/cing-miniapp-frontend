@@ -11,6 +11,151 @@ export default function NotificationSocketBridge() {
   const phone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const [popup, setPopup] = useState(null);
 
+  /* N13: Read Gift via authenticated HTTPS only; no untrusted socket rooms.
+   * First read establishes a baseline without replaying historical popups.
+   * Subsequent reads drain bounded ID pages, retaining the cursor on failures.
+   */
+  useEffect(() => {
+    if (import.meta.env.VITE_CING_GAME_GIFT_INBOX_V2_ENABLED !== "true") return;
+    const normalize = value => {
+      const digits = String(value || "").replace(/\D/g, "");
+      return digits.startsWith("84") && digits.length === 11
+        ? `0${digits.slice(2)}`
+        : /^0[0-9]{9}$/.test(digits) ? digits : "";
+    };
+    const owner = normalize(phone);
+    if (!owner) return;
+    let active = true;
+    let cursor = null;
+    let busy = false;
+    let popupTimer = null;
+    const current = () => active && normalize(
+      useRuntimeCustomerIdentityStore.getState().identity?.phone
+    ) === owner;
+    const validId = value => {
+      const text = String(value ?? "");
+      return /^(0|[1-9][0-9]{0,18})$/.test(text) &&
+        BigInt(text) <= 9223372036854775807n;
+    };
+    const showGiftPopup = value => {
+      if (popupTimer !== null) clearTimeout(popupTimer);
+      setPopup(value);
+      popupTimer = setTimeout(() => {
+        popupTimer = null;
+        if (current()) setPopup(null);
+      }, 6500);
+    };
+    const refresh = async () => {
+      if (!current() || busy || document.visibilityState === "hidden") return;
+      busy = true;
+      // Keep successfully committed pages visible even if the next page fails.
+      let newest = null;
+      let updated = false;
+      let verifiedStore = null;
+      try {
+        const { default: store } = await import(
+          "@/stores/notification/notificationStore"
+        );
+        if (!current() || store.getState().ownerPhone !== owner) return;
+        verifiedStore = store;
+        // Initial baseline: old gifts are recovered into the bell, but
+        // must not create a popup as if just received.
+        if (cursor === null) {
+          const response = await apiClient.get("/game/economy-v2/gifts/notifications");
+          if (!current() || response.data?.success !== true ||
+              !Array.isArray(response.data?.data)) return;
+          const gifts = response.data.data.filter(item =>
+            isCingGameGiftNotification(item) &&
+            normalize(item.user_id || owner) === owner
+          );
+          let latest = 0n;
+          for (const gift of gifts) {
+            if (!validId(gift.id)) return;
+            const id = BigInt(String(gift.id));
+            if (id > latest) latest = id;
+            if (!current() || store.getState().ownerPhone !== owner) return;
+            store.getState().addNotification({
+              ...gift, user_id: owner, data: gift.metadata,
+              title: gift.metadata?.fromName
+                ? `${gift.metadata.fromName} đã tặng bạn ${gift.metadata?.giftName || "vật phẩm"}`
+                : gift.title,
+              read: Boolean(gift.is_read),
+            });
+          }
+          if (current()) cursor = latest.toString();
+          return;
+        }
+        // At most 4 pages per tick; any backlog continues on the next tick.
+        for (let page = 0; page < 4 && current(); page++) {
+          const response = await apiClient.get(
+            `/game/economy-v2/gifts/notifications?after_id=${encodeURIComponent(cursor)}`
+          );
+          if (!current() || store.getState().ownerPhone !== owner ||
+              response.data?.success !== true ||
+              !Array.isArray(response.data?.data)) return;
+          const rows = response.data.data;
+          if (rows.length > 50) return;
+          let endId = BigInt(cursor);
+          for (const gift of rows) {
+            if (!validId(gift.id) || BigInt(String(gift.id)) <= endId ||
+                !isCingGameGiftNotification(gift) ||
+                normalize(gift.user_id || owner) !== owner) return;
+            endId = BigInt(String(gift.id));
+          }
+          for (const gift of rows) {
+            if (!current() || store.getState().ownerPhone !== owner) return;
+            const title = gift.metadata?.fromName
+              ? `${gift.metadata.fromName} đã tặng bạn ${gift.metadata?.giftName || "vật phẩm"}`
+              : gift.title;
+            store.getState().addNotification({
+              ...gift, user_id: owner, data: gift.metadata, title,
+              read: Boolean(gift.is_read),
+            });
+            newest = { title: title || "Bạn nhận được quà tặng",
+              message: gift.message || "Bạn vừa nhận được một món quà",
+              created_at: gift.created_at };
+            updated = true;
+          }
+          if (!current()) return;
+          cursor = endId.toString();
+          if (rows.length < 50) break;
+        }
+      } catch {
+        // An uncommitted page is retried; already committed pages remain valid.
+      } finally {
+        // Flush only verified data for this signed-in owner. This also runs
+        // when the next page fails, after prior pages advanced the cursor.
+        if (updated && newest && current() &&
+            verifiedStore?.getState().ownerPhone === owner) {
+          showGiftPopup(newest);
+          window.dispatchEvent(new CustomEvent("cing:gift-inbox-updated", {
+            detail: { owner },
+          }));
+        }
+        busy = false;
+      }
+    };
+    const timer = setInterval(refresh, 6000);
+    const visibility = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    const sent = event => {
+      if (!current() || normalize(event?.detail?.owner) !== owner) return;
+      showGiftPopup({ title: event.detail.title, message: event.detail.message,
+        created_at: new Date().toISOString() });
+    };
+    document.addEventListener("visibilitychange", visibility);
+    window.addEventListener("cing:gift-sent-confirmed", sent);
+    refresh();
+    return () => {
+      active = false;
+      clearInterval(timer);
+      if (popupTimer !== null) clearTimeout(popupTimer);
+      document.removeEventListener("visibilitychange", visibility);
+      window.removeEventListener("cing:gift-sent-confirmed", sent);
+    };
+  }, [phone]);
+
   /*
    * CING_NOTIFICATION_BRIDGE_ACCOUNT_FENCE_V1
    *

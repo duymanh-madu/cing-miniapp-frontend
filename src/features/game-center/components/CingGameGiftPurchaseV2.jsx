@@ -6,6 +6,7 @@ import {
 
 import apiClient from
   "@/infra/api/apiClient";
+import useNotificationStore from "@/stores/notification/notificationStore";
 
 import {
   useRuntimeCustomerIdentityStore,
@@ -558,6 +559,23 @@ CingGameGiftPurchaseV2({
 
       setReceipt(confirmed);
       setConfirming(false);
+
+      // N09: local sender confirmation only AFTER a verified receipt.
+      // Replayed request_id cannot generate duplicate local notifications.
+      const noticeId = `gift-sent:${confirmed.request_id}`;
+      const store = useNotificationStore.getState();
+      if (store.ownerPhone === sender &&
+          !store.notifications.some(item => String(item.id) === noticeId)) {
+        const title = `Đã tặng ${confirmed.gift_name} cho ${recipientName || "Cing iu"}`;
+        const message = `Tặng vật phẩm thành công · ${confirmed.charm_awarded} điểm quyến rũ`;
+        store.addNotification({ id: noticeId, user_id: sender,
+          title, message, type: "gift_sent", read: false,
+          metadata: { gift_purchase_id: confirmed.request_id },
+          created_at: new Date().toISOString() });
+        window.dispatchEvent(new CustomEvent("cing:gift-sent-confirmed", {
+          detail: { owner: sender, title, message },
+        }));
+      }
 
       /*
        * Only a verified backend receipt

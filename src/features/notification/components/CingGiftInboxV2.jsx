@@ -58,6 +58,13 @@ function giftTitle(notification) {
   );
 }
 
+function giftSender(notification) {
+  const name = safeMetadata(notification).fromName;
+  return typeof name === "string" && name.trim()
+    ? name.trim()
+    : "";
+}
+
 function giftDetails(notification) {
   const metadata = safeMetadata(notification);
 
@@ -303,6 +310,18 @@ export default function CingGiftInboxV2({
     [addNotification, phone]
   );
 
+  // Refresh an open inbox when the authenticated background reader
+  // discovers a new durable Gift receipt (no new financial writes).
+  useEffect(() => {
+    const onGiftUpdate = event => {
+      if (normalizePhone(event?.detail?.owner) === runtimePhone()) {
+        load();
+      }
+    };
+    window.addEventListener("cing:gift-inbox-updated", onGiftUpdate);
+    return () => window.removeEventListener("cing:gift-inbox-updated", onGiftUpdate);
+  }, [load, phone]);
+
   useEffect(() => {
     const owner =
       normalizePhone(phone);
@@ -547,6 +566,11 @@ export default function CingGiftInboxV2({
               >
                 {giftTitle(gift)}
               </div>
+              {giftSender(gift) && (
+                <div style={{ marginTop: 4, fontSize: 12, color: "#79400e" }}>
+                  Người tặng: <strong>{giftSender(gift)}</strong>
+                </div>
+              )}
 
               <div
                 style={{
