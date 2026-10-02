@@ -244,7 +244,7 @@ const HOF_CARD_CONFIG = {
     nameColor: "#6090ff", subColor: "#2848cc", borderColor: "rgba(80,140,255,.4)",
     rankLabel: "Top 2 Alltime", rankBg: "linear-gradient(90deg,#0a1888,#1840cc)",
     label: "Phú Hào", subtitle: "Tinh Hoa Đệ Nhị",
-    stars: 4, starColor: "#2050ee", starStroke: "#70a0ff",
+    stars: 4.5, starColor: "#2050ee", starStroke: "#70a0ff",
     pillBg: "linear-gradient(90deg,#040828,#0a1888)", pillColor: "#6090ff",
     pillBorder: "rgba(80,140,255,.4)", pillLabel: "♦ SAPPHIRE ♦",
   },
@@ -371,12 +371,38 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
             <div style={{ flex:1 }}>
               <p style={{ color:hof.nameColor, fontSize:18, fontWeight:900, margin:"0 0 6px", textShadow:`0 0 12px ${hof.borderColor}` }}>{hof.label}</p>
               <div style={{ display:"flex", gap:3, marginBottom:6 }}>
-                {Array(hof.stars).fill(0).map((_,i) => (
+                {Array(Math.floor(hof.stars)).fill(0).map((_,i) => (
                   <svg key={i} width="15" height="15" viewBox="0 0 12 12">
                     <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill={hof.starColor} stroke={hof.starStroke} strokeWidth=".5"/>
                   </svg>
                 ))}
-                {hof.stars < 5 && <svg width="15" height="15" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="none" stroke={hof.starColor} strokeWidth="1" opacity=".4"/></svg>}
+                {/* CING_PHU_HAO_R12B */}
+                {hof.stars % 1 >= 0.5 && (
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 12 12"
+                    aria-label="Nửa sao"
+                  >
+                    <defs>
+                      <clipPath id={`hof-half-star-${tierKey}-1`}>
+                        <rect x="0" y="0" width="6" height="12" />
+                      </clipPath>
+                    </defs>
+                    <polygon
+                      points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5"
+                      fill="none"
+                      stroke={hof.starStroke}
+                      strokeWidth=".5"
+                    />
+                    <polygon
+                      points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5"
+                      fill={hof.starColor}
+                      clipPath={`url(#hof-half-star-${tierKey}-1)`}
+                    />
+                  </svg>
+                )}
+                {Math.ceil(hof.stars) < 5 && <svg width="15" height="15" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="none" stroke={hof.starColor} strokeWidth="1" opacity=".4"/></svg>}
               </div>
               <p style={{ color:hof.subColor, fontSize:10, margin:0 }}>{hof.subtitle}</p>
               {firstVisit && <p style={{ color:hof.subColor, fontSize:10, margin:"6px 0 0", opacity:.7 }}>Thành viên từ {new Date(firstVisit).toLocaleDateString("vi-VN", { month:"long", year:"numeric" })}</p>}
@@ -416,12 +442,38 @@ export function TierCard({ tierKey = "member", tierName, firstVisit, isChampion 
             <div style={{ flex:1 }}>
               <p style={{ color:hof.nameColor, fontSize:18, fontWeight:900, margin:"0 0 6px", textShadow:`0 0 12px ${hof.borderColor}` }}>{hof.label}</p>
               <div style={{ display:"flex", gap:3, marginBottom:6 }}>
-                {Array(hof.stars).fill(0).map((_,i) => (
+                {Array(Math.floor(hof.stars)).fill(0).map((_,i) => (
                   <svg key={i} width="15" height="15" viewBox="0 0 12 12">
                     <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill={hof.starColor} stroke={hof.starStroke} strokeWidth=".5"/>
                   </svg>
                 ))}
-                {hof.stars < 5 && <svg width="15" height="15" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="none" stroke={hof.starColor} strokeWidth="1" opacity=".4"/></svg>}
+                {/* CING_PHU_HAO_R12B */}
+                {hof.stars % 1 >= 0.5 && (
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 12 12"
+                    aria-label="Nửa sao"
+                  >
+                    <defs>
+                      <clipPath id={`hof-half-star-${tierKey}-2`}>
+                        <rect x="0" y="0" width="6" height="12" />
+                      </clipPath>
+                    </defs>
+                    <polygon
+                      points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5"
+                      fill="none"
+                      stroke={hof.starStroke}
+                      strokeWidth=".5"
+                    />
+                    <polygon
+                      points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5"
+                      fill={hof.starColor}
+                      clipPath={`url(#hof-half-star-${tierKey}-2)`}
+                    />
+                  </svg>
+                )}
+                {Math.ceil(hof.stars) < 5 && <svg width="15" height="15" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="none" stroke={hof.starColor} strokeWidth="1" opacity=".4"/></svg>}
               </div>
               <p style={{ color:hof.subColor, fontSize:10, margin:0 }}>{hof.subtitle}</p>
               {firstVisit && <p style={{ color:hof.subColor, fontSize:10, margin:"6px 0 0", opacity:.7 }}>Thành viên từ {new Date(firstVisit).toLocaleDateString("vi-VN", { month:"long", year:"numeric" })}</p>}
