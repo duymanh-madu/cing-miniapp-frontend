@@ -1,0 +1,88 @@
+.cing-plaza {
+  --plaza-orange: #d4531c;
+  --plaza-ink: #382217;
+  --plaza-muted: #806653;
+  box-sizing: border-box;
+  min-height: 100%;
+  padding: 24px 18px calc(32px + env(safe-area-inset-bottom));
+  color: var(--plaza-ink);
+  background: radial-gradient(ellipse at top right, #ffe5ca, transparent 55%), #faf4eb;
+  font-family: inherit;
+}
+.cing-plaza *, .cing-plaza *::before, .cing-plaza *::after { box-sizing: border-box; }
+.cing-plaza__header, .cing-plaza__section-title {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.cing-plaza__header { margin-bottom: 24px; }
+.cing-plaza h1 { margin: 7px 0; font-size: clamp(30px, 7vw, 42px); letter-spacing: -1px; }
+.cing-plaza h2 { margin: 8px 0 12px; font-size: 21px; letter-spacing: -.4px; }
+.cing-plaza h3 { margin: 14px 0 8px; font-size: 19px; overflow-wrap: anywhere; }
+.cing-plaza p { color: var(--plaza-muted); line-height: 1.55; margin: 8px 0; }
+.cing-plaza__eyebrow { font-size: 10px; letter-spacing: 2px; font-weight: 800; color: #a34a21; }
+.cing-plaza__panel {
+  padding: 22px; margin-bottom: 24px; border: 1px solid #e8d7c5;
+  border-radius: 22px; background: #fffaf4;
+  box-shadow: 0 12px 32px #6d3a1210;
+}
+.cing-plaza button {
+  min-height: 44px; border: 0; border-radius: 12px; padding: 11px 17px;
+  background: var(--plaza-orange); color: white; font: inherit; font-weight: 750;
+  cursor: pointer;
+}
+.cing-plaza button:disabled { opacity: .45; cursor: default; }
+.cing-plaza button:focus-visible, .cing-plaza input:focus-visible,
+.cing-plaza textarea:focus-visible { outline: 3px solid #f19b56; outline-offset: 3px; }
+.cing-plaza .cing-plaza__quiet {
+  background: #f0e4d6; color: #704023; flex-shrink: 0;
+}
+.cing-plaza label { display: block; font-size: 13px; font-weight: 700; margin: 16px 0 8px; }
+.cing-plaza input, .cing-plaza textarea {
+  width: 100%; min-width: 0; border: 1px solid #ddc9b5; border-radius: 12px;
+  background: white; padding: 12px; font: inherit; font-size: 16px; color: var(--plaza-ink);
+}
+.cing-plaza__form-row, .cing-plaza__composer { display: flex; gap: 10px; align-items: stretch; }
+.cing-plaza__form-row button { flex-shrink: 0; }
+.cing-plaza__hint { font-size: 12px; }
+.cing-plaza__connection { display: flex; gap: 8px; align-items: center; font-size: 12px; margin: 0 0 16px; }
+.cing-plaza__connection span { width: 7px; height: 7px; border-radius: 50%; background: #a59685; }
+.cing-plaza__connection .is-connected { background: #4d8b61; }
+.cing-plaza__notice { padding: 12px 16px; border: 1px solid #edbc92; border-radius: 12px; background: #fff0df; }
+.cing-plaza__rooms { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.cing-plaza__room-card {
+  padding: 22px; background: #fffaf4; border: 1px solid #e4d0ba; border-radius: 18px;
+  border-top: 3px solid #cf6a32;
+}
+.cing-plaza__room-card button { width: 100%; margin-top: 12px; }
+.cing-plaza__empty { padding: 24px 12px; text-align: center; font-size: 14px; }
+.cing-plaza__messages { height: min(48dvh, 460px); min-height: 180px; overflow-y: auto; padding: 12px 0; overscroll-behavior: contain; }
+.cing-plaza__message { padding: 12px 14px; background: #f5eadc; border-radius: 13px; margin-bottom: 10px; }
+.cing-plaza__message-meta { display: flex; justify-content: space-between; gap: 12px; }
+.cing-plaza__message-meta strong { font-size: 13px; overflow-wrap: anywhere; }
+.cing-plaza__message-meta time { font-size: 11px; color: var(--plaza-muted); flex-shrink: 0; }
+.cing-plaza__message p { margin-bottom: 0; color: var(--plaza-ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.cing-plaza__composer { margin-top: 12px; }
+.cing-plaza__composer textarea { resize: vertical; }
+.cing-plaza .cing-plaza__close-room { margin-top: 16px; background: transparent; color: #a44b28; font-size: 12px; }
+.cing-plaza .cing-plaza__sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+@media (min-width: 720px) {
+  .cing-plaza { padding-left: max(24px, calc((100% - 980px) / 2)); padding-right: max(24px, calc((100% - 980px) / 2)); }
+}
+@media (max-width: 360px) {
+  .cing-plaza__form-row { flex-direction: column; }
+  .cing-plaza__panel { padding: 16px; }
+}
+
+/* One occupied room per row, including small portrait screens. */
+.cing-plaza__rooms { display: flex; flex-direction: column; gap: 10px; }
+.cing-plaza__room-card { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 14px 16px; }
+.cing-plaza__room-card h3, .cing-plaza__room-card p { margin: 0; }
+.cing-plaza__room-card button { width: auto; margin: 0; }
+.cing-plaza .cing-plaza__password-choice { display: flex; align-items: center; gap: 10px; }
+.cing-plaza__password-choice input { width: 20px; min-height: 20px; }
+.cing-plaza__panel .cing-plaza__form-row { margin-top: 12px; }
+@media (max-width: 420px) {
+  .cing-plaza__room-card { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .cing-plaza__room-card h3 { grid-column: 1; font-size: 16px; }
+  .cing-plaza__room-card p { grid-column: 1; font-size: 13px; }
+  .cing-plaza__room-card button { grid-column: 2; grid-row: 1 / 3; padding: 10px 12px; }
+}

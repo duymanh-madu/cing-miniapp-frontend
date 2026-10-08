@@ -1,4 +1,11 @@
 export const routeManifest = [
+  {
+    key: "plaza",
+    path: "/plaza",
+    feature: "plaza",
+    requireAuth: true,
+    loader: () => import("@/features/plaza/pages/PlazaEntryPageV1"),
+  },
   { key:"home",          path:"/",               feature:"home",          loader:() => import("@/features/home") },
   { key:"game-center",   path:"/game-center",    feature:"game-center",   loader:() => import("@/features/game-center") },
   { key:"game",          path:"/game",           feature:"game",          loader:() => import("@/features/game") },

@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{readFile}from'node:fs/promises';import*as T from'three';import{GLTFLoader}from'three/addons/loaders/GLTFLoader.js';import{buildWorldV3}from'../scene/plazaWorldV3.js';
+test('restored planters contain foliage and relocated fence/planter clear the entire staircase',async()=>{
+ const b=await readFile(new URL('../../../../public/cing-plaza/assets/cing-plaza-map-v17.glb',import.meta.url)),l=new GLTFLoader();l.register(()=>({name:'GARDEN_V10_TEST',loadTexture:()=>Promise.resolve(new T.Texture())}));const map=(await l.parseAsync(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength),'')).scene,w=buildWorldV3(map,{labelFactory:()=>new T.MeshBasicMaterial()});map.updateMatrixWorld(true);
+ assert.equal(w.gardenV10.restored.length,4);assert.equal(w.gardenV10.bays,6);const stairs=new T.Box3(new T.Vector3(20.15,0,-5.555),new T.Vector3(23.25,2,-4.005));
+ for(const o of w.gardenV10.copies)assert.ok(!stairs.intersectsBox(new T.Box3().setFromObject(o)),o.name);
+ let leaves=0;for(const bed of w.gardenV10.restored){assert.ok(!stairs.intersectsBox(bed));let covered=false;map.traverse(o=>{if(o.name.startsWith('V10_Restored_Planter_')){const c=new T.Box3().setFromObject(o).getCenter(new T.Vector3());if(c.x>=bed.min.x-.1&&c.x<=bed.max.x+.1&&c.z>=bed.min.z-.1&&c.z<=bed.max.z+.1){covered=true;leaves+=o.geometry.attributes.position.count;}}});assert.ok(covered,'empty planter');}assert.ok(leaves>1000);
+});

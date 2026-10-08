@@ -1,3 +1,4 @@
+import { Link as PlazaEntryLinkV5 } from "react-router-dom";
 
 const GAME_LABELS = {
   "black-pearl-rush": "Bay cùng trân châu",
@@ -763,6 +764,39 @@ export default function GameCenterPage() {
             reviveBalanceRefreshSignal
           }
         />
+      )}
+
+      {/* Plaza requires both its own release flag and existing legal gate. */}
+      {import.meta.env.VITE_CING_PLAZA_ENABLED === "true" &&
+        customerMultiplayerEnabled && authenticated && (
+        <section style={{
+          margin: "0 16px 20px",
+          padding: 22,
+          borderRadius: 22,
+          border: "1px solid rgba(242,190,125,.45)",
+          background: "linear-gradient(135deg,#492817,#251811)",
+          boxShadow: "0 12px 28px rgba(0,0,0,.16)",
+        }}>
+          <p style={{
+            margin: "0 0 8px", color: "#e9bc87",
+            fontSize: 10, fontWeight: 800, letterSpacing: 2,
+          }}>CING HU TANG KINH BẮC</p>
+          <h2 style={{
+            margin: "0 0 8px", color: "#fff1df",
+            fontSize: 24, fontWeight: 850,
+          }}>Cing Plaza</h2>
+          <p style={{
+            margin: "0 0 18px", color: "#d4bca5",
+            fontSize: 13, lineHeight: 1.6,
+          }}>Gặp gỡ Cing iu, mở phòng và cùng nhau trò chuyện.</p>
+          <PlazaEntryLinkV5 to="/plaza" style={{
+            display: "inline-flex", alignItems: "center",
+            justifyContent: "center", minHeight: 44,
+            padding: "11px 20px", borderRadius: 12,
+            background: "#d4531c", color: "#fff",
+            textDecoration: "none", fontSize: 14, fontWeight: 800,
+          }}>Vào Plaza</PlazaEntryLinkV5>
+        </section>
       )}
 
       {/* GAME LIST */}
