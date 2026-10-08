@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
+import { createPortal } from "react-dom";
+import { usePlazaViewportV6 } from "../runtime/usePlazaViewportV6.js";
 import PlazaPageV1 from "./PlazaPageV1";
 
 export default function PlazaEntryPageV1() {
   const navigate = useNavigate();
+  usePlazaViewportV6();
   const authenticated = useAuthStore(state => state.authenticated);
   const featureEnabled =
     import.meta.env.VITE_CING_PLAZA_ENABLED === "true";
@@ -52,10 +55,10 @@ export default function PlazaEntryPageV1() {
     };
   }, [featureEnabled, authenticated]);
 
-  return (
+  return createPortal(
     <PlazaPageV1
       enabled={featureEnabled && authenticated && legalEnabled}
       onClose={() => navigate("/game-center")}
-    />
+    />, document.body
   );
 }

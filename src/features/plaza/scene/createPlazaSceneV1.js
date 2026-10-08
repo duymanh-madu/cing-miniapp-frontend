@@ -1,3 +1,4 @@
+import { PLAZA_CAMERA_V6, plazaCameraLimitV6, enforcePlazaCameraV6 } from "./plazaCameraV6.js";
 import {applyPlazaSeatedPose} from './plazaSeatedPoseV3.js';
 import {createPlazaTableSignsV3} from './plazaTableSignsV3.js';
 import * as THREE from 'three';
@@ -60,10 +61,10 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.enablePan = false;
-  controls.minDistance = 2.2;
-  controls.maxDistance = 55;
+  controls.minDistance = PLAZA_CAMERA_V6.min;
+  controls.maxDistance = plazaCameraLimitV6(host.clientWidth / Math.max(1, host.clientHeight));
   controls.maxPolarAngle = Math.PI * 0.47;
-  controls.minPolarAngle = 0.2;
+  controls.minPolarAngle = Math.PI * 0.18;
   const hemisphere = new THREE.HemisphereLight('#fff4dd', '#796b53', 0.8);
   hemisphere.layers.enable(1);hemisphere.layers.enable(2);scene.add(hemisphere);
   const sun = new THREE.DirectionalLight('#fff0d5', 2.0);
@@ -200,6 +201,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     const width = Math.max(1, host.clientWidth), height = Math.max(1, host.clientHeight);
     renderer.setSize(width, height, false);
     camera.aspect = width / height; camera.updateProjectionMatrix();
+    controls.maxDistance = plazaCameraLimitV6(camera.aspect);
   }
   const observer = new ResizeObserver(resize);
   observer.observe(host); resize();
@@ -259,7 +261,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     onPosition(packet);
     if(now-netLast>=100 && (changed || now-netLast>=500)){netLast=now;netValue=packet;onLocalState({...packet,seq:++netSeq});}
     remote.update(dt,camera);
-    controls.update(); lighting.update(); renderPlazaLayers(renderer,scene,camera);
+    controls.update(); enforcePlazaCameraV6(camera, controls, WORLD_V3.bounds); lighting.update(); renderPlazaLayers(renderer,scene,camera);
     frames++;
     if (now - statLast >= 1000) {
       stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(), motion: state, x: avatar.position.x, z: avatar.position.z, groundY };

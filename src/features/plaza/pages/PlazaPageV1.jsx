@@ -56,6 +56,7 @@ export default function PlazaPageV1({
   onClose,
   createClient = createDefaultPlazaClientV1,
 }) {
+  const [chatOpen, setChatOpen] = useState(false);
   const [client, setClient] = useState(null);
   const [characterChoice,setCharacterChoice]=useState("girl");
   const [password, setPassword] = useState("");
@@ -187,8 +188,8 @@ export default function PlazaPageV1({
   }
 
   return (
-    <main className="cing-plaza">
-      <header className="cing-plaza__header">
+    <main className={`cing-plaza cing-plaza--immersive ${room ? "cing-plaza--room" : "cing-plaza--lobby"}`}>
+      {!room && <header className="cing-plaza__header">
         <div>
           <span className="cing-plaza__eyebrow">CING HU TANG KINH BẮC</span>
           <h1>Cing Plaza</h1>
@@ -199,10 +200,17 @@ export default function PlazaPageV1({
             Quay lại
           </button>
         )}
-      </header>
+      </header>}
 
+      {enabled && room && <>
+        <div className="cing-plaza__room-hud">
+          <button type="button" disabled={busy} aria-label="Rời phòng về sảnh" onClick={() => act(async () => { await client.leaveRoom(); setChatOpen(false); setCreatedRoomId(null); await refreshRooms(); })}>‹ Sảnh</button>
+          <div><strong>{room.name}</strong><span>{room.memberCount}/{room.capacity}</span></div>
+          <button type="button" aria-expanded={chatOpen} aria-controls="cing-plaza-room-chat" onClick={() => setChatOpen(value => !value)}>Trò chuyện</button>
+        </div>
+      </>}
       {enabled && room && (
-        <Suspense fallback={<p role="status">Đang mở không gian Plaza…</p>}>
+        <Suspense fallback={<div className="cing-plaza__scene-loading" role="status">Đang mở không gian Plaza…</div>}>
           <PlazaSceneV1 initialCharacter={state.members?.find(v=>v.memberId===state.selfId)?.character || characterChoice} correction={state.correction} tables={state.tables || []} realtimeClient={client} members={state.members || []} selfId={state.selfId} />
         </Suspense>
       )}
@@ -214,7 +222,7 @@ export default function PlazaPageV1({
         </section>
       ) : (
         <>
-          <div className="cing-plaza__connection" role="status">
+          <div className="cing-plaza__connection" role="status" hidden={Boolean(room) && connected}>
             <span className={connected ? "is-connected" : ""} />
             {STATUS[state.status] || STATUS.idle}
           </div>
@@ -307,7 +315,8 @@ export default function PlazaPageV1({
               </section>
             </>
           ) : (
-            <section className="cing-plaza__panel cing-plaza__conversation">
+            <section id="cing-plaza-room-chat" hidden={!chatOpen} className="cing-plaza__panel cing-plaza__conversation">
+              <button type="button" className="cing-plaza__chat-close" onClick={() => setChatOpen(false)}>Đóng trò chuyện</button>
               <div className="cing-plaza__section-title">
                 <div>
                   <span className="cing-plaza__eyebrow">ĐANG GẶP GỠ</span>

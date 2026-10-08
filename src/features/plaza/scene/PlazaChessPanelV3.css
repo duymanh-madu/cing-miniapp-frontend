@@ -4,3 +4,6 @@
 .cing-plaza-scene .plaza-pk__board button{min-height:0;padding:0;border:0;border-radius:0}
 .plaza-pk__head{position:sticky;top:-14px;z-index:2;background:#211a17;padding:6px 0}
 @media(max-width:540px) and (min-height:541px){.plaza-pk{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 24px);width:auto;z-index:100}}
+
+.cing-plaza--room .plaza-pk{z-index:45;top:calc(env(safe-area-inset-top,0px) + 72px);max-height:calc(var(--plaza-viewport-height,100dvh) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 88px)}
+@media(orientation:landscape) and (max-height:540px){.cing-plaza--room .plaza-pk{top:calc(env(safe-area-inset-top,0px) + 8px);right:max(12px,env(safe-area-inset-right,0px));max-height:calc(var(--plaza-viewport-height,100dvh) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 16px)}}
