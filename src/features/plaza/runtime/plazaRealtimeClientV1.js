@@ -30,7 +30,7 @@ export function createPlazaRealtimeClientV1({
   let disposed = false, resumeNeeded = false;
   let sequence = 0;
   let snapshot = Object.freeze({
-    profile:undefined, status: "idle", room: null, rooms: Object.freeze([]), tables:Object.freeze([]), selfId: null, members: Object.freeze([]), messages: Object.freeze([]),
+    profile:undefined,identity:null, status: "idle", room: null, rooms: Object.freeze([]), tables:Object.freeze([]), selfId: null, members: Object.freeze([]), messages: Object.freeze([]),
   });
   const listeners = new Set();
   const pending = new Map();
@@ -78,7 +78,7 @@ export function createPlazaRealtimeClientV1({
       resumeNeeded=Boolean(snapshot.room);
       rejectPending();
       update({
-        profile:undefined, status: "disconnected", room: null, rooms: Object.freeze([]), tables:Object.freeze([]),selfId:null,members:Object.freeze([]), messages: Object.freeze([]),
+        profile:undefined,identity:null, status: "disconnected", room: null, rooms: Object.freeze([]), tables:Object.freeze([]),selfId:null,members:Object.freeze([]), messages: Object.freeze([]),
       });
     },
     connect_error: () => {
@@ -93,7 +93,7 @@ export function createPlazaRealtimeClientV1({
       for(const v of payload.members) {
         if(typeof v?.memberId!=="string" || !Number.isSafeInteger(v.seq))continue;
         const old=next.get(v.memberId);
-        if(!old || (v.presenceId && old.presenceId!==v.presenceId) || v.seq>old.seq || (v.seq===old.seq && (v.motion==="idle" || v.motion==="sit" || v.seatId!==old.seatId)))next.set(v.memberId,{...old,...v});
+        if(!old || (v.presenceId && old.presenceId!==v.presenceId) || v.seq>old.seq || (v.seq===old.seq && (v.motion==="idle" || v.motion==="sit" || v.seatId!==old.seatId || v.identityRevision!==old.identityRevision)))next.set(v.memberId,{...old,...v});
       }
       update({selfId:payload.selfId,members:Object.freeze([...next.values()])});
     },
@@ -188,7 +188,8 @@ export function createPlazaRealtimeClientV1({
       update({ status: "connecting" });
       socket.connect();
     },
-    getProfile:async()=>{const data=await request("plaza:profile:get",{});if(!disposed)update({profile:data.profile});return data;},
+    getProfile:async()=>{const data=await request("plaza:profile:get",{});if(!disposed)update({profile:data.profile,identity:data.identity});return data;},
+    chooseBadge:async key=>{const data=await request("plaza:badge:choose",{key},true);if(!disposed)update({identity:data.identity});return data;},
     chooseCharacter:async character=>{if(!["boy","girl"].includes(character))throw failure("PLAZA_INVALID_CHARACTER");const data=await request("plaza:profile:choose",{character},true);if(!disposed)update({profile:data.profile});return data;},
     listRooms: async () => {
       const data = await request("plaza:list", {});

@@ -66,6 +66,7 @@ export function createPlazaRemoteAvatarsV2({scene,load,onNotice=()=>{}}) {
   const now=performance.now();
   for(const [id,v]of wanted){let a=actors.get(id);if(a&&a.character&&a.character!==v.character){remove(id);a=null;}
    if(!a){a={samples:[],character:v.character};actors.set(id,a);build(id,v,a);}
+   a.identity=v;
    a.samples=addPresenceSample(a.samples,v,now);
   }
  }
@@ -82,5 +83,5 @@ export function createPlazaRemoteAvatarsV2({scene,load,onNotice=()=>{}}) {
    if(near||a.accumulated>=.1){a.mixer.update(a.accumulated);if(v.motion==='sit')applyPlazaSeatedPose(a.vrm);a.vrm.update(a.accumulated);a.accumulated=0;}
   }
  }
- return {seed,setAnimation,setMembers,update,positions:()=>[...actors.values()].map(a=>a.group?.position||a.samples.at(-1)?.value).filter(Boolean),dispose:()=>{disposed=true;for(const id of [...actors.keys()])remove(id);wanted.clear();},stats:()=>({remoteAvatars:[...actors.values()].filter(a=>a.group).length})};
+ return {seed,setAnimation,setMembers,update,anchors:()=>[...actors.entries()].filter(([,a])=>a.group).map(([memberId,a])=>({memberId,...a.identity,position:a.vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(new THREE.Vector3())||a.group.position.clone().add(new THREE.Vector3(0,1.4,0))})),positions:()=>[...actors.values()].map(a=>a.group?.position||a.samples.at(-1)?.value).filter(Boolean),dispose:()=>{disposed=true;for(const id of [...actors.keys()])remove(id);wanted.clear();},stats:()=>({remoteAvatars:[...actors.values()].filter(a=>a.group).length})};
 }

@@ -1,4 +1,5 @@
-import { PLAZA_CAMERA_V8, plazaCameraLimitV8, enforcePlazaCameraV8 } from "./plazaCameraV8.js";
+import {createPlazaLabelsV9} from './plazaLabelsV9.jsx';
+import { PLAZA_CAMERA_V9, plazaCameraLimitV9, enforcePlazaCameraV9 } from "./plazaCameraV9.js";
 import {applyPlazaSeatedPose} from './plazaSeatedPoseV3.js';
 import {createPlazaTableSignsV3} from './plazaTableSignsV3.js';
 import * as THREE from 'three';
@@ -64,10 +65,11 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = false;
   controls.enablePan = false;
-  controls.minDistance = PLAZA_CAMERA_V8.min;
-  controls.maxDistance = plazaCameraLimitV8(host.clientWidth / Math.max(1, host.clientHeight));
-  controls.maxPolarAngle = Math.PI * 0.47;
-  controls.minPolarAngle = Math.PI * 0.18;
+  controls.minDistance = PLAZA_CAMERA_V9.min;
+  controls.maxDistance = plazaCameraLimitV9(host.clientWidth / Math.max(1, host.clientHeight));
+  controls.maxPolarAngle = Math.PI * 0.32;
+  controls.minPolarAngle = .015;
+  const cameraState={},cameraCenter=new THREE.Vector3();
   const hemisphere = new THREE.HemisphereLight('#fff4dd', '#796b53', 0.8);
   hemisphere.layers.enable(1);hemisphere.layers.enable(2);scene.add(hemisphere);
   const sun = new THREE.DirectionalLight('#fff0d5', 2.0);
@@ -116,6 +118,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   function stopPath() { path = []; marker.visible = false; }
   const actions = {};
   let netSeq=0, netLast=-Infinity, netValue=null, gesture=0, initialPresence=null;
+  const labels=createPlazaLabelsV9(host);let labelIdentity={},labelMember={};
   const remote=createPlazaRemoteAvatarsV2({scene,load,onNotice});
   const spawn = new THREE.Vector3(0, 0, 2.5);
   const forward = new THREE.Vector3(), right = new THREE.Vector3(), movement = new THREE.Vector3();
@@ -205,7 +208,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     const width = Math.max(1, host.clientWidth), height = Math.max(1, host.clientHeight);
     renderer.setSize(width, height, false);
     camera.aspect = width / height; camera.updateProjectionMatrix();
-    controls.maxDistance = plazaCameraLimitV8(camera.aspect);
+    controls.maxDistance = plazaCameraLimitV9(camera.aspect);
   }
   const observer = new ResizeObserver(resize);
   observer.observe(host); resize();
@@ -265,7 +268,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     onPosition(packet);
     if(now-netLast>=100 && (changed || now-netLast>=500)){netLast=now;netValue=packet;onLocalState({...packet,seq:++netSeq});}
     remote.update(dt,camera);
-    controls.update(); enforcePlazaCameraV8(camera, controls, WORLD_V3.bounds); lighting.update(); renderPlazaLayers(renderer,scene,camera);
+    controls.update(); enforcePlazaCameraV9(camera, controls, WORLD_V3.bounds, cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z), dt, cameraState); lighting.update(); labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(new THREE.Vector3())||avatar.position.clone().add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]); renderPlazaLayers(renderer,scene,camera);
     frames++;
     if (now - statLast >= 1000) {
       stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(), motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
@@ -297,7 +300,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   function dispose() {
     if (disposed) return;
     disposed = true; clearTimeout(restoreTimer); loaded = false; abort.abort(); cancelAnimationFrame(raf);
-    observer.disconnect(); controls.dispose();remote.dispose();
+    observer.disconnect(); controls.dispose();remote.dispose();labels.dispose();
     document.removeEventListener('visibilitychange', onVisibility);
     renderer.domElement.removeEventListener('webglcontextlost', onContextLost);
     renderer.domElement.removeEventListener('webglcontextrestored', onContextRestored);
@@ -406,10 +409,11 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
 
   return {
     ready, dispose,
+    setIdentity:value=>{labelIdentity=value||{};labels.setMessages(labelIdentity.roomId,labelIdentity.messages);},
     correct:value=>{if(!loaded||disposed||!value)return;netSeq=Math.max(netSeq,value.seq||0);const before=avatar.position.clone();avatar.position.set(value.x,value.y,value.z);groundY=groundAt(value.x,value.z,value.y)??groundY;avatar.rotation.y=value.heading;stopPath();const delta=avatar.position.clone().sub(before);camera.position.add(delta);controls.target.add(delta);},
     setTables:tables=>tableSigns.update(tables),
     setMembers:(members,selfId)=>{
-      const own=members?.find(v=>v.memberId===selfId);
+      const own=members?.find(v=>v.memberId===selfId);labelMember=own||{};
       if(own && loaded && (own.seatId||null)!==lastSeatId){const before=avatar.position.clone();authoritativeSeat=own.seatId?own:null;lastSeatId=own.seatId||null;input={x:0,z:0};stopPath();avatar.position.set(own.x,own.y,own.z);avatar.rotation.y=own.heading;groundY=groundAt(own.x,own.z,Math.max(own.y,0))??groundY;const d=avatar.position.clone().sub(before);camera.position.add(d);controls.target.add(d);}
 
       if(!loaded && !initialPresence)initialPresence=members?.find(v=>v.memberId===selfId)||null;
@@ -463,7 +467,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     },
     snapshot: () => {
       if (!loaded || disposed) return;
-      lighting.update(); renderPlazaLayers(renderer,scene,camera);
+      lighting.update(); labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(new THREE.Vector3())||avatar.position.clone().add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]); renderPlazaLayers(renderer,scene,camera);
       renderer.domElement.toBlob(blob => {
         if (!blob || disposed) return;
         const url = URL.createObjectURL(blob), link = document.createElement('a');
