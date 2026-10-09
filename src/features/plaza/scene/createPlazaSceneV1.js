@@ -59,7 +59,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   renderer.domElement.setAttribute('aria-label', 'Không gian Cing Plaza 3D');
   host.appendChild(renderer.domElement);
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
+  controls.enableDamping = false;
   controls.enablePan = false;
   controls.minDistance = PLAZA_CAMERA_V6.min;
   controls.maxDistance = plazaCameraLimitV6(host.clientWidth / Math.max(1, host.clientHeight));

@@ -30,7 +30,7 @@ export function createPlazaRealtimeClientV1({
   let disposed = false, resumeNeeded = false;
   let sequence = 0;
   let snapshot = Object.freeze({
-    status: "idle", room: null, rooms: Object.freeze([]), tables:Object.freeze([]), selfId: null, members: Object.freeze([]), messages: Object.freeze([]),
+    profile:undefined, status: "idle", room: null, rooms: Object.freeze([]), tables:Object.freeze([]), selfId: null, members: Object.freeze([]), messages: Object.freeze([]),
   });
   const listeners = new Set();
   const pending = new Map();
@@ -78,7 +78,7 @@ export function createPlazaRealtimeClientV1({
       resumeNeeded=Boolean(snapshot.room);
       rejectPending();
       update({
-        status: "disconnected", room: null, rooms: Object.freeze([]), tables:Object.freeze([]),selfId:null,members:Object.freeze([]), messages: Object.freeze([]),
+        profile:undefined, status: "disconnected", room: null, rooms: Object.freeze([]), tables:Object.freeze([]),selfId:null,members:Object.freeze([]), messages: Object.freeze([]),
       });
     },
     connect_error: () => {
@@ -188,6 +188,8 @@ export function createPlazaRealtimeClientV1({
       update({ status: "connecting" });
       socket.connect();
     },
+    getProfile:async()=>{const data=await request("plaza:profile:get",{});if(!disposed)update({profile:data.profile});return data;},
+    chooseCharacter:async character=>{if(!["boy","girl"].includes(character))throw failure("PLAZA_INVALID_CHARACTER");const data=await request("plaza:profile:choose",{character},true);if(!disposed)update({profile:data.profile});return data;},
     listRooms: async () => {
       const data = await request("plaza:list", {});
       if (!disposed && Array.isArray(data?.rooms)) update({ rooms: Object.freeze(data.rooms) });

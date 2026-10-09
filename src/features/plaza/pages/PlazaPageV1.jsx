@@ -3,6 +3,9 @@ import React, {
 } from "react";
 import { createDefaultPlazaClientV1 } from "../runtime/createDefaultPlazaClientV1.js";
 import "./PlazaPageV1.css";
+import "./PlazaShellV7.css";
+import PlazaLobbyV7 from "./PlazaLobbyV7.jsx";
+import PlazaChatV7 from "./PlazaChatV7.jsx";
 
 const PlazaSceneV1 = lazy(() => import("../scene/PlazaSceneV1.jsx"));
 
@@ -57,27 +60,23 @@ export default function PlazaPageV1({
   createClient = createDefaultPlazaClientV1,
 }) {
   const [chatOpen, setChatOpen] = useState(false);
+  const [createdRoomId,setCreatedRoomId]=useState(null);
   const [client, setClient] = useState(null);
-  const [characterChoice,setCharacterChoice]=useState("girl");
-  const [password, setPassword] = useState("");
-  const [locked, setLocked] = useState(false);
-  const [joining, setJoining] = useState(null);
-  const [joinPassword, setJoinPassword] = useState("");
+
   const [draft, setDraft] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [history, setHistory] = useState({ roomId: null, messages: [] });
-  const [createdRoomId, setCreatedRoomId] = useState(null);
   const sending = useRef(null);
   const alive = useRef(false);
   const actionBusy = useRef(false);
-  const endRef = useRef(null);
 
   const state = useSyncExternalStore(
     client?.subscribe || subscribeEmpty,
     client?.getSnapshot || getEmpty,
     getEmpty,
   );
+  const characterChoice=state.profile?.character;
   const connected = state.status === "connected";
   const room = state.room;
   const rooms = state.rooms || [];
@@ -110,8 +109,10 @@ export default function PlazaPageV1({
     setNotice("");
     try {
       await work();
+      return true;
     } catch (error) {
       if (alive.current) setNotice(explain(error));
+      return false;
     } finally {
       actionBusy.current = false;
       if (alive.current) setBusy(false);
@@ -126,6 +127,7 @@ export default function PlazaPageV1({
   useEffect(() => {
     if (!client || !connected) return;
     let cancelled = false;
+    client.getProfile().catch(error=>{if(!cancelled)setNotice(explain(error));});
     client.listRooms().catch(error => {
       if (!cancelled) setNotice(explain(error));
     });
@@ -161,9 +163,7 @@ export default function PlazaPageV1({
       a.messageId.localeCompare(b.messageId))
     .slice(-100);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "nearest" });
-  }, [room?.roomId, messages.at(-1)?.messageId]);
+
 
   async function submitMessage(event) {
     event.preventDefault();
@@ -187,197 +187,12 @@ export default function PlazaPageV1({
     });
   }
 
-  return (
-    <main className={`cing-plaza cing-plaza--immersive ${room ? "cing-plaza--room" : "cing-plaza--lobby"}`}>
-      {!room && <header className="cing-plaza__header">
-        <div>
-          <span className="cing-plaza__eyebrow">CING HU TANG KINH BẮC</span>
-          <h1>Cing Plaza</h1>
-          <p>Một nơi gặp gỡ, một câu chuyện mới.</p>
-        </div>
-        {onClose && (
-          <button className="cing-plaza__quiet" onClick={onClose}>
-            Quay lại
-          </button>
-        )}
-      </header>}
-
-      {enabled && room && <>
-        <div className="cing-plaza__room-hud">
-          <button type="button" disabled={busy} aria-label="Rời phòng về sảnh" onClick={() => act(async () => { await client.leaveRoom(); setChatOpen(false); setCreatedRoomId(null); await refreshRooms(); })}>‹ Sảnh</button>
-          <div><strong>{room.name}</strong><span>{room.memberCount}/{room.capacity}</span></div>
-          <button type="button" aria-expanded={chatOpen} aria-controls="cing-plaza-room-chat" onClick={() => setChatOpen(value => !value)}>Trò chuyện</button>
-        </div>
-      </>}
-      {enabled && room && (
-        <Suspense fallback={<div className="cing-plaza__scene-loading" role="status">Đang mở không gian Plaza…</div>}>
-          <PlazaSceneV1 initialCharacter={state.members?.find(v=>v.memberId===state.selfId)?.character || characterChoice} correction={state.correction} tables={state.tables || []} realtimeClient={client} members={state.members || []} selfId={state.selfId} />
-        </Suspense>
-      )}
-
-      {!enabled ? (
-        <section className="cing-plaza__panel">
-          <h2>Hẹn gặp Cing iu tại Plaza</h2>
-          <p>Không gian giao lưu hiện chưa mở.</p>
-        </section>
-      ) : (
-        <>
-          <div className="cing-plaza__connection" role="status" hidden={Boolean(room) && connected}>
-            <span className={connected ? "is-connected" : ""} />
-            {STATUS[state.status] || STATUS.idle}
-          </div>
-          {notice && (
-            <p className="cing-plaza__notice" role="alert">{notice}</p>
-          )}
-
-          {!room ? (
-            <>
-              <section className="cing-plaza__panel">
-                <span className="cing-plaza__eyebrow">PHÒNG CỦA CING IU</span>
-                <h2>Mời bạn bè vào trò chuyện</h2>
-                <form onSubmit={event => {
-                  event.preventDefault();
-                  act(async () => {
-                    const result = await client.createRoom(undefined, locked ? password : "");
-                    if (alive.current) {
-                      setCreatedRoomId(result.room?.roomId || null);
-                      setPassword(""); setLocked(false);
-                    }
-                  });
-                }}>
-                  <label htmlFor="cing-plaza-character">Nhân vật</label>
-                  <select id="cing-plaza-character" value={characterChoice} onChange={event=>setCharacterChoice(event.target.value)}><option value="girl">Girl</option><option value="boy">Boy</option></select>
-                  <label className="cing-plaza__password-choice">
-                    <input type="checkbox" checked={locked}
-                      onChange={event => { setLocked(event.target.checked); setPassword(""); }} />
-                    Đặt mật khẩu phòng
-                  </label>
-                  <div className="cing-plaza__form-row">
-                    {locked && <input id="cing-plaza-create-password" type="password"
-                      aria-label="Mật khẩu phòng mới" value={password}
-                      onChange={event => setPassword(event.target.value)}
-                      minLength={4} maxLength={64} autoComplete="new-password"
-                      placeholder="Mật khẩu: 4–64 ký tự" required />}
-                    <button disabled={!connected || busy || (locked && password.length < 4)}>
-                      Tạo phòng mới
-                    </button>
-                  </div>
-                  <p className="cing-plaza__hint">Tối đa 30 người mỗi phòng.</p>
-                </form>
-              </section>
-
-              <section>
-                <div className="cing-plaza__section-title">
-                  <h2>Phòng đang có người</h2>
-                  <button className="cing-plaza__quiet"
-                    disabled={!connected || busy}
-                    onClick={() => act(refreshRooms)}>Cập nhật</button>
-                </div>
-                <div className="cing-plaza__rooms">
-                  {rooms.map(item => (
-                    <article className="cing-plaza__room-card" key={item.roomId}>
-                      <h3>{item.name} {item.hasPassword && <svg aria-label="Phòng có mật khẩu" role="img" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V6a4 4 0 0 1 8 0v4" /></svg>}</h3>
-                      <p>{item.memberCount} / {item.capacity} người</p>
-                      <button disabled={!connected || busy ||
-                          item.memberCount >= item.capacity}
-                        onClick={() => {
-                          if (item.hasPassword) { setJoining(item); setJoinPassword(""); }
-                          else act(() => client.joinRoom(item.roomId));
-                        }}>
-                        {item.memberCount >= item.capacity ? "Full" : "Vào phòng"}
-                      </button>
-                    </article>
-                  ))}
-                </div>
-                {joining && <form className="cing-plaza__panel" onSubmit={event => {
-                  event.preventDefault();
-                  act(async () => {
-                    await client.joinRoom(joining.roomId, joinPassword);
-                    if (alive.current) { setJoining(null); setJoinPassword(""); }
-                  });
-                }}>
-                  <h3>Vào {joining.name}</h3>
-                  <label htmlFor="cing-plaza-join-password">Mật khẩu phòng</label>
-                  <input id="cing-plaza-join-password" type="password" value={joinPassword}
-                    onChange={event => setJoinPassword(event.target.value)}
-                    minLength={4} maxLength={64} autoComplete="off" required />
-                  <div className="cing-plaza__form-row">
-                    <button disabled={!connected || busy || joinPassword.length < 4}>Vào phòng</button>
-                    <button type="button" className="cing-plaza__quiet" disabled={busy}
-                      onClick={() => { setJoining(null); setJoinPassword(""); }}>Hủy</button>
-                  </div>
-                </form>}
-                {connected && rooms.length === 0 && (
-                  <p className="cing-plaza__empty">
-                    Chưa có phòng nào. Cing iu mở cuộc gặp đầu tiên nhé.
-                  </p>
-                )}
-              </section>
-            </>
-          ) : (
-            <section id="cing-plaza-room-chat" hidden={!chatOpen} className="cing-plaza__panel cing-plaza__conversation">
-              <button type="button" className="cing-plaza__chat-close" onClick={() => setChatOpen(false)}>Đóng trò chuyện</button>
-              <div className="cing-plaza__section-title">
-                <div>
-                  <span className="cing-plaza__eyebrow">ĐANG GẶP GỠ</span>
-                  <h2>{room.name}</h2>
-                  <p>{room.memberCount} / {room.capacity} người</p>
-                </div>
-                <button className="cing-plaza__quiet" disabled={busy}
-                  onClick={() => act(async () => {
-                    await client.leaveRoom();
-                    setCreatedRoomId(null);
-                    await refreshRooms();
-                  })}>Rời phòng</button>
-              </div>
-
-              <div className="cing-plaza__messages"
-                aria-label="Tin nhắn trong phòng">
-                {messages.length === 0 && (
-                  <p className="cing-plaza__empty">Bắt đầu bằng một lời chào nhé.</p>
-                )}
-                {messages.map(message => (
-                  <article className="cing-plaza__message"
-                    key={message.messageId}>
-                    <div className="cing-plaza__message-meta">
-                      <strong>{message.author?.displayName || "Cing iu"}</strong>
-                      <time dateTime={new Date(message.createdAt).toISOString()}>
-                        {new Date(message.createdAt).toLocaleTimeString("vi-VN", {
-                          hour: "2-digit", minute: "2-digit",
-                        })}
-                      </time>
-                    </div>
-                    <p>{message.body}</p>
-                  </article>
-                ))}
-                <div ref={endRef} />
-              </div>
-
-              <form className="cing-plaza__composer" onSubmit={submitMessage}>
-                <label className="cing-plaza__sr-only"
-                  htmlFor="cing-plaza-message">Tin nhắn</label>
-                <textarea id="cing-plaza-message" value={draft}
-                  onChange={event => setDraft(event.target.value)}
-                  maxLength={1000} rows={2}
-                  placeholder="Nhắn một lời với Cing iu…"
-                  disabled={!connected} />
-                <button disabled={!connected || busy || !draft.trim() ||
-                    [...draft.trim()].length > 500}>
-                  {busy ? "Đang gửi…" : "Gửi"}
-                </button>
-              </form>
-              {createdRoomId === room.roomId && (
-                <button className="cing-plaza__close-room" disabled={busy}
-                  onClick={() => act(async () => {
-                    await client.closeRoom(room.roomId);
-                    setCreatedRoomId(null);
-                    await refreshRooms();
-                  })}>Đóng phòng của tôi</button>
-              )}
-            </section>
-          )}
-        </>
-      )}
-    </main>
-  );
+  return <main className={`cing-plaza cing-plaza--immersive ${room?'cing-plaza--room':'cing-plaza--lobby'} plaza-v7`}>
+    {notice&&<p className="plaza-v7-notice" role="alert">{notice}</p>}
+    {!enabled?<div className="plaza-v7-loading">Plaza hiện chưa mở.</div>:room?<>
+      <div className="cing-plaza__room-hud"><button disabled={busy} onClick={()=>act(async()=>{await client.leaveRoom();setCreatedRoomId(null);setChatOpen(false);await refreshRooms();await client.getProfile();})}>‹ Sảnh</button><div><strong>{room.name}</strong><span>{room.memberCount}/{room.capacity}</span></div><button aria-expanded={chatOpen} onClick={()=>setChatOpen(v=>!v)}>Trò chuyện</button></div>
+      {characterChoice&&<Suspense fallback={<div className="cing-plaza__scene-loading">Đang mở Plaza…</div>}><PlazaSceneV1 initialCharacter={state.members?.find(v=>v.memberId===state.selfId)?.character||characterChoice} correction={state.correction} tables={state.tables||[]} realtimeClient={client} members={state.members||[]} selfId={state.selfId}/></Suspense>}
+    </>:<PlazaLobbyV7 profile={state.profile} connected={connected} busy={busy} rooms={rooms} onClose={onClose} onChat={()=>setChatOpen(true)} choose={key=>act(()=>client.chooseCharacter(key))} onRefresh={()=>act(async()=>{await refreshRooms();await client.getProfile();})} onCreate={password=>act(async()=>{const result=await client.createRoom(undefined,password);if(alive.current)setCreatedRoomId(result.room?.roomId||null);})} onJoin={(id,password)=>act(()=>client.joinRoom(id,password))}/>}
+    {chatOpen&&<PlazaChatV7 room={room} messages={messages} draft={draft} setDraft={setDraft} submit={submitMessage} onCloseRoom={createdRoomId===room?.roomId?()=>act(async()=>{await client.closeRoom(room.roomId);setCreatedRoomId(null);setChatOpen(false);await refreshRooms();}):null} connected={connected} busy={busy} onClose={()=>setChatOpen(false)}/>}
+  </main>;
 }

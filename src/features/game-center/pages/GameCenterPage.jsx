@@ -1,3 +1,4 @@
+import "../../plaza/pages/PlazaEntryCardV7.css";
 import { Link as PlazaEntryLinkV5 } from "react-router-dom";
 
 const GAME_LABELS = {
@@ -769,34 +770,7 @@ export default function GameCenterPage() {
       {/* Plaza requires both its own release flag and existing legal gate. */}
       {import.meta.env.VITE_CING_PLAZA_ENABLED === "true" &&
         customerMultiplayerEnabled && authenticated && (
-        <section style={{
-          margin: "0 16px 20px",
-          padding: 22,
-          borderRadius: 22,
-          border: "1px solid rgba(242,190,125,.45)",
-          background: "linear-gradient(135deg,#492817,#251811)",
-          boxShadow: "0 12px 28px rgba(0,0,0,.16)",
-        }}>
-          <p style={{
-            margin: "0 0 8px", color: "#e9bc87",
-            fontSize: 10, fontWeight: 800, letterSpacing: 2,
-          }}>CING HU TANG KINH BẮC</p>
-          <h2 style={{
-            margin: "0 0 8px", color: "#fff1df",
-            fontSize: 24, fontWeight: 850,
-          }}>Cing Plaza</h2>
-          <p style={{
-            margin: "0 0 18px", color: "#d4bca5",
-            fontSize: 13, lineHeight: 1.6,
-          }}>Gặp gỡ Cing iu, mở phòng và cùng nhau trò chuyện.</p>
-          <PlazaEntryLinkV5 to="/plaza" style={{
-            display: "inline-flex", alignItems: "center",
-            justifyContent: "center", minHeight: 44,
-            padding: "11px 20px", borderRadius: 12,
-            background: "#d4531c", color: "#fff",
-            textDecoration: "none", fontSize: 14, fontWeight: 800,
-          }}>Vào Plaza</PlazaEntryLinkV5>
-        </section>
+        <PlazaEntryLinkV5 to="/plaza" className="cing-plaza-entry-v7"><div><small>KHÔNG GIAN KẾT NỐI</small><h2>Cing Plaza<span>✦</span></h2><p>Gặp gỡ, tương tác, pk game và cùng nhau trò chuyện</p><strong>Khám phá Plaza ↗</strong></div><img src="/cing-plaza/assets/v7/girl-portrait.webp" alt=""/></PlazaEntryLinkV5>
       )}
 
       {/* GAME LIST */}

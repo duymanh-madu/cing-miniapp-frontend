@@ -1,7 +1,7 @@
+import PlazaChessPieceV7 from "./PlazaChessPieceV7.jsx";
 import React,{useEffect,useRef,useState} from 'react';
 import './PlazaChessPanelV3.css';
 import {plazaChessAudioCuesV4} from './plazaChessAudioV4.js';
-const PIECES={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
 const ERRORS={PLAZA_SEAT_TAKEN:'Ghế vừa có người ngồi.',PLAZA_SEAT_TOO_FAR:'Hãy đến gần ghế hơn.',PLAZA_PK_NOT_ENABLED:'PK chưa mở trên máy chủ.',PLAZA_NOT_YOUR_TURN:'Chưa đến lượt của bạn.',PLAZA_STALE_MOVE:'Bàn cờ đã đổi. Hãy chọn lại.',PLAZA_OUTCOME_UNKNOWN:'Chưa nhận được xác nhận. Kiểm tra bàn cờ trước khi thử lại.',PLAZA_CHESS_PERSIST_FAILED:'Chưa lưu được nước cờ. Hãy thử lại.',PLAZA_MATCH_IN_PROGRESS:'Bàn đang có trận đấu.'};
 function squares(fen){return fen.split(' ')[0].split('/').flatMap(row=>[...row].flatMap(c=>/\d/.test(c)?Array(+c).fill(null):[c]));}
 export default function PlazaChessPanelV3({table,selfId,client,onStand,audio=null}){
@@ -33,7 +33,7 @@ export default function PlazaChessPanelV3({table,selfId,client,onStand,audio=nul
    {spectator&&<p>Bạn đang xem trận đấu.</p>}
    {match.phase==='preparing'&&!spectator&&<button disabled={busy||match.ready.includes(selfId)} onClick={()=>act({action:'ready'})}>{match.ready.includes(selfId)?'Đã sẵn sàng — chờ đối thủ':'Sẵn sàng đấu'}</button>}
    {match.phase==='active'&&<p>{spectator?`Lượt ${turn==='w'?'Trắng':'Đen'}`:turn===player.color?'Đến lượt bạn':'Đang chờ đối thủ'}</p>}
-   <div className="plaza-pk__board" role="group" aria-label="Bàn cờ"><>{indices.map(i=><button key={i} type="button" aria-label={`${square(i)} ${board[i]||'trống'}`} className={`${(Math.floor(i/8)+i%8)%2?'dark':'light'} ${square(i)===selected?'selected':''} ${targets.includes(square(i))?'target':''}`} disabled={busy||spectator||match.phase!=='active'||turn!==player?.color} onClick={()=>choose(i)}><span className={board[i]&&board[i]===board[i].toUpperCase()?'white-piece':'black-piece'}>{PIECES[board[i]]||''}</span><small>{square(i)}</small></button>)}</></div>
+   <div className="plaza-pk__board" role="group" aria-label="Bàn cờ"><>{indices.map(i=><button key={i} type="button" aria-label={`${square(i)} ${board[i]||'trống'}`} className={`${(Math.floor(i/8)+i%8)%2?'dark':'light'} ${square(i)===selected?'selected':''} ${targets.includes(square(i))?'target':''}`} disabled={busy||spectator||match.phase!=='active'||turn!==player?.color} onClick={()=>choose(i)}><span className={board[i]&&board[i]===board[i].toUpperCase()?'white-piece':'black-piece'}><PlazaChessPieceV7 piece={board[i]}/></span></button>)}</></div>
    {promotion&&<div>Phong cấp: {['q','r','b','n'].map(p=><button key={p} disabled={busy} onClick={()=>{act({action:'move',...promotion,promotion:p,expectedPly:match.ply});setPromotion(null);}}>{({q:'Hậu',r:'Xe',b:'Tượng',n:'Mã'})[p]}</button>)}</div>}
    {match.phase==='active'&&!spectator&&<button disabled={busy} onClick={()=>act({action:'resign'})}>Đầu hàng</button>}
    {match.phase==='finished'&&<><p>{match.result?.reason==='cancelled'?'Trận chưa bắt đầu — đã hủy':winner?`${winner.displayName} thắng`:'Hai người hòa nhau'} · {({checkmate:'Chiếu hết',resign:'Đầu hàng',timeout:'Hết giờ',draw:'Hòa',cancelled:'Hủy trước khi bắt đầu'})[match.result?.reason]}</p><p>{match.ranked===true?'Kết quả đã cập nhật BXH của cả hai người.':match.result?.reason==='cancelled'?'Không tính kết quả BXH.':'Trận thử nghiệm — không ghi BXH.'}</p>{table.ownerId===selfId&&<button disabled={busy} onClick={()=>act({action:'select',gameId:'chess'})}>Trận mới</button>}</>}

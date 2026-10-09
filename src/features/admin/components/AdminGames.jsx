@@ -1,3 +1,4 @@
+import AdminPlazaCharacterV7 from "./AdminPlazaCharacterV7.jsx";
 import { useEffect, useState } from "react";
 import apiClient from "@/infra/api/apiClient";
 import AdminGameGiftCatalog from "./AdminGameGiftCatalog";
@@ -100,6 +101,7 @@ export default function AdminGames({ token, role, adminId }) {
 
   return (
     <div>
+      <AdminPlazaCharacterV7 role={role} token={token} />
       <AdminReviveCreditPrice token={token} role={role} />
       <AdminGameGiftCatalog token={token} role={role} />
       <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 20px" }}>
