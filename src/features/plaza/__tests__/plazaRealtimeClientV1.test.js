@@ -188,3 +188,29 @@ test('background suspends automatic reconnect, foreground resynchronizes same ro
  lifecycle.hidden=false;lifecycle.dispatchEvent(new Event('visibilitychange'));assert.equal(s.sent.at(-1).event,'plaza:resume');s.sent.at(-1).ack({ok:true,data:{room:{roomId:'r'}}});await settle();assert.equal(s.client.getSnapshot().room.roomId,'r');assert.deepEqual(switches,[false,true]);
  s.client.dispose();const count=s.sent.length;lifecycle.dispatchEvent(new Event('visibilitychange'));assert.equal(s.sent.length,count);
 });
+
+
+test('foreground resume timeout retries read-only recovery and restores connected controls state',async()=>{
+ const s=setup({resumeOnConnect:true,timeoutMs:10,recoveryDelayMs:10});
+ s.client.connect();s.sent[0].ack({ok:true,data:{room:{roomId:'r'}}});await settle();
+ s.socket.connected=false;s.handlers.get('disconnect')();s.socket.connect();
+ await new Promise(r=>setTimeout(r,25));
+ assert.equal(s.sent.at(-1).event,'plaza:resume');assert.ok(s.sent.length>=3);
+ s.sent.at(-1).ack({ok:true,data:{room:{roomId:'r'}}});await settle();
+ assert.equal(s.client.getSnapshot().status,'connected');assert.equal(s.client.getSnapshot().room.roomId,'r');
+ assert.ok(s.sent.every(v=>v.event==='plaza:resume'));s.client.dispose();
+});
+test('disposing during recovery cancels retry and prevents stale ACK reviving room',async()=>{
+ const s=setup({resumeOnConnect:true,timeoutMs:10,recoveryDelayMs:30});s.client.connect();
+ await new Promise(r=>setTimeout(r,18));s.client.dispose();const count=s.sent.length;
+ await new Promise(r=>setTimeout(r,45));assert.equal(s.sent.length,count);
+ s.sent[0].ack({ok:true,data:{room:{roomId:'stale'}}});await settle();assert.equal(s.client.getSnapshot().status,'disposed');
+});
+test('hidden page cancels scheduled recovery and returns through one foreground resume',async()=>{
+ const lifecycle=new EventTarget();lifecycle.hidden=false;
+ const s=setup({lifecycle,resumeOnConnect:true,timeoutMs:10,recoveryDelayMs:30});s.client.connect();
+ await new Promise(r=>setTimeout(r,18));lifecycle.hidden=true;lifecycle.dispatchEvent(new Event('visibilitychange'));
+ const count=s.sent.length;await new Promise(r=>setTimeout(r,45));assert.equal(s.sent.length,count);
+ lifecycle.hidden=false;lifecycle.dispatchEvent(new Event('visibilitychange'));
+ s.sent.at(-1).ack({ok:true,data:{room:{roomId:'r'}}});await settle();assert.equal(s.client.getSnapshot().status,'connected');s.client.dispose();
+});

@@ -14,7 +14,7 @@ const KEY = {
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
 };
 
-export default function PlazaSceneV1({ diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, onReadyChange=()=>{} }) {
+export default function PlazaSceneV1({ diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, controlsHidden=interactionPaused, onReadyChange=()=>{} }) {
   const chessAudio=useRef(null);
   useEffect(()=>{chessAudio.current=createPlazaChessAudioV4();function visibility(){if(document.hidden)chessAudio.current?.suspend();else chessAudio.current?.resumeExisting();}document.addEventListener('visibilitychange',visibility);return()=>{document.removeEventListener('visibilitychange',visibility);chessAudio.current?.dispose();chessAudio.current=null;};},[]);
   const [nearSeat,setNearSeat]=useState(null),[tableError,setTableError]=useState(''),[tableBusy,setTableBusy]=useState(false);
@@ -149,8 +149,8 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           <button type="button" onClick={() => { clearInput(); api.current?.checkin('dinh'); }}>Check-in đình</button>
         </div>}
       </div>
-      {ready&&!interactionPaused&&<div className="cing-plaza-scene__controls">
-        <button type="button" className="cing-plaza-scene__joystick" disabled={!ready || Boolean(ownTable)}
+      {ready&&!controlsHidden&&<div className="cing-plaza-scene__controls">
+        <button type="button" className="cing-plaza-scene__joystick" disabled={interactionPaused || !ready || Boolean(ownTable)}
           aria-label={locked?"Chạm để dừng và mở khóa hướng":"Di chuyển: kéo theo hướng muốn đi; kéo qua vòng ngoài và thả để khóa hướng"}
           data-locked={locked} data-armed={lockArmed}
           onPointerDown={event => {
@@ -186,9 +186,9 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           <p>Kéo cần theo bất kỳ hướng nào, thả để dừng. Chạm mặt sân để đi tới đó; kéo cảnh để xoay góc nhìn.</p>
           <small>Trên máy tính: bấm vào cảnh, dùng WASD hoặc phím mũi tên.</small>
         </div>}
-        <button type="button" className="cing-plaza-scene__wave plaza-v11-hud-icon" aria-label="Vẫy tay" disabled={!ready || Boolean(ownTable) || motion === 'wave'}
+        <button type="button" className="cing-plaza-scene__wave plaza-v11-hud-icon" aria-label="Vẫy tay" disabled={interactionPaused || !ready || Boolean(ownTable) || motion === 'wave'}
           onClick={() => { clearInput(); api.current?.wave(); }}><Hand size={22}/></button>
-        <button type="button" className="plaza-v11-hud-icon" aria-label="Tạo dáng" disabled={!ready || Boolean(ownTable) || motion === 'checkin'} onClick={() => { clearInput(); api.current?.pose(); }}><PersonStanding size={22}/></button>
+        <button type="button" className="plaza-v11-hud-icon" aria-label="Tạo dáng" disabled={interactionPaused || !ready || Boolean(ownTable) || motion === 'checkin'} onClick={() => { clearInput(); api.current?.pose(); }}><PersonStanding size={22}/></button>
       </div>}
       {ready && review && <p className="cing-plaza-scene__notice" role="status">{stats.timeOfDay || ''} · Giờ Việt Nam{notice ? ` — ${notice}` : ''}</p>}
       {!review && notice && <span className="cing-plaza-scene__sr-status" role="status">{notice}</span>}

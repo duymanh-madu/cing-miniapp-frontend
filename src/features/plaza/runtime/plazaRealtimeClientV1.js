@@ -11,6 +11,7 @@ export function createPlazaRealtimeClientV1({
   timeoutMs = 6000,
   lifecycle = globalThis.document,
   resumeOnConnect = true,
+  recoveryDelayMs = 1000,
 } = {}) {
   if (typeof ioFactory !== "function" || typeof getToken !== "function" ||
       !Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30000) {
@@ -30,6 +31,15 @@ export function createPlazaRealtimeClientV1({
   }
 
   let disposed = false, resumeNeeded = false, recovery = 0;
+  let retryTimer = null, retryCount = 0;
+  function clearRecoveryRetry(){clearTimeout(retryTimer);retryTimer=null;}
+  function scheduleRecoveryRetry(){
+    clearRecoveryRetry();
+    if(disposed || lifecycle?.hidden)return;
+    retryTimer=setTimeout(()=>{retryTimer=null;if(disposed || lifecycle?.hidden)return;
+      if(socket.connected)void recover();else socket.connect();
+    },Math.min(5000,recoveryDelayMs * 2 ** Math.min(retryCount++,3)));
+  }
   let sequence = 0;
   let snapshot = Object.freeze({
     profile:undefined,identity:null, status: "idle", room: null, rooms: Object.freeze([]), tables:Object.freeze([]), selfId: null, members: Object.freeze([]), messages: Object.freeze([]),
@@ -48,7 +58,7 @@ export function createPlazaRealtimeClientV1({
     autoConnect: false,
     forceNew: true,
     reconnection: true,
-    reconnectionAttempts: 5,
+    reconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
     timeout: timeoutMs,
@@ -78,6 +88,7 @@ export function createPlazaRealtimeClientV1({
     },
     disconnect: () => {
       if (disposed) return;
+      clearRecoveryRetry();
       resumeNeeded=Boolean(snapshot.room);
       rejectPending();
       recovery++;
@@ -86,7 +97,7 @@ export function createPlazaRealtimeClientV1({
       update({status:"disconnected",rooms:Object.freeze([])});
     },
     connect_error: () => {
-      if (!disposed) update({ status: "connection-error" });
+      if (!disposed) {update({ status: "connection-error" });scheduleRecoveryRetry();}
     },
     "plaza:tables":payload=>{if(!disposed && payload?.roomId===snapshot.room?.roomId && Array.isArray(payload.tables))update({tables:Object.freeze(payload.tables)});},
     "plaza:correction": payload => {if(!disposed && payload?.roomId===snapshot.room?.roomId)update({correction:payload.value});},
@@ -141,22 +152,25 @@ export function createPlazaRealtimeClientV1({
 
   async function recover() {
     if(disposed || !socket.connected || lifecycle?.hidden)return;
+    clearRecoveryRetry();
     const attempt=++recovery;
     update({status:"resuming"});
     try {
       const data=await request("plaza:resume",{});
       if(disposed || attempt!==recovery || !socket.connected)return;
       handlers["plaza:room"]({room:data?.room??null});
-      resumeNeeded=false;update({status:"connected"});
+      retryCount=0;resumeNeeded=false;update({status:"connected"});
     } catch(error) {
       if(disposed || attempt!==recovery)return;
       update({status:"connection-error"});
+      if(["PLAZA_REQUEST_TIMEOUT","PLAZA_DISCONNECTED","PLAZA_QUEUE_FULL"].includes(error.code))scheduleRecoveryRetry();
     }
   }
   function visibility() {
     if(disposed)return;
     socket.io?.reconnection?.(!lifecycle.hidden);
     if(lifecycle.hidden){
+      clearRecoveryRetry();recovery++;
       if(snapshot.room && socket.connected)request("plaza:background",{}).catch(()=>{});
     } else if(socket.connected)void recover();
     else socket.connect();
@@ -230,7 +244,7 @@ export function createPlazaRealtimeClientV1({
     closeRoom: roomId => request("plaza:close", { roomId }, true),
     tableAction: payload => request("plaza:table",{...payload,commandId:payload.commandId||globalThis.crypto.randomUUID()},true),
     sendState: value => {
-      if(disposed || socket.connected !== true || !snapshot.room)return false;
+      if(disposed || socket.connected !== true || snapshot.status !== "connected" || !snapshot.room)return false;
       socket.volatile.emit("plaza:state",value);return true;
     },
     getHistory: () => request("plaza:chat:history", {}),
@@ -240,7 +254,7 @@ export function createPlazaRealtimeClientV1({
     dispose: () => {
       if (disposed) return;
       disposed = true;
-      recovery++;lifecycle?.removeEventListener?.("visibilitychange",visibility);
+      clearRecoveryRetry();recovery++;lifecycle?.removeEventListener?.("visibilitychange",visibility);
       rejectPending();
       for (const [event, handler] of Object.entries(handlers)) {
         socket.off(event, handler);
