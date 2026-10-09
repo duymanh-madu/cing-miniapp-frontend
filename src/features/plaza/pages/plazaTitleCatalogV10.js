@@ -1,0 +1,16 @@
+export const PLAZA_TITLES_V10 = Object.freeze({
+  member: { label: "Hội viên", stars: 0, tone: "pearl" },
+  loyal: { label: "Hội viên thân thiết", stars: 1, tone: "jade" },
+  silver: { label: "Hội viên bạc", stars: 2, tone: "silver" },
+  gold: { label: "Hội viên vàng", stars: 3.5, tone: "gold" },
+  partner: { label: "Đối tác", stars: 3.5, tone: "rose" },
+  diamond: { label: "Hội viên kim cương", stars: 5, tone: "diamond" },
+  loyal_partner: { label: "Đối tác thân thiết", stars: 5, tone: "rose" },
+  idol: { label: "Idol", stars: 5, tone: "violet" },
+  ngoi_sao: { label: "Ngôi Sao", stars: 5, tone: "gold" },
+  minh_tinh: { label: "Minh Tinh", stars: 5, tone: "rose" },
+  champion: { label: "Kiện tướng", stars: 4, tone: "gold" },
+  hof_1: { label: "Vương Giả", stars: 5, tone: "royal" },
+  hof_2: { label: "Phú Hào", stars: 4.5, tone: "diamond" },
+  hof_3: { label: "Địa Chủ", stars: 4, tone: "jade" },
+});

@@ -1,3 +1,4 @@
+import {refinePlazaAvatarSurfaceV10} from './plazaAvatarSurfaceV10.js';
 import {applyPlazaSeatedPose} from './plazaSeatedPoseV3.js';
 import * as THREE from 'three';
 import {clone} from 'three/addons/utils/SkeletonUtils.js';
@@ -24,7 +25,7 @@ export function createPlazaRemoteAvatarsV2({scene,load,onNotice=()=>{}}) {
  async function getTemplate(character) {
   if(!templates.has(character))templates.set(character,(async()=>{
    const config=PLAZA_AVATARS[character],file=await load(config.model),vrm=file.userData.vrm;
-   if(!vrm)throw new Error('Không đọc được nhân vật trong phòng.');VRMUtils.rotateVRM0(vrm);
+   if(!vrm)throw new Error('Không đọc được nhân vật trong phòng.');VRMUtils.rotateVRM0(vrm);refinePlazaAvatarSurfaceV10(vrm.scene);
    // The original is also hidden for unified GPU cleanup; clone owns only its bones.
    vrm.scene.visible=false;scene.add(vrm.scene);
    const t=templateFrom(vrm);

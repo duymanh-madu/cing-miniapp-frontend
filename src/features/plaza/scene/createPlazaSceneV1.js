@@ -1,11 +1,11 @@
 import {createPlazaLabelsV9} from './plazaLabelsV9.jsx';
-import { PLAZA_CAMERA_V9, plazaCameraLimitV9, enforcePlazaCameraV9 } from "./plazaCameraV9.js";
+import {createPlazaCameraV10} from "./plazaCameraV10.js";
+import {refinePlazaAvatarSurfaceV10} from "./plazaAvatarSurfaceV10.js";
 import {applyPlazaSeatedPose} from './plazaSeatedPoseV3.js';
 import {createPlazaTableSignsV3} from './plazaTableSignsV3.js';
 import * as THREE from 'three';
 import {createPlazaRemoteAvatarsV2} from './plazaRemoteAvatarsV2.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { VRMAnimationLoaderPlugin, createVRMAnimationClip } from '@pixiv/three-vrm-animation';
@@ -52,8 +52,8 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   scene.fog = new THREE.Fog('#f0e6d4', 35, 90);
   const camera = new THREE.PerspectiveCamera(45, 1, 0.08, 120);
   const mobile = window.matchMedia('(pointer: coarse)').matches;
-  const renderer = new THREE.WebGLRenderer({ antialias: !mobile, alpha: false, powerPreference: 'default' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.5));
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'default' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.95;
@@ -62,14 +62,8 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   renderer.shadowMap.autoUpdate = false;
   renderer.domElement.setAttribute('aria-label', 'Không gian Cing Plaza 3D');
   host.appendChild(renderer.domElement);
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = false;
-  controls.enablePan = false;
-  controls.minDistance = PLAZA_CAMERA_V9.min;
-  controls.maxDistance = plazaCameraLimitV9(host.clientWidth / Math.max(1, host.clientHeight));
-  controls.maxPolarAngle = Math.PI * 0.32;
-  controls.minPolarAngle = .015;
-  const cameraState={},cameraCenter=new THREE.Vector3();
+  const controls=createPlazaCameraV10(camera,renderer.domElement,WORLD_V3.bounds,{floorAt:(x,z,hint)=>groundAt(x,z,hint)});
+  const cameraCenter=new THREE.Vector3();
   const hemisphere = new THREE.HemisphereLight('#fff4dd', '#796b53', 0.8);
   hemisphere.layers.enable(1);hemisphere.layers.enable(2);scene.add(hemisphere);
   const sun = new THREE.DirectionalLight('#fff0d5', 2.0);
@@ -112,7 +106,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     hemisphere.intensity = palette.hemisphere; hemisphere.color.copy(palette.light);
     sun.intensity = palette.sun; sun.color.copy(palette.light);
     renderer.toneMappingExposure = palette.exposure; scene.environmentIntensity = palette.environment;
-    lighting.apply(palette,hemisphere,renderer);
+    lighting.apply(palette,hemisphere,renderer,sun);
     stats = { ...stats, timeOfDay: palette.label };
   }
   function stopPath() { path = []; marker.visible = false; }
@@ -122,7 +116,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   const remote=createPlazaRemoteAvatarsV2({scene,load,onNotice});
   const spawn = new THREE.Vector3(0, 0, 2.5);
   const forward = new THREE.Vector3(), right = new THREE.Vector3(), movement = new THREE.Vector3();
-  const followDelta = new THREE.Vector3(), ray = new THREE.Raycaster();
+  const ray = new THREE.Raycaster();
   const normalMatrix = new THREE.Matrix3();
   const normal = new THREE.Vector3();
   const avatar = new THREE.Group();
@@ -192,7 +186,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       controls.target.copy(target);
       camera.position.copy(target).add(next === 'close' ? new THREE.Vector3(0.4, 0.65, 3) : new THREE.Vector3(2.6, 1.8, 4.1));
     }
-    controls.update();
+    controls.sync();controls.update();
   }
 
   function tryStep(x, z) {
@@ -208,7 +202,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     const width = Math.max(1, host.clientWidth), height = Math.max(1, host.clientHeight);
     renderer.setSize(width, height, false);
     camera.aspect = width / height; camera.updateProjectionMatrix();
-    controls.maxDistance = plazaCameraLimitV9(camera.aspect);
+    // The user radius is unchanged by resize, movement or map boundaries.
   }
   const observer = new ResizeObserver(resize);
   observer.observe(host); resize();
@@ -259,19 +253,15 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     avatar.position.y = authoritativeSeat?authoritativeSeat.y:groundY + soleOffset + lift;
     contact.visible=!authoritativeSeat;
     contact.position.set(avatar.position.x, groundY + 0.009, avatar.position.z);
-    if (preset !== 'overview') {
-      followDelta.copy(avatar.position).sub(oldPosition);
-      controls.target.add(followDelta); camera.position.add(followDelta);
-    }
     const packet={x:avatar.position.x,y:avatar.position.y,z:avatar.position.z,heading:avatar.rotation.y,motion:state,character,phase:currentAction.time,speed:Math.min(1.6,actualSpeed),gesture};
     const changed=!netValue || Math.hypot(packet.x-netValue.x,packet.y-netValue.y,packet.z-netValue.z)>.001 || Math.abs(packet.heading-netValue.heading)>.002 || packet.motion!==netValue.motion || packet.gesture!==netValue.gesture;
     onPosition(packet);
     if(now-netLast>=100 && (changed || now-netLast>=500)){netLast=now;netValue=packet;onLocalState({...packet,seq:++netSeq});}
     remote.update(dt,camera);
-    controls.update(); enforcePlazaCameraV9(camera, controls, WORLD_V3.bounds, cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z), dt, cameraState); lighting.update(); labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(new THREE.Vector3())||avatar.position.clone().add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]); renderPlazaLayers(renderer,scene,camera);
+    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z)); lighting.update(); labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(new THREE.Vector3())||avatar.position.clone().add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]); renderPlazaLayers(renderer,scene,camera);
     frames++;
     if (now - statLast >= 1000) {
-      stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(), motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
+      stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(),antialias:renderer.getContext().getContextAttributes().antialias,dpr:renderer.getPixelRatio(),cameraRadius:controls.requestedRadius, motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
       onStats(stats); frames = 0; statLast = now;
     }
     raf = requestAnimationFrame(tick);
@@ -357,7 +347,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       const modelFile = await load(avatarConfig.model);
       vrm = modelFile.userData.vrm;
       if (!vrm) { disposeTree(modelFile.scene); throw new Error('Không đọc được nhân vật VRM.'); }
-      VRMUtils.rotateVRM0(vrm);remote.seed(character,vrm);
+      VRMUtils.rotateVRM0(vrm);refinePlazaAvatarSurfaceV10(vrm.scene);remote.seed(character,vrm);
       avatar.add(vrm.scene);
       vrm.scene.traverse(object => { if (object.isMesh) { object.layers.set(1);object.frustumCulled = false; object.castShadow = false; object.receiveShadow = false; } });
       mixer = new THREE.AnimationMixer(vrm.scene);
@@ -410,11 +400,11 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   return {
     ready, dispose,
     setIdentity:value=>{labelIdentity=value||{};labels.setMessages(labelIdentity.roomId,labelIdentity.messages);},
-    correct:value=>{if(!loaded||disposed||!value)return;netSeq=Math.max(netSeq,value.seq||0);const before=avatar.position.clone();avatar.position.set(value.x,value.y,value.z);groundY=groundAt(value.x,value.z,value.y)??groundY;avatar.rotation.y=value.heading;stopPath();const delta=avatar.position.clone().sub(before);camera.position.add(delta);controls.target.add(delta);},
+    correct:value=>{if(!loaded||disposed||!value)return;netSeq=Math.max(netSeq,value.seq||0);avatar.position.set(value.x,value.y,value.z);groundY=groundAt(value.x,value.z,value.y)??groundY;avatar.rotation.y=value.heading;stopPath();controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z));},
     setTables:tables=>tableSigns.update(tables),
     setMembers:(members,selfId)=>{
       const own=members?.find(v=>v.memberId===selfId);labelMember=own||{};
-      if(own && loaded && (own.seatId||null)!==lastSeatId){const before=avatar.position.clone();authoritativeSeat=own.seatId?own:null;lastSeatId=own.seatId||null;input={x:0,z:0};stopPath();avatar.position.set(own.x,own.y,own.z);avatar.rotation.y=own.heading;groundY=groundAt(own.x,own.z,Math.max(own.y,0))??groundY;const d=avatar.position.clone().sub(before);camera.position.add(d);controls.target.add(d);}
+      if(own && loaded && (own.seatId||null)!==lastSeatId){authoritativeSeat=own.seatId?own:null;lastSeatId=own.seatId||null;input={x:0,z:0};stopPath();avatar.position.set(own.x,own.y,own.z);avatar.rotation.y=own.heading;groundY=groundAt(own.x,own.z,Math.max(own.y,0))??groundY;controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z));}
 
       if(!loaded && !initialPresence)initialPresence=members?.find(v=>v.memberId===selfId)||null;
       remote.setMembers(members,selfId);
@@ -462,6 +452,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       changeAction('idle'); preset = 'overview';
       camera.fov = 52; camera.updateProjectionMatrix(); camera.position.set(...spot.camera); controls.target.set(...spot.target);
       if(camera.aspect<1.05){const shift=kind==='cafe'?.50:0;camera.position.sub(controls.target).multiplyScalar(1.28).add(controls.target);camera.position.x+=shift;controls.target.x+=shift;}
+      controls.sync();
       avatar.rotation.y = Math.atan2(camera.position.x-x,camera.position.z-z);
       controls.update(); onNotice('Góc check-in đã sẵn sàng. Bấm Chụp ảnh để lưu ảnh của anh.');
     },

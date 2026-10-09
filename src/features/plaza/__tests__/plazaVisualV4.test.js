@@ -18,7 +18,7 @@ test('old orange obstruction and exterior wing are absent; both logos and lamps 
 });
 test('night lighting gives neutral portrait fill and local sign light without extra shadows; day dims them',()=>{
  const scene=new T.Scene(),camera=new T.PerspectiveCamera(),avatar=new T.Group(),hemi=new T.HemisphereLight(),renderer={};camera.position.set(0,3,5);scene.add(avatar);const lighting=createPlazaLightingV4(scene,camera,avatar);const face=new T.MeshBasicMaterial();face.name='V4_Road_Sign_Face';lighting.attachWorld({lampAnchors:[new T.Vector3(1,2,3)],nightMaterials:[face]});lighting.apply(timePalette(21),hemi,renderer);lighting.update();
- assert.ok(lighting.fill.intensity>=1);assert.ok(lighting.portrait.intensity>=.8);assert.ok(renderer.toneMappingExposure>=.9);assert.ok(lighting.lamps[0].intensity>0);assert.ok(face.color.r>=.99);assert.equal(lighting.fill.castShadow,false);assert.equal(lighting.lamps[0].castShadow,false);
+ assert.ok(lighting.fill.intensity>=1);assert.ok(lighting.portrait.intensity>=.4&&lighting.portrait.intensity<=.6);assert.ok(lighting.rim.intensity>0);assert.equal(lighting.rim.castShadow,false);assert.equal(lighting.rim.layers.mask,2);assert.ok(renderer.toneMappingExposure>=.9);assert.ok(lighting.lamps[0].intensity>0);assert.ok(face.color.r>=.99);assert.equal(lighting.fill.castShadow,false);assert.equal(lighting.lamps[0].castShadow,false);
  lighting.apply(timePalette(12),hemi,renderer);assert.equal(lighting.lamps[0].intensity,0);assert.ok(face.color.r<.95);assert.ok(lighting.fill.intensity<.3);
 });
 
