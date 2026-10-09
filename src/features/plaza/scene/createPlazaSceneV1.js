@@ -1,3 +1,4 @@
+import {preparePlazaAvatarV13} from './plazaAvatarResourcesV13.js';
 import {addCafeRoofLogoV11} from './plazaCafeRoofV11.js';
 import {createPlazaLabelsV9} from './plazaLabelsV9.jsx';
 import {createPlazaCameraV10} from "./plazaCameraV10.js";
@@ -35,6 +36,7 @@ function disposeTree(root) {
       if (!material) continue;
       materials.add(material);
       for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
+      for(const uniform of Object.values(material.uniforms||{}))if(uniform.value?.isTexture)textures.add(uniform.value);
     }
   });
   skeletons.forEach(value => value.dispose());
@@ -112,8 +114,9 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   }
   function stopPath() { path = []; marker.visible = false; }
   const actions = {};
+  let pendingMembers=[],pendingSelfId=null;
   let netSeq=0, netLast=-Infinity, netValue=null, gesture=0, initialPresence=null;
-  const labels=createPlazaLabelsV9(host);let labelIdentity={},labelMember={};
+  const labels=createPlazaLabelsV9(host);let labelIdentity={},labelMember={},labelLast=-Infinity;const headPosition=new THREE.Vector3();
   const remote=createPlazaRemoteAvatarsV2({scene,load,onNotice});
   const spawn = new THREE.Vector3(0, 0, 2.5);
   const forward = new THREE.Vector3(), right = new THREE.Vector3(), movement = new THREE.Vector3();
@@ -207,6 +210,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   }
   const observer = new ResizeObserver(resize);
   observer.observe(host); resize();
+  const oldPosition=new THREE.Vector3();
   let last = performance.now(), statLast = last, frames = 0;
   function tick(now) {
     if (disposed || contextLost) return;
@@ -214,7 +218,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     if (document.hidden) return;
     const dt = Math.max(0, Math.min((now - last) / 1000, 0.05)); last = now;
     updateLighting(); world?.updateDoors(avatar.position, dt, remote.positions());
-    const oldPosition = avatar.position.clone();
+    oldPosition.copy(avatar.position);
     camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
     right.crossVectors(forward, camera.up).normalize();
     if(lockedMovement)movement.copy(lockedMovement);else movement.copy(forward).multiplyScalar(input.z).addScaledVector(right, input.x);
@@ -260,25 +264,30 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     onPosition(packet);
     if(now-netLast>=100 && (changed || now-netLast>=500)){netLast=now;netValue=packet;onLocalState({...packet,seq:++netSeq});}
     remote.update(dt,camera);
-    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z)); cafeRoof?.update(camera,avatar,dt); lighting.update(); labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(new THREE.Vector3())||avatar.position.clone().add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]); if(!interactionPaused||now-backgroundRenderAt>200){renderPlazaLayers(renderer,scene,camera);backgroundRenderAt=now;}
+    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z)); cafeRoof?.update(camera,avatar,dt); lighting.update(); if(now-labelLast>=33){labelLast=now;labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(headPosition)||headPosition.copy(avatar.position).add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]);} if(!interactionPaused||now-backgroundRenderAt>200){renderPlazaLayers(renderer,scene,camera);backgroundRenderAt=now;}
     frames++;
     if (now - statLast >= 1000) {
-      stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(),antialias:renderer.getContext().getContextAttributes().antialias,dpr:renderer.getPixelRatio(),cameraRadius:controls.requestedRadius, motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
+      stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(),textures:renderer.info.memory.textures,geometries:renderer.info.memory.geometries,antialias:renderer.getContext().getContextAttributes().antialias,dpr:renderer.getPixelRatio(),cameraRadius:controls.requestedRadius, motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
       onStats(stats); frames = 0; statLast = now;
     }
     raf = requestAnimationFrame(tick);
   }
   function onVisibility() {
     lockedMovement=null;input = { x: 0, z: 0 }; stopPath();controls.cancelGestures();
-    if (document.hidden) { cancelAnimationFrame(raf); raf = 0; }
+    if (document.hidden) { cancelAnimationFrame(raf); raf = 0;clearTimeout(restoreTimer); }
+    else if(contextLost)armRestoreTimeout();
     else if (loaded && !disposed && !contextLost && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }
   function onContextLost(event) {
     event.preventDefault();if(disposed)return;contextLost=true;
     input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
     onProgress({text:'Đang khôi phục hiển thị 3D…',percent:100});
+    armRestoreTimeout();
+  }
+  function armRestoreTimeout(){
     clearTimeout(restoreTimer);
-    restoreTimer=setTimeout(()=>{if(!disposed&&contextLost){dispose();onProgress({error:'Thiết bị chưa khôi phục được hiển thị 3D. Hãy bấm Mở lại.'});}},12000);
+    if(document.hidden||disposed)return;
+    restoreTimer=setTimeout(()=>{if(!disposed&&contextLost&&!document.hidden){dispose();onProgress({error:'Thiết bị chưa khôi phục được hiển thị 3D. Hãy bấm Mở lại.'});}},12000);
   }
   function onContextRestored(){
     if(disposed)return;contextLost=false;clearTimeout(restoreTimer);
@@ -350,7 +359,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       const modelFile = await load(avatarConfig.model);
       vrm = modelFile.userData.vrm;
       if (!vrm) { disposeTree(modelFile.scene); throw new Error('Không đọc được nhân vật VRM.'); }
-      VRMUtils.rotateVRM0(vrm);refinePlazaAvatarSurfaceV10(vrm.scene);remote.seed(character,vrm);
+      VRMUtils.rotateVRM0(vrm);preparePlazaAvatarV13(vrm);refinePlazaAvatarSurfaceV10(vrm.scene);remote.seed(character,vrm);
       avatar.add(vrm.scene);
       vrm.scene.traverse(object => { if (object.isMesh) { object.layers.set(1);object.frustumCulled = false; object.castShadow = false; object.receiveShadow = false; } });
       mixer = new THREE.AnimationMixer(vrm.scene);
@@ -388,7 +397,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       renderer.shadowMap.needsUpdate = true;
       if(initialPresence){netSeq=Math.max(netSeq,initialPresence.seq||0);avatar.position.set(initialPresence.x,initialPresence.y,initialPresence.z);groundY=groundAt(initialPresence.x,initialPresence.z,initialPresence.y)??groundY;avatar.rotation.y=initialPresence.heading;cameraPreset('follow');}
       if(initialPresence?.seatId){authoritativeSeat=initialPresence;lastSeatId=initialPresence.seatId;}
-      loaded = true; if(!contextLost)onProgress({ ready: true, percent: 100 });
+      loaded = true; remote.setMembers(pendingMembers,pendingSelfId); if(!contextLost)onProgress({ ready: true, percent: 100 });
       onStats(stats); last = performance.now();
       if (!document.hidden && !contextLost) raf = requestAnimationFrame(tick);
       return stats;
@@ -410,7 +419,8 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       if(own && loaded && (own.seatId||null)!==lastSeatId){authoritativeSeat=own.seatId?own:null;lastSeatId=own.seatId||null;input={x:0,z:0};stopPath();avatar.position.set(own.x,own.y,own.z);avatar.rotation.y=own.heading;groundY=groundAt(own.x,own.z,Math.max(own.y,0))??groundY;controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z));}
 
       if(!loaded && !initialPresence)initialPresence=members?.find(v=>v.memberId===selfId)||null;
-      remote.setMembers(members,selfId);
+      pendingMembers=members||[];pendingSelfId=selfId;
+      if(loaded)remote.setMembers(pendingMembers,pendingSelfId);
     },
     setInteractionPaused:value=>{interactionPaused=Boolean(value);if(interactionPaused){lockedMovement=null;input={x:0,z:0};stopPath();controls.cancelGestures();}},
     cancelGestures:()=>controls.cancelGestures(),

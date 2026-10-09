@@ -398,7 +398,11 @@ export function buildWorldV3(map, { labelFactory = canvasLabel, logo = null } = 
       const approach=[position,...peers].some(p=>Math.abs(p.x+9)<1.8&&Math.abs(p.z-door.z)<1.8);
       if(approach)door.hold=1.3;else door.hold=Math.max(0,door.hold-dt);
       const target=door.hold>0?1:0;
+      const previous=door.openness;
       door.openness=THREE.MathUtils.clamp(THREE.MathUtils.damp(door.openness,target,target?9:5,dt),0,1);
+      if(Math.abs(door.openness-target)<.00001)door.openness=target;
+      if(door.initialized && previous===door.openness)continue;
+      door.initialized=true;
       for(const leaf of door.leaves) {leaf.pivot.rotation.y=-leaf.side*door.openness*1.45;leaf.pivot.updateMatrixWorld(true);leaf.box.setFromObject(leaf.pivot);}
     }
   };

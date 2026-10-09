@@ -22,7 +22,7 @@ function setup(options = {}) {
     disconnect: () => { socket.connected = false; },
     emit: (event, payload, ack) => sent.push({ event, payload, ack }),
   };
-  const client = createPlazaRealtimeClientV1({
+  const client = createPlazaRealtimeClientV1({resumeOnConnect:false,
     url: "https://game.example",
     getToken: () => token,
     ioFactory: (url, config) => {
@@ -38,4 +38,4 @@ function setup(options = {}) {
   };
 }
 
-test("canonical character profile survives rejected reselection; payload has no identity",async()=>{const s=setup();s.client.connect();const first=s.client.chooseCharacter('boy');assert.deepEqual(s.sent[0].payload,{character:'boy'});s.sent[0].ack({ok:true,data:{profile:{character:'girl',revision:1}}});await first;assert.equal(s.client.getSnapshot().profile.character,'girl');const read=s.client.getProfile();s.sent[1].ack({ok:true,data:{profile:{character:'girl',revision:1}}});await read;s.handlers.get('disconnect')();assert.equal(s.client.getSnapshot().profile,undefined);s.client.dispose();});
+test("canonical character profile survives rejected reselection; payload has no identity",async()=>{const s=setup();s.client.connect();const first=s.client.chooseCharacter('boy');assert.deepEqual(s.sent[0].payload,{character:'boy'});s.sent[0].ack({ok:true,data:{profile:{character:'girl',revision:1}}});await first;assert.equal(s.client.getSnapshot().profile.character,'girl');const read=s.client.getProfile();s.sent[1].ack({ok:true,data:{profile:{character:'girl',revision:1}}});await read;s.handlers.get('disconnect')();assert.equal(s.client.getSnapshot().profile.character,'girl');s.client.dispose();});

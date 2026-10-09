@@ -1,4 +1,4 @@
-import {Hand,PersonStanding,Square} from 'lucide-react';
+import {Hand,PersonStanding,LockKeyhole} from 'lucide-react';
 import PlazaLoadingV11 from '../pages/PlazaLoadingV11.jsx';
 import {joystickLockArmedV11,lockedDirectionV11} from './plazaJoystickV11.js';
 import React, { useEffect, useRef, useState } from 'react';
@@ -151,10 +151,11 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
       </div>
       {ready&&!interactionPaused&&<div className="cing-plaza-scene__controls">
         <button type="button" className="cing-plaza-scene__joystick" disabled={!ready || Boolean(ownTable)}
-          aria-label="Di chuyển: kéo theo hướng muốn đi; kéo qua vòng ngoài và thả để khóa hướng"
+          aria-label={locked?"Chạm để dừng và mở khóa hướng":"Di chuyển: kéo theo hướng muốn đi; kéo qua vòng ngoài và thả để khóa hướng"}
           data-locked={locked} data-armed={lockArmed}
           onPointerDown={event => {
             if (stickPointer.current !== null) return;
+            if(lockedRef.current){event.preventDefault();clearInput();return;}
             event.preventDefault(); wrapper.current?.focus({ preventScroll: true });
             clearInput();
             stickPointer.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId);
@@ -179,13 +180,12 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           }}>
 
           {lockArmed&&<span className="plaza-v11-lock-hint">Thả để khóa hướng</span>}
-          <span className="cing-plaza-scene__stick-knob" aria-hidden="true" style={{ transform: `translate(${knob.x * 38}px, ${-knob.z * 38}px)` }} />
+          <span className="cing-plaza-scene__stick-knob" aria-hidden="true" style={{ transform: `translate(${knob.x * 38}px, ${-knob.z * 38}px)` }}><LockKeyhole size={18}/></span>
         </button>
         {review && <div className="cing-plaza-scene__help"><strong>{motion === 'walk' ? 'Đang dạo bước' : motion === 'checkin' ? 'Tạo dáng một chút' : motion === 'wave' ? 'Chào Cing iu!' : 'Thư thả một chút'}</strong>
           <p>Kéo cần theo bất kỳ hướng nào, thả để dừng. Chạm mặt sân để đi tới đó; kéo cảnh để xoay góc nhìn.</p>
           <small>Trên máy tính: bấm vào cảnh, dùng WASD hoặc phím mũi tên.</small>
         </div>}
-        {(review||locked)&&<button type="button" className="plaza-v11-hud-icon" aria-label="Dừng di chuyển" onClick={clearInput}><Square size={20}/></button>}
         <button type="button" className="cing-plaza-scene__wave plaza-v11-hud-icon" aria-label="Vẫy tay" disabled={!ready || Boolean(ownTable) || motion === 'wave'}
           onClick={() => { clearInput(); api.current?.wave(); }}><Hand size={22}/></button>
         <button type="button" className="plaza-v11-hud-icon" aria-label="Tạo dáng" disabled={!ready || Boolean(ownTable) || motion === 'checkin'} onClick={() => { clearInput(); api.current?.pose(); }}><PersonStanding size={22}/></button>

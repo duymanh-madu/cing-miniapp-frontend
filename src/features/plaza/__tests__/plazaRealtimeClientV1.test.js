@@ -29,6 +29,7 @@ function setup(options = {}) {
       captured = { url, config };
       return socket;
     },
+    resumeOnConnect:false,
     ...options,
   });
   return {
@@ -107,7 +108,7 @@ test("room events scope chat; duplicate messages ignored; transfer clears old ch
   s.client.dispose();
 });
 
-test("disconnect rejects outstanding mutation and clears room state", async () => {
+test("disconnect rejects outstanding mutation but preserves the scene for recovery", async () => {
   const s = setup();
   s.client.connect();
   s.handlers.get("plaza:room")({ room: { roomId: "one" } });
@@ -115,7 +116,7 @@ test("disconnect rejects outstanding mutation and clears room state", async () =
   s.socket.connected = false;
   s.handlers.get("disconnect")();
   await assert.rejects(pending, { code: "PLAZA_OUTCOME_UNKNOWN" });
-  assert.equal(s.client.getSnapshot().room, null);
+  assert.equal(s.client.getSnapshot().room.roomId, "one");
   assert.equal(s.client.getSnapshot().status, "disconnected");
   s.client.dispose();
 });
@@ -170,4 +171,20 @@ test("table snapshots stay room scoped; authoritative seat changes accept same s
  s.handlers.get("plaza:room")({room:{roomId:"two"}});assert.equal(s.client.getSnapshot().tables.length,0);s.client.dispose();
 });
 
-test('title choice sends only key, accepts server identity and updates same-sequence metadata',async()=>{const s=setup();s.client.connect();const choosing=s.client.chooseBadge('gold');assert.deepEqual(s.sent[0].payload,{key:'gold'});s.sent[0].ack({ok:true,data:{identity:{selectedBadge:'gold',ownedBadges:['gold']}}});await choosing;assert.equal(s.client.getSnapshot().identity.selectedBadge,'gold');s.handlers.get('plaza:room')({room:{roomId:'r'}});s.handlers.get('plaza:presence')({roomId:'r',selfId:'self',full:true,members:[{memberId:'self',seq:1,motion:'walk',selectedBadge:'gold',identityRevision:0}]});s.handlers.get('plaza:presence')({roomId:'r',selfId:'self',members:[{memberId:'self',seq:1,motion:'walk',selectedBadge:'idol',identityRevision:1}]});assert.equal(s.client.getSnapshot().members[0].selectedBadge,'idol');s.handlers.get('disconnect')();assert.equal(s.client.getSnapshot().identity,null);s.client.dispose();});
+test('title choice sends only key, accepts server identity and updates same-sequence metadata',async()=>{const s=setup();s.client.connect();const choosing=s.client.chooseBadge('gold');assert.deepEqual(s.sent[0].payload,{key:'gold'});s.sent[0].ack({ok:true,data:{identity:{selectedBadge:'gold',ownedBadges:['gold']}}});await choosing;assert.equal(s.client.getSnapshot().identity.selectedBadge,'gold');s.handlers.get('plaza:room')({room:{roomId:'r'}});s.handlers.get('plaza:presence')({roomId:'r',selfId:'self',full:true,members:[{memberId:'self',seq:1,motion:'walk',selectedBadge:'gold',identityRevision:0}]});s.handlers.get('plaza:presence')({roomId:'r',selfId:'self',members:[{memberId:'self',seq:1,motion:'walk',selectedBadge:'idol',identityRevision:1}]});assert.equal(s.client.getSnapshot().members[0].selectedBadge,'idol');s.handlers.get('disconnect')();assert.equal(s.client.getSnapshot().identity.selectedBadge,'gold');s.client.dispose();});
+
+const settle=()=>new Promise(resolve=>setImmediate(resolve));
+test('initial connection restores trusted server membership; expired membership cleanly returns to lobby',async()=>{
+ const s=setup({resumeOnConnect:true});s.client.connect();assert.equal(s.sent[0].event,'plaza:resume');
+ s.sent[0].ack({ok:true,data:{room:{roomId:'r'}}});await settle();assert.equal(s.client.getSnapshot().room.roomId,'r');
+ s.socket.connected=false;s.handlers.get('disconnect')();assert.equal(s.client.getSnapshot().room.roomId,'r');
+ s.socket.connect();s.sent.at(-1).ack({ok:true,data:{room:null}});await settle();assert.equal(s.client.getSnapshot().room,null);assert.equal(s.client.getSnapshot().status,'connected');s.client.dispose();
+});
+test('background suspends automatic reconnect, foreground resynchronizes same room without clearing it',async()=>{
+ const lifecycle=new EventTarget();lifecycle.hidden=false;const s=setup({lifecycle});const switches=[];s.socket.io={reconnection:v=>switches.push(v)};
+ s.client.connect();s.handlers.get('plaza:room')({room:{roomId:'r'}});
+ lifecycle.hidden=true;lifecycle.dispatchEvent(new Event('visibilitychange'));assert.equal(s.sent.at(-1).event,'plaza:background');s.sent.at(-1).ack({ok:true,data:{retained:true}});
+ s.socket.connected=false;s.handlers.get('disconnect')();assert.equal(s.client.getSnapshot().room.roomId,'r');
+ lifecycle.hidden=false;lifecycle.dispatchEvent(new Event('visibilitychange'));assert.equal(s.sent.at(-1).event,'plaza:resume');s.sent.at(-1).ack({ok:true,data:{room:{roomId:'r'}}});await settle();assert.equal(s.client.getSnapshot().room.roomId,'r');assert.deepEqual(switches,[false,true]);
+ s.client.dispose();const count=s.sent.length;lifecycle.dispatchEvent(new Event('visibilitychange'));assert.equal(s.sent.length,count);
+});

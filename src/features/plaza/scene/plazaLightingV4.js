@@ -4,14 +4,16 @@ import * as THREE from 'three';
 // glass is composed last, so an indoor character remains behind the glass.
 // This avoids brightening the whole night scene to expose a face.
 export function renderPlazaLayers(renderer,scene,camera) {
-  const mask=camera.layers.mask,background=scene.background,autoClear=renderer.autoClear,infoReset=renderer.info.autoReset;
+  const mask=camera.layers.mask,background=scene.background,autoClear=renderer.autoClear,infoReset=renderer.info.autoReset,worldAutoUpdate=scene.matrixWorldAutoUpdate;
   renderer.info.autoReset=false;renderer.info.reset();
   try {
+    // All three layers use the same pose: update world matrices once, not three times.
+    scene.updateMatrixWorld();scene.matrixWorldAutoUpdate=false;
     camera.layers.set(0);renderer.autoClear=true;renderer.render(scene,camera);
     scene.background=null;renderer.autoClear=false;
     camera.layers.set(1);renderer.render(scene,camera);
     camera.layers.set(2);renderer.render(scene,camera);
-  } finally {camera.layers.mask=mask;scene.background=background;renderer.autoClear=autoClear;renderer.info.autoReset=infoReset;}
+  } finally {camera.layers.mask=mask;scene.background=background;renderer.autoClear=autoClear;renderer.info.autoReset=infoReset;scene.matrixWorldAutoUpdate=worldAutoUpdate;}
 }
 
 export function createPlazaLightingV4(scene, camera, avatar) {
