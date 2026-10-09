@@ -13,11 +13,13 @@ export default function PlazaEntryPageV1() {
   const featureEnabled =
     import.meta.env.VITE_CING_PLAZA_ENABLED === "true";
   const [legalEnabled, setLegalEnabled] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     let requestVersion = 0;
     setLegalEnabled(false);
+    setChecking(true);
 
     if (!featureEnabled || !authenticated) {
       return () => { cancelled = true; };
@@ -25,18 +27,20 @@ export default function PlazaEntryPageV1() {
 
     async function refresh() {
       const version = ++requestVersion;
-      // Close locally until current availability is confirmed.
-      setLegalEnabled(false);
+      // Keep the confirmed state while checking; server still authorizes every operation.
       try {
         const response = await apiClient.get("/app-config/public");
         if (!cancelled && version === requestVersion) {
+          setChecking(false);
           setLegalEnabled(
             response?.data?.data?.customer_multiplayer_enabled === true
           );
         }
       } catch (_) {
         if (!cancelled && version === requestVersion) {
-          setLegalEnabled(false);
+          // Retain the last confirmed view on a transient read failure.
+          // Server permission checks remain authoritative for all actions.
+          setChecking(false);
         }
       }
     }
@@ -57,6 +61,7 @@ export default function PlazaEntryPageV1() {
 
   return createPortal(
     <PlazaPageV1
+      checking={featureEnabled && authenticated && checking}
       enabled={featureEnabled && authenticated && legalEnabled}
       onClose={() => navigate("/game-center")}
     />, document.body

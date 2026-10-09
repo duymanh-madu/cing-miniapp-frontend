@@ -1,3 +1,7 @@
+import {Camera,Images,Hand,PersonStanding,LockKeyhole,Square} from 'lucide-react';
+import PlazaLoadingV11 from '../pages/PlazaLoadingV11.jsx';
+import {savePlazaPhotoV11} from '../runtime/plazaPhotosV11.js';
+import {joystickLockArmedV11,lockedDirectionV11} from './plazaJoystickV11.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { inputVector } from './plazaMotionV1.js';
 import { joystickVector } from './plazaRefinementsV2.js';
@@ -11,7 +15,7 @@ const KEY = {
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
 };
 
-export default function PlazaSceneV1({ diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null }) {
+export default function PlazaSceneV1({ diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, onReadyChange=()=>{}, onAlbum=()=>{} }) {
   const chessAudio=useRef(null);
   useEffect(()=>{chessAudio.current=createPlazaChessAudioV4();function visibility(){if(document.hidden)chessAudio.current?.suspend();else chessAudio.current?.resumeExisting();}document.addEventListener('visibilitychange',visibility);return()=>{document.removeEventListener('visibilitychange',visibility);chessAudio.current?.dispose();chessAudio.current=null;};},[]);
   const [nearSeat,setNearSeat]=useState(null),[tableError,setTableError]=useState(''),[tableBusy,setTableBusy]=useState(false);
@@ -37,6 +41,8 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
   const [motion, setMotion] = useState('idle'), [stats, setStats] = useState({});
   const [knob, setKnob] = useState({ x: 0, z: 0 });
   const [notice, setNotice] = useState('');
+  const [locked,setLocked]=useState(false),[lockArmed,setLockArmed]=useState(false),[photoBusy,setPhotoBusy]=useState(false),[photoNote,setPhotoNote]=useState('');
+  const lockedRef=useRef(false),armedRef=useRef(false);
   const stick = useRef({ x: 0, z: 0 }), stickPointer = useRef(null), taps = useRef(new Map());
   function syncInput() {
     const keys = new Set([...keyboard.current].map(code => KEY[code]));
@@ -44,6 +50,7 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
     api.current?.setInput(keys.size ? k : stick.current);
   }
   function clearInput() {
+    lockedRef.current=false;armedRef.current=false;setLocked(false);setLockArmed(false);
     keyboard.current.clear(); pointers.current.clear();
     stickPointer.current = null; stick.current = { x: 0, z: 0 }; setKnob(stick.current);
     taps.current.clear(); api.current?.stop();
@@ -101,6 +108,10 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
   }, [epoch, character]);
 
   const ready = progress.ready === true;
+  useEffect(()=>{onReadyChange(ready);},[ready,onReadyChange]);
+  useEffect(()=>{api.current?.setInteractionPaused(interactionPaused);if(interactionPaused||ownTable||!ready){clearInput();api.current?.cancelGestures();}},[interactionPaused,Boolean(ownTable),ready]);
+  useEffect(()=>{if(!photoNote)return;const timer=setTimeout(()=>setPhotoNote(''),4000);return()=>clearTimeout(timer);},[photoNote]);
+  async function takePhoto(){if(photoBusy)return;setPhotoBusy(true);clearInput();try{const blob=await api.current?.capture();await savePlazaPhotoV11(identity?.memberId||selfId,blob);setPhotoNote('Đã lưu vào kho ảnh chụp.');}catch(error){console.warn('[Cing Plaza] Photo failed:',error?.message);setPhotoNote('Chưa lưu được ảnh. Hãy kiểm tra kho ảnh và dung lượng thiết bị.');}finally{setPhotoBusy(false);}}
   return (
     <section className="cing-plaza-scene" ref={wrapper} tabIndex={0} aria-label="Khám phá Cing Plaza">
       {review && <div className="cing-plaza-scene__title">
@@ -125,15 +136,13 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           onPointerCancel={e => taps.current.delete(e.pointerId)}
           onPointerUp={e => {
             const p = taps.current.get(e.pointerId); taps.current.delete(e.pointerId);
-            if (p && !p.cancelled && performance.now() - p.time < 500) api.current?.tap(e.clientX, e.clientY);
+            if (p && !p.cancelled && performance.now() - p.time < 500) {clearInput();api.current?.tap(e.clientX, e.clientY);}
           }} />
         {ready && realtimeClient && !ownTable && nearSeat && <button className="cing-plaza-scene__seat-button" disabled={tableBusy} onClick={()=>tableAction({action:'sit',...nearSeat})}>Ngồi vào bàn</button>}
         {ready && ownTable && <PlazaChessPanelV3 key={ownTable.tableId} table={ownTable} selfId={selfId} client={realtimeClient} audio={chessAudio.current} onStand={()=>tableAction({action:'stand'})}/>}
         {tableError && <p className="cing-plaza-scene__seat-button" role="alert" onClick={()=>setTableError('')}>{tableError}</p>}
         {!ready && <div className="cing-plaza-scene__loading" role={progress.error ? 'alert' : 'status'}>
-          <strong>{progress.error ? 'Chưa mở được Plaza' : progress.text}</strong>
-          {progress.error ? <><p>{progress.error}</p><button type="button" onClick={() => setEpoch(value => value + 1)}>Mở lại</button></>
-            : <progress max={100} value={progress.percent || 0} aria-label="Tiến trình mở Plaza" />}
+          <PlazaLoadingV11 error={Boolean(progress.error)} percent={progress.percent} onRetry={()=>setEpoch(v=>v+1)}/>
         </div>}
         {ready && review && <div className="cing-plaza-scene__view-buttons" aria-label="Góc nhìn">
           <button type="button" onClick={() => api.current?.cameraPreset('follow')}>Theo nhân vật</button>
@@ -141,16 +150,17 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           <button type="button" onClick={() => api.current?.cameraPreset('overview')}>Toàn cảnh</button>
           <button type="button" onClick={() => { clearInput(); api.current?.checkin('cafe'); }}>Check-in quán</button>
           <button type="button" onClick={() => { clearInput(); api.current?.checkin('dinh'); }}>Check-in đình</button>
-          <button type="button" onClick={() => api.current?.snapshot()}>Chụp ảnh</button>
+          <button type="button" onClick={takePhoto}>Chụp ảnh</button>
         </div>}
       </div>
-      <div className="cing-plaza-scene__controls">
+      {ready&&!interactionPaused&&<div className="cing-plaza-scene__controls">
         <button type="button" className="cing-plaza-scene__joystick" disabled={!ready || Boolean(ownTable)}
-          aria-label="Cần di chuyển 360 độ: kéo theo hướng muốn đi, thả để dừng"
+          aria-label="Di chuyển: kéo theo hướng muốn đi; kéo qua vòng ngoài và thả để khóa hướng"
+          data-locked={locked} data-armed={lockArmed}
           onPointerDown={event => {
             if (stickPointer.current !== null) return;
             event.preventDefault(); wrapper.current?.focus({ preventScroll: true });
-            api.current?.stop();
+            clearInput();
             stickPointer.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId);
             stick.current = joystickVector(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect());
             setKnob(stick.current); syncInput();
@@ -158,28 +168,35 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           onPointerMove={event => {
             if (stickPointer.current !== event.pointerId) return;
             stick.current = joystickVector(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect());
+            armedRef.current=joystickLockArmedV11(event.clientX,event.clientY,event.currentTarget.getBoundingClientRect());setLockArmed(armedRef.current);
             setKnob(stick.current); syncInput();
           }}
           onPointerUp={event => {
             if (stickPointer.current !== event.pointerId) return;
-            stickPointer.current = null; stick.current = { x: 0, z: 0 }; setKnob(stick.current); syncInput();
+            stickPointer.current = null;
+            const vector=armedRef.current&&lockedDirectionV11(stick.current);armedRef.current=false;setLockArmed(false);
+            if(vector){lockedRef.current=true;setLocked(true);stick.current=vector;setKnob(vector);api.current?.lockMovement(vector);}else clearInput();
           }}
           onPointerCancel={() => clearInput()}
           onLostPointerCapture={() => {
-            stickPointer.current = null; stick.current = { x: 0, z: 0 }; setKnob(stick.current); syncInput();
+            if(stickPointer.current!==null&&!lockedRef.current)clearInput();
           }}>
-          <span className="cing-plaza-scene__stick-arrows" aria-hidden="true">↑<br/>←　→<br/>↓</span>
+          <span className="cing-plaza-scene__stick-arrows" aria-hidden="true">{lockArmed||locked?<LockKeyhole size={20}/>:null}</span>
+          {lockArmed&&<span className="plaza-v11-lock-hint">Thả để khóa hướng</span>}
           <span className="cing-plaza-scene__stick-knob" aria-hidden="true" style={{ transform: `translate(${knob.x * 38}px, ${-knob.z * 38}px)` }} />
         </button>
         {review && <div className="cing-plaza-scene__help"><strong>{motion === 'walk' ? 'Đang dạo bước' : motion === 'checkin' ? 'Tạo dáng một chút' : motion === 'wave' ? 'Chào Cing iu!' : 'Thư thả một chút'}</strong>
           <p>Kéo cần theo bất kỳ hướng nào, thả để dừng. Chạm mặt sân để đi tới đó; kéo cảnh để xoay góc nhìn.</p>
           <small>Trên máy tính: bấm vào cảnh, dùng WASD hoặc phím mũi tên.</small>
         </div>}
-        {review && <button type="button" disabled={!ready} onClick={clearInput}>Dừng</button>}
-        <button type="button" className="cing-plaza-scene__wave" disabled={!ready || Boolean(ownTable) || motion === 'wave'}
-          onClick={() => { clearInput(); api.current?.wave(); }}>Vẫy tay</button>
-        <button type="button" disabled={!ready || Boolean(ownTable) || motion === 'checkin'} onClick={() => { clearInput(); api.current?.pose(); }}>Tạo dáng</button>
-      </div>
+        {(review||locked)&&<button type="button" className="plaza-v11-hud-icon" aria-label="Dừng di chuyển" onClick={clearInput}><Square size={20}/></button>}
+        <button className="plaza-v11-hud-icon" aria-label="Chụp ảnh" disabled={photoBusy} onClick={takePhoto}><Camera size={22}/></button>
+        <button className="plaza-v11-hud-icon" aria-label="Kho ảnh chụp" onClick={onAlbum}><Images size={22}/></button>
+        <button type="button" className="cing-plaza-scene__wave plaza-v11-hud-icon" aria-label="Vẫy tay" disabled={!ready || Boolean(ownTable) || motion === 'wave'}
+          onClick={() => { clearInput(); api.current?.wave(); }}><Hand size={22}/></button>
+        <button type="button" className="plaza-v11-hud-icon" aria-label="Tạo dáng" disabled={!ready || Boolean(ownTable) || motion === 'checkin'} onClick={() => { clearInput(); api.current?.pose(); }}><PersonStanding size={22}/></button>
+      </div>}
+      {photoNote&&<button className="plaza-v11-photo-toast" onClick={onAlbum} role="status">{photoNote}</button>}
       {ready && review && <p className="cing-plaza-scene__notice" role="status">{stats.timeOfDay || ''} · Giờ Việt Nam{notice ? ` — ${notice}` : ''}</p>}
       {!review && notice && <span className="cing-plaza-scene__sr-status" role="status">{notice}</span>}
       {review && <details className="cing-plaza-scene__diagnostics" open>

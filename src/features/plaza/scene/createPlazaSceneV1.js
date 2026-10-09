@@ -1,3 +1,4 @@
+import {addCafeRoofLogoV11} from './plazaCafeRoofV11.js';
 import {createPlazaLabelsV9} from './plazaLabelsV9.jsx';
 import {createPlazaCameraV10} from "./plazaCameraV10.js";
 import {refinePlazaAvatarSurfaceV10} from "./plazaAvatarSurfaceV10.js";
@@ -93,7 +94,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   let state = 'idle', waveRequested = false, waveFinished = false, loaded = false;
   let input = { x: 0, z: 0 }, map = null, floors = [], collision = () => false;
   let groundY = 0, soleOffset = 0, stats = {}, preset = 'follow';
-  let world = null, worldAssets = null;
+  let world = null, worldAssets = null, cafeRoof = null, lockedMovement = null, interactionPaused=false, backgroundRenderAt=0;
   let walkPlayback = 1;
   let materialResources = null, path = [], walkLift = .035, lift = 0, clockMinute = '';
   const marker = new THREE.Mesh(new THREE.RingGeometry(.16, .22, 32), new THREE.MeshBasicMaterial({ color: '#e7a34a', side: THREE.DoubleSide, transparent: true, opacity: .85, depthWrite: false }));
@@ -216,7 +217,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     const oldPosition = avatar.position.clone();
     camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
     right.crossVectors(forward, camera.up).normalize();
-    movement.copy(forward).multiplyScalar(input.z).addScaledVector(right, input.x);
+    if(lockedMovement)movement.copy(lockedMovement);else movement.copy(forward).multiplyScalar(input.z).addScaledVector(right, input.x);
     if (movement.lengthSq() > 1) movement.normalize();
     if (path.length && movement.lengthSq() < .001) {
       while (path.length && Math.hypot(path[0].x - avatar.position.x, path[0].z - avatar.position.z) < .055) path.shift();
@@ -234,6 +235,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
         const movedX = tryStep(avatar.position.x + movement.x * distance, avatar.position.z);
         const movedZ = tryStep(avatar.position.x, avatar.position.z + movement.z * distance);
         moved = movedX || movedZ;
+        if (!moved && lockedMovement && !world?.waitingAtDoor(avatar.position)) {lockedMovement=null;input={x:0,z:0};onNotice('Lối đi đang bị chắn.');}
         if (!moved && path.length && !world?.waitingAtDoor(avatar.position)) { stopPath(); onNotice('Lối đi đang bị chắn. Hãy chọn điểm khác.'); }
       }
       const heading = Math.atan2(movement.x, movement.z);
@@ -258,7 +260,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     onPosition(packet);
     if(now-netLast>=100 && (changed || now-netLast>=500)){netLast=now;netValue=packet;onLocalState({...packet,seq:++netSeq});}
     remote.update(dt,camera);
-    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z)); lighting.update(); labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(new THREE.Vector3())||avatar.position.clone().add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]); renderPlazaLayers(renderer,scene,camera);
+    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z)); cafeRoof?.update(camera,avatar,dt); lighting.update(); labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(new THREE.Vector3())||avatar.position.clone().add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]); if(!interactionPaused||now-backgroundRenderAt>200){renderPlazaLayers(renderer,scene,camera);backgroundRenderAt=now;}
     frames++;
     if (now - statLast >= 1000) {
       stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(),antialias:renderer.getContext().getContextAttributes().antialias,dpr:renderer.getPixelRatio(),cameraRadius:controls.requestedRadius, motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
@@ -267,7 +269,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     raf = requestAnimationFrame(tick);
   }
   function onVisibility() {
-    input = { x: 0, z: 0 }; stopPath();
+    lockedMovement=null;input = { x: 0, z: 0 }; stopPath();controls.cancelGestures();
     if (document.hidden) { cancelAnimationFrame(raf); raf = 0; }
     else if (loaded && !disposed && !contextLost && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }
@@ -314,6 +316,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       worldAssets = await loadWorldAssets(assetRoot, abort.signal);
       if (disposed) { worldAssets.dispose(); worldAssets.logo.dispose(); worldAssets.logo.source.data.close(); throw new DOMException('Disposed', 'AbortError'); }
       world = buildWorldV3(map, { logo: worldAssets.logo }); floors.push(...world.floors);
+      cafeRoof=await addCafeRoofLogoV11(map,assetRoot,abort.signal);
       lighting.attachWorld(world); clockMinute=''; updateLighting();
       const materialResponse = await fetch(new URL('cing-plaza-materials.json', assetRoot), { signal: abort.signal });
       if (!materialResponse.ok) throw new Error('Thiếu dữ liệu vật liệu của map.');
@@ -340,7 +343,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       if (!floors.length) throw new Error('Không tìm thấy mặt sân của map.');
       collision = createObstacleIndex(obstacles);
       onProgress({ text: 'Đang chuẩn bị cửa hàng và sân đình…', percent: 35 });
-      const batching = await batchPlazaMapV1(map, { preserved: new Set([...floors, ...world.preserved]), cancelled: () => disposed });
+      const batching = await batchPlazaMapV1(map, { preserved: new Set([...floors, ...world.preserved,...cafeRoof.preserved]), cancelled: () => disposed });
       if (disposed) { disposeTree(mapFile.scene); throw new DOMException('Disposed', 'AbortError'); }
       stats = { ...stats, ...refinements, ...world.stats, mapDrawsBefore: batching.before, mapDrawsAfter: batching.after };
       onProgress({ text: 'Đang chuẩn bị nhân vật…', percent: 55 });
@@ -409,8 +412,11 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       if(!loaded && !initialPresence)initialPresence=members?.find(v=>v.memberId===selfId)||null;
       remote.setMembers(members,selfId);
     },
-    setInput: value => { if (!disposed) { input = { x: value.x, z: value.z }; if (Math.hypot(value.x, value.z) > .01) stopPath(); } },
-    stop: () => { input = { x: 0, z: 0 }; stopPath(); },
+    setInteractionPaused:value=>{interactionPaused=Boolean(value);if(interactionPaused){lockedMovement=null;input={x:0,z:0};stopPath();controls.cancelGestures();}},
+    cancelGestures:()=>controls.cancelGestures(),
+    lockMovement:value=>{if(!loaded||disposed||authoritativeSeat)return;camera.getWorldDirection(forward);forward.y=0;forward.normalize();right.crossVectors(forward,camera.up).normalize();lockedMovement=forward.clone().multiplyScalar(value.z).addScaledVector(right,value.x).normalize();input={...value};stopPath();},
+    setInput: value => { if (!disposed) { lockedMovement=null; input = { x: value.x, z: value.z }; if (Math.hypot(value.x, value.z) > .01) stopPath(); } },
+    stop: () => { lockedMovement=null; input = { x: 0, z: 0 }; stopPath(); },
     tap: (clientX, clientY) => {
       if (!loaded || disposed || authoritativeSeat) return;
       const rect = renderer.domElement.getBoundingClientRect();
@@ -456,16 +462,12 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       avatar.rotation.y = Math.atan2(camera.position.x-x,camera.position.z-z);
       controls.update(); onNotice('Góc check-in đã sẵn sàng. Bấm Chụp ảnh để lưu ảnh của anh.');
     },
-    snapshot: () => {
-      if (!loaded || disposed) return;
-      lighting.update(); labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(new THREE.Vector3())||avatar.position.clone().add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]); renderPlazaLayers(renderer,scene,camera);
-      renderer.domElement.toBlob(blob => {
-        if (!blob || disposed) return;
-        const url = URL.createObjectURL(blob), link = document.createElement('a');
-        link.href=url; link.download='cing-plaza-check-in.png'; document.body.appendChild(link); link.click(); link.remove();
-        setTimeout(()=>URL.revokeObjectURL(url),10000); onNotice('Ảnh Cing Plaza đã được tạo.');
-      },'image/png');
-    },
+    capture: () => new Promise((resolve,reject)=>{
+      if (!loaded || disposed || contextLost) {reject(new Error('PHOTO_NOT_READY'));return;}
+      // Render and copy just the WebGL canvas. DOM labels, HUD and chat never enter the image.
+      const hidden=[];scene.traverse(o=>{if(o===marker||o.userData.plazaCaptureHidden){hidden.push([o,o.visible]);o.visible=false;}});
+      try{lighting.update();renderPlazaLayers(renderer,scene,camera);renderer.domElement.toBlob(blob=>blob?resolve(blob):reject(new Error('PHOTO_EMPTY')),'image/png');}catch(e){reject(e);}finally{for(const [object,visible] of hidden)object.visible=visible;}
+    }),
     reset: () => {
       if (!loaded || disposed) return;
       input = { x: 0, z: 0 }; stopPath(); lift = 0; avatar.rotation.y = 0;

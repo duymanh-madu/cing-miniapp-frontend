@@ -88,6 +88,7 @@ export function createPlazaCameraV10(
     get pitch() {
       return pitch;
     },
+    cancelGestures() { pointers.clear(); pinch=null; },
     dispose() {
       for (const [event, fn, options] of listeners)
         element.removeEventListener(event, fn, options);

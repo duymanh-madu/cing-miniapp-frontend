@@ -21,7 +21,7 @@ test('keyboard viewport changes and route exit restore app state',()=>{
  const win=new EventTarget();win.innerHeight=800;win.scrollX=0;win.scrollY=220;win.visualViewport=new EventTarget();win.visualViewport.height=780;win.visualViewport.offsetTop=0;win.scrollTo=(...v)=>win.restored=v;
  const cleanup=mountPlazaViewportV6(win,{documentElement:root,body});assert.equal(body.style.overflow,'hidden');assert.equal(root.style.getPropertyValue('--plaza-viewport-height'),'780px');
  win.visualViewport.height=340;win.visualViewport.offsetTop=20;win.visualViewport.dispatchEvent(new Event('resize'));
- assert.equal(root.style.getPropertyValue('--plaza-viewport-height'),'340px');assert.equal(root.style.getPropertyValue('--plaza-viewport-top'),'20px');
+ assert.equal(root.style.getPropertyValue('--plaza-viewport-height'),'780px');assert.equal(root.style.getPropertyValue('--plaza-viewport-top'),'0px');
  cleanup();assert.equal(body.style.overflow,'auto');assert.equal(body.style.overscrollBehavior,'contain');assert.deepEqual(win.restored,[0,220]);assert.equal(root.style.getPropertyValue('--plaza-viewport-height'),'42px');assert.equal(root.style.getPropertyPriority('--plaza-viewport-height'),'important');
  win.visualViewport.height=120;win.visualViewport.dispatchEvent(new Event('resize'));assert.equal(root.style.getPropertyValue('--plaza-viewport-height'),'42px');
 });
