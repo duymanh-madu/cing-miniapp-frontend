@@ -129,7 +129,7 @@ test("dispose removes only owned handlers and settles pending requests", async (
   await assert.rejects(pending, { code: "PLAZA_DISCONNECTED" });
   assert.equal(s.socket.connected, false);
   assert.ok(s.removed.every(item => typeof item.handler === "function"));
-  assert.equal(s.removed.length, 9);
+  assert.equal(s.removed.length, 10);
   assert.throws(() => s.client.connect(), { code: "PLAZA_CLIENT_DISPOSED" });
   await assert.rejects(s.client.listRooms(), { code: "PLAZA_CLIENT_DISPOSED" });
 });
@@ -213,4 +213,13 @@ test('hidden page cancels scheduled recovery and returns through one foreground 
  const count=s.sent.length;await new Promise(r=>setTimeout(r,45));assert.equal(s.sent.length,count);
  lifecycle.hidden=false;lifecycle.dispatchEvent(new Event('visibilitychange'));
  s.sent.at(-1).ack({ok:true,data:{room:{roomId:'r'}}});await settle();assert.equal(s.client.getSnapshot().status,'connected');s.client.dispose();
+});
+
+
+test('room roster is server scoped, independent of 3D presence and cleared on transfer',()=>{
+ const s=setup();s.client.connect();s.handlers.get('plaza:room')({room:{roomId:'one'}});
+ s.handlers.get('plaza:members')({roomId:'other',members:[{memberId:'bad'}]});assert.deepEqual(s.client.getSnapshot().roomMembers,[]);
+ s.handlers.get('plaza:members')({roomId:'one',members:[{memberId:'a',displayName:'An',isOwner:true,phone:'private',sessionId:'private',background:true}]});
+ const member=s.client.getSnapshot().roomMembers[0];assert.equal(member.displayName,'An');assert.equal(member.isOwner,true);assert.equal(member.phone,undefined);assert.equal(member.sessionId,undefined);assert.equal(s.client.getSnapshot().members.length,0);
+ s.handlers.get('plaza:room')({room:{roomId:'two'}});assert.deepEqual(s.client.getSnapshot().roomMembers,[]);s.client.dispose();
 });

@@ -1,0 +1,45 @@
+.plaza-v15-room-search{margin:0 16px 18px;padding:16px;border:1px solid #e6c49535;border-radius:16px;background:#162321c9}
+.plaza-v15-room-search label{margin:0 0 10px;font-size:12px;color:#e9c895}
+.plaza-v15-room-search>div{display:flex;gap:10px}
+.plaza-v7 .plaza-v15-room-search input{flex:1;min-width:0;background:#ffffff0c;color:#fff0db;border:1px solid #ffffff30}
+.plaza-v15-room-search button{flex-shrink:0;background:#bc612e;color:white}
+.plaza-v15-room-search p{font-size:12px;color:#ffd4ba!important;margin-bottom:0}
+.plaza-v7-room>span:nth-child(2){flex:1}
+.plaza-v7-room strong{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.5;overflow-wrap:anywhere}
+.plaza-v15-room-hud>div{flex:1;flex-direction:column;align-items:flex-start;gap:3px;max-width:none;padding:9px 12px}
+.plaza-v15-room-hud>div strong{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.35}
+.plaza-v15-room-hud>.plaza-v15-members-toggle{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 190px);width:48px;height:48px;padding:0;border-radius:50%;gap:0}
+.plaza-v15-members-toggle span{position:absolute;right:-4px;top:-4px;font-size:10px;border:1px solid #e7bf78;background:#33251a;color:#fff0d7;border-radius:12px;padding:2px 5px;min-width:19px}
+.plaza-v15-chat-peek{position:absolute;z-index:24;top:calc(env(safe-area-inset-top,0px) + 110px);left:max(12px,env(safe-area-inset-left,0px));width:min(285px,calc(100% - 92px));padding:9px 11px!important;display:flex!important;flex-direction:column;align-items:stretch!important;gap:7px!important;background:#171d22b3!important;border:1px solid #e8c99b30!important;backdrop-filter:blur(3px);border-radius:14px!important;box-shadow:0 4px 16px #0002;text-align:left}
+.plaza-v15-chat-peek>span{display:flex;align-items:center;gap:7px;min-width:0;line-height:1.4}
+.plaza-v15-chat-peek svg{flex-shrink:0;color:#efc680}
+.plaza-v15-chat-peek small{flex-shrink:0;font-size:9px;color:#ddbe95}
+.plaza-v15-chat-peek b{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;font-weight:400;color:#fff5e8}
+.plaza-v15-chat-peek strong{font-weight:650;color:#f6d28e}
+.plaza-v15-members-backdrop{position:absolute;inset:0;z-index:55;background:#08121d44;display:flex;justify-content:flex-end;padding:calc(env(safe-area-inset-top,0px) + 90px) max(12px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 14px)}
+.plaza-v15-members{position:relative;width:min(340px,100%);min-height:0;display:flex;flex-direction:column;border:1px solid #e9c58c55;border-radius:22px;background:#19252bf2;box-shadow:0 12px 50px #0005;color:#fff0da;overflow:hidden}
+.plaza-v15-members header{display:flex;align-items:center;gap:12px;padding:17px 16px;border-bottom:1px solid #fff1d21a;flex-shrink:0}
+.plaza-v15-members header>div{flex:1;min-width:0}
+.plaza-v15-members header small{font-size:8px;letter-spacing:1.7px;color:#d9b587}
+.plaza-v15-members h2{font-size:15px!important;margin:5px 0 0}
+.plaza-v15-members h2 span{font-size:11px;color:#d4b48c;font-weight:400}
+.plaza-v15-members header button,.plaza-v15-card-back{border:1px solid #ffffff25!important;background:#ffffff0b!important;width:44px;height:44px;padding:0!important;border-radius:50%!important;color:#ffeac7}
+.plaza-v15-member-list{overflow:auto;min-height:0;overscroll-behavior:contain;padding:10px}
+.plaza-v7 .plaza-v15-member-list>button{width:100%;justify-content:flex-start;gap:12px;background:linear-gradient(120deg,#d49a4620,#ffffff06);border:1px solid #ffffff13;border-radius:14px;padding:11px;text-align:left;margin-bottom:8px;min-height:78px}
+.plaza-v15-member-list>button[aria-pressed=true]{border-color:#e7bc77}
+.plaza-v15-member-avatar{width:50px;height:56px;border:1px solid #e7bf7833;border-radius:12px;background:#eee2ca10;display:grid;place-items:center;overflow:hidden;flex-shrink:0}
+.plaza-v15-member-avatar img{height:56px;width:50px;object-fit:contain}
+.plaza-v15-member-info{min-width:0;flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.plaza-v15-member-info>strong{font-size:13px;font-weight:650;overflow-wrap:anywhere;color:#fff1d9}
+.plaza-v15-member-info small{font-size:10px;color:#c1c9c8;font-weight:400}
+.plaza-v15-member-info .plaza-title{max-width:100%}
+.plaza-v15-member-list>button>svg{flex-shrink:0;color:#e7bc77}
+.plaza-v15-member-card{position:relative;flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;padding:46px 20px 20px;background:radial-gradient(ellipse at 50% 40%,#76502b38,transparent 70%)}
+.plaza-v15-card-back{position:absolute;top:10px;left:12px}
+.plaza-v15-member-card>img{width:140px;height:min(28vh,220px);object-fit:contain;filter:drop-shadow(0 8px 15px #0005)}
+.plaza-v15-member-card h3{font-size:20px;text-align:center;margin:15px 0 10px}
+.plaza-v15-member-card p{color:#c5d0ca!important;font-size:12px;text-align:center}
+@media(max-width:360px){.plaza-v15-room-search>div{gap:6px}.plaza-v15-room-search button{font-size:12px;padding:10px}.plaza-v15-room-hud{gap:6px}.plaza-v15-room-hud>button:first-child{padding:8px}}
+@media(orientation:landscape) and (max-height:500px){.plaza-v15-chat-peek{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);left:210px;width:min(310px,calc(100% - 310px))}.plaza-v15-room-hud>.plaza-v15-members-toggle{bottom:calc(env(safe-area-inset-bottom,0px) + 162px)}.plaza-v15-members-backdrop{padding-top:calc(env(safe-area-inset-top,0px) + 72px)}.plaza-v15-members header{padding:8px 12px}.plaza-v15-member-card{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:10px;padding-top:38px}.plaza-v15-member-card>img{height:115px;width:90px}.plaza-v15-member-card h3{margin:0}}
+
+.plaza-v7-lobby>header strong{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.25}

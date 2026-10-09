@@ -42,7 +42,7 @@ export function createPlazaRealtimeClientV1({
   }
   let sequence = 0;
   let snapshot = Object.freeze({
-    profile:undefined,identity:null, status: "idle", room: null, rooms: Object.freeze([]), tables:Object.freeze([]), selfId: null, members: Object.freeze([]), messages: Object.freeze([]),
+    roomMembers:Object.freeze([]),profile:undefined,identity:null, status: "idle", room: null, rooms: Object.freeze([]), tables:Object.freeze([]), selfId: null, members: Object.freeze([]), messages: Object.freeze([]),
   });
   const listeners = new Set();
   const pending = new Map();
@@ -99,6 +99,10 @@ export function createPlazaRealtimeClientV1({
     connect_error: () => {
       if (!disposed) {update({ status: "connection-error" });scheduleRecoveryRetry();}
     },
+    "plaza:members":payload=>{
+      if(disposed || payload?.roomId!==snapshot.room?.roomId || !Array.isArray(payload.members))return;
+      update({roomMembers:Object.freeze(payload.members.filter(v=>typeof v?.memberId==="string").slice(0,50).map(v=>Object.freeze({memberId:v.memberId,displayName:String(v.displayName||"Cing iu").slice(0,80),selectedBadge:typeof v.selectedBadge==="string"?v.selectedBadge:null,character:["boy","girl"].includes(v.character)?v.character:null,isOwner:v.isOwner===true,background:v.background===true})))});
+    },
     "plaza:tables":payload=>{if(!disposed && payload?.roomId===snapshot.room?.roomId && Array.isArray(payload.tables))update({tables:Object.freeze(payload.tables)});},
     "plaza:correction": payload => {if(!disposed && payload?.roomId===snapshot.room?.roomId)update({correction:payload.value});},
     "plaza:presence": payload => {
@@ -126,7 +130,7 @@ export function createPlazaRealtimeClientV1({
       const changedRoom = snapshot.room?.roomId !== room?.roomId;
       update({
         room,
-        ...(changedRoom ? { tables:Object.freeze([]),messages: Object.freeze([]), members: Object.freeze([]), selfId: null, correction:null } : {}),
+        ...(changedRoom ? { roomMembers:Object.freeze([]),tables:Object.freeze([]),messages: Object.freeze([]), members: Object.freeze([]), selfId: null, correction:null } : {}),
       });
     },
     "plaza:chat:message": payload => {
@@ -261,7 +265,7 @@ export function createPlazaRealtimeClientV1({
       }
       socket.disconnect();
       update({
-        status: "disposed", room: null, rooms: Object.freeze([]), tables:Object.freeze([]),selfId:null,members:Object.freeze([]), messages: Object.freeze([]),
+        status: "disposed", roomMembers:Object.freeze([]), room: null, rooms: Object.freeze([]), tables:Object.freeze([]),selfId:null,members:Object.freeze([]), messages: Object.freeze([]),
       });
       listeners.clear();
     },
