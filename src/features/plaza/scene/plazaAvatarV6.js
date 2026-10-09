@@ -1,5 +1,5 @@
 export const PLAZA_AVATARS = Object.freeze({
-  boy: { model: 'cing-boy-v01.vrm', idle: 'cing-boy-idle.vrma', walk: 'cing-boy-walk.vrma', wave: 'cing-boy-wave.vrma', checkin: 'cing-boy-checkin.vrma', speed: 1.35, label: 'Boy' },
+  boy: { model: 'cing-boy-v01.vrm', idle: 'cing-boy-idle.vrma', walk: 'v8/cing-boy-walk-v8.vrma', wave: 'cing-boy-wave.vrma', checkin: 'cing-boy-checkin.vrma', speed: 1.35, label: 'Boy' },
   girl: { model: 'cing-girl-v01.vrm', idle: 'cing-girl-idle.vrma', walk: 'v7/cing-girl-walk-v7.vrma', wave: 'cing-girl-wave.vrma', checkin: 'v7/cing-girl-checkin-v7.vrma', speed: 1.35, label: 'Girl' },
 });
 export function nextAvatarMotion(current, moving, requested, finished) {

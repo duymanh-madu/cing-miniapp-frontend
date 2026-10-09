@@ -1,4 +1,4 @@
-import { PLAZA_CAMERA_V6, plazaCameraLimitV6, enforcePlazaCameraV6 } from "./plazaCameraV6.js";
+import { PLAZA_CAMERA_V8, plazaCameraLimitV8, enforcePlazaCameraV8 } from "./plazaCameraV8.js";
 import {applyPlazaSeatedPose} from './plazaSeatedPoseV3.js';
 import {createPlazaTableSignsV3} from './plazaTableSignsV3.js';
 import * as THREE from 'three';
@@ -24,9 +24,10 @@ const FILES = {
 const floorName = PLAZA_FLOOR_NAME;
 
 function disposeTree(root) {
-  const geometries = new Set(), materials = new Set(), textures = new Set();
+  const geometries = new Set(), materials = new Set(), textures = new Set(), skeletons = new Set();
   root.traverse(object => {
     if (object.geometry) geometries.add(object.geometry);
+    if (object.isSkinnedMesh && object.skeleton) skeletons.add(object.skeleton);
     const list = Array.isArray(object.material) ? object.material : [object.material];
     for (const material of list) {
       if (!material) continue;
@@ -34,6 +35,7 @@ function disposeTree(root) {
       for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
     }
   });
+  skeletons.forEach(value => value.dispose());
   geometries.forEach(value => value.dispose());
   materials.forEach(value => value.dispose());
   textures.forEach(value => { value.dispose(); value.source?.data?.close?.(); });
@@ -48,8 +50,9 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   scene.background = new THREE.Color('#f0e6d4');
   scene.fog = new THREE.Fog('#f0e6d4', 35, 90);
   const camera = new THREE.PerspectiveCamera(45, 1, 0.08, 120);
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  const mobile = window.matchMedia('(pointer: coarse)').matches;
+  const renderer = new THREE.WebGLRenderer({ antialias: !mobile, alpha: false, powerPreference: 'default' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.95;
@@ -61,8 +64,8 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = false;
   controls.enablePan = false;
-  controls.minDistance = PLAZA_CAMERA_V6.min;
-  controls.maxDistance = plazaCameraLimitV6(host.clientWidth / Math.max(1, host.clientHeight));
+  controls.minDistance = PLAZA_CAMERA_V8.min;
+  controls.maxDistance = plazaCameraLimitV8(host.clientWidth / Math.max(1, host.clientHeight));
   controls.maxPolarAngle = Math.PI * 0.47;
   controls.minPolarAngle = Math.PI * 0.18;
   const hemisphere = new THREE.HemisphereLight('#fff4dd', '#796b53', 0.8);
@@ -89,6 +92,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   const loader = new GLTFLoader();
   loader.register(parser => new VRMLoaderPlugin(parser));
   loader.register(parser => new VRMAnimationLoaderPlugin(parser));
+  let contextLost = false, restoreTimer = null;
   let disposed = false, raf = 0, vrm = null, mixer = null, currentAction = null;
   let state = 'idle', waveRequested = false, waveFinished = false, loaded = false;
   let input = { x: 0, z: 0 }, map = null, floors = [], collision = () => false;
@@ -201,13 +205,13 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     const width = Math.max(1, host.clientWidth), height = Math.max(1, host.clientHeight);
     renderer.setSize(width, height, false);
     camera.aspect = width / height; camera.updateProjectionMatrix();
-    controls.maxDistance = plazaCameraLimitV6(camera.aspect);
+    controls.maxDistance = plazaCameraLimitV8(camera.aspect);
   }
   const observer = new ResizeObserver(resize);
   observer.observe(host); resize();
   let last = performance.now(), statLast = last, frames = 0;
   function tick(now) {
-    if (disposed) return;
+    if (disposed || contextLost) return;
     raf = 0;
     if (document.hidden) return;
     const dt = Math.max(0, Math.min((now - last) / 1000, 0.05)); last = now;
@@ -261,7 +265,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     onPosition(packet);
     if(now-netLast>=100 && (changed || now-netLast>=500)){netLast=now;netValue=packet;onLocalState({...packet,seq:++netSeq});}
     remote.update(dt,camera);
-    controls.update(); enforcePlazaCameraV6(camera, controls, WORLD_V3.bounds); lighting.update(); renderPlazaLayers(renderer,scene,camera);
+    controls.update(); enforcePlazaCameraV8(camera, controls, WORLD_V3.bounds); lighting.update(); renderPlazaLayers(renderer,scene,camera);
     frames++;
     if (now - statLast >= 1000) {
       stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(), motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
@@ -272,25 +276,34 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   function onVisibility() {
     input = { x: 0, z: 0 }; stopPath();
     if (document.hidden) { cancelAnimationFrame(raf); raf = 0; }
-    else if (loaded && !disposed && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+    else if (loaded && !disposed && !contextLost && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }
   function onContextLost(event) {
-    event.preventDefault();
-    dispose();
-    onProgress({ error: 'Phiên hiển thị 3D bị gián đoạn. Hãy bấm Mở lại.' });
+    event.preventDefault();if(disposed)return;contextLost=true;
+    input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
+    onProgress({text:'Đang khôi phục hiển thị 3D…',percent:100});
+    clearTimeout(restoreTimer);
+    restoreTimer=setTimeout(()=>{if(!disposed&&contextLost){dispose();onProgress({error:'Thiết bị chưa khôi phục được hiển thị 3D. Hãy bấm Mở lại.'});}},12000);
+  }
+  function onContextRestored(){
+    if(disposed)return;contextLost=false;clearTimeout(restoreTimer);
+    renderer.shadowMap.needsUpdate=true;resize();last=performance.now();
+    if(loaded){onProgress({ready:true,percent:100});if(!document.hidden&&!raf)raf=requestAnimationFrame(tick);}
   }
   document.addEventListener('visibilitychange', onVisibility);
   renderer.domElement.addEventListener('webglcontextlost', onContextLost);
+  renderer.domElement.addEventListener('webglcontextrestored', onContextRestored);
 
   function dispose() {
     if (disposed) return;
-    disposed = true; loaded = false; abort.abort(); cancelAnimationFrame(raf);
+    disposed = true; clearTimeout(restoreTimer); loaded = false; abort.abort(); cancelAnimationFrame(raf);
     observer.disconnect(); controls.dispose();remote.dispose();
     document.removeEventListener('visibilitychange', onVisibility);
     renderer.domElement.removeEventListener('webglcontextlost', onContextLost);
+    renderer.domElement.removeEventListener('webglcontextrestored', onContextRestored);
     if (mixer) { mixer.stopAllAction(); mixer.uncacheRoot(vrm.scene); }
     disposeTree(scene); worldAssets?.dispose(); materialResources?.dispose(); environmentTarget.dispose();
-    sun.shadow.map?.dispose(); renderer.dispose();
+    sun.shadow.map?.dispose(); renderer.dispose(); renderer.forceContextLoss();
     renderer.domElement.remove();
     floors = []; map = null; collision = () => false;
   }
@@ -379,9 +392,9 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       renderer.shadowMap.needsUpdate = true;
       if(initialPresence){netSeq=Math.max(netSeq,initialPresence.seq||0);avatar.position.set(initialPresence.x,initialPresence.y,initialPresence.z);groundY=groundAt(initialPresence.x,initialPresence.z,initialPresence.y)??groundY;avatar.rotation.y=initialPresence.heading;cameraPreset('follow');}
       if(initialPresence?.seatId){authoritativeSeat=initialPresence;lastSeatId=initialPresence.seatId;}
-      loaded = true; onProgress({ ready: true, percent: 100 });
+      loaded = true; if(!contextLost)onProgress({ ready: true, percent: 100 });
       onStats(stats); last = performance.now();
-      if (!document.hidden) raf = requestAnimationFrame(tick);
+      if (!document.hidden && !contextLost) raf = requestAnimationFrame(tick);
       return stats;
     } catch (error) {
       const wasDisposed = disposed;
