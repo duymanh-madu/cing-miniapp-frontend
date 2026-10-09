@@ -7,7 +7,7 @@ import "./PlazaShellV7.css";
 import PlazaLobbyV7 from "./PlazaLobbyV7.jsx";
 import {MessageCircle} from "lucide-react";
 import PlazaLoadingV11 from "./PlazaLoadingV11.jsx";
-import PlazaPhotoAlbumV11 from "./PlazaPhotoAlbumV11.jsx";
+import {removeLegacyPlazaPhotosV12} from "../runtime/removeLegacyPlazaPhotosV12.js";
 import PlazaChatV7 from "./PlazaChatV7.jsx";
 
 const PlazaSceneV1 = lazy(() => import("../scene/PlazaSceneV1.jsx"));
@@ -66,7 +66,8 @@ export default function PlazaPageV1({
   createClient = createDefaultPlazaClientV1,
 }) {
   const [chatOpen, setChatOpen] = useState(false);
-  const [albumOpen,setAlbumOpen]=useState(false),[sceneReady,setSceneReady]=useState(false);
+  const [sceneReady,setSceneReady]=useState(false);
+  useEffect(()=>{removeLegacyPlazaPhotosV12();},[]);
   const [client, setClient] = useState(null);
 
   const [draft, setDraft] = useState("");
@@ -85,7 +86,7 @@ export default function PlazaPageV1({
   const characterChoice=state.profile?.character;
   const connected = state.status === "connected";
   const room = state.room;
-  useEffect(()=>{setSceneReady(false);setAlbumOpen(false);},[room?.roomId]);
+  useEffect(()=>{setSceneReady(false);},[room?.roomId]);
   const rooms = state.rooms || [];
 
   useEffect(() => {
@@ -198,9 +199,8 @@ export default function PlazaPageV1({
     {notice&&<p className="plaza-v7-notice" role="alert">{notice}</p>}
     {checking?<PlazaLoadingV11/>:!enabled?<div className="plaza-v7-loading">Plaza hiện chưa mở.</div>:room?<>
       {sceneReady&&<div className="cing-plaza__room-hud"><button disabled={busy} onClick={()=>act(async()=>{await client.leaveRoom();setChatOpen(false);await refreshRooms();await client.getProfile();})}>‹ Sảnh</button><div><strong>{room.name}</strong><span>Cing Plaza {room.roomNumber||""} · {room.memberCount}/{room.capacity}</span></div><button aria-label="Mở trò chuyện" aria-expanded={chatOpen} onClick={()=>setChatOpen(v=>!v)}><MessageCircle size={22}/></button></div>}
-      {characterChoice&&<Suspense fallback={<PlazaLoadingV11/>}><PlazaSceneV1 key={room.roomId} onReadyChange={setSceneReady} interactionPaused={chatOpen||albumOpen} onAlbum={()=>setAlbumOpen(true)} roomId={room.roomId} messages={messages} identity={state.identity} initialCharacter={state.members?.find(v=>v.memberId===state.selfId)?.character||characterChoice} correction={state.correction} tables={state.tables||[]} realtimeClient={client} members={state.members||[]} selfId={state.selfId}/></Suspense>}
-    </>:<PlazaLobbyV7 onAlbum={()=>setAlbumOpen(true)} identity={state.identity} onChooseBadge={key=>act(()=>client.chooseBadge(key))} profile={state.profile} connected={connected} busy={busy} rooms={rooms} onClose={onClose} onChat={()=>setChatOpen(true)} choose={key=>act(()=>client.chooseCharacter(key))} onRefresh={()=>act(async()=>{await refreshRooms();await client.getProfile();})} onCreate={(name,password)=>act(async()=>{await client.createRoom(name,password);})} onJoin={(id,password)=>act(()=>client.joinRoom(id,password))}/>}
-    {albumOpen&&<PlazaPhotoAlbumV11 key={state.identity?.memberId||state.selfId} ownerId={state.identity?.memberId||state.selfId} onClose={()=>setAlbumOpen(false)}/>}
+      {characterChoice&&<Suspense fallback={<PlazaLoadingV11/>}><PlazaSceneV1 key={room.roomId} onReadyChange={setSceneReady} interactionPaused={chatOpen} roomId={room.roomId} messages={messages} identity={state.identity} initialCharacter={state.members?.find(v=>v.memberId===state.selfId)?.character||characterChoice} correction={state.correction} tables={state.tables||[]} realtimeClient={client} members={state.members||[]} selfId={state.selfId}/></Suspense>}
+    </>:<PlazaLobbyV7 identity={state.identity} onChooseBadge={key=>act(()=>client.chooseBadge(key))} profile={state.profile} connected={connected} busy={busy} rooms={rooms} onClose={onClose} onChat={()=>setChatOpen(true)} choose={key=>act(()=>client.chooseCharacter(key))} onRefresh={()=>act(async()=>{await refreshRooms();await client.getProfile();})} onCreate={(name,password)=>act(async()=>{await client.createRoom(name,password);})} onJoin={(id,password)=>act(()=>client.joinRoom(id,password))}/>}
     {chatOpen&&<PlazaChatV7 room={room} messages={messages} draft={draft} setDraft={setDraft} submit={submitMessage} connected={connected} busy={busy} onClose={()=>setChatOpen(false)}/>}
   </main>;
 }

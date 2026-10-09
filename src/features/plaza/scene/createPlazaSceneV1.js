@@ -460,14 +460,8 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       if(camera.aspect<1.05){const shift=kind==='cafe'?.50:0;camera.position.sub(controls.target).multiplyScalar(1.28).add(controls.target);camera.position.x+=shift;controls.target.x+=shift;}
       controls.sync();
       avatar.rotation.y = Math.atan2(camera.position.x-x,camera.position.z-z);
-      controls.update(); onNotice('Góc check-in đã sẵn sàng. Bấm Chụp ảnh để lưu ảnh của anh.');
+      controls.update(); onNotice('Góc check-in đã sẵn sàng.');
     },
-    capture: () => new Promise((resolve,reject)=>{
-      if (!loaded || disposed || contextLost) {reject(new Error('PHOTO_NOT_READY'));return;}
-      // Render and copy just the WebGL canvas. DOM labels, HUD and chat never enter the image.
-      const hidden=[];scene.traverse(o=>{if(o===marker||o.userData.plazaCaptureHidden){hidden.push([o,o.visible]);o.visible=false;}});
-      try{lighting.update();renderPlazaLayers(renderer,scene,camera);renderer.domElement.toBlob(blob=>blob?resolve(blob):reject(new Error('PHOTO_EMPTY')),'image/png');}catch(e){reject(e);}finally{for(const [object,visible] of hidden)object.visible=visible;}
-    }),
     reset: () => {
       if (!loaded || disposed) return;
       input = { x: 0, z: 0 }; stopPath(); lift = 0; avatar.rotation.y = 0;

@@ -1,6 +1,5 @@
-import {Camera,Images,Hand,PersonStanding,LockKeyhole,Square} from 'lucide-react';
+import {Hand,PersonStanding,Square} from 'lucide-react';
 import PlazaLoadingV11 from '../pages/PlazaLoadingV11.jsx';
-import {savePlazaPhotoV11} from '../runtime/plazaPhotosV11.js';
 import {joystickLockArmedV11,lockedDirectionV11} from './plazaJoystickV11.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { inputVector } from './plazaMotionV1.js';
@@ -15,7 +14,7 @@ const KEY = {
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
 };
 
-export default function PlazaSceneV1({ diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, onReadyChange=()=>{}, onAlbum=()=>{} }) {
+export default function PlazaSceneV1({ diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, onReadyChange=()=>{} }) {
   const chessAudio=useRef(null);
   useEffect(()=>{chessAudio.current=createPlazaChessAudioV4();function visibility(){if(document.hidden)chessAudio.current?.suspend();else chessAudio.current?.resumeExisting();}document.addEventListener('visibilitychange',visibility);return()=>{document.removeEventListener('visibilitychange',visibility);chessAudio.current?.dispose();chessAudio.current=null;};},[]);
   const [nearSeat,setNearSeat]=useState(null),[tableError,setTableError]=useState(''),[tableBusy,setTableBusy]=useState(false);
@@ -41,7 +40,7 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
   const [motion, setMotion] = useState('idle'), [stats, setStats] = useState({});
   const [knob, setKnob] = useState({ x: 0, z: 0 });
   const [notice, setNotice] = useState('');
-  const [locked,setLocked]=useState(false),[lockArmed,setLockArmed]=useState(false),[photoBusy,setPhotoBusy]=useState(false),[photoNote,setPhotoNote]=useState('');
+  const [locked,setLocked]=useState(false),[lockArmed,setLockArmed]=useState(false);
   const lockedRef=useRef(false),armedRef=useRef(false);
   const stick = useRef({ x: 0, z: 0 }), stickPointer = useRef(null), taps = useRef(new Map());
   function syncInput() {
@@ -110,8 +109,6 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
   const ready = progress.ready === true;
   useEffect(()=>{onReadyChange(ready);},[ready,onReadyChange]);
   useEffect(()=>{api.current?.setInteractionPaused(interactionPaused);if(interactionPaused||ownTable||!ready){clearInput();api.current?.cancelGestures();}},[interactionPaused,Boolean(ownTable),ready]);
-  useEffect(()=>{if(!photoNote)return;const timer=setTimeout(()=>setPhotoNote(''),4000);return()=>clearTimeout(timer);},[photoNote]);
-  async function takePhoto(){if(photoBusy)return;setPhotoBusy(true);clearInput();try{const blob=await api.current?.capture();await savePlazaPhotoV11(identity?.memberId||selfId,blob);setPhotoNote('Đã lưu vào kho ảnh chụp.');}catch(error){console.warn('[Cing Plaza] Photo failed:',error?.message);setPhotoNote('Chưa lưu được ảnh. Hãy kiểm tra kho ảnh và dung lượng thiết bị.');}finally{setPhotoBusy(false);}}
   return (
     <section className="cing-plaza-scene" ref={wrapper} tabIndex={0} aria-label="Khám phá Cing Plaza">
       {review && <div className="cing-plaza-scene__title">
@@ -150,7 +147,6 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           <button type="button" onClick={() => api.current?.cameraPreset('overview')}>Toàn cảnh</button>
           <button type="button" onClick={() => { clearInput(); api.current?.checkin('cafe'); }}>Check-in quán</button>
           <button type="button" onClick={() => { clearInput(); api.current?.checkin('dinh'); }}>Check-in đình</button>
-          <button type="button" onClick={takePhoto}>Chụp ảnh</button>
         </div>}
       </div>
       {ready&&!interactionPaused&&<div className="cing-plaza-scene__controls">
@@ -181,7 +177,7 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           onLostPointerCapture={() => {
             if(stickPointer.current!==null&&!lockedRef.current)clearInput();
           }}>
-          <span className="cing-plaza-scene__stick-arrows" aria-hidden="true">{lockArmed||locked?<LockKeyhole size={20}/>:null}</span>
+
           {lockArmed&&<span className="plaza-v11-lock-hint">Thả để khóa hướng</span>}
           <span className="cing-plaza-scene__stick-knob" aria-hidden="true" style={{ transform: `translate(${knob.x * 38}px, ${-knob.z * 38}px)` }} />
         </button>
@@ -190,13 +186,10 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           <small>Trên máy tính: bấm vào cảnh, dùng WASD hoặc phím mũi tên.</small>
         </div>}
         {(review||locked)&&<button type="button" className="plaza-v11-hud-icon" aria-label="Dừng di chuyển" onClick={clearInput}><Square size={20}/></button>}
-        <button className="plaza-v11-hud-icon" aria-label="Chụp ảnh" disabled={photoBusy} onClick={takePhoto}><Camera size={22}/></button>
-        <button className="plaza-v11-hud-icon" aria-label="Kho ảnh chụp" onClick={onAlbum}><Images size={22}/></button>
         <button type="button" className="cing-plaza-scene__wave plaza-v11-hud-icon" aria-label="Vẫy tay" disabled={!ready || Boolean(ownTable) || motion === 'wave'}
           onClick={() => { clearInput(); api.current?.wave(); }}><Hand size={22}/></button>
         <button type="button" className="plaza-v11-hud-icon" aria-label="Tạo dáng" disabled={!ready || Boolean(ownTable) || motion === 'checkin'} onClick={() => { clearInput(); api.current?.pose(); }}><PersonStanding size={22}/></button>
       </div>}
-      {photoNote&&<button className="plaza-v11-photo-toast" onClick={onAlbum} role="status">{photoNote}</button>}
       {ready && review && <p className="cing-plaza-scene__notice" role="status">{stats.timeOfDay || ''} · Giờ Việt Nam{notice ? ` — ${notice}` : ''}</p>}
       {!review && notice && <span className="cing-plaza-scene__sr-status" role="status">{notice}</span>}
       {review && <details className="cing-plaza-scene__diagnostics" open>
