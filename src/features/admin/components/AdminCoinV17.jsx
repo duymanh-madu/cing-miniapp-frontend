@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useState} from 'react';
 import apiClient from '@/infra/api/apiClient';
 import {collectCoinCsvV17} from './adminCoinCsvV17.js';
+import './AdminCoinVisualV17.css';
 
 const fmt=new Intl.NumberFormat('vi-VN');
 
@@ -134,7 +135,7 @@ export default function AdminCoinV17({token,embedded=false}){
   ];
 
   return <section className="cing-admin-coin-v17"
-    style={{padding:embedded?12:20,color:'#33251b'}}>
+    style={{padding:embedded?12:20}}>
     <h2>Cing Coin · Báo cáo quản trị</h2>
     <p style={{fontSize:13}}>
       Tiền nạp Wallet, tiền thưởng khuyến mại, thanh toán

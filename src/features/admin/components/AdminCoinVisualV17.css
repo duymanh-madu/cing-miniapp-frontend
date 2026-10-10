@@ -1,0 +1,341 @@
+
+/*
+ * CING PLAZA V17 — ADMIN COIN PREMIUM SURFACE
+ * Fully scoped. No global theme or financial authority changes.
+ */
+
+.cing-admin-coin-v17 {
+  --coin-bg: #201713;
+  --coin-panel: #30221c;
+  --coin-line: rgba(239, 193, 149, .25);
+  --coin-text: #fff2e4;
+  --coin-muted: #e5cdb5;
+  --coin-orange: #ed8735;
+
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+
+  color: var(--coin-text) !important;
+
+  background:
+    radial-gradient(
+      circle at 92% 0%,
+      rgba(232, 125, 45, .13),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      #291c16,
+      #1b1513 70%
+    );
+
+  border: 1px solid var(--coin-line);
+  border-radius: 20px;
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.cing-admin-coin-v17 *,
+.cing-admin-coin-v17 *::before,
+.cing-admin-coin-v17 *::after {
+  box-sizing: border-box;
+}
+
+.cing-admin-coin-v17 h2 {
+  color: #fff5e8 !important;
+
+  font-size: clamp(23px, 2.4vw, 32px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.5px;
+
+  margin: 4px 0 12px;
+}
+
+.cing-admin-coin-v17 > p {
+  color: var(--coin-muted) !important;
+  max-width: 1100px;
+  font-size: 14px !important;
+  line-height: 1.75;
+}
+
+.cing-admin-coin-v17 > p[role="status"] {
+  color: #fff0df !important;
+  border-left: 3px solid #e98d43;
+  padding: 10px 14px;
+  margin-top: 14px;
+  background: rgba(255, 237, 215, .07);
+  border-radius: 0 10px 10px 0;
+}
+
+.cing-admin-coin-v17 > p[role="status"] strong {
+  color: #ffd18c !important;
+  font-weight: 800;
+}
+
+.cing-admin-coin-v17 > p[role="alert"] {
+  color: #ffe6dc !important;
+  background: rgba(165, 52, 32, .28);
+  border: 1px solid rgba(255, 155, 125, .55);
+  padding: 12px 15px;
+  border-radius: 10px;
+}
+
+/* Date filters */
+
+.cing-admin-coin-v17 > form {
+  background: var(--coin-panel);
+
+  border: 1px solid var(--coin-line);
+  border-radius: 14px;
+
+  padding: 16px !important;
+  margin: 22px 0 !important;
+
+  align-items: flex-end;
+}
+
+.cing-admin-coin-v17 > form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  color: #ffead4 !important;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cing-admin-coin-v17 > form input {
+  min-height: 44px;
+  min-width: 190px;
+  max-width: 100%;
+
+  color: #2b1d15 !important;
+  background: #fff9f1 !important;
+
+  border: 1px solid #d1aa85 !important;
+  border-radius: 9px;
+
+  padding: 9px 12px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color-scheme: light;
+}
+
+.cing-admin-coin-v17 > form input:focus-visible {
+  outline: 3px solid #e59b58;
+  outline-offset: 2px;
+}
+
+.cing-admin-coin-v17 button {
+  min-height: 44px;
+  border-radius: 9px;
+
+  padding: 10px 16px;
+
+  font-size: 13px;
+  font-weight: 750;
+
+  cursor: pointer;
+  transition:
+    background-color .15s ease,
+    border-color .15s ease,
+    transform .15s ease;
+}
+
+.cing-admin-coin-v17 > form button {
+  color: #fff2e5 !important;
+  background: #503426 !important;
+  border: 1px solid #9d6947 !important;
+}
+
+.cing-admin-coin-v17 > form button:first-of-type {
+  color: #221710 !important;
+  background: #f5a451 !important;
+  border-color: #f5a451 !important;
+}
+
+.cing-admin-coin-v17 > form button:last-of-type {
+  color: #fff7e9 !important;
+  background: #845126 !important;
+  border-color: #cc8543 !important;
+}
+
+.cing-admin-coin-v17 button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.cing-admin-coin-v17 button:focus-visible {
+  outline: 3px solid #ffb56a;
+  outline-offset: 3px;
+}
+
+.cing-admin-coin-v17 button:not(:disabled):hover {
+  filter: brightness(1.12);
+}
+
+/* Financial metric cards */
+
+.cing-admin-coin-v17 article {
+  color: #2b2018 !important;
+
+  box-shadow:
+    0 5px 18px rgba(8, 4, 2, .12);
+
+  border-radius: 14px !important;
+  border: 1px solid #e6c9ac !important;
+  border-top: 3px solid #d98338 !important;
+
+  min-height: 116px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  overflow-wrap: anywhere;
+}
+
+.cing-admin-coin-v17 article > div {
+  color: #65442e !important;
+  font-size: 13px !important;
+  font-weight: 650;
+
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.cing-admin-coin-v17 article strong {
+  display: block;
+
+  color: #24170f !important;
+  font-size: clamp(23px, 2vw, 29px) !important;
+  font-weight: 800;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.cing-admin-coin-v17 article:nth-child(-n+2) {
+  border-top-color: #d6a04a !important;
+}
+
+.cing-admin-coin-v17 article:nth-child(n+3):nth-child(-n+9) {
+  border-top-color: #eb8737 !important;
+}
+
+.cing-admin-coin-v17 article:nth-child(n+10) {
+  border-top-color: #9c714e !important;
+}
+
+/* Reconciliation section */
+
+.cing-admin-coin-v17 > p[role="status"] + p[role="status"] {
+  margin-top: 8px;
+}
+
+/* Transaction ledger */
+
+.cing-admin-coin-v17 table {
+  width: 100%;
+
+  color: #2a1e16 !important;
+  background: #fffaf4;
+
+  border-collapse: separate !important;
+  border-spacing: 0;
+
+  border: 1px solid #e4c5a7;
+  border-radius: 12px;
+
+  overflow: hidden;
+}
+
+.cing-admin-coin-v17 th {
+  color: #fff1dc !important;
+  background: #493024 !important;
+
+  padding: 15px 17px;
+  text-align: left;
+
+  font-size: 13px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.cing-admin-coin-v17 td {
+  color: #30231b !important;
+
+  padding: 13px 17px;
+
+  font-size: 13px;
+  font-weight: 550;
+
+  border-bottom: 1px solid #ecdac8;
+}
+
+.cing-admin-coin-v17 tbody tr:nth-child(even) td {
+  background: #fff2e5;
+}
+
+.cing-admin-coin-v17 tbody tr:hover td {
+  background: #ffe6c7;
+}
+
+.cing-admin-coin-v17 tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cing-admin-coin-v17 td:nth-child(3),
+.cing-admin-coin-v17 td:nth-child(4) {
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
+
+.cing-admin-coin-v17 > div button {
+  color: #fff4e8 !important;
+  background: #764423 !important;
+
+  border: 1px solid #b67b49 !important;
+}
+
+/* Responsive */
+
+@media (max-width: 760px) {
+  .cing-admin-coin-v17 {
+    border-radius: 13px;
+  }
+
+  .cing-admin-coin-v17 > form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cing-admin-coin-v17 > form label,
+  .cing-admin-coin-v17 > form input,
+  .cing-admin-coin-v17 > form button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cing-admin-coin-v17 article {
+    min-height: 108px;
+  }
+
+  .cing-admin-coin-v17 th,
+  .cing-admin-coin-v17 td {
+    padding: 12px;
+  }
+
+  .cing-admin-coin-v17 > div {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cing-admin-coin-v17 button {
+    transition: none;
+  }
+}

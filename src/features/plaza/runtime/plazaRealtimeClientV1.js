@@ -167,6 +167,15 @@ export function createPlazaRealtimeClientV1({
       retryCount=0;resumeNeeded=false;update({status:"connected"});
     } catch(error) {
       if(disposed || attempt!==recovery)return;
+      if(error?.code==="PLAZA_CHARACTER_REQUIRED"){
+        // The authenticated member may choose a first character in the lobby.
+        // Never bypass the server's create/join admission authority.
+        handlers["plaza:room"]({room:null});
+        retryCount=0;
+        resumeNeeded=false;
+        update({status:"connected",profile:undefined});
+        return;
+      }
       update({status:"connection-error"});
       if(["PLAZA_REQUEST_TIMEOUT","PLAZA_DISCONNECTED","PLAZA_QUEUE_FULL"].includes(error.code))scheduleRecoveryRetry();
     }
@@ -235,7 +244,14 @@ export function createPlazaRealtimeClientV1({
       update({ status: "connecting" });
       socket.connect();
     },
-    getProfile:async()=>{const data=await request("plaza:profile:get",{});if(!disposed)update({profile:data.profile,identity:data.identity});return data;},
+    getProfile:async()=>{
+      const attempt=recovery;
+      const data=await request("plaza:profile:get",{});
+      if(disposed || attempt!==recovery || !socket.connected)
+        throw failure("PLAZA_PROFILE_STALE");
+      update({profile:data.profile,identity:data.identity});
+      return data;
+    },
     chooseBadge:async key=>{const data=await request("plaza:badge:choose",{key},true);if(!disposed)update({identity:data.identity});return data;},
     chooseCharacter:async character=>{if(!["boy","girl"].includes(character))throw failure("PLAZA_INVALID_CHARACTER");const data=await request("plaza:profile:choose",{character},true);if(!disposed)update({profile:data.profile});return data;},
     listRooms: async () => {
