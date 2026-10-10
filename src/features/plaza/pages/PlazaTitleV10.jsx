@@ -18,18 +18,15 @@ export default function PlazaTitleV10({titleKey,size='overhead'}){
   if(!title)return null;
   const premium=featureLevel[titleKey]||0;
   const ordinaryRank=ordinaryVisualRank[titleKey]??-1;
-  const scene=['identity','chat','micro','preview','overhead'].includes(size);
+  // Every placement uses the COMPLETE approved transparent artwork. The
+  // painting already includes the title name; render no duplicate text.
+  const artwork=`${base}${titleKey}_master.png`;
   return <span
     className={`plaza-prestige-v18 plaza-prestige-v18--${size} plaza-prestige-v18--level${premium} plaza-prestige-v18--ordinary${ordinaryRank}`}
     data-title-key={titleKey}
     aria-label={`${title.label}, ${title.stars} sao`}
   >
-    {scene?<>
-      <img className="plaza-prestige-v18__icon"
-        src={`${base}${titleKey}_icon.png`} alt="" draggable="false" decoding="async"/>
-      {size!=='preview'&&<span className="plaza-prestige-v18__name">{title.label}</span>}
-    </>:<img className="plaza-prestige-v18__art"
-      src={`${base}${titleKey}_store.png`} alt=""
-      loading="lazy" decoding="async" draggable="false"/>}
+    <img className="plaza-prestige-v18__art"
+      src={artwork} alt="" draggable="false" decoding="async"/>
   </span>;
 }

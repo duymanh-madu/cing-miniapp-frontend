@@ -87,3 +87,135 @@
 /* Names are deliberately center anchored to the 3D person, not to TITLE+NAME. */
 .plaza-v18-idrow--overhead>.plaza-v9-name{box-sizing:border-box!important}
 @media(prefers-reduced-motion:reduce){.plaza-prestige-v18:before,.plaza-prestige-v18:after{animation:none!important;opacity:0!important}}
+
+
+/* =========================================================
+   CING V18 — FULL ARTWORK / NO DUPLICATE LABEL / HEAD CLEARANCE
+   14 immutable approved Image 2 master sprites, no clipping.
+   Only presentation changes. Names remain centered on head.
+   ========================================================= */
+/* The MASTER artwork already includes Vietnamese lettering. */
+.plaza-prestige-v18 {
+  width: max-content !important;
+  max-width: none !important;
+  overflow: visible !important;
+  flex: none !important;
+  padding: 0 !important;
+}
+.plaza-prestige-v18__art {
+  display: block !important;
+  box-sizing: border-box;
+  height: 100% !important;
+  width: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  flex-shrink: 0 !important;
+  pointer-events: none !important;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.32));
+}
+/* Identity sprites are visibly larger but DO NOT enter the name's flow.
+   Master art is tightly alpha-cropped: no phantom transparent gutter. */
+.plaza-prestige-v18--identity,
+.plaza-prestige-v18--overhead {
+  height: clamp(43px, 12.1vw, 54px) !important;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+.plaza-v18-idrow--overhead > .plaza-prestige-v18 {
+  position: absolute !important;
+  top: 50% !important;
+  right: calc(100% + 13px) !important;
+  height: clamp(43px, 12.1vw, 54px) !important;
+  width: max-content !important;
+  max-width: none !important;
+  transform: translateY(-50%) !important;
+  margin: 0 !important;
+  z-index: 1 !important;
+}
+/* The anchor is the player head, NEVER the width of badge+name.
+   22px visual clearance avoids letters intersecting hair. */
+.plaza-v9-nameplate {
+  transform: translate(-50%, calc(-100% - 22px)) !important;
+  overflow: visible !important;
+}
+.plaza-v18-idrow--overhead {
+  width: max-content !important;
+  max-width: min(48vw, 150px) !important;
+  margin-inline: auto !important;
+  overflow: visible !important;
+}
+.plaza-v18-idrow--overhead > .plaza-v9-name {
+  position: relative !important;
+  display: block !important;
+  margin-inline: auto !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+/* Full painting in chat and member directory; no tiny icon+second text. */
+.plaza-prestige-v18--chat {
+  height: 40px !important;
+  width: max-content !important;
+  max-width: none !important;
+}
+.plaza-prestige-v18--micro {
+  height: 30px !important;
+  width: max-content !important;
+  max-width: none !important;
+}
+.plaza-prestige-v18--preview {
+  height: 72px !important;
+  width: max-content !important;
+  max-width: none !important;
+}
+.plaza-v18-idrow--chat,
+.plaza-v18-peek-author,
+.plaza-v18-idrow--member {
+  overflow: visible !important;
+  gap: 6px !important;
+}
+.plaza-v18-idrow--chat {max-width: none !important;}
+.plaza-v18-idrow--member {max-width: 100% !important;}
+/* Message header may wrap time instead of crushing/ellipsis'ing artwork. */
+.plaza-v16-message > div {flex-wrap: wrap !important;}
+.plaza-v16-message > div > time {margin-left: auto !important;}
+/* Store art should display the COMPLETE drawing, generously sized. */
+.cing-plaza .plaza-v18-title-grid > button {
+  min-height: 155px !important;
+  overflow: visible !important;
+}
+.cing-plaza .plaza-v18-title-grid .plaza-prestige-v18--wardrobe {
+  display: inline-flex !important;
+  width: auto !important;
+  height: 108px !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.cing-plaza .plaza-v18-title-grid .plaza-prestige-v18--wardrobe .plaza-prestige-v18__art {
+  max-width: 100% !important;
+}
+/* Six exclusive badges: glow on actual art, never on unused tiny icons. */
+.plaza-prestige-v18--level1 .plaza-prestige-v18__art {
+  filter: drop-shadow(0 0 2px rgba(255,184,244,.55));
+}
+.plaza-prestige-v18--level2 .plaza-prestige-v18__art {
+  filter: drop-shadow(0 0 4px rgba(160,215,255,.68));
+}
+.plaza-prestige-v18--level3 .plaza-prestige-v18__art {
+  filter: drop-shadow(0 0 6px rgba(255,204,145,.85));
+}
+@media (max-width: 370px) {
+  .plaza-v18-idrow--overhead > .plaza-prestige-v18 {
+    height: 42px !important;
+    right: calc(100% + 10px) !important;
+  }
+  .plaza-prestige-v18--chat {height: 35px !important;}
+  .plaza-prestige-v18--micro {height: 28px !important;}
+}
+@media (prefers-reduced-motion: reduce) {
+  .plaza-prestige-v18::before,
+  .plaza-prestige-v18::after {animation: none !important;opacity: 0 !important;}
+}
