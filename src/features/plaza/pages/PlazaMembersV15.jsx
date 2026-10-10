@@ -28,15 +28,23 @@ export default function PlazaMembersV15({room, roster, selfId, onClose, onProfil
         <button aria-label="Đóng danh sách người chơi" onClick={onClose}><X size={20}/></button></header>
       <div className="plaza-v15-member-list" hidden={Boolean(selected)}>{members.map(m=><button key={m.memberId} aria-pressed={selectedId===m.memberId} onClick={()=>setSelectedId(m.memberId)}>
         <span className="plaza-v15-member-avatar">{m.character?<img src={`/cing-plaza/assets/v7/${m.character}-portrait.webp`} alt=""/>:<UserRound/>}</span>
-        <span className="plaza-v15-member-info"><strong>{m.displayName || 'Cing iu'}{m.memberId===selfId&&<small> · Bạn</small>}</strong>
-          {m.selectedBadge&&<PlazaTitleV10 titleKey={m.selectedBadge} size="chat"/>}
+        <span className="plaza-v15-member-info">
+          <span className="plaza-v18-idrow plaza-v18-idrow--member">
+            {m.selectedBadge&&<PlazaTitleV10 titleKey={m.selectedBadge} size="chat"/>}
+            <strong>{m.displayName || 'Cing iu'}</strong>
+            <span className="plaza-v18-vip-slot" aria-hidden="true"/>
+          </span>
+          {m.memberId===selfId&&<small> · Bạn</small>}
           <small>{m.isOwner?'Chủ phòng':m.background?'Đang tạm vắng':'Trong phòng'}</small></span>
         {m.isOwner&&<Crown size={17} aria-label="Chủ phòng"/>}
       </button>)}</div>
       {selected&&<div className="plaza-v15-member-card"><button className="plaza-v15-card-back" aria-label="Về danh sách" onClick={()=>setSelectedId(null)}><ChevronLeft size={18}/></button>
         {selected.character&&<img src={`/cing-plaza/assets/v7/${selected.character}-portrait.webp`} alt="Nhân vật"/>}
-        <h3>{selected.displayName || 'Cing iu'}</h3>
-        {selected.selectedBadge&&<PlazaTitleV10 titleKey={selected.selectedBadge} size="chat"/>}
+        <div className="plaza-v18-idrow plaza-v18-idrow--member">
+          {selected.selectedBadge&&<PlazaTitleV10 titleKey={selected.selectedBadge} size="chat"/>}
+          <h3>{selected.displayName || 'Cing iu'}</h3>
+          <span className="plaza-v18-vip-slot" aria-hidden="true"/>
+        </div>
         <div className="plaza-v16-roster-actions"><button onClick={()=>onProfile(selected.memberId)}>Hồ sơ · Kết bạn · Nhắn riêng</button></div><p>{selected.isOwner?'Chủ phòng · ':''}{selected.character==='boy'?'Nhân vật nam':selected.character==='girl'?'Nhân vật nữ':'Cing iu'}</p>
       </div>}
     </section>

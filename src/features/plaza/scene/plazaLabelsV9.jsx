@@ -19,7 +19,20 @@ export function createPlazaLabelsV9(host){
     if(!a.memberId||!a.position)continue;wanted.add(a.memberId);
     let n=nodes.get(a.memberId);if(!n){const el=document.createElement('div');el.className='plaza-v9-nameplate';layer.appendChild(el);n={el,root:createRoot(el)};nodes.set(a.memberId,n);}
     const bubble=bubbles.get(a.memberId),name=String(a.displayName||'Cing iu').slice(0,80),key=JSON.stringify([name,a.selectedBadge,bubble?.messageId]);
-    if(n.key!==key){n.key=key;n.root.render(<><div className="plaza-v9-speech" hidden={!bubble}>{bubble?.body}</div>{a.selectedBadge&&<div className="plaza-v9-title"><PlazaTitleV10 titleKey={a.selectedBadge}/></div>}<span className="plaza-v9-name">{name}</span></>);}
+    if(n.key!==key){
+      n.key=key;
+      n.root.render(<>
+        <div className="plaza-v9-speech" hidden={!bubble}>{bubble?.body}</div>
+        <div className="plaza-v18-idrow plaza-v18-idrow--overhead">
+          {a.selectedBadge&&<PlazaTitleV10
+            titleKey={a.selectedBadge}
+            size="identity"
+          />}
+          <span className="plaza-v9-name">{name}</span>
+          <span className="plaza-v18-vip-slot" aria-hidden="true"/>
+        </div>
+      </>);
+    }
     projected.copy(a.position).add(offset).project(camera);
     const visible=projected.z>-1&&projected.z<1&&Math.abs(projected.x)<.98&&Math.abs(projected.y)<.98;
     n.el.hidden=!visible;
