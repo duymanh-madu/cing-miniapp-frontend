@@ -9,6 +9,7 @@ import apiClient from "@/infra/api/apiClient";
 import AdminWalletAdjustmentPanel from "./AdminWalletAdjustmentPanel";
 import AdminGameRevenueV2 from "./AdminGameRevenueV2";
 import "./admin-wallet.css";
+import AdminCoinV17 from "./AdminCoinV17";
 
 let nextTierUiId = 0;
 
@@ -1620,6 +1621,7 @@ export default function AdminWallet({
         </div>
       </section>
 
+      <AdminCoinV17 token={token} embedded />
       {import.meta.env.VITE_CING_GAME_REVENUE_ADMIN_UI_ENABLED === "true" && (
         <AdminGameRevenueV2 token={token} />
       )}
@@ -1655,7 +1657,7 @@ export default function AdminWallet({
         <div className="admin-wallet__today-grid">
           <article className="is-revenue">
             <span>
-              Doanh thu Wallet hôm nay
+              Báo cáo dòng tiền Wallet hôm nay · chưa xác nhận doanh thu đồ uống
             </span>
             <strong>
               {formatMoney(
