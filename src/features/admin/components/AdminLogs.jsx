@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import apiClient from "@/infra/api/apiClient";
 
 const TABS = [
+  { key:"plaza", label:"Cing Plaza", icon:"💬" },
   { key:"all",            label:"Tất cả",          icon:"📋" },
   { key:"revive_credit",  label:"Revive Credit",   icon:"✨" },
   { key:"gift",           label:"Tặng vật phẩm",    icon:"🎁" },
@@ -20,6 +21,7 @@ function fmtDate(str) {
 }
 
 function getStyle(item) {
+  if(item._type==="plaza")return {color:"#C6A46C",bg:"rgba(198,164,108,.12)",icon:"💬"};
   if (item._type==="game")           return { color:"#1565C0", bg:"rgba(21,101,192,0.1)", icon:"🎮" };
   if (item._type==="points")         return { color:"#7B1FA2", bg:"rgba(123,31,162,0.1)", icon: item.amount>0?"⭐":"💸" };
   if (item._type==="revive_credit")  return item.amount >= 0
@@ -92,6 +94,7 @@ function reviveSourceLabel(item) {
 }
 
 function typeLabel(item) {
+  if(item._type==="plaza")return "Cing Plaza";
   if (item._type === "revive_credit") {
     return "Revive Credit";
   }
@@ -116,7 +119,9 @@ const FIELD_LABEL = {
   "name+avatar": "tên hiển thị và ảnh đại diện",
 };
 
+const PLAZA_EVENTS={plaza_create:'Tạo phòng',plaza_join:'Vào phòng',plaza_leave:'Rời phòng',plaza_member_removed:'Kết thúc phiên trong phòng',plaza_owner_transferred:'Chuyển chủ phòng',plaza_disconnected:'Gián đoạn kết nối',plaza_badge_choose:'Đổi danh hiệu',plaza_profile:'Cập nhật hồ sơ',plaza_convert:'Nạp Cing Coin',plaza_buy_loudspeaker:'Mua loa thế giới',plaza_use_loudspeaker:'Dùng loa thế giới',plaza_pm:'Gửi tin nhắn riêng',plaza_friend_request:'Gửi lời mời kết bạn',plaza_friend_accept:'Chấp nhận kết bạn',plaza_friend_remove:'Xóa bạn',plaza_block:'Chặn người chơi',plaza_unblock:'Bỏ chặn',plaza_chat_send:'Chat khu vực',plaza_table:'Tương tác bàn game'};
 function getTitle(item) {
+  if(item._type==='plaza'){const d=item.details||{};return `${PLAZA_EVENTS[item.event_name]||item.event_name} · ${item.customer_name||item.room_name||item.member_id||'Cing Plaza'}${d.quantity?' · '+fmt(d.quantity)+(item.event_name==='plaza_buy_loudspeaker'?' loa':item.event_name==='plaza_convert'?' Coin':''):''}${d.coinDelta&&item.event_name!=='plaza_convert'?' · '+fmt(d.coinDelta)+' Coin':''}${d.itemDelta===-1?' · dùng 1 loa':''}${d.priceVnd?' · '+fmt(d.priceVnd)+'đ':''}`;}
   const id = item.customer_phone || item.user_id || "?";
   const name = item.customer_name || item.player_name || id;
   if (item._type==="game")    return `${name} — ${item.game_key} — điểm ${fmt(item.score)}`;

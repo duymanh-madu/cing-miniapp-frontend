@@ -129,7 +129,7 @@ test("dispose removes only owned handlers and settles pending requests", async (
   await assert.rejects(pending, { code: "PLAZA_DISCONNECTED" });
   assert.equal(s.socket.connected, false);
   assert.ok(s.removed.every(item => typeof item.handler === "function"));
-  assert.equal(s.removed.length, 10);
+  assert.equal(s.removed.length, 11);
   assert.throws(() => s.client.connect(), { code: "PLAZA_CLIENT_DISPOSED" });
   await assert.rejects(s.client.listRooms(), { code: "PLAZA_CLIENT_DISPOSED" });
 });
@@ -223,3 +223,4 @@ test('room roster is server scoped, independent of 3D presence and cleared on tr
  const member=s.client.getSnapshot().roomMembers[0];assert.equal(member.displayName,'An');assert.equal(member.isOwner,true);assert.equal(member.phone,undefined);assert.equal(member.sessionId,undefined);assert.equal(s.client.getSnapshot().members.length,0);
  s.handlers.get('plaza:room')({room:{roomId:'two'}});assert.deepEqual(s.client.getSnapshot().roomMembers,[]);s.client.dispose();
 });
+test('private social feed deduplicates history and friendship refresh has its own revision',()=>{const s=setup();const receive=s.handlers.get('plaza:social');receive({refresh:true,messages:[{messageId:'w1',channel:'world',sequence:1,body:'hello',createdAt:1}]});receive({messages:[{messageId:'w1',channel:'world',sequence:1,body:'hello',createdAt:1}]});assert.equal(s.client.getSnapshot().socialMessages.length,1);assert.equal(s.client.getSnapshot().socialRevision,1);s.client.dispose();assert.equal(s.client.getSnapshot().socialMessages.length,0);});

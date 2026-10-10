@@ -1,3 +1,6 @@
+import {usePlazaSocialV16} from '../runtime/usePlazaSocialV16.js';
+import PlazaProfileV16 from './PlazaProfileV16.jsx';
+import './PlazaSocialV16.css';
 import React, {
   useEffect, useRef, useState, useSyncExternalStore, lazy, Suspense,
 } from "react";
@@ -71,6 +74,7 @@ export default function PlazaPageV1({
 }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [membersOpen,setMembersOpen]=useState(false);
+  const [profileMember,setProfileMember]=useState(null),[pmPeer,setPmPeer]=useState(null);
 
   const [sceneReady,setSceneReady]=useState(false);
   useEffect(()=>{removeLegacyPlazaPhotosV12();},[]);
@@ -92,6 +96,10 @@ export default function PlazaPageV1({
   const characterChoice=state.profile?.character;
   const connected = state.status === "connected";
   const room = state.room;
+  const social=usePlazaSocialV16({enabled:enabled&&Boolean(state.profile)&&Boolean(state.identity?.memberId),memberId:state.identity?.memberId,connected,revision:state.socialRevision||0,stream:state.socialMessages||[]});
+  function openProfile(id){if(id)setProfileMember(id);}
+  function openPM(id){setProfileMember(null);setMembersOpen(false);setPmPeer(id);setChatOpen(true);}
+
   useEffect(()=>{setMembersOpen(false);},[room?.roomId]);
   const connectionPaused=!connected;
   useEffect(()=>{setSceneReady(false);},[room?.roomId]);
@@ -208,10 +216,11 @@ export default function PlazaPageV1({
     {notice&&<p className="plaza-v7-notice" role="alert">{notice}</p>}
     {checking?<PlazaLoadingV11/>:!enabled?<div className="plaza-v7-loading">Plaza hiện chưa mở.</div>:room?<>
       {sceneReady&&<div className="cing-plaza__room-hud plaza-v15-room-hud"><button disabled={busy} onClick={()=>act(async()=>{await client.leaveRoom();setChatOpen(false);await refreshRooms();await client.getProfile();})}>‹ Sảnh</button><div><strong>{room.name}</strong><span>Cing Plaza {String(room.roomNumber||'').padStart(2,'0')} · {room.memberCount}/{room.capacity}</span></div><button className="plaza-v15-members-toggle" aria-label="Xem người trong phòng" aria-expanded={membersOpen} onClick={()=>{setChatOpen(false);setMembersOpen(v=>!v);}}><Users size={20}/><span>{room.memberCount}</span></button><button aria-label="Mở trò chuyện" aria-expanded={chatOpen} onClick={()=>{setMembersOpen(false);setChatOpen(v=>!v);}}><MessageCircle size={22}/></button></div>}
-      {characterChoice&&<Suspense fallback={<PlazaLoadingV11/>}><PlazaSceneV1 key={room.roomId} onReadyChange={setSceneReady} controlsHidden={chatOpen||membersOpen} interactionPaused={chatOpen||membersOpen||connectionPaused} roomId={room.roomId} messages={messages} identity={state.identity} initialCharacter={state.members?.find(v=>v.memberId===state.selfId)?.character||characterChoice} correction={state.correction} tables={state.tables||[]} realtimeClient={client} members={state.members||[]} selfId={state.selfId}/></Suspense>}
-      {sceneReady&&!chatOpen&&!membersOpen&&<PlazaChatPeekV15 roomId={room.roomId} messages={messages} onOpen={()=>setChatOpen(true)}/>}
-      {sceneReady&&membersOpen&&<PlazaMembersV15 room={room} roster={state.roomMembers||[]} selfId={state.selfId} onClose={()=>setMembersOpen(false)}/>}
-    </>:<PlazaLobbyV7 onLookupRooms={refreshRooms} identity={state.identity} onChooseBadge={key=>act(()=>client.chooseBadge(key))} profile={state.profile} connected={connected} busy={busy} rooms={rooms} onClose={onClose} onChat={()=>setChatOpen(true)} choose={key=>act(()=>client.chooseCharacter(key))} onRefresh={()=>act(async()=>{await refreshRooms();await client.getProfile();})} onCreate={(name,password)=>act(async()=>{await client.createRoom(name,password);})} onJoin={(id,password)=>act(()=>client.joinRoom(id,password))}/>}
-    {chatOpen&&<PlazaChatV7 room={room} messages={messages} draft={draft} setDraft={setDraft} submit={submitMessage} connected={connected} busy={busy} onClose={()=>setChatOpen(false)}/>}
+      {characterChoice&&<Suspense fallback={<PlazaLoadingV11/>}><PlazaSceneV1 key={room.roomId} onReadyChange={setSceneReady} controlsHidden={chatOpen||membersOpen||Boolean(profileMember)} interactionPaused={chatOpen||membersOpen||Boolean(profileMember)||connectionPaused} roomId={room.roomId} messages={messages} identity={state.identity} initialCharacter={state.members?.find(v=>v.memberId===state.selfId)?.character||characterChoice} correction={state.correction} tables={state.tables||[]} realtimeClient={client} members={state.members||[]} selfId={state.selfId}/></Suspense>}
+      {sceneReady&&!chatOpen&&!membersOpen&&!profileMember&&<PlazaChatPeekV15 worldMessages={social.messages} roomId={room.roomId} messages={messages} onOpen={()=>setChatOpen(true)}/>}
+      {sceneReady&&membersOpen&&<PlazaMembersV15 onProfile={openProfile} room={room} roster={state.roomMembers||[]} selfId={state.selfId} onClose={()=>setMembersOpen(false)}/>}
+    </>:<PlazaLobbyV7 social={social} onProfile={()=>openProfile(social.overview?.profile.memberId||state.identity?.memberId)} onLookupRooms={refreshRooms} identity={state.identity} onChooseBadge={key=>act(()=>client.chooseBadge(key))} profile={state.profile} connected={connected} busy={busy} rooms={rooms} onClose={onClose} onChat={()=>setChatOpen(true)} choose={key=>act(async()=>{await client.chooseCharacter(key);await client.getProfile();})} onRefresh={()=>act(async()=>{await refreshRooms();await client.getProfile();})} onCreate={(name,password)=>act(async()=>{await client.createRoom(name,password);})} onJoin={(id,password)=>act(()=>client.joinRoom(id,password))}/>}
+    {chatOpen&&!profileMember&&<PlazaChatV7 social={social} initialPeerId={pmPeer} onProfile={openProfile} room={room} messages={messages} draft={draft} setDraft={setDraft} submit={submitMessage} connected={connected} busy={busy} onClose={()=>setChatOpen(false)}/>}
+    {profileMember&&<PlazaProfileV16 key={profileMember} memberId={profileMember} social={social} onClose={()=>setProfileMember(null)} onPM={openPM} onViewProfile={openProfile}/>}
   </main>;
 }

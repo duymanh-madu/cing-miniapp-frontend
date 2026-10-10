@@ -42,7 +42,7 @@ export function createPlazaRealtimeClientV1({
   }
   let sequence = 0;
   let snapshot = Object.freeze({
-    roomMembers:Object.freeze([]),profile:undefined,identity:null, status: "idle", room: null, rooms: Object.freeze([]), tables:Object.freeze([]), selfId: null, members: Object.freeze([]), messages: Object.freeze([]),
+    socialRevision:0,socialMessages:Object.freeze([]),roomMembers:Object.freeze([]),profile:undefined,identity:null, status: "idle", room: null, rooms: Object.freeze([]), tables:Object.freeze([]), selfId: null, members: Object.freeze([]), messages: Object.freeze([]),
   });
   const listeners = new Set();
   const pending = new Map();
@@ -99,6 +99,7 @@ export function createPlazaRealtimeClientV1({
     connect_error: () => {
       if (!disposed) {update({ status: "connection-error" });scheduleRecoveryRetry();}
     },
+    "plaza:social":payload=>{if(disposed||!Array.isArray(payload?.messages))return;const next=new Map(snapshot.socialMessages.map(m=>[m.messageId,m]));for(const m of payload.messages.slice(0,100)){if(typeof m?.messageId!=='string'||!['world','pm'].includes(m.channel)||typeof m.body!=='string'||!Number.isSafeInteger(m.sequence))continue;next.set(m.messageId,Object.freeze({...m}));}update({socialRevision:snapshot.socialRevision+(payload.refresh?1:0),socialMessages:Object.freeze([...next.values()].sort((a,b)=>a.sequence-b.sequence).slice(-150))});},
     "plaza:members":payload=>{
       if(disposed || payload?.roomId!==snapshot.room?.roomId || !Array.isArray(payload.members))return;
       update({roomMembers:Object.freeze(payload.members.filter(v=>typeof v?.memberId==="string").slice(0,50).map(v=>Object.freeze({memberId:v.memberId,displayName:String(v.displayName||"Cing iu").slice(0,80),selectedBadge:typeof v.selectedBadge==="string"?v.selectedBadge:null,character:["boy","girl"].includes(v.character)?v.character:null,isOwner:v.isOwner===true,background:v.background===true})))});
@@ -265,7 +266,7 @@ export function createPlazaRealtimeClientV1({
       }
       socket.disconnect();
       update({
-        status: "disposed", roomMembers:Object.freeze([]), room: null, rooms: Object.freeze([]), tables:Object.freeze([]),selfId:null,members:Object.freeze([]), messages: Object.freeze([]),
+        status: "disposed", socialMessages:Object.freeze([]), roomMembers:Object.freeze([]), room: null, rooms: Object.freeze([]), tables:Object.freeze([]),selfId:null,members:Object.freeze([]), messages: Object.freeze([]),
       });
       listeners.clear();
     },

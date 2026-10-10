@@ -22,7 +22,7 @@ export default function PlazaTitleV10({ titleKey, size = "overhead" }) {
     charm = ["idol", "ngoi_sao", "minh_tinh"].includes(titleKey);
   return (
     <span
-      className={`plaza-title-v10 plaza-title-v10--${size} plaza-title-v10--${cfg.tone}`}
+      className={`plaza-title-v10 plaza-title-v10--${size} plaza-title-v10--${cfg.tone} plaza-title-v16--rank${cfg.stars>=5?5:Math.floor(cfg.stars)}`}
       aria-label={`${cfg.label}, ${cfg.stars} sao`}
     >
       <svg

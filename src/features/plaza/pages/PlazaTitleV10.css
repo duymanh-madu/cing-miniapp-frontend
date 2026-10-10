@@ -158,3 +158,14 @@
   overflow-wrap: anywhere;
   text-align: center;
 }
+
+/* V16: small horizontal plaques; stars share the name row rather than a bulky crest. */
+.plaza-title-v10{display:inline-flex!important;align-items:center!important;gap:5px!important;padding:3px 9px 3px 4px!important;min-height:26px!important;border-radius:7px!important;max-width:260px;background:linear-gradient(110deg,#152533e8,#273447ce)!important;border:1px solid var(--plaza-title-accent,#acb5b4)!important;filter:none!important;box-shadow:inset 0 1px 0 #ffffff0d,0 2px 6px #0003!important;white-space:nowrap}
+.plaza-title-v10__crest{width:21px!important;height:23px!important;flex:0 0 21px!important;filter:drop-shadow(0 1px 2px #0005)!important}
+.plaza-title-v10__content{display:flex!important;align-items:center!important;gap:6px!important;padding:0!important}
+.plaza-title-v10__text{font-family:Georgia,'Times New Roman',serif!important;font-size:11px!important;font-weight:700!important;letter-spacing:.1px!important;line-height:1.25!important;color:var(--plaza-title-ink,#eee8df)!important;text-shadow:0 1px 2px #0009!important}
+.plaza-title-v10__stars{display:flex!important;gap:0!important}.plaza-title-v10__stars svg{width:7px!important;height:7px!important}
+.plaza-title-v10--pearl{--plaza-title-accent:#718991;--plaza-title-ink:#dde4e0}.plaza-title-v10--jade{--plaza-title-accent:#73b697;--plaza-title-ink:#c9f8db}.plaza-title-v10--silver{--plaza-title-accent:#8cb9cf;--plaza-title-ink:#e0f5ff}.plaza-title-v10--gold{--plaza-title-accent:#c9a451;--plaza-title-ink:#ffe7a2}.plaza-title-v10--rose{--plaza-title-accent:#ca81ae;--plaza-title-ink:#ffdaf0}.plaza-title-v10--diamond{--plaza-title-accent:#7fc7e0;--plaza-title-ink:#d2f7ff}.plaza-title-v10--violet{--plaza-title-accent:#aa82dc;--plaza-title-ink:#e6d5ff}.plaza-title-v10--royal{--plaza-title-accent:#db9b60;--plaza-title-ink:#ffe3ac}
+.plaza-title-v16--rank5{border-color:var(--plaza-title-accent)!important;box-shadow:inset 0 1px 0 #ffffff25,0 0 8px color-mix(in srgb,var(--plaza-title-accent) 23%,transparent)!important;background:linear-gradient(115deg,#161f2bf5,#3b3348e8,#172e3eeb)!important}.plaza-title-v16--rank5 .plaza-title-v10__text{background:linear-gradient(120deg,var(--plaza-title-ink),#fff5dd,var(--plaza-title-ink));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none!important}
+.plaza-title-v10--wardrobe{min-height:31px!important;padding:4px 9px 4px 4px!important}.plaza-title-v10--wardrobe .plaza-title-v10__content{flex-direction:column!important;gap:3px!important}.plaza-title-v10--overhead{transform:none!important;max-width:240px}.plaza-title-v10--overhead .plaza-title-v10__text{font-size:11px!important}.plaza-title-v10--chat{vertical-align:middle}
+@media(prefers-reduced-motion:reduce){.plaza-title-v10,.plaza-title-v10 *{animation:none!important}}

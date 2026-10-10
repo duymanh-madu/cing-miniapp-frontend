@@ -3,7 +3,7 @@ import {X, Crown, UserRound, ChevronLeft} from 'lucide-react';
 import PlazaTitleV10 from './PlazaTitleV10.jsx';
 import {selectRosterV15} from './plazaSocialV15.js';
 
-export default function PlazaMembersV15({room, roster, selfId, onClose}) {
+export default function PlazaMembersV15({room, roster, selfId, onClose, onProfile}) {
   const [selectedId, setSelectedId] = useState(null);
   const root = useRef(null), close = useRef(onClose); close.current = onClose;
   const members = selectRosterV15(room, roster);
@@ -37,7 +37,7 @@ export default function PlazaMembersV15({room, roster, selfId, onClose}) {
         {selected.character&&<img src={`/cing-plaza/assets/v7/${selected.character}-portrait.webp`} alt="Nhân vật"/>}
         <h3>{selected.displayName || 'Cing iu'}</h3>
         {selected.selectedBadge&&<PlazaTitleV10 titleKey={selected.selectedBadge} size="chat"/>}
-        <p>{selected.isOwner?'Chủ phòng · ':''}{selected.character==='boy'?'Nhân vật nam':selected.character==='girl'?'Nhân vật nữ':'Cing iu'}</p>
+        <div className="plaza-v16-roster-actions"><button onClick={()=>onProfile(selected.memberId)}>Hồ sơ · Kết bạn · Nhắn riêng</button></div><p>{selected.isOwner?'Chủ phòng · ':''}{selected.character==='boy'?'Nhân vật nam':selected.character==='girl'?'Nhân vật nữ':'Cing iu'}</p>
       </div>}
     </section>
   </div>;
