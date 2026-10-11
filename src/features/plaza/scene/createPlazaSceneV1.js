@@ -456,6 +456,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     wave: () => { if (loaded && state !== 'wave') { stopPath(); waveRequested = 'wave'; } },
     pose: () => { if (loaded && !disposed && actions.checkin) { input={x:0,z:0}; stopPath(); waveRequested='checkin'; } },
     cameraPreset,
+    zoom: direction => {if(!disposed&&loaded)controls.zoom(direction);},
     checkin: kind => {
       if (!loaded || disposed || !WORLD_V3.spots[kind]) return;
       const spot = WORLD_V3.spots[kind], [x,,z] = spot.position;

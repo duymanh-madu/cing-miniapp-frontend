@@ -1,0 +1,37 @@
+/* V19 BLOCK 05 — scoped premium chat and controls, no extra WebGL renderer. */
+.cing-plaza--room .plaza-v15-room-hud {top:calc(env(safe-area-inset-top,0px) + 8px);left:12px;right:calc(env(safe-area-inset-right,0px) + 104px);gap:8px;z-index:31;align-items:center;}
+.cing-plaza--room .plaza-v15-room-hud>div {min-width:0;padding:8px 11px;max-width:none;}
+.cing-plaza--room .plaza-v15-room-hud>div strong {font-size:13px;line-height:1.18;}
+.cing-plaza--room .plaza-v15-room-hud>div span {font-size:10px;}
+.cing-plaza--room .plaza-v15-room-hud>button:first-child {flex-shrink:0;min-height:44px;}
+.cing-plaza--room .plaza-v15-chat-peek {top:calc(env(safe-area-inset-top,0px) + 94px);left:12px;width:min(360px,calc(100% - 38px));max-width:calc(100% - 38px);border-radius:15px;}
+.cing-plaza .plaza-v19-chat-premium {background:rgba(12,24,31,.95)!important;backdrop-filter:blur(9px);}
+.cing-plaza .plaza-v19-chat-premium header {padding:6px 14px!important;min-height:48px;justify-content:flex-end!important;border-bottom:1px solid #ffffff14;}
+.cing-plaza .plaza-v19-chat-premium header>button {position:static!important;transform:none!important;margin:0 0 0 auto;border-radius:12px!important;width:42px;height:42px;min-height:42px;}
+.cing-plaza .plaza-v19-chat-accessible-heading {position:absolute;width:1px;height:1px;clip-path:inset(50%);white-space:nowrap;overflow:hidden;}
+.cing-plaza .plaza-v19-chat-premium .plaza-v7-tabs {flex-shrink:0;}
+.cing-plaza .plaza-v19-chat-premium .plaza-v7-chat-stream {padding:12px 13px;}
+.cing-plaza .plaza-v19-chat-premium .plaza-v16-message--room {background:rgba(247,248,241,.055)!important;border-color:#cad0c230!important;}
+.cing-plaza .plaza-v19-chat-premium .plaza-v16-message--world {background:linear-gradient(125deg,rgba(167,117,31,.31),rgba(68,49,24,.27))!important;border-color:rgba(239,194,100,.65)!important;}
+.cing-plaza .plaza-v19-chat-premium .plaza-v16-message--pm {background:linear-gradient(125deg,rgba(91,57,145,.30),rgba(37,31,75,.36))!important;border-color:rgba(176,133,235,.54)!important;}
+.cing-plaza .plaza-v19-chat-premium .plaza-v19-message--romance {background:linear-gradient(125deg,rgba(157,50,94,.33),rgba(66,28,64,.30))!important;border-color:rgba(244,146,183,.68)!important;}
+.cing-plaza .plaza-v19-chat-premium--world .plaza-v7-tabs {background:rgba(154,109,38,.12);}
+.cing-plaza .plaza-v19-chat-premium--pm .plaza-v7-tabs {background:rgba(117,79,181,.13);}
+.cing-plaza .plaza-v15-members header {padding:9px 13px;min-height:58px;}
+.cing-plaza .plaza-v15-members h2 {margin:0;}
+.cing-plaza--room .cing-plaza-scene__controls .plaza-v19-tools-toggle {min-width:42px;width:42px;height:42px;min-height:42px;border-radius:50%;background:#24332fb8;}
+.cing-plaza--room .plaza-v19-tools {position:fixed;z-index:42;right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 170px);bottom:calc(env(safe-area-inset-bottom,0px) + 132px);width:min(245px,66vw);overflow:auto;display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:12px;border:1px solid rgba(230,189,118,.53);border-radius:18px;background:rgba(13,30,34,.95);backdrop-filter:blur(12px);box-shadow:0 22px 55px #0008;pointer-events:auto;animation:plaza05-drawer-in .18s ease-out;}
+.cing-plaza--room .plaza-v19-tools>button {display:flex;justify-content:flex-start;gap:10px;text-align:left;border:1px solid #ffffff18;min-height:42px;background:#ffffff0b;color:#f3e8d5;border-radius:10px;padding:10px;pointer-events:auto;}
+.cing-plaza--room .plaza-v19-tools-title {display:flex;align-items:center;justify-content:space-between;color:#f3d095;font-size:13px;}
+.cing-plaza--room .plaza-v19-tools-title>button {border:0;background:transparent;color:inherit;min-height:36px;}
+.cing-plaza--room .plaza-v19-tools-zoom {display:flex;gap:7px;justify-content:space-between;}
+.cing-plaza--room .plaza-v19-tools-zoom button {min-width:44px;min-height:44px;flex:1;background:#e3c38f21;color:#f4d59c;border:1px solid #e3c38f50;border-radius:10px;}
+.cing-plaza .plaza-v19-friend-identity {display:flex;flex:1;min-width:0;flex-direction:column;gap:3px;text-align:left;}
+.cing-plaza .plaza-v19-friend-identity strong {font-size:13px;color:#f7e9d2;}
+.cing-plaza .plaza-v19-friend-identity small {font-size:11px;color:#a8b9b6;}
+.cing-plaza .plaza-v19-friend-identity--quiet {opacity:.66;}
+.cing-plaza .plaza-v19-friend-identity--online strong {color:#dfffe7;}
+.cing-plaza .plaza-v19-friend-identity--online small {color:#80e4aa;}
+@keyframes plaza05-drawer-in {from {transform:translateX(16px);opacity:.55}to {transform:translateX(0);opacity:1}}
+@media(prefers-reduced-motion:reduce){.cing-plaza .plaza-v19-tools {animation:none}}
+@media(orientation:landscape) and (max-height:500px){.cing-plaza--room .plaza-v19-tools {top:calc(env(safe-area-inset-top,0px) + 60px);bottom:calc(env(safe-area-inset-bottom,0px) + 58px)}.cing-plaza--room .plaza-v15-chat-peek {top:calc(env(safe-area-inset-top,0px) + 66px)}}

@@ -24,7 +24,7 @@ export default function PlazaMembersV15({room, roster, selfId, onClose, onProfil
   }, []);
   return <div className="plaza-v15-members-backdrop" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
     <section ref={root} className="plaza-v15-members" role="dialog" aria-modal="true" aria-label="Người chơi trong phòng">
-      <header><div><small>CÙNG CING IU</small><h2>Người trong phòng <span>{room.memberCount}/{room.capacity}</span></h2></div>
+      <header><div><h2>Người trong phòng <span>{room.memberCount}/{room.capacity}</span></h2></div>
         <button aria-label="Đóng danh sách người chơi" onClick={onClose}><X size={20}/></button></header>
       <div className="plaza-v15-member-list" hidden={Boolean(selected)}>{members.map(m=><button key={m.memberId} aria-pressed={selectedId===m.memberId} onClick={()=>setSelectedId(m.memberId)}>
         <span className="plaza-v15-member-avatar">{m.character?<img src={`/cing-plaza/assets/v7/${m.character}-portrait.webp`} alt=""/>:<UserRound/>}</span>

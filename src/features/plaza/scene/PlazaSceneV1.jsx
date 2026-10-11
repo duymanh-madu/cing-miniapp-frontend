@@ -1,4 +1,4 @@
-import {Hand,PersonStanding} from 'lucide-react';
+import {Hand,PersonStanding,ChevronLeft,ChevronRight,Users,MessageCircle,ZoomIn,ZoomOut,LocateFixed} from 'lucide-react';
 import PlazaLoadingV11 from '../pages/PlazaLoadingV11.jsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { inputVector } from './plazaMotionV1.js';
@@ -13,10 +13,12 @@ const KEY = {
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
 };
 
-export default function PlazaSceneV1({ diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, controlsHidden=interactionPaused, onReadyChange=()=>{} }) {
+export default function PlazaSceneV1({ diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, controlsHidden=interactionPaused, onReadyChange=()=>{}, onOpenChat=()=>{}, onOpenMembers=()=>{} }) {
   const chessAudio=useRef(null);
   useEffect(()=>{chessAudio.current=createPlazaChessAudioV4();function visibility(){if(document.hidden)chessAudio.current?.suspend();else chessAudio.current?.resumeExisting();}document.addEventListener('visibilitychange',visibility);return()=>{document.removeEventListener('visibilitychange',visibility);chessAudio.current?.dispose();chessAudio.current=null;};},[]);
   const [nearSeat,setNearSeat]=useState(null),[tableError,setTableError]=useState(''),[tableBusy,setTableBusy]=useState(false);
+  const [toolsOpen,setToolsOpen]=useState(false);
+  useEffect(()=>{if(controlsHidden||interactionPaused)setToolsOpen(false);},[controlsHidden,interactionPaused]);
   const tablesRef=useRef(tables);tablesRef.current=tables;
   const nearbyRef=useRef(null),actionLock=useRef(false);
   const ownTable=tables.find(t=>t.seats.some(s=>s.memberId===selfId));
@@ -180,7 +182,14 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
         </div>}
         <button type="button" className="cing-plaza-scene__wave plaza-v11-hud-icon" aria-label="Vẫy tay" disabled={interactionPaused || !ready || Boolean(ownTable) || motion === 'wave'}
           onClick={() => { clearInput(); api.current?.wave(); }}><Hand size={22}/></button>
-        <button type="button" className="plaza-v11-hud-icon" aria-label="Tạo dáng" disabled={interactionPaused || !ready || Boolean(ownTable) || motion === 'checkin'} onClick={() => { clearInput(); api.current?.pose(); }}><PersonStanding size={22}/></button>
+        <button type="button" className="plaza-v11-hud-icon plaza-v19-tools-toggle" aria-label={toolsOpen?'Đóng menu thao tác':'Mở menu thao tác'} aria-controls="plaza-v19-tools" aria-expanded={toolsOpen} onClick={()=>setToolsOpen(open=>!open)}><ChevronLeft size={23}/></button>
+        {toolsOpen&&<nav id="plaza-v19-tools" className="plaza-v19-tools" aria-label="Thao tác trong phòng">
+          <div className="plaza-v19-tools-title"><strong>Thao tác</strong><button type="button" aria-label="Đóng menu" onClick={()=>setToolsOpen(false)}><ChevronRight size={20}/></button></div>
+          <button type="button" onClick={()=>{setToolsOpen(false);onOpenMembers();}}><Users size={18}/>Người trong phòng</button>
+          <button type="button" onClick={()=>{setToolsOpen(false);onOpenChat();}}><MessageCircle size={18}/>Trò chuyện</button>
+          <div className="plaza-v19-tools-zoom"><button type="button" aria-label="Phóng gần" onClick={()=>api.current?.zoom(-1)}><ZoomIn size={20}/></button><button type="button" aria-label="Thu xa" onClick={()=>api.current?.zoom(1)}><ZoomOut size={20}/></button><button type="button" aria-label="Góc nhìn ban đầu" onClick={()=>api.current?.cameraPreset('follow')}><LocateFixed size={20}/></button></div>
+          <button type="button" disabled={Boolean(ownTable)||motion==='checkin'} onClick={()=>{clearInput();api.current?.pose();setToolsOpen(false);}}><PersonStanding size={18}/>Tạo dáng</button>
+        </nav>}
       </div>}
       {ready && review && <p className="cing-plaza-scene__notice" role="status">{stats.timeOfDay || ''} · Giờ Việt Nam{notice ? ` — ${notice}` : ''}</p>}
       {!review && notice && <span className="cing-plaza-scene__sr-status" role="status">{notice}</span>}

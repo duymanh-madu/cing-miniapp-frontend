@@ -88,6 +88,14 @@ export function createPlazaCameraV10(
     get pitch() {
       return pitch;
     },
+    zoom(direction) {
+      if (!Number.isFinite(direction) || direction === 0) return;
+      radius = THREE.MathUtils.clamp(
+        radius * (direction < 0 ? 0.78 : 1.28),
+        api.minDistance, api.maxDistance,
+      );
+      api.update();
+    },
     cancelGestures() { pointers.clear(); pinch=null; },
     dispose() {
       for (const [event, fn, options] of listeners)
