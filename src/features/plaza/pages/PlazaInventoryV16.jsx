@@ -1,15 +1,210 @@
-import React,{lazy,Suspense,useState} from 'react';
-import {Coins,Wallet,Megaphone,Shirt,Crown,Image,UserRound,Check,Plus} from 'lucide-react';
+import React, { lazy, Suspense, useState } from 'react';
+import { Coins, Wallet, Megaphone, Shirt, Crown, Image, UserRound, Check, Plus, X } from 'lucide-react';
 import PlazaTitleV10 from './PlazaTitleV10.jsx';
-import {PLAZA_TITLES_V10} from './plazaTitleCatalogV10.js';
-const Avatar=lazy(()=>import('../scene/PlazaAvatarPreviewV16.jsx'));
-const TYPES=[['titles','Danh hiệu',Crown],['outfits','Trang phục',Shirt],['items','Vật phẩm',Megaphone],['decor','Trang trí',Image]];
-const TITLE_GROUPS={membership:['member','loyal','silver','gold','diamond','partner','loyal_partner'],charm:['idol','ngoi_sao','minh_tinh'],honor:['champion','hof_1','hof_2','hof_3']};
-const fmt=n=>Number(n||0).toLocaleString('vi-VN');
-export default function PlazaInventoryV16({mode,identity,character,social,onChooseBadge,onProfile}){
- const [tab,setTab]=useState(mode==='shop'?'items':'titles'),[group,setGroup]=useState('all'),[quantity,setQuantity]=useState('1'),[topup,setTopup]=useState('10'),[confirm,setConfirm]=useState(null);
- const own=social.overview,owned=new Set(identity?.ownedBadges||own?.profile.ownedBadges||[]);const selected=identity?.selectedBadge||own?.profile.selectedBadge;
- const catalog=mode==='shop'?Object.keys(PLAZA_TITLES_V10):[...owned],titles=catalog.filter(key=>group==='all'||TITLE_GROUPS[group]?.includes(key));
- async function pay(){if(!confirm)return;const ok=await social.run(confirm.op,{quantity:confirm.quantity});if(ok)setConfirm(null);}
- return <section className="plaza-v16-inventory"><div className="plaza-v16-assets"><span><Coins size={17}/><b>{fmt(own?.coinBalance)} Coin</b></span><span><Wallet size={17}/>{fmt(own?.walletBalance)}đ</span><button onClick={onProfile}><UserRound size={16}/>Hồ sơ</button></div><div className="plaza-v16-inventory-body"><aside><Suspense fallback={<div className="plaza-v16-preview">Đang tải…</div>}><Avatar character={character} titleKey={selected}/></Suspense><p>Phong cách của bạn</p></aside><div className="plaza-v16-catalog"><nav role="tablist" aria-label="Loại vật phẩm">{TYPES.map(([id,label,Icon])=><button role="tab" key={id} aria-selected={tab===id} onClick={()=>setTab(id)}><Icon size={17}/><span>{label}</span></button>)}</nav>{tab==='titles'?<><div className="plaza-v16-filters">{[['all','Tất cả'],['membership','Thành viên'],['charm','Quyến rũ'],['honor','Vinh danh']].map(([id,label])=><button key={id} aria-pressed={group===id} onClick={()=>setGroup(id)}>{label}</button>)}</div><div className="plaza-v16-item-grid plaza-v18-title-grid">{titles.map(key=><button key={key} disabled={!owned.has(key)||social.busy} aria-pressed={selected===key} onClick={()=>onChooseBadge(key)}><PlazaTitleV10 titleKey={key} size="wardrobe"/><small>{selected===key?<><Check size={12}/>Đang hiển thị</>:owned.has(key)?'Chọn hiển thị':'Theo điều kiện của app'}</small></button>)}</div>{!titles.length&&<p className="plaza-v16-empty">Bạn chưa có danh hiệu trong nhóm này.</p>}</>:tab==='items'?<div className="plaza-v16-shop-item"><div className="plaza-v16-item-art"><Megaphone size={62}/><span>WORLD</span></div><h2>Loa thế giới</h2><p>Một lời nhắn gửi tới mọi Cing iu trên server.</p><strong>3 Coin / loa</strong><small>Đang sở hữu: {fmt(own?.loudspeakers)} loa</small>{mode==='shop'?<div className="plaza-v16-purchase"><label>Số lượng<input inputMode="numeric" type="number" min="1" max="1000" value={quantity} onChange={e=>setQuantity(e.target.value)}/></label><button disabled={social.busy||!own?.commerceEnabled||!Number.isSafeInteger(Number(quantity))||Number(quantity)<1||Number(quantity)>1000} onClick={()=>setConfirm({op:'buy_loudspeaker',quantity:Number(quantity),label:`Mua ${quantity} loa với ${Number(quantity)*3} Coin`})}>Mua loa</button></div>:<p>Mở kênh Loa thế giới trong chat để sử dụng.</p>}</div>:tab==='outfits'?<div className="plaza-v16-item-grid"><button aria-pressed="true"><Shirt size={42}/><strong>Bộ trang phục mặc định</strong><small>Đang mặc · {character==='girl'?'Nữ':'Nam'}</small></button></div>:<div className="plaza-v16-empty"><Image size={34}/><h3>Trang trí hồ sơ</h3><p>Khung ảnh, nền và hiệu ứng bạn sở hữu sẽ hiển thị tại đây.</p><button onClick={onProfile}>Xem hồ sơ hiện tại</button></div>}{mode==='shop'&&<section className="plaza-v16-topup"><div><Plus size={19}/><strong>Nạp Cing Coin</strong><small>1 Coin = 1.000đ từ Cing Wallet</small></div><input aria-label="Số Coin muốn nạp" type="number" inputMode="numeric" min="1" max="1000000" value={topup} onChange={e=>setTopup(e.target.value)}/><button disabled={social.busy||!own?.commerceEnabled||!Number.isSafeInteger(Number(topup))||Number(topup)<1||Number(topup)>1000000} onClick={()=>setConfirm({op:'convert',quantity:Number(topup),label:`Nạp ${topup} Coin từ ${fmt(Number(topup)*1000)}đ Cing Wallet`})}>Nạp Coin</button></section>}{!own&&<button onClick={()=>social.refresh().catch(()=>{})}>Tải tài sản</button>}{social.error&&<p role="alert">{social.error}</p>}</div></div>{confirm&&<div className="plaza-v16-overlay"><section className="plaza-v16-confirm" role="dialog" aria-modal="true" aria-label="Xác nhận thanh toán"><Coins size={30}/><h2>Xác nhận</h2><p>{confirm.label}</p><button disabled={social.busy} onClick={pay}>{social.busy?'Đang xử lý…':'Xác nhận'}</button><button disabled={social.busy||Boolean(social.pending)} onClick={()=>setConfirm(null)}>Quay lại</button>{social.error&&<p role="alert">{social.error}</p>}</section></div>}</section>;
+import { PLAZA_TITLES_V10 } from './plazaTitleCatalogV10.js';
+import './PlazaInventoryV19.css';
+
+const Avatar = lazy(() => import('../scene/PlazaAvatarPreviewV16.jsx'));
+const TYPES = [
+  ['titles', 'Danh hiệu', Crown],
+  ['outfits', 'Trang phục', Shirt],
+  ['items', 'Vật phẩm', Megaphone],
+  ['decor', 'Trang trí', Image],
+];
+const TITLE_GROUPS = {
+  membership: ['member', 'loyal', 'silver', 'gold', 'diamond', 'partner', 'loyal_partner'],
+  charm: ['idol', 'ngoi_sao', 'minh_tinh'],
+  honor: ['champion', 'hof_1', 'hof_2', 'hof_3'],
+};
+const fmt = value => Number(value || 0).toLocaleString('vi-VN');
+const integerInRange = (value, max) => Number.isSafeInteger(Number(value)) && Number(value) >= 1 && Number(value) <= max;
+
+export default function PlazaInventoryV16({ mode, identity, character, social, onChooseBadge, onProfile }) {
+  const [tab, setTab] = useState(mode === 'shop' ? 'items' : 'titles');
+  const [group, setGroup] = useState('all');
+  const [quantity, setQuantity] = useState('1');
+  const [topup, setTopup] = useState('10');
+  const [detail, setDetail] = useState(null);
+  const [topupOpen, setTopupOpen] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+
+  const own = social.overview;
+  const owned = new Set(identity?.ownedBadges || own?.profile?.ownedBadges || []);
+  const selected = identity?.selectedBadge || own?.profile?.selectedBadge;
+  const catalog = mode === 'shop' ? Object.keys(PLAZA_TITLES_V10) : [...owned];
+  const titles = catalog.filter(key => group === 'all' || TITLE_GROUPS[group]?.includes(key));
+  const financialBusy = social.busy || Boolean(social.pending);
+  const enabled = Boolean(own?.commerceEnabled);
+
+  async function pay() {
+    if (!confirm || financialBusy) return;
+    const pending = confirm;
+    const ok = await social.run(pending.op, { quantity: pending.quantity });
+    if (ok) setConfirm(null);
+  }
+
+  function requestLoudspeakerPurchase() {
+    if (financialBusy || !enabled || !integerInRange(quantity, 1000)) return;
+    const count = Number(quantity);
+    setDetail(null);
+    setConfirm({
+      op:'buy_loudspeaker',
+      quantity: count,
+      label: `Mua ${count} loa với ${count * 3} Coin`,
+    });
+  }
+
+  function requestTopup() {
+    if (financialBusy || !enabled || !integerInRange(topup, 1000000)) return;
+    const count = Number(topup);
+    setTopupOpen(false);
+    setConfirm({
+      op:'convert',
+      quantity: count,
+      label: `Nạp ${count} Coin từ ${fmt(count * 1000)}đ Cing Wallet`,
+    });
+  }
+
+  const modal = (label, body, close) => (
+    <div className="plaza-v16-overlay" onClick={event => { if (event.target === event.currentTarget) close(); }}>
+      <section className="plaza-v16-confirm plaza-v19-detail" role="dialog" aria-modal="true" aria-label={label}>
+        <button type="button" className="plaza-v19-close" aria-label="Đóng" disabled={financialBusy} onClick={close}><X size={19}/></button>
+        {body}
+      </section>
+    </div>
+  );
+
+  return (
+    <section className="plaza-v16-inventory plaza-v19-inventory">
+      <div className="plaza-v16-assets plaza-v19-assets">
+        <span className="plaza-v19-balance"><Coins size={17}/><b>{fmt(own?.coinBalance)} Coin</b></span>
+        <span className="plaza-v19-balance"><Wallet size={17}/><b>{fmt(own?.walletBalance)}đ</b></span>
+        <button
+          type="button"
+          className="plaza-v19-topup-trigger"
+          aria-label="Nạp Cing Coin"
+          title="Nạp Cing Coin"
+          disabled={financialBusy || !enabled}
+          onClick={() => setTopupOpen(true)}
+        ><Plus size={16}/><span>Nạp</span></button>
+        <button type="button" className="plaza-v19-profile-shortcut" onClick={onProfile}><UserRound size={16}/><span>Hồ sơ</span></button>
+      </div>
+
+      <div className="plaza-v16-inventory-body plaza-v19-inventory-body">
+        <aside className="plaza-v19-avatar-stage">
+          <Suspense fallback={<div className="plaza-v16-preview">Đang tải nhân vật…</div>}>
+            <Avatar character={character} titleKey={selected}/>
+          </Suspense>
+          <p>Phong cách của bạn</p>
+        </aside>
+
+        <div className="plaza-v16-catalog plaza-v19-catalog">
+          <nav role="tablist" aria-label="Loại vật phẩm">
+            {TYPES.map(([id, label, Icon]) => (
+              <button type="button" role="tab" key={id} aria-selected={tab === id}
+                onClick={() => { setTab(id); setDetail(null); }}>
+                <Icon size={16}/><span>{label}</span>
+              </button>
+            ))}
+          </nav>
+
+          {tab === 'titles' ? (
+            <>
+              <div className="plaza-v16-filters">
+                {[
+                  ['all', 'Tất cả'],
+                  ['membership', 'Thành viên'],
+                  ['charm', 'Quyến rũ'],
+                  ['honor', 'Vinh danh'],
+                ].map(([id, label]) => (
+                  <button type="button" key={id} aria-pressed={group === id} onClick={() => setGroup(id)}>{label}</button>
+                ))}
+              </div>
+              <div className="plaza-v16-item-grid plaza-v18-title-grid plaza-v19-item-grid">
+                {titles.map(key => (
+                  <button type="button" key={key} className="plaza-v19-item-card"
+                    aria-label={`Xem danh hiệu ${PLAZA_TITLES_V10[key]?.label || key}`}
+                    aria-pressed={selected === key} onClick={() => setDetail({ type: 'title', key })}>
+                    <span className="plaza-v19-card-art"><PlazaTitleV10 titleKey={key} size="wardrobe"/></span>
+                    <small className="plaza-v19-card-meta">{selected === key ? 'Đang hiển thị' : owned.has(key) ? 'Đã sở hữu' : 'Chưa sở hữu'}</small>
+                  </button>
+                ))}
+              </div>
+              {!titles.length && <p className="plaza-v16-empty">Bạn chưa có danh hiệu trong nhóm này.</p>}
+            </>
+          ) : tab === 'items' ? (
+            <div className="plaza-v16-item-grid plaza-v19-item-grid">
+              <button type="button" className="plaza-v19-item-card" onClick={() => setDetail({ type: 'loudspeaker' })}>
+                <span className="plaza-v19-card-art plaza-v19-card-item"><Megaphone size={38}/></span>
+                <strong className="plaza-v19-card-name">Loa thế giới</strong>
+                <small className="plaza-v19-card-meta plaza-v19-price">3 Coin / loa</small>
+              </button>
+            </div>
+          ) : tab === 'outfits' ? (
+            <div className="plaza-v16-item-grid plaza-v19-item-grid">
+              <button type="button" className="plaza-v19-item-card" aria-pressed="true" onClick={() => setDetail({ type: 'outfit' })}>
+                <span className="plaza-v19-card-art plaza-v19-card-item"><Shirt size={38}/></span>
+                <strong className="plaza-v19-card-name">Trang phục mặc định</strong>
+                <small className="plaza-v19-card-meta">Đang mặc</small>
+              </button>
+            </div>
+          ) : (
+            <div className="plaza-v16-empty"><Image size={34}/><h3>Trang trí hồ sơ</h3>
+              <p>Khung ảnh, nền và hiệu ứng bạn sở hữu sẽ hiển thị tại đây.</p>
+              <button type="button" onClick={onProfile}>Xem hồ sơ hiện tại</button>
+            </div>
+          )}
+
+          {!own && <button type="button" onClick={() => social.refresh().catch(() => {})}>Tải tài sản</button>}
+          {social.error && <p role="alert">{social.error}</p>}
+        </div>
+      </div>
+
+      {detail?.type === 'title' && modal('Chi tiết danh hiệu', <>
+        <div className="plaza-v19-detail-art"><PlazaTitleV10 titleKey={detail.key} size="wardrobe"/></div>
+        <p>{selected === detail.key ? 'Bạn đang hiển thị danh hiệu này.' : owned.has(detail.key) ? 'Danh hiệu đã thuộc sở hữu của bạn.' : 'Danh hiệu này chưa thuộc sở hữu của bạn.'}</p>
+        {owned.has(detail.key) && selected !== detail.key && <button type="button" disabled={social.busy}
+          onClick={() => { const key = detail.key; onChooseBadge(key); setDetail(null); }}>Chọn hiển thị</button>}
+      </>, () => setDetail(null))}
+
+      {detail?.type === 'loudspeaker' && modal('Chi tiết Loa thế giới', <>
+        <div className="plaza-v19-detail-art plaza-v19-item-details"><Megaphone size={66}/></div>
+        <h2>Loa thế giới</h2>
+        <p>Một lời nhắn gửi tới mọi Cing iu trên server.</p>
+        <strong className="plaza-v19-detail-price">3 Coin / loa</strong>
+        <small>Đang sở hữu: {fmt(own?.loudspeakers)} loa</small>
+        {mode === 'shop' ? <div className="plaza-v16-purchase">
+          <label>Số lượng<input inputMode="numeric" type="number" min="1" max="1000"
+            value={quantity} onChange={event => setQuantity(event.target.value)}/></label>
+          <button type="button" disabled={financialBusy || !enabled || !integerInRange(quantity, 1000)}
+            onClick={requestLoudspeakerPurchase}>Mua loa</button>
+        </div> : <p>Mở kênh Loa thế giới trong chat để sử dụng.</p>}
+      </>, () => setDetail(null))}
+
+      {detail?.type === 'outfit' && modal('Chi tiết trang phục', <>
+        <div className="plaza-v19-detail-art plaza-v19-item-details"><Shirt size={66}/></div>
+        <h2>Trang phục mặc định</h2>
+        <p>Đang mặc · {character === 'girl' ? 'Nữ' : 'Nam'}</p>
+      </>, () => setDetail(null))}
+
+      {topupOpen && modal('Nạp Cing Coin', <>
+        <Coins size={30}/>
+        <h2>Nạp Cing Coin</h2>
+        <p>1 Coin = 1.000đ từ Cing Wallet</p>
+        <label className="plaza-v19-topup-quantity">Số Coin muốn nạp
+          <input aria-label="Số Coin muốn nạp" type="number" inputMode="numeric" min="1" max="1000000"
+            value={topup} onChange={event => setTopup(event.target.value)}/>
+        </label>
+        <button type="button" disabled={financialBusy || !enabled || !integerInRange(topup, 1000000)}
+          onClick={requestTopup}>Tiếp tục</button>
+      </>, () => setTopupOpen(false))}
+
+      {confirm && modal('Xác nhận thanh toán', <>
+        <Coins size={30}/><h2>Xác nhận</h2><p>{confirm.label}</p>
+        <button type="button" disabled={financialBusy} onClick={pay}>{social.busy ? 'Đang xử lý…' : 'Xác nhận'}</button>
+        <button type="button" disabled={financialBusy} onClick={() => setConfirm(null)}>Quay lại</button>
+        {social.error && <p role="alert">{social.error}</p>}
+      </>, () => { if (!financialBusy) setConfirm(null); })}
+    </section>
+  );
 }

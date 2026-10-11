@@ -1,0 +1,140 @@
+/* CING PLAZA V19: compact catalog + top-up in the assets header.
+   Presentation only. Financial authority remains in social.run. */
+.cing-plaza .plaza-v19-inventory .plaza-v19-assets {
+  display: flex; flex-wrap: nowrap; gap: 8px; align-items: center;
+  padding: 7px 2px 10px; min-width: 0;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-balance {
+  display: inline-flex; gap: 4px; align-items: center; font-size: 12px;
+  min-width: 0; white-space: nowrap; color: #e6cb91;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-balance b {font-weight: 650;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-topup-trigger {
+  margin: 0; background: #e7c182; color: #1b2b2c; border-color: #e7c182;
+  border-radius: 10px; font-size: 12px; font-weight: 750;
+  min-height: 35px; padding: 5px 9px; flex: none;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-profile-shortcut {margin-left: auto; flex: none;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-item-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+  align-content: start; padding-bottom: 12px;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-item-grid > .plaza-v19-item-card,
+.cing-plaza .plaza-v19-inventory .plaza-v18-title-grid > .plaza-v19-item-card {
+  display: flex !important; flex-direction: column !important; justify-content: flex-start !important;
+  gap: 4px !important; min-width: 0 !important; height: auto !important;
+  min-height: 135px !important; padding: 7px 5px 9px !important;
+  border: 1px solid rgba(216, 190, 140, .25) !important;
+  border-radius: 13px !important; overflow: hidden !important;
+  background: linear-gradient(150deg, rgba(28,50,61,.96), rgba(14,30,39,.96)) !important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-item-card[aria-pressed="true"] {
+  border-color: #dfc384 !important; box-shadow: inset 0 0 0 1px rgba(223,195,132,.22);
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-card-art {
+  display: flex; justify-content: center; align-items: center;
+  width: 100%; height: 75px; flex: 0 0 75px; min-width: 0;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-card-art .plaza-prestige-v18--wardrobe {
+  display: flex !important; height: 72px !important; max-height: 72px !important;
+  max-width: 100% !important; width: 100% !important; overflow: visible !important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-card-art .plaza-prestige-v18__art {
+  width: 100% !important; height: 100% !important;
+  max-width: 100% !important; max-height: 100% !important; object-fit: contain !important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-card-item {color: #e9cb8b;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-card-name {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; width: 100%; min-width: 0; font-size: 11px;
+  line-height: 1.3; min-height: 28px; text-align: center; color: #f9efdb;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-card-meta,
+.cing-plaza .plaza-v19-inventory .plaza-v18-title-grid > button > .plaza-v19-card-meta {
+  display: block; width: 100%; min-width: 0; font-size: 10px !important;
+  line-height: 1.3; min-height: 13px; margin-top: auto; color: #c7bda8 !important;
+  text-align: center; overflow-wrap: anywhere;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-price {color: #efd195 !important; font-weight: 750;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-detail {position: relative; padding: 24px 16px 20px;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-close {
+  position: absolute; right: 12px; top: 10px; min-width: 37px; min-height: 37px;
+  padding: 6px; margin: 0;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-detail-art {
+  min-height: 110px; display: flex; justify-content: center; align-items: center; max-width: 100%;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-detail-art .plaza-prestige-v18--wardrobe {
+  width: min(100%, 300px) !important; max-width: 100% !important;
+  height: 110px !important; max-height: 110px !important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-detail-art .plaza-prestige-v18__art {
+  max-width: 100% !important; max-height: 100% !important;
+  width: 100% !important; height: 100% !important; object-fit: contain !important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-item-details {color: #dfc48a;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-detail-price {display: block; color: #f1d59f; margin: 12px 0;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-detail small {display: block; color: #afc2c3;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-topup-quantity {
+  display: grid; gap: 8px; margin: 16px auto; width: min(100%, 200px);
+  font-size: 12px; color: #dfc48a; text-align: left;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-topup-quantity input {width: 100%;}
+.cing-plaza .plaza-v19-inventory .plaza-v16-purchase > button,
+.cing-plaza .plaza-v19-inventory .plaza-v19-detail > button:not(.plaza-v19-close) {
+  color: #17282e; background: #dfbd7f; border-color: #dfbd7f; font-weight: 750;
+}
+@media (max-width: 699px) and (orientation:portrait) {
+  .cing-plaza .plaza-v19-inventory {padding: 7px 10px 10px; min-height: 0;}
+  .cing-plaza .plaza-v19-inventory .plaza-v19-assets {gap: 6px;}
+  .cing-plaza .plaza-v19-inventory .plaza-v19-balance {font-size: 10.5px; gap: 3px;}
+  .cing-plaza .plaza-v19-inventory .plaza-v19-balance svg {width: 15px; height: 15px;}
+  .cing-plaza .plaza-v19-inventory .plaza-v19-profile-shortcut {padding: 5px 7px; min-height: 35px;}
+  .cing-plaza .plaza-v19-inventory .plaza-v19-profile-shortcut span {display: none;}
+  .cing-plaza .plaza-v19-inventory .plaza-v19-topup-trigger {padding: 5px 8px;}
+  .cing-plaza .plaza-v19-inventory .plaza-v19-inventory-body {
+    display: grid; grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(210px, 42%) minmax(0, 1fr); gap: 9px;
+    min-height: 0; height: 100%;
+  }
+  .cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage {
+    width: 100%; min-width: 0; min-height: 0; overflow: hidden;
+  }
+  .cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage .plaza-v16-preview {
+    min-height: 0; height: 100%; flex: 1;
+  }
+  .cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage .plaza-v16-preview-canvas {
+    inset: 8px 0 28px; min-height: 0;
+  }
+  .cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage > p {
+    padding: 4px 0 7px; font-size: 9px; letter-spacing: 1px;
+  }
+  .cing-plaza .plaza-v19-inventory .plaza-v19-catalog {
+    min-height: 0; height: 100%; overflow-y: auto; overflow-x: hidden;
+    overscroll-behavior: contain; gap: 9px; padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+  .cing-plaza .plaza-v19-inventory .plaza-v19-catalog > nav {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 3px; padding: 3px; flex-wrap: nowrap;
+  }
+  .cing-plaza .plaza-v19-inventory .plaza-v19-catalog > nav > button {
+    display: flex; flex-direction: column; gap: 3px; min-width: 0;
+    flex-basis: auto; padding: 5px 2px; min-height: 46px; font-size: 10px;
+  }
+  .cing-plaza .plaza-v19-inventory .plaza-v19-item-grid,
+  .cing-plaza .plaza-v19-inventory .plaza-v19-item-grid.plaza-v18-title-grid {
+    grid-template-columns: repeat(3, minmax(0,1fr)); gap: 7px;
+  }
+}
+@media (max-width: 365px) {
+  .cing-plaza .plaza-v19-inventory .plaza-v19-topup-trigger span {display: none;}
+  .cing-plaza .plaza-v19-inventory .plaza-v19-item-grid,
+  .cing-plaza .plaza-v19-inventory .plaza-v19-item-grid.plaza-v18-title-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+}
+@media (max-height: 650px) and (orientation:portrait) {
+  .cing-plaza .plaza-v19-inventory .plaza-v19-inventory-body {
+    grid-template-rows: minmax(160px, 39%) minmax(0, 1fr);
+  }
+}
