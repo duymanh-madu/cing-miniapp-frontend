@@ -81,7 +81,7 @@ export function createPlazaRemoteAvatarsV2({scene,load,onNotice=()=>{}}) {
    a.group.position.set(v.x,v.y,v.z);a.group.rotation.y=v.heading;
    const key=`${v.motion}:${v.gesture}:${v.presenceId}`;
    if(a.current!==key){const old=a.action,next=a.actions[v.motion];if(!next)continue;next.reset().play();next.time=Math.min(v.phase,next.getClip().duration);if(old&&old!==next)next.crossFadeFrom(old,.22,false);a.current=key;a.action=next;}
-   a.actions.walk.setEffectiveTimeScale(v.speed/PLAZA_AVATARS[a.character].speed);
+   a.actions.walk.setEffectiveTimeScale(Math.min(1.25,v.speed/PLAZA_AVATARS[a.character].speed));
    a.accumulated+=dt;
    projected.copy(a.group.position).project(camera);
    const near=projected.z>-1&&projected.z<1&&Math.abs(projected.x)<1.2&&Math.abs(projected.y)<1.2;

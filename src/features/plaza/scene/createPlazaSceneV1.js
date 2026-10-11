@@ -96,7 +96,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   let state = 'idle', waveRequested = false, waveFinished = false, loaded = false;
   let input = { x: 0, z: 0 }, map = null, floors = [], collision = () => false;
   let groundY = 0, soleOffset = 0, stats = {}, preset = 'follow';
-  let world = null, worldAssets = null, cafeRoof = null, lockedMovement = null, interactionPaused=false, backgroundRenderAt=0;
+  let world = null, worldAssets = null, cafeRoof = null, interactionPaused=false, backgroundRenderAt=0;
   let walkPlayback = 1;
   let materialResources = null, path = [], walkLift = .035, lift = 0, clockMinute = '';
   const marker = new THREE.Mesh(new THREE.RingGeometry(.16, .22, 32), new THREE.MeshBasicMaterial({ color: '#e7a34a', side: THREE.DoubleSide, transparent: true, opacity: .85, depthWrite: false }));
@@ -221,7 +221,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     oldPosition.copy(avatar.position);
     camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
     right.crossVectors(forward, camera.up).normalize();
-    if(lockedMovement)movement.copy(lockedMovement);else movement.copy(forward).multiplyScalar(input.z).addScaledVector(right, input.x);
+    movement.copy(forward).multiplyScalar(input.z).addScaledVector(right, input.x);
     if (movement.lengthSq() > 1) movement.normalize();
     if (path.length && movement.lengthSq() < .001) {
       while (path.length && Math.hypot(path[0].x - avatar.position.x, path[0].z - avatar.position.z) < .055) path.shift();
@@ -239,7 +239,6 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
         const movedX = tryStep(avatar.position.x + movement.x * distance, avatar.position.z);
         const movedZ = tryStep(avatar.position.x, avatar.position.z + movement.z * distance);
         moved = movedX || movedZ;
-        if (!moved && lockedMovement && !world?.waitingAtDoor(avatar.position)) {lockedMovement=null;input={x:0,z:0};onNotice('Lối đi đang bị chắn.');}
         if (!moved && path.length && !world?.waitingAtDoor(avatar.position)) { stopPath(); onNotice('Lối đi đang bị chắn. Hãy chọn điểm khác.'); }
       }
       const heading = Math.atan2(movement.x, movement.z);
@@ -249,7 +248,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     changeAction(authoritativeSeat?'sit':nextAvatarMotion(state, moved, waveRequested, waveFinished));
     const actualSpeed = Math.hypot(avatar.position.x-oldPosition.x,avatar.position.z-oldPosition.z)/(dt||1);
     // Both clips are authored at walkSpeed; time follows actual travel, including partial joystick input.
-    walkPlayback=moved ? Math.min(1.15,actualSpeed/walkSpeed) : 0;
+    walkPlayback=moved ? Math.min(1.25,actualSpeed/walkSpeed) : 0;
     actions.walk.setEffectiveTimeScale(walkPlayback);
     mixer.update(dt);
     if (character === 'girl') { expressionTime += dt; const expression = girlExpression(expressionTime,state); for (const [name,value] of Object.entries(expression)) vrm.expressionManager?.setValue(name,value); }
@@ -273,7 +272,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     raf = requestAnimationFrame(tick);
   }
   function onVisibility() {
-    lockedMovement=null;input = { x: 0, z: 0 }; stopPath();controls.cancelGestures();
+    input = { x: 0, z: 0 }; stopPath();controls.cancelGestures();
     if (document.hidden) { cancelAnimationFrame(raf); raf = 0;clearTimeout(restoreTimer); }
     else if(contextLost)armRestoreTimeout();
     else if (loaded && !disposed && !contextLost && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
@@ -422,11 +421,10 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       pendingMembers=members||[];pendingSelfId=selfId;
       if(loaded)remote.setMembers(pendingMembers,pendingSelfId);
     },
-    setInteractionPaused:value=>{interactionPaused=Boolean(value);if(interactionPaused){lockedMovement=null;input={x:0,z:0};stopPath();controls.cancelGestures();}},
+    setInteractionPaused:value=>{interactionPaused=Boolean(value);if(interactionPaused){input={x:0,z:0};stopPath();controls.cancelGestures();}},
     cancelGestures:()=>controls.cancelGestures(),
-    lockMovement:value=>{if(!loaded||disposed||authoritativeSeat)return;camera.getWorldDirection(forward);forward.y=0;forward.normalize();right.crossVectors(forward,camera.up).normalize();lockedMovement=forward.clone().multiplyScalar(value.z).addScaledVector(right,value.x).normalize();input={...value};stopPath();},
-    setInput: value => { if (!disposed) { lockedMovement=null; input = { x: value.x, z: value.z }; if (Math.hypot(value.x, value.z) > .01) stopPath(); } },
-    stop: () => { lockedMovement=null; input = { x: 0, z: 0 }; stopPath(); },
+    setInput: value => { if (!disposed) { input = { x: value.x, z: value.z }; if (Math.hypot(value.x, value.z) > .01) stopPath(); } },
+    stop: () => { input = { x: 0, z: 0 }; stopPath(); },
     tap: (clientX, clientY) => {
       if (!loaded || disposed || authoritativeSeat) return;
       const rect = renderer.domElement.getBoundingClientRect();
@@ -453,7 +451,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       if (!result) { onNotice('Chưa có lối đi tới điểm này. Hãy chọn điểm gần hơn trên cùng mặt sân.'); return; }
       input = { x: 0, z: 0 }; path = result;
       marker.position.set(target.x, hit.point.y + .015, target.z); marker.visible = true;
-      onNotice('Đang đi tới điểm đã chọn. Kéo cần để đổi hướng hoặc bấm Dừng.');
+      onNotice('Đang đi tới điểm đã chọn. Chạm vị trí khác để đổi đích.');
     },
     wave: () => { if (loaded && state !== 'wave') { stopPath(); waveRequested = 'wave'; } },
     pose: () => { if (loaded && !disposed && actions.checkin) { input={x:0,z:0}; stopPath(); waveRequested='checkin'; } },

@@ -1,0 +1,47 @@
+/* CING PLAZA V19 / BLOCK 03 — UI and presentation only. */
+/* Hall: share one authenticated VRM renderer with wardrobe, unmount on room entry. */
+.cing-plaza .plaza-v7-hero {position:relative;isolation:isolate;}
+.cing-plaza .plaza-v7-hero .plaza-v19-hub-avatar {
+  position:absolute; right:3%; top:10%; width:39%; height:86%; z-index:1;
+  min-height:210px; pointer-events:auto;
+}
+.cing-plaza .plaza-v19-hub-avatar .plaza-v16-preview {height:100%;min-height:0;}
+.cing-plaza .plaza-v19-hub-avatar .plaza-v16-preview-canvas {inset:66px 0 22px;}
+.cing-plaza .plaza-v19-hub-avatar .plaza-v16-preview-title {top:0;min-height:58px;}
+.cing-plaza .plaza-v19-hub-avatar .plaza-prestige-v18--preview {height:56px!important;}
+.cing-plaza .plaza-v19-hub-avatar .plaza-v16-preview>small {display:none;}
+.cing-plaza .plaza-v19-hub-avatar>img {height:100%;width:100%;object-fit:contain;}
+.cing-plaza .plaza-v19-hub-actions {display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:440px;margin:10px auto 14px;}
+.cing-plaza .plaza-v19-hub-actions button {min-height:45px;padding:10px 12px;border:1px solid #d4b98a88;color:#f5e6c7;background:#152a30a8;border-radius:14px;font-size:14px;font-weight:650;}
+.cing-plaza .plaza-v19-hub-actions span {font-size:11px;opacity:.75;margin-left:6px;}
+.cing-plaza .plaza-v19-friends-backdrop {position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 14px);background:#071219cd;}
+.cing-plaza .plaza-v19-friends-dialog {width:min(100%,450px);max-height:85dvh;overflow:auto;padding:20px;background:#122b33;color:#f3ecdf;border:1px solid #d2b27d;border-radius:20px;}
+.cing-plaza .plaza-v19-friends-head,.cing-plaza .plaza-v19-friend-row {display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;}
+.cing-plaza .plaza-v19-friends-dialog button {min-height:38px;border:1px solid #d2b27d66;border-radius:9px;padding:7px 12px;background:#223c45;color:#f8e8c8;}
+/* Preview: reserve a separate title lane so artwork never obscures the VRM's head. */
+.cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage .plaza-v16-preview-title {top:0!important;left:0;right:0;min-height:70px;align-items:flex-start;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage .plaza-v16-preview-canvas {inset:76px 0 30px!important;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage .plaza-prestige-v18--preview {height:64px!important;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage .plaza-v16-preview-fallback {max-height:calc(100% - 115px)!important;bottom:30px!important;}
+/* Shop item premium painting, not an icon font. */
+.cing-plaza .plaza-v19-inventory .plaza-v19-loa-art {display:block;width:100%;height:100%;max-height:82px;object-fit:contain;filter:drop-shadow(0 3px 6px #e8bf6440);}
+.cing-plaza .plaza-v19-inventory .plaza-v19-loa-art--detail {height:min(40vw,175px);max-height:180px;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-card-item {padding:2px;}
+/* Overhead 3D: centered full-art title ABOVE centered player name; chat unaffected. */
+.plaza-v9-nameplate {transform:translate(-50%,calc(-100% - 10px))!important;}
+.plaza-v18-idrow--overhead {display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;width:max-content!important;min-height:0!important;gap:0!important;overflow:visible!important;}
+.plaza-v18-idrow--overhead>.plaza-prestige-v18 {position:relative!important;top:auto!important;right:auto!important;transform:none!important;margin:0 auto -3px!important;height:clamp(34px,9.3vw,46px)!important;max-width:none!important;}
+.plaza-v18-idrow--overhead>.plaza-v9-name {margin:0 auto!important;padding:0 5px 2px!important;line-height:1.18!important;}
+/* Common tiers become restrained and visually smaller; no motion for standard ranks. */
+.plaza-prestige-v18--ordinary0 .plaza-prestige-v18__art {filter:grayscale(.52) saturate(.60) brightness(.78)!important;transform:scale(.77);}
+.plaza-prestige-v18--ordinary1 .plaza-prestige-v18__art {filter:grayscale(.36) saturate(.69) brightness(.86)!important;transform:scale(.84);}
+.plaza-prestige-v18--ordinary2 .plaza-prestige-v18__art {filter:grayscale(.15) saturate(.80) brightness(.93)!important;transform:scale(.92);}
+.plaza-prestige-v18--ordinary3 .plaza-prestige-v18__art {filter:saturate(.93) brightness(.98)!important;transform:scale(.97);}
+.plaza-prestige-v18--level1 .plaza-prestige-v18__art {filter:drop-shadow(0 0 4px #ffadd4b0)!important;}
+.plaza-prestige-v18--level2 .plaza-prestige-v18__art {filter:drop-shadow(0 0 6px #c7baffc7)!important;}
+.plaza-prestige-v18--level3 .plaza-prestige-v18__art {filter:drop-shadow(0 0 7px #ffe2afec) drop-shadow(0 0 3px #f7b3edaa)!important;}
+.plaza-prestige-v18--level1:before {animation-duration:6s!important;}
+.plaza-prestige-v18--level2:before {animation-duration:4.9s!important;}
+.plaza-prestige-v18--level3:before {animation-duration:3.9s!important;}
+@media (prefers-reduced-motion:reduce){.plaza-prestige-v18::before,.plaza-prestige-v18::after{animation:none!important;opacity:0!important;}}
+@media(max-width:600px){.cing-plaza .plaza-v19-hub-avatar .plaza-v16-preview-canvas{inset:60px 0 5px!important}.cing-plaza .plaza-v19-hub-avatar .plaza-prestige-v18--preview{height:48px!important}}

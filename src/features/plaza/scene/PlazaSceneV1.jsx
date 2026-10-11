@@ -1,6 +1,5 @@
-import {Hand,PersonStanding,LockKeyhole} from 'lucide-react';
+import {Hand,PersonStanding} from 'lucide-react';
 import PlazaLoadingV11 from '../pages/PlazaLoadingV11.jsx';
-import {joystickLockArmedV11,lockedDirectionV11} from './plazaJoystickV11.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { inputVector } from './plazaMotionV1.js';
 import { joystickVector } from './plazaRefinementsV2.js';
@@ -40,8 +39,6 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
   const [motion, setMotion] = useState('idle'), [stats, setStats] = useState({});
   const [knob, setKnob] = useState({ x: 0, z: 0 });
   const [notice, setNotice] = useState('');
-  const [locked,setLocked]=useState(false),[lockArmed,setLockArmed]=useState(false);
-  const lockedRef=useRef(false),armedRef=useRef(false);
   const stick = useRef({ x: 0, z: 0 }), stickPointer = useRef(null), taps = useRef(new Map());
   function syncInput() {
     const keys = new Set([...keyboard.current].map(code => KEY[code]));
@@ -49,7 +46,6 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
     api.current?.setInput(keys.size ? k : stick.current);
   }
   function clearInput() {
-    lockedRef.current=false;armedRef.current=false;setLocked(false);setLockArmed(false);
     keyboard.current.clear(); pointers.current.clear();
     stickPointer.current = null; stick.current = { x: 0, z: 0 }; setKnob(stick.current);
     taps.current.clear(); api.current?.stop();
@@ -151,11 +147,10 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
       </div>
       {ready&&!controlsHidden&&<div className="cing-plaza-scene__controls">
         <button type="button" className="cing-plaza-scene__joystick" disabled={interactionPaused || !ready || Boolean(ownTable)}
-          aria-label={locked?"Chạm để dừng và mở khóa hướng":"Di chuyển: kéo theo hướng muốn đi; kéo qua vòng ngoài và thả để khóa hướng"}
-          data-locked={locked} data-armed={lockArmed}
+          aria-label="Di chuyển: giữ và kéo cần điều khiển, thả để dừng"
+
           onPointerDown={event => {
             if (stickPointer.current !== null) return;
-            if(lockedRef.current){event.preventDefault();clearInput();return;}
             event.preventDefault(); wrapper.current?.focus({ preventScroll: true });
             clearInput();
             stickPointer.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId);
@@ -165,22 +160,19 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           onPointerMove={event => {
             if (stickPointer.current !== event.pointerId) return;
             stick.current = joystickVector(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect());
-            armedRef.current=joystickLockArmedV11(event.clientX,event.clientY,event.currentTarget.getBoundingClientRect());setLockArmed(armedRef.current);
             setKnob(stick.current); syncInput();
           }}
           onPointerUp={event => {
             if (stickPointer.current !== event.pointerId) return;
             stickPointer.current = null;
-            const vector=armedRef.current&&lockedDirectionV11(stick.current);armedRef.current=false;setLockArmed(false);
-            if(vector){lockedRef.current=true;setLocked(true);stick.current=vector;setKnob(vector);api.current?.lockMovement(vector);}else clearInput();
+             clearInput();
           }}
           onPointerCancel={() => clearInput()}
           onLostPointerCapture={() => {
-            if(stickPointer.current!==null&&!lockedRef.current)clearInput();
+            if(stickPointer.current!==null)clearInput();
           }}>
 
-          {lockArmed&&<span className="plaza-v11-lock-hint">Thả để khóa hướng</span>}
-          <span className="cing-plaza-scene__stick-knob" aria-hidden="true" style={{ transform: `translate(${knob.x * 38}px, ${-knob.z * 38}px)` }}><LockKeyhole size={18}/></span>
+          <span className="cing-plaza-scene__stick-knob" aria-hidden="true" style={{ transform: `translate(${knob.x * 38}px, ${-knob.z * 38}px)` }}><span aria-hidden="true">●</span></span>
         </button>
         {review && <div className="cing-plaza-scene__help"><strong>{motion === 'walk' ? 'Đang dạo bước' : motion === 'checkin' ? 'Tạo dáng một chút' : motion === 'wave' ? 'Chào Cing iu!' : 'Thư thả một chút'}</strong>
           <p>Kéo cần theo bất kỳ hướng nào, thả để dừng. Chạm mặt sân để đi tới đó; kéo cảnh để xoay góc nhìn.</p>

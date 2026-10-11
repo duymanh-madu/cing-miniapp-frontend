@@ -135,7 +135,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
           ) : tab === 'items' ? (
             <div className="plaza-v16-item-grid plaza-v19-item-grid">
               <button type="button" className="plaza-v19-item-card" onClick={() => setDetail({ type: 'loudspeaker' })}>
-                <span className="plaza-v19-card-art plaza-v19-card-item"><Megaphone size={38}/></span>
+                <span className="plaza-v19-card-art plaza-v19-card-item"><img className="plaza-v19-loa-art" src="/cing-plaza/assets/v19/loa-the-gioi-premium.webp" alt="" loading="lazy"/></span>
                 <strong className="plaza-v19-card-name">Loa thế giới</strong>
                 <small className="plaza-v19-card-meta plaza-v19-price">3 Coin / loa</small>
               </button>
@@ -168,7 +168,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
       </>, () => setDetail(null))}
 
       {detail?.type === 'loudspeaker' && modal('Chi tiết Loa thế giới', <>
-        <div className="plaza-v19-detail-art plaza-v19-item-details"><Megaphone size={66}/></div>
+        <div className="plaza-v19-detail-art plaza-v19-item-details"><img className="plaza-v19-loa-art plaza-v19-loa-art--detail" src="/cing-plaza/assets/v19/loa-the-gioi-premium.webp" alt="Loa thế giới phong cách Kinh Bắc"/></div>
         <h2>Loa thế giới</h2>
         <p>Một lời nhắn gửi tới mọi Cing iu trên server.</p>
         <strong className="plaza-v19-detail-price">3 Coin / loa</strong>
