@@ -1,0 +1,69 @@
+/* CING PLAZA V19 / BLOCK 06 — visual QA repair. No global Zalo controls. */
+.cing-plaza--room .plaza-v19-room-dock {
+  position:absolute;z-index:34;
+  top:max(38px,calc(env(safe-area-inset-top,0px) - 5px));
+  left:max(10px,env(safe-area-inset-left,0px));
+  right:calc(max(10px,env(safe-area-inset-right,0px)) + 90px);
+  display:flex;flex-direction:column;align-items:stretch;gap:5px;
+  pointer-events:none;min-width:0;
+}
+.cing-plaza--room .plaza-v19-room-dock .plaza-v15-room-hud {
+  position:relative!important;top:auto!important;left:auto!important;right:auto!important;
+  width:100%!important;min-width:0;max-width:none!important;
+  display:flex;gap:6px!important;align-items:stretch!important;pointer-events:auto;
+}
+.cing-plaza--room .plaza-v19-room-dock .plaza-v15-room-hud>button:first-child {
+  padding:8px!important;min-height:43px!important;white-space:nowrap;font-size:14px!important;
+  border-radius:13px!important;
+}
+.cing-plaza--room .plaza-v19-room-dock .plaza-v15-room-hud>div {
+  min-width:0!important;padding:5px 10px!important;justify-content:center;
+  border-radius:13px!important;
+}
+.cing-plaza--room .plaza-v19-room-dock .plaza-v15-room-hud>div strong {
+  font-size:13px!important;white-space:nowrap!important;overflow:hidden!important;
+  text-overflow:ellipsis!important;line-height:1.15!important;
+}
+.cing-plaza--room .plaza-v19-room-dock .plaza-v15-room-hud>div span {
+  font-size:10px!important;line-height:1.12!important;white-space:nowrap!important;
+  overflow:hidden;text-overflow:ellipsis;
+}
+.cing-plaza--room .plaza-v19-room-dock .plaza-v15-chat-peek {
+  position:relative!important;top:auto!important;left:auto!important;right:auto!important;
+  width:100%!important;max-width:none!important;min-width:0;
+  margin:0!important;padding:6px 9px!important;border-radius:12px!important;
+  gap:2px!important;pointer-events:auto;
+}
+.cing-plaza--room .plaza-v19-room-dock .plaza-v15-chat-peek>span{min-width:0;line-height:1.3!important;}
+.cing-plaza--room .plaza-v19-room-dock .plaza-v15-chat-peek b {font-size:11px!important;}
+/* Move the chat X to top centre, far from Zalo Mini App's top-right close. */
+.cing-plaza .plaza-v19-chat-premium header {
+  position:relative!important;padding:7px 12px!important;min-height:58px!important;
+  display:flex;align-items:center;justify-content:center!important;
+}
+.cing-plaza .plaza-v19-chat-premium header>button {
+  position:absolute!important;top:50%!important;left:50%!important;
+  right:auto!important;margin:0!important;transform:translate(-50%,-50%)!important;
+  width:44px!important;height:44px!important;min-height:44px!important;border-radius:50%!important;
+  z-index:3;
+}
+/* Wardrobe / shop avatar controls use the EXISTING WebGL renderer. */
+.cing-plaza .plaza-v19-premium-character .plaza-v16-preview-canvas {touch-action:none!important;}
+.cing-plaza .plaza-v19-premium-character .plaza-v16-preview {overflow:hidden;}
+.cing-plaza .plaza-v19-premium-character .plaza-v19-preview-zoom-controls {
+  position:absolute;z-index:4;right:6px;bottom:29px;display:flex;flex-direction:column;
+  align-items:center;gap:5px;pointer-events:auto;
+}
+.cing-plaza .plaza-v19-premium-character .plaza-v19-preview-zoom-controls button {
+  min-width:34px;min-height:36px;width:36px;height:36px;border:1px solid #eac48c80;
+  border-radius:10px;background:#203a43dc;color:#f8dba5;box-shadow:0 3px 12px #0005;
+  padding:0;line-height:1;font-size:20px;display:flex;align-items:center;justify-content:center;
+}
+.cing-plaza .plaza-v19-premium-character .plaza-v19-preview-zoom-controls output {
+  font-size:10px;color:#f6dcad;background:#10252dd9;border-radius:8px;padding:2px 3px;
+}
+.cing-plaza .plaza-v19-premium-character .plaza-v16-preview>small {font-size:9px!important;}
+@media (orientation:landscape) and (max-height:500px) {
+  .cing-plaza--room .plaza-v19-room-dock {top:max(4px,env(safe-area-inset-top,0px));right:calc(max(8px,env(safe-area-inset-right,0px)) + 86px);}
+  .cing-plaza .plaza-v19-chat-premium header {min-height:48px!important;padding:3px 10px!important;}
+}

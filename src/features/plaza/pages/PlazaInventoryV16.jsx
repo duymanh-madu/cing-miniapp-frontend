@@ -5,6 +5,7 @@ import PlazaTitleV10 from './PlazaTitleV10.jsx';
 import { PLAZA_TITLES_V10 } from './plazaTitleCatalogV10.js';
 import './PlazaInventoryV19.css';
 import './PlazaV19PremiumV4.css';
+import './PlazaV19Block06.css';
 
 const Avatar = lazy(() => import('../scene/PlazaAvatarPreviewV16.jsx'));
 const TYPES = [
@@ -97,7 +98,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
         <aside className="plaza-v19-avatar-stage plaza-v19-premium-stage" aria-label="Phong cách của bạn">
           <div className="plaza-v19-premium-character">
             <Suspense fallback={<div className="plaza-v16-preview">Đang tải nhân vật…</div>}>
-              <Avatar character={character} titleKey={selected}/>
+              <Avatar character={character} titleKey={selected} interactiveZoom/>
             </Suspense>
           </div>
           <div className="plaza-v19-premium-rank">
