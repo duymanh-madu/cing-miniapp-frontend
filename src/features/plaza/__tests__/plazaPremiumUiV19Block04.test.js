@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const inv=readFileSync(new URL('../pages/PlazaInventoryV16.jsx',import.meta.url),'utf8');
+const profile=readFileSync(new URL('../pages/PlazaProfileV16.jsx',import.meta.url),'utf8');
+const scene=readFileSync(new URL('../scene/createPlazaSceneV1.js',import.meta.url),'utf8');
+const css=readFileSync(new URL('../pages/PlazaV19PremiumV4.css',import.meta.url),'utf8');
+test('two top-up options are explicit and separate',()=>{assert.match(inv,/Nạp Cing Wallet/);assert.match(inv,/Nạp Cing Coin/);assert.match(inv,/topupMode === 'choose'/);});
+test('existing Wallet route is used without new financial mutations',()=>{assert.match(inv,/navigate\('\/wallet'\)/);assert.match(inv,/op:'convert'/);assert.match(inv,/op:'buy_loudspeaker'/);});
+test('coin conversion retains original confirmation and authority',()=>{assert.match(inv,/social.run\(pending.op, \{ quantity: pending.quantity \}\)/);assert.match(inv,/setConfirm\(\{/);assert.match(inv,/op:'convert'/);});
+test('single avatar component remains and title has independent region',()=>{assert.equal((inv.match(/<Avatar character=\{character\}/g)||[]).length,1);assert.match(inv,/plaza-v19-premium-rank/);assert.match(inv,/plaza-v19-premium-character/);});
+test('preview title is separate without a second WebGL canvas',()=>{assert.match(css,/plaza-v16-preview-title \{display:none!important;/);assert.doesNotMatch(css,/WebGLRenderer/);});
+test('profile is customer-facing without technical guidance',()=>{assert.match(profile,/Đổi Avatar/);assert.doesNotMatch(profile,/Đổi ảnh|Tải lại hồ sơ|1024 px|RefreshCw/);});
+test('avatar crop, saving, PM and friendship authority remain',()=>{assert.match(profile,/PlazaAvatarCropV17/);assert.match(profile,/social.upload/);assert.match(profile,/social.run\('profile'/);assert.match(profile,/onPM\(memberId\)/);});
+test('closing overlay invalidates frame without reloading VRM',()=>{assert.match(scene,/wasPaused&&loaded&&!disposed&&!contextLost/);assert.match(scene,/backgroundRenderAt=-Infinity/);assert.doesNotMatch(scene,/setInteractionPaused:.*dispose\(/);});

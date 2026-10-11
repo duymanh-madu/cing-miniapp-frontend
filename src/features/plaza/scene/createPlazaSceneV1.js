@@ -421,7 +421,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       pendingMembers=members||[];pendingSelfId=selfId;
       if(loaded)remote.setMembers(pendingMembers,pendingSelfId);
     },
-    setInteractionPaused:value=>{interactionPaused=Boolean(value);if(interactionPaused){input={x:0,z:0};stopPath();controls.cancelGestures();}},
+    setInteractionPaused:value=>{const wasPaused=interactionPaused;interactionPaused=Boolean(value);if(interactionPaused){input={x:0,z:0};stopPath();controls.cancelGestures();}else if(wasPaused&&loaded&&!disposed&&!contextLost){resize();backgroundRenderAt=-Infinity;renderer.shadowMap.needsUpdate=true;}},
     cancelGestures:()=>controls.cancelGestures(),
     setInput: value => { if (!disposed) { input = { x: value.x, z: value.z }; if (Math.hypot(value.x, value.z) > .01) stopPath(); } },
     stop: () => { input = { x: 0, z: 0 }; stopPath(); },

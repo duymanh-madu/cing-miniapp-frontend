@@ -1,8 +1,10 @@
 import React, { lazy, Suspense, useState } from 'react';
+import {useNavigate} from 'react-router-dom';
 import { Coins, Wallet, Megaphone, Shirt, Crown, Image, UserRound, Check, Plus, X } from 'lucide-react';
 import PlazaTitleV10 from './PlazaTitleV10.jsx';
 import { PLAZA_TITLES_V10 } from './plazaTitleCatalogV10.js';
 import './PlazaInventoryV19.css';
+import './PlazaV19PremiumV4.css';
 
 const Avatar = lazy(() => import('../scene/PlazaAvatarPreviewV16.jsx'));
 const TYPES = [
@@ -25,7 +27,8 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
   const [quantity, setQuantity] = useState('1');
   const [topup, setTopup] = useState('10');
   const [detail, setDetail] = useState(null);
-  const [topupOpen, setTopupOpen] = useState(false);
+  const [topupMode, setTopupMode] = useState(null);
+  const navigate = useNavigate();
   const [confirm, setConfirm] = useState(null);
 
   const own = social.overview;
@@ -57,7 +60,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
   function requestTopup() {
     if (financialBusy || !enabled || !integerInRange(topup, 1000000)) return;
     const count = Number(topup);
-    setTopupOpen(false);
+    setTopupMode(null);
     setConfirm({
       op:'convert',
       quantity: count,
@@ -82,20 +85,26 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
         <button
           type="button"
           className="plaza-v19-topup-trigger"
-          aria-label="Nạp Cing Coin"
-          title="Nạp Cing Coin"
-          disabled={financialBusy || !enabled}
-          onClick={() => setTopupOpen(true)}
+          aria-label="Nạp tài sản"
+          title="Nạp tài sản"
+          disabled={financialBusy}
+          onClick={() => setTopupMode('choose')}
         ><Plus size={16}/><span>Nạp</span></button>
         <button type="button" className="plaza-v19-profile-shortcut" onClick={onProfile}><UserRound size={16}/><span>Hồ sơ</span></button>
       </div>
 
       <div className="plaza-v16-inventory-body plaza-v19-inventory-body">
-        <aside className="plaza-v19-avatar-stage">
-          <Suspense fallback={<div className="plaza-v16-preview">Đang tải nhân vật…</div>}>
-            <Avatar character={character} titleKey={selected}/>
-          </Suspense>
-          <p>Phong cách của bạn</p>
+        <aside className="plaza-v19-avatar-stage plaza-v19-premium-stage" aria-label="Phong cách của bạn">
+          <div className="plaza-v19-premium-character">
+            <Suspense fallback={<div className="plaza-v16-preview">Đang tải nhân vật…</div>}>
+              <Avatar character={character} titleKey={selected}/>
+            </Suspense>
+          </div>
+          <div className="plaza-v19-premium-rank">
+            <span className="plaza-v19-premium-caption">Danh hiệu</span>
+            <div className="plaza-v19-premium-title-art"><PlazaTitleV10 titleKey={selected} size="preview"/></div>
+            <small>{selected ? 'Đang hiển thị' : 'Chưa chọn danh hiệu'}</small>
+          </div>
         </aside>
 
         <div className="plaza-v16-catalog plaza-v19-catalog">
@@ -187,7 +196,14 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
         <p>Đang mặc · {character === 'girl' ? 'Nữ' : 'Nam'}</p>
       </>, () => setDetail(null))}
 
-      {topupOpen && modal('Nạp Cing Coin', <>
+      {topupMode === 'choose' && modal('Chọn tài sản muốn nạp', <>
+        <h2>Nạp tài sản</h2>
+        <div className="plaza-v19-finance-choices">
+          <button type="button" onClick={() => { setTopupMode(null); navigate('/wallet'); }}><Wallet size={23}/><span><strong>Nạp Cing Wallet</strong><small>Đến Ví Cing Wallet để nạp tiền</small></span></button>
+          <button type="button" disabled={financialBusy || !enabled} onClick={() => setTopupMode('coin')}><Coins size={23}/><span><strong>Nạp Cing Coin</strong><small>Đổi từ số dư Wallet hiện có</small></span></button>
+        </div>
+      </>, () => setTopupMode(null))}
+      {topupMode === 'coin' && modal('Nạp Cing Coin', <>
         <Coins size={30}/>
         <h2>Nạp Cing Coin</h2>
         <p>1 Coin = 1.000đ từ Cing Wallet</p>
@@ -197,7 +213,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
         </label>
         <button type="button" disabled={financialBusy || !enabled || !integerInRange(topup, 1000000)}
           onClick={requestTopup}>Tiếp tục</button>
-      </>, () => setTopupOpen(false))}
+      </>, () => setTopupMode(null))}
 
       {confirm && modal('Xác nhận thanh toán', <>
         <Coins size={30}/><h2>Xác nhận</h2><p>{confirm.label}</p>

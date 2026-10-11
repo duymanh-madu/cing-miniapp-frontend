@@ -1,0 +1,23 @@
+/* V19 Block 04: one existing VRM renderer, distinct rank art, compact catalog. */
+.cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage.plaza-v19-premium-stage {
+  display:grid!important;grid-template-columns:minmax(0, 64fr) minmax(0, 36fr)!important;
+  gap:8px!important;align-items:stretch!important;padding:10px!important;
+  overflow:hidden!important;min-height:0!important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-character {position:relative;min-width:0;min-height:0;height:100%;overflow:hidden;border-radius:12px;background:radial-gradient(ellipse at 50% 35%,#33515c88,transparent 72%);}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-character .plaza-v16-preview {height:100%!important;min-height:0!important;position:relative;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-character .plaza-v16-preview-title {display:none!important;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-character .plaza-v16-preview-canvas {inset:0 0 23px!important;min-height:0!important;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-character .plaza-v16-preview>small {position:absolute;bottom:1px;width:100%;font-size:10px;letter-spacing:0!important;text-align:center;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-rank {display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;gap:8px;border-left:1px solid #e2c28438;padding:10px 2px;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-caption {font-size:11px;font-weight:650;letter-spacing:.08em;color:#e3c88d;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-title-art {display:flex;align-items:center;justify-content:center;width:100%;min-height:90px;overflow:visible;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-title-art .plaza-prestige-v18--preview {height:clamp(72px,12vw,110px)!important;max-width:100%!important;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-title-art img {max-height:100%!important;max-width:100%!important;object-fit:contain!important;}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-rank>small {font-size:10px;color:#b7c7c5;text-align:center;}
+.cing-plaza .plaza-v19-finance-choices {display:grid;gap:10px;padding:12px 3px;}
+.cing-plaza .plaza-v19-finance-choices>button {display:flex;gap:12px;align-items:center;text-align:left;border:1px solid #e6bf8088;background:#243b43;color:#f9e7c6;padding:14px;border-radius:14px;min-height:68px;}
+.cing-plaza .plaza-v19-finance-choices>button span {display:grid;gap:5px;}
+.cing-plaza .plaza-v19-finance-choices strong {font-size:14px;}
+.cing-plaza .plaza-v19-finance-choices small {font-size:11px;color:#c3d0cc;}
+@media(max-width:365px){.cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage.plaza-v19-premium-stage {grid-template-columns:minmax(0,67fr) minmax(0,33fr)!important;gap:3px!important;padding:6px!important;}}

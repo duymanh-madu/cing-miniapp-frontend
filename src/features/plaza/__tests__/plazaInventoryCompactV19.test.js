@@ -18,7 +18,7 @@ test('compact item opens details before purchase confirmation', () => {
 });
 test('Coin top-up is an assets-row trigger, never a bottom panel', () => {
   assert.match(component, /plaza-v19-topup-trigger/);
-  assert.match(component, /setTopupOpen\(true\)/);
+  assert.match(component, /setTopupMode\(\'choose\'\)/);
   assert.doesNotMatch(component, /className="plaza-v16-topup"/);
   assert.match(component, /op\s*:\s*'convert'/);
   assert.match(component, /integerInRange\(topup, 1000000\)/);
