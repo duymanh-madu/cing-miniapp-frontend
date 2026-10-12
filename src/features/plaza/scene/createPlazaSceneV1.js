@@ -1,4 +1,5 @@
 import {preparePlazaAvatarV13} from './plazaAvatarResourcesV13.js';
+import {createPlazaAdaptiveQualityV19} from './plazaAdaptiveQualityV19.js';
 import {addCafeRoofLogoV11} from './plazaCafeRoofV11.js';
 import {createPlazaLabelsV9} from './plazaLabelsV9.jsx';
 import {createPlazaCameraV10} from "./plazaCameraV10.js";
@@ -57,6 +58,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   const mobile = window.matchMedia('(pointer: coarse)').matches;
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'default' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75));
+  const quality=createPlazaAdaptiveQualityV19(renderer.getPixelRatio(),Math.min(window.devicePixelRatio||1,mobile?1.65:1.85));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.95;
@@ -216,6 +218,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     if (disposed || contextLost) return;
     raf = 0;
     if (document.hidden) return;
+    try {
     const dt = Math.max(0, Math.min((now - last) / 1000, 0.05)); last = now;
     updateLighting(); world?.updateDoors(avatar.position, dt, remote.positions());
     oldPosition.copy(avatar.position);
@@ -263,13 +266,21 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     onPosition(packet);
     if(now-netLast>=100 && (changed || now-netLast>=500)){netLast=now;netValue=packet;onLocalState({...packet,seq:++netSeq});}
     remote.update(dt,camera);
-    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z)); cafeRoof?.update(camera,avatar,dt); lighting.update(); if(now-labelLast>=33){labelLast=now;labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(headPosition)||headPosition.copy(avatar.position).add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]);} if(!interactionPaused||now-backgroundRenderAt>200){renderPlazaLayers(renderer,scene,camera);backgroundRenderAt=now;}
+    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z)); cafeRoof?.update(camera,avatar,dt); lighting.update(); if(now-labelLast>=50){labelLast=now;labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(headPosition)||headPosition.copy(avatar.position).add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]);} if(!interactionPaused||now-backgroundRenderAt>200){renderPlazaLayers(renderer,scene,camera);backgroundRenderAt=now;}
     frames++;
     if (now - statLast >= 1000) {
       stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(),textures:renderer.info.memory.textures,geometries:renderer.info.memory.geometries,antialias:renderer.getContext().getContextAttributes().antialias,dpr:renderer.getPixelRatio(),cameraRadius:controls.requestedRadius, motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
+      const adjusted=quality.sample(stats.fps,now);
+      if(adjusted!==null){renderer.setPixelRatio(adjusted);resize();}
       onStats(stats); frames = 0; statLast = now;
     }
     raf = requestAnimationFrame(tick);
+    } catch (error) {
+      // An exception in the render loop previously stopped RAF silently, leaving a blank scene
+      // and a still-active HUD. Fail visibly so the existing Retry button can rebuild the scene.
+      input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
+      if(!disposed&&!contextLost)onProgress({ready:false,error:'Cảnh 3D gặp lỗi khi hiển thị. Hãy chọn Mở lại.'});
+    }
   }
   function onVisibility() {
     input = { x: 0, z: 0 }; stopPath();controls.cancelGestures();

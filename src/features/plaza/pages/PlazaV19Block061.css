@@ -56,3 +56,25 @@
     height:58px!important;max-height:58px!important;
   }
 }
+
+
+/* V19 BLOCK 07R2: The full 3D viewport must occupy ALL of the inventory stage.
+ * Legacy PlazaV19Upgrade.css reserves 76px above + 30px below the preview;
+ * its old !important rule had the same specificity as BLOCK 06.1. The extra
+ * .plaza-v19-avatar-stage .plaza-v19-premium-stage .plaza-v16-preview parents
+ * make this full-bleed rule win regardless of late global stylesheet loading.
+ * Title art, zoom controls and footer are FLOATING overlays, not 3D gutters.
+ * This affects wardrobe/shop only; it never changes the Plaza room canvas. */
+.cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage.plaza-v19-premium-stage .plaza-v19-premium-character .plaza-v16-preview .plaza-v16-preview-canvas {
+  position:absolute!important;
+  inset:0!important;
+  top:0!important;right:0!important;bottom:0!important;left:0!important;
+  width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;
+  margin:0!important;padding:0!important;
+  touch-action:none!important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage.plaza-v19-premium-stage .plaza-v19-premium-character .plaza-v16-preview-canvas > canvas {
+  display:block!important;
+  width:100%!important;height:100%!important;
+}

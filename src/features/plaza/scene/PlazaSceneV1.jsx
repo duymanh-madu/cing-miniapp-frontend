@@ -65,7 +65,7 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
         onPosition:position,
         onProgress: value => { if (!cancelled) setProgress(value); },
         onState: value => { if (!cancelled) setMotion(value); },
-        onStats: value => { if (!cancelled) setStats(value); },
+        onStats: value => { if (!cancelled && review) setStats(value); },
         onNotice: value => { if (!cancelled) setNotice(value); },
       });
       api.current = instance;

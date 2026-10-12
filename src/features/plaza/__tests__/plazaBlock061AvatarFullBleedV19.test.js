@@ -32,6 +32,7 @@ test('horizontal swipe rotates yaw only; vertical swipe translates camera withou
   assert.match(scene,/yaw\+=dx\*\.012/);
   assert.match(scene,/dragPlazaPreviewVerticalPanV19\(panY,dy/);
   assert.match(scene,/camera\.position\.set\(0,targetY\+panY,actualDistance\)/);
+  assert.match(scene,/computePlazaPreviewDistanceV19/);
   assert.match(scene,/camera\.lookAt\(0,targetY\+panY,0\)/);
   assert.doesNotMatch(scene,/rotation\.x\s*[=+\-]|rotation\.z\s*[=+\-]/);
   assert.equal((scene.match(/new THREE\.WebGLRenderer/g)||[]).length,1);
