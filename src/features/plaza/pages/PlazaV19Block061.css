@@ -1,0 +1,58 @@
+/* V19 BLOCK 06.1: Full-bleed single VRM preview; rank floats above, not beside it.
+   Scoped to Tủ đồ / Siêu thị only. Room controls and Zalo shell are unaffected. */
+.cing-plaza .plaza-v19-inventory .plaza-v19-avatar-stage.plaza-v19-premium-stage {
+  display:block!important;position:relative!important;min-height:0!important;
+  padding:0!important;overflow:hidden!important;isolation:isolate;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-stage .plaza-v19-premium-character {
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  min-width:0;min-height:0;border-radius:inherit!important;overflow:hidden!important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-character .plaza-v16-preview {
+  width:100%!important;height:100%!important;min-height:0!important;
+  position:relative!important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-character .plaza-v16-preview-canvas {
+  position:absolute!important;inset:0 0 22px 0!important;width:100%!important;
+  min-height:0!important;touch-action:none!important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-stage .plaza-v19-premium-rank {
+  position:absolute!important;z-index:3!important;top:9px;right:9px;
+  display:flex!important;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px!important;width:clamp(92px,26%,132px)!important;
+  height:auto!important;min-height:0!important;padding:7px 4px!important;
+  border:1px solid rgba(232,196,135,.38)!important;border-radius:13px!important;
+  background:linear-gradient(140deg,rgba(13,37,46,.90),rgba(15,33,39,.80))!important;
+  backdrop-filter:blur(7px);box-shadow:0 5px 20px rgba(0,0,0,.20);
+  pointer-events:none;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-stage .plaza-v19-premium-rank .plaza-v19-premium-caption {
+  font-size:10px!important;line-height:1.1!important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-stage .plaza-v19-premium-title-art {
+  min-height:0!important;height:69px!important;max-width:100%!important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-stage .plaza-v19-premium-title-art .plaza-prestige-v18--preview {
+  height:69px!important;max-height:69px!important;max-width:100%!important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-stage .plaza-v19-premium-rank>small {
+  font-size:9px!important;line-height:1.1!important;text-align:center;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-character .plaza-v19-preview-zoom-controls {
+  right:8px!important;bottom:27px!important;
+}
+.cing-plaza .plaza-v19-inventory .plaza-v19-premium-character .plaza-v16-preview>small {
+  position:absolute!important;bottom:0!important;left:0!important;width:100%!important;
+  padding:3px 46px 4px 6px!important;font-size:9px!important;
+  white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  pointer-events:none;z-index:2;
+}
+@media(max-width:365px){
+  .cing-plaza .plaza-v19-inventory .plaza-v19-premium-stage .plaza-v19-premium-rank {
+    top:6px;right:6px;width:89px!important;padding:5px 2px!important;
+  }
+  .cing-plaza .plaza-v19-inventory .plaza-v19-premium-stage .plaza-v19-premium-title-art,
+  .cing-plaza .plaza-v19-inventory .plaza-v19-premium-stage .plaza-v19-premium-title-art .plaza-prestige-v18--preview {
+    height:58px!important;max-height:58px!important;
+  }
+}

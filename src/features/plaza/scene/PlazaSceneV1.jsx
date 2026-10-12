@@ -1,4 +1,4 @@
-import {Hand,PersonStanding,ChevronLeft,ChevronRight,Users,MessageCircle,ZoomIn,ZoomOut,LocateFixed} from 'lucide-react';
+import {Hand,PersonStanding,ChevronLeft,ChevronRight,Users,MessageCircle} from 'lucide-react';
 import PlazaLoadingV11 from '../pages/PlazaLoadingV11.jsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { inputVector } from './plazaMotionV1.js';
@@ -187,7 +187,6 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           <div className="plaza-v19-tools-title"><strong>Thao tác</strong><button type="button" aria-label="Đóng menu" onClick={()=>setToolsOpen(false)}><ChevronRight size={20}/></button></div>
           <button type="button" onClick={()=>{setToolsOpen(false);onOpenMembers();}}><Users size={18}/>Người trong phòng</button>
           <button type="button" onClick={()=>{setToolsOpen(false);onOpenChat();}}><MessageCircle size={18}/>Trò chuyện</button>
-          <div className="plaza-v19-tools-zoom"><button type="button" aria-label="Phóng gần" onClick={()=>api.current?.zoom(-1)}><ZoomIn size={20}/></button><button type="button" aria-label="Thu xa" onClick={()=>api.current?.zoom(1)}><ZoomOut size={20}/></button><button type="button" aria-label="Góc nhìn ban đầu" onClick={()=>api.current?.cameraPreset('follow')}><LocateFixed size={20}/></button></div>
           <button type="button" disabled={Boolean(ownTable)||motion==='checkin'} onClick={()=>{clearInput();api.current?.pose();setToolsOpen(false);}}><PersonStanding size={18}/>Tạo dáng</button>
         </nav>}
       </div>}

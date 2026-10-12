@@ -27,11 +27,11 @@ test('chat channel colors and relationship are server gated',()=>{
  assert.match(s,/relationshipVerified===true/);
  for(const v of ['--room','--world','--pm','--romance'])assert.ok(c.includes(v));
 });
-test('tool drawer, zoom, 3D canvas remains a single renderer',()=>{
+test('tool drawer omits room zoom buttons; one existing renderer remains',()=>{
  const scene=read('../scene/PlazaSceneV1.jsx');const source=read('../scene/createPlazaSceneV1.js');
  const camera=read('../scene/plazaCameraV10.js');
  assert.match(scene,/plaza-v19-tools/);
- assert.match(scene,/api\.current\?\.zoom/);
+ assert.doesNotMatch(scene,/plaza-v19-tools-zoom|api\.current\?\.zoom/);
  assert.match(source,/zoom: direction/);
  assert.match(camera,/zoom\(direction\)/);
  assert.equal((source.match(/new THREE\.WebGLRenderer/g)||[]).length,1);

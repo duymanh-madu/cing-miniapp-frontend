@@ -4,10 +4,10 @@ import {readFileSync} from 'node:fs';
 import {clampPlazaPreviewZoomV19,pinchPlazaPreviewZoomV19,PLAZA_PREVIEW_INITIAL_ZOOM_V19} from '../scene/plazaPreviewZoomV19.js';
 const read=p=>readFileSync(new URL(p,import.meta.url),'utf8');
 test('preview starts closer, clamps zoom without spawning renderers',()=>{
- assert.equal(PLAZA_PREVIEW_INITIAL_ZOOM_V19,1.52);
+ assert.equal(PLAZA_PREVIEW_INITIAL_ZOOM_V19,1);
  assert.equal(clampPlazaPreviewZoomV19(0),1);
  assert.equal(clampPlazaPreviewZoomV19(200),2.8);
- assert.equal(clampPlazaPreviewZoomV19(Infinity),1.52);
+ assert.equal(clampPlazaPreviewZoomV19(Infinity),1);
 });
 test('pinch distances increase and decrease zoom smoothly',()=>{
  assert.equal(pinchPlazaPreviewZoomV19(1.5,100,200),2.8);

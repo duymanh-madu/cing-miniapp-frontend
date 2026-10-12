@@ -6,6 +6,7 @@ import { PLAZA_TITLES_V10 } from './plazaTitleCatalogV10.js';
 import './PlazaInventoryV19.css';
 import './PlazaV19PremiumV4.css';
 import './PlazaV19Block06.css';
+import './PlazaV19Block061.css';
 
 const Avatar = lazy(() => import('../scene/PlazaAvatarPreviewV16.jsx'));
 const TYPES = [
