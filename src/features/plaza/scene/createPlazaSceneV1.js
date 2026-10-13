@@ -1,5 +1,9 @@
+import {probePlazaAvatarGpu} from '../../../qa/plazaAvatarGpuProbe.js';
+import {instancePlazaStaticMeshes} from './plazaStaticInstancesV19.js';
+import {plazaCameraOccluderBoxes} from './plazaCameraOcclusionV19.js';
+import {createPlazaFloorIndexV19} from './plazaFloorIndexV19.js';
+import {createPlazaFramePacerV19} from './plazaFramePacerV19.js';
 import {preparePlazaAvatarV13} from './plazaAvatarResourcesV13.js';
-import {createPlazaAdaptiveQualityV19} from './plazaAdaptiveQualityV19.js';
 import {addCafeRoofLogoV11} from './plazaCafeRoofV11.js';
 import {createPlazaLabelsV9} from './plazaLabelsV9.jsx';
 import {createPlazaCameraV10} from "./plazaCameraV10.js";
@@ -46,7 +50,7 @@ function disposeTree(root) {
   textures.forEach(value => { value.dispose(); value.source?.data?.close?.(); });
 }
 
-export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () => {}, onStats = () => {}, onNotice = () => {}, character = 'girl', onLocalState = () => {}, onPosition=()=>{} } = {}) {
+export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () => {}, onStats = () => {}, onNotice = () => {}, character = 'girl', qaFixedPixelRatio = null, onQAEvent = () => {}, onLocalState = () => {}, onPosition=()=>{} } = {}) {
   const avatarConfig = PLAZA_AVATARS[character] || PLAZA_AVATARS.girl;
   const walkSpeed = avatarConfig.speed;
   let expressionTime = 0;
@@ -57,8 +61,8 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   const camera = new THREE.PerspectiveCamera(45, 1, 0.08, 120);
   const mobile = window.matchMedia('(pointer: coarse)').matches;
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'default' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75));
-  const quality=createPlazaAdaptiveQualityV19(renderer.getPixelRatio(),Math.min(window.devicePixelRatio||1,mobile?1.65:1.85));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.95;
@@ -67,7 +71,8 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   renderer.shadowMap.autoUpdate = false;
   renderer.domElement.setAttribute('aria-label', 'Không gian Cing Plaza 3D');
   host.appendChild(renderer.domElement);
-  const controls=createPlazaCameraV10(camera,renderer.domElement,WORLD_V3.bounds,{floorAt:(x,z,hint)=>groundAt(x,z,hint)});
+  let cameraOccluders=[];
+  const controls=createPlazaCameraV10(camera,renderer.domElement,WORLD_V3.bounds,{floorAt:(x,z,hint)=>groundAt(x,z,hint),occluders:()=>cameraOccluders});
   const cameraCenter=new THREE.Vector3();
   const hemisphere = new THREE.HemisphereLight('#fff4dd', '#796b53', 0.8);
   hemisphere.layers.enable(1);hemisphere.layers.enable(2);scene.add(hemisphere);
@@ -158,9 +163,9 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   }
 
   function groundAt(x, z, fromY) {
-    ray.set(new THREE.Vector3(x, fromY + 0.3, z), new THREE.Vector3(0, -1, 0));
+    ray.set(floorOrigin.set(x,fromY+.3,z),floorDirection);floorHits.length=0;
     ray.near = 0; ray.far = 2;
-    for (const hit of ray.intersectObjects(floors, false)) {
+    for (const hit of ray.intersectObjects(floorIndex?floorIndex.query(x,z):floors, false,floorHits)) {
       if (!hit.face) continue;
       normalMatrix.getNormalMatrix(hit.object.matrixWorld);
       normal.copy(hit.face.normal).applyNormalMatrix(normalMatrix);
@@ -212,12 +217,14 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   }
   const observer = new ResizeObserver(resize);
   observer.observe(host); resize();
-  const oldPosition=new THREE.Vector3();
+  const oldPosition=new THREE.Vector3(),floorHits=[],floorOrigin=new THREE.Vector3(),floorDirection=new THREE.Vector3(0,-1,0);
+  let floorIndex=null;const framePacer=createPlazaFramePacerV19(60);
   let last = performance.now(), statLast = last, frames = 0;
   function tick(now) {
     if (disposed || contextLost) return;
     raf = 0;
     if (document.hidden) return;
+    if(!framePacer.shouldRender(now)){raf=requestAnimationFrame(tick);return;}
     try {
     const dt = Math.max(0, Math.min((now - last) / 1000, 0.05)); last = now;
     updateLighting(); world?.updateDoors(avatar.position, dt, remote.positions());
@@ -265,17 +272,17 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     const changed=!netValue || Math.hypot(packet.x-netValue.x,packet.y-netValue.y,packet.z-netValue.z)>.001 || Math.abs(packet.heading-netValue.heading)>.002 || packet.motion!==netValue.motion || packet.gesture!==netValue.gesture;
     onPosition(packet);
     if(now-netLast>=100 && (changed || now-netLast>=500)){netLast=now;netValue=packet;onLocalState({...packet,seq:++netSeq});}
-    remote.update(dt,camera);
-    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z)); cafeRoof?.update(camera,avatar,dt); lighting.update(); if(now-labelLast>=50){labelLast=now;labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(headPosition)||headPosition.copy(avatar.position).add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]);} if(!interactionPaused||now-backgroundRenderAt>200){renderPlazaLayers(renderer,scene,camera);backgroundRenderAt=now;}
+    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z));
+    remote.update(dt,camera); cafeRoof?.update(camera,avatar,dt); lighting.update(); if(now-labelLast>=50){labelLast=now;labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(headPosition)||headPosition.copy(avatar.position).add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]);} if(!interactionPaused||now-backgroundRenderAt>200){renderPlazaLayers(renderer,scene,camera);backgroundRenderAt=now;}
     frames++;
     if (now - statLast >= 1000) {
       stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(),textures:renderer.info.memory.textures,geometries:renderer.info.memory.geometries,antialias:renderer.getContext().getContextAttributes().antialias,dpr:renderer.getPixelRatio(),cameraRadius:controls.requestedRadius, motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
-      const adjusted=quality.sample(stats.fps,now);
-      if(adjusted!==null){renderer.setPixelRatio(adjusted);resize();}
+      // Keep pixel density stable: low FPS must not reduce visual quality.
       onStats(stats); frames = 0; statLast = now;
     }
     raf = requestAnimationFrame(tick);
     } catch (error) {
+      onQAEvent("render-loop-error",{name:error.name,message:error.message});
       // An exception in the render loop previously stopped RAF silently, leaving a blank scene
       // and a still-active HUD. Fail visibly so the existing Retry button can rebuild the scene.
       input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
@@ -283,12 +290,14 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     }
   }
   function onVisibility() {
+    onQAEvent("scene-visibility",{hidden:document.hidden});
     input = { x: 0, z: 0 }; stopPath();controls.cancelGestures();
     if (document.hidden) { cancelAnimationFrame(raf); raf = 0;clearTimeout(restoreTimer); }
     else if(contextLost)armRestoreTimeout();
     else if (loaded && !disposed && !contextLost && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }
   function onContextLost(event) {
+    onQAEvent("webglcontextlost",{message:event.statusMessage||""});
     event.preventDefault();if(disposed)return;contextLost=true;
     input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
     onProgress({text:'Đang khôi phục hiển thị 3D…',percent:100});
@@ -300,6 +309,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     restoreTimer=setTimeout(()=>{if(!disposed&&contextLost&&!document.hidden){dispose();onProgress({error:'Thiết bị chưa khôi phục được hiển thị 3D. Hãy bấm Mở lại.'});}},12000);
   }
   function onContextRestored(){
+    onQAEvent("webglcontextrestored",{});
     if(disposed)return;contextLost=false;clearTimeout(restoreTimer);
     renderer.shadowMap.needsUpdate=true;resize();last=performance.now();
     if(loaded){onProgress({ready:true,percent:100});if(!document.hidden&&!raf)raf=requestAnimationFrame(tick);}
@@ -361,10 +371,14 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       });
       if (!floors.length) throw new Error('Không tìm thấy mặt sân của map.');
       collision = createObstacleIndex(obstacles);
+      cameraOccluders=plazaCameraOccluderBoxes(obstacles);
       onProgress({ text: 'Đang chuẩn bị cửa hàng và sân đình…', percent: 35 });
+      const preserveStatic=new Set([...floors,...world.preserved,...cafeRoof.preserved]);
+      const instancing=instancePlazaStaticMeshes(map,{preserved:preserveStatic});
       const batching = await batchPlazaMapV1(map, { preserved: new Set([...floors, ...world.preserved,...cafeRoof.preserved]), cancelled: () => disposed });
       if (disposed) { disposeTree(mapFile.scene); throw new DOMException('Disposed', 'AbortError'); }
-      stats = { ...stats, ...refinements, ...world.stats, mapDrawsBefore: batching.before, mapDrawsAfter: batching.after };
+      floorIndex=createPlazaFloorIndexV19(floors);
+      stats = { ...stats, ...refinements, ...world.stats, floorCount:floors.length,floorIndexCells:floorIndex.cellCount,mapDrawsBefore: batching.before, mapDrawsAfter: batching.after };
       onProgress({ text: 'Đang chuẩn bị nhân vật…', percent: 55 });
       const modelFile = await load(avatarConfig.model);
       vrm = modelFile.userData.vrm;
@@ -400,6 +414,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       }
       walkLift = Math.max(0,idleSole-walkSole+.001);
       actions.walk.stop(); actions.idle.reset().play(); mixer.setTime(0); vrm.update(0);
+      stats.staticInstancedObjects=instancing.instancedObjects;stats.staticDrawCallsSaved=instancing.drawCallsSaved;
       stats.walkLift = walkLift; stats.character = character; updateLighting();
       groundY = groundAt(spawn.x, spawn.z, 0.1) ?? 0;
       avatar.position.set(spawn.x, groundY + soleOffset, spawn.z);
@@ -500,6 +515,14 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       groundY = groundAt(spawn.x, spawn.z, 0.1) ?? 0;
       avatar.position.set(spawn.x, groundY + soleOffset, spawn.z);
       changeAction('idle'); cameraPreset('follow');
+    },
+    probeQAAvatarPixels:()=>probePlazaAvatarGpu(renderer,scene,camera),
+    getQAState: () => {
+      const gl=renderer.getContext(),skeletons=new Set(),materials=new Set();let meshCount=0,visibleMeshes=0,nonFiniteBoneValues=0;
+      vrm?.scene.traverse(o=>{if(o.isMesh){meshCount++;if(o.visible)visibleMeshes++;for(const m of Array.isArray(o.material)?o.material:[o.material])if(m)materials.add(m);}if(o.isSkinnedMesh)skeletons.add(o.skeleton);});
+      for(const sk of skeletons)for(const value of sk.boneMatrices||[])if(!Number.isFinite(value))nonFiniteBoneValues++;
+      const bone=name=>vrm?.humanoid.getNormalizedBoneNode(name)?.getWorldPosition(new THREE.Vector3()).toArray()||null;
+      return {contextLost:contextLost||gl.isContextLost(),hidden:document.hidden,loaded,disposed,frame:renderer.info.render.frame,antialias:gl.getContextAttributes()?.antialias,samples:gl.getParameter(gl.SAMPLES),glError:gl.getError(),dpr:renderer.getPixelRatio(),exposure:renderer.toneMappingExposure,background:scene.background?.getHexString?.()||null,hemisphere:hemisphere.intensity,sun:sun.intensity,camera:{position:camera.position.toArray(),fov:camera.fov,near:camera.near,far:camera.far},actor:{position:avatar.position.toArray(),visible:vrm?.scene.visible??false,meshCount,visibleMeshes,head:bone('head'),hips:bone('hips'),leftFoot:bone('leftFoot'),rightFoot:bone('rightFoot')},nonFiniteBoneValues,skeletons:[...skeletons].map(sk=>({bones:sk.bones.length,textureVersion:sk.boneTexture?.version??null,textureWidth:sk.boneTexture?.image?.width??null})),materials:[...materials].map(m=>({type:m.type,visible:m.visible,opacity:m.opacity,transparent:m.transparent,alphaTest:m.alphaTest,alphaToCoverage:m.alphaToCoverage,depthWrite:m.depthWrite})),animations:Object.fromEntries(Object.entries(actions).map(([name,a])=>[name,{time:a.time,weight:a.getEffectiveWeight(),timeScale:a.getEffectiveTimeScale(),running:a.isRunning()}]))};
     },
     getStats: () => ({ ...stats }),
   };

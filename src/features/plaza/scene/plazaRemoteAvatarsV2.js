@@ -6,12 +6,13 @@ import {clone} from 'three/addons/utils/SkeletonUtils.js';
 import {VRM,VRMHumanoid,VRMUtils} from '@pixiv/three-vrm';
 import {createVRMAnimationClip} from '@pixiv/three-vrm-animation';
 import {PLAZA_AVATARS,plazaWalkPlaybackRate} from './plazaAvatarV6.js';
-import {addPresenceSample,samplePresence} from './plazaPresenceMotionV2.js';
+import {addPresenceSample} from './plazaPresenceMotionV2.js';
+import {createPlazaPresenceClockV19} from './plazaPresenceClockV19.js';
 
 // Clone skeletons, share geometry/materials/textures; each avatar owns its mixer.
 export function createPlazaRemoteAvatarsV2({scene,load,onNotice=()=>{}}) {
  const templates=new Map(),actors=new Map();let wanted=new Map(),disposed=false,buildQueue=Promise.resolve();
- const projected=new THREE.Vector3();
+ const frustum=new THREE.Frustum(),viewProjection=new THREE.Matrix4(),actorSphere=new THREE.Sphere(new THREE.Vector3(),3);
  const nextFrame=()=>new Promise(resolve=>(globalThis.requestAnimationFrame||((cb)=>setTimeout(cb,0)))(resolve));
  function templateFrom(vrm) {
   const source=[],dest=[];vrm.scene.traverse(x=>source.push(x));
@@ -69,24 +70,24 @@ export function createPlazaRemoteAvatarsV2({scene,load,onNotice=()=>{}}) {
   for(const id of actors.keys())if(!wanted.has(id))remove(id);
   const now=performance.now();
   for(const [id,v]of wanted){let a=actors.get(id);if(a&&a.character&&a.character!==v.character){remove(id);a=null;}
-   if(!a){a={samples:[],character:v.character};actors.set(id,a);const holder=a;buildQueue=buildQueue.then(async()=>{await nextFrame();if(!disposed&&actors.get(id)===holder)await build(id,v,holder);}).catch(()=>{});}
+   if(!a){a={samples:[],character:v.character,motionClock:createPlazaPresenceClockV19()};actors.set(id,a);const holder=a;buildQueue=buildQueue.then(async()=>{await nextFrame();if(!disposed&&actors.get(id)===holder)await build(id,v,holder);}).catch(()=>{});}
    a.identity=v;
    a.samples=addPresenceSample(a.samples,v,now);
   }
  }
  function update(dt,camera) {
-  const now=performance.now();
+  const now=performance.now();frustum.setFromProjectionMatrix(viewProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
   for(const a of actors.values()) {
-   if(!a.group)continue;const v=samplePresence(a.samples,now);if(!v)continue;
+   if(!a.group)continue;const v=a.motionClock.sample(a.samples,now);if(!v)continue;
    a.group.position.set(v.x,v.y,v.z);a.group.rotation.y=v.heading;
    const key=`${v.motion}:${v.gesture}:${v.presenceId}`;
    if(a.current!==key){const old=a.action,next=a.actions[v.motion];if(!next)continue;next.reset().play();next.time=Math.min(v.phase,next.getClip().duration);if(old&&old!==next)next.crossFadeFrom(old,.22,false);a.current=key;a.action=next;}
    a.actions.walk.setEffectiveTimeScale(plazaWalkPlaybackRate(PLAZA_AVATARS[a.character],v.speed));
    a.accumulated+=dt;
-   projected.copy(a.group.position).project(camera);
-   const near=projected.z>-1&&projected.z<1&&Math.abs(projected.x)<1.2&&Math.abs(projected.y)<1.2;
+   actorSphere.center.copy(a.group.position);actorSphere.center.y+=.9;
+   const near=frustum.intersectsSphere(actorSphere);a.group.visible=near;
    if(near||a.accumulated>=.1){a.mixer.update(a.accumulated);if(v.motion==='sit')applyPlazaSeatedPose(a.vrm);a.vrm.update(a.accumulated);a.accumulated=0;}
   }
  }
- return {seed,setAnimation,setMembers,update,anchors:()=>[...actors.entries()].filter(([,a])=>a.group).map(([memberId,a])=>({memberId,...a.identity,position:a.vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(a.headPosition)||a.headPosition.copy(a.group.position).add(new THREE.Vector3(0,1.4,0))})),positions:()=>[...actors.values()].map(a=>a.group?.position||a.samples.at(-1)?.value).filter(Boolean),dispose:()=>{disposed=true;for(const id of [...actors.keys()])remove(id);wanted.clear();},stats:()=>({remoteAvatars:[...actors.values()].filter(a=>a.group).length})};
+ return {seed,setAnimation,setMembers,update,anchors:()=>[...actors.entries()].filter(([,a])=>a.group).map(([memberId,a])=>({memberId,...a.identity,position:a.vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(a.headPosition)||a.headPosition.copy(a.group.position).add(new THREE.Vector3(0,1.4,0))})),positions:()=>[...actors.values()].map(a=>a.group?.position||a.samples.at(-1)?.value).filter(Boolean),dispose:()=>{disposed=true;for(const id of [...actors.keys()])remove(id);wanted.clear();},stats:()=>{let loaded=0,drawn=0,buffer=120;for(const a of actors.values())if(a.group){loaded++;if(a.group.visible)drawn++;buffer=Math.max(buffer,a.motionClock.delay);}return {remoteAvatars:loaded,renderedRemoteAvatars:drawn,presenceBufferMaxMs:buffer};}};
 }
