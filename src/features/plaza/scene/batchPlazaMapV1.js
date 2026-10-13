@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-export function worldGeometry(mesh) {
-  const geometry = mesh.geometry.clone().applyMatrix4(mesh.matrixWorld);
+export function worldGeometry(mesh,transform=mesh.matrixWorld) {
+  const geometry = mesh.geometry.clone().applyMatrix4(transform);
   // applyMatrix4 does not reverse triangle winding for mirrored objects.
-  if (mesh.matrixWorld.determinant() < 0) {
+  if (transform.determinant() < 0) {
     if (geometry.index) {
       const index = geometry.index;
       for (let i = 0; i < index.count; i += 3) {
@@ -33,7 +33,7 @@ export function worldGeometry(mesh) {
 
 export async function batchPlazaMapV1(root, { preserved = new Set(), cancelled = () => false } = {}) {
   root.updateMatrixWorld(true);
-  const groups = new Map();
+  const groups = new Map(),rootInverse=new THREE.Matrix4().copy(root.matrixWorld).invert(),relative=new THREE.Matrix4();
   const originalGeometries = new Set();
   let before = 0;
   root.traverse(mesh => {
@@ -48,7 +48,7 @@ export async function batchPlazaMapV1(root, { preserved = new Set(), cancelled =
     const signature = attributes.map(([name, a]) => `${name}:${a.itemSize}:${a.normalized}:${a.array.constructor.name}`).join('|');
     const centre = new THREE.Box3().setFromObject(mesh).getCenter(new THREE.Vector3());
     // Nearby objects share a draw call; separate tiles still support culling.
-    const key = `${material.uuid}:${Boolean(mesh.geometry.index)}:${signature}:${Math.floor(centre.x / 6)}:${Math.floor(centre.z / 6)}:${mesh.renderOrder}`;
+    const key = `${material.uuid}:${Boolean(mesh.geometry.index)}:${signature}:${Math.floor(centre.x / 6)}:${Math.floor(centre.z / 6)}:${mesh.renderOrder}:${mesh.layers.mask}:${mesh.castShadow}:${mesh.receiveShadow}`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(mesh);
   });
@@ -57,7 +57,7 @@ export async function batchPlazaMapV1(root, { preserved = new Set(), cancelled =
   for (const meshes of groups.values()) {
     if (cancelled()) return { before, after: before - saved };
     if (meshes.length < 2) continue;
-    const geometries = meshes.map(worldGeometry);
+    const geometries = meshes.map(mesh=>worldGeometry(mesh,relative.multiplyMatrices(rootInverse,mesh.matrixWorld)));
     const merged = mergeGeometries(geometries, false);
     geometries.forEach(geometry => geometry.dispose());
     if (!merged) continue;
@@ -66,8 +66,9 @@ export async function batchPlazaMapV1(root, { preserved = new Set(), cancelled =
     const batch = new THREE.Mesh(merged, meshes[0].material);
     batch.name = `PlazaStaticBatch_${processed}`;
     batch.renderOrder = meshes[0].renderOrder;
-    batch.castShadow = true;
-    batch.receiveShadow = true;
+    batch.layers.mask=meshes[0].layers.mask;
+    batch.castShadow = meshes[0].castShadow;
+    batch.receiveShadow = meshes[0].receiveShadow;
     for (const mesh of meshes) {
       originalGeometries.add(mesh.geometry);
       mesh.removeFromParent();

@@ -224,3 +224,18 @@ test('room roster is server scoped, independent of 3D presence and cleared on tr
  s.handlers.get('plaza:room')({room:{roomId:'two'}});assert.deepEqual(s.client.getSnapshot().roomMembers,[]);s.client.dispose();
 });
 test('private social feed deduplicates history and friendship refresh has its own revision',()=>{const s=setup();const receive=s.handlers.get('plaza:social');receive({refresh:true,messages:[{messageId:'w1',channel:'world',sequence:1,body:'hello',createdAt:1}]});receive({messages:[{messageId:'w1',channel:'world',sequence:1,body:'hello',createdAt:1}]});assert.equal(s.client.getSnapshot().socialMessages.length,1);assert.equal(s.client.getSnapshot().socialRevision,1);s.client.dispose();assert.equal(s.client.getSnapshot().socialMessages.length,0);});
+
+test('explicit reconnect resumes membership when transport still reports connected',async()=>{
+ const s=setup();s.client.connect();assert.equal(s.client.getSnapshot().status,'connected');
+ s.client.connect();assert.equal(s.client.getSnapshot().status,'resuming');
+ const req=s.sent.at(-1);assert.equal(req.event,'plaza:resume');req.ack({ok:true,data:{room:null}});
+ await Promise.resolve();assert.equal(s.client.getSnapshot().status,'connected');s.client.dispose();
+});
+test('pageshow and online recover foreground membership and release listeners on disposal',async()=>{
+ const events=new Map(),lifecycle={hidden:false,addEventListener(){},removeEventListener(){}};
+ const window={addEventListener:(k,f)=>events.set(k,f),removeEventListener:(k,f)=>{if(events.get(k)===f)events.delete(k);}};
+ const s=setup({lifecycle,lifecycleWindow:window});s.client.connect();
+ for(const name of ['pageshow','online']){events.get(name)();assert.equal(s.sent.at(-1).event,'plaza:resume');s.sent.at(-1).ack({ok:true,data:{room:null}});await Promise.resolve();assert.equal(s.client.getSnapshot().status,'connected');}
+ lifecycle.hidden=true;const count=s.sent.length;events.get('online')();assert.equal(s.sent.length,count);
+ s.client.dispose();assert.equal(events.size,0);
+});
