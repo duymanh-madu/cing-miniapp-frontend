@@ -1,5 +1,13 @@
+import {createPlazaRefractionBudgetV19} from './plazaRefractionBudgetV19.js';
+import {createPlazaGroundDetailV19} from './plazaGroundDetailV19.js';
+import {createPlazaFrameProfiler} from '../../../qa/plazaFrameProfiler.js';
+import {plazaRenderProfile} from '../../../qa/plazaRenderProfiles.js';
+import {probePlazaAvatarGpu} from '../../../qa/plazaAvatarGpuProbe.js';
+import {instancePlazaStaticMeshes} from './plazaStaticInstancesV19.js';
+import {plazaCameraOccluderBoxes} from './plazaCameraOcclusionV19.js';
+import {createPlazaFloorIndexV19} from './plazaFloorIndexV19.js';
+import {createPlazaFramePacerV19} from './plazaFramePacerV19.js';
 import {preparePlazaAvatarV13} from './plazaAvatarResourcesV13.js';
-import {createPlazaAdaptiveQualityV19} from './plazaAdaptiveQualityV19.js';
 import {addCafeRoofLogoV11} from './plazaCafeRoofV11.js';
 import {createPlazaLabelsV9} from './plazaLabelsV9.jsx';
 import {createPlazaCameraV10} from "./plazaCameraV10.js";
@@ -46,7 +54,8 @@ function disposeTree(root) {
   textures.forEach(value => { value.dispose(); value.source?.data?.close?.(); });
 }
 
-export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () => {}, onStats = () => {}, onNotice = () => {}, character = 'girl', onLocalState = () => {}, onPosition=()=>{} } = {}) {
+export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () => {}, onStats = () => {}, onNotice = () => {}, character = 'girl', adaptiveRefraction = false, qaTransmissionScale = 1, filteredMaterialNoise = false, subpixelGroundDetail = false, qaRenderProfile = 'control', qaFixedPixelRatio = null, onQAEvent = () => {}, onLocalState = () => {}, onPosition=()=>{} } = {}) {
+  const renderProfile=plazaRenderProfile(qaRenderProfile);
   const avatarConfig = PLAZA_AVATARS[character] || PLAZA_AVATARS.girl;
   const walkSpeed = avatarConfig.speed;
   let expressionTime = 0;
@@ -55,19 +64,25 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   scene.background = new THREE.Color('#f0e6d4');
   scene.fog = new THREE.Fog('#f0e6d4', 35, 90);
   const camera = new THREE.PerspectiveCamera(45, 1, 0.08, 120);
+  const refractionBudget=createPlazaRefractionBudgetV19(camera);
   const mobile = window.matchMedia('(pointer: coarse)').matches;
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'default' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75));
-  const quality=createPlazaAdaptiveQualityV19(renderer.getPixelRatio(),Math.min(window.devicePixelRatio||1,mobile?1.65:1.85));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  renderer.transmissionResolutionScale=qaTransmissionScale;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.95;
+  renderer.debug.onShaderError=(gl,program,vertex,fragment)=>onQAEvent('shader-error',{program:gl.getProgramInfoLog(program),vertex:gl.getShaderInfoLog(vertex),fragment:gl.getShaderInfoLog(fragment)});
+  const profiler=createPlazaFrameProfiler(renderer.getContext());
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.shadowMap.autoUpdate = false;
+  function renderFrame(viewCamera){const selection=adaptiveRefraction?refractionBudget.select(viewCamera):{camera:viewCamera,scale:qaTransmissionScale};renderer.transmissionResolutionScale=selection.scale;renderPlazaLayers(renderer,scene,selection.camera,renderProfile);}
   renderer.domElement.setAttribute('aria-label', 'Không gian Cing Plaza 3D');
   host.appendChild(renderer.domElement);
-  const controls=createPlazaCameraV10(camera,renderer.domElement,WORLD_V3.bounds,{floorAt:(x,z,hint)=>groundAt(x,z,hint)});
+  let cameraOccluders=[];
+  const controls=createPlazaCameraV10(camera,renderer.domElement,WORLD_V3.bounds,{floorAt:(x,z,hint)=>groundAt(x,z,hint),occluders:()=>cameraOccluders});
   const cameraCenter=new THREE.Vector3();
   const hemisphere = new THREE.HemisphereLight('#fff4dd', '#796b53', 0.8);
   hemisphere.layers.enable(1);hemisphere.layers.enable(2);scene.add(hemisphere);
@@ -98,6 +113,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   let state = 'idle', waveRequested = false, waveFinished = false, loaded = false;
   let input = { x: 0, z: 0 }, map = null, floors = [], collision = () => false;
   let groundY = 0, soleOffset = 0, stats = {}, preset = 'follow';
+  const groundViewport=new THREE.Vector2();let groundDetail=null;
   let world = null, worldAssets = null, cafeRoof = null, interactionPaused=false, backgroundRenderAt=0;
   let walkPlayback = 1;
   let materialResources = null, path = [], walkLift = .035, lift = 0, clockMinute = '';
@@ -119,7 +135,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   let pendingMembers=[],pendingSelfId=null;
   let netSeq=0, netLast=-Infinity, netValue=null, gesture=0, initialPresence=null;
   const labels=createPlazaLabelsV9(host);let labelIdentity={},labelMember={},labelLast=-Infinity;const headPosition=new THREE.Vector3();
-  const remote=createPlazaRemoteAvatarsV2({scene,load,onNotice});
+  const remote=createPlazaRemoteAvatarsV2({scene,load,onNotice,avatarPreparation:renderProfile});
   const spawn = new THREE.Vector3(0, 0, 2.5);
   const forward = new THREE.Vector3(), right = new THREE.Vector3(), movement = new THREE.Vector3();
   const ray = new THREE.Raycaster();
@@ -158,9 +174,9 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   }
 
   function groundAt(x, z, fromY) {
-    ray.set(new THREE.Vector3(x, fromY + 0.3, z), new THREE.Vector3(0, -1, 0));
+    ray.set(floorOrigin.set(x,fromY+.3,z),floorDirection);floorHits.length=0;
     ray.near = 0; ray.far = 2;
-    for (const hit of ray.intersectObjects(floors, false)) {
+    for (const hit of ray.intersectObjects(floorIndex?floorIndex.query(x,z):floors, false,floorHits)) {
       if (!hit.face) continue;
       normalMatrix.getNormalMatrix(hit.object.matrixWorld);
       normal.copy(hit.face.normal).applyNormalMatrix(normalMatrix);
@@ -212,14 +228,17 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   }
   const observer = new ResizeObserver(resize);
   observer.observe(host); resize();
-  const oldPosition=new THREE.Vector3();
+  const oldPosition=new THREE.Vector3(),floorHits=[],floorOrigin=new THREE.Vector3(),floorDirection=new THREE.Vector3(0,-1,0);
+  let floorIndex=null;const framePacer=createPlazaFramePacerV19(60);
   let last = performance.now(), statLast = last, frames = 0;
   function tick(now) {
     if (disposed || contextLost) return;
     raf = 0;
     if (document.hidden) return;
+    if(!framePacer.shouldRender(now)){raf=requestAnimationFrame(tick);return;}
     try {
     const dt = Math.max(0, Math.min((now - last) / 1000, 0.05)); last = now;
+    profiler.beginFrame(now);
     updateLighting(); world?.updateDoors(avatar.position, dt, remote.positions());
     oldPosition.copy(avatar.position);
     camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
@@ -265,17 +284,19 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     const changed=!netValue || Math.hypot(packet.x-netValue.x,packet.y-netValue.y,packet.z-netValue.z)>.001 || Math.abs(packet.heading-netValue.heading)>.002 || packet.motion!==netValue.motion || packet.gesture!==netValue.gesture;
     onPosition(packet);
     if(now-netLast>=100 && (changed || now-netLast>=500)){netLast=now;netValue=packet;onLocalState({...packet,seq:++netSeq});}
-    remote.update(dt,camera);
-    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z)); cafeRoof?.update(camera,avatar,dt); lighting.update(); if(now-labelLast>=50){labelLast=now;labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(headPosition)||headPosition.copy(avatar.position).add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]);} if(!interactionPaused||now-backgroundRenderAt>200){renderPlazaLayers(renderer,scene,camera);backgroundRenderAt=now;}
+    controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z));
+    if(groundDetail)Object.assign(stats,groundDetail.update(camera,renderer.getSize(groundViewport).y,renderer.getPixelRatio()));
+    remote.update(dt,camera); cafeRoof?.update(camera,avatar,dt); lighting.update(); if(now-labelLast>=50){labelLast=now;labels.update(camera,[{...labelIdentity.identity,...labelMember,memberId:labelIdentity.selfId,position:vrm.humanoid.getNormalizedBoneNode('head')?.getWorldPosition(headPosition)||headPosition.copy(avatar.position).add(new THREE.Vector3(0,1.4,0))},...remote.anchors()]);} if(!interactionPaused||now-backgroundRenderAt>200){profiler.beginRender();try{renderFrame(camera);}finally{profiler.endRender();}backgroundRenderAt=now;}
+    profiler.endFrame();
     frames++;
     if (now - statLast >= 1000) {
-      stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(),textures:renderer.info.memory.textures,geometries:renderer.info.memory.geometries,antialias:renderer.getContext().getContextAttributes().antialias,dpr:renderer.getPixelRatio(),cameraRadius:controls.requestedRadius, motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
-      const adjusted=quality.sample(stats.fps,now);
-      if(adjusted!==null){renderer.setPixelRatio(adjusted);resize();}
+      stats = { ...stats, frameTiming:profiler.snapshot(),fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(),textures:renderer.info.memory.textures,geometries:renderer.info.memory.geometries,antialias:renderer.getContext().getContextAttributes().antialias,dpr:renderer.getPixelRatio(),cameraRadius:controls.requestedRadius, motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
+      // Keep pixel density stable: low FPS must not reduce visual quality.
       onStats(stats); frames = 0; statLast = now;
     }
     raf = requestAnimationFrame(tick);
     } catch (error) {
+      onQAEvent("render-loop-error",{name:error.name,message:error.message});
       // An exception in the render loop previously stopped RAF silently, leaving a blank scene
       // and a still-active HUD. Fail visibly so the existing Retry button can rebuild the scene.
       input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
@@ -283,12 +304,14 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     }
   }
   function onVisibility() {
+    onQAEvent("scene-visibility",{hidden:document.hidden});
     input = { x: 0, z: 0 }; stopPath();controls.cancelGestures();
     if (document.hidden) { cancelAnimationFrame(raf); raf = 0;clearTimeout(restoreTimer); }
     else if(contextLost)armRestoreTimeout();
     else if (loaded && !disposed && !contextLost && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }
   function onContextLost(event) {
+    onQAEvent("webglcontextlost",{message:event.statusMessage||""});
     event.preventDefault();if(disposed)return;contextLost=true;
     input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
     onProgress({text:'Đang khôi phục hiển thị 3D…',percent:100});
@@ -300,6 +323,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     restoreTimer=setTimeout(()=>{if(!disposed&&contextLost&&!document.hidden){dispose();onProgress({error:'Thiết bị chưa khôi phục được hiển thị 3D. Hãy bấm Mở lại.'});}},12000);
   }
   function onContextRestored(){
+    onQAEvent("webglcontextrestored",{});
     if(disposed)return;contextLost=false;clearTimeout(restoreTimer);
     renderer.shadowMap.needsUpdate=true;resize();last=performance.now();
     if(loaded){onProgress({ready:true,percent:100});if(!document.hidden&&!raf)raf=requestAnimationFrame(tick);}
@@ -316,7 +340,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     renderer.domElement.removeEventListener('webglcontextlost', onContextLost);
     renderer.domElement.removeEventListener('webglcontextrestored', onContextRestored);
     if (mixer) { mixer.stopAllAction(); mixer.uncacheRoot(vrm.scene); }
-    disposeTree(scene); worldAssets?.dispose(); materialResources?.dispose(); environmentTarget.dispose();
+    profiler.dispose();groundDetail?.dispose();disposeTree(scene); worldAssets?.dispose(); materialResources?.dispose(); environmentTarget.dispose();
     sun.shadow.map?.dispose(); renderer.dispose(); renderer.forceContextLoss();
     renderer.domElement.remove();
     floors = []; map = null; collision = () => false;
@@ -341,7 +365,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       if (!materialResponse.ok) throw new Error('Thiếu dữ liệu vật liệu của map.');
       const materialData = await materialResponse.json();
       if (disposed) throw new DOMException('Disposed', 'AbortError');
-      materialResources = applyPlazaMaterialsV1(map, materialData,{retiredMaterials:world.dinhV12.retiredMaterials});
+      materialResources = applyPlazaMaterialsV1(map, materialData,{retiredMaterials:world.dinhV12.retiredMaterials,filteredNoise:filteredMaterialNoise});
       const obstacles = [...world.obstacles];
       map.traverse(object => {
         if (!object.isMesh) return;
@@ -361,15 +385,21 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       });
       if (!floors.length) throw new Error('Không tìm thấy mặt sân của map.');
       collision = createObstacleIndex(obstacles);
+      cameraOccluders=plazaCameraOccluderBoxes(obstacles);
       onProgress({ text: 'Đang chuẩn bị cửa hàng và sân đình…', percent: 35 });
-      const batching = await batchPlazaMapV1(map, { preserved: new Set([...floors, ...world.preserved,...cafeRoof.preserved]), cancelled: () => disposed });
+      const preserveStatic=new Set([...floors,...world.preserved,...cafeRoof.preserved]);
+      const instancing=instancePlazaStaticMeshes(map,{preserved:preserveStatic});
+      const batching = await batchPlazaMapV1(map, { preserved: new Set([...floors, ...world.preserved,...cafeRoof.preserved,...(subpixelGroundDetail?world.groundV7.meshes:[])]), cancelled: () => disposed });
       if (disposed) { disposeTree(mapFile.scene); throw new DOMException('Disposed', 'AbortError'); }
-      stats = { ...stats, ...refinements, ...world.stats, mapDrawsBefore: batching.before, mapDrawsAfter: batching.after };
+      if(subpixelGroundDetail)groundDetail=createPlazaGroundDetailV19(world.groundV7.meshes);
+      refractionBudget.setWorld(map);
+      floorIndex=createPlazaFloorIndexV19(floors);
+      stats = { ...stats, ...refinements, ...world.stats, floorCount:floors.length,floorIndexCells:floorIndex.cellCount,mapDrawsBefore: batching.before, mapDrawsAfter: batching.after };
       onProgress({ text: 'Đang chuẩn bị nhân vật…', percent: 55 });
       const modelFile = await load(avatarConfig.model);
       vrm = modelFile.userData.vrm;
       if (!vrm) { disposeTree(modelFile.scene); throw new Error('Không đọc được nhân vật VRM.'); }
-      VRMUtils.rotateVRM0(vrm);preparePlazaAvatarV13(vrm);refinePlazaAvatarSurfaceV10(vrm.scene);remote.seed(character,vrm);
+      VRMUtils.rotateVRM0(vrm);preparePlazaAvatarV13(vrm,renderProfile);refinePlazaAvatarSurfaceV10(vrm.scene);remote.seed(character,vrm);
       avatar.add(vrm.scene);
       vrm.scene.traverse(object => { if (object.isMesh) { object.layers.set(1);object.frustumCulled = false; object.castShadow = false; object.receiveShadow = false; } });
       mixer = new THREE.AnimationMixer(vrm.scene);
@@ -400,6 +430,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       }
       walkLift = Math.max(0,idleSole-walkSole+.001);
       actions.walk.stop(); actions.idle.reset().play(); mixer.setTime(0); vrm.update(0);
+      stats.staticInstancedObjects=instancing.instancedObjects;stats.staticDrawCallsSaved=instancing.drawCallsSaved;
       stats.walkLift = walkLift; stats.character = character; updateLighting();
       groundY = groundAt(spawn.x, spawn.z, 0.1) ?? 0;
       avatar.position.set(spawn.x, groundY + soleOffset, spawn.z);
@@ -500,6 +531,28 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       groundY = groundAt(spawn.x, spawn.z, 0.1) ?? 0;
       avatar.position.set(spawn.x, groundY + soleOffset, spawn.z);
       changeAction('idle'); cameraPreset('follow');
+    },
+    prewarmQABudget:()=>{
+      const overview=camera.clone();overview.fov=90;overview.position.set(4.3,45,-6);overview.lookAt(4.3,0,-6);overview.updateProjectionMatrix();overview.updateMatrixWorld(true);
+      if(groundDetail)groundDetail.prewarm(()=>renderFrame(overview),camera,renderer.getSize(groundViewport).y,renderer.getPixelRatio());else renderFrame(overview);
+      if(adaptiveRefraction)for(const scale of refractionBudget.scales){const view=refractionBudget.atScale(scale,camera);renderer.transmissionResolutionScale=scale;renderPlazaLayers(renderer,scene,view.camera,renderProfile);}
+      renderFrame(camera);profiler.reset();
+    },
+    captureQAWaterView:()=>{
+      const capture=(height,z)=>{const shot=camera.clone();shot.position.set(-6,height,z);shot.lookAt(-6,0,8.5);shot.updateMatrixWorld(true);
+        if(groundDetail)groundDetail.update(shot,renderer.getSize(groundViewport).y,renderer.getPixelRatio());
+        renderFrame(shot);return renderer.domElement.toDataURL('image/png');};
+      const near=capture(4,12),far=capture(26,30);
+      if(groundDetail)groundDetail.update(camera,renderer.getSize(groundViewport).y,renderer.getPixelRatio());renderFrame(camera);return {near,far};
+    },
+    setQAOrbit:(yaw,pitch,radius)=>controls.setQAOrbit(yaw,pitch,radius),
+    probeQAAvatarPixels:()=>probePlazaAvatarGpu(renderer,scene,camera),
+    getQAState: () => {
+      const gl=renderer.getContext(),skeletons=new Set(),materials=new Set();let meshCount=0,visibleMeshes=0,nonFiniteBoneValues=0;
+      vrm?.scene.traverse(o=>{if(o.isMesh){meshCount++;if(o.visible)visibleMeshes++;for(const m of Array.isArray(o.material)?o.material:[o.material])if(m)materials.add(m);}if(o.isSkinnedMesh)skeletons.add(o.skeleton);});
+      for(const sk of skeletons)for(const value of sk.boneMatrices||[])if(!Number.isFinite(value))nonFiniteBoneValues++;
+      const bone=name=>vrm?.humanoid.getNormalizedBoneNode(name)?.getWorldPosition(new THREE.Vector3()).toArray()||null;
+      return {refractionBudgetMetrics:refractionBudget.getMetrics(),adaptiveRefraction,refractionScale:renderer.transmissionResolutionScale,qaTransmissionScale,filteredMaterialNoise,subpixelGroundDetail,qaRenderProfile,qaOrbit:{yaw:controls.yaw,pitch:controls.pitch,radius:controls.requestedRadius},contextLost:contextLost||gl.isContextLost(),hidden:document.hidden,loaded,disposed,frame:renderer.info.render.frame,antialias:gl.getContextAttributes()?.antialias,samples:gl.getParameter(gl.SAMPLES),glError:gl.getError(),dpr:renderer.getPixelRatio(),exposure:renderer.toneMappingExposure,background:scene.background?.getHexString?.()||null,hemisphere:hemisphere.intensity,sun:sun.intensity,camera:{position:camera.position.toArray(),fov:camera.fov,near:camera.near,far:camera.far},actor:{position:avatar.position.toArray(),visible:vrm?.scene.visible??false,meshCount,visibleMeshes,head:bone('head'),hips:bone('hips'),leftFoot:bone('leftFoot'),rightFoot:bone('rightFoot')},nonFiniteBoneValues,skeletons:[...skeletons].map(sk=>({bones:sk.bones.length,textureVersion:sk.boneTexture?.version??null,textureWidth:sk.boneTexture?.image?.width??null})),materials:[...materials].map(m=>({type:m.type,visible:m.visible,opacity:m.opacity,transparent:m.transparent,alphaTest:m.alphaTest,alphaToCoverage:m.alphaToCoverage,depthWrite:m.depthWrite})),animations:Object.fromEntries(Object.entries(actions).map(([name,a])=>[name,{time:a.time,weight:a.getEffectiveWeight(),timeScale:a.getEffectiveTimeScale(),running:a.isRunning()}]))};
     },
     getStats: () => ({ ...stats }),
   };
