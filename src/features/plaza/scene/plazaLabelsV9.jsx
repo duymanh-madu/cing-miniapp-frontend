@@ -1,4 +1,5 @@
 import React from 'react';
+import {plazaNameplateScaleV19} from './plazaNameplateScaleV19.js';
 import {createRoot} from 'react-dom/client';
 import * as THREE from 'three';
 import PlazaTitleV10 from '../pages/PlazaTitleV10.jsx';
@@ -9,12 +10,12 @@ export function createPlazaLabelsV9(host){
  injectTierBadgeStyles();
  const layer=document.createElement('div');layer.className='plaza-v9-labels';layer.setAttribute('aria-hidden','true');host.appendChild(layer);
  const nodes=new Map();let messages=[],roomId=null;
- const projected=new THREE.Vector3(),offset=new THREE.Vector3(0,.18,0);
+ const projected=new THREE.Vector3(),offset=new THREE.Vector3(0,.18,0),viewPosition=new THREE.Vector3();
  function remove(id){const n=nodes.get(id);n.root.unmount();n.el.remove();nodes.delete(id);}
  return {
   setMessages(room,next){roomId=room;messages=next||[];},
   update(camera,anchors){
-   const wanted=new Set(),bubbles=recentPlazaBubblesV9(messages,roomId,Date.now());
+   const wanted=new Set(),bubbles=recentPlazaBubblesV9(messages,roomId,Date.now()),viewportHeight=host.clientHeight;
    for(const a of anchors.slice(0,30)){
     if(!a.memberId||!a.position)continue;wanted.add(a.memberId);
     let n=nodes.get(a.memberId);if(!n){const el=document.createElement('div');el.className='plaza-v9-nameplate';layer.appendChild(el);n={el,root:createRoot(el)};nodes.set(a.memberId,n);}
@@ -36,7 +37,7 @@ export function createPlazaLabelsV9(host){
     projected.copy(a.position).add(offset).project(camera);
     const visible=projected.z>-1&&projected.z<1&&Math.abs(projected.x)<.98&&Math.abs(projected.y)<.98;
     n.el.hidden=!visible;
-    if(visible){n.el.style.left=`${(projected.x*.5+.5)*100}%`;n.el.style.top=`${(-projected.y*.5+.5)*100}%`;n.el.style.zIndex=String(Math.round((1-projected.z)*1000));}
+    if(visible){viewPosition.copy(a.position).applyMatrix4(camera.matrixWorldInverse);n.el.style.setProperty('--plaza-nameplate-scale',String(plazaNameplateScaleV19({depth:-viewPosition.z,fov:camera.fov,viewportHeight})));n.el.style.left=`${(projected.x*.5+.5)*100}%`;n.el.style.top=`${(-projected.y*.5+.5)*100}%`;n.el.style.zIndex=String(Math.round((1-projected.z)*1000));}
    }
    for(const id of nodes.keys())if(!wanted.has(id))remove(id);
   },

@@ -13,7 +13,8 @@ export function refinePlazaAvatarSurfaceV10(root) {
         outlines++;
       } else {
         m.outlineWidthMode = "none";
-        m.alphaToCoverage = m.alphaTest > 0;
+        // Keep framebuffer MSAA; use the authored alpha cutoff instead of sample coverage.
+        m.alphaToCoverage = false;
         m.needsUpdate = true;
       }
     }

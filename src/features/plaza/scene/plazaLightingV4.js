@@ -39,7 +39,7 @@ export function createPlazaLightingV4(scene, camera, avatar) {
     hemisphere.intensity=palette.hemisphere*.52;if(sun)sun.intensity=palette.sun*1.35;hemisphere.color.copy(palette.light);
     renderer.toneMappingExposure=Math.max(palette.exposure,.90*night);
     scene.environmentIntensity=palette.environment*.45;
-    lamps.forEach((lamp,index)=>lamp.intensity=night*(index<2?1.5:5));
+    lamps.forEach((lamp,index)=>{lamp.intensity=night*(index<2?1.5:5);lamp.visible=lamp.intensity>0;});
     world?.nightMaterials.forEach(material=>{
       if(material.name==='V4_Road_Sign_Face')material.color.setScalar(.90+.10*night);
       else material.emissiveIntensity=.25+2*night;
