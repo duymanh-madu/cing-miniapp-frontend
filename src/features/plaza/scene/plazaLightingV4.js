@@ -3,12 +3,13 @@ import * as THREE from 'three';
 // The avatar is lit in its own pass, preserving depth from the world. Transparent
 // glass is composed last, so an indoor character remains behind the glass.
 // This avoids brightening the whole night scene to expose a face.
-export function renderPlazaLayers(renderer,scene,camera) {
+export function renderPlazaLayers(renderer,scene,camera,{updateWorldOnce=true,singlePass=false}={}) {
   const mask=camera.layers.mask,background=scene.background,autoClear=renderer.autoClear,infoReset=renderer.info.autoReset,worldAutoUpdate=scene.matrixWorldAutoUpdate;
   renderer.info.autoReset=false;renderer.info.reset();
   try {
     // All three layers use the same pose: update world matrices once, not three times.
-    scene.updateMatrixWorld();scene.matrixWorldAutoUpdate=false;
+    if(updateWorldOnce){scene.updateMatrixWorld();scene.matrixWorldAutoUpdate=false;}else scene.matrixWorldAutoUpdate=true;
+    if(singlePass){camera.layers.set(0);camera.layers.enable(1);camera.layers.enable(2);renderer.autoClear=true;renderer.render(scene,camera);return;}
     camera.layers.set(0);renderer.autoClear=true;renderer.render(scene,camera);
     scene.background=null;renderer.autoClear=false;
     camera.layers.set(1);renderer.render(scene,camera);
@@ -39,7 +40,7 @@ export function createPlazaLightingV4(scene, camera, avatar) {
     hemisphere.intensity=palette.hemisphere*.52;if(sun)sun.intensity=palette.sun*1.35;hemisphere.color.copy(palette.light);
     renderer.toneMappingExposure=Math.max(palette.exposure,.90*night);
     scene.environmentIntensity=palette.environment*.45;
-    lamps.forEach((lamp,index)=>lamp.intensity=night*(index<2?1.5:5));
+    lamps.forEach((lamp,index)=>{lamp.intensity=night*(index<2?1.5:5);lamp.visible=lamp.intensity>0;});
     world?.nightMaterials.forEach(material=>{
       if(material.name==='V4_Road_Sign_Face')material.color.setScalar(.90+.10*night);
       else material.emissiveIntensity=.25+2*night;

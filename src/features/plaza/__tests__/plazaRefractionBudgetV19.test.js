@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';import * as T from 'three';import {createPlazaRefractionBudgetV19} from '../scene/plazaRefractionBudgetV19.js';
+test('refraction uses visible surface footprint, retains near detail and reuses camera IDs',()=>{
+ const camera=new T.PerspectiveCamera(45,.6,.08,120),b=createPlazaRefractionBudgetV19(camera);b.setBoxes([new T.Box3(new T.Vector3(-.1,-.1,-.1),new T.Vector3(.1,.1,.1))]);
+ const place=y=>{camera.position.set(0,y,2);camera.lookAt(0,0,0);camera.updateMatrixWorld(true);return b.select(camera);};camera.layers.set(2);const near=place(2);assert.equal(near.scale,1);assert.ok(near.camera.position.equals(camera.position));assert.ok(near.camera.projectionMatrix.equals(camera.projectionMatrix));assert.equal(near.camera.layers.mask,4);const far=place(30);assert.equal(far.scale,.25);assert.notEqual(far.camera.id,near.camera.id);assert.equal(place(11).camera.id,far.camera.id);assert.equal(place(9).scale,.5);assert.equal(place(2).camera.id,near.camera.id);assert.equal(camera.layers.mask,4);
+});
+test('large water footprint stays full even when camera is low; offscreen surfaces do not demand full capture',()=>{
+ const camera=new T.PerspectiveCamera(45,1,.08,120),b=createPlazaRefractionBudgetV19(camera);b.setBoxes([new T.Box3(new T.Vector3(-10,-.01,-10),new T.Vector3(10,.01,10))]);camera.position.set(0,12,0);camera.lookAt(0,0,0);camera.updateMatrixWorld(true);assert.equal(b.select(camera).scale,1);assert.ok(b.getMetrics().maxScreenArea>.18);camera.lookAt(0,30,0);camera.updateMatrixWorld(true);assert.equal(b.select(camera).scale,.25);assert.equal(b.getMetrics().visibleRefractors,0);
+});

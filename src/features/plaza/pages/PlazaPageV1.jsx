@@ -1,8 +1,9 @@
+import {installPlazaRoomTouchGuardV19} from '../scene/plazaRoomTouchGuardV19.js';
 import {usePlazaSocialV16} from '../runtime/usePlazaSocialV16.js';
 import PlazaProfileV16 from './PlazaProfileV16.jsx';
 import './PlazaSocialV16.css';
 import React, {
-  useEffect, useRef, useState, useSyncExternalStore, lazy, Suspense,
+  useEffect, useRef, useState, useMemo, useSyncExternalStore, lazy, Suspense,
 } from "react";
 import { createDefaultPlazaClientV1 } from "../runtime/createDefaultPlazaClientV1.js";
 import "./PlazaPageV1.css";
@@ -18,6 +19,7 @@ import PlazaLoadingV11 from "./PlazaLoadingV11.jsx";
 import {removeLegacyPlazaPhotosV12} from "../runtime/removeLegacyPlazaPhotosV12.js";
 import PlazaChatV7 from "./PlazaChatV7.jsx";
 
+import {createPlazaUiStoreV19} from '../runtime/plazaUiStoreV19.js';
 const PlazaSceneV1 = lazy(() => import("../scene/PlazaSceneV1.jsx"));
 
 const EMPTY = Object.freeze({
@@ -91,9 +93,10 @@ export default function PlazaPageV1({
   const alive = useRef(false);
   const actionBusy = useRef(false);
 
+  const uiStore=useMemo(()=>client?createPlazaUiStoreV19(client):null,[client]);
   const state = useSyncExternalStore(
-    client?.subscribe || subscribeEmpty,
-    client?.getSnapshot || getEmpty,
+    uiStore?.subscribe || subscribeEmpty,
+    uiStore?.getSnapshot || getEmpty,
     getEmpty,
   );
   const characterChoice=state.profile?.character;
@@ -104,6 +107,8 @@ export default function PlazaPageV1({
   function openPM(id){setProfileMember(null);setMembersOpen(false);setPmPeer(id);setChatOpen(true);}
 
   useEffect(()=>{setMembersOpen(false);},[room?.roomId]);
+  const roomHost=useRef(null);
+  useEffect(()=>{if(room?.roomId&&roomHost.current)return installPlazaRoomTouchGuardV19(roomHost.current);},[room?.roomId]);
   const connectionPaused=!connected;
   useEffect(()=>{setSceneReady(false);},[room?.roomId]);
   const rooms = state.rooms || [];
@@ -225,9 +230,10 @@ export default function PlazaPageV1({
     });
   }
 
-  return <main className={`cing-plaza cing-plaza--immersive ${room?'cing-plaza--room':'cing-plaza--lobby'} plaza-v7`}>
+  return <main ref={roomHost} className={`cing-plaza cing-plaza--immersive ${room?'cing-plaza--room':'cing-plaza--lobby'} plaza-v7`}>
     {notice&&<p className="plaza-v7-notice" role="alert">{notice}</p>}
     {checking?<PlazaLoadingV11/>:!enabled?<div className="plaza-v7-loading">Plaza hiện chưa mở.</div>:room?<>
+      {room&&!connected&&<div className="plaza-v19-connection-state" role="status">{STATUS[state.status]||"Đang nối lại phòng"}<button type="button" disabled={state.status==="resuming"||state.status==="connecting"} onClick={()=>client?.connect()}>Kết nối lại</button></div>}
       {sceneReady&&<div className="plaza-v19-room-dock" aria-label="Điều khiển phòng Plaza"><div className="cing-plaza__room-hud plaza-v15-room-hud"><button disabled={busy} onClick={()=>act(async()=>{await client.leaveRoom();setChatOpen(false);await refreshRooms();await client.getProfile();})}>‹ Sảnh</button><div><strong>{room.name}</strong><span>Cing Plaza {String(room.roomNumber||'').padStart(2,'0')} · {room.memberCount}/{room.capacity}</span></div></div>{!chatOpen&&!membersOpen&&!profileMember&&<PlazaChatPeekV15 worldMessages={social.messages} roomId={room.roomId} messages={messages} onOpen={()=>setChatOpen(true)}/>}</div>}
       {!characterChoice&&<div className="plaza-v7-loading" role="status">
         <p>{profileLoading
