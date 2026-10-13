@@ -46,7 +46,7 @@ function disposeTree(root) {
   textures.forEach(value => { value.dispose(); value.source?.data?.close?.(); });
 }
 
-export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () => {}, onStats = () => {}, onNotice = () => {}, character = 'girl', onLocalState = () => {}, onPosition=()=>{} } = {}) {
+export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () => {}, onStats = () => {}, onNotice = () => {}, character = 'girl', qaFixedPixelRatio = null, onQAEvent = () => {}, onLocalState = () => {}, onPosition=()=>{} } = {}) {
   const avatarConfig = PLAZA_AVATARS[character] || PLAZA_AVATARS.girl;
   const walkSpeed = avatarConfig.speed;
   let expressionTime = 0;
@@ -57,7 +57,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   const camera = new THREE.PerspectiveCamera(45, 1, 0.08, 120);
   const mobile = window.matchMedia('(pointer: coarse)').matches;
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'default' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, qaFixedPixelRatio ?? (mobile ? 1.5 : 1.75)));
   const quality=createPlazaAdaptiveQualityV19(renderer.getPixelRatio(),Math.min(window.devicePixelRatio||1,mobile?1.65:1.85));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -270,12 +270,13 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     frames++;
     if (now - statLast >= 1000) {
       stats = { ...stats, fps: Math.round(frames * 1000 / (now - statLast)), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, ...remote.stats(),textures:renderer.info.memory.textures,geometries:renderer.info.memory.geometries,antialias:renderer.getContext().getContextAttributes().antialias,dpr:renderer.getPixelRatio(),cameraRadius:controls.requestedRadius, motion: state, x: avatar.position.x, z: avatar.position.z, groundY };
-      const adjusted=quality.sample(stats.fps,now);
-      if(adjusted!==null){renderer.setPixelRatio(adjusted);resize();}
+      const adjusted=qaFixedPixelRatio===null?quality.sample(stats.fps,now):null;
+      if(adjusted!==null){onQAEvent("pixel-ratio-change",{before:renderer.getPixelRatio(),after:adjusted,fps:stats.fps});renderer.setPixelRatio(adjusted);resize();}
       onStats(stats); frames = 0; statLast = now;
     }
     raf = requestAnimationFrame(tick);
     } catch (error) {
+      onQAEvent("render-loop-error",{name:error.name,message:error.message});
       // An exception in the render loop previously stopped RAF silently, leaving a blank scene
       // and a still-active HUD. Fail visibly so the existing Retry button can rebuild the scene.
       input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
@@ -283,12 +284,14 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     }
   }
   function onVisibility() {
+    onQAEvent("scene-visibility",{hidden:document.hidden});
     input = { x: 0, z: 0 }; stopPath();controls.cancelGestures();
     if (document.hidden) { cancelAnimationFrame(raf); raf = 0;clearTimeout(restoreTimer); }
     else if(contextLost)armRestoreTimeout();
     else if (loaded && !disposed && !contextLost && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }
   function onContextLost(event) {
+    onQAEvent("webglcontextlost",{message:event.statusMessage||""});
     event.preventDefault();if(disposed)return;contextLost=true;
     input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
     onProgress({text:'Đang khôi phục hiển thị 3D…',percent:100});
@@ -300,6 +303,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     restoreTimer=setTimeout(()=>{if(!disposed&&contextLost&&!document.hidden){dispose();onProgress({error:'Thiết bị chưa khôi phục được hiển thị 3D. Hãy bấm Mở lại.'});}},12000);
   }
   function onContextRestored(){
+    onQAEvent("webglcontextrestored",{});
     if(disposed)return;contextLost=false;clearTimeout(restoreTimer);
     renderer.shadowMap.needsUpdate=true;resize();last=performance.now();
     if(loaded){onProgress({ready:true,percent:100});if(!document.hidden&&!raf)raf=requestAnimationFrame(tick);}
@@ -500,6 +504,13 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       groundY = groundAt(spawn.x, spawn.z, 0.1) ?? 0;
       avatar.position.set(spawn.x, groundY + soleOffset, spawn.z);
       changeAction('idle'); cameraPreset('follow');
+    },
+    getQAState: () => {
+      const gl=renderer.getContext(),skeletons=new Set(),materials=new Set();let meshCount=0,visibleMeshes=0,nonFiniteBoneValues=0;
+      vrm?.scene.traverse(o=>{if(o.isMesh){meshCount++;if(o.visible)visibleMeshes++;for(const m of Array.isArray(o.material)?o.material:[o.material])if(m)materials.add(m);}if(o.isSkinnedMesh)skeletons.add(o.skeleton);});
+      for(const sk of skeletons)for(const value of sk.boneMatrices||[])if(!Number.isFinite(value))nonFiniteBoneValues++;
+      const bone=name=>vrm?.humanoid.getNormalizedBoneNode(name)?.getWorldPosition(new THREE.Vector3()).toArray()||null;
+      return {contextLost:contextLost||gl.isContextLost(),hidden:document.hidden,loaded,disposed,frame:renderer.info.render.frame,antialias:gl.getContextAttributes()?.antialias,samples:gl.getParameter(gl.SAMPLES),glError:gl.getError(),dpr:renderer.getPixelRatio(),exposure:renderer.toneMappingExposure,background:scene.background?.getHexString?.()||null,hemisphere:hemisphere.intensity,sun:sun.intensity,camera:{position:camera.position.toArray(),fov:camera.fov,near:camera.near,far:camera.far},actor:{position:avatar.position.toArray(),visible:vrm?.scene.visible??false,meshCount,visibleMeshes,head:bone('head'),hips:bone('hips'),leftFoot:bone('leftFoot'),rightFoot:bone('rightFoot')},nonFiniteBoneValues,skeletons:[...skeletons].map(sk=>({bones:sk.bones.length,textureVersion:sk.boneTexture?.version??null,textureWidth:sk.boneTexture?.image?.width??null})),materials:[...materials].map(m=>({type:m.type,visible:m.visible,opacity:m.opacity,transparent:m.transparent,alphaTest:m.alphaTest,alphaToCoverage:m.alphaToCoverage,depthWrite:m.depthWrite})),animations:Object.fromEntries(Object.entries(actions).map(([name,a])=>[name,{time:a.time,weight:a.getEffectiveWeight(),timeScale:a.getEffectiveTimeScale(),running:a.isRunning()}]))};
     },
     getStats: () => ({ ...stats }),
   };

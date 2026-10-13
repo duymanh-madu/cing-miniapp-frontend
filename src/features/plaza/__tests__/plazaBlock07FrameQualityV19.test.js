@@ -25,6 +25,6 @@ test('scene has guarded render loop and all errors surface via existing retry UI
  const scene=readFileSync(new URL('../scene/createPlazaSceneV1.js',import.meta.url),'utf8');
  assert.match(scene,/try \{\s*const dt/);
  assert.match(scene,/catch \(error\) \{[\s\S]*onProgress\(\{ready:false,error:/);
- assert.match(scene,/const adjusted=quality\.sample\(stats\.fps,now\)/);
+ assert.match(scene,/qaFixedPixelRatio===null\?quality\.sample\(stats\.fps,now\):null/);
  assert.match(scene,/if\(now-labelLast>=50\)/);
 });

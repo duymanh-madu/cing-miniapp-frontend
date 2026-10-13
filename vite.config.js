@@ -56,6 +56,7 @@ export default defineConfig({
   },
 
   build: {
+    rollupOptions: { input: { main: path.resolve(__dirname,"index.html"), qa: path.resolve(__dirname,"plaza-qa-f10.html") } },
 
     sourcemap:
       false,
