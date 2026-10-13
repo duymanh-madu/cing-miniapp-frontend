@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import * as T from 'three';import {createPlazaCameraV10} from '../scene/plazaCameraV10.js';
+test('fixed QA orbit cancels held gestures so the same pose remains reproducible',()=>{
+ const events=new Map(),element={clientHeight:775,addEventListener:(n,f)=>events.set(n,f),removeEventListener(){},setPointerCapture(){}};const camera=new T.PerspectiveCamera(),controls=createPlazaCameraV10(camera,element,{minX:-20,maxX:40,minZ:-30,maxZ:20});controls.target.set(0,.9,2.5);events.get('pointerdown')({button:0,pointerType:'touch',pointerId:1,clientX:20,clientY:50});controls.setQAOrbit(Math.PI/2,.85,20);const pose=camera.position.clone();events.get('pointermove')({pointerId:1,clientX:300,clientY:400,preventDefault(){}});assert.ok(camera.position.distanceTo(pose)<1e-9);assert.equal(controls.yaw,Math.PI/2);assert.equal(controls.requestedRadius,20);controls.dispose();
+});

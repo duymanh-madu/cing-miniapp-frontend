@@ -89,6 +89,24 @@ function createNoiseVolume() {
   return texture;
 }
 
+export const PLAZA_FILTERED_NOISE = `
+uniform highp sampler3D plazaNoiseVolume;
+varying vec3 vPlazaWorld;
+float plazaNoise(vec3 p, float detail, float roughness, float lacunarity) {
+  float result=0.0, amplitude=1.0, total=0.0;
+  vec3 gradientX=dFdx(p),gradientY=dFdy(p);
+  float footprint=max(length(gradientX),length(gradientY));
+  float meanValue=0.0;bool haveMean=false;
+  for(int i=0;i<4;i++) {
+    if(float(i)>detail) break;
+    float value;
+    if(footprint>=64.0){if(!haveMean){meanValue=textureLod(plazaNoiseVolume,vec3(0.5),6.0).r;haveMean=true;}value=meanValue;}
+    else value=textureGrad(plazaNoiseVolume,p/64.0,gradientX/64.0,gradientY/64.0).r;
+    result+=value*amplitude;total+=amplitude;amplitude*=roughness;p*=lacunarity;gradientX*=lacunarity;gradientY*=lacunarity;footprint*=abs(lacunarity);
+  }
+  return result/max(total,0.00001);
+}
+`;
 const NOISE = `
 uniform highp sampler3D plazaNoiseVolume;
 varying vec3 vPlazaWorld;
@@ -103,7 +121,7 @@ float plazaNoise(vec3 p, float detail, float roughness, float lacunarity) {
 }
 `;
 
-export function applyPlazaMaterialsV1(root, data, {retiredMaterials=[]}={}) {
+export function applyPlazaMaterialsV1(root, data, {retiredMaterials=[],filteredNoise=false}={}) {
   const compiled = new Map(data.materials.map(definition => [definition.name, compilePlazaMaterial(definition)]));
   const noise = createNoiseVolume(), materials = new Set(), applied = new Set();
   root.traverse(object => {
@@ -123,13 +141,13 @@ export function applyPlazaMaterialsV1(root, data, {retiredMaterials=[]}={}) {
     }
     material.onBeforeCompile = shader => {
       shader.uniforms.plazaNoiseVolume = { value: noise };
-      shader.vertexShader = `varying vec3 vPlazaWorld;\n${shader.vertexShader}`.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvPlazaWorld=(modelMatrix*vec4(transformed,1.0)).xyz;');
-      shader.fragmentShader = `${NOISE}\n${graph.functions}\n${shader.fragmentShader}`
+      shader.vertexShader = `varying vec3 vPlazaWorld;\n${shader.vertexShader}`.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvec4 plazaWorldPosition=vec4(transformed,1.0);\n#ifdef USE_BATCHING\nplazaWorldPosition=batchingMatrix*plazaWorldPosition;\n#endif\n#ifdef USE_INSTANCING\nplazaWorldPosition=instanceMatrix*plazaWorldPosition;\n#endif\nvPlazaWorld=(modelMatrix*plazaWorldPosition).xyz;');
+      shader.fragmentShader = `${filteredNoise?PLAZA_FILTERED_NOISE:NOISE}\n${graph.functions}\n${shader.fragmentShader}`
         .replace('#include <map_fragment>', `#include <map_fragment>\n${graph.statements}\ndiffuseColor.rgb=${graph.color};`)
         .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>\nroughnessFactor=clamp(${graph.roughness},0.04,1.0);`)
         .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>\nfloat plazaHeight=${graph.height};\nvec3 plazaQ0=dFdx(-vViewPosition), plazaQ1=dFdy(-vViewPosition);\nvec3 plazaS=cross(plazaQ1,normal), plazaT=cross(normal,plazaQ0);\nfloat plazaDet=dot(plazaQ0,plazaS);\nnormal=normalize(max(abs(plazaDet),0.0000001)*normal-sign(plazaDet)*(dFdx(plazaHeight)*plazaS+dFdy(plazaHeight)*plazaT));`);
     };
-    material.customProgramCacheKey = () => `cing-plaza-nodes-v1:${material.name}`;
+    material.customProgramCacheKey = () => `cing-plaza-nodes-v2:${material.name}:${filteredNoise}`;
     material.needsUpdate = true; applied.add(material.name);
   }
   const missing = [...compiled.keys()].filter(name => !applied.has(name)&&!retiredMaterials.includes(name));
