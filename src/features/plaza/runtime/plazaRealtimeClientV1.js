@@ -1,3 +1,23 @@
+import { mergePlazaPresenceV19 } from "./plazaPresenceMergeV19.js";
+// A refusal by server authority is not a transport interruption. Never turn
+// authentication, an administrator disable, or a replaced session into an
+// unbounded reconnect loop.
+const TERMINAL_CONNECT_CODES = new Set([
+  "PLAZA_INVALID_TOKEN", "PLAZA_UNAUTHORIZED", "PLAZA_MEMBER_BLOCKED",
+  "PLAZA_SESSION_REPLACED", "PLAZA_IDENTITY_CHANGED", "PLAZA_UNAVAILABLE",
+]);
+const TERMINAL_RESUME_CODES = new Set([
+  ...[...TERMINAL_CONNECT_CODES].filter(code => code !== "PLAZA_UNAVAILABLE"),
+  "PLAZA_ROOM_NOT_FOUND", "PLAZA_ROOM_MEMBERSHIP_REQUIRED",
+]);
+const MAX_RECOVERY_RETRIES = 50; // bounded; membership retention is server authority
+
+function plazaErrorCode(error) {
+  const code = error?.data?.code || error?.code || error?.message;
+  return typeof code === "string" && /^PLAZA_[A-Z0-9_]{1,64}$/.test(code)
+    ? code : "PLAZA_CONNECTION_ERROR";
+}
+
 function failure(code) {
   const error = new Error(code);
   error.code = code;
@@ -31,14 +51,40 @@ export function createPlazaRealtimeClientV1({
   }
 
   let disposed = false, resumeNeeded = false, recovery = 0;
-  let retryTimer = null, retryCount = 0;
+  let retryTimer = null, retryCount = 0, recoveryBlocked = false;
+  // Socket.IO starts with reconnection:true. Only notify its Manager when the
+  // desired state ACTUALLY changes (avoids redundant initial connect toggles).
+  let reconnectAllowed = true;
+  function setReconnectAllowed(value) {
+    const allowed = value === true;
+    if (reconnectAllowed === allowed) return;
+    reconnectAllowed = allowed;
+    socket.io?.reconnection?.(allowed);
+  }
+
   function clearRecoveryRetry(){clearTimeout(retryTimer);retryTimer=null;}
   function scheduleRecoveryRetry(){
     clearRecoveryRetry();
-    if(disposed || lifecycle?.hidden)return;
-    retryTimer=setTimeout(()=>{retryTimer=null;if(disposed || lifecycle?.hidden)return;
-      if(socket.connected)void recover();else socket.connect();
-    },Math.min(5000,recoveryDelayMs * 2 ** Math.min(retryCount++,3)));
+    if(disposed || recoveryBlocked || lifecycle?.hidden)return;
+    if(retryCount >= MAX_RECOVERY_RETRIES){
+      update({status:"connection-error", lastError:"PLAZA_RECOVERY_EXHAUSTED"});
+      setReconnectAllowed(false);
+      return;
+    }
+    const delay=Math.min(5000,recoveryDelayMs * 2 ** Math.min(retryCount++,3));
+    retryTimer=setTimeout(()=>{
+      retryTimer=null;
+      if(disposed || recoveryBlocked || lifecycle?.hidden)return;
+      if(socket.connected)void recover();
+      else if(socket.active !== true)socket.connect();
+      // While Socket.IO owns automatic reconnect, do not duplicate its timer.
+    },delay);
+  }
+  function blockRecovery(code){
+    recoveryBlocked=true;
+    clearRecoveryRetry();
+    setReconnectAllowed(false);
+    update({status:"connection-error",lastError:code});
   }
   let sequence = 0;
   let snapshot = Object.freeze({
@@ -58,7 +104,7 @@ export function createPlazaRealtimeClientV1({
     autoConnect: false,
     forceNew: true,
     reconnection: true,
-    reconnectionAttempts: Infinity,
+    reconnectionAttempts: MAX_RECOVERY_RETRIES,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
     timeout: timeoutMs,
@@ -80,24 +126,33 @@ export function createPlazaRealtimeClientV1({
 
   const handlers = {
     connect: () => {
-      if (!disposed) {
-        if(lifecycle?.hidden){socket.disconnect();return;}
-        if(resumeOnConnect || resumeNeeded)void recover();
-        else update({status:"connected"});
-      }
+      if (disposed) return;
+      if(lifecycle?.hidden){socket.disconnect();return;}
+      if(recoveryBlocked)return; // only an explicit connect/foreground can retry auth
+      if(resumeOnConnect || resumeNeeded)void recover();
+      else {retryCount=0;update({status:"connected",lastError:null});}
     },
-    disconnect: () => {
+    disconnect: reason => {
       if (disposed) return;
       clearRecoveryRetry();
       resumeNeeded=Boolean(snapshot.room);
       rejectPending();
       recovery++;
-      // Keep the room and scene mounted until the server confirms expiry/leave.
-      // A transport drop is not an authoritative eviction.
+      // A transport drop is not authoritative room eviction: keep WebGL mounted.
       update({status:"disconnected",rooms:Object.freeze([])});
+      if(reason==="io server disconnect") {
+        // Socket.IO does NOT auto-reconnect after the server disconnects it.
+        // A new handshake must pass the server gate and token authority again.
+        scheduleRecoveryRetry();
+      }
+      // Socket.IO handles other network interruptions via its own backoff.
+      // Never reconnect after our intentional client disconnect.
     },
-    connect_error: () => {
-      if (!disposed) {update({ status: "connection-error" });scheduleRecoveryRetry();}
+    connect_error: error => {
+      if(disposed)return;
+      const code=plazaErrorCode(error);
+      if(TERMINAL_CONNECT_CODES.has(code))blockRecovery(code);
+      else {update({status:"connection-error",lastError:code});scheduleRecoveryRetry();}
     },
     "plaza:social":payload=>{if(disposed||!Array.isArray(payload?.messages))return;const next=new Map(snapshot.socialMessages.map(m=>[m.messageId,m]));for(const m of payload.messages.slice(0,100)){if(typeof m?.messageId!=='string'||!['world','pm'].includes(m.channel)||typeof m.body!=='string'||!Number.isSafeInteger(m.sequence))continue;next.set(m.messageId,Object.freeze({...m}));}update({socialRevision:snapshot.socialRevision+(payload.refresh?1:0),socialMessages:Object.freeze([...next.values()].sort((a,b)=>a.sequence-b.sequence).slice(-150))});},
     "plaza:members":payload=>{
@@ -108,14 +163,8 @@ export function createPlazaRealtimeClientV1({
     "plaza:correction": payload => {if(!disposed && payload?.roomId===snapshot.room?.roomId)update({correction:payload.value});},
     "plaza:presence": payload => {
       if(disposed || !payload || payload.roomId !== snapshot.room?.roomId || !Array.isArray(payload.members))return;
-      const next=new Map(payload.full?[]:snapshot.members.map(v=>[v.memberId,v]));
-      for(const id of payload.removed || [])next.delete(id);
-      for(const v of payload.members) {
-        if(typeof v?.memberId!=="string" || !Number.isSafeInteger(v.seq))continue;
-        const old=next.get(v.memberId);
-        if(!old || (v.presenceId && old.presenceId!==v.presenceId) || v.seq>old.seq || (v.seq===old.seq && (v.motion==="idle" || v.motion==="sit" || v.seatId!==old.seatId || v.identityRevision!==old.identityRevision)))next.set(v.memberId,{...old,...v});
-      }
-      update({selfId:payload.selfId,members:Object.freeze([...next.values()])});
+      const change=mergePlazaPresenceV19(snapshot,payload);
+      if(change)update(change);
     },
     "plaza:rooms": payload => {
       if (!disposed && Array.isArray(payload?.rooms)) {
@@ -164,7 +213,8 @@ export function createPlazaRealtimeClientV1({
       const data=await request("plaza:resume",{});
       if(disposed || attempt!==recovery || !socket.connected)return;
       handlers["plaza:room"]({room:data?.room??null});
-      retryCount=0;resumeNeeded=false;update({status:"connected"});
+      retryCount=0;resumeNeeded=false;recoveryBlocked=false;
+      update({status:"connected",lastError:null});
     } catch(error) {
       if(disposed || attempt!==recovery)return;
       if(error?.code==="PLAZA_CHARACTER_REQUIRED"){
@@ -176,18 +226,33 @@ export function createPlazaRealtimeClientV1({
         update({status:"connected",profile:undefined});
         return;
       }
-      update({status:"connection-error"});
-      if(["PLAZA_REQUEST_TIMEOUT","PLAZA_DISCONNECTED","PLAZA_QUEUE_FULL"].includes(error.code))scheduleRecoveryRetry();
+      const code=plazaErrorCode(error);
+      if(TERMINAL_RESUME_CODES.has(code)) {
+        // Only authoritative server rejection can evict the old local room.
+        if(["PLAZA_SESSION_REPLACED","PLAZA_ROOM_NOT_FOUND",
+            "PLAZA_ROOM_MEMBERSHIP_REQUIRED"].includes(code))
+          handlers["plaza:room"]({room:null});
+        blockRecovery(code);
+      } else {
+        // Temporary service, ACK timeout, rate limit, or transport disruption.
+        // Keep the scene and retry with a bounded backoff.
+        update({status:"connection-error",lastError:code});
+        scheduleRecoveryRetry();
+      }
     }
   }
   function visibility() {
     if(disposed)return;
-    socket.io?.reconnection?.(!lifecycle.hidden);
+    setReconnectAllowed(!lifecycle.hidden);
     if(lifecycle.hidden){
       clearRecoveryRetry();recovery++;
       if(snapshot.room && socket.connected)request("plaza:background",{}).catch(()=>{});
-    } else if(socket.connected)void recover();
-    else socket.connect();
+    } else {
+      // Fresh token is read through socket.auth on each new handshake.
+      recoveryBlocked=false;retryCount=0;
+      if(socket.connected)void recover();
+      else socket.connect();
+    }
   }
   lifecycle?.addEventListener?.("visibilitychange",visibility);
 
@@ -241,7 +306,10 @@ export function createPlazaRealtimeClientV1({
     },
     connect: () => {
       if (disposed) throw failure("PLAZA_CLIENT_DISPOSED");
-      update({ status: "connecting" });
+      recoveryBlocked=false;retryCount=0;
+      clearRecoveryRetry();
+      setReconnectAllowed(lifecycle?.hidden !== true);
+      update({ status: "connecting",lastError:null });
       socket.connect();
     },
     getProfile:async()=>{

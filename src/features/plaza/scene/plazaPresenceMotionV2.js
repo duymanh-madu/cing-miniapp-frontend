@@ -11,7 +11,13 @@ export function samplePresence(samples,time,delay=120) {
  let a=samples[0],b=a;
  for(let i=1;i<samples.length;i++){b=samples[i];if(b.time>=target)break;a=b;}
  if(a===b || b.time<=a.time)return {...b.value};
- const t=Math.max(0,Math.min(1,(target-a.time)/(b.time-a.time)));
+ // After packet loss, interpolation over the entire silent interval jumps
+ // most of the way to the new location on the first rendered frame.
+ // Blend from the LAST authoritative sample to the NEW one over at most
+ // 120ms; never extrapolate a position beyond the server's samples.
+ const longGap=b.time-a.time>Math.max(240,delay*2);
+ const start=longGap&&delay>0?b.time-Math.min(120,delay):a.time;
+ const t=Math.max(0,Math.min(1,(target-start)/(b.time-start)));
  const turn=Math.atan2(Math.sin(b.value.heading-a.value.heading),Math.cos(b.value.heading-a.value.heading));
  return {...(t<.5?a.value:b.value),x:a.value.x+(b.value.x-a.value.x)*t,y:a.value.y+(b.value.y-a.value.y)*t,z:a.value.z+(b.value.z-a.value.z)*t,heading:a.value.heading+turn*t};
 }

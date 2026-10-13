@@ -1,6 +1,6 @@
 export const PLAZA_AVATARS = Object.freeze({
-  boy: { model: 'cing-boy-v01.vrm', idle: 'cing-boy-idle.vrma', walk: 'v8/cing-boy-walk-v8.vrma', wave: 'cing-boy-wave.vrma', checkin: 'cing-boy-checkin.vrma', speed: 1.50, label: 'Boy' },
-  girl: { model: 'cing-girl-v01.vrm', idle: 'cing-girl-idle.vrma', walk: 'v7/cing-girl-walk-v7.vrma', wave: 'cing-girl-wave.vrma', checkin: 'v7/cing-girl-checkin-v7.vrma', speed: 1.50, label: 'Girl' },
+  boy: { model: 'cing-boy-v01.vrm', idle: 'cing-boy-idle.vrma', walk: 'v8/cing-boy-walk-v8.vrma', wave: 'cing-boy-wave.vrma', checkin: 'cing-boy-checkin.vrma', speed: 1.50, walkAuthoredSpeed: 1.35, label: 'Boy' },
+  girl: { model: 'cing-girl-v01.vrm', idle: 'cing-girl-idle.vrma', walk: 'v7/cing-girl-walk-v7.vrma', wave: 'cing-girl-wave.vrma', checkin: 'v7/cing-girl-checkin-v7.vrma', speed: 1.50, walkAuthoredSpeed: 1.35, label: 'Girl' },
 });
 export function nextAvatarMotion(current, moving, requested, finished) {
   if (moving) return 'walk';
@@ -11,4 +11,9 @@ export function nextAvatarMotion(current, moving, requested, finished) {
 export function girlExpression(time, gesture) {
   const phase = ((time % 4.3) + 4.3) % 4.3;
   return { blink: phase < .16 ? Math.sin(Math.PI * phase / .16) ** 2 : 0, happy: gesture === 'wave' || gesture === 'checkin' ? .18 : .035 };
+}
+
+// Authored foot speed is independent of the configured world travel speed.
+export function plazaWalkPlaybackRate(config, speed) {
+  return Math.min(1.25, speed / config.walkAuthoredSpeed);
 }

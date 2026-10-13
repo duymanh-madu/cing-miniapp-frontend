@@ -20,9 +20,9 @@ for(const name of ['cing-boy-v01.vrm','cing-girl-v01.vrm'])test(`${name}: preser
  console.log('V13_RESOURCE_PROOF',name,JSON.stringify({before,after}));
 });
 
-test('HUD has lock inside knob, no separate stop/home; members are staged after local assets',async()=>{
+test('HUD releases movement without direction locking, no separate stop/home; members are staged after local assets',async()=>{
  const scene=await readFile(new URL('../scene/PlazaSceneV1.jsx',import.meta.url),'utf8'),create=await readFile(new URL('../scene/createPlazaSceneV1.js',import.meta.url),'utf8');
- assert.match(scene,/stick-knob[^\n]+<LockKeyhole/);assert.doesNotMatch(scene,/<Square|<Home|aria-label="Dừng di chuyển"/);assert.match(scene,/lockedRef.current\)\{event.preventDefault\(\);clearInput/);
+ assert.match(scene,/stick-knob/);assert.doesNotMatch(scene,/LockKeyhole|lockedRef|lockMovement|joystickLockArmedV11/);assert.doesNotMatch(scene,/<Square|<Home|aria-label="Dừng di chuyển"/);assert.match(scene,/onPointerUp=\{event => \{[^}]*clearInput\(\)/);assert.match(scene,/onPointerCancel=\{\(\) => clearInput\(\)\}/);assert.match(scene,/onLostPointerCapture=\{\(\) => \{[^}]*clearInput\(\)/);
  assert.match(create,/if\(loaded\)remote.setMembers/);assert.match(create,/loaded = true; remote.setMembers/);
 });
 

@@ -1,9 +1,9 @@
-import test from 'node:test';import assert from 'node:assert/strict';import{readFile}from'node:fs/promises';import*as T from'three';import{GLTFLoader}from'three/addons/loaders/GLTFLoader.js';import{VRMLoaderPlugin}from'@pixiv/three-vrm';import{VRMAnimationLoaderPlugin,createVRMAnimationClip}from'@pixiv/three-vrm-animation';import{PLAZA_AVATARS,nextAvatarMotion,girlExpression}from'../scene/plazaAvatarV6.js';
+import test from 'node:test';import assert from 'node:assert/strict';import{readFile}from'node:fs/promises';import*as T from'three';import{GLTFLoader}from'three/addons/loaders/GLTFLoader.js';import{VRMLoaderPlugin}from'@pixiv/three-vrm';import{VRMAnimationLoaderPlugin,createVRMAnimationClip}from'@pixiv/three-vrm-animation';import{PLAZA_AVATARS,plazaWalkPlaybackRate,nextAvatarMotion,girlExpression}from'../scene/plazaAvatarV6.js';
 const l=new GLTFLoader();l.register(p=>new VRMLoaderPlugin(p));l.register(p=>new VRMAnimationLoaderPlugin(p));l.register(()=>({name:'ANIMATION_TEST_TEXTURE_STUB',loadTexture:()=>Promise.resolve(new T.Texture())}));async function load(name){const b=await readFile(new URL('../../../../public/cing-plaza/assets/'+name,import.meta.url));return l.parseAsync(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength),'');}
 const rig=load('cing-girl-v01.vrm').then(g=>g.userData.vrm);async function clip(name){const v=await rig,g=await load(PLAZA_AVATARS.girl[name]);return createVRMAnimationClip(g.userData.vrmAnimations[0],v);}
 function sample(v,c,time){const m=new T.AnimationMixer(v.scene),a=m.clipAction(c).play();a.setLoop(T.LoopOnce,1);a.clampWhenFinished=true;m.setTime(time);v.update(0);v.scene.updateMatrixWorld(true);const point=n=>v.humanoid.getNormalizedBoneNode(n).getWorldPosition(new T.Vector3());const result={point,sole:()=>new T.Box3().setFromObject(v.scene,true).min.y,done:()=>{a.stop();m.uncacheRoot(v.scene);}};return result;}
 test('girl has four genuine VRMA clips on her supplied rig; idle/walk close seamlessly',async()=>{for(const name of ['idle','walk','wave','checkin']){const c=await clip(name);assert.ok(c.duration>0);assert.ok(c.tracks.length>40);for(const t of c.tracks){assert.ok([...t.values].every(Number.isFinite));if(['idle','walk'].includes(name)){const size=t.getValueSize();const first=[...t.values.slice(0,size)],last=[...t.values.slice(-size)];for(let i=0;i<size;i++)assert.ok(Math.abs(first[i]-last[i])<1e-6);}}}});
-test('walk stance velocity matches travel speed and supporting boot stays on floor',async()=>{const v=await rig,c=await clip('walk'),p=[];for(const time of [.06,.12,.18,.24]){const s=sample(v,c,time);p.push(s.point('leftFoot'));const hip=s.point('leftUpperLeg'),knee=s.point('leftLowerLeg'),ankle=s.point('leftFoot');assert.ok(knee.z>(hip.z+ankle.z)/2-.01);assert.ok(s.sole()>-.001&&s.sole()<.003);s.done();}for(let i=1;i<p.length;i++)assert.ok(Math.abs((p[i-1].z-p[i].z)/.06-PLAZA_AVATARS.girl.speed)<.003);});
+test('walk stance velocity matches authored clip speed and supporting boot stays on floor',async()=>{const v=await rig,c=await clip('walk'),p=[];for(const time of [.06,.12,.18,.24]){const s=sample(v,c,time);p.push(s.point('leftFoot'));const hip=s.point('leftUpperLeg'),knee=s.point('leftLowerLeg'),ankle=s.point('leftFoot');assert.ok(knee.z>(hip.z+ankle.z)/2-.01);assert.ok(s.sole()>-.001&&s.sole()<.003);s.done();}for(let i=1;i<p.length;i++)assert.ok(Math.abs((p[i-1].z-p[i].z)/.06-PLAZA_AVATARS.girl.walkAuthoredSpeed)<.003);});
 test('sole is supported throughout sampled walk and both stationary gestures',async()=>{const v=await rig;for(const[name,times]of [['idle',[0,2]],['walk',[0,.17,.34,.51]],['wave',[1.3]],['checkin',[1.5]]]){const c=await clip(name);for(const time of times){const s=sample(v,c,time);assert.ok(s.sole()>-.001&&s.sole()<.003,`${name} sole unsupported at ${time}`);s.done();}}});
 test('relaxed hands stay below waist, wave rises beside head, check-in hand clears face',async()=>{const v=await rig;let s=sample(v,await clip('idle'),1);for(const side of ['left','right'])assert.ok(s.point(side+'Hand').y<1.0);s.done();s=sample(v,await clip('wave'),1.3);const hand=s.point('rightHand');assert.ok(hand.y>1.4&&hand.x<-.23);s.done();s=sample(v,await clip('checkin'),1.5);assert.ok(s.point('leftHand').y>1.3);assert.ok(s.point('leftHand').z>s.point('head').z+.08);s.done();});
 test('gestures finish in idle; walking interrupts; gentle blink and smile are bounded',()=>{assert.equal(nextAvatarMotion('idle',false,'checkin',false),'checkin');assert.equal(nextAvatarMotion('checkin',false,null,false),'checkin');assert.equal(nextAvatarMotion('checkin',false,null,true),'idle');assert.equal(nextAvatarMotion('checkin',true,null,false),'walk');for(let t=0;t<5;t+=.01){const e=girlExpression(t,'wave');assert.ok(e.blink>=0&&e.blink<=1);assert.ok(e.happy<=.2);}assert.equal(girlExpression(1,'idle').blink,0);});
@@ -28,4 +28,21 @@ test('boy folded-arm pose keeps wrists neutral, elbows below hands and feet grou
 test('boy fingers curl into the palm instead of bending sideways',async()=>{
  const boy=(await load('cing-boy-v01.vrm')).userData.vrm,c=createVRMAnimationClip((await load(PLAZA_AVATARS.boy.checkin)).userData.vrmAnimations[0],boy),s=sample(boy,c,1.5);
  for(const side of ['left','right'])for(const finger of ['Index','Middle','Ring','Little'])for(const part of ['Proximal','Intermediate','Distal']){const q=boy.humanoid.getNormalizedBoneNode(side+finger+part).quaternion;assert.ok(Math.abs(q.x)<.001&&Math.abs(q.y)<.001);assert.ok((side==='left'?-1:1)*q.z>.01,'finger flexion must face palm');}s.done();
+});
+
+for(const character of ['boy','girl'])test(`${character}: configured walk clip keeps the planted foot fixed at full, half and quarter travel speed`,async()=>{
+ const config=PLAZA_AVATARS[character],v=(await load(config.model)).userData.vrm,c=createVRMAnimationClip((await load(config.walk)).userData.vrmAnimations[0],v);
+ assert.equal(config.speed,1.50);
+ for(const speed of [config.speed,config.speed/2,config.speed/4]){
+  const m=new T.AnimationMixer(v.scene),a=m.clipAction(c).play();a.setLoop(T.LoopOnce,1);a.clampWhenFinished=true;a.setEffectiveTimeScale(plazaWalkPlaybackRate(config,speed));
+  // Start inside the authored left-foot stance and advance real elapsed time.
+  a.time=.08;m.update(0);let fixed;
+  for(let i=0;i<=8;i++){
+   if(i)m.update(.02);v.update(0);v.scene.updateMatrixWorld(true);
+   const planted=v.humanoid.getNormalizedBoneNode('leftFoot').getWorldPosition(new T.Vector3()).z+speed*i*.02;
+   if(fixed===undefined)fixed=planted;
+   assert.ok(Math.abs(planted-fixed)<.002,`${character} planted foot slides at speed ${speed}`);
+  }
+  a.stop();m.uncacheRoot(v.scene);
+ }
 });

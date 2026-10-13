@@ -18,7 +18,7 @@ import { refinePlazaMap, findTapPath, vietnamHour, timePalette } from './plazaRe
 import { buildWorldV3, loadWorldAssets, WORLD_V3, PLAZA_FLOOR_NAME } from './plazaWorldV3.js';
 import { createPlazaLightingV4, renderPlazaLayers } from './plazaLightingV4.js';
 import { acceptsPavingEdge } from './plazaEntranceV6.js';
-import { PLAZA_AVATARS, nextAvatarMotion, girlExpression } from './plazaAvatarV6.js';
+import { PLAZA_AVATARS, plazaWalkPlaybackRate, nextAvatarMotion, girlExpression } from './plazaAvatarV6.js';
 import { applyPlazaMaterialsV1 } from './plazaMaterialsV1.js';
 
 const FILES = {
@@ -250,8 +250,8 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     }
     changeAction(authoritativeSeat?'sit':nextAvatarMotion(state, moved, waveRequested, waveFinished));
     const actualSpeed = Math.hypot(avatar.position.x-oldPosition.x,avatar.position.z-oldPosition.z)/(dt||1);
-    // Both clips are authored at walkSpeed; time follows actual travel, including partial joystick input.
-    walkPlayback=moved ? Math.min(1.25,actualSpeed/walkSpeed) : 0;
+    // Match the authored foot speed to actual travel, including partial joystick input.
+    walkPlayback=moved ? plazaWalkPlaybackRate(avatarConfig,actualSpeed) : 0;
     actions.walk.setEffectiveTimeScale(walkPlayback);
     mixer.update(dt);
     if (character === 'girl') { expressionTime += dt; const expression = girlExpression(expressionTime,state); for (const [name,value] of Object.entries(expression)) vrm.expressionManager?.setValue(name,value); }
@@ -422,7 +422,19 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   return {
     ready, dispose,
     setIdentity:value=>{labelIdentity=value||{};labels.setMessages(labelIdentity.roomId,labelIdentity.messages);},
-    correct:value=>{if(!loaded||disposed||!value)return;netSeq=Math.max(netSeq,value.seq||0);avatar.position.set(value.x,value.y,value.z);groundY=groundAt(value.x,value.z,value.y)??groundY;avatar.rotation.y=value.heading;stopPath();controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z));},
+    correct:value=>{
+      if(!loaded||disposed||!value||![value.x,value.y,value.z,value.heading].every(Number.isFinite))return;
+      netSeq=Math.max(netSeq,Number.isSafeInteger(value.seq)?value.seq:0);
+      const deviation=Math.hypot(avatar.position.x-value.x,avatar.position.y-value.y,avatar.position.z-value.z);
+      // Authoritative coordinates ALWAYS win. Only small reconciliation preserves navigation.
+      // Real displacement beyond 0.12m still stops the path (anti-teleport authority unchanged).
+      avatar.position.set(value.x,value.y,value.z);
+      groundY=groundAt(value.x,value.z,value.y)??groundY;
+      avatar.rotation.y=value.heading;
+      netValue=null; // the next 100ms state publishes the corrected authoritative location
+      if(deviation>0.12)stopPath();
+      controls.update(cameraCenter.set(avatar.position.x,avatar.position.y+.9,avatar.position.z));
+    },
     setTables:tables=>tableSigns.update(tables),
     setMembers:(members,selfId)=>{
       const own=members?.find(v=>v.memberId===selfId);labelMember=own||{};
