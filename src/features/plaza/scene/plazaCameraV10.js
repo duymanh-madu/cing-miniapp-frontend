@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import {resolvePlazaCameraOcclusion} from "./plazaCameraOcclusionV19.js";
 export const PLAZA_CAMERA_V10 = Object.freeze({
   min: 1.8,
   max: 42,
@@ -34,7 +35,7 @@ export function createPlazaCameraV10(
   camera,
   element,
   bounds,
-  { floorAt = () => 0 } = {},
+  { floorAt = () => 0, occluders = () => [] } = {},
 ) {
   const target = new THREE.Vector3(),
     pointers = new Map();
@@ -76,8 +77,12 @@ export function createPlazaCameraV10(
           Number.isFinite(y) ? y : 0,
         ),
       );
+      camera.position.copy(resolvePlazaCameraOcclusion(target,camera.position,occluders()));
       camera.lookAt(target);
       camera.updateMatrixWorld(true);
+    },
+    setQAOrbit(nextYaw,nextPitch,nextRadius){if(![nextYaw,nextPitch,nextRadius].every(Number.isFinite))return;
+      api.cancelGestures();yaw=nextYaw;pitch=THREE.MathUtils.clamp(nextPitch,PLAZA_CAMERA_V10.minPitch,PLAZA_CAMERA_V10.maxPitch);radius=THREE.MathUtils.clamp(nextRadius,api.minDistance,api.maxDistance);api.update();
     },
     get requestedRadius() {
       return radius;

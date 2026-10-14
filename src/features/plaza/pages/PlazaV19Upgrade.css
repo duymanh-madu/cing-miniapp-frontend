@@ -28,7 +28,7 @@
 .cing-plaza .plaza-v19-inventory .plaza-v19-loa-art--detail {height:min(40vw,175px);max-height:180px;}
 .cing-plaza .plaza-v19-inventory .plaza-v19-card-item {padding:2px;}
 /* Overhead 3D: centered full-art title ABOVE centered player name; chat unaffected. */
-.plaza-v9-nameplate {transform:translate(-50%,calc(-100% - 10px))!important;}
+.cing-plaza .plaza-v9-nameplate {transform:translate(-50%,calc(-100% - 10px)) scale(var(--plaza-nameplate-scale,1))!important;transform-origin:center bottom;}
 .plaza-v18-idrow--overhead {display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;width:max-content!important;min-height:0!important;gap:0!important;overflow:visible!important;}
 .plaza-v18-idrow--overhead>.plaza-prestige-v18 {position:relative!important;top:auto!important;right:auto!important;transform:none!important;margin:0 auto -3px!important;height:clamp(34px,9.3vw,46px)!important;max-width:none!important;}
 .plaza-v18-idrow--overhead>.plaza-v9-name {margin:0 auto!important;padding:0 5px 2px!important;line-height:1.18!important;}

@@ -1,0 +1,453 @@
+{
+  "schema": "cing-mobile-foliage-v1",
+  "meshes": [
+    {
+      "name": "V15_Hundreds_Of_Ivory_Flowers_1",
+      "originalTriangles": 18270,
+      "triangles": 4019,
+      "componentsBefore": 3045,
+      "componentsAfter": 3045,
+      "ratio": 0.22,
+      "position": {
+        "offset": 0,
+        "count": 36171,
+        "bytes": 144684
+      },
+      "normal": {
+        "offset": 144684,
+        "count": 36171,
+        "bytes": 144684
+      },
+      "uv": {
+        "offset": 289368,
+        "count": 24114,
+        "bytes": 96456
+      },
+      "index": {
+        "offset": 385824,
+        "count": 12057,
+        "bytes": 48228
+      }
+    },
+    {
+      "name": "V15_Hundreds_Of_Ivory_Flowers_2",
+      "originalTriangles": 27840,
+      "triangles": 4592,
+      "componentsBefore": 435,
+      "componentsAfter": 435,
+      "ratio": 0.22,
+      "position": {
+        "offset": 434052,
+        "count": 41328,
+        "bytes": 165312
+      },
+      "normal": {
+        "offset": 599364,
+        "count": 41328,
+        "bytes": 165312
+      },
+      "uv": {
+        "offset": 764676,
+        "count": 27552,
+        "bytes": 110208
+      },
+      "index": {
+        "offset": 874884,
+        "count": 13776,
+        "bytes": 55104
+      }
+    },
+    {
+      "name": "V15_Thousands_Of_Folded_Leaves_1",
+      "originalTriangles": 9090,
+      "triangles": 3817,
+      "componentsBefore": 1515,
+      "componentsAfter": 1515,
+      "ratio": 0.42,
+      "position": {
+        "offset": 929988,
+        "count": 34353,
+        "bytes": 137412
+      },
+      "normal": {
+        "offset": 1067400,
+        "count": 34353,
+        "bytes": 137412
+      },
+      "uv": {
+        "offset": 1204812,
+        "count": 22902,
+        "bytes": 91608
+      },
+      "index": {
+        "offset": 1296420,
+        "count": 11451,
+        "bytes": 45804
+      }
+    },
+    {
+      "name": "V15_Thousands_Of_Folded_Leaves_2",
+      "originalTriangles": 13902,
+      "triangles": 5838,
+      "componentsBefore": 2317,
+      "componentsAfter": 2317,
+      "ratio": 0.42,
+      "position": {
+        "offset": 1342224,
+        "count": 52542,
+        "bytes": 210168
+      },
+      "normal": {
+        "offset": 1552392,
+        "count": 52542,
+        "bytes": 210168
+      },
+      "uv": {
+        "offset": 1762560,
+        "count": 35028,
+        "bytes": 140112
+      },
+      "index": {
+        "offset": 1902672,
+        "count": 17514,
+        "bytes": 70056
+      }
+    },
+    {
+      "name": "V15_Thousands_Of_Folded_Leaves_3",
+      "originalTriangles": 17892,
+      "triangles": 7514,
+      "componentsBefore": 2982,
+      "componentsAfter": 2982,
+      "ratio": 0.42,
+      "position": {
+        "offset": 1972728,
+        "count": 67626,
+        "bytes": 270504
+      },
+      "normal": {
+        "offset": 2243232,
+        "count": 67626,
+        "bytes": 270504
+      },
+      "uv": {
+        "offset": 2513736,
+        "count": 45084,
+        "bytes": 180336
+      },
+      "index": {
+        "offset": 2694072,
+        "count": 22542,
+        "bytes": 90168
+      }
+    },
+    {
+      "name": "V15_Thousands_Of_Folded_Leaves_4",
+      "originalTriangles": 13176,
+      "triangles": 5533,
+      "componentsBefore": 2196,
+      "componentsAfter": 2196,
+      "ratio": 0.42,
+      "position": {
+        "offset": 2784240,
+        "count": 49797,
+        "bytes": 199188
+      },
+      "normal": {
+        "offset": 2983428,
+        "count": 49797,
+        "bytes": 199188
+      },
+      "uv": {
+        "offset": 3182616,
+        "count": 33198,
+        "bytes": 132792
+      },
+      "index": {
+        "offset": 3315408,
+        "count": 16599,
+        "bytes": 66396
+      }
+    },
+    {
+      "name": "V15_Thousands_Of_Folded_Leaves_5",
+      "originalTriangles": 4728,
+      "triangles": 1985,
+      "componentsBefore": 788,
+      "componentsAfter": 788,
+      "ratio": 0.42,
+      "position": {
+        "offset": 3381804,
+        "count": 17865,
+        "bytes": 71460
+      },
+      "normal": {
+        "offset": 3453264,
+        "count": 17865,
+        "bytes": 71460
+      },
+      "uv": {
+        "offset": 3524724,
+        "count": 11910,
+        "bytes": 47640
+      },
+      "index": {
+        "offset": 3572364,
+        "count": 5955,
+        "bytes": 23820
+      }
+    },
+    {
+      "name": "V15_Thousands_Of_Folded_Leaves_6",
+      "originalTriangles": 9252,
+      "triangles": 3885,
+      "componentsBefore": 1542,
+      "componentsAfter": 1542,
+      "ratio": 0.42,
+      "position": {
+        "offset": 3596184,
+        "count": 34965,
+        "bytes": 139860
+      },
+      "normal": {
+        "offset": 3736044,
+        "count": 34965,
+        "bytes": 139860
+      },
+      "uv": {
+        "offset": 3875904,
+        "count": 23310,
+        "bytes": 93240
+      },
+      "index": {
+        "offset": 3969144,
+        "count": 11655,
+        "bytes": 46620
+      }
+    },
+    {
+      "name": "V17_Garden_New_Flowers_1",
+      "originalTriangles": 114240,
+      "triangles": 18848,
+      "componentsBefore": 1785,
+      "componentsAfter": 1785,
+      "ratio": 0.22,
+      "position": {
+        "offset": 4015764,
+        "count": 169632,
+        "bytes": 678528
+      },
+      "normal": {
+        "offset": 4694292,
+        "count": 169632,
+        "bytes": 678528
+      },
+      "uv": {
+        "offset": 5372820,
+        "count": 113088,
+        "bytes": 452352
+      },
+      "index": {
+        "offset": 5825172,
+        "count": 56544,
+        "bytes": 226176
+      }
+    },
+    {
+      "name": "V17_Garden_New_Flowers_2",
+      "originalTriangles": 22848,
+      "triangles": 3768,
+      "componentsBefore": 357,
+      "componentsAfter": 357,
+      "ratio": 0.22,
+      "position": {
+        "offset": 6051348,
+        "count": 33912,
+        "bytes": 135648
+      },
+      "normal": {
+        "offset": 6186996,
+        "count": 33912,
+        "bytes": 135648
+      },
+      "uv": {
+        "offset": 6322644,
+        "count": 22608,
+        "bytes": 90432
+      },
+      "index": {
+        "offset": 6413076,
+        "count": 11304,
+        "bytes": 45216
+      }
+    },
+    {
+      "name": "V17_Garden_New_Foliage_1",
+      "originalTriangles": 1396,
+      "triangles": 725,
+      "componentsBefore": 698,
+      "componentsAfter": 698,
+      "ratio": 0.52,
+      "position": {
+        "offset": 6458292,
+        "count": 6525,
+        "bytes": 26100
+      },
+      "normal": {
+        "offset": 6484392,
+        "count": 6525,
+        "bytes": 26100
+      },
+      "uv": {
+        "offset": 6510492,
+        "count": 4350,
+        "bytes": 17400
+      },
+      "index": {
+        "offset": 6527892,
+        "count": 2175,
+        "bytes": 8700
+      }
+    },
+    {
+      "name": "V17_Garden_New_Foliage_2",
+      "originalTriangles": 1352,
+      "triangles": 703,
+      "componentsBefore": 676,
+      "componentsAfter": 676,
+      "ratio": 0.52,
+      "position": {
+        "offset": 6536592,
+        "count": 6327,
+        "bytes": 25308
+      },
+      "normal": {
+        "offset": 6561900,
+        "count": 6327,
+        "bytes": 25308
+      },
+      "uv": {
+        "offset": 6587208,
+        "count": 4218,
+        "bytes": 16872
+      },
+      "index": {
+        "offset": 6604080,
+        "count": 2109,
+        "bytes": 8436
+      }
+    },
+    {
+      "name": "V17_Garden_New_Foliage_3",
+      "originalTriangles": 1458,
+      "triangles": 758,
+      "componentsBefore": 729,
+      "componentsAfter": 729,
+      "ratio": 0.52,
+      "position": {
+        "offset": 6612516,
+        "count": 6822,
+        "bytes": 27288
+      },
+      "normal": {
+        "offset": 6639804,
+        "count": 6822,
+        "bytes": 27288
+      },
+      "uv": {
+        "offset": 6667092,
+        "count": 4548,
+        "bytes": 18192
+      },
+      "index": {
+        "offset": 6685284,
+        "count": 2274,
+        "bytes": 9096
+      }
+    },
+    {
+      "name": "V17_Garden_New_Foliage_4",
+      "originalTriangles": 1442,
+      "triangles": 749,
+      "componentsBefore": 721,
+      "componentsAfter": 721,
+      "ratio": 0.52,
+      "position": {
+        "offset": 6694380,
+        "count": 6741,
+        "bytes": 26964
+      },
+      "normal": {
+        "offset": 6721344,
+        "count": 6741,
+        "bytes": 26964
+      },
+      "uv": {
+        "offset": 6748308,
+        "count": 4494,
+        "bytes": 17976
+      },
+      "index": {
+        "offset": 6766284,
+        "count": 2247,
+        "bytes": 8988
+      }
+    },
+    {
+      "name": "V17_Garden_New_Foliage_5",
+      "originalTriangles": 1416,
+      "triangles": 736,
+      "componentsBefore": 708,
+      "componentsAfter": 708,
+      "ratio": 0.52,
+      "position": {
+        "offset": 6775272,
+        "count": 6624,
+        "bytes": 26496
+      },
+      "normal": {
+        "offset": 6801768,
+        "count": 6624,
+        "bytes": 26496
+      },
+      "uv": {
+        "offset": 6828264,
+        "count": 4416,
+        "bytes": 17664
+      },
+      "index": {
+        "offset": 6845928,
+        "count": 2208,
+        "bytes": 8832
+      }
+    },
+    {
+      "name": "V17_Garden_New_Foliage_6",
+      "originalTriangles": 1480,
+      "triangles": 769,
+      "componentsBefore": 740,
+      "componentsAfter": 740,
+      "ratio": 0.52,
+      "position": {
+        "offset": 6854760,
+        "count": 6921,
+        "bytes": 27684
+      },
+      "normal": {
+        "offset": 6882444,
+        "count": 6921,
+        "bytes": 27684
+      },
+      "uv": {
+        "offset": 6910128,
+        "count": 4614,
+        "bytes": 18456
+      },
+      "index": {
+        "offset": 6928584,
+        "count": 2307,
+        "bytes": 9228
+      }
+    }
+  ]
+}
