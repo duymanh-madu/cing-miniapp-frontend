@@ -121,6 +121,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   let groundY = 0, soleOffset = 0, stats = {}, preset = 'follow';
   const groundViewport=new THREE.Vector2();let groundDetail=null;
   let auditVisibility=null;
+  const pendingTextures=new Set();
   let world = null, worldAssets = null, cafeRoof = null, interactionPaused=false, backgroundRenderAt=0;
   let walkPlayback = 1;
   let materialResources = null, path = [], walkLift = .035, lift = 0, clockMinute = '';
@@ -345,11 +346,11 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     document.removeEventListener('visibilitychange', onVisibility);
     renderer.domElement.removeEventListener('webglcontextlost', onContextLost);
     renderer.domElement.removeEventListener('webglcontextrestored', onContextRestored);
-    if (mixer) { mixer.stopAllAction(); mixer.uncacheRoot(vrm.scene); }
-    profiler.dispose();groundDetail?.dispose();disposeTree(scene); worldAssets?.dispose(); materialResources?.dispose(); environmentTarget.dispose();
+    if (mixer) { mixer.stopAllAction(); mixer.uncacheRoot(vrm?.scene); }
+    profiler.dispose();groundDetail?.dispose();if(map&&map.parent!==scene)disposeTree(map);for(const texture of pendingTextures)texture.dispose();pendingTextures.clear();disposeTree(scene); worldAssets?.dispose(); materialResources?.dispose(); environmentTarget.dispose();
     sun.shadow.map?.dispose(); renderer.dispose(); renderer.forceContextLoss();
     renderer.domElement.remove();
-    floors = []; map = null; collision = () => false;
+    scene.clear();floors = [];pendingMembers=[];pendingSelfId=null;map = null;world=null;cafeRoof=null;worldAssets=null;materialResources=null;vrm=null;mixer=null;collision = () => false;
   }
 
   const ready = (async () => {
@@ -360,20 +361,23 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       let hasAvatar = false;
       mapFile.scene.traverse(object => { if (object.isSkinnedMesh || /CING_(BOY|GIRL).*ARMATURE/i.test(object.name)) hasAvatar = true; });
       if (hasAvatar) { disposeTree(mapFile.scene); throw new Error('Map còn chứa nhân vật. Hãy xuất lại phần cảnh riêng.'); }
-      map = mapFile.scene;
-      if(mobileSceneBudget){const urls=['foliage.json','foliage.bin'].map(file=>new URL('mobile-scene/'+file,assetRoot));const responses=await Promise.all(urls.map(url=>fetch(url,{signal:abort.signal})));if(responses.some(r=>!r.ok))throw Error('Thiếu bản cây/hoa mobile');const manifest=await responses[0].json(),buffer=await responses[1].arrayBuffer();const pack=applyMobileFoliagePack(map,manifest,buffer);onQAEvent('mobile-foliage-pack',pack);}
+      const roomMap=mapFile.scene;map = roomMap;
+      if(mobileSceneBudget){const urls=['foliage.json','foliage.bin'].map(file=>new URL('mobile-scene/'+file,assetRoot));const responses=await Promise.all(urls.map(url=>fetch(url,{signal:abort.signal})));if(responses.some(r=>!r.ok))throw Error('Thiếu bản cây/hoa mobile');const manifest=await responses[0].json(),buffer=await responses[1].arrayBuffer();if(disposed){disposeTree(roomMap);throw new DOMException("Disposed","AbortError");}const pack=applyMobileFoliagePack(map,manifest,buffer);onQAEvent('mobile-foliage-pack',pack);}
+      if(disposed){if(map)disposeTree(map);map=null;throw new DOMException("Disposed","AbortError");}
       const refinements = refinePlazaMap(map); scene.add(map); map.updateMatrixWorld(true);
       onProgress({ text: 'Đang dựng cửa hàng và các góc check-in…', percent: 22 });
       worldAssets = await loadWorldAssets(assetRoot, abort.signal);
       if (disposed) { worldAssets.dispose(); worldAssets.logo.dispose(); worldAssets.logo.source.data.close(); throw new DOMException('Disposed', 'AbortError'); }
       let mobileTextures=null;
-      if(mobileGround){const textureLoader=new THREE.TextureLoader();const [color,normal,ao]=await Promise.all(['color','normal','ao'].map(name=>textureLoader.loadAsync(new URL('mobile-ground/'+name+'.png',assetRoot).href)));color.colorSpace=THREE.SRGBColorSpace;for(const t of [color,normal,ao]){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());}mobileTextures={color,normal,ao};}
+      if(mobileGround){const textureLoader=new THREE.TextureLoader();const [color,normal,ao]=await Promise.all(['color','normal','ao'].map(name=>textureLoader.loadAsync(new URL('mobile-ground/'+name+'.png',assetRoot).href).then(t=>{if(disposed){t.dispose();throw new DOMException('Disposed','AbortError');}pendingTextures.add(t);return t;})));if(disposed){for(const t of [color,normal,ao])t.dispose();throw new DOMException("Disposed","AbortError");}color.colorSpace=THREE.SRGBColorSpace;for(const t of [color,normal,ao]){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());}mobileTextures={color,normal,ao};}
       world = buildWorldV3(map, { logo: worldAssets.logo,...(mobileTextures?{groundFactory:(root,bounds)=>rebuildMobileGroundV19(root,bounds,mobileTextures)}:{}) }); floors.push(...world.floors);
       cafeRoof=await addCafeRoofLogoV11(map,assetRoot,abort.signal);
+      if(disposed){disposeTree(roomMap);cafeRoof?.dispose?.();throw new DOMException("Disposed","AbortError");}
       lighting.attachWorld(world); clockMinute=''; updateLighting();
       const materialResponse = await fetch(new URL('cing-plaza-materials.json', assetRoot), { signal: abort.signal });
       if (!materialResponse.ok) throw new Error('Thiếu dữ liệu vật liệu của map.');
       const materialData = await materialResponse.json();
+      if(disposed){disposeTree(roomMap);throw new DOMException("Disposed","AbortError");}
       if (disposed) throw new DOMException('Disposed', 'AbortError');
       materialResources = applyPlazaMaterialsV1(map, materialData,{retiredMaterials:world.dinhV12.retiredMaterials,filteredNoise:filteredMaterialNoise});
       const obstacles = [...world.obstacles];
