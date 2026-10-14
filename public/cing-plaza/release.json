@@ -1,12 +1,15 @@
 {
-  "release": "plaza-v19-f26-production",
+  "release": "plaza-v19-f27-production",
   "qaCommit": "c9f0f3d41cc9fd962f933a07b8829540a05ce151",
   "mobileGround": true,
   "mobileSceneBudget": true,
   "continuousGpuProfiling": false,
-  "preparedAt": "2026-10-14T06:10:02.195558+00:00",
+  "preparedAt": "2026-10-14T20:01:15.971674+00:00",
   "changes": [
-    "boy-wave-relaxed-fingers-and-knees",
-    "appearance-category-and-five-subgroups"
+    "boy-greeting-idle-base-right-arm-only",
+    "owned-skin-items-30-coins",
+    "private-actor-skin-materials",
+    "stable-appearance-presence",
+    "modular-avatar-and-orbit-shoes-studio-preview"
   ]
 }

@@ -13,7 +13,7 @@ const KEY = {
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
 };
 
-export default function PlazaSceneV1({ diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, controlsHidden=interactionPaused, onReadyChange=()=>{}, onOpenChat=()=>{}, onOpenMembers=()=>{} }) {
+export default function PlazaSceneV1({ appearance = {}, diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, controlsHidden=interactionPaused, onReadyChange=()=>{}, onOpenChat=()=>{}, onOpenMembers=()=>{} }) {
   const chessAudio=useRef(null);
   useEffect(()=>{chessAudio.current=createPlazaChessAudioV4();function visibility(){if(document.hidden)chessAudio.current?.suspend();else chessAudio.current?.resumeExisting();}document.addEventListener('visibilitychange',visibility);return()=>{document.removeEventListener('visibilitychange',visibility);chessAudio.current?.dispose();chessAudio.current=null;};},[]);
   const [nearSeat,setNearSeat]=useState(null),[tableError,setTableError]=useState(''),[tableBusy,setTableBusy]=useState(false);
@@ -27,6 +27,8 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
   async function tableAction(payload){chessAudio.current?.unlockFromGesture();if(actionLock.current)return;actionLock.current=true;setTableBusy(true);setTableError('');clearInput();try{await clientRef.current?.tableAction(payload);}catch(e){setTableError(({PLAZA_SEAT_TAKEN:'Ghế vừa có người ngồi.',PLAZA_SEAT_TOO_FAR:'Hãy đến gần ghế hơn.',PLAZA_CHESS_PERSIST_FAILED:'Chưa lưu được trận đấu. Hãy thử lại.',PLAZA_OUTCOME_UNKNOWN:'Chưa nhận được xác nhận. Hãy kiểm tra trạng thái bàn.'})[e.code]||'Chưa hoàn tất thao tác. Hãy thử lại.');}finally{actionLock.current=false;setTableBusy(false);}}
   const host = useRef(null), api = useRef(null), wrapper = useRef(null);
   useEffect(()=>{if(!realtimeClient)api.current?.correct(correction);},[correction,realtimeClient]);
+  const appearanceRef=useRef(appearance);appearanceRef.current=appearance;
+  useEffect(()=>{api.current?.setAppearance(appearance);},[appearance]);
   const labelsRef=useRef({roomId,messages,identity,selfId});labelsRef.current={roomId,messages,identity,selfId};
   useEffect(()=>{api.current?.setIdentity(labelsRef.current);},[roomId,messages,identity,selfId]);
   const presenceRef=useRef({members,selfId});if(!realtimeClient)presenceRef.current={members,selfId};
@@ -77,7 +79,7 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
         onStats: value => { if (!cancelled && review) setStats(value); },
         onNotice: value => { if (!cancelled) setNotice(value); },
       });
-      api.current = instance;
+      api.current = instance;instance.setAppearance(appearanceRef.current);
       instance.setMembers(presenceRef.current.members,presenceRef.current.selfId);
       instance.setTables(tablesRef.current);
       instance.setIdentity(labelsRef.current);

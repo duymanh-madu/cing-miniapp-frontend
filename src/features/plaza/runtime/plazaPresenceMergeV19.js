@@ -28,7 +28,8 @@ export function mergePlazaPresenceV19(snapshot, payload) {
           value.identityRevision !== old.identityRevision))
     )) continue;
 
-    const merged = { ...old, ...value };
+    const appearance=value.appearance&&typeof value.appearance==='object'&&!Array.isArray(value.appearance)?value.appearance:null;
+    const merged = { ...old, ...value, ...(appearance?{appearance:sameFields(old?.appearance,appearance)?old.appearance:Object.freeze({...appearance})}:{}) };
     const before = old || (payload.full ? previousById.get(value.memberId) : null);
     next.set(value.memberId, sameFields(before, merged) ? before : merged);
   }

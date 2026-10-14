@@ -44,7 +44,7 @@ test('viewport uses whole inventory stage; title only floats in compact overlay'
   assert.match(css,/plaza-v16-preview-canvas\s*\{[^}]*inset:0 0 22px 0!important/s);
   const inventory=read('../pages/PlazaInventoryV16.jsx');
   assert.match(inventory,/import '\.\/PlazaV19Block061\.css'/);
-  assert.match(inventory,/<Avatar character=\{character\} titleKey=\{selected\} interactiveZoom\/>/);
+  assert.match(inventory,/<Avatar character=\{character\} titleKey=\{selected\}[^>]*\binteractiveZoom\s*\/>/);
 });
 test('Plaza room drawer has ONLY members, chat, pose, never wardrobe camera buttons',()=>{
   const source=read('../scene/PlazaSceneV1.jsx');

@@ -1,5 +1,5 @@
 const OPERATIONS=new Set([
-  'convert','buy_loudspeaker','use_loudspeaker'
+  'convert','buy_loudspeaker','use_loudspeaker','buy_appearance'
 ]);
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -107,6 +107,7 @@ function validateRow(row){
   }else{
     if(price!==0||
        (row.operation==='buy_loudspeaker'&&delta>=0)||
+       (row.operation==='buy_appearance'&&(delta>0||integer(row.item_delta)!==0))||
        (row.operation==='use_loudspeaker'&&delta!==0)){
       fail('INVALID_OPERATION_AMOUNT');
     }
@@ -216,7 +217,7 @@ export async function collectCoinCsvV17({
       if(row.operation==='convert'){
         issued+=delta;
         convertedVnd+=price;
-      }else if(row.operation==='buy_loudspeaker'){
+      }else if(row.operation==='buy_loudspeaker'||row.operation==='buy_appearance'){
         spent-=delta;
       }
 

@@ -208,3 +208,10 @@ test('invalid range is rejected without querying the API',async()=>{
 
   assert.equal(called,false);
 });
+
+test('CSV reconciles owned appearance purchases without treating them as loudspeakers',async()=>{
+ const purchase=row(ID1,'buy_appearance',-30,60,30,0);
+ const result=await collectCoinCsvV17({...opts,getPage:async()=>({period:{ledgerCount:1,issued:0,spent:30,convertedVnd:0},items:[purchase],nextCursor:null})});
+ assert.equal(result.period.spent,30);assert.match(result.csv,/buy_appearance/);
+ await assert.rejects(collectCoinCsvV17({...opts,getPage:async()=>({period:{ledgerCount:1,issued:0,spent:30,convertedVnd:0},items:[{...purchase,item_delta:1}],nextCursor:null})}),/INVALID_OPERATION_AMOUNT/);
+});

@@ -33,7 +33,7 @@ test('preview uses same single WebGL instance with interactive zoom',()=>{
  assert.match(src,/pinchPlazaPreviewZoomV19/);
  assert.equal((src.match(/new THREE\.WebGLRenderer/g)||[]).length,1);
  const inventory=read('../pages/PlazaInventoryV16.jsx');
- assert.match(inventory,/<Avatar character=\{character\} titleKey=\{selected\} interactiveZoom\/>/);
+ assert.match(inventory,/<Avatar character=\{character\} titleKey=\{selected\}[^>]*\binteractiveZoom\s*\/>/);
 });
 test('financial and server data paths not modified by block 06',()=>{
  const page=read('../pages/PlazaPageV1.jsx');

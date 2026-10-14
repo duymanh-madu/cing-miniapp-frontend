@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useState } from 'react';
 import {useNavigate} from 'react-router-dom';
 import { Coins, Wallet, Megaphone, Shirt, Crown, Image, UserRound, Check, Plus, X } from 'lucide-react';
+import {PLAZA_SKIN_ITEMS} from '../scene/plazaAppearanceV27.js';
 import PlazaTitleV10 from './PlazaTitleV10.jsx';
 import { PLAZA_TITLES_V10 } from './plazaTitleCatalogV10.js';
 import './PlazaInventoryV19.css';
@@ -45,7 +46,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
   async function pay() {
     if (!confirm || financialBusy) return;
     const pending = confirm;
-    const ok = await social.run(pending.op, { quantity: pending.quantity });
+    const ok = pending.payload ? await social.run(pending.op,pending.payload) : await social.run(pending.op, { quantity: pending.quantity });
     if (ok) setConfirm(null);
   }
 
@@ -100,7 +101,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
         <aside className="plaza-v19-avatar-stage plaza-v19-premium-stage" aria-label="Phong cách của bạn">
           <div className="plaza-v19-premium-character">
             <Suspense fallback={<div className="plaza-v16-preview">Đang tải nhân vật…</div>}>
-              <Avatar character={character} titleKey={selected} interactiveZoom/>
+              <Avatar character={character} titleKey={selected} appearance={own?.appearance?.equipped} interactiveZoom/>
             </Suspense>
           </div>
           <div className="plaza-v19-premium-rank">
@@ -155,9 +156,9 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
           ) : tab === 'outfits' ? (
             <>
               <div className="plaza-v16-filters" role="group" aria-label="Nhóm diện mạo">
-                {[['face','Khuôn mặt'],['top','Áo'],['bottom','Quần'],['outfit','Bộ đồ'],['shoes','Giày']].map(([id,label])=><button type="button" key={id} aria-pressed={appearanceGroup===id} onClick={()=>setAppearanceGroup(id)}>{label}</button>)}
+                {[['face','Khuôn mặt'],['top','Áo'],['bottom','Quần'],['outfit','Bộ đồ'],['shoes','Giày'],['skin','Màu da']].map(([id,label])=><button type="button" key={id} aria-pressed={appearanceGroup===id} onClick={()=>setAppearanceGroup(id)}>{label}</button>)}
               </div>
-              {appearanceGroup==='outfit'?<div className="plaza-v16-item-grid plaza-v19-item-grid"><button type="button" className="plaza-v19-item-card" aria-pressed="true" onClick={()=>setDetail({type:'outfit'})}><span className="plaza-v19-card-art plaza-v19-card-item"><Shirt size={38}/></span><strong className="plaza-v19-card-name">Bộ đồ mặc định</strong><small className="plaza-v19-card-meta">Đang mặc · Có sẵn</small></button></div>:<div className="plaza-v16-empty"><Shirt size={34}/><h3>{({face:'Khuôn mặt',top:'Áo',bottom:'Quần',shoes:'Giày'})[appearanceGroup]}</h3><p>{mode==='shop'?'Chưa có mẫu mở bán trong nhóm này.':'Các món bạn sở hữu sẽ hiển thị tại đây.'}</p></div>}
+              {appearanceGroup==='skin'?<div className="plaza-v16-item-grid plaza-v19-item-grid">{PLAZA_SKIN_ITEMS.filter(item=>mode==='shop'||own?.appearance?.owned?.includes(item.id)).map(item=>{const serverItem=own?.appearance?.catalog?.find(x=>x.id===item.id),price=serverItem?.priceCoin??item.priceCoin;const owned=own?.appearance?.owned?.includes(item.id),equipped=own?.appearance?.equipped?.skin===item.id;return <button type="button" key={item.id} className="plaza-v19-item-card" disabled={financialBusy||!own?.appearance?.ready||(!owned&&(!enabled||serverItem?.enabled!==true))} onClick={()=>setConfirm({op:owned?'equip_appearance':'buy_appearance',payload:{itemId:item.id},label:owned?`Sử dụng ${item.label}`:`Mua ${item.label} với ${fmt(price)} Coin`})}><span className="plaza-v19-card-art" style={{background:item.color,borderRadius:'50%'}}/><strong className="plaza-v19-card-name">{item.label}</strong><small className="plaza-v19-card-meta">{equipped?'Đang sử dụng':owned?'Đã sở hữu':serverItem?.enabled===false?'Ngưng bán':`${fmt(price)} Coin`}</small></button>})}{!own?.appearance?.ready&&<p>Đang chuẩn bị mở bán màu da.</p>}</div>:appearanceGroup==='outfit'?<div className="plaza-v16-item-grid plaza-v19-item-grid"><button type="button" className="plaza-v19-item-card" aria-pressed="true" onClick={()=>setDetail({type:'outfit'})}><span className="plaza-v19-card-art plaza-v19-card-item"><Shirt size={38}/></span><strong className="plaza-v19-card-name">Bộ đồ mặc định</strong><small className="plaza-v19-card-meta">Đang mặc · Có sẵn</small></button></div>:<div className="plaza-v16-empty"><Shirt size={34}/><h3>{({face:'Khuôn mặt',top:'Áo',bottom:'Quần',shoes:'Giày'})[appearanceGroup]}</h3><p>{mode==='shop'?'Chưa có mẫu mở bán trong nhóm này.':'Các món bạn sở hữu sẽ hiển thị tại đây.'}</p></div>}
               <a className="plaza-v16-preview-link" href="/avatar-studio.html" target="_blank" rel="noopener noreferrer">Thử màu và biểu cảm trên nhân vật hiện tại</a>
             </>
           ) : (

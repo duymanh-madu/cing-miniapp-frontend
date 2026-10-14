@@ -1,3 +1,4 @@
+import {createAppearanceController} from './plazaAppearanceV27.js';
 import {remotePoseBudgetV22} from './plazaStaticTransformsV22.js';
 import {updatePlazaVrmInSubsteps} from './plazaFrameStepsV20.js';
 import {preparePlazaAvatarV13,shareActorSkeletonsV13} from './plazaAvatarResourcesV13.js';
@@ -60,11 +61,12 @@ export function createPlazaRemoteAvatarsV2({scene,load,onNotice=()=>{},avatarPre
    root.traverse(o=>{if(o.isMesh){o.layers.set(1);o.castShadow=false;o.receiveShadow=false;o.frustumCulled=false;}});
    const group=new THREE.Group();group.name=`PlazaMember_${id}`;group.add(root);scene.add(group);
    actions.sit=actions.idle;
-   Object.assign(holder,{group,vrm,mixer,actions,character:value.character,current:null,accumulated:0,headPosition:new THREE.Vector3()});
+   const appearance=createAppearanceController(root);appearance.apply(holder.identity?.appearance||value.appearance||{});
+   Object.assign(holder,{appearance,group,vrm,mixer,actions,character:value.character,current:null,accumulated:0,headPosition:new THREE.Vector3()});
   } catch(error){if(!disposed&&actors.get(id)===holder){holder.failed=true;onNotice('Chưa tải được một nhân vật trong phòng. Hãy mở lại cảnh khi mạng ổn định.');}}
  }
  function remove(id) {
-  const a=actors.get(id);if(!a)return;actors.delete(id);a.mixer?.stopAllAction();if(a.vrm)a.mixer?.uncacheRoot(a.vrm.scene);
+  const a=actors.get(id);if(!a)return;actors.delete(id);a.appearance?.dispose();a.mixer?.stopAllAction();if(a.vrm)a.mixer?.uncacheRoot(a.vrm.scene);
   const skeletons=new Set();a.group?.traverse(o=>{if(o.isSkinnedMesh)skeletons.add(o.skeleton);});for(const s of skeletons)s?.dispose();a.group?.removeFromParent();
  }
  function setMembers(members,selfId) {
@@ -73,6 +75,7 @@ export function createPlazaRemoteAvatarsV2({scene,load,onNotice=()=>{},avatarPre
   const now=performance.now();
   for(const [id,v]of wanted){let a=actors.get(id);if(a&&a.character&&a.character!==v.character){remove(id);a=null;}
    if(!a){a={samples:[],character:v.character,motionClock:createPlazaPresenceClockV19()};actors.set(id,a);const holder=a;buildQueue=buildQueue.then(async()=>{await nextFrame();if(!disposed&&actors.get(id)===holder)await build(id,v,holder);}).catch(()=>{});}
+   if(JSON.stringify(a.identity?.appearance)!==JSON.stringify(v.appearance))a.appearance?.apply(v.appearance||{});
    a.identity=v;
    a.samples=addPresenceSample(a.samples,v,now);
   }

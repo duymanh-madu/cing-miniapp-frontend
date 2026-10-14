@@ -1,3 +1,4 @@
+import {createAppearanceController} from './plazaAppearanceV27.js';
 import {freezePlazaStaticBatches} from './plazaStaticTransformsV22.js';
 import {tagPlazaAuditGroups,createPlazaAuditVisibility} from './plazaSceneAuditV21.js';
 import {plazaFrameSecondsV20,movePlazaInSubsteps,updatePlazaVrmInSubsteps} from './plazaFrameStepsV20.js';
@@ -116,6 +117,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   loader.register(parser => new VRMAnimationLoaderPlugin(parser));
   let contextLost = false, restoreTimer = null;
   let disposed = false, raf = 0, vrm = null, mixer = null, currentAction = null;
+  let appearanceController=null,appearanceRecipe={};
   let state = 'idle', waveRequested = false, waveFinished = false, loaded = false;
   let input = { x: 0, z: 0 }, map = null, floors = [], collision = () => false;
   let groundY = 0, soleOffset = 0, stats = {}, preset = 'follow';
@@ -347,6 +349,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     renderer.domElement.removeEventListener('webglcontextlost', onContextLost);
     renderer.domElement.removeEventListener('webglcontextrestored', onContextRestored);
     if (mixer) { mixer.stopAllAction(); mixer.uncacheRoot(vrm?.scene); }
+    appearanceController?.dispose();appearanceController=null;
     profiler.dispose();groundDetail?.dispose();if(map&&map.parent!==scene)disposeTree(map);for(const texture of pendingTextures)texture.dispose();pendingTextures.clear();disposeTree(scene); worldAssets?.dispose(); materialResources?.dispose(); environmentTarget.dispose();
     sun.shadow.map?.dispose(); renderer.dispose(); renderer.forceContextLoss();
     renderer.domElement.remove();
@@ -425,6 +428,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       if (!vrm) { disposeTree(modelFile.scene); throw new Error('Không đọc được nhân vật VRM.'); }
       VRMUtils.rotateVRM0(vrm);preparePlazaAvatarV13(vrm,renderProfile);refinePlazaAvatarSurfaceV10(vrm.scene);remote.seed(character,vrm);
       avatar.add(vrm.scene);
+      appearanceController=createAppearanceController(vrm.scene);appearanceController.apply(appearanceRecipe);
       vrm.scene.traverse(object => { if (object.isMesh) { object.layers.set(1);object.frustumCulled = false; object.castShadow = false; object.receiveShadow = false; } });
       mixer = new THREE.AnimationMixer(vrm.scene);
       for (const [index, name] of Object.keys(avatarConfig).filter(name => ['idle','walk','wave','checkin'].includes(name)).entries()) {
@@ -531,6 +535,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       marker.position.set(target.x, hit.point.y + .015, target.z); marker.visible = true;
       onNotice('Đang đi tới điểm đã chọn. Chạm vị trí khác để đổi đích.');
     },
+    setAppearance:recipe=>{appearanceRecipe=recipe||{};appearanceController?.apply(appearanceRecipe);},
     wave: () => { if (loaded && state !== 'wave') { stopPath(); waveRequested = 'wave'; } },
     pose: () => { if (loaded && !disposed && actions.checkin) { input={x:0,z:0}; stopPath(); waveRequested='checkin'; } },
     cameraPreset,
