@@ -56,6 +56,7 @@ export default defineConfig({
   },
 
   build: {
+    rollupOptions:{input:{main:path.resolve(__dirname,"index.html"),avatarStudio:path.resolve(__dirname,"avatar-studio.html")}},
 
     sourcemap:
       false,

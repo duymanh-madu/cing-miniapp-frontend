@@ -1,15 +1,12 @@
 {
-  "release": "plaza-v19-f24-production",
+  "release": "plaza-v19-f25-production",
   "qaCommit": "c9f0f3d41cc9fd962f933a07b8829540a05ce151",
   "mobileGround": true,
   "mobileSceneBudget": true,
   "continuousGpuProfiling": false,
   "preparedAt": "2026-10-14T06:10:02.195558+00:00",
   "changes": [
-    "chess-phone-tablet-layout",
-    "mini-chat-below-board",
-    "last-move-highlights",
-    "late-room-load-cancellation",
-    "room-resource-cleanup"
+    "natural-boy-wave-v2",
+    "avatar-studio-original-model-preview"
   ]
 }
