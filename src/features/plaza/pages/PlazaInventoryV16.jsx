@@ -11,7 +11,7 @@ import './PlazaV19Block061.css';
 const Avatar = lazy(() => import('../scene/PlazaAvatarPreviewV16.jsx'));
 const TYPES = [
   ['titles', 'Danh hiệu', Crown],
-  ['outfits', 'Trang phục', Shirt],
+  ['outfits', 'Diện mạo', Shirt],
   ['items', 'Vật phẩm', Megaphone],
   ['decor', 'Trang trí', Image],
 ];
@@ -25,6 +25,7 @@ const integerInRange = (value, max) => Number.isSafeInteger(Number(value)) && Nu
 
 export default function PlazaInventoryV16({ mode, identity, character, social, onChooseBadge, onProfile }) {
   const [tab, setTab] = useState(mode === 'shop' ? 'items' : 'titles');
+  const [appearanceGroup,setAppearanceGroup]=useState('outfit');
   const [group, setGroup] = useState('all');
   const [quantity, setQuantity] = useState('1');
   const [topup, setTopup] = useState('10');
@@ -152,13 +153,13 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
               </button>
             </div>
           ) : tab === 'outfits' ? (
-            <div className="plaza-v16-item-grid plaza-v19-item-grid">
-              <button type="button" className="plaza-v19-item-card" aria-pressed="true" onClick={() => setDetail({ type: 'outfit' })}>
-                <span className="plaza-v19-card-art plaza-v19-card-item"><Shirt size={38}/></span>
-                <strong className="plaza-v19-card-name">Trang phục mặc định</strong>
-                <small className="plaza-v19-card-meta">Đang mặc</small>
-              </button>
-            </div>
+            <>
+              <div className="plaza-v16-filters" role="group" aria-label="Nhóm diện mạo">
+                {[['face','Khuôn mặt'],['top','Áo'],['bottom','Quần'],['outfit','Bộ đồ'],['shoes','Giày']].map(([id,label])=><button type="button" key={id} aria-pressed={appearanceGroup===id} onClick={()=>setAppearanceGroup(id)}>{label}</button>)}
+              </div>
+              {appearanceGroup==='outfit'?<div className="plaza-v16-item-grid plaza-v19-item-grid"><button type="button" className="plaza-v19-item-card" aria-pressed="true" onClick={()=>setDetail({type:'outfit'})}><span className="plaza-v19-card-art plaza-v19-card-item"><Shirt size={38}/></span><strong className="plaza-v19-card-name">Bộ đồ mặc định</strong><small className="plaza-v19-card-meta">Đang mặc · Có sẵn</small></button></div>:<div className="plaza-v16-empty"><Shirt size={34}/><h3>{({face:'Khuôn mặt',top:'Áo',bottom:'Quần',shoes:'Giày'})[appearanceGroup]}</h3><p>{mode==='shop'?'Chưa có mẫu mở bán trong nhóm này.':'Các món bạn sở hữu sẽ hiển thị tại đây.'}</p></div>}
+              <a className="plaza-v16-preview-link" href="/avatar-studio.html" target="_blank" rel="noopener noreferrer">Thử màu và biểu cảm trên nhân vật hiện tại</a>
+            </>
           ) : (
             <div className="plaza-v16-empty"><Image size={34}/><h3>Trang trí hồ sơ</h3>
               <p>Khung ảnh, nền và hiệu ứng bạn sở hữu sẽ hiển thị tại đây.</p>
@@ -192,9 +193,9 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
         </div> : <p>Mở kênh Loa thế giới trong chat để sử dụng.</p>}
       </>, () => setDetail(null))}
 
-      {detail?.type === 'outfit' && modal('Chi tiết trang phục', <>
+      {detail?.type === 'outfit' && modal('Diện mạo hiện tại', <>
         <div className="plaza-v19-detail-art plaza-v19-item-details"><Shirt size={66}/></div>
-        <h2>Trang phục mặc định</h2>
+        <h2>Bộ đồ mặc định</h2>
         <p>Đang mặc · {character === 'girl' ? 'Nữ' : 'Nam'}</p>
       </>, () => setDetail(null))}
 
