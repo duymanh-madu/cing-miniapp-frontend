@@ -1,8 +1,15 @@
 {
-  "release": "plaza-v19-f22-production",
+  "release": "plaza-v19-f23-production",
   "qaCommit": "c9f0f3d41cc9fd962f933a07b8829540a05ce151",
   "mobileGround": true,
   "mobileSceneBudget": true,
   "continuousGpuProfiling": false,
-  "preparedAt": "2026-10-14T06:10:02.195558+00:00"
+  "preparedAt": "2026-10-14T06:10:02.195558+00:00",
+  "changes": [
+    "spectator-board-brightness",
+    "seated-controls-and-chat",
+    "result-loser-name",
+    "room-selection-guard",
+    "chat-render-resume"
+  ]
 }

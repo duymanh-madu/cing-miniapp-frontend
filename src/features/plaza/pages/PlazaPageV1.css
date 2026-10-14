@@ -120,3 +120,6 @@
 .cing-plaza--room input,.cing-plaza--room textarea,.cing-plaza--room [contenteditable="true"]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 .cing-plaza--room .cing-plaza-scene__canvas{touch-action:none}
 .plaza-v19-connection-state{position:absolute;z-index:80;left:16px;right:16px;bottom:calc(150px + env(safe-area-inset-bottom));padding:12px;border-radius:12px;background:#182821ed;color:#fff1d7;display:flex;align-items:center;justify-content:space-between;gap:10px}
+
+.cing-plaza--seated .plaza-v19-room-dock>button,.cing-plaza--seated .plaza-v19-room-dock>.plaza-v15-chat-peek{position:fixed;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);left:12px;right:12px;z-index:46}
+.cing-plaza--room *::selection{background:transparent}

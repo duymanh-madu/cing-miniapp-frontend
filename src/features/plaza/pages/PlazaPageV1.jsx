@@ -230,7 +230,7 @@ export default function PlazaPageV1({
     });
   }
 
-  return <main ref={roomHost} className={`cing-plaza cing-plaza--immersive ${room?'cing-plaza--room':'cing-plaza--lobby'} plaza-v7`}>
+  return <main ref={roomHost} className={`cing-plaza cing-plaza--immersive ${room?'cing-plaza--room':'cing-plaza--lobby'} ${(state.tables||[]).some(t=>t.seats.some(s=>s.memberId===state.selfId))?'cing-plaza--seated':''} plaza-v7`}>
     {notice&&<p className="plaza-v7-notice" role="alert">{notice}</p>}
     {checking?<PlazaLoadingV11/>:!enabled?<div className="plaza-v7-loading">Plaza hiện chưa mở.</div>:room?<>
       {room&&!connected&&<div className="plaza-v19-connection-state" role="status">{STATUS[state.status]||"Đang nối lại phòng"}<button type="button" disabled={state.status==="resuming"||state.status==="connecting"} onClick={()=>client?.connect()}>Kết nối lại</button></div>}

@@ -156,7 +156,7 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
           <button type="button" onClick={() => { clearInput(); api.current?.checkin('dinh'); }}>Check-in đình</button>
         </div>}
       </div>
-      {ready&&!controlsHidden&&<div className="cing-plaza-scene__controls">
+      {ready&&!controlsHidden&&!ownTable&&<div className="cing-plaza-scene__controls">
         <button type="button" className="cing-plaza-scene__joystick" disabled={interactionPaused || !ready || Boolean(ownTable)}
           aria-label="Di chuyển: giữ và kéo cần điều khiển, thả để dừng"
 
