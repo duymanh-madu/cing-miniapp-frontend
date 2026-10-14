@@ -31,6 +31,7 @@ export function createPlazaRealtimeClientV1({
   timeoutMs = 6000,
   lifecycle = globalThis.document,
   resumeOnConnect = true,
+  lifecycleWindow = globalThis.window,
   recoveryDelayMs = 1000,
 } = {}) {
   if (typeof ioFactory !== "function" || typeof getToken !== "function" ||
@@ -255,6 +256,9 @@ export function createPlazaRealtimeClientV1({
     }
   }
   lifecycle?.addEventListener?.("visibilitychange",visibility);
+  const foreground=()=>{if(!lifecycle?.hidden)visibility();};
+  lifecycleWindow?.addEventListener?.("pageshow",foreground);
+  lifecycleWindow?.addEventListener?.("online",foreground);
 
   function request(event, payload, mutation = false) {
     if (disposed) return Promise.reject(failure("PLAZA_CLIENT_DISPOSED"));
@@ -310,7 +314,7 @@ export function createPlazaRealtimeClientV1({
       clearRecoveryRetry();
       setReconnectAllowed(lifecycle?.hidden !== true);
       update({ status: "connecting",lastError:null });
-      socket.connect();
+      if(socket.connected)void recover();else socket.connect();
     },
     getProfile:async()=>{
       const attempt=recovery;
@@ -344,6 +348,8 @@ export function createPlazaRealtimeClientV1({
       if (disposed) return;
       disposed = true;
       clearRecoveryRetry();recovery++;lifecycle?.removeEventListener?.("visibilitychange",visibility);
+      lifecycleWindow?.removeEventListener?.("pageshow",foreground);
+      lifecycleWindow?.removeEventListener?.("online",foreground);
       rejectPending();
       for (const [event, handler] of Object.entries(handlers)) {
         socket.off(event, handler);

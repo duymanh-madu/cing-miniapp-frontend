@@ -94,7 +94,7 @@ function solidBox(box, x, z, radius = .23) {
   return dx*dx + dz*dz < radius*radius;
 }
 
-export function buildWorldV3(map, { labelFactory = canvasLabel, logo = null } = {}) {
+export function buildWorldV3(map, { labelFactory = canvasLabel, logo = null, groundFactory = rebuildGroundV7 } = {}) {
   map.updateMatrixWorld(true);
   const records = [], removed = [], preserved = new Set(), explicitObstacles = [], addedFloors = [];
   const doors = [], originalMeshes = [], nightMaterials = [], lampAnchors = [];
@@ -335,7 +335,7 @@ export function buildWorldV3(map, { labelFactory = canvasLabel, logo = null } = 
   }
 
   const entranceV6=refineEntranceV6(map);
-  const groundV7=rebuildGroundV7(map,WORLD_V3.bounds),pondV7=closePondV7(map,entranceV6);
+  const groundV7=groundFactory(map,WORLD_V3.bounds),pondV7=closePondV7(map,entranceV6);
   const cleanupV8=cleanCourtyardV8(map);
   const fenceV9=repairGardenFenceV9(map);
   const gardenV10=repairGardenV10(map);

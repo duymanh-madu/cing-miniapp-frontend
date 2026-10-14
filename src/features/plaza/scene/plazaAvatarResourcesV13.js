@@ -2,9 +2,9 @@ import {VRMUtils} from '@pixiv/three-vrm';
 
 // Preserve the authored mesh and textures. Merge only equivalent skeletons and
 // expression morphs, before any GPU upload or remote clone is constructed.
-export function preparePlazaAvatarV13(vrm) {
-  VRMUtils.combineSkeletons(vrm.scene);
-  VRMUtils.combineMorphs(vrm);
+export function preparePlazaAvatarV13(vrm,{combineSkeletons=true,combineMorphs=true}={}) {
+  if(combineSkeletons)VRMUtils.combineSkeletons(vrm.scene);
+  if(combineMorphs)VRMUtils.combineMorphs(vrm);
 }
 
 // SkeletonUtils clones each mesh's skeleton, even when the source shares one.
