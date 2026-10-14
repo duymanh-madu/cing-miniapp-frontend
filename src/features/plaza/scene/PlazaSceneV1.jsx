@@ -26,12 +26,21 @@ export default function PlazaSceneV1({ diagnostics = false, initialCharacter = '
   function position(value){let best=null,distance=1.4;for(const t of definitions){const state=tablesRef.current.find(x=>x.tableId===t.tableId);for(const seat of t.seats){if(state?.seats.some(s=>s.seatId===seat.seatId))continue;if(Math.abs(value.y-(seat.y-.6))>.9)continue;const d=Math.hypot(value.x-seat.x,value.z-seat.z);if(d<distance){best={tableId:t.tableId,seatId:seat.seatId};distance=d;}}}const id=best?.seatId||null;if(id!==nearbyRef.current){nearbyRef.current=id;setNearSeat(best);}}
   async function tableAction(payload){chessAudio.current?.unlockFromGesture();if(actionLock.current)return;actionLock.current=true;setTableBusy(true);setTableError('');clearInput();try{await clientRef.current?.tableAction(payload);}catch(e){setTableError(({PLAZA_SEAT_TAKEN:'Ghế vừa có người ngồi.',PLAZA_SEAT_TOO_FAR:'Hãy đến gần ghế hơn.',PLAZA_CHESS_PERSIST_FAILED:'Chưa lưu được trận đấu. Hãy thử lại.',PLAZA_OUTCOME_UNKNOWN:'Chưa nhận được xác nhận. Hãy kiểm tra trạng thái bàn.'})[e.code]||'Chưa hoàn tất thao tác. Hãy thử lại.');}finally{actionLock.current=false;setTableBusy(false);}}
   const host = useRef(null), api = useRef(null), wrapper = useRef(null);
-  useEffect(()=>{api.current?.correct(correction);},[correction]);
+  useEffect(()=>{if(!realtimeClient)api.current?.correct(correction);},[correction,realtimeClient]);
   const labelsRef=useRef({roomId,messages,identity,selfId});labelsRef.current={roomId,messages,identity,selfId};
   useEffect(()=>{api.current?.setIdentity(labelsRef.current);},[roomId,messages,identity,selfId]);
-  const presenceRef=useRef({members,selfId});presenceRef.current={members,selfId};
+  const presenceRef=useRef({members,selfId});if(!realtimeClient)presenceRef.current={members,selfId};
   const clientRef=useRef(realtimeClient);clientRef.current=realtimeClient;
-  useEffect(()=>{api.current?.setMembers(members,selfId);},[members,selfId]);
+  useEffect(()=>{
+    if(!realtimeClient){api.current?.setMembers(members,selfId);return;}
+    let previousMembers=null,previousSelf=null,previousCorrection=null;
+    function receive(){const s=realtimeClient.getSnapshot();
+      if(s.members!==previousMembers||s.selfId!==previousSelf){previousMembers=s.members;previousSelf=s.selfId;presenceRef.current={members:s.members||[],selfId:s.selfId};api.current?.setMembers(s.members||[],s.selfId);}
+      if(s.correction!==previousCorrection){previousCorrection=s.correction;api.current?.correct(s.correction);}
+    }
+    receive();return realtimeClient.subscribe(receive);
+  },[realtimeClient]);
+  useEffect(()=>{if(!realtimeClient){presenceRef.current={members,selfId};api.current?.setMembers(members,selfId);}},[members,selfId,realtimeClient]);
   const keyboard = useRef(new Set()), pointers = useRef(new Map());
   const [epoch, setEpoch] = useState(0);
   const [character, setCharacter] = useState(initialCharacter === 'boy' ? 'boy' : 'girl');
