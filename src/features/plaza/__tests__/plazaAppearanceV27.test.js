@@ -15,7 +15,7 @@ test('appearance clones only modified materials and restores originals on dispos
  assert.notEqual(a.material[0],b.material[0]);assert.equal(b.material[0].color.getHex(),0xffffff);
  assert.equal(a.material[1],shirt);const first=a.material[0];
  controller.apply({skin:'skin_white'});assert.equal(a.material[0],first);
- controller.apply({skin:'unknown'});assert.equal(a.material[0],skin);
+ controller.apply({skin:'unknown'});assert.equal(a.material[0],first);assert.equal(a.material[0].color.getHex(),0xffffff);
  controller.dispose();controller.dispose();assert.equal(a.material[0],skin);
  assert.equal(materialSlot('Shoes_00'),'shoes');assert.equal(materialSlot('EyeIris_00'),'face');
 });
@@ -27,4 +27,12 @@ test('repeated idle appearance packets reuse the snapshot, a real skin change up
  assert.equal(mergePlazaPresenceV19(snapshot,{selfId:'a',members:[{...member,appearance:{skin:'skin_white'}}]}),null);
  const next=mergePlazaPresenceV19(snapshot,{selfId:'a',members:[{...member,identityRevision:2,appearance:{skin:'skin_black'}}]});
  assert.equal(next.members[0].appearance.skin,'skin_black');assert.equal(member.appearance.skin,'skin_white');
+});
+
+import {MToonMaterial} from '@pixiv/three-vrm';
+import {softenPlazaSkin} from '../scene/plazaAppearanceV27.js';
+test('skin has one soft lighting response without changing textures or clothing',()=>{
+ const m=new MToonMaterial();m.name='Body_SKIN';m.color.set('#deb283');m.shadingToonyFactor=.95;m.shadingShiftFactor=-.05;
+ softenPlazaSkin(m);assert.equal(m.shadingToonyFactor,.15);assert.equal(m.shadingShiftFactor,0);assert.equal(m.giEqualizationFactor,1);assert.equal(m.normalScale.length(),0);assert.ok(m.shadeColorFactor.equals(m.color.clone().multiplyScalar(.92)));
+ const shirt=new MToonMaterial();shirt.name='Tops';const old=shirt.shadingToonyFactor;softenPlazaSkin(shirt);assert.equal(shirt.shadingToonyFactor,old);
 });

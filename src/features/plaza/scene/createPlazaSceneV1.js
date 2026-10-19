@@ -1,3 +1,4 @@
+import {createFashionCacheV29} from './plazaFashionV29.js';
 import {createAppearanceController} from './plazaAppearanceV27.js';
 import {freezePlazaStaticBatches} from './plazaStaticTransformsV22.js';
 import {tagPlazaAuditGroups,createPlazaAuditVisibility} from './plazaSceneAuditV21.js';
@@ -145,7 +146,8 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   let pendingMembers=[],pendingSelfId=null;
   let netSeq=0, netLast=-Infinity, netValue=null, gesture=0, initialPresence=null;
   const labels=createPlazaLabelsV9(host);let labelIdentity={},labelMember={},labelLast=-Infinity;const headPosition=new THREE.Vector3();
-  const remote=createPlazaRemoteAvatarsV2({scene,load,onNotice,avatarPreparation:renderProfile,physicsSubsteps:mobileSceneBudget});
+  const loadFashion=createFashionCacheV29(async file=>{const asset=await load(file);asset.scene.visible=false;scene.add(asset.scene);return asset;});
+  const remote=createPlazaRemoteAvatarsV2({scene,load,loadFashion,onNotice,avatarPreparation:renderProfile,physicsSubsteps:mobileSceneBudget});
   const spawn = new THREE.Vector3(0, 0, 2.5);
   const forward = new THREE.Vector3(), right = new THREE.Vector3(), movement = new THREE.Vector3();
   const ray = new THREE.Raycaster();
@@ -428,7 +430,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
       if (!vrm) { disposeTree(modelFile.scene); throw new Error('Không đọc được nhân vật VRM.'); }
       VRMUtils.rotateVRM0(vrm);preparePlazaAvatarV13(vrm,renderProfile);refinePlazaAvatarSurfaceV10(vrm.scene);remote.seed(character,vrm);
       avatar.add(vrm.scene);
-      appearanceController=createAppearanceController(vrm.scene);appearanceController.apply(appearanceRecipe);
+      appearanceController=createAppearanceController(vrm.scene,{character,load:loadFashion,onError:()=>onNotice('Chưa tải được trang phục. Hãy mở lại cảnh.')});appearanceController.apply(appearanceRecipe);
       vrm.scene.traverse(object => { if (object.isMesh) { object.layers.set(1);object.frustumCulled = false; object.castShadow = false; object.receiveShadow = false; } });
       mixer = new THREE.AnimationMixer(vrm.scene);
       for (const [index, name] of Object.keys(avatarConfig).filter(name => ['idle','walk','wave','checkin'].includes(name)).entries()) {

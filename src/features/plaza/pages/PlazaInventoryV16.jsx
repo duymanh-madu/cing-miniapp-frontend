@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useState } from 'react';
 import {useNavigate} from 'react-router-dom';
 import { Coins, Wallet, Megaphone, Shirt, Crown, Image, UserRound, Check, Plus, X } from 'lucide-react';
+import {PLAZA_FASHION_ITEMS} from '../scene/plazaFashionV29.js';
 import {PLAZA_SKIN_ITEMS} from '../scene/plazaAppearanceV27.js';
 import PlazaTitleV10 from './PlazaTitleV10.jsx';
 import { PLAZA_TITLES_V10 } from './plazaTitleCatalogV10.js';
@@ -27,6 +28,7 @@ const integerInRange = (value, max) => Number.isSafeInteger(Number(value)) && Nu
 export default function PlazaInventoryV16({ mode, identity, character, social, onChooseBadge, onProfile }) {
   const [tab, setTab] = useState(mode === 'shop' ? 'items' : 'titles');
   const [appearanceGroup,setAppearanceGroup]=useState('outfit');
+  const [tryOn,setTryOn]=useState(null);
   const [group, setGroup] = useState('all');
   const [quantity, setQuantity] = useState('1');
   const [topup, setTopup] = useState('10');
@@ -36,6 +38,8 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
   const [confirm, setConfirm] = useState(null);
 
   const own = social.overview;
+  const previewAppearance={...own?.appearance?.equipped};
+  if(tryOn){if(tryOn.slot==='outfit')for(const slot of ['top','bottom','shoes'])delete previewAppearance[slot];previewAppearance[tryOn.slot]=tryOn.id;}
   const owned = new Set(identity?.ownedBadges || own?.profile?.ownedBadges || []);
   const selected = identity?.selectedBadge || own?.profile?.selectedBadge;
   const catalog = mode === 'shop' ? Object.keys(PLAZA_TITLES_V10) : [...owned];
@@ -44,7 +48,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
   const enabled = Boolean(own?.commerceEnabled);
 
   async function pay() {
-    if (!confirm || financialBusy) return;
+    if (!confirm || social.busy) return;
     const pending = confirm;
     const ok = pending.payload ? await social.run(pending.op,pending.payload) : await social.run(pending.op, { quantity: pending.quantity });
     if (ok) setConfirm(null);
@@ -72,10 +76,10 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
     });
   }
 
-  const modal = (label, body, close) => (
+  const modal = (label, body, close, busy = financialBusy) => (
     <div className="plaza-v16-overlay" onClick={event => { if (event.target === event.currentTarget) close(); }}>
       <section className="plaza-v16-confirm plaza-v19-detail" role="dialog" aria-modal="true" aria-label={label}>
-        <button type="button" className="plaza-v19-close" aria-label="Đóng" disabled={financialBusy} onClick={close}><X size={19}/></button>
+        <button type="button" className="plaza-v19-close" aria-label="Đóng" disabled={busy} onClick={close}><X size={19}/></button>
         {body}
       </section>
     </div>
@@ -101,7 +105,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
         <aside className="plaza-v19-avatar-stage plaza-v19-premium-stage" aria-label="Phong cách của bạn">
           <div className="plaza-v19-premium-character">
             <Suspense fallback={<div className="plaza-v16-preview">Đang tải nhân vật…</div>}>
-              <Avatar character={character} titleKey={selected} appearance={own?.appearance?.equipped} interactiveZoom/>
+              <Avatar character={character} titleKey={selected} appearance={previewAppearance} interactiveZoom/>
             </Suspense>
           </div>
           <div className="plaza-v19-premium-rank">
@@ -158,8 +162,9 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
               <div className="plaza-v16-filters" role="group" aria-label="Nhóm diện mạo">
                 {[['face','Khuôn mặt'],['top','Áo'],['bottom','Quần'],['outfit','Bộ đồ'],['shoes','Giày'],['skin','Màu da']].map(([id,label])=><button type="button" key={id} aria-pressed={appearanceGroup===id} onClick={()=>setAppearanceGroup(id)}>{label}</button>)}
               </div>
-              {appearanceGroup==='skin'?<div className="plaza-v16-item-grid plaza-v19-item-grid">{PLAZA_SKIN_ITEMS.filter(item=>mode==='shop'||own?.appearance?.owned?.includes(item.id)).map(item=>{const serverItem=own?.appearance?.catalog?.find(x=>x.id===item.id),price=serverItem?.priceCoin??item.priceCoin;const owned=own?.appearance?.owned?.includes(item.id),equipped=own?.appearance?.equipped?.skin===item.id;return <button type="button" key={item.id} className="plaza-v19-item-card" disabled={financialBusy||!own?.appearance?.ready||(!owned&&(!enabled||serverItem?.enabled!==true))} onClick={()=>setConfirm({op:owned?'equip_appearance':'buy_appearance',payload:{itemId:item.id},label:owned?`Sử dụng ${item.label}`:`Mua ${item.label} với ${fmt(price)} Coin`})}><span className="plaza-v19-card-art" style={{background:item.color,borderRadius:'50%'}}/><strong className="plaza-v19-card-name">{item.label}</strong><small className="plaza-v19-card-meta">{equipped?'Đang sử dụng':owned?'Đã sở hữu':serverItem?.enabled===false?'Ngưng bán':`${fmt(price)} Coin`}</small></button>})}{!own?.appearance?.ready&&<p>Đang chuẩn bị mở bán màu da.</p>}</div>:appearanceGroup==='outfit'?<div className="plaza-v16-item-grid plaza-v19-item-grid"><button type="button" className="plaza-v19-item-card" aria-pressed="true" onClick={()=>setDetail({type:'outfit'})}><span className="plaza-v19-card-art plaza-v19-card-item"><Shirt size={38}/></span><strong className="plaza-v19-card-name">Bộ đồ mặc định</strong><small className="plaza-v19-card-meta">Đang mặc · Có sẵn</small></button></div>:<div className="plaza-v16-empty"><Shirt size={34}/><h3>{({face:'Khuôn mặt',top:'Áo',bottom:'Quần',shoes:'Giày'})[appearanceGroup]}</h3><p>{mode==='shop'?'Chưa có mẫu mở bán trong nhóm này.':'Các món bạn sở hữu sẽ hiển thị tại đây.'}</p></div>}
-              <a className="plaza-v16-preview-link" href="/avatar-studio.html" target="_blank" rel="noopener noreferrer">Thử màu và biểu cảm trên nhân vật hiện tại</a>
+              {appearanceGroup==='skin'?<div className="plaza-v16-item-grid plaza-v19-item-grid">{PLAZA_SKIN_ITEMS.filter(item=>mode==='shop'||own?.appearance?.owned?.includes(item.id)).map(item=>{const serverItem=own?.appearance?.catalog?.find(x=>x.id===item.id),price=serverItem?.priceCoin??item.priceCoin;const owned=own?.appearance?.owned?.includes(item.id),equipped=own?.appearance?.equipped?.skin===item.id;return <button type="button" key={item.id} className="plaza-v19-item-card" disabled={financialBusy||!own?.appearance?.ready||(!owned&&(!enabled||serverItem?.enabled!==true))} onClick={()=>setConfirm({op:owned?'equip_appearance':'buy_appearance',payload:{itemId:item.id},label:owned?`Sử dụng ${item.label}`:`Mua ${item.label} với ${fmt(price)} Coin`})}><span className="plaza-v19-card-art" style={{background:item.color,borderRadius:'50%'}}/><strong className="plaza-v19-card-name">{item.label}</strong><small className="plaza-v19-card-meta">{equipped?'Đang sử dụng':owned?'Đã sở hữu':serverItem?.enabled===false?'Ngưng bán':`${fmt(price)} Coin`}</small></button>})}{!own?.appearance?.ready&&<p>Đang chuẩn bị mở bán màu da.</p>}</div>:['outfit','top','bottom','shoes'].includes(appearanceGroup)?<><div className="plaza-v16-item-grid plaza-v19-item-grid">{PLAZA_FASHION_ITEMS.filter(item=>item.character===character&&item.slot===appearanceGroup&&(mode==='shop'||own?.appearance?.owned?.includes(item.id))).map(item=>{const server=own?.appearance?.catalog?.find(x=>x.id===item.id),has=own?.appearance?.owned?.includes(item.id),wearing=own?.appearance?.equipped?.[item.slot]===item.id;return <div key={item.id} className="plaza-v19-item-card"><span className="plaza-v19-card-art plaza-v19-card-item"><Shirt size={38}/></span><strong className="plaza-v19-card-name">{item.label}</strong><small>{wearing?'Đang sử dụng':has?'Đã sở hữu':`${fmt(server?.priceCoin??item.priceCoin)} Coin`}</small><button type="button" onClick={()=>setTryOn(item)}>Thử trên nhân vật</button><button type="button" disabled={financialBusy||!own?.appearance?.ready||(!has&&(!enabled||server?.enabled!==true))} onClick={()=>setConfirm({op:has?'equip_appearance':'buy_appearance',payload:{itemId:item.id},label:has?`Sử dụng ${item.label}`:`Mua ${item.label} với ${fmt(server?.priceCoin??item.priceCoin)} Coin`})}>{has?'Mặc':'Mua'}</button></div>;})}</div>{tryOn&&<button type="button" onClick={()=>setTryOn(null)}>Kết thúc thử đồ</button>}</>:<div className="plaza-v16-empty"><Shirt size={34}/><h3>Khuôn mặt</h3><p>Chưa có mẫu khuôn mặt mới mở bán.</p></div>}
+
+              <a className="plaza-v16-preview-link" href="/avatar-studio.html" target="_blank" rel="noopener noreferrer">Mở phòng thử toàn bộ trang phục, màu da và chuyển động</a>
             </>
           ) : (
             <div className="plaza-v16-empty"><Image size={34}/><h3>Trang trí hồ sơ</h3>
@@ -168,6 +173,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
             </div>
           )}
 
+          {social.pending&&!social.busy&&['buy_appearance','equip_appearance','convert','buy_loudspeaker'].includes(social.pending.request?.operation)&&<button type="button" onClick={()=>{const {operation,commandId,...payload}=social.pending.request;setConfirm({op:operation,payload,label:'Thử lại giao dịch chưa nhận được xác nhận. Hệ thống giữ nguyên mã yêu cầu.'});}}>Thử lại giao dịch chưa xác nhận</button>}
           {!own && <button type="button" onClick={() => social.refresh().catch(() => {})}>Tải tài sản</button>}
           {social.error && <p role="alert">{social.error}</p>}
         </div>
@@ -221,10 +227,10 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
 
       {confirm && modal('Xác nhận thanh toán', <>
         <Coins size={30}/><h2>Xác nhận</h2><p>{confirm.label}</p>
-        <button type="button" disabled={financialBusy} onClick={pay}>{social.busy ? 'Đang xử lý…' : 'Xác nhận'}</button>
-        <button type="button" disabled={financialBusy} onClick={() => setConfirm(null)}>Quay lại</button>
+        <button type="button" disabled={social.busy} onClick={pay}>{social.busy ? 'Đang xử lý…' : 'Xác nhận'}</button>
+        <button type="button" disabled={social.busy} onClick={() => setConfirm(null)}>Quay lại</button>
         {social.error && <p role="alert">{social.error}</p>}
-      </>, () => { if (!financialBusy) setConfirm(null); })}
+      </>, () => { if (!social.busy) setConfirm(null); }, social.busy)}
     </section>
   );
 }
