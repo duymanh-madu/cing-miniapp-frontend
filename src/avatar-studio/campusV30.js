@@ -1,7 +1,7 @@
 import {BufferAttribute} from 'three';
 import {attachPlazaGarmentV27} from '../features/plaza/scene/plazaGarmentV27.js';
 
-export const CAMPUS_ASSET='v30/boy-campus-v30.glb';
+export const CAMPUS_ASSET='v31/boy-campus-v31.glb';
 export const CAMPUS_BASE='v30/cing-boy-modular-v30.vrm';
 const SLOTS=['top','bottom','shoes'];
 // Studio-only fitting controller. No catalogue, wallet, network presence or room changes.
