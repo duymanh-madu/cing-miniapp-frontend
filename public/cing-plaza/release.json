@@ -1,15 +1,23 @@
 {
-  "release": "plaza-v19-f29b-production",
+  "release": "plaza-v19-f30-production",
   "qaCommit": "c9f0f3d41cc9fd962f933a07b8829540a05ce151",
   "mobileGround": true,
   "mobileSceneBudget": true,
   "continuousGpuProfiling": false,
-  "preparedAt": "2026-10-19T14:02:18.189407+00:00",
+  "preparedAt": "2026-10-19T15:40:24.310270+00:00",
   "changes": [
     "soft-consistent-skin-lighting",
     "unapproved-fashion-drafts-withdrawn",
     "recoverable-commerce-confirmation",
     "production-idle-right-arm-greeting",
-    "original-avatar-models-restored"
-  ]
+    "original-avatar-models-restored",
+    "studio-campus-boy-v30-fitting",
+    "independent-studio-top-bottom-shoes",
+    "studio-walk-wave-seated-inspection"
+  ],
+  "studio": {
+    "version": "campus-boy-v30",
+    "accountMutation": false,
+    "cataloguePublished": false
+  }
 }
