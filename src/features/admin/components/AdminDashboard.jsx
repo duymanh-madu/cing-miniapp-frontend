@@ -23,6 +23,13 @@ import AdminWallet from "./AdminWallet";
 import AdminCoinV17 from "./AdminCoinV17";
 import AdminWalletPosCounter from "../wallet-pos/AdminWalletPosCounter";
 import AdminSystemHealth from './AdminSystemHealth';
+import CingKdsProPage from '@/features/kds/CingKdsProPage';
+
+const KDS_PREVIEW_TAB = {
+  key: "kds_preview",
+  icon: "☕",
+  label: "KDS Pro",
+};
 
 const ALL_TABS = [
   { key:"stats",     icon:"📊", label:"Tổng quan" },
@@ -155,7 +162,11 @@ export default function AdminDashboard({ auth }) {
   }, []);
 
   const role = auth.admin?.role || "";
-  const TABS = getAllowedTabs(role);
+  const explicitRole = String(role).toLowerCase();
+  const TABS = [
+    ...getAllowedTabs(role),
+    ...(explicitRole === "super_admin" ? [KDS_PREVIEW_TAB] : []),
+  ];
   const [tab, setTab] = useState(TABS[0]?.key || "");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
@@ -265,6 +276,13 @@ export default function AdminDashboard({ auth }) {
         {activeTab==="coin_admin" && <AdminCoinV17 token={auth.token} />}
         {activeTab==="wallet_pos" && <AdminWalletPosCounter token={auth.token} role={auth.admin?.role} />}
         {activeTab==="system_health" && <AdminSystemHealth token={auth.token} />}
+        {activeTab==="kds_preview" && (
+          <CingKdsProPage
+            branchName="KDS Pro · Chế độ xem an toàn"
+            connectionState="offline"
+            previewMessage="Chưa kết nối dữ liệu vận hành. KDS đang giữ HOLD; không có bill hoặc thao tác nào được hiển thị."
+          />
+        )}
         {activeTab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
         {activeTab==="management"    && <AdminManagement token={auth.token} />}
         {activeTab==="badges_admin"  && <AdminBadges token={auth.token} />}
