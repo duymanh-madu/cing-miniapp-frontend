@@ -1,15 +1,13 @@
 {
-  "release": "plaza-v19-f29-production",
+  "release": "plaza-v19-f29a-production",
   "qaCommit": "c9f0f3d41cc9fd962f933a07b8829540a05ce151",
   "mobileGround": true,
   "mobileSceneBudget": true,
   "continuousGpuProfiling": false,
-  "preparedAt": "2026-10-19T12:57:37.274129+00:00",
+  "preparedAt": "2026-10-19T13:43:37.480764+00:00",
   "changes": [
     "soft-consistent-skin-lighting",
-    "six-fitted-outfits-with-separate-top-bottom-shoes",
-    "hidden-body-surface-coverage-and-restoration",
-    "shared-garment-loading-with-disposal-guards",
+    "unapproved-fashion-drafts-withdrawn",
     "recoverable-commerce-confirmation",
     "production-idle-right-arm-greeting"
   ]
