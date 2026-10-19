@@ -1,25 +1,36 @@
 {
-  "release": "plaza-v19-f31-production",
+  "release": "plaza-v19-f32-production",
   "qaCommit": "c9f0f3d41cc9fd962f933a07b8829540a05ce151",
   "mobileGround": true,
   "mobileSceneBudget": true,
   "continuousGpuProfiling": false,
-  "preparedAt": "2026-10-19T16:46:21.118038+00:00",
+  "preparedAt": "2026-10-19T18:22:30.468359+00:00",
   "changes": [
     "soft-consistent-skin-lighting",
     "unapproved-fashion-drafts-withdrawn",
     "recoverable-commerce-confirmation",
     "production-idle-right-arm-greeting",
     "original-avatar-models-restored",
-    "studio-campus-boy-v30-fitting",
     "independent-studio-top-bottom-shoes",
     "studio-walk-wave-seated-inspection",
-    "source-tailored-jacket-with-authored-weights",
     "cloth-uv-embroidery-and-twill-textures",
-    "compacted-five-draw-garment-asset"
+    "six-studio-outfits-for-both-characters",
+    "continuous-weight-matched-neckline",
+    "continuous-pleated-skirt-with-seated-coverage",
+    "three-draw-mobile-garments",
+    "gender-aware-independent-fitting"
   ],
   "studio": {
-    "version": "campus-boy-v31",
+    "version": "all-six-v32",
+    "characters": [
+      "boy",
+      "girl"
+    ],
+    "styles": [
+      "campus",
+      "royal",
+      "street"
+    ],
     "accountMutation": false,
     "cataloguePublished": false
   }
