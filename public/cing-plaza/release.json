@@ -1,10 +1,10 @@
 {
-  "release": "plaza-v19-f32-production",
-  "qaCommit": "c9f0f3d41cc9fd962f933a07b8829540a05ce151",
+  "release": "plaza-v19-f33-production",
+  "qaCommit": "84ee843cf4f228de1c98311d0d262b5994f86624",
   "mobileGround": true,
   "mobileSceneBudget": true,
   "continuousGpuProfiling": false,
-  "preparedAt": "2026-10-19T18:22:30.468359+00:00",
+  "preparedAt": "2026-10-20T01:23:26.293946+00:00",
   "changes": [
     "soft-consistent-skin-lighting",
     "unapproved-fashion-drafts-withdrawn",
@@ -17,11 +17,15 @@
     "six-studio-outfits-for-both-characters",
     "continuous-weight-matched-neckline",
     "continuous-pleated-skirt-with-seated-coverage",
-    "three-draw-mobile-garments",
-    "gender-aware-independent-fitting"
+    "gender-aware-independent-fitting",
+    "continuous-opaque-girl-blouse-and-repaired-neck-abdomen",
+    "lined-edges-and-single-cuffs",
+    "tucked-waist-facing-and-skin-weighted-inner-shorts",
+    "royal-boy-boots-fitted-under-trousers",
+    "matched-six-outfits-and-54-combinations-inspected"
   ],
   "studio": {
-    "version": "all-six-v32",
+    "version": "all-six-v33",
     "characters": [
       "boy",
       "girl"
