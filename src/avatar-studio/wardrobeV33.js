@@ -8,7 +8,7 @@ export const wardrobeBase = (character) =>
 export function wardrobeAsset(character, style) {
   if (!["boy", "girl"].includes(character) || !WARDROBE_STYLES.includes(style))
     return null;
-  return `v33/${character}-${style}-v33.glb`;
+  return `v33/${character}-${style}-${character === "girl" ? "v33r2" : "v33"}.glb`;
 }
 const SLOTS = ["top", "bottom", "shoes"];
 // Preview-only wardrobe: nothing here writes inventory, wallet or room presence.

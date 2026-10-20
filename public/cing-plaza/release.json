@@ -1,10 +1,10 @@
 {
   "release": "plaza-v19-f33-production",
-  "qaCommit": "84ee843cf4f228de1c98311d0d262b5994f86624",
+  "qaCommit": "22242522bdff9430fce5255a2343642d3af7ca75",
   "mobileGround": true,
   "mobileSceneBudget": true,
   "continuousGpuProfiling": false,
-  "preparedAt": "2026-10-20T01:23:26.293946+00:00",
+  "preparedAt": "2026-10-20T01:38:56.528432+00:00",
   "changes": [
     "soft-consistent-skin-lighting",
     "unapproved-fashion-drafts-withdrawn",
@@ -22,7 +22,8 @@
     "lined-edges-and-single-cuffs",
     "tucked-waist-facing-and-skin-weighted-inner-shorts",
     "royal-boy-boots-fitted-under-trousers",
-    "matched-six-outfits-and-54-combinations-inspected"
+    "matched-six-outfits-and-54-combinations-inspected",
+    "detached-source-underwear-fragments-removed"
   ],
   "studio": {
     "version": "all-six-v33",
@@ -36,6 +37,7 @@
       "street"
     ],
     "accountMutation": false,
-    "cataloguePublished": false
+    "cataloguePublished": false,
+    "assetRevision": 2
   }
 }

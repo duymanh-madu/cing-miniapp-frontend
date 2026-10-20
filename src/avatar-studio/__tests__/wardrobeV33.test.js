@@ -94,6 +94,11 @@ for (const sex of ["boy", "girl"])
               Math.max(...pos.map((v) => v[1])) <= 0.161,
               "Boot shaft must remain inside the trouser hem",
             );
+          if (sex === "girl" && mesh.name.startsWith("Bottom_"))
+            assert.ok(
+              Math.max(...pos.map((v) => v[1])) < 1.022,
+              "Discard detached chest fragments before building shorts/waist facing",
+            );
           assert.ok(pos.every((v) => v.every(Number.isFinite)));
           assert.ok(
             norm.every(
