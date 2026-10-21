@@ -1,5 +1,5 @@
 import {createFashionCacheV29} from '../features/plaza/scene/plazaFashionV29.js';
-import {createWardrobeFitting,wardrobeBase,WARDROBE_STYLES} from './wardrobeV33.js';
+import {createWardrobeFitting,wardrobeBase,WARDROBE_STYLES} from './wardrobeV34.js';
 import {softenPlazaSkin} from '../features/plaza/scene/plazaAppearanceV27.js';
 import {applyPlazaSeatedPose} from '../features/plaza/scene/plazaSeatedPoseV3.js';
 import * as T from 'three';
@@ -22,7 +22,7 @@ async function load(file,signal){const response=await fetch(new URL(file,base),{
 function appearance(){if(!vrm)return;const skin=new T.Color(ui.skin.value),hair=new T.Color(ui.hair.value);vrm.scene.traverse(o=>{for(const m of Array.isArray(o.material)?o.material:[o.material])if(m?.color){if(!m.userData.studioOriginalColor)m.userData.studioOriginalColor=m.color.clone();const tint=/HAIR/.test(m.name)?hair:/SKIN/.test(m.name)?skin:null;if(tint){m.color.copy(m.userData.studioOriginalColor).multiply(tint);if(/SKIN/.test(m.name))softenPlazaSkin(m);}}});const e=vrm.expressionManager;for(const key of ['happy','relaxed','blinkLeft','blinkRight','blink'])e?.setValue(key,0);e?.setValue('happy',ui.expression.value==='sweet'?.55:ui.expression.value==='wink'?.35:.12);e?.setValue('relaxed',ui.expression.value==='calm'?.3:0);if(ui.expression.value==='wink')e?.setValue('blinkLeft',.95);}
 function play(name){const next=actions[name];if(!next)return;seated=false;paused=false;document.querySelector('#pause').textContent='Tạm dừng';next.paused=false;next.reset().play();if(current&&current!==next)next.crossFadeFrom(current,.25,false);current=next;}
 function clearActor(){garment?.dispose();garment=null;garmentRoots.splice(0).forEach(release);mixer?.stopAllAction();if(vrm){mixer?.uncacheRoot(vrm.scene);release(vrm.scene);}vrm=null;mixer=null;actions={};current=null;}
-async function fit(){if(!vrm||!garment)return;const mine=generation;status.textContent='Đang thay trang phục…';try{await garment.apply(Object.fromEntries(['top','bottom','shoes'].map(k=>[k,ui[k].value])));if(mine===generation)status.textContent='Sẵn sàng · '+({campus:'Campus',royal:'Royal',street:'Street',original:'Trang phục gốc',mixed:'Phối riêng'}[ui.outfit.value]||'Phối riêng')+' · '+(ui.gender.value==='boy'?'Nam':'Nữ')+' V33';}catch(e){if(mine===generation&&e.name!=='AbortError')status.textContent='Chưa thay được đồ. Hãy chọn lại.';}}
+async function fit(){if(!vrm||!garment)return;const mine=generation;status.textContent='Đang thay trang phục…';try{await garment.apply(Object.fromEntries(['top','bottom','shoes'].map(k=>[k,ui[k].value])));if(mine===generation)status.textContent='Sẵn sàng · '+({campus:'Campus',royal:'Royal',street:'Street',original:'Trang phục gốc',mixed:'Phối riêng'}[ui.outfit.value]||'Phối riêng')+' · '+(ui.gender.value==='boy'?'Nam':'Nữ')+' V34';}catch(e){if(mine===generation&&e.name!=='AbortError')status.textContent='Chưa thay được đồ. Hãy chọn lại.';}}
 async function change(){const mine=++generation;abort?.abort();abort=new AbortController();const signal=abort.signal;motionButtons.forEach(id=>document.querySelector('#'+id).disabled=true);clearActor();status.textContent='Đang tải nhân vật…';seated=false;paused=false;const sex=ui.gender.value;
 for(const id of ['outfit','top','bottom','shoes'])ui[id].disabled=false;
 try{const file=await load(wardrobeBase(sex),signal);if(mine!==generation){release(file.scene);return;}vrm=file.userData.vrm;if(!vrm){release(file.scene);throw Error('Model thiếu dữ liệu');}VRMUtils.rotateVRM0(vrm);vrm.scene.traverse(o=>{if(o.isMesh)o.frustumCulled=false;});scene.add(vrm.scene);mixer=new T.AnimationMixer(vrm.scene);
@@ -45,5 +45,5 @@ window.addEventListener('pagehide',e=>{if(e.persisted)return;disposed=true;abort
 raf=requestAnimationFrame(tick);change();
 
 if(import.meta.env.DEV && new URLSearchParams(location.search).has('audit')){
- import('./inspectionV33.js').then(({installInspection})=>installInspection({renderer,scene,camera,controls,ui,host,status,play,getActor:()=>vrm,getMixer:()=>mixer,getActions:()=>actions,freeze:()=>{paused=true;},fit,change,seat:()=>{seated=true;}}));
+ import('./inspectionV34.js').then(({installInspection})=>installInspection({renderer,scene,camera,controls,ui,host,status,play,getActor:()=>vrm,getMixer:()=>mixer,getActions:()=>actions,freeze:()=>{paused=true;},fit,change,seat:()=>{seated=true;}}));
 }

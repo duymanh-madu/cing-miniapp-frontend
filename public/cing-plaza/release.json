@@ -1,10 +1,10 @@
 {
-  "release": "plaza-v19-f33-production",
-  "qaCommit": "22242522bdff9430fce5255a2343642d3af7ca75",
+  "release": "plaza-v19-f34-production",
+  "qaCommit": "4f8f52516f672ad74923ec88312b47a37eb8e5ca",
   "mobileGround": true,
   "mobileSceneBudget": true,
   "continuousGpuProfiling": false,
-  "preparedAt": "2026-10-20T01:38:56.528432+00:00",
+  "preparedAt": "2026-10-21T13:18:42.947699+00:00",
   "changes": [
     "soft-consistent-skin-lighting",
     "unapproved-fashion-drafts-withdrawn",
@@ -23,10 +23,14 @@
     "tucked-waist-facing-and-skin-weighted-inner-shorts",
     "royal-boy-boots-fitted-under-trousers",
     "matched-six-outfits-and-54-combinations-inspected",
-    "detached-source-underwear-fragments-removed"
+    "detached-source-underwear-fragments-removed",
+    "shared-body-derived-waist-for-shirts-skirts-shorts",
+    "body-surface-fitted-boy-collar-and-neck-weights",
+    "blouse-contour-uv-and-chest-bow-placement",
+    "outer-layer-spacing-preserved-during-waist-fitting"
   ],
   "studio": {
-    "version": "all-six-v33",
+    "version": "all-six-v34",
     "characters": [
       "boy",
       "girl"
@@ -38,6 +42,6 @@
     ],
     "accountMutation": false,
     "cataloguePublished": false,
-    "assetRevision": 2
+    "assetRevision": 1
   }
 }
