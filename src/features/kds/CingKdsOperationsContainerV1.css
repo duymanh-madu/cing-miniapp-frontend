@@ -1,0 +1,10 @@
+.ckds-live-shell { color:#ddd; }
+.ckds-live-shell .ckds-live-controls { display:flex; flex-wrap:wrap; align-items:end; gap:12px; margin:12px 0; }
+.ckds-live-shell label { display:flex; flex-direction:column; gap:5px; font-size:13px; }
+.ckds-live-shell input,.ckds-live-shell select { min-height:40px; max-width:100%; border:1px solid #555; border-radius:8px; padding:8px; background:#181818; color:#eee; }
+.ckds-live-shell button[type=submit] { min-height:40px; border:0; border-radius:8px; padding:8px 16px; background:#cf511b; color:#fff; cursor:pointer; }
+.ckds-live-shell button:disabled { opacity:.5; cursor:wait; }
+.ckds-live-shell .ckds-history-table { overflow-x:auto; }
+.ckds-live-shell table { width:100%; border-collapse:collapse; text-align:left; }
+.ckds-live-shell td,.ckds-live-shell th { padding:10px; border-bottom:1px solid #444; }
+@media(max-width:600px) { .ckds-live-shell .ckds-live-controls { align-items:stretch; } .ckds-live-shell label { width:100%; } }

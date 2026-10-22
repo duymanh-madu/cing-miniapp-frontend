@@ -114,6 +114,8 @@ function normalizeCup(cup, allowedStatuses) {
     elapsed_minutes: elapsed,
     severity: cup.severity,
     version: validVersion ? version : null,
+    table_name: String(cup.table_name ?? ""),
+    card_number: String(cup.card_number ?? ""),
     transition_ready: false
   };
 }

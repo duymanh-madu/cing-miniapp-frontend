@@ -23,7 +23,7 @@ import AdminWallet from "./AdminWallet";
 import AdminCoinV17 from "./AdminCoinV17";
 import AdminWalletPosCounter from "../wallet-pos/AdminWalletPosCounter";
 import AdminSystemHealth from './AdminSystemHealth';
-import CingKdsProPage from '@/features/kds/CingKdsProPage';
+import CingKdsOperationsContainerV1 from '@/features/kds/CingKdsOperationsContainerV1';
 
 const KDS_PREVIEW_TAB = {
   key: "kds_preview",
@@ -277,11 +277,7 @@ export default function AdminDashboard({ auth }) {
         {activeTab==="wallet_pos" && <AdminWalletPosCounter token={auth.token} role={auth.admin?.role} />}
         {activeTab==="system_health" && <AdminSystemHealth token={auth.token} />}
         {activeTab==="kds_preview" && (
-          <CingKdsProPage
-            branchName="KDS Pro · Chế độ xem an toàn"
-            connectionState="offline"
-            previewMessage="Chưa kết nối dữ liệu vận hành. KDS đang giữ HOLD; không có bill hoặc thao tác nào được hiển thị."
-          />
+          <CingKdsOperationsContainerV1 token={auth.token} />
         )}
         {activeTab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
         {activeTab==="management"    && <AdminManagement token={auth.token} />}

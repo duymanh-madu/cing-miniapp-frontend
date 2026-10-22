@@ -71,6 +71,7 @@ function CupCard({ cup, mode, busy, onTransition }) {
       </div>
 
       <h3>{cup.item_name || "Chưa có tên món"}</h3>
+      {(cup.table_name || cup.card_number) && <p>{cup.table_name} {cup.card_number ? `· Thẻ ${cup.card_number}` : ""}</p>}
 
       <div className="ckds-cup-meta">
         <span>{cup.item_group || "Chưa phân nhóm"}</span>
@@ -88,11 +89,12 @@ function CupCard({ cup, mode, busy, onTransition }) {
         <button
           type="button"
           className="ckds-action"
-          disabled={busy}
+          disabled={busy || cup.transition_ready !== true}
           onClick={() => onTransition({
             order_id: cup.order_id,
             cup_id: cup.cup_id,
-            target_status: action.status
+            target_status: action.status,
+            expected_version: cup.version
           })}
         >
           {busy ? "Đang xử lý..." : action.label}
@@ -273,7 +275,7 @@ export default function CingKdsProPage({
       {ready && !isOnline && (
         <div className="ckds-banner" role="status">
           <WifiOff size={18} aria-hidden="true" />
-          Mất kết nối realtime. Tạm khóa thao tác và chờ đồng bộ lại.
+          Chưa có ảnh chụp dữ liệu mới. Tạm khóa thao tác và chờ đồng bộ lại.
         </div>
       )}
 
