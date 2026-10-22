@@ -1,5 +1,6 @@
+import {createFittingSessionV36} from '../runtime/plazaFittingSessionV36.js';
 import apiClient from '@/infra/api/apiClient';
-import React, { lazy, Suspense, useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState, useMemo, useSyncExternalStore } from 'react';
 import {useNavigate} from 'react-router-dom';
 import { Coins, Wallet, Megaphone, Shirt, Crown, Image, UserRound, Check, Plus, X } from 'lucide-react';
 import {PLAZA_FASHION_ITEMS} from '../scene/plazaFashionV29.js';
@@ -26,10 +27,15 @@ const TITLE_GROUPS = {
 const fmt = value => Number(value || 0).toLocaleString('vi-VN');
 const integerInRange = (value, max) => Number.isSafeInteger(Number(value)) && Number(value) >= 1 && Number(value) <= max;
 
-export default function PlazaInventoryV16({ mode, identity, character, social, onChooseBadge, onProfile }) {
+export default function PlazaInventoryV16({ fittingSession, mode, identity, character, social, onChooseBadge, onProfile }) {
   const [tab, setTab] = useState(mode === 'shop' ? 'items' : 'titles');
   const [appearanceGroup,setAppearanceGroup]=useState('top');
-  const [tryOn,setTryOn]=useState(null);
+  const localSession=useMemo(()=>createFittingSessionV36(),[]);
+  const session=fittingSession||localSession;
+  useEffect(()=>()=>localSession.dispose(),[localSession]);
+  const drafts=useSyncExternalStore(session.subscribe,session.getSnapshot,session.getSnapshot);
+  const tryOn=drafts[character]||{};
+  const trying=Object.keys(tryOn).length>0;
   const [catalogueControlReady,setCatalogueControlReady]=useState(false);
   useEffect(()=>{let active=true;apiClient.get('/admin/plaza/catalogue-capabilities').then(r=>{if(active)setCatalogueControlReady(r.data?.version>=35&&r.data?.pricingAuthority==='super_admin');}).catch(()=>{});return()=>{active=false;};},[]);
   const [group, setGroup] = useState('all');
@@ -41,8 +47,8 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
   const [confirm, setConfirm] = useState(null);
 
   const own = social.overview;
-  const previewAppearance={...own?.appearance?.equipped};
-  if(tryOn){if(tryOn.slot==='outfit')for(const slot of ['top','bottom','shoes'])delete previewAppearance[slot];previewAppearance[tryOn.slot]=tryOn.id;}
+  const previewAppearance={...own?.appearance?.equipped,...tryOn};
+  if(tryOn.outfit) for(const slot of ['top','bottom','shoes']) if(!tryOn[slot]) delete previewAppearance[slot];
   const owned = new Set(identity?.ownedBadges || own?.profile?.ownedBadges || []);
   const selected = identity?.selectedBadge || own?.profile?.selectedBadge;
   const catalog = mode === 'shop' ? Object.keys(PLAZA_TITLES_V10) : [...owned];
@@ -53,6 +59,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
   async function pay() {
     if (!confirm || social.busy) return;
     const pending = confirm;
+    if(pending.op==='equip_appearance') { setConfirm(null); const item=[...PLAZA_FASHION_ITEMS,...PLAZA_SKIN_ITEMS].find(item=>item.id===pending.payload?.itemId); if(item)session.accept(character,item.slot,PLAZA_FASHION_ITEMS); void social.run(pending.op,pending.payload); return; }
     const ok = pending.payload ? await social.run(pending.op,pending.payload) : await social.run(pending.op, { quantity: pending.quantity });
     if (ok) setConfirm(null);
   }
@@ -108,7 +115,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
         <aside className="plaza-v19-avatar-stage plaza-v19-premium-stage" aria-label="Phong cách của bạn">
           <div className="plaza-v19-premium-character">
             <Suspense fallback={<div className="plaza-v16-preview">Đang tải nhân vật…</div>}>
-              <Avatar character={character} titleKey={selected} appearance={previewAppearance} interactiveZoom/>
+              <Avatar character={character} titleKey={selected} appearance={previewAppearance} fittingSession={session} interactiveZoom/>
             </Suspense>
           </div>
           <div className="plaza-v19-premium-rank">
@@ -165,7 +172,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
               <div className="plaza-v16-filters" role="group" aria-label="Nhóm diện mạo">
                 {[['face','Khuôn mặt'],['top','Áo'],['bottom','Quần'],['outfit','Bộ đồ'],['shoes','Giày'],['skin','Màu da']].map(([id,label])=><button type="button" key={id} aria-pressed={appearanceGroup===id} onClick={()=>setAppearanceGroup(id)}>{label}</button>)}
               </div>
-              {appearanceGroup==='skin'?<div className="plaza-v16-item-grid plaza-v19-item-grid">{PLAZA_SKIN_ITEMS.filter(item=>mode==='shop'||own?.appearance?.owned?.includes(item.id)).map(item=>{const serverItem=own?.appearance?.catalog?.find(x=>x.id===item.id),price=serverItem?.priceCoin??item.priceCoin;const owned=own?.appearance?.owned?.includes(item.id),equipped=own?.appearance?.equipped?.skin===item.id;return <button type="button" key={item.id} className="plaza-v19-item-card" disabled={financialBusy||!own?.appearance?.ready||(!owned&&(!enabled||serverItem?.enabled!==true))} onClick={()=>setConfirm({op:owned?'equip_appearance':'buy_appearance',payload:{itemId:item.id},label:owned?`Sử dụng ${item.label}`:`Mua ${item.label} với ${fmt(price)} Coin`})}><span className="plaza-v19-card-art" style={{background:item.color,borderRadius:'50%'}}/><strong className="plaza-v19-card-name">{item.label}</strong><small className="plaza-v19-card-meta">{equipped?'Đang sử dụng':owned?'Đã sở hữu':serverItem?.enabled===false?'Ngưng bán':`${fmt(price)} Coin`}</small></button>})}{!own?.appearance?.ready&&<p>Đang chuẩn bị mở bán màu da.</p>}</div>:['outfit','top','bottom','shoes'].includes(appearanceGroup)?<><div className="plaza-v16-item-grid plaza-v19-item-grid">{PLAZA_FASHION_ITEMS.filter(item=>item.character===character&&item.slot===appearanceGroup&&own?.appearance?.catalog?.some(server=>server.id===item.id)&&(mode==='shop'?own?.appearance?.catalog?.some(server=>server.id===item.id&&server.enabled===true):own?.appearance?.owned?.includes(item.id))).map(item=>{const server=own?.appearance?.catalog?.find(x=>x.id===item.id),has=own?.appearance?.owned?.includes(item.id),wearing=own?.appearance?.equipped?.[item.slot]===item.id;return <div key={item.id} className="plaza-v19-item-card"><span className="plaza-v19-card-art plaza-v19-card-item"><Shirt size={38}/></span><strong className="plaza-v19-card-name">{item.label}</strong><small>{wearing?'Đang sử dụng':has?'Đã sở hữu':item.style!=='default'&&!catalogueControlReady?'Đang chuẩn bị mở bán':`${fmt(server?.priceCoin??item.priceCoin)} Coin`}</small><button type="button" onClick={()=>setTryOn(item)}>Thử trên nhân vật</button><button type="button" disabled={financialBusy||!own?.appearance?.ready||(!has&&(!enabled||server?.enabled!==true||(item.style!=='default'&&!catalogueControlReady)))} onClick={()=>setConfirm({op:has?'equip_appearance':'buy_appearance',payload:{itemId:item.id},label:has?`Sử dụng ${item.label}`:`Mua ${item.label} với ${fmt(server?.priceCoin??item.priceCoin)} Coin`})}>{has?'Mặc':'Mua'}</button></div>;})}</div>{!PLAZA_FASHION_ITEMS.some(item=>item.character===character&&item.slot===appearanceGroup&&own?.appearance?.catalog?.some(server=>server.id===item.id&&server.enabled))&&<p className="plaza-v16-empty">Chưa có mẫu mở bán trong nhóm này.</p>}{tryOn&&<button type="button" onClick={()=>setTryOn(null)}>Kết thúc thử đồ</button>}</>:<div className="plaza-v16-empty"><Shirt size={34}/><h3>Khuôn mặt</h3><p>Chưa có mẫu khuôn mặt mới mở bán.</p></div>}
+              {appearanceGroup==='skin'?<div className="plaza-v16-item-grid plaza-v19-item-grid">{PLAZA_SKIN_ITEMS.filter(item=>mode==='shop'||own?.appearance?.owned?.includes(item.id)).map(item=>{const serverItem=own?.appearance?.catalog?.find(x=>x.id===item.id),price=serverItem?.priceCoin??item.priceCoin;const owned=own?.appearance?.owned?.includes(item.id),equipped=own?.appearance?.equipped?.skin===item.id;return <div key={item.id} className="plaza-v19-item-card"><button type="button" aria-pressed={tryOn.skin===item.id} onClick={()=>session.tryItem(character,item)}>{tryOn.skin===item.id?'Đang thử':'Thử màu da'}</button><button type="button" disabled={financialBusy||!own?.appearance?.ready||(!owned&&(!enabled||serverItem?.enabled!==true))} onClick={()=>setConfirm({op:owned?'equip_appearance':'buy_appearance',payload:{itemId:item.id},label:owned?`Sử dụng ${item.label}`:`Mua ${item.label} với ${fmt(price)} Coin`})}><span className="plaza-v19-card-art" style={{background:item.color,borderRadius:'50%'}}/><strong className="plaza-v19-card-name">{item.label}</strong><small className="plaza-v19-card-meta">{equipped?'Đang sử dụng':owned?'Đã sở hữu':serverItem?.enabled===false?'Ngưng bán':`${fmt(price)} Coin`}</small></button></div>})}{!own?.appearance?.ready&&<p>Đang chuẩn bị mở bán màu da.</p>}</div>:['outfit','top','bottom','shoes'].includes(appearanceGroup)?<><div className="plaza-v16-item-grid plaza-v19-item-grid">{PLAZA_FASHION_ITEMS.filter(item=>item.character===character&&item.slot===appearanceGroup&&own?.appearance?.catalog?.some(server=>server.id===item.id)&&(mode==='shop'?own?.appearance?.catalog?.some(server=>server.id===item.id&&server.enabled===true):own?.appearance?.owned?.includes(item.id))).map(item=>{const server=own?.appearance?.catalog?.find(x=>x.id===item.id),has=own?.appearance?.owned?.includes(item.id),wearing=own?.appearance?.equipped?.[item.slot]===item.id;return <div key={item.id} className="plaza-v19-item-card"><span className="plaza-v19-card-art plaza-v19-card-item plaza-v36-fashion-art"><img className="plaza-v36-fashion-thumbnail" src={`/cing-plaza/assets/v36/thumbnails/${item.id}.webp`} alt={item.label} loading="lazy" decoding="async" width="384" height="384"/></span><strong className="plaza-v19-card-name">{item.label}</strong><small>{wearing?'Đang sử dụng':has?'Đã sở hữu':item.style!=='default'&&!catalogueControlReady?'Đang chuẩn bị mở bán':`${fmt(server?.priceCoin??item.priceCoin)} Coin`}</small><button type="button" aria-pressed={tryOn[item.slot]===item.id} onClick={()=>session.tryItem(character,item)}>{tryOn[item.slot]===item.id?'Đang thử':'Thử trên nhân vật'}</button><button type="button" disabled={financialBusy||!own?.appearance?.ready||(!has&&(!enabled||server?.enabled!==true||(item.style!=='default'&&!catalogueControlReady)))} onClick={()=>setConfirm({op:has?'equip_appearance':'buy_appearance',payload:{itemId:item.id},label:has?`Sử dụng ${item.label}`:`Mua ${item.label} với ${fmt(server?.priceCoin??item.priceCoin)} Coin`})}>{has?'Mặc':'Mua'}</button></div>;})}</div>{!PLAZA_FASHION_ITEMS.some(item=>item.character===character&&item.slot===appearanceGroup&&own?.appearance?.catalog?.some(server=>server.id===item.id&&server.enabled))&&<p className="plaza-v16-empty">Chưa có mẫu mở bán trong nhóm này.</p>}{trying&&<button type="button" onClick={()=>session.clear(character)}>Kết thúc thử đồ</button>}</>:<div className="plaza-v16-empty"><Shirt size={34}/><h3>Khuôn mặt</h3><p>Chưa có mẫu khuôn mặt mới mở bán.</p></div>}
 
               <a className="plaza-v16-preview-link" href="/avatar-studio.html" target="_blank" rel="noopener noreferrer">Thử màu da, biểu cảm và chuyển động</a>
             </>
@@ -178,6 +185,7 @@ export default function PlazaInventoryV16({ mode, identity, character, social, o
 
           {social.pending&&!social.busy&&['buy_appearance','equip_appearance','convert','buy_loudspeaker'].includes(social.pending.request?.operation)&&<button type="button" onClick={()=>{const {operation,commandId,...payload}=social.pending.request;setConfirm({op:operation,payload,label:'Thử lại giao dịch chưa nhận được xác nhận. Hệ thống giữ nguyên mã yêu cầu.'});}}>Thử lại giao dịch chưa xác nhận</button>}
           {!own && <button type="button" onClick={() => social.refresh().catch(() => {})}>Tải tài sản</button>}
+          {social.busy&&<p role="status">Đang lưu thay đổi…</p>}
           {social.error && <p role="alert">{social.error}</p>}
         </div>
       </div>

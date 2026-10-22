@@ -138,3 +138,7 @@
     grid-template-rows: minmax(160px, 39%) minmax(0, 1fr);
   }
 }
+
+.plaza-v19-card-art .plaza-v36-fashion-thumbnail{width:100%;height:100%;object-fit:contain;display:block;max-height:180px;}
+
+.cing-plaza .plaza-v19-inventory .plaza-v19-card-art.plaza-v36-fashion-art{height:clamp(110px,16vw,180px);min-height:110px;width:100%;flex:0 0 auto;}

@@ -1,3 +1,4 @@
+import {createFittingSessionV36} from '../runtime/plazaFittingSessionV36.js';
 import {installPlazaRoomTouchGuardV19} from '../scene/plazaRoomTouchGuardV19.js';
 import {usePlazaSocialV16} from '../runtime/usePlazaSocialV16.js';
 import PlazaProfileV16 from './PlazaProfileV16.jsx';
@@ -102,6 +103,9 @@ export default function PlazaPageV1({
   const characterChoice=state.profile?.character;
   const connected = state.status === "connected";
   const room = state.room;
+  const fittingSession=useMemo(()=>createFittingSessionV36(),[state.identity?.memberId]);
+  useEffect(()=>()=>fittingSession.dispose(),[fittingSession]);
+  useEffect(()=>{if(!enabled)fittingSession.dispose();},[enabled,fittingSession]);
   const social=usePlazaSocialV16({enabled:enabled&&Boolean(state.profile)&&Boolean(state.identity?.memberId),memberId:state.identity?.memberId,connected,revision:state.socialRevision||0,stream:state.socialMessages||[]});
   function openProfile(id){if(id)setProfileMember(id);}
   function openPM(id){setProfileMember(null);setMembersOpen(false);setPmPeer(id);setChatOpen(true);}
@@ -248,7 +252,7 @@ export default function PlazaPageV1({
       {characterChoice&&<Suspense fallback={<PlazaLoadingV11/>}><PlazaSceneV1 appearance={social.overview?.appearance?.equipped} key={room.roomId} onReadyChange={setSceneReady} onOpenMembers={()=>{setChatOpen(false);setMembersOpen(true);}} onOpenChat={()=>{setMembersOpen(false);setChatOpen(true);}} controlsHidden={chatOpen||membersOpen||Boolean(profileMember)} interactionPaused={chatOpen||membersOpen||Boolean(profileMember)||connectionPaused} roomId={room.roomId} messages={messages} identity={state.identity} initialCharacter={state.members?.find(v=>v.memberId===state.selfId)?.character||characterChoice} correction={state.correction} tables={state.tables||[]} realtimeClient={client} members={state.members||[]} selfId={state.selfId}/></Suspense>}
 
       {sceneReady&&membersOpen&&<PlazaMembersV15 onProfile={openProfile} room={room} roster={state.roomMembers||[]} selfId={state.selfId} onClose={()=>setMembersOpen(false)}/>}
-    </>:<PlazaLobbyV7 social={social} onProfile={()=>openProfile(social.overview?.profile.memberId||state.identity?.memberId)} onLookupRooms={refreshRooms} onOpenPM={openPM} identity={state.identity} onChooseBadge={key=>act(()=>client.chooseBadge(key))} profile={state.profile} connected={connected} busy={busy} rooms={rooms} onClose={onClose} onChat={()=>setChatOpen(true)} choose={key=>act(async()=>{await client.chooseCharacter(key);await client.getProfile();await refreshRooms();})} onRefresh={()=>act(async()=>{await refreshRooms();await client.getProfile();})} onCreate={(name,password)=>act(async()=>{await client.createRoom(name,password);})} onJoin={(id,password)=>act(()=>client.joinRoom(id,password))}/>}
+    </>:<PlazaLobbyV7 fittingSession={fittingSession} social={social} onProfile={()=>openProfile(social.overview?.profile.memberId||state.identity?.memberId)} onLookupRooms={refreshRooms} onOpenPM={openPM} identity={state.identity} onChooseBadge={key=>act(()=>client.chooseBadge(key))} profile={state.profile} connected={connected} busy={busy} rooms={rooms} onClose={onClose} onChat={()=>setChatOpen(true)} choose={key=>act(async()=>{await client.chooseCharacter(key);await client.getProfile();await refreshRooms();})} onRefresh={()=>act(async()=>{await refreshRooms();await client.getProfile();})} onCreate={(name,password)=>act(async()=>{await client.createRoom(name,password);})} onJoin={(id,password)=>act(()=>client.joinRoom(id,password))}/>}
     {chatOpen&&!profileMember&&<PlazaChatV7 social={social} initialPeerId={pmPeer} onProfile={openProfile} room={room} messages={messages} draft={draft} setDraft={setDraft} submit={submitMessage} connected={connected} busy={busy} onClose={()=>setChatOpen(false)}/>}
     {profileMember&&<PlazaProfileV16 key={profileMember} memberId={profileMember} social={social} onClose={()=>setProfileMember(null)} onPM={openPM} onViewProfile={openProfile}/>}
   </main>;

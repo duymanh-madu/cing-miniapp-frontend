@@ -1,10 +1,10 @@
 {
-  "release": "plaza-v19-f35-production",
+  "release": "plaza-v19-f36-production",
   "qaCommit": "4f8f52516f672ad74923ec88312b47a37eb8e5ca",
   "mobileGround": true,
   "mobileSceneBudget": true,
   "continuousGpuProfiling": false,
-  "preparedAt": "2026-10-21T13:18:42.947699+00:00",
+  "preparedAt": "2026-10-22T09:31:55.002697+00:00",
   "changes": [
     "soft-consistent-skin-lighting",
     "unapproved-fashion-drafts-withdrawn",
@@ -31,7 +31,10 @@
     "v34-fitted-garments-in-live-plaza-and-shop",
     "18-fashion-parts-in-authoritative-catalogue",
     "super-admin-price-sale-status-with-audit-and-cas",
-    "new-fashion-purchases-wait-for-catalogue-admin-api"
+    "new-fashion-purchases-wait-for-catalogue-admin-api",
+    "actual-model-item-thumbnails",
+    "visit-scoped-multi-slot-fitting-cache",
+    "optimistic-owned-equip-with-server-rejection-rollback"
   ],
   "studio": {
     "version": "all-six-v34",
