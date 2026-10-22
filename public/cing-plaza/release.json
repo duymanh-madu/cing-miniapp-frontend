@@ -1,5 +1,5 @@
 {
-  "release": "plaza-v19-f34-production",
+  "release": "plaza-v19-f35-production",
   "qaCommit": "4f8f52516f672ad74923ec88312b47a37eb8e5ca",
   "mobileGround": true,
   "mobileSceneBudget": true,
@@ -27,7 +27,11 @@
     "shared-body-derived-waist-for-shirts-skirts-shorts",
     "body-surface-fitted-boy-collar-and-neck-weights",
     "blouse-contour-uv-and-chest-bow-placement",
-    "outer-layer-spacing-preserved-during-waist-fitting"
+    "outer-layer-spacing-preserved-during-waist-fitting",
+    "v34-fitted-garments-in-live-plaza-and-shop",
+    "18-fashion-parts-in-authoritative-catalogue",
+    "super-admin-price-sale-status-with-audit-and-cas",
+    "new-fashion-purchases-wait-for-catalogue-admin-api"
   ],
   "studio": {
     "version": "all-six-v34",
@@ -43,5 +47,12 @@
     "accountMutation": false,
     "cataloguePublished": false,
     "assetRevision": 1
+  },
+  "commerce": {
+    "fashionParts": 18,
+    "initialPriceCoin": 50,
+    "priceAuthority": "super_admin",
+    "saleStatusAuthority": "super_admin",
+    "requiresCatalogueApiVersion": 35
   }
 }
