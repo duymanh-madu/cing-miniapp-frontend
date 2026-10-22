@@ -131,6 +131,7 @@ export default function CingKdsProPage({
   busyCupIds = [],
   onRefresh = null,
   onTransition = null,
+  snapshotReady = false,
   previewMessage = ""
 }) {
   const [mode, setMode] = useState("preparation");
@@ -178,11 +179,12 @@ export default function CingKdsProPage({
   const ready =
     branch?.pos_parent &&
     branch?.pos_id &&
-    !loading &&
+    (!loading || snapshotReady) &&
     !error;
 
   const canMutate =
     ready &&
+    !loading &&
     isOnline &&
     typeof onTransition === "function";
 
@@ -242,15 +244,15 @@ export default function CingKdsProPage({
       <section className="ckds-summary" aria-label="Tổng quan vận hành">
         <div className="ckds-stat">
           <span>Cốc chờ / đang pha</span>
-          <strong>{preparation.length}</strong>
+          <strong>{ready ? preparation.length : "—"}</strong>
         </div>
         <div className="ckds-stat">
           <span>Chờ trả khách</span>
-          <strong>{serving.length}</strong>
+          <strong>{ready ? serving.length : "—"}</strong>
         </div>
         <div className="ckds-stat">
           <span>Cảnh báo SLA</span>
-          <strong>{alerts.length}</strong>
+          <strong>{ready ? alerts.length : "—"}</strong>
         </div>
       </section>
 

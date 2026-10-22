@@ -3,14 +3,9 @@ import apiClient from "@/infra/api/apiClient";
 import CingKdsProPage from "./CingKdsProPage";
 import "./CingKdsOperationsContainerV1.css";
 import {createKdsOperationsSessionV1} from "./cingKdsOperationsSessionV1.js";
+import {kdsOperationsStatusV1} from "./cingKdsOperationsStatusV1.js";
 
 const initial={snapshot:null,loading:false,error:"",connectionState:"offline",busyCupIds:[]};
-const messages={
-  KDS_OPS_READ_DISABLED:"Chi nhánh chưa được mở dữ liệu vận hành.",
-  KDS_OPS_FORBIDDEN:"Tài khoản chưa có quyền vận hành chi nhánh này.",
-  KDS_OPS_POLICY_REQUIRED:"Super Admin cần thiết lập ngưỡng SLA cho chi nhánh.",
-  KDS_OPS_UNAUTHORIZED:"Phiên quản trị đã hết hạn. Vui lòng đăng nhập lại.",
-};
 export default function CingKdsOperationsContainerV1({token}) {
   const [branches,setBranches]=useState([]),[selected,setSelected]=useState("");
   const [sessionState,setSessionState]=useState(initial),[notice,setNotice]=useState("");
@@ -59,6 +54,7 @@ export default function CingKdsOperationsContainerV1({token}) {
   },[selected,token,branches]);
 
   const snapshot=sessionState.snapshot;
+  const status=kdsOperationsStatusV1(sessionState.error);
   async function transition(command) {
     setNotice("");
     try {await session.current?.transition(command);}
@@ -83,8 +79,9 @@ export default function CingKdsOperationsContainerV1({token}) {
       </select></label>
       {snapshot && <span>Cập nhật: {new Date(snapshot.sampled_at).toLocaleTimeString("vi-VN")} · Làm mới mỗi 3 giây</span>}
     </div>
-    {(notice || sessionState.error) && <p role="status" className="ckds-banner">
-      {notice || messages[sessionState.error] || "Mất đồng bộ dữ liệu. Thao tác đã tạm khóa."}
+    {notice && <p role="status" className="ckds-banner">{notice}</p>}
+    {sessionState.error && !status.hold && <p role={status.hold?"status":"alert"} className={`ckds-banner${status.hold?"":" error"}`}>
+      {status.message}
     </p>}
     {branch?.can_manage_policy && <form onSubmit={savePolicy} className="ckds-live-controls">
       <label>Cảnh báo sau (phút) <input type="number" min="1" max="1439" required value={policy.warning}
@@ -98,9 +95,11 @@ export default function CingKdsOperationsContainerV1({token}) {
     <CingKdsProPage branch={snapshot?.branch || null}
       branchName={branch?`${branch.pos_parent} · ${branch.pos_id}`:"Chưa chọn chi nhánh"}
       {...sessionState} {...(snapshot || {})}
+      error={status.hold?"":sessionState.error}
+      snapshotReady={Boolean(snapshot)}
       onRefresh={()=>session.current?.refresh()}
       onTransition={snapshot?.transitionsEnabled?transition:null}
-      previewMessage="Đang chờ cấp quyền và mở dữ liệu vận hành cho chi nhánh."/>
+      previewMessage={sessionState.error && status.hold?status.message:"Đang chờ cấp quyền và mở dữ liệu vận hành cho chi nhánh."}/>
     {snapshot && <section className="ckds-panel">
       <h2>Lịch sử hoàn thành</h2>
       <form className="ckds-live-controls" onSubmit={event=>{
