@@ -8,7 +8,19 @@ export function adaptKdsOperationsSnapshotV1(data, branch) {
   const snapshot = buildKdsUiSnapshot({branch,ordersResponse:response(data.preparation),
     servingResponse:response(data.serving),alertsResponse:response(data.alerts),performanceResponse:response(data.performance)});
   const enabled = data.capabilities?.transitions_enabled === true;
-  return {...snapshot, history:data.history, policy:data.policy, sampled_at:data.sampled_at,
+  const seen=new Set();
+  const bills=(data.bills||[]).map(bill=>{
+    if(!bill.order_id || !Array.isArray(bill.cups) || !bill.cups.length)throw new Error("KDS_BILL_INVALID");
+    for(const cup of bill.cups){
+      if(!cup.cup_id || seen.has(cup.cup_id) || !["pending","preparing","prepared","served"].includes(cup.status))throw new Error("KDS_BILL_INVALID");
+      seen.add(cup.cup_id);
+      const row=[...snapshot.preparation,...snapshot.serving].find(c=>c.cup_id===cup.cup_id);
+      if(cup.status!=="served" && (!row || row.order_id!==bill.order_id || row.status!==cup.status || row.version!==cup.version))throw new Error("KDS_BILL_INVALID");
+    }
+    return bill;
+  });
+  if(data.bills && [...snapshot.preparation,...snapshot.serving].some(c=>!seen.has(c.cup_id)))throw new Error("KDS_BILL_INVALID");
+  return {...snapshot,bills, history:data.history, policy:data.policy, sampled_at:data.sampled_at,
     transitionsEnabled:enabled,
     preparation:snapshot.preparation.map(x=>({...x,transition_ready:enabled && x.version !== null})),
     serving:snapshot.serving.map(x=>({...x,transition_ready:enabled && x.version !== null}))};
@@ -18,8 +30,10 @@ export function adaptKdsOperationsSnapshotV1(data, branch) {
 // A failed request clears stale rows and locks mutations. No optimistic update.
 export function createKdsOperationsSessionV1({api,branch,onState,
   schedule=(fn,ms)=>setTimeout(fn,ms),cancel=id=>clearTimeout(id),
-  actionKey=()=>crypto.randomUUID(),intervalMs=3000}) {
-  let active=false,epoch=0,timer=null,inflight=null,dirty=false,snapshot=null,mutation=null;
+  actionKey=()=>crypto.randomUUID(),intervalMs=15000}) {
+  let streamAbort=null;
+  let active=false,epoch=0,timer=null,inflight=null,dirty=false,snapshot=null;
+  const mutations=new Map();
   const pendingActions=new Map();
   let failures=0;
   let historyRange={};
@@ -36,10 +50,11 @@ export function createKdsOperationsSessionV1({api,branch,onState,
     const running=(async()=>{
       do {
         dirty=false;
-        publish({loading:true});
+        if(!snapshot) publish({loading:true});
         try {
           const data=await api.snapshot(branch,historyRange,controller.signal);
           if(!active || epoch!==session) return;
+          if(snapshot && Date.parse(data.sampled_at)<Date.parse(snapshot.sampled_at))return;
           snapshot=adaptKdsOperationsSnapshotV1(data,branch);
           failures=0;
           publish({snapshot,loading:false,connectionState:"online",error:""});
@@ -54,12 +69,12 @@ export function createKdsOperationsSessionV1({api,branch,onState,
       } while(active && epoch===session && dirty);
     })();
     inflight={promise:running,abort:()=>controller.abort()};
-    try {await running;} finally { if(inflight?.promise===running) inflight=null; if(active && epoch===session) later(); }
+    try {await running;} finally { if(inflight?.promise===running) inflight=null; if(active && epoch===session && !api.events) later(); }
   }
   async function transition(command) {
-    if(!active || state.loading || mutation || !snapshot?.transitionsEnabled) throw new Error("KDS_MUTATION_DISABLED");
+    if(!active || mutations.has(command.cup_id) || !snapshot?.transitionsEnabled) throw new Error("KDS_MUTATION_DISABLED");
     const cup=[...snapshot.preparation,...snapshot.serving].find(x=>x.cup_id===command.cup_id);
-    const next={pending:"preparing",preparing:"prepared",prepared:"served"};
+    const next={pending:"prepared",preparing:"prepared",prepared:"served"};
     if(!cup?.transition_ready || cup.order_id!==command.order_id || next[cup.status]!==command.target_status)
       throw new Error("KDS_MUTATION_DISABLED");
     const previous=pendingActions.get(cup.cup_id);
@@ -69,9 +84,9 @@ export function createKdsOperationsSessionV1({api,branch,onState,
       pendingActions.delete(cup.cup_id); await refresh(); throw new Error("KDS_MUTATION_STALE");
     }
     pendingActions.set(cup.cup_id,payload);
-    const controller=new AbortController(); mutation=controller;
+    const controller=new AbortController(); mutations.set(cup.cup_id,controller);
     const session=epoch;
-    publish({busyCupIds:[cup.cup_id]});
+    publish({busyCupIds:[...mutations.keys()]});
     try {
       const result=await api.transition(branch,payload,controller.signal);
       if(result?.success!==true) throw new Error("KDS_MUTATION_UNCONFIRMED");
@@ -81,18 +96,35 @@ export function createKdsOperationsSessionV1({api,branch,onState,
       // For an ambiguous timeout, keep exactly the same idempotency key.
       throw e;
     } finally {
-      mutation=null;
-      if(active && epoch===session) { publish({busyCupIds:[]}); await refresh(); }
+      mutations.delete(cup.cup_id);
+      if(active && epoch===session) { publish({busyCupIds:[...mutations.keys()]}); await refresh(); }
     }
   }
   return {
-    start() {if(active)return;active=true;epoch++;return refresh();},
+    start() {if(active)return;active=true;epoch++;
+      if(api.events){
+        streamAbort=new AbortController();
+        const startEpoch=epoch;
+        void api.events(branch,()=>historyRange,streamAbort.signal, async(data)=>{
+          if(!active || startEpoch!==epoch)return;
+          try{if(snapshot && Date.parse(data.sampled_at)<Date.parse(snapshot.sampled_at))return;
+          snapshot=adaptKdsOperationsSnapshotV1(data,branch);failures=0;
+            publish({snapshot,loading:false,connectionState:"online",error:""});}
+          catch{snapshot=null;publish({snapshot:null,loading:false,connectionState:"offline",error:"KDS_OPS_UNAVAILABLE"});throw new Error("KDS_SNAPSHOT_INVALID");}
+        },()=>{
+          if(active && startEpoch===epoch){snapshot=null;publish({snapshot:null,loading:false,connectionState:"offline",error:"KDS_OPS_UNAVAILABLE"});}
+        });
+      }
+      if(api.events){publish({loading:true});return;}
+      return refresh();},
     refresh,transition,
-    setHistoryRange(value) {historyRange={...value};return refresh();},
-    disconnect() {epoch++;dirty=false;if(timer!==null)cancel(timer);timer=null;
-      inflight?.abort();inflight=null;mutation?.abort();snapshot=null;
+    reconnect() {this.stop();return this.start();},
+    setHistoryRange(value) {historyRange={...value};
+      if(api.events){this.stop();return this.start();}return refresh();},
+    disconnect() {streamAbort?.abort();streamAbort=null;epoch++;dirty=false;if(timer!==null)cancel(timer);timer=null;
+      inflight?.abort();inflight=null;for(const controller of mutations.values())controller.abort();mutations.clear();snapshot=null;
       publish({snapshot:null,loading:false,connectionState:"offline",error:"KDS_OPS_UNAVAILABLE",busyCupIds:[]});},
-    stop() {active=false;epoch++;dirty=false; if(timer!==null)cancel(timer);timer=null;
-      inflight?.abort();inflight=null;mutation?.abort();snapshot=null;},
+    stop() {streamAbort?.abort();streamAbort=null;active=false;epoch++;dirty=false; if(timer!==null)cancel(timer);timer=null;
+      inflight?.abort();inflight=null;for(const controller of mutations.values())controller.abort();mutations.clear();snapshot=null;},
   };
 }

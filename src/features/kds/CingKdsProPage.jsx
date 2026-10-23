@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import "./CingKdsProPage.css";
+import {buildKdsBillBoardV1} from "./cingKdsBillBoardV1.js";
 
 const MODES = [
   { id: "preparation", title: "Pha chế", Icon: ChefHat },
@@ -23,15 +24,15 @@ const MODES = [
 ];
 
 const STATUS_TEXT = {
-  pending: "Chờ pha",
-  preparing: "Đang pha",
+  pending: "Chưa pha xong",
+  preparing: "Chưa pha xong",
   prepared: "Pha xong",
   served: "Đã trả khách"
 };
 
 const NEXT = {
-  pending: { status: "preparing", label: "Bắt đầu pha" },
-  preparing: { status: "prepared", label: "Pha xong" },
+  pending: { status: "prepared", label: "Đã pha xong" },
+  preparing: { status: "prepared", label: "Đã pha xong" },
   prepared: { status: "served", label: "Đã trả khách" }
 };
 
@@ -56,7 +57,7 @@ function severityClass(value) {
 }
 
 function CupCard({ cup, mode, busy, onTransition }) {
-  const action = NEXT[cup.status];
+  const action = mode === "serving" ? (cup.status === "prepared" ? NEXT.prepared : null) : NEXT[cup.status];
 
   return (
     <article className={`ckds-cup ckds-${severityClass(cup.severity)}`}>
@@ -125,6 +126,7 @@ export default function CingKdsProPage({
   error = "",
   preparation = [],
   serving = [],
+  bills = [],
   groupCounts = [],
   alerts = [],
   performance = [],
@@ -134,6 +136,7 @@ export default function CingKdsProPage({
   snapshotReady = false,
   previewMessage = ""
 }) {
+  const [view,setView] = useState("bills");
   const [mode, setMode] = useState("preparation");
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("all");
@@ -142,7 +145,7 @@ export default function CingKdsProPage({
     mode === "preparation"
       ? preparation
       : mode === "serving"
-        ? serving
+        ? [...preparation,...serving]
         : [];
 
   const groups = useMemo(() => {
@@ -168,13 +171,15 @@ export default function CingKdsProPage({
         c.tran_no,
         c.item_name,
         c.item_group,
-        c.order_id
+        c.order_id, c.table_name, c.card_number
       ].some(v =>
         String(v || "").toLocaleLowerCase("vi").includes(term)
       );
     });
   }, [current, query, group]);
 
+  const billBoard = useMemo(()=>buildKdsBillBoardV1({preparation,serving,bills,mode,query,group}),[preparation,serving,bills,mode,query,group]);
+  const outstandingBills = new Set([...preparation,...serving].map(c=>c.order_id)).size;
   const isOnline = connectionState === "online";
   const ready =
     branch?.pos_parent &&
@@ -184,7 +189,6 @@ export default function CingKdsProPage({
 
   const canMutate =
     ready &&
-    !loading &&
     isOnline &&
     typeof onTransition === "function";
 
@@ -243,16 +247,16 @@ export default function CingKdsProPage({
 
       <section className="ckds-summary" aria-label="Tổng quan vận hành">
         <div className="ckds-stat">
-          <span>Cốc chờ / đang pha</span>
+          <span>Món chưa pha xong</span>
           <strong>{ready ? preparation.length : "—"}</strong>
         </div>
         <div className="ckds-stat">
-          <span>Chờ trả khách</span>
+          <span>Đã pha · chờ trả</span>
           <strong>{ready ? serving.length : "—"}</strong>
         </div>
         <div className="ckds-stat">
-          <span>Cảnh báo SLA</span>
-          <strong>{ready ? alerts.length : "—"}</strong>
+          <span>Hóa đơn chưa trả đủ · {alerts.length} cảnh báo SLA</span>
+          <strong>{ready ? outstandingBills : "—"}</strong>
         </div>
       </section>
 
@@ -288,7 +292,7 @@ export default function CingKdsProPage({
               <Search size={19} aria-hidden="true" />
               <input
                 aria-label="Tìm món hoặc số hóa đơn"
-                placeholder="Tìm số hóa đơn hoặc tên món..."
+                placeholder="Tìm hóa đơn, bàn, thẻ hoặc tên món..."
                 value={query}
                 onChange={e => setQuery(e.target.value)}
               />
@@ -306,21 +310,39 @@ export default function CingKdsProPage({
             </select>
           </div>
 
+          <div className="ckds-view-switch" role="group" aria-label="Cách xem danh sách">
+            <button type="button" aria-pressed={view==="bills"} onClick={()=>setView("bills")}>Theo hóa đơn</button>
+            <button type="button" aria-pressed={view==="groups"} onClick={()=>setView("groups")}>Theo nhóm món</button>
+          </div>
           <div className="ckds-section-heading">
             <div>
               <h2>
                 {mode === "preparation"
                   ? "Hàng chờ pha chế"
-                  : "Sẵn sàng trả khách"}
+                  : "Tiến độ pha và trả theo hóa đơn"}
               </h2>
-              <p>Hiển thị theo thứ tự từ máy chủ</p>
+              <p>Ưu tiên hóa đơn chờ lâu nhất · mỗi món thao tác riêng</p>
             </div>
-            <span>{visible.length} cốc</span>
+            <span>{billBoard.length} hóa đơn · {visible.length} món</span>
           </div>
 
-          {visible.length ? (
+          {view === "bills" && billBoard.length > 0 ? <div className="ckds-bill-grid">
+            {billBoard.map(bill=><article className="ckds-bill" key={bill.order_id}>
+              <header><strong>Hóa đơn {bill.tran_no || bill.order_id}</strong><span>{formatMinutes(bill.elapsed_minutes)}</span></header>
+              <p className="ckds-bill-location">{bill.table_name}{bill.card_number?` · Thẻ ${bill.card_number}`:""}</p>
+              <div className="ckds-bill-progress"><strong>{bill.progress}</strong>
+                <span>Đã pha {bill.completed}/{bill.total} · Đã trả {bill.served}/{bill.total}</span>
+                <progress aria-label={`Tiến độ hóa đơn ${bill.tran_no}`} value={bill.completed} max={bill.total}/>
+                <span>Còn {bill.unfinished} món chưa pha xong · {bill.ready} món chờ trả</span>
+              </div>
+              <div className="ckds-bill-items">{bill.visibleCups.map(cup=><CupCard key={cup.cup_id} cup={cup} mode={mode}
+                busy={!canMutate || busyCupIds.includes(cup.cup_id)} onTransition={canMutate?onTransition:null}/>)}</div>
+            </article>)}
+          </div> : view === "groups" && visible.length ? (
             <div className="ckds-grid">
-              {visible.map(cup => (
+              {[...new Set(visible.map(c=>c.item_group))].map(name=><section className="ckds-group-section" key={name}>
+                <h3>{name || "Chưa phân nhóm"} · {visible.filter(c=>c.item_group===name).length} món</h3>
+              {visible.filter(c=>c.item_group===name).map(cup => (
                 <CupCard
                   key={cup.cup_id}
                   cup={cup}
@@ -333,12 +355,12 @@ export default function CingKdsProPage({
                     canMutate ? onTransition : null
                   }
                 />
-              ))}
+              ))}</section>)}
             </div>
           ) : (
             <div className="ckds-empty">
               <PackageCheck size={34} aria-hidden="true" />
-              <strong>Không có cốc trong danh sách</strong>
+              <strong>Không có món trong danh sách</strong>
               <p>
                 {query || group !== "all"
                   ? "Hãy thay đổi bộ lọc tìm kiếm."
@@ -364,7 +386,7 @@ export default function CingKdsProPage({
                     : "Sắp quá hạn"}</strong>
                   <span>
                     {formatMinutes(alert.elapsed_minutes)}
-                    {" · "}{alert.remaining_cups} cốc chưa trả
+                    {" · "}{alert.remaining_cups} món chưa trả
                   </span>
                 </div>
               </div>

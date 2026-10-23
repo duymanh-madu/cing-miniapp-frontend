@@ -5,6 +5,8 @@ import "./CingKdsOperationsContainerV1.css";
 import {createKdsOperationsSessionV1} from "./cingKdsOperationsSessionV1.js";
 import {kdsOperationsStatusV1} from "./cingKdsOperationsStatusV1.js";
 
+import {consumeKdsEventsV1} from "./cingKdsEventStreamV1.js";
+
 const initial={snapshot:null,loading:false,error:"",connectionState:"offline",busyCupIds:[]};
 export default function CingKdsOperationsContainerV1({token}) {
   const [branches,setBranches]=useState([]),[selected,setSelected]=useState("");
@@ -39,11 +41,14 @@ export default function CingKdsOperationsContainerV1({token}) {
     const auth={Authorization:`Bearer ${token}`};
     const api={
       snapshot:async(b,history,signal)=>(await apiClient.get("/admin/kds/snapshot",{params:{...b,...history},headers:auth,signal,timeout:10000})).data,
+      events:(b,getHistory,signal,onSnapshot,onOffline)=>consumeKdsEventsV1({
+        url:()=>`${String(apiClient.defaults.baseURL||"/api").replace(/\/$/,"")}/admin/kds/events?${new URLSearchParams({...b,...getHistory()})}`,
+        headers:{...auth,Accept:"text/event-stream"},signal,onSnapshot,onOffline}),
       transition:async(b,body,signal)=>(await apiClient.post("/admin/kds/cups/transition",body,{params:b,headers:auth,signal,timeout:10000})).data
     };
     const coordinator=createKdsOperationsSessionV1({api,branch,onState:setSessionState});
     session.current=coordinator;coordinator.start();
-    const reconnect=()=>coordinator.refresh();
+    const reconnect=()=>coordinator.reconnect();
     const disconnect=()=>coordinator.disconnect();
     const visible=()=>{if(document.visibilityState==="visible")reconnect();};
     window.addEventListener("online",reconnect);
@@ -77,7 +82,7 @@ export default function CingKdsOperationsContainerV1({token}) {
         {branches.map(b=><option key={JSON.stringify([b.pos_parent,b.pos_id])}
           value={JSON.stringify([b.pos_parent,b.pos_id])}>{b.pos_parent} · {b.pos_id}</option>)}
       </select></label>
-      {snapshot && <span>Cập nhật: {new Date(snapshot.sampled_at).toLocaleTimeString("vi-VN")} · Làm mới mỗi 3 giây</span>}
+      {snapshot && <span>Cập nhật: {new Date(snapshot.sampled_at).toLocaleTimeString("vi-VN")} · Đồng bộ khi dữ liệu thay đổi</span>}
     </div>
     {notice && <p role="status" className="ckds-banner">{notice}</p>}
     {sessionState.error && !status.hold && <p role={status.hold?"status":"alert"} className={`ckds-banner${status.hold?"":" error"}`}>

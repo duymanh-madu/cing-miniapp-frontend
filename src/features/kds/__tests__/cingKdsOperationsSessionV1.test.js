@@ -36,14 +36,14 @@ test("stopping discards late responses and schedules nothing",async()=>{
 test("ambiguous mutation retries reuse exact action key and expected version, with no optimistic update",async()=>{
   const requests=[];let fail=true;
   const x=setup({snapshot:async()=>data(),transition:async(b,p)=>{requests.push({...p});if(fail)throw Error("timeout");return {success:true};}});
-  await x.session.start();const command={cup_id:"cup-test",order_id:"order-test",target_status:"preparing"};
+  await x.session.start();const command={cup_id:"cup-test",order_id:"order-test",target_status:"prepared"};
   await assert.rejects(x.session.transition(command));assert.equal(x.state.snapshot.preparation[0].status,"pending");
   fail=false;await x.session.transition(command);assert.deepEqual(requests[0],requests[1]);assert.equal(requests[0].expected_version,1);
   x.session.stop();
 });
 test("stale status, missing capability or wrong order blocks mutation",async()=>{
   let mutations=0;const x=setup({snapshot:async()=>data(),transition:()=>{mutations++;}});await x.session.start();
-  await assert.rejects(x.session.transition({cup_id:"cup-test",order_id:"forged",target_status:"preparing"}));
+  await assert.rejects(x.session.transition({cup_id:"cup-test",order_id:"forged",target_status:"prepared"}));
   await assert.rejects(x.session.transition({cup_id:"cup-test",order_id:"order-test",target_status:"served"}));
   assert.equal(mutations,0);x.session.stop();
 });

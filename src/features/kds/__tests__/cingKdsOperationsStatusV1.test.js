@@ -8,11 +8,12 @@ test("only explicit unopened gates are informational; auth/network failures rema
   for(const code of ["KDS_OPS_UNAVAILABLE","KDS_OPS_FORBIDDEN","KDS_OPS_UNAUTHORIZED","UNKNOWN"])
     assert.equal(kdsOperationsStatusV1(code).hold,false);
 });
-test("unavailable snapshot never displays zero counts; background loading preserves rows but blocks actions",()=>{
+test("unavailable snapshot never displays zero counts; background loading preserves rows and keeps current authorized actions operable",()=>{
   const page=fs.readFileSync(new URL("../CingKdsProPage.jsx",import.meta.url),"utf8");
   assert.ok(page.includes('ready ? preparation.length : "—"'));
   assert.ok(page.includes('(!loading || snapshotReady)'));
-  assert.ok(page.includes('ready &&\n    !loading &&'));
+  assert.ok(page.includes('ready &&\n    isOnline &&'));
+  assert.ok(!page.includes('ready &&\n    !loading &&'));
   const container=fs.readFileSync(new URL("../CingKdsOperationsContainerV1.jsx",import.meta.url),"utf8");
   assert.ok(container.includes('notice &&'));
   assert.ok(container.includes('sessionState.error &&'));
