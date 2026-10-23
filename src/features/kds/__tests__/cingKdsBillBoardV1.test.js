@@ -22,7 +22,7 @@ test('stream mode never schedules browser polling, background manual refresh kee
  const api={events:async(b,h,signal,onData,onOffline)=>{accept=onData;offline=onOffline;},snapshot:()=>new Promise(r=>{resolver=r;}),transition:async()=>({success:true})};
  const session=createKdsOperationsSessionV1({api,branch,onState:s=>state=s,schedule:fn=>scheduled.push(fn),cancel:()=>{}});
  session.start();await accept(snapshot());const before=state.snapshot;const refresh=session.refresh();assert.equal(state.loading,false);assert.equal(state.snapshot,before);
- resolver(snapshot());await refresh;assert.equal(scheduled.length,0);offline();assert.equal(state.snapshot,null);session.stop();
+ resolver(snapshot());await refresh;assert.equal(scheduled.length,0);offline();assert.ok(state.snapshot);assert.equal(state.connectionState,"offline");session.stop();
 });
 test('two different cups may finish concurrently; duplicate click on same cup is locked',async()=>{
  let accept,state;const pending=[];

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import apiClient from "@/infra/api/apiClient";
 import "./admin-dashboard-shell.css";
 import AdminStats from "./AdminStats";
 import AdminMissions from "./AdminMissions";
@@ -163,9 +164,18 @@ export default function AdminDashboard({ auth }) {
 
   const role = auth.admin?.role || "";
   const explicitRole = String(role).toLowerCase();
+  const [kdsAvailable,setKdsAvailable]=useState(false);
+  useEffect(()=>{
+    const controller=new AbortController();setKdsAvailable(false);
+    if(!auth.token || explicitRole==="super_admin")return;
+    apiClient.get("/admin/kds/branches",{headers:{Authorization:`Bearer ${auth.token}`},signal:controller.signal})
+      .then(({data})=>{if(!controller.signal.aborted)setKdsAvailable(data?.success===true && Array.isArray(data.data?.branches) && data.data.branches.length>0);})
+      .catch(()=>{if(!controller.signal.aborted)setKdsAvailable(false);});
+    return()=>controller.abort();
+  },[auth.token,explicitRole]);
   const TABS = [
     ...getAllowedTabs(role),
-    ...(explicitRole === "super_admin" ? [KDS_PREVIEW_TAB] : []),
+    ...((explicitRole === "super_admin" || kdsAvailable) ? [KDS_PREVIEW_TAB] : []),
   ];
   const [tab, setTab] = useState(TABS[0]?.key || "");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -277,7 +287,7 @@ export default function AdminDashboard({ auth }) {
         {activeTab==="wallet_pos" && <AdminWalletPosCounter token={auth.token} role={auth.admin?.role} />}
         {activeTab==="system_health" && <AdminSystemHealth token={auth.token} />}
         {activeTab==="kds_preview" && (
-          <CingKdsOperationsContainerV1 token={auth.token} />
+          <CingKdsOperationsContainerV1 token={auth.token} role={role} />
         )}
         {activeTab==="analytics_pro" && <AdminAnalytics token={auth.token} />}
         {activeTab==="management"    && <AdminManagement token={auth.token} />}

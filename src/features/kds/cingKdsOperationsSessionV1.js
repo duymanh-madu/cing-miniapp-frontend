@@ -20,18 +20,18 @@ export function adaptKdsOperationsSnapshotV1(data, branch) {
     return bill;
   });
   if(data.bills && [...snapshot.preparation,...snapshot.serving].some(c=>!seen.has(c.cup_id)))throw new Error("KDS_BILL_INVALID");
-  return {...snapshot,bills, history:data.history, policy:data.policy, sampled_at:data.sampled_at,
+  return {...snapshot,bills,history_range:data.history_range,duration_filter:data.duration_filter, history:data.history, policy:data.policy, sampled_at:data.sampled_at,
     transitionsEnabled:enabled,
-    preparation:snapshot.preparation.map(x=>({...x,transition_ready:enabled && x.version !== null})),
-    serving:snapshot.serving.map(x=>({...x,transition_ready:enabled && x.version !== null}))};
+    preparation:snapshot.preparation.map(x=>({...x,transition_ready:enabled && data.capabilities?.can_prepare !== false && x.version !== null})),
+    serving:snapshot.serving.map(x=>({...x,transition_ready:enabled && data.capabilities?.can_serve !== false && x.version !== null}))};
 }
 
 // One settled request at a time. Server snapshots replace all local data.
 // A failed request clears stale rows and locks mutations. No optimistic update.
 export function createKdsOperationsSessionV1({api,branch,onState,
   schedule=(fn,ms)=>setTimeout(fn,ms),cancel=id=>clearTimeout(id),
-  actionKey=()=>crypto.randomUUID(),intervalMs=15000}) {
-  let streamAbort=null;
+  actionKey=()=>crypto.randomUUID(),intervalMs=5000}) {
+  let streamAbort=null,streamHealthy=false;
   let active=false,epoch=0,timer=null,inflight=null,dirty=false,snapshot=null;
   const mutations=new Map();
   const pendingActions=new Map();
@@ -57,19 +57,20 @@ export function createKdsOperationsSessionV1({api,branch,onState,
           if(snapshot && Date.parse(data.sampled_at)<Date.parse(snapshot.sampled_at))return;
           snapshot=adaptKdsOperationsSnapshotV1(data,branch);
           failures=0;
-          publish({snapshot,loading:false,connectionState:"online",error:""});
+          publish({snapshot,loading:false,connectionState:"online",error:"",syncNotice:streamHealthy?"":"Đang dùng kết nối dự phòng để duy trì đồng bộ."});
         } catch(e) {
           if(!active || epoch!==session) return;
-          snapshot=null;
           failures++;
           const code=e?.response?.data?.code;
-          publish({snapshot:null,loading:false,connectionState:"offline",
-            error:/^KDS_OPS_[A-Z_]+$/.test(code||"")?code:"KDS_OPS_UNAVAILABLE"});
+          const authority=/^KDS_OPS_(FORBIDDEN|UNAUTHORIZED|SOURCE_STALE|READ_DISABLED|POLICY_REQUIRED)$/.test(code||"");
+          if(authority || !api.events) snapshot=null;
+          publish({snapshot,loading:false,connectionState:"offline",syncNotice:snapshot?"Đang nối lại kết nối. Dữ liệu giữ nguyên; thao tác tạm khóa.":"",
+            error:snapshot?"":/^KDS_OPS_[A-Z_]+$/.test(code||"")?code:"KDS_OPS_UNAVAILABLE"});
         }
       } while(active && epoch===session && dirty);
     })();
     inflight={promise:running,abort:()=>controller.abort()};
-    try {await running;} finally { if(inflight?.promise===running) inflight=null; if(active && epoch===session && !api.events) later(); }
+    try {await running;} finally { if(inflight?.promise===running) inflight=null; if(active && epoch===session && (!api.events || !streamHealthy)) later(); }
   }
   async function transition(command) {
     if(!active || mutations.has(command.cup_id) || !snapshot?.transitionsEnabled) throw new Error("KDS_MUTATION_DISABLED");
@@ -107,15 +108,21 @@ export function createKdsOperationsSessionV1({api,branch,onState,
         const startEpoch=epoch;
         void api.events(branch,()=>historyRange,streamAbort.signal, async(data)=>{
           if(!active || startEpoch!==epoch)return;
-          try{if(snapshot && Date.parse(data.sampled_at)<Date.parse(snapshot.sampled_at))return;
+          try{streamHealthy=true;if(timer!==null){cancel(timer);timer=null;}if(snapshot && Date.parse(data.sampled_at)<Date.parse(snapshot.sampled_at))return;
           snapshot=adaptKdsOperationsSnapshotV1(data,branch);failures=0;
-            publish({snapshot,loading:false,connectionState:"online",error:""});}
+            publish({snapshot,loading:false,connectionState:"online",error:"",syncNotice:streamHealthy?"":"Đang dùng kết nối dự phòng để duy trì đồng bộ."});}
           catch{snapshot=null;publish({snapshot:null,loading:false,connectionState:"offline",error:"KDS_OPS_UNAVAILABLE"});throw new Error("KDS_SNAPSHOT_INVALID");}
-        },()=>{
-          if(active && startEpoch===epoch){snapshot=null;publish({snapshot:null,loading:false,connectionState:"offline",error:"KDS_OPS_UNAVAILABLE"});}
+        },(reason={})=>{
+          if(active && startEpoch===epoch){streamHealthy=false;
+            const authority=/^KDS_OPS_(FORBIDDEN|UNAUTHORIZED|SOURCE_STALE|READ_DISABLED|POLICY_REQUIRED)$/.test(reason.code||"");
+            if(authority)snapshot=null;
+            publish({snapshot,loading:false,connectionState:"offline",error:authority?reason.code:"",
+              syncNotice:snapshot?"Đang khôi phục kết nối; dữ liệu được giữ nguyên.":""});
+            void refresh();
+          }
         });
       }
-      if(api.events){publish({loading:true});return;}
+      if(api.events){publish({loading:!snapshot});return;}
       return refresh();},
     refresh,transition,
     reconnect() {this.stop();return this.start();},
@@ -124,7 +131,7 @@ export function createKdsOperationsSessionV1({api,branch,onState,
     disconnect() {streamAbort?.abort();streamAbort=null;epoch++;dirty=false;if(timer!==null)cancel(timer);timer=null;
       inflight?.abort();inflight=null;for(const controller of mutations.values())controller.abort();mutations.clear();snapshot=null;
       publish({snapshot:null,loading:false,connectionState:"offline",error:"KDS_OPS_UNAVAILABLE",busyCupIds:[]});},
-    stop() {streamAbort?.abort();streamAbort=null;active=false;epoch++;dirty=false; if(timer!==null)cancel(timer);timer=null;
+    stop() {streamHealthy=false;streamAbort?.abort();streamAbort=null;active=false;epoch++;dirty=false; if(timer!==null)cancel(timer);timer=null;
       inflight?.abort();inflight=null;for(const controller of mutations.values())controller.abort();mutations.clear();snapshot=null;},
   };
 }

@@ -5,10 +5,14 @@ import "./CingKdsOperationsContainerV1.css";
 import {createKdsOperationsSessionV1} from "./cingKdsOperationsSessionV1.js";
 import {kdsOperationsStatusV1} from "./cingKdsOperationsStatusV1.js";
 
+import CingKdsAccessPanelV1 from "./CingKdsAccessPanelV1";
+import {downloadKdsCsvV1} from "./cingKdsCsvReportsV1.js";
 import {consumeKdsEventsV1} from "./cingKdsEventStreamV1.js";
 
 const initial={snapshot:null,loading:false,error:"",connectionState:"offline",busyCupIds:[]};
-export default function CingKdsOperationsContainerV1({token}) {
+export default function CingKdsOperationsContainerV1({token,role=""}) {
+  const [workspaceView,setWorkspaceView]=useState("operations");
+  const [managementBranch,setManagementBranch]=useState(null);
   const [branches,setBranches]=useState([]),[selected,setSelected]=useState("");
   const [sessionState,setSessionState]=useState(initial),[notice,setNotice]=useState("");
   const [range,setRange]=useState({from:"",to:"",durationMin:"",durationMax:""});
@@ -20,7 +24,7 @@ export default function CingKdsOperationsContainerV1({token}) {
 
   useEffect(()=>{
     let active=true;const controller=new AbortController();
-    setBranches([]);setSelected("");setSessionState(initial);setNotice("");
+    setBranches([]);setManagementBranch(null);setSelected("");setSessionState(initial);setNotice("");
     if(!token) {setNotice("Vui lòng đăng nhập quản trị.");return;}
     apiClient.get("/admin/kds/branches",{headers:{Authorization:`Bearer ${token}`},signal:controller.signal})
       .then(({data})=>{
@@ -29,10 +33,13 @@ export default function CingKdsOperationsContainerV1({token}) {
         const rows=data.data.branches;
         setBranches(rows);
         if(rows.length===1)setSelected(JSON.stringify([rows[0].pos_parent,rows[0].pos_id]));
-        if(!rows.length)setNotice("Tài khoản chưa được cấp quyền KDS cho chi nhánh nào.");
+        if(!rows.length){setNotice("Tài khoản chưa được cấp quyền xem dữ liệu KDS cho chi nhánh nào.");
+          if(String(role).toLowerCase()==="super_admin")apiClient.get("/admin/kds/access/branches",{headers:{Authorization:`Bearer ${token}`},signal:controller.signal})
+            .then(({data})=>{if(active && data?.success)setManagementBranch(data.data?.branches?.[0]||null);}).catch(()=>{});
+        }
       }).catch(()=>{if(active)setNotice("Không thể tải quyền chi nhánh. Vui lòng kiểm tra phiên quản trị và thử lại.");});
     return()=>{active=false;controller.abort();};
-  },[token]);
+  },[token,role]);
 
   useEffect(()=>{
     setSessionState(initial);setPolicy({warning:"",critical:""});
@@ -84,11 +91,17 @@ export default function CingKdsOperationsContainerV1({token}) {
       </select></label>
       {snapshot && <span>Cập nhật: {new Date(snapshot.sampled_at).toLocaleTimeString("vi-VN")} · Đồng bộ khi dữ liệu thay đổi</span>}
     </div>
+    <nav className="ckds-view-switch" aria-label="Chức năng KDS">
+      <button type="button" aria-pressed={workspaceView==="operations"} onClick={()=>setWorkspaceView("operations")}>Vận hành</button>
+      <button type="button" aria-pressed={workspaceView==="reports"} onClick={()=>setWorkspaceView("reports")}>Báo cáo / Xuất file</button>
+      {String(role).toLowerCase()==="super_admin" && <button type="button" aria-pressed={workspaceView==="access"} onClick={()=>setWorkspaceView("access")}>Phân quyền admin / SLA</button>}
+    </nav>
+    {sessionState.syncNotice && <p role="status" className="ckds-banner">{sessionState.syncNotice}</p>}
     {notice && <p role="status" className="ckds-banner">{notice}</p>}
     {sessionState.error && !status.hold && <p role={status.hold?"status":"alert"} className={`ckds-banner${status.hold?"":" error"}`}>
       {status.message}
     </p>}
-    {branch?.can_manage_policy && <form onSubmit={savePolicy} className="ckds-live-controls">
+    {workspaceView==="access" && branch?.can_manage_policy && <form onSubmit={savePolicy} className="ckds-live-controls">
       <label>Cảnh báo sau (phút) <input type="number" min="1" max="1439" required value={policy.warning}
         placeholder={snapshot?.policy?.warning_minutes || "Nhập ngưỡng"}
         onChange={e=>setPolicy({...policy,warning:e.target.value})}/></label>
@@ -97,7 +110,7 @@ export default function CingKdsOperationsContainerV1({token}) {
         onChange={e=>setPolicy({...policy,critical:e.target.value})}/></label>
       <button disabled={saving} type="submit">{saving?"Đang lưu…":"Lưu SLA"}</button>
     </form>}
-    <CingKdsProPage branch={snapshot?.branch || null}
+    <div hidden={workspaceView!=="operations"}><CingKdsProPage branch={snapshot?.branch || null}
       branchName={branch?`${branch.pos_parent} · ${branch.pos_id}`:"Chưa chọn chi nhánh"}
       {...sessionState} {...(snapshot || {})}
       error={status.hold?"":sessionState.error}
@@ -105,8 +118,15 @@ export default function CingKdsOperationsContainerV1({token}) {
       onRefresh={()=>session.current?.refresh()}
       onTransition={snapshot?.transitionsEnabled?transition:null}
       previewMessage={sessionState.error && status.hold?status.message:"Đang chờ cấp quyền và mở dữ liệu vận hành cho chi nhánh."}/>
-    {snapshot && <section className="ckds-panel">
-      <h2>Lịch sử hoàn thành</h2>
+    </div>
+    {workspaceView==="access" && String(role).toLowerCase()==="super_admin" && (branch||managementBranch) && <CingKdsAccessPanelV1 token={token} branch={branch||managementBranch}/>}
+    {workspaceView==="reports" && snapshot && <section className="ckds-panel">
+      <h2>Báo cáo và lịch sử hoàn thành</h2>
+      <p>Lọc theo ngày hoàn thành, tối đa 31 ngày mỗi lần. File CSV mở được bằng Excel.</p>
+      <div className="ckds-live-controls">{[["summary","Xuất tổng hợp"],["completed","Xuất chi tiết hóa đơn"],["active","Xuất đơn đang phục vụ"]].map(([kind,label])=>
+        <button key={kind} type="button" disabled={sessionState.connectionState!=="online" || sessionState.loading || !snapshot.history_range}
+          onClick={()=>{try{downloadKdsCsvV1(snapshot,kind);}catch{setNotice("Chưa thể xuất báo cáo. Hãy đồng bộ dữ liệu trước.");}}}>{label} (CSV)</button>)}</div>
+      <p>Khoảng dữ liệu đã áp dụng: {snapshot.history_range?`${new Date(snapshot.history_range.from).toLocaleString("vi-VN")} → ${new Date(snapshot.history_range.to).toLocaleString("vi-VN")}`:"Đang tải"}</p>
       <form className="ckds-live-controls" onSubmit={event=>{
         event.preventDefault();
         if(!range.from || !range.to)return;
