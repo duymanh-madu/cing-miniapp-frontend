@@ -1,4 +1,5 @@
 import apiClient from "@/infra/api/apiClient";
+import { recoverBackendAuthSession } from "@/infra/auth/authRecovery";
 import { getCanonicalAccessToken } from "@/infra/auth/persistedAuthSession";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 import useAuthStore from "@/stores/auth/authStore";
@@ -10,7 +11,7 @@ const phoneOf = value => String(value || "").replace(/\D/g, "").replace(/^84/, "
 let startCount = 0;
 export function startLiveMembershipSync() {
   if (startCount++) return () => {};
-  let socket = null, owner = "", token = "", timer = null;
+  let socket = null, owner = "", token = "", timer = null, lastRecoveryAt = 0;
   const currentOwner = () => {
     if (!getCanonicalAccessToken()) return "";
     const identity = useRuntimeCustomerIdentityStore.getState().identity;
@@ -21,10 +22,21 @@ export function startLiveMembershipSync() {
   const coordinator = createLiveBalanceCoordinator({
     currentOwner,
     read: async (_owner, {signal}) => {
-      const response = await apiClient.get("/membership/balance/current", {
-        signal,
-        headers: {Authorization: `Bearer ${getCanonicalAccessToken()}`},
-      });
+      let response;
+      try {
+        response = await apiClient.get("/membership/balance/current", {
+          signal,
+          headers: {Authorization: `Bearer ${getCanonicalAccessToken()}`},
+        });
+      } catch (error) {
+        if (error.response?.status === 401 && !signal.aborted && currentOwner() === _owner && Date.now() - lastRecoveryAt > 60000) {
+          lastRecoveryAt = Date.now();
+          // Existing single-flight recovery owns persistence. Its auth-store
+          // update schedules a new fenced read; never replay a mutation here.
+          await recoverBackendAuthSession();
+        }
+        throw error;
+      }
       if (response.data?.success !== true) throw new Error("BALANCE_NOT_CONFIRMED");
       return response.data.data;
     },
