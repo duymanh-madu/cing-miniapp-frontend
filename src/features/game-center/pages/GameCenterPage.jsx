@@ -1,3 +1,4 @@
+import "./GameCenterV3.css";
 import "../../plaza/pages/PlazaEntryCardV7.css";
 import { Link as PlazaEntryLinkV5 } from "react-router-dom";
 
@@ -652,19 +653,69 @@ export default function GameCenterPage() {
   }
 
   return (
-    <div style={{ minHeight:"100vh", background:"linear-gradient(180deg,#0a0a0f 0%,#12071a 50%,#0d0d1a 100%)", paddingBottom:100 }}>
+    <div className="cing-game-center-v3" style={{ minHeight:"100vh", background:"linear-gradient(180deg,#0a0a0f 0%,#12071a 50%,#0d0d1a 100%)", paddingBottom:100 }}>
       {/* HEADER */}
-      <div style={{ padding:"16px 20px 16px", paddingTop:"max(env(safe-area-inset-top,0px) + 12px, 52px)", textAlign:"center" }}>
+      <div className="cing-game-center-header" style={{ padding:"16px 20px 16px", paddingTop:"max(env(safe-area-inset-top,0px) + 12px, 52px)", textAlign:"center" }}>
         <p style={{ color:"rgba(255,215,0,0.6)", fontSize:11, letterSpacing:4, fontWeight:700, margin:"0 0 6px", textTransform:"uppercase" }}>Cing Hu Tang Kinh Bắc</p>
-        <h1 style={{ color:"white", fontSize:28, fontWeight:900, margin:0, letterSpacing:2, textShadow:"0 0 40px rgba(255,215,0,0.3)" }}>GAME CENTER</h1>
-        <button onClick={() => requireMember(() => setShowAlltimeLB(true))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"7px 14px", fontSize:12, fontWeight:800, cursor:"pointer", marginTop:8 }}>🏆 Kỷ lục alltime</button>
+        <h1 style={{ color:"white", fontSize:28, fontWeight:900, margin:0, letterSpacing:2, textShadow:"0 0 40px rgba(255,215,0,0.3)" }}>Game Center</h1>
+        <button onClick={() => requireMember(() => setShowAlltimeLB(true))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"7px 14px", fontSize:12, fontWeight:800, cursor:"pointer", marginTop:8 }}>🏆 Bảng kỷ lục</button>
         <p style={{ color:"rgba(255,255,255,0.3)", fontSize:12, margin:"6px 0 0" }}>Nơi các Cing iu thoả sức so tài</p>
       </div>
 
 
+      {/* GAME LIST */}
+      <div className="cing-game-library" style={{ padding:"0 16px" }}>
+        <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, fontWeight:700, letterSpacing:3, margin:"0 0 12px", textTransform:"uppercase" }}>Trò Chơi</p>
+        {games.map(game => (
+          <div className="cing-game-card" key={game.id} style={{ background:"linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))", border:"1px solid rgba(255,255,255,0.08)", borderRadius:20, padding:"20px", marginBottom:12, display:"flex", alignItems:"center", gap:16 }}>
+            <div style={{ width:64, height:64, borderRadius:18, flexShrink:0, background:"linear-gradient(135deg,#1a0a2e,#2d1254)", border:"1px solid rgba(255,215,0,0.2)", display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
+              {game.iconUrl ? (
+                <img src={game.iconUrl} alt="" style={{ width:58, height:58, objectFit:"contain", display:"block" }} />
+              ) : (
+                <span style={{ fontSize:28 }}>{game.iconFallback || "🎮"}</span>
+              )}
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>{game.displayName || game.name}</p>
+                {game.status==="LIVE" && <span style={{ background:"rgba(0,255,100,0.15)", color:"#00ff64", fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8, letterSpacing:1 }}>LIVE</span>}
+                {(FREE_START_GAME_KEYS.has(game.id) || getGameEconomy(game.id)?.play_cost === 0) && (
+                  <span style={{ background:"rgba(0,255,150,0.12)", color:"#00e99a", fontSize:9, fontWeight:900, padding:"2px 7px", borderRadius:8, border:"1px solid rgba(0,255,150,0.22)" }}>
+                    ♾ MIỄN PHÍ
+                  </span>
+                )}
+              </div>
+              <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>
+                {game.description || "Thử thách phản xạ — ghi điểm cao nhất"}
+              </p>
+              <div style={{ display:"flex", gap:8 }}>
+                <button onClick={() => handlePlayGame(game.id)} style={{ background:"linear-gradient(135deg,#D4531C,#ff6b35)", color:"white", border:"none", borderRadius:10, padding:"8px 18px", fontSize:12, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 15px rgba(212,83,28,0.4)" }}>Chơi ngay</button>
+                {game.leaderboardEnabled !== false && (
+                  <button onClick={() => requireMember(() => setShowBoard(game.id))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {authenticated &&
+        isActivated &&
+        /^0[0-9]{9}$/.test(getPhone()) && (
+        <ReviveCreditStorefrontV2
+          key={getPhone()}
+          userId={getPhone()}
+          refreshSignal={
+            reviveBalanceRefreshSignal
+          }
+        />
+      )}
+
+
       {/* DAILY CHALLENGE */}
       {MemberPrompt}
-      <div style={{ margin:"0 16px 20px" }}>
+      {challenges.length > 0 && (
+      <div className="cing-game-challenges" style={{ margin:"0 16px 20px" }}>
         <p style={{ color:"#FFD700", fontSize:11, fontWeight:800, margin:"0 0 10px", letterSpacing:2 }}>🎯 THÁCH THỨC HÔM NAY</p>
         {challenges.map((c, idx) => (
           <div key={idx} style={{
@@ -696,14 +747,15 @@ export default function GameCenterPage() {
           </div>
         ))}
       </div>
+      )}
 
       {/* ── NHIỆM VỤ NGÀY ── */}
       {missions.length > 0 && (
-        <div style={{ margin:"0 16px 16px" }}>
+        <div className="cing-game-missions" style={{ margin:"0 16px 16px" }}>
           <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, fontWeight:700, letterSpacing:3, margin:"0 0 10px", textTransform:"uppercase" }}>📋 Nhiệm Vụ Hôm Nay</p>
           <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
             {missions.map((m, i) => (
-              <div key={i} style={{ background: m.completed ? "rgba(76,175,80,0.1)" : "rgba(255,255,255,0.05)",
+              <div className="cing-game-mission" key={i} style={{ background: m.completed ? "rgba(76,175,80,0.1)" : "rgba(255,255,255,0.05)",
                 border:`1px solid ${m.completed ? "rgba(76,175,80,0.3)" : "rgba(255,255,255,0.08)"}`,
                 borderRadius:14, padding:"12px 16px", display:"flex", alignItems:"center", gap:12 }}>
                 <span style={{ fontSize:24, flexShrink:0 }}>{m.icon}</span>
@@ -756,16 +808,6 @@ export default function GameCenterPage() {
         </div>
       )}
 
-      {authenticated &&
-        isActivated &&
-        /^0[0-9]{9}$/.test(getPhone()) && (
-        <ReviveCreditStorefrontV2
-          userId={getPhone()}
-          refreshSignal={
-            reviveBalanceRefreshSignal
-          }
-        />
-      )}
 
       {/* Plaza requires both its own release flag and existing legal gate. */}
       {import.meta.env.VITE_CING_PLAZA_ENABLED === "true" &&
@@ -773,41 +815,7 @@ export default function GameCenterPage() {
         <PlazaEntryLinkV5 to="/plaza" className="cing-plaza-entry-v7"><div><small>KHÔNG GIAN KẾT NỐI</small><h2>Cing Plaza<span>✦</span></h2><p>Gặp gỡ, tương tác, pk game và cùng nhau trò chuyện</p><strong>Khám phá Plaza ↗</strong></div><img src="/cing-plaza/assets/v7/girl-portrait.webp" alt=""/></PlazaEntryLinkV5>
       )}
 
-      {/* GAME LIST */}
-      <div style={{ padding:"0 16px" }}>
-        <p style={{ color:"rgba(255,255,255,0.4)", fontSize:11, fontWeight:700, letterSpacing:3, margin:"0 0 12px", textTransform:"uppercase" }}>Trò Chơi</p>
-        {games.map(game => (
-          <div key={game.id} style={{ background:"linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))", border:"1px solid rgba(255,255,255,0.08)", borderRadius:20, padding:"20px", marginBottom:12, display:"flex", alignItems:"center", gap:16 }}>
-            <div style={{ width:64, height:64, borderRadius:18, flexShrink:0, background:"linear-gradient(135deg,#1a0a2e,#2d1254)", border:"1px solid rgba(255,215,0,0.2)", display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
-              {game.iconUrl ? (
-                <img src={game.iconUrl} alt="" style={{ width:58, height:58, objectFit:"contain", display:"block" }} />
-              ) : (
-                <span style={{ fontSize:28 }}>{game.iconFallback || "🎮"}</span>
-              )}
-            </div>
-            <div style={{ flex:1 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
-                <p style={{ color:"white", fontSize:15, fontWeight:800, margin:0 }}>{game.displayName || game.name}</p>
-                {game.status==="LIVE" && <span style={{ background:"rgba(0,255,100,0.15)", color:"#00ff64", fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:8, letterSpacing:1 }}>LIVE</span>}
-                {(FREE_START_GAME_KEYS.has(game.id) || getGameEconomy(game.id)?.play_cost === 0) && (
-                  <span style={{ background:"rgba(0,255,150,0.12)", color:"#00e99a", fontSize:9, fontWeight:900, padding:"2px 7px", borderRadius:8, border:"1px solid rgba(0,255,150,0.22)" }}>
-                    ♾ MIỄN PHÍ
-                  </span>
-                )}
-              </div>
-              <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, margin:"0 0 12px" }}>
-                {game.description || "Thử thách phản xạ — ghi điểm cao nhất"}
-              </p>
-              <div style={{ display:"flex", gap:8 }}>
-                <button onClick={() => handlePlayGame(game.id)} style={{ background:"linear-gradient(135deg,#D4531C,#ff6b35)", color:"white", border:"none", borderRadius:10, padding:"8px 18px", fontSize:12, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 15px rgba(212,83,28,0.4)" }}>Chơi ngay</button>
-                {game.leaderboardEnabled !== false && (
-                  <button onClick={() => requireMember(() => setShowBoard(game.id))} style={{ background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.3)", color:"#FFD700", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>🏆 BXH</button>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+
 
       {/* CHESS — multiplayer legal gate */}
       {customerMultiplayerEnabled && (

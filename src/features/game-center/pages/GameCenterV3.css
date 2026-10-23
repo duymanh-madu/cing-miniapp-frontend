@@ -1,0 +1,43 @@
+.cing-game-center-v3 {color:#f3f5ff; font-family:inherit; isolation:isolate; background:radial-gradient(ellipse at 90% 0%,#222b50 0%,transparent 42%),#0c1020!important;}
+.cing-game-center-v3 button,.cing-game-center-v3 summary {-webkit-tap-highlight-color:transparent; touch-action:manipulation;}
+.cing-game-center-v3 button:focus-visible,.cing-game-center-v3 summary:focus-visible {outline:3px solid #a9c6ff;outline-offset:3px;}
+.cing-game-center-header {text-align:left!important; max-width:720px; margin:auto; padding-bottom:24px!important;}
+.cing-game-center-header>p:first-child {letter-spacing:2px!important;color:#abb8dd!important;font-size:10px!important;}
+.cing-game-center-header h1 {font-size:30px!important;letter-spacing:-1px!important;text-shadow:none!important;line-height:1.2;}
+.cing-game-center-header>p:last-child {color:#a0abc7!important;line-height:1.5;margin-top:10px!important;}
+.cing-game-center-header>button {float:right;margin-top:-32px!important;color:#ffd9a5!important;border-color:#62503f!important;}
+.cing-game-library,.cing-game-missions,.cing-game-challenges {max-width:720px;box-sizing:border-box;margin-left:auto!important;margin-right:auto!important;}
+.cing-game-missions,.cing-game-challenges {padding:0 16px;}
+.cing-game-library>p,.cing-game-missions>p,.cing-game-challenges>p {letter-spacing:1.4px!important;color:#a9b6d5!important;}
+.cing-game-card {border-radius:18px!important;background:linear-gradient(125deg,#202b48,#151c30)!important;box-shadow:0 7px 24px #0002;padding:16px!important; margin-bottom:12px!important;}
+.cing-game-card button {min-height:44px;}
+.cing-game-mission {padding:11px 12px!important; min-height:64px;box-sizing:border-box;border-radius:12px!important;background:#151d31!important;}
+.cing-game-mission>div {min-width:0;}
+.cing-game-mission p {line-height:1.5;}
+.cing-game-mission p:last-child {color:#a9b2c8!important;}
+.cing-game-mission>span:last-child {color:#9ba7c2!important;white-space:nowrap;}
+.cing-revive-store {margin:4px auto 20px;max-width:688px;width:calc(100% - 32px);box-sizing:border-box;border:1px solid #584731;border-radius:16px;background:linear-gradient(120deg,#30251e,#1a1d2d);color:#fff1dc;overflow:hidden;}
+.cing-revive-summary {display:flex;align-items:center;gap:10px;padding:14px 12px;cursor:pointer;list-style:none;min-height:72px;box-sizing:border-box;}
+.cing-revive-summary::-webkit-details-marker {display:none;}
+.cing-revive-label {flex:1;min-width:0;}
+.cing-revive-label strong {display:block;font-size:14px;font-weight:800;line-height:1.4;}
+.cing-revive-label small {display:block;font-size:10px;color:#c4b9ae;line-height:1.5;margin-top:2px;}
+.cing-revive-balance {font-size:23px;font-weight:850;letter-spacing:-.5px;line-height:1.1;text-align:center;font-variant-numeric:tabular-nums;}
+.cing-revive-balance small {display:block;font-size:10px;font-weight:500;color:#c4b9ae;letter-spacing:0;margin-top:4px;}
+.cing-revive-action {font-size:11px;font-weight:750;background:#f3c27d;color:#342312;border-radius:9px;padding:10px 9px;white-space:nowrap;}
+.cing-revive-expanded {border-top:1px solid #ffffff12;padding:12px;}
+.cing-revive-expanded>p {font-size:12px;line-height:1.5;color:#c4bec0;margin:0 0 12px;}
+.cing-revive-packages {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.cing-revive-packages button {border:1px solid #ffffff24;background:#ffffff06;border-radius:10px;color:#fff2da;min-height:48px;font-size:16px;font-weight:800;}
+.cing-revive-packages button[aria-pressed=true] {border-color:#f3c27d;background:#b8792a2e;}
+.cing-revive-packages small {font-size:10px;font-weight:500;margin-left:4px;}
+.cing-revive-expanded section[aria-label="Mua Thẻ hồi sinh"] {margin-top:12px!important;padding:12px!important;background:#ffffff04!important;box-shadow:none!important;}
+.cing-revive-expanded section[aria-label="Mua Thẻ hồi sinh"]>p {font-size:12px;line-height:1.5;margin:7px 0;color:#d5c9ba;}
+.cing-revive-expanded section[aria-label="Mua Thẻ hồi sinh"]>div:first-child {display:none!important;}
+.cing-revive-error {padding:0 12px 12px;margin:0;font-size:11px;color:#ffd2a5;}
+@media(max-width:359px){.cing-revive-summary{gap:7px}.cing-revive-label small{display:none}.cing-revive-action{font-size:10px;padding:10px 7px}.cing-game-center-header h1{font-size:26px!important}.cing-game-center-header>button{float:none;margin-top:12px!important}}
+.cing-game-card>div:last-child {min-width:0;}
+.cing-game-card>div:last-child>div:first-child {flex-wrap:wrap;gap:6px!important;}
+
+.cing-game-card button {white-space:nowrap;}
+@media(max-width:359px){.cing-game-card{padding:12px!important;gap:12px!important}.cing-game-card>div:first-child{width:52px!important;height:52px!important;border-radius:14px!important}.cing-game-card>div:first-child img{width:46px!important;height:46px!important}.cing-game-card button{padding:8px 12px!important;font-size:11px!important}}

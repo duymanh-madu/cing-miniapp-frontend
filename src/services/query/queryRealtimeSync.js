@@ -163,67 +163,7 @@ class QueryRealtimeSync {
       return false;
     }
 
-    /*
-     * Do not cancel the HTTP membership snapshot.
-     *
-     * The HTTP result still owns tier/spending/order metadata.
-     * Realtime points are maintained as an identity-bound
-     * overlay, preventing an older HTTP points value from
-     * replacing a newer committed realtime value.
-     */
-    let queryUpdated =
-      false;
-
-    const queries =
-      queryClient.getQueriesData({
-        queryKey: [
-          "membership",
-        ],
-      });
-
-    for (
-      const [
-        queryKey,
-        current,
-      ] of queries
-    ) {
-      const keyPhone =
-        normalizePhone(
-          queryKey?.[1]
-        );
-
-      if (
-        keyPhone !== phone
-      ) {
-        continue;
-      }
-
-      if (
-        !current ||
-        typeof current !==
-          "object"
-      ) {
-        continue;
-      }
-
-      queryClient.setQueryData(
-        queryKey,
-        {
-          ...current,
-          points,
-        }
-      );
-
-      queryUpdated =
-        true;
-    }
-
-    useMembershipStore
-      .getState()
-      .setLoyaltyPoints(
-        points,
-        phone
-      );
+    window.dispatchEvent(new CustomEvent("cing:membership-invalidated"));
 
     return true;
   }

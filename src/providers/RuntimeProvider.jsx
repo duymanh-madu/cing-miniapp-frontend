@@ -1,3 +1,4 @@
+import { startLiveMembershipSync } from "@/membership/services/liveMembershipSync";
 import {
   useEffect,
 } from "react";
@@ -24,6 +25,8 @@ let supportServicesInitialized =
 function RuntimeProvider({
   children,
 }) {
+
+  useEffect(() => startLiveMembershipSync(), []);
 
   useEffect(() => {
 

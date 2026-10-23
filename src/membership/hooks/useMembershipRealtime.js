@@ -18,7 +18,7 @@ export function useMembershipRealtime() {
       return;
     }
 
-    connectMembershipRealtime({
+    return connectMembershipRealtime({
       socket:
         realtimeSocket,
     });
