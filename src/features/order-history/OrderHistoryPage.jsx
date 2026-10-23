@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
@@ -174,16 +175,16 @@ export default function OrderHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [meta, setMeta]       = useState({});
 
-  useEffect(() => {
+  useLiveEffect((liveRefresh) => {
     if (!phone) { setLoading(false); return; }
-    apiClient.get(`/orders/history/${phone}`)
-      .then(r => {
+    apiClient.get(`/orders/history/${phone}`, {signal:liveRefresh.signal})
+      .then(r => { if(liveRefresh.signal.aborted)return;
         setOrders(r.data?.data || []);
         setMeta({ total: r.data?.total || 0, ipos: r.data?.ipos_count || 0, app: r.data?.app_count || 0 });
       })
-      .catch(() => setOrders([]))
-      .finally(() => setLoading(false));
-  }, [phone]);
+      .catch(() => ((liveRefresh.signal.aborted || liveRefresh.background) ? undefined : (setOrders([]))))
+      .finally(() => (liveRefresh.signal.aborted ? undefined : (setLoading(false))));
+  }, [phone], ["orders"]);
 
   return (
     <div style={{ minHeight:"100vh", background:"#f5f5f5", paddingBottom:80 }}>

@@ -68,3 +68,9 @@ canvas {
   display: block;
   max-width: 100%;
 }
+
+/* Native-feeling app surface; text editing and explicit copy buttons remain usable. */
+body, body * { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+input, textarea, select, [contenteditable="true"], [contenteditable="plaintext-only"], [contenteditable="true"] * { -webkit-user-select:text; user-select:text; -webkit-touch-callout:default; }
+img, a { -webkit-user-drag:none; }
+html, body, #root { overscroll-behavior-x:none; }

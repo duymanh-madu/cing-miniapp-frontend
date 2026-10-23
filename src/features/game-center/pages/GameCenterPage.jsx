@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import "./GameCenterV3.css";
 import "../../plaza/pages/PlazaEntryCardV7.css";
 import { Link as PlazaEntryLinkV5 } from "react-router-dom";
@@ -239,24 +240,31 @@ export default function GameCenterPage() {
     };
   }, []);
 
-  useEffect(() => {
-    apiClient.get("/game/economy-policy")
-      .then(r => {
+  useLiveEffect(({background,signal}) => {
+    if(!background)return;
+    apiClient.get('/app-config/public',{signal}).then(response=>{
+      if(!signal.aborted)setCustomerMultiplayerEnabled(response?.data?.data?.customer_multiplayer_enabled === true);
+    }).catch(()=>{});
+  }, [], ['config']);
+
+  useLiveEffect((liveRefresh) => {
+    apiClient.get("/game/economy-policy", {signal:liveRefresh.signal})
+      .then(r => { if(liveRefresh.signal.aborted)return;
         const data = r.data?.data;
         if (data?.games && typeof data.games === "object") {
           setGameEconomy(data);
         }
       })
-      .catch(() => {});
-  }, []);
+      .catch(() => { if(liveRefresh.signal.aborted)return; });
+  }, [], ["config","game","missions"]);
 
   const getGameEconomy = (gameKey) =>
     gameEconomy?.games?.[gameKey] || null;
 
 
-  useEffect(() => {
-    apiClient.get("/game/daily-challenge")
-      .then(r => {
+  useLiveEffect((liveRefresh) => {
+    apiClient.get("/game/daily-challenge", {signal:liveRefresh.signal})
+      .then(r => { if(liveRefresh.signal.aborted)return;
         const data = r.data?.data;
         if (Array.isArray(data)) {
           setChallenges(data);
@@ -266,18 +274,18 @@ export default function GameCenterPage() {
           setChallenge(data || null);
         }
       })
-      .catch(() => {});
-  }, []);
+      .catch(() => { if(liveRefresh.signal.aborted)return; });
+  }, [], ["config","game","missions"]);
 
   // Fetch missions riêng — chờ phone load xong
   const runtimePhone2 = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
-  useEffect(() => {
+  useLiveEffect((liveRefresh) => {
     const phone = getPhone();
     if (!phone || phone === "pending") return;
-    apiClient.get(`/missions/${phone}`)
-      .then(r => setMissions(r.data?.data || []))
-      .catch(() => {});
-  }, [runtimePhone2]);
+    apiClient.get(`/missions/${phone}`, {signal:liveRefresh.signal})
+      .then(r => (liveRefresh.signal.aborted ? undefined : (setMissions(r.data?.data || []))))
+      .catch(() => { if(liveRefresh.signal.aborted)return; });
+  }, [runtimePhone2], ["config","game","missions"]);
 
   // Retry missions sau 3s nếu vẫn rỗng
   useEffect(() => {

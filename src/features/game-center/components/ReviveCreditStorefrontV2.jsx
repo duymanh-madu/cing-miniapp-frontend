@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import {
   useCallback,
   useEffect,
@@ -43,7 +44,7 @@ export default function ReviveCreditStorefrontV2({
     setRefreshKey(value => value + 1);
   }, []);
 
-  useEffect(() => {
+  useLiveEffect(() => {
     let active = true;
 
     setLoading(true);
@@ -79,7 +80,7 @@ export default function ReviveCreditStorefrontV2({
       });
 
     return () => { active = false; };
-  }, [userId, refreshKey, refreshSignal]);
+  }, [userId, refreshKey, refreshSignal], ["game","wallet","missions"]);
 
   useEffect(() => {
     setBalance(null);

@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
+import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { getGame } from "@/games/registry/gameRegistry";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
-import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import V8RoyalAlltimeView from "@/features/leaderboard/components/royal/V8RoyalAlltimeView";
 
 export default function AlltimeLeaderboard({ onClose }) {
@@ -12,7 +12,7 @@ export default function AlltimeLeaderboard({ onClose }) {
   const [activeGame, setActiveGame] = useState(null);
   const [loading,    setLoading]    = useState(true);
   const [myRank,     setMyRank]     = useState(null);
-  const refreshTimerRef = useRef(null);
+  const boardsEpoch=useRef(0), rankEpoch=useRef(0);
   const profile      = useAuthStore(s => s.profile);
   const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const navigate     = useNavigate();
@@ -31,10 +31,12 @@ export default function AlltimeLeaderboard({ onClose }) {
   };
 
   const fetchBoards = useCallback(async ({ background = false } = {}) => {
+    const epoch=++boardsEpoch.current;
     if (!background) setLoading(true);
 
     try {
       const r = await apiClient.get("/game/leaderboard/alltime-games");
+      if(epoch!==boardsEpoch.current)return;
       const next = r.data?.data || [];
 
       setGames(next);
@@ -50,14 +52,15 @@ export default function AlltimeLeaderboard({ onClose }) {
         return next[0]?.game_key || null;
       });
     } catch {
-      if (!background) setGames([]);
+      if (!background && epoch===boardsEpoch.current) setGames([]);
     } finally {
-      if (!background) setLoading(false);
+      if (epoch===boardsEpoch.current) setLoading(false);
     }
   }, []);
 
   const fetchPrivateRank = useCallback(
     async gameKey => {
+      const epoch=++rankEpoch.current;
       if (!gameKey || !myId) {
         setMyRank(null);
         return;
@@ -68,107 +71,18 @@ export default function AlltimeLeaderboard({ onClose }) {
           `/game/leaderboard/alltime-user-rank/${myId}/${gameKey}`
         );
 
-        setMyRank(r.data?.data || null);
+        if(epoch===rankEpoch.current)setMyRank(r.data?.data || null);
       } catch {
-        setMyRank(null);
+        if(epoch===rankEpoch.current)setMyRank(null);
       }
     },
     [myId]
   );
 
-  useEffect(() => {
-    fetchBoards();
-  }, [fetchBoards]);
+  useLiveEffect(({background}) => { void fetchBoards({background}); return () => {boardsEpoch.current++;}; }, [fetchBoards], ["leaderboard","profile"]);
 
-  useEffect(() => {
-    fetchPrivateRank(activeGame);
-  }, [activeGame, fetchPrivateRank]);
+  useLiveEffect(() => { void fetchPrivateRank(activeGame); return () => {rankEpoch.current++;}; }, [activeGame, fetchPrivateRank], ["leaderboard","profile"]);
 
-  useEffect(() => {
-    const scheduleRefresh = payload => {
-      if (
-        payload?.type === "game" &&
-        payload?.game_key &&
-        activeGame &&
-        payload.game_key !== activeGame
-      ) {
-        return;
-      }
-
-      if (refreshTimerRef.current) {
-        clearTimeout(refreshTimerRef.current);
-      }
-
-      refreshTimerRef.current = setTimeout(() => {
-        fetchBoards({ background:true });
-
-        if (activeGame) {
-          fetchPrivateRank(activeGame);
-        }
-      }, 180);
-    };
-
-    const attach = () => {
-      const socket = getRuntimeSocket();
-
-      if (!socket) return;
-
-      socket.off(
-        "leaderboard.updated",
-        scheduleRefresh
-      );
-
-      socket.on(
-        "leaderboard.updated",
-        scheduleRefresh
-      );
-    };
-
-    attach();
-
-    const handleFocus = () => scheduleRefresh();
-
-    const handleVisibility = () => {
-      if (!document.hidden) {
-        scheduleRefresh();
-      }
-    };
-
-    window.addEventListener(
-      "focus",
-      handleFocus
-    );
-
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibility
-    );
-
-    return () => {
-      if (refreshTimerRef.current) {
-        clearTimeout(refreshTimerRef.current);
-      }
-
-      getRuntimeSocket()?.off(
-        "leaderboard.updated",
-        scheduleRefresh
-      );
-
-      window.removeEventListener(
-        "focus",
-        handleFocus
-      );
-
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibility
-      );
-    };
-  }, [
-    activeGame,
-    fetchBoards,
-    fetchPrivateRank,
-  ]);
 
   const currentGame = games.find(g => g.game_key === activeGame);
   const publicRows = (currentGame?.data || []).slice(0, 10);

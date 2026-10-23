@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { useState, useEffect, useRef } from "react";
 import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { createPortal } from "react-dom";
@@ -406,6 +407,8 @@ export function PendingRewardsBadge() {
       s?.off?.("user.updated", socketHandler);
     };
   }, [phone]);
+
+  useLiveEffect(({background})=>{if(background)loadRewards();}, [phone], ["rewards"]);
 
   const claim = async (reward) => {
     setClaiming(reward.id);

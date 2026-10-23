@@ -1,7 +1,8 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { LeaderboardAvatarTitleIcons } from "@/features/leaderboard/components/LeaderboardBadgeChips";
 import royalHallBg from "@/features/leaderboard/assets/royal-hall/royal-hall-bg.webp";
 import "@/features/leaderboard/components/royal/V8RoyalGameLeaderboard.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
@@ -46,16 +47,19 @@ export default function ChessLeaderboard({ onClose }) {
     if (uid) { onClose(); setTimeout(() => navigate(`/profile/${uid}`), 150); }
   };
 
+  const requestEpoch=useRef(0);
   const fetchData = ({ background = false } = {}) => {
+    const epoch=++requestEpoch.current;
     if (!background) {
       setLoading(true);
     }
 
+    if(!myPhone)setPrivateRanks(null);
     const publicRequest =
       apiClient
         .get("/game/chess/leaderboard")
         .then(r => {
-          setData(r.data?.data);
+          if(epoch===requestEpoch.current)setData(r.data?.data);
         })
         .catch(() => {});
 
@@ -66,7 +70,7 @@ export default function ChessLeaderboard({ onClose }) {
               `/game/chess/leaderboard/user-rank/${myPhone}`
             )
             .then(r => {
-              setPrivateRanks(
+              if(epoch===requestEpoch.current)setPrivateRanks(
                 r.data?.data || null
               );
             })
@@ -79,14 +83,15 @@ export default function ChessLeaderboard({ onClose }) {
         privateRequest,
       ])
       .finally(() => {
-        if (!background) {
+        if (epoch===requestEpoch.current) {
           setLoading(false);
         }
       });
   };
 
+  useLiveEffect(({background})=>{void fetchData({background});return()=>{requestEpoch.current++;};}, [myPhone], ['leaderboard','profile']);
+
   useEffect(() => {
-    fetchData();
 
     const GAME_SERVER =
       import.meta.env.VITE_GAME_SERVER_URL ||

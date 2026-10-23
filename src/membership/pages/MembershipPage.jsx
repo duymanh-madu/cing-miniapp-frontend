@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMembership } from "@/features/home/hooks/useMembership";
@@ -35,24 +36,24 @@ export default function MembershipPage() {
   const [histLoading, setHistLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("points");
 
-  useEffect(() => {
+  useLiveEffect((liveRefresh) => {
     const p = resolvedPhone || phone;
     if (!p) return;
-    setLogLoading(true);
-    apiClient.get(`/profile-update/points-history/${p}`)
-      .then(r => setPointsLog((r.data?.data || []).filter(item =>
+    !liveRefresh.background && setLogLoading(true);
+    apiClient.get(`/profile-update/points-history/${p}`, {signal:liveRefresh.signal})
+      .then(r => (liveRefresh.signal.aborted ? undefined : (setPointsLog((r.data?.data || []).filter(item =>
         item.event_name === "points_added" || item.event_name === "points_deducted"
-      )))
-      .catch(() => {})
-      .finally(() => setLogLoading(false));
-  }, [resolvedPhone, phone]);
+      )))))
+      .catch(() => { if(liveRefresh.signal.aborted)return; })
+      .finally(() => (liveRefresh.signal.aborted ? undefined : (setLogLoading(false))));
+  }, [resolvedPhone, phone], ["membership","rewards"]);
 
-  useEffect(() => {
+  useLiveEffect((liveRefresh) => {
     const p = resolvedPhone || phone;
     if (!p) return;
-    setHistLoading(true);
-    apiClient.get(`/membership/${p}/transactions`)
-      .then(r => {
+    !liveRefresh.background && setHistLoading(true);
+    apiClient.get(`/membership/${p}/transactions`, {signal:liveRefresh.signal})
+      .then(r => { if(liveRefresh.signal.aborted)return;
         const d = r.data?.data;
         if (!d) return;
         // Merge app payments + ipos logs thành 1 danh sách điểm
@@ -82,9 +83,9 @@ export default function MembershipPage() {
           .sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
         setHistory(merged);
       })
-      .catch(() => {})
-      .finally(() => setHistLoading(false));
-  }, [resolvedPhone, phone]);
+      .catch(() => { if(liveRefresh.signal.aborted)return; })
+      .finally(() => (liveRefresh.signal.aborted ? undefined : (setHistLoading(false))));
+  }, [resolvedPhone, phone], ["membership","rewards"]);
 
   return (
     <div style={{ minHeight:"100vh", background:"#f5f5f5", paddingBottom:80 }}>

@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
-import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import V8RoyalGameLeaderboardView from "@/features/leaderboard/components/royal/V8RoyalGameLeaderboardView";
 
 const MEDAL = ["🥇","🥈","🥉"];
@@ -43,10 +43,13 @@ export default function GameLeaderboard({ gameKey, onClose }) {
   const [loadError, setLoadError] = useState(false);
   const [animatedIds, setAnimatedIds] = useState(() => new Set());
 
+  const requestEpoch = useRef(0);
   const prevRanksRef   = useRef(new Map());
   const animationTimer = useRef(null);
 
   const profileId   = useAuthStore(s => s.profile?.id);
+  const runtimePhone = useRuntimeCustomerIdentityStore(s=>s.identity?.phone);
+  const profilePhone = useAuthStore(s=>s.profile?.phone);
   const navigate    = useNavigate();
   const goProfile   = (uid) => { if (uid) { onClose(); setTimeout(() => navigate(`/profile/${uid}`), 150); } };
 
@@ -62,7 +65,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
         total: rows.length,
         score: rows[idx]?.score ?? rows[idx]?.value ?? 0,
       });
-    }
+    } else { setMyRank(null); }
   };
 
   const rememberRanks = (rows = []) => {
@@ -98,16 +101,16 @@ export default function GameLeaderboard({ gameKey, onClose }) {
   };
 
   const fetchData = async ({ background=false } = {}) => {
+    const epoch = ++requestEpoch.current;
     if (!background) {
       setLoading(true);
     }
     try {
       const r = await apiClient.get(`/leaderboard/top-games/${gameKey}`);
+      if(epoch !== requestEpoch.current)return;
       const rows = r.data?.data || [];
       setLoadError(false);
-      setData(rows);
-      rememberRanks(rows);
-      updateMyRankFromRows(rows);
+      applyRealtimeRows(rows);
 
       if (r.data?.rewards?.length) setRewards(r.data.rewards);
 
@@ -115,7 +118,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
       const rankId = phone || profileId;
       if (rankId) {
         apiClient.get(`/leaderboard/user-game-rank/${rankId}/${gameKey}`)
-          .then(r2 => setMyRank(r2.data?.data)).catch(() => {});
+          .then(r2 => {if(epoch === requestEpoch.current)setMyRank(r2.data?.data);}).catch(() => {});
       }
     } catch (e) {
       console.warn(
@@ -128,67 +131,19 @@ export default function GameLeaderboard({ gameKey, onClose }) {
         }
       );
 
-      setLoadError(true);
+      if(epoch === requestEpoch.current)setLoadError(true);
     }
     finally {
-      if (!background) {
+      if (epoch === requestEpoch.current) {
         setLoading(false);
       }
     }
   };
 
-  useEffect(() => {
-    fetchData();
-
-    const handleRealtimeLeaderboard = (payload) => {
-      if (payload?.type && payload.type !== "game") return;
-      if (payload?.game_key && payload.game_key !== gameKey) return;
-      if (payload?.scope && payload.scope !== "weekly") return;
-      if (!Array.isArray(payload?.leaderboard)) return;
-
-      applyRealtimeRows(
-        payload.leaderboard,
-        payload?.updated_user?.user_id
-      );
-    };
-
-    let attempts = 0;
-    const attach = () => {
-      const socket = getRuntimeSocket();
-      if (socket?.connected) {
-        socket.off("leaderboard.updated", handleRealtimeLeaderboard);
-        socket.on("leaderboard.updated", handleRealtimeLeaderboard);
-        return;
-      }
-      if (attempts++ < 20) setTimeout(attach, 1000);
-    };
-
-    attach();
-
-    const onVisible = () => {
-      if (
-        document.visibilityState === "visible"
-      ) {
-        fetchData({
-          background:true,
-        });
-      }
-    };
-
-    document.addEventListener(
-      "visibilitychange",
-      onVisible
-    );
-
-    return () => {
-      if (animationTimer.current) clearTimeout(animationTimer.current);
-      getRuntimeSocket()?.off("leaderboard.updated", handleRealtimeLeaderboard);
-      document.removeEventListener(
-        "visibilitychange",
-        onVisible
-      );
-    };
-  }, [gameKey, profileId]);
+  useLiveEffect(({background}) => {
+    void fetchData({background});
+    return () => { requestEpoch.current++; if(animationTimer.current)clearTimeout(animationTimer.current); };
+  }, [gameKey, profileId, runtimePhone, profilePhone], ['leaderboard','profile']);
 
   const phone = getPhone();
   const publicTop10 = data.slice(0, 10);

@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
@@ -52,14 +53,14 @@ export default function VoucherPage() {
   const [inputPhone, setInputPhone] = useState("");
   const activePhone = phone || devPhone;
 
-  useEffect(() => {
+  useLiveEffect((liveRefresh) => {
     if (!activePhone) { setLoading(false); return; }
-    setLoading(true);
-    apiClient.get("/membership/" + activePhone + "/vouchers")
-      .then(r => { const raw = r.data?.data?.data || r.data?.data || []; setVouchers(Array.isArray(raw) ? raw : []); })
-      .catch(() => setVouchers([]))
-      .finally(() => setLoading(false));
-  }, [activePhone]);
+    !liveRefresh.background && setLoading(true);
+    apiClient.get("/membership/" + activePhone + "/vouchers", {signal:liveRefresh.signal})
+      .then(r => { if(liveRefresh.signal.aborted)return;  const raw = r.data?.data?.data || r.data?.data || []; setVouchers(Array.isArray(raw) ? raw : []); })
+      .catch(() => ((liveRefresh.signal.aborted || liveRefresh.background) ? undefined : (setVouchers([]))))
+      .finally(() => (liveRefresh.signal.aborted ? undefined : (setLoading(false))));
+  }, [activePhone], ["voucher"]);
 
   if (!activePhone) return (
     <div style={{ padding:"24px 16px" }}>

@@ -1,1 +1,1 @@
-{"release":"cing-commerce-live-v2-20261023","features":["zero-cash-points-checkout","compact-game-center","shared-live-loyalty-balance"],"backendRequired":true}
+{"release":"cing-app-live-v3-20261023","features":["points-zero-cash-partial-final-unit","app-domain-live-invalidation","live-leaderboards","global-left-edge-and-selection-guard"],"backendRequired":true}

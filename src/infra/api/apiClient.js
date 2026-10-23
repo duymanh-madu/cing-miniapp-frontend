@@ -115,7 +115,7 @@ apiClient.interceptors.response.use(
     );
 
     if (["post", "put", "patch", "delete"].includes(String(response.config?.method).toLowerCase()) && !/\/auth\//.test(response.config?.url || "") && response.data?.success !== false) {
-      window.dispatchEvent(new CustomEvent("cing:mutation-committed"));
+      window.dispatchEvent(new CustomEvent("cing:mutation-committed", {detail:{url:response.config?.url,method:response.config?.method}}));
     }
 
     return response;

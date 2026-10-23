@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -246,14 +247,15 @@ export default function ProfilePage() {
   };
   const [loading,  setLoading]  = useState(true);
 
-  useEffect(() => {
+  useLiveEffect((liveRefresh) => {
     if (!resolvedPhone) { setLoading(false); return; }
     Promise.all([
-      apiClient.get(`/membership/${resolvedPhone}`).catch(() => null),
-      apiClient.get(`/game/chess/leaderboard`).catch(() => null),
-      apiClient.get(`/leaderboard/alltime-top3`).catch(() => null),
-      apiClient.get(`/profile-update/profile/${resolvedPhone}`).catch(() => null),
-    ]).then(([mRes, lbRes, atRes, pRes]) => {
+      apiClient.get(`/membership/${resolvedPhone}`, {signal:liveRefresh.signal}).catch(() => (liveRefresh.signal.aborted ? undefined : (null))),
+      apiClient.get(`/game/chess/leaderboard`, {signal:liveRefresh.signal}).catch(() => (liveRefresh.signal.aborted ? undefined : (null))),
+      apiClient.get(`/leaderboard/alltime-top3`, {signal:liveRefresh.signal}).catch(() => (liveRefresh.signal.aborted ? undefined : (null))),
+      apiClient.get(`/profile-update/profile/${resolvedPhone}`, {signal:liveRefresh.signal}).catch(() => (liveRefresh.signal.aborted ? undefined : (null))),
+    ]).then(([mRes, lbRes, atRes, pRes]) => { if(liveRefresh.signal.aborted)return;
+      if(liveRefresh.background && [mRes,lbRes,atRes,pRes].some(value=>!value))return;
       const memberData = mRes?.data?.data || {};
       // Merge display profile từ players table — nguồn chuẩn cho UI
       const playerProfile = pRes?.data?.data || {};
@@ -269,7 +271,7 @@ export default function ProfilePage() {
         null;
       const charmPoints = playerProfile.charm_points || 0;
       const selectedBadge = playerProfile.selected_badge || null;
-      if (selectedBadge) setPrimaryBadge(selectedBadge);
+      setPrimaryBadge(selectedBadge || null);
       const customBadges = Array.isArray(pRes?.data?.data?.custom_badges)
         ? pRes.data.data.custom_badges
         : [];
@@ -282,6 +284,8 @@ export default function ProfilePage() {
         charmPoints,
         customBadges,
       });
+      setChampion(false);
+      setHofRank(null);
       const top = lbRes?.data?.data?.topWins?.[0] || lbRes?.data?.topWins?.[0];
       if (top) {
         const topPhone = String(top.user_id).replace(/\D/g,"").replace(/^84/,"0");
@@ -293,8 +297,8 @@ export default function ProfilePage() {
         const ph = String(p.user_id).replace(/\D/g,"").replace(/^84/,"0");
         if (ph === resolvedPhone) setHofRank(`hof_${i+1}`);
       });
-    }).finally(() => setLoading(false));
-  }, [resolvedPhone]);
+    }).finally(() => (liveRefresh.signal.aborted ? undefined : (setLoading(false))));
+  }, [resolvedPhone], ["profile","membership","leaderboard"]);
 
   // Debug — xóa sau
   useEffect(() => {

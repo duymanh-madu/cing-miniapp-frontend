@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import SystemRoleBadge from "@/components/system-badges/SystemRoleBadge";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -54,18 +55,18 @@ export default function CommunityChat({ onClose }) {
   const [championId, setChampionId] = useState("");
 
   // Fetch top 1 chess để hiển thị danh hiệu Kiện tướng
-  useEffect(() => {
+  useLiveEffect(() => {
     fetch((import.meta.env.VITE_API_BASE_URL||"https://cing-backend-production.up.railway.app/api") + "/game/chess/leaderboard")
       .then(r => r.json())
-      .then(d => { const top = d?.topWins?.[0] || d?.data?.topWins?.[0]; if (top?.user_id) setChampionId(String(top.user_id)); })
+      .then(d => { const top = d?.topWins?.[0] || d?.data?.topWins?.[0]; setChampionId(top?.user_id ? String(top.user_id) : ""); })
       .catch(() => {});
-  }, []);
+  }, [], ["leaderboard","profile","config"]);
   const tierKeyRef = useRef("member");
   useEffect(() => {
     tierKeyRef.current = myTierKey;
   }, [myTierKey]);
 
-  useEffect(() => {
+  useLiveEffect(() => {
     const phone = String(memberPhone || "")
       .replace(/\D/g, "")
       .replace(/^84/, "0");
@@ -91,15 +92,15 @@ export default function CommunityChat({ onClose }) {
   return () => {
       cancelled = true;
     };
-  }, [memberPhone]);
+  }, [memberPhone], ["leaderboard","profile","config"]);
 
-  useEffect(() => {
+  useLiveEffect(() => {
     const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
     fetch(`${base}/admin/auth/system-badges`)
       .then(r => r.json())
       .then(r => setSystemBadges(r?.data || {}))
       .catch(() => {});
-  }, []);
+  }, [], ["leaderboard","profile","config"]);
 
   const getSystemBadge = (uid) => {
     const id = String(uid || "").replace(/\D/g, "").replace(/^84/, "0");
@@ -233,7 +234,7 @@ export default function CommunityChat({ onClose }) {
   }, []);
 
   // Check chat lock khi phone resolve
-  useEffect(() => {
+  useLiveEffect(() => {
     const info = getMyInfo();
     if (!info.phone) return;
     const base = import.meta.env.VITE_API_BASE_URL || "https://cing-backend-production.up.railway.app/api";
@@ -242,6 +243,7 @@ export default function CommunityChat({ onClose }) {
       .then(d => {
         const p = d?.data;
         if (!p) return;
+        setChatLocked(null);
         if (p.is_blocked) { setChatLocked(new Date(Date.now() + 999*86400000)); return; }
         if (p.chat_locked_until) {
           const until = new Date(p.chat_locked_until);
@@ -249,7 +251,7 @@ export default function CommunityChat({ onClose }) {
         }
       })
       .catch(() => {});
-  }, [runtimePhone, getMyInfo]);
+  }, [runtimePhone, getMyInfo], ["leaderboard","profile","config"]);
 
   // Khi phone resolve — emit join với đúng phone
   useEffect(() => {

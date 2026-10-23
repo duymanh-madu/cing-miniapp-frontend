@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import {
   useCallback,
   useEffect,
@@ -111,6 +112,11 @@ export default function ReviveCreditPurchaseV2({
       active = false;
     };
   }, [userId]);
+
+  useLiveEffect(({background,signal})=>{
+    if(!background || busy || intent)return;
+    getReviveCreditCustomerPrice().then(value=>{if(!signal.aborted)setPrice(value);}).catch(()=>{});
+  }, [userId,busy,Boolean(intent)], ['config','game']);
 
   const purchase = useCallback(async () => {
     if (busyRef.current) return;

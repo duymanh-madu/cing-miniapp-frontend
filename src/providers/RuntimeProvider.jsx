@@ -1,3 +1,5 @@
+import {startAppLiveRuntime} from "@/runtime/live/appLiveRuntime";
+import {installAppInteractionGuard} from "@/runtime/interaction/appInteractionGuard";
 import { startLiveMembershipSync } from "@/membership/services/liveMembershipSync";
 import {
   useEffect,
@@ -27,6 +29,8 @@ function RuntimeProvider({
 }) {
 
   useEffect(() => startLiveMembershipSync(), []);
+  useEffect(() => startAppLiveRuntime(), []);
+  useEffect(() => installAppInteractionGuard(), []);
 
   useEffect(() => {
 

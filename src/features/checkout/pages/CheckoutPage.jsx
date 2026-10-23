@@ -882,7 +882,6 @@ export default function CheckoutPage(){
   }, [memberPhone]);
   const { data: membership } = useMembership(memberPhone);
   const availablePoints = membership?.points || 0;
-  const pointsDiscount = pointsToUse * 1000; // 1 diem = 1000 VND
 
   // Giảm giá theo hạng thành viên
   const TIER_DISCOUNTS = {
@@ -892,6 +891,8 @@ export default function CheckoutPage(){
   const tierKey = membership?.tierKey || "member";
   const tierDiscountRate = TIER_DISCOUNTS[tierKey] || 0;
   const tierDiscount = Math.floor(subtotal * tierDiscountRate);
+  const prePointsPayable = Math.max(0, subtotal + shipFee - tierDiscount);
+  const pointsDiscount = Math.min(pointsToUse * 1000, prePointsPayable);
 
   useEffect(()=>{
     if(orderType!=="delivery"){
@@ -2296,7 +2297,7 @@ export default function CheckoutPage(){
 
         clearCheckoutRequestIntent();
         clearCart();
-        navigate("/order-success");
+        navigate("/order-success", {state:{transactionCode:pointsSettlement.transaction_code}});
         return;
 
       }
@@ -2713,7 +2714,7 @@ export default function CheckoutPage(){
                   value={pointsToUse}
                   onChange={e => {
                     const max = Math.min(availablePoints, Math.ceil((subtotal+shipFee-tierDiscount)/1000));
-                    const val = Math.max(0, Math.min(Number(e.target.value)||0, max));
+                    const val = Math.max(0, Math.min(Math.floor(Number(e.target.value))||0, max));
                     setPointsToUse(val);
                   }}
                   placeholder="Nhập số điểm muốn dùng"
@@ -2735,9 +2736,10 @@ export default function CheckoutPage(){
                   </button>
                 )}
               </div>
+              {pointsToUse * 1000 > prePointsPayable && <p style={{fontSize:11,color:"#047857",margin:"6px 0"}}>Thanh toán toàn bộ dùng {pointsToUse} điểm nguyên; giá trị giảm tối đa bằng số tiền còn lại của đơn.</p>}
               {pointsToUse > 0 && (
                 <p style={{fontSize:11,color:"#059669",margin:"6px 0 0",fontWeight:600}}>
-                  Giảm {fmt(pointsDiscount)} — Còn thanh toán trên app: {fmt(total)}
+                  {pointsToUse} điểm · Giảm {fmt(pointsDiscount)} — Còn thanh toán trên app: {fmt(total)}
                   {
                     total === 0
                       ? shipStatus==="contact"

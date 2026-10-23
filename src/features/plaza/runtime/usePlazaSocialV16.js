@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { optimisticEquipV36 } from "./plazaFittingSessionV36.js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import apiClient from "@/infra/api/apiClient";
@@ -86,6 +87,8 @@ export function usePlazaSocialV16({
       document.removeEventListener("visibilitychange", show);
     };
   }, [enabled, memberId, refresh, refreshFeed]);
+  useLiveEffect(({background})=>{if(background && enabled){void refresh().catch(()=>{});void refreshFeed().catch(()=>{});}}, [enabled,memberId,refresh,refreshFeed], ["plaza","wallet","profile"]);
+
   useEffect(() => {
     if (enabled && connected) {
       void refreshFeed().catch(() => {});

@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import apiClient from "@/infra/api/apiClient";
@@ -224,7 +225,7 @@ export default function CingGiftInboxV2({
   }, []);
 
   const load = useCallback(
-    async () => {
+    async ({background=false} = {}) => {
       const session = captureSession();
 
       if (!session) return;
@@ -236,7 +237,7 @@ export default function CingGiftInboxV2({
         isCurrentSession(session) &&
         requestId === listRequestRef.current;
 
-      setLoading(true);
+      if(!background)setLoading(true);
       setError("");
 
       try {
@@ -312,6 +313,8 @@ export default function CingGiftInboxV2({
 
   // Refresh an open inbox when the authenticated background reader
   // discovers a new durable Gift receipt (no new financial writes).
+  useLiveEffect(({background})=>{if(background)void load({background:true});}, [phone,load], ['rewards','profile']);
+
   useEffect(() => {
     const onGiftUpdate = event => {
       if (normalizePhone(event?.detail?.owner) === runtimePhone()) {

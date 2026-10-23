@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { resolveProfileName } from "@/utils/profile/profileDisplay";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -231,18 +232,18 @@ export default function AccountPage() {
   };
 
   // Fetch birthday từ players table (nguồn chính xác nhất)
-  useEffect(() => {
+  useLiveEffect((liveRefresh) => {
     if (!phone) return;
-    apiClient.get(`/profile-update/profile/${phone}`)
-      .then(r => {
+    apiClient.get(`/profile-update/profile/${phone}`, {signal:liveRefresh.signal})
+      .then(r => { if(liveRefresh.signal.aborted)return;
         const raw = r.data?.data?.birthday || "";
         if (raw) {
           const bd = raw.includes("T") ? raw.split("T")[0] : raw.split(" ")[0];
           setBirthday(bd);
         }
       })
-      .catch(() => {});
-  }, [phone]);
+      .catch(() => { if(liveRefresh.signal.aborted)return; });
+  }, [phone], ["profile","membership"]);
 
   const openEdit = async () => {
     if (!userId) return;

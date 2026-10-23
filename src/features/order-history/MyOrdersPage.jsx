@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
@@ -71,16 +72,22 @@ export default function MyOrdersPage() {
     return "";
   })();
 
+  const requestEpoch=useRef(0);
+  const ownerRef=useRef(phone);ownerRef.current=phone;
   const fetchOrders = async () => {
+    if(ownerRef.current!==phone)return;
+    const epoch=++requestEpoch.current;
     if (!phone) return;
     try {
       const r = await apiClient.get(`/orders/active/${phone}`);
-      setOrders(r.data?.data || []);
+      if(epoch===requestEpoch.current && ownerRef.current===phone)setOrders(r.data?.data || []);
     } catch(e) {}
-    finally { setLoading(false); }
+    finally { if(epoch===requestEpoch.current && ownerRef.current===phone)setLoading(false); }
   };
 
   useEffect(() => { fetchOrders(); }, [phone]);
+
+  useLiveEffect(({background})=>{if(background)void fetchOrders();}, [phone], ["orders"]);
 
   // Realtime update
   useEffect(() => {

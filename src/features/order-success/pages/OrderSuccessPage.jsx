@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
@@ -19,7 +20,7 @@ export default function OrderSuccessPage() {
     location.search || window.location.search ||
     location.hash?.split("?")[1] || ""
   );
-  const momoOrderId   = searchParams.get("orderId");
+  const momoOrderId   = searchParams.get("orderId") || location.state?.transactionCode;
   const momoResult    = searchParams.get("resultCode");
   const momoAmount    = searchParams.get("amount");
   const stateOrder    = location.state?.order;
@@ -32,34 +33,34 @@ export default function OrderSuccessPage() {
     clearCart();
   }, []);
 
-  useEffect(() => {
+  useLiveEffect(({background,signal}) => {
     // Nếu có state từ checkout (thanh toán bằng điểm)
-    if (stateOrder) {
+    if (stateOrder && !background) {
       setOrder(stateOrder);
       setLoading(false);
       return;
     }
 
     // Nếu có orderId từ MoMo, fetch order detail
-    if (momoOrderId && profile?.id) {
-      apiClient.get(`/orders/by-transaction/${momoOrderId}`)
-        .then(r => setOrder(r.data?.data || null))
-        .catch(() => setOrder(null))
-        .finally(() => setLoading(false));
+    if (momoOrderId) {
+      apiClient.get(`/orders/by-transaction/${momoOrderId}`, {signal})
+        .then(r => {if(!signal.aborted)setOrder(r.data?.data || null);})
+        .catch(() => {if(!signal.aborted && !background)setOrder(null);})
+        .finally(() => {if(!signal.aborted)setLoading(false);});
       return;
     }
 
     // Fetch đơn mới nhất của user
     if (profile?.id) {
-      apiClient.get(`/orders/latest/${profile.id}`)
-        .then(r => setOrder(r.data?.data || null))
-        .catch(() => setOrder(null))
-        .finally(() => setLoading(false));
+      apiClient.get(`/orders/latest/${profile.id}`, {signal})
+        .then(r => {if(!signal.aborted)setOrder(r.data?.data || null);})
+        .catch(() => {if(!signal.aborted && !background)setOrder(null);})
+        .finally(() => {if(!signal.aborted)setLoading(false);});
       return;
     }
 
     setLoading(false);
-  }, []);
+  }, [momoOrderId, profile?.id, stateOrder], ["orders"]);
 
   if (!isSuccess) {
     return (

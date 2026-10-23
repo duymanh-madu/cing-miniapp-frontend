@@ -1,5 +1,5 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import { useState, useEffect, useRef } from "react";
-import { getRuntimeSocket } from "@/runtime/socket/runtimeSocketClient";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
@@ -75,6 +75,7 @@ export default function LeaderboardPage() {
   const [showCustom,    setShowCustom]    = useState(false);
   const [customEnabled, setCustomEnabled] = useState(true);
   const [customTabName, setCustomTabName] = useState("Tùy chỉnh");
+  const requestEpoch=useRef(0);
   const prevRankRef      = useRef(null);
   const currentTabRef    = useRef(tab);
   const currentRankIdRef = useRef("");
@@ -86,7 +87,7 @@ export default function LeaderboardPage() {
   const TABS = customEnabled ? [...DEFAULT_TABS, { id:"custom", label: customTabName }] : DEFAULT_TABS;
 
   // App config — 1 lần duy nhất
-  useEffect(() => {
+  useLiveEffect(() => {
     apiClient.get("/app-config/public").then(r => {
       const cfg   = r.data?.data || {};
       const lbCfg = cfg.leaderboard_config || {};
@@ -96,95 +97,11 @@ export default function LeaderboardPage() {
       // Ẩn tab custom nếu admin tắt
       if (lbCfg.spending?.custom?.enabled === false) setCustomEnabled(false);
     }).catch(() => {});
-  }, [canViewLeaderboard]);
-
-  // Socket realtime + visibilitychange safety net
-  useEffect(() => {
-    if (!canViewLeaderboard) return;
-
-    // Lắng nghe socket — retry đến khi connected
-    let attempts = 0;
-
-    const handler = (payload) => {
-      if (payload?.type === "game") return;
-
-      if (
-        payload?.type === "spending" &&
-        payload?.period === currentTabRef.current &&
-        Array.isArray(payload?.leaderboard)
-      ) {
-        const rows = payload.leaderboard;
-        setData(rows);
-
-        const rankId = currentRankIdRef.current;
-        if (rankId) {
-          const idx = rows.findIndex(r => String(r.user_id) === String(rankId));
-
-          if (idx >= 0) {
-            const nextRank = idx + 1;
-            const prevRank = prevRankRef.current;
-            const totalSpent = rows[idx]?.total_spent || rows[idx]?.total_spent_all_time || 0;
-
-            if (prevRank !== null && prevRank !== nextRank) {
-              if (nextRank < prevRank) {
-                setNotification({ msg:`Bạn vừa thăng từ hạng #${prevRank} lên hạng #${nextRank}! 🔥`, up:true });
-              } else {
-                setNotification({ msg:`Bạn vừa tụt từ hạng #${prevRank} xuống hạng #${nextRank}`, up:false });
-              }
-            }
-
-            prevRankRef.current = nextRank;
-            setMyRank({
-              ...rows[idx],
-              rank: nextRank,
-              total: rows.length,
-              total_spent: totalSpent,
-            });
-          }
-        }
-
-        return;
-      }
-
-      fetchData(
-        currentTabRef.current,
-        "",
-        "",
-        { background:true }
-      );
-    };
-
-    const attach = () => {
-      const socket = getRuntimeSocket();
-      if (socket?.connected) {
-        socket.off("leaderboard.updated", handler); // tránh duplicate
-        socket.on("leaderboard.updated", handler);
-        return;
-      }
-      if (attempts++ < 30) setTimeout(attach, 1000);
-    };
-    attach();
-
-    // visibilitychange: fetch lại khi user quay lại app/tab
-    const onVisible = () => {
-      if (document.visibilityState === "visible") {
-        fetchData(
-        currentTabRef.current,
-        "",
-        "",
-        { background:true }
-      );
-      }
-    };
-    document.addEventListener("visibilitychange", onVisible);
-
-    return () => {
-      getRuntimeSocket()?.off("leaderboard.updated", handler);
-      document.removeEventListener("visibilitychange", onVisible);
-    };
-  }, []);
+  }, [canViewLeaderboard], ["config"]);
 
   const fetchData = (period, from="", to="", { background=false } = {}) => {
+    const epoch=++requestEpoch.current;
+    if(!background)prevRankRef.current=null;
     if (!canViewLeaderboard) {
       setData([]);
       setMyRank(null);
@@ -199,10 +116,10 @@ export default function LeaderboardPage() {
     if (period === "custom" && from && to) url += `&from=${from}&to=${to}`;
 
     apiClient.get(url)
-      .then(r => setData(r.data?.data || []))
-      .catch(() => setData([]))
+      .then(r => {if(epoch===requestEpoch.current)setData(r.data?.data || []);})
+      .catch(() => {if(!background && epoch===requestEpoch.current)setData([]);})
       .finally(() => {
-        if (!background) {
+        if (epoch===requestEpoch.current) {
           setLoading(false);
         }
       });
@@ -212,6 +129,7 @@ export default function LeaderboardPage() {
     if (rankId) {
       apiClient.get(`/leaderboard/user-rank/${rankId}?period=${period}`)
         .then(r => {
+          if(epoch!==requestEpoch.current)return;
           const rd = r.data?.data;
           if (rd?.rank && prevRankRef.current !== null) {
             const prev = prevRankRef.current, curr = rd.rank;
@@ -225,7 +143,7 @@ export default function LeaderboardPage() {
   };
 
   // Fetch khi tab thay đổi hoặc phone được resolve
-  useEffect(() => {
+  useLiveEffect(({background}) => {
     if (!canViewLeaderboard) {
       setData([]);
       setMyRank(null);
@@ -235,12 +153,14 @@ export default function LeaderboardPage() {
 
     if (tab === "custom") {
       setShowCustom(true);
-      if (customRange.from && customRange.to) fetchData("custom", customRange.from, customRange.to);
-      return;
+      if (customRange.from && customRange.to) fetchData("custom", customRange.from, customRange.to, {background});
+      else {setData([]);setMyRank(null);setLoading(false);}
+      return () => {requestEpoch.current++;};
     }
     setShowCustom(false);
-    fetchData(tab);
-  }, [tab, customRange.from, customRange.to, validPhone, canViewLeaderboard]);
+    fetchData(tab, "", "", {background});
+    return () => {requestEpoch.current++;};
+  }, [tab, customRange.from, customRange.to, validPhone, canViewLeaderboard], ["leaderboard","profile"]);
 
   const publicTop10 = data.slice(0, 10);
   const top1 = publicTop10[0], top2 = publicTop10[1], top3 = publicTop10[2];

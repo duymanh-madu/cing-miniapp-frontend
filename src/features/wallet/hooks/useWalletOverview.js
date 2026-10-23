@@ -1,3 +1,4 @@
+import {useLiveEffect} from "@/runtime/live/useLiveEffect";
 import {
   useCallback,
   useEffect,
@@ -20,48 +21,19 @@ const CACHE_TTL_MS =
 
 let cachedSnapshot = null;
 let cachedAt = 0;
+let cachedOwner = "";
 let inFlight = null;
+let inFlightOwner = "";
 
-async function loadSharedWallet({
-  force = false,
-} = {}) {
-  const fresh =
-    cachedSnapshot &&
-    Date.now() - cachedAt <
-      CACHE_TTL_MS;
-
-  if (
-    !force &&
-    fresh
-  ) {
-    return cachedSnapshot;
-  }
-
-  if (inFlight) {
-    return inFlight;
-  }
-
-  inFlight =
-    fetchWalletOverview()
-      .then(
-        snapshot => {
-          cachedSnapshot =
-            snapshot;
-
-          cachedAt =
-            Date.now();
-
-          return snapshot;
-        }
-      )
-      .finally(
-        () => {
-          inFlight =
-            null;
-        }
-      );
-
-  return inFlight;
+async function loadSharedWallet({force=false, owner=""} = {}) {
+  if(!force && cachedSnapshot && cachedOwner===owner && Date.now()-cachedAt<CACHE_TTL_MS)return cachedSnapshot;
+  if(inFlight && inFlightOwner===owner)return inFlight;
+  const flight=fetchWalletOverview().then(snapshot=>{
+    if(inFlight===flight){cachedSnapshot=snapshot;cachedOwner=owner;cachedAt=Date.now();}
+    return snapshot;
+  }).finally(()=>{if(inFlight===flight){inFlight=null;inFlightOwner="";}});
+  inFlight=flight;inFlightOwner=owner;
+  return flight;
 }
 
 export function invalidateWalletOverviewCache() {
@@ -83,6 +55,9 @@ export default function useWalletOverview({
         current.initialAuthResolved
     );
 
+  const owner=useAuthStore(state=>String(state.profile?.phone || state.profile?.id || state.profile?.customerId || state.accessToken || ""));
+  const ownerRef=useRef(owner);ownerRef.current=owner;
+
   const walletReady =
     enabled &&
     initialAuthResolved &&
@@ -93,11 +68,12 @@ export default function useWalletOverview({
     setState,
   ] =
     useState(() => ({
+      owner,
       data:
-        cachedSnapshot,
+        cachedOwner===owner ? cachedSnapshot : null,
       loading:
         walletReady &&
-        !cachedSnapshot,
+        !(cachedOwner===owner && cachedSnapshot),
       refreshing:
         false,
       error:
@@ -123,11 +99,13 @@ export default function useWalletOverview({
           setState(
             current => ({
               ...current,
+              owner,
+              data: current.owner===owner ? current.data : null,
               loading:
-                !current.data,
+                !(current.owner===owner && current.data),
               refreshing:
                 Boolean(
-                  current.data
+                  current.owner===owner && current.data
                 ),
               error:
                 "",
@@ -138,13 +116,14 @@ export default function useWalletOverview({
         try {
           const data =
             await loadSharedWallet({
-              force,
+              force, owner,
             });
 
           if (
-            mounted.current
+            mounted.current && ownerRef.current===owner
           ) {
             setState({
+              owner,
               data,
               loading:
                 false,
@@ -158,11 +137,13 @@ export default function useWalletOverview({
           return data;
         } catch (error) {
           if (
-            mounted.current
+            mounted.current && ownerRef.current===owner
           ) {
             setState(
               current => ({
                 ...current,
+                owner,
+                data: current.owner===owner ? current.data : null,
                 loading:
                   false,
                 refreshing:
@@ -181,7 +162,7 @@ export default function useWalletOverview({
         }
       },
       [
-        walletReady,
+        walletReady, owner,
       ]
     );
 
@@ -268,15 +249,20 @@ export default function useWalletOverview({
     ]
   );
 
+  useLiveEffect(({background})=>{if(background && walletReady){invalidateWalletOverviewCache();void refresh({silent:true,force:true}).catch(()=>{});}}, [walletReady,refresh], ["wallet"]);
+
+  const safeData=state.owner===owner ? state.data : null;
   return {
     ...state,
+    data: safeData,
+    loading: walletReady && state.owner!==owner ? true : state.loading,
 
     balance:
-      state.data
+      safeData
         ?.balance,
 
     transactions:
-      state.data
+      safeData
         ?.transactions ||
       [],
 
