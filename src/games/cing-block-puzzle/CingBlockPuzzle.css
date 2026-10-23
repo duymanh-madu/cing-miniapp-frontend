@@ -722,3 +722,160 @@
     animation-duration: 1ms;
   }
 }
+
+/* Experience layer: board stays stable when a combo begins or ends. */
+.cing-block-puzzle { isolation: isolate; font-variant-numeric: tabular-nums; }
+.cing-block-puzzle > div:first-child { max-width: 620px; margin-inline: auto; }
+.cing-block-puzzle header > div:first-child { margin-right: auto; }
+.cing-block-puzzle__settings-trigger {
+  width: 44px; height: 44px; flex-shrink: 0; border: 1px solid #c9a77c;
+  border-radius: 14px; background: #fff7eb; color: #643a21; font-size: 25px; cursor: pointer;
+}
+.cing-block-puzzle button:focus-visible, .cing-block-puzzle input:focus-visible {
+  outline: 3px solid #a84d16; outline-offset: 3px;
+}
+.cing-block-puzzle__stats > div:first-child { background: #fff9ef !important; }
+.cing-block-puzzle__stats > div:first-child > div:last-child { color: #b44914; font-size: 30px !important; }
+.cing-block-puzzle main { position: relative; gap: 12px !important; }
+.cing-block-puzzle__guidance { color: #704526; font-size: 12px; font-weight: 700; min-height: 18px; text-align: center; }
+.cing-block-puzzle__combo-hud { position: absolute; top: 8px; right: 0; z-index: 1; }
+.cing-block-puzzle__board {
+  box-sizing: border-box; flex-shrink: 0;
+  width: min(calc(100vw - 32px), 430px, calc(100dvh - 365px)) !important;
+  contain: layout paint;
+}
+.cing-block-puzzle__board-cell { border-radius: 12%; }
+.cing-block-puzzle__board-cell--anticipated-clear {
+  background: linear-gradient(135deg, #ffe8a0, #ffc354);
+  box-shadow: inset 0 0 0 2px #fff5cf, inset 0 0 12px #ffcd69;
+}
+.cing-block-puzzle__tray { flex-shrink: 0; border-radius: 24px; background: #fff8ed66; border: 1px solid #d8b98b66; }
+.cing-block-puzzle__move-feedback {
+  position: absolute; top: 24%; left: 50%; transform: translateX(-50%);
+  z-index: 75; pointer-events: none; text-align: center; color: #713314;
+  padding: 10px 20px; border-radius: 20px; background: #fff6dcf5;
+  box-shadow: 0 6px 22px #79401422; white-space: nowrap;
+  animation: cing-feedback-arrive 650ms ease-out both;
+}
+.cing-block-puzzle__move-feedback strong, .cing-block-puzzle__move-feedback span { display: block; }
+.cing-block-puzzle__move-feedback strong { font-size: 16px; }
+.cing-block-puzzle__move-feedback span { font-size: 20px; font-weight: 900; }
+@keyframes cing-feedback-arrive {
+  0% { opacity: 0; translate: 0 7px; scale: .94; }
+  15%, 70% { opacity: 1; translate: 0 0; scale: 1; }
+  100% { opacity: 0; translate: 0 -12px; }
+}
+.cing-block-puzzle__settings {
+  position: fixed; inset: 0; margin: auto; width: min(420px, calc(100vw - 28px));
+  max-height: calc(100dvh - 32px); overflow-y: auto; box-sizing: border-box;
+  padding: 24px; border: 1px solid #e1bd8c; border-radius: 26px;
+  background: #fff8ed; color: #4a2917; box-shadow: 0 24px 90px #25120455;
+}
+.cing-block-puzzle__settings::backdrop { background: #27170988; }
+.cing-block-puzzle__settings header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cing-block-puzzle__settings header small { font-size: 9px; letter-spacing: 1.5px; color: #9c5c2e; }
+.cing-block-puzzle__settings h2 { font-size: 21px; margin: 7px 0; }
+.cing-block-puzzle__settings header button { border: 0; background: #f2e3cc; border-radius: 50%; width: 44px; height: 44px; font-size: 26px; }
+.cing-block-puzzle__settings p { font-size: 12px; color: #7d5a3e; line-height: 1.6; }
+.cing-block-puzzle__setting-row { display: flex; align-items: center; justify-content: space-between; min-height: 68px; gap: 16px; border-bottom: 1px solid #ebdac1; }
+.cing-block-puzzle__setting-row strong { font-size: 14px; display: block; }
+.cing-block-puzzle__setting-row small { display: block; font-size: 11px; color: #7d5a3e; margin-top: 4px; }
+.cing-block-puzzle__settings input { accent-color: #b95520; }
+.cing-block-puzzle__setting-row input { width: 24px; height: 24px; cursor: pointer; }
+.cing-block-puzzle__volume { display: block; padding: 20px 0; font-size: 14px; font-weight: 700; }
+.cing-block-puzzle__volume span { display: flex; justify-content: space-between; }
+.cing-block-puzzle__volume input { width: 100%; margin-top: 14px; min-height: 24px; }
+.cing-block-puzzle__settings fieldset { border: 1px solid #e1cba9; border-radius: 14px; padding: 12px; font-size: 13px; }
+.cing-block-puzzle__effect-options { display: flex; gap: 16px; }
+.cing-block-puzzle__effect-options label { display: flex; align-items: center; gap: 5px; min-height: 32px; }
+.cing-block-puzzle__settings-done { width: 100%; min-height: 48px; background: #ad4c1e; color: white; border: none; border-radius: 14px; font-weight: 800; }
+.cing-block-puzzle[data-effects="calm"] .cing-block-puzzle__line-burst,
+.cing-block-puzzle[data-effects="calm"] .cing-block-puzzle__combo-energy { display: none; }
+.cing-block-puzzle[data-effects="calm"] .cing-block-puzzle__combo-burst { display: none; }
+.cing-block-puzzle[data-effects="calm"] .cing-block-puzzle__board-cell--line-clear { animation: none; }
+.cing-block-puzzle[data-effects="calm"] .cing-block-puzzle__move-feedback { animation: none; top: 22%; }
+@media (prefers-reduced-motion: reduce) {
+  .cing-block-puzzle *, .cing-block-puzzle *::before, .cing-block-puzzle *::after { animation: none !important; transition: none !important; }
+  .cing-block-puzzle__line-burst, .cing-block-puzzle__combo-burst { display: none; }
+}
+@media (max-height: 650px) {
+  .cing-block-puzzle__stats { height: 58px !important; margin-top: 8px !important; }
+  .cing-block-puzzle main { gap: 8px !important; }
+  .cing-block-puzzle__board { width: min(calc(100vw - 32px), calc(100dvh - 295px)) !important; }
+  .cing-block-puzzle__combo-hud { top: 0; transform: scale(.85); transform-origin: right top; }
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .cing-block-puzzle > div:first-child { padding-top: max(env(safe-area-inset-top), 8px) !important; }
+  .cing-block-puzzle__stats { display: none !important; }
+  .cing-block-puzzle main { flex-direction: row !important; gap: 16px !important; }
+  .cing-block-puzzle__guidance { position: absolute; bottom: 0; font-size: 10px; }
+  .cing-block-puzzle__board { width: min(55vw, calc(100dvh - 100px)) !important; }
+  .cing-block-puzzle__tray { width: 100px !important; flex-direction: column; }
+  .cing-block-puzzle__piece-hitbox { height: 74px !important; }
+  .cing-block-puzzle__combo-hud { top: 0; right: 0; }
+}
+.cing-block-puzzle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.cing-block-puzzle button, .cing-block-puzzle input { font: inherit; }
+.cing-block-puzzle__board-cell:not(.cing-block-puzzle__board-cell--filled) { border-radius: 0; }
+.cing-block-puzzle__settings { z-index: 300; }
+/* Keep celebration in the HUD area; the next placement remains readable. */
+.cing-block-puzzle__combo-burst { top: 21%; width: min(240px, 65vw); height: 110px; scale: .7; transform-origin: left top; }
+.cing-block-puzzle__combo-energy { opacity: .5; }
+.cing-block-puzzle__move-feedback { top: 18%; }
+.cing-block-puzzle__combo-burst ~ .cing-block-puzzle__move-feedback { top: 18%; }
+@media (orientation: landscape) and (max-height: 550px) {
+  .cing-block-puzzle__stats {
+    display: flex !important; position: absolute; top: 8px; left: 50%;
+    transform: translateX(-50%); height: 42px !important; margin: 0 !important; gap: 6px !important; z-index: 1;
+  }
+  .cing-block-puzzle__stats > div { width: 76px; border-radius: 10px !important; box-shadow: none !important; }
+  .cing-block-puzzle__stats > div:nth-child(3) { display: none !important; }
+  .cing-block-puzzle__stats > div > div:first-child { font-size: 8px !important; }
+  .cing-block-puzzle__stats > div > div:last-child { font-size: 18px !important; }
+}
+
+/* V2: vivid pieces, quiet board, one celebration channel. */
+.cing-block-puzzle { background: radial-gradient(ellipse at 50% 20%,#283d78,#14264e 52%,#0c1734) !important; }
+.cing-block-puzzle > div:first-child > header { color:#f5f8ff; }
+.cing-block-puzzle > div:first-child > header img { background:#fff8ed; padding:3px; box-sizing:border-box; }
+.cing-block-puzzle > div:first-child > header > div > div > div:first-child {color:#9edaff !important;}
+.cing-block-puzzle__settings-trigger {background:#273e6d;color:#e3f3ff;border-color:#6682b3;}
+.cing-block-puzzle__stats > div, .cing-block-puzzle__stats > div:first-child {background:#233b68 !important;border-color:#6484ad55 !important;box-shadow:none !important;}
+.cing-block-puzzle__stats > div > div:first-child {color:#b3c8e9 !important;}
+.cing-block-puzzle__stats > div > div:last-child {color:#e5f5ff;}
+.cing-block-puzzle__stats > div:first-child > div:last-child {color:#ffe097;}
+.cing-block-puzzle__guidance {color:#d5e4ff;max-width:100%;min-height:32px;display:flex;align-items:center;justify-content:center;text-wrap:balance;}
+.cing-block-puzzle__board {background:#111d3a !important;border-color:#111d3a !important;box-shadow:0 14px 35px #030a2470,0 0 0 1px #8ca7dc33 !important;}
+.cing-block-puzzle__board-cell {background:#233357;border-color:#162543;box-shadow:inset 0 1px 1px #a3c2ff0b;}
+.cing-block-puzzle__piece-cell,.cing-block-puzzle__floating-cell,.cing-block-puzzle__board-cell--filled {
+  background:linear-gradient(145deg,var(--block-light,#7bcfff),var(--block-base,#398de8) 60%,var(--block-dark,#2458a9));
+  border:1px solid #ffffff55;box-shadow:inset 0 3px 0 #ffffff45,inset 0 -4px 0 #00000022,0 2px 3px #050c2444;
+}
+.cing-block-puzzle__board-cell--preview-valid {background:#79dbf288;box-shadow:inset 0 0 0 2px #b3f2ff;}
+.cing-block-puzzle__board-cell--preview-invalid {background:#e85e7c99;box-shadow:inset 0 0 0 2px #ffb3c8;}
+.cing-block-puzzle__board-cell--anticipated-clear {background:#ffda71;box-shadow:inset 0 0 0 2px #fff4bd,0 0 10px #ffd98766;}
+.cing-block-puzzle__tray {background:#2b426c66;border-color:#7194cd33;}
+.cing-block-puzzle__combo-hud {background:linear-gradient(135deg,#533e99,#234b85);border-color:#b2c4ff66;box-shadow:0 4px 14px #0003;}
+.cing-block-puzzle__combo-burst {display:none;}
+.cing-block-puzzle__celebration {
+  position:absolute;z-index:95;top:23%;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;
+  width:max-content;max-width:calc(100% - 40px);padding:10px 18px;box-sizing:border-box;border-radius:22px;
+  background:#172747f5;border:1px solid #bbdeff66;color:#fff4bf;box-shadow:0 8px 24px #0003;pointer-events:none;
+  animation:cing-celebration-pop 850ms ease-out both;
+}
+.cing-block-puzzle__encouragement-icon {font-size:32px;line-height:1;flex-shrink:0;}
+.cing-block-puzzle__celebration strong {display:block;font-size:16px;line-height:1.3;}
+.cing-block-puzzle__celebration small {display:block;margin-top:4px;color:#d1e9ff;font-size:11px;}
+@keyframes cing-celebration-pop {0%{opacity:0;translate:0 8px;scale:.9;}15%,80%{opacity:1;translate:0 0;scale:1;}100%{opacity:0;translate:0 -8px;scale:1;}}
+.cing-block-puzzle__pending-result {display:flex;flex-direction:column;align-items:center;gap:14px;padding:28px;border-radius:24px;background:#15294ff2;border:1px solid #718bc455;text-align:center;}
+.cing-block-puzzle__pending-result > strong {font-size:56px;color:#ffe49d;}
+.cing-block-puzzle__pending-result > small {font-size:11px;color:#c8daf8;}
+.cing-block-puzzle__pending-purchase {display:inline-flex;gap:9px;align-items:center;justify-content:center;}
+.cing-block-puzzle__spinner {display:inline-block;width:18px;height:18px;border-radius:50%;border:2px solid #ffffff55;border-top-color:#fff;animation:cing-block-spin 650ms linear infinite;}
+@keyframes cing-block-spin {to{transform:rotate(360deg);}}
+.cing-block-puzzle[data-effects="calm"] .cing-block-puzzle__celebration {animation:none;}
+@media (orientation:landscape) and (max-height:550px) {.cing-block-puzzle__celebration{top:15%;left:43%;}.cing-block-puzzle__guidance{min-height:20px;}}
+@media (prefers-reduced-motion:reduce) {.cing-block-puzzle__celebration,.cing-block-puzzle__spinner{animation:none !important;}}
+.cing-block-puzzle__settings-backdrop {position:fixed;inset:0;z-index:300;background:#07132b88;}
+.cing-block-puzzle[data-effects="calm"] .cing-block-puzzle__board-cell--line-clear::before,
+.cing-block-puzzle[data-effects="calm"] .cing-block-puzzle__board-cell--line-clear::after {animation:none;}

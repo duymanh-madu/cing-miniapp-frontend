@@ -403,6 +403,8 @@ submitAuthorizedBlockPuzzleReplay({
     replay
   );
 
+  cancelOptionalPreparation(replay);
+
   const response =
     await requestWithAuthRecovery(
       (config) =>
@@ -685,6 +687,8 @@ purchaseAuthorizedBlockPuzzleContinue({
     replay
   );
 
+  cancelOptionalPreparation(replay);
+
   const response =
     await requestWithAuthRecovery(
       (config) =>
@@ -730,4 +734,37 @@ purchaseAuthorizedBlockPuzzleContinue({
         authoritativeResponse,
         normalizedSessionId
       );
+}
+
+// Preparation is optional and read-only. It never delays or substitutes a
+// purchase/submission, and never renews authentication in the background.
+const preparedReplays = new WeakMap();
+function cancelOptionalPreparation(replay) {
+  const prepared=preparedReplays.get(replay);
+  if(prepared && !prepared.done) prepared.controller.abort();
+}
+export function prepareAuthorizedBlockPuzzleDecision({ sessionId, replay }) {
+  if (!replay || typeof replay !== 'object' || !UUID_V4.test(String(sessionId))) return Promise.resolve(false);
+  if (globalThis.document?.hidden) return Promise.resolve(false);
+  const connection=globalThis.navigator?.connection;
+  if(connection?.saveData || ['slow-2g','2g'].includes(connection?.effectiveType)) return Promise.resolve(false);
+  const existing=preparedReplays.get(replay);
+  if(existing?.sessionId===sessionId) return existing.promise;
+  existing?.controller.abort();
+  const prepared={sessionId,controller:new AbortController(),done:false,promise:null};
+  prepared.promise=Promise.resolve().then(async()=>{
+    if(prepared.controller.signal.aborted) return false;
+    try {
+      await apiClient.post(`${GAME_PATH}/session/${sessionId}/prepare`,{replay},
+        {...authConfig(),timeout:2000,signal:prepared.controller.signal});
+      return true;
+    } catch { return false; }
+    finally {prepared.done=true;}
+  });
+  preparedReplays.set(replay,prepared);
+  return prepared.promise;
+}
+export async function fetchBlockPuzzleWeeklyProgress({ signal } = {}) {
+  const response = await apiClient.get(`${GAME_PATH}/weekly-progress`,{...authConfig(),signal,timeout:4000});
+  return unwrapResponse(response);
 }

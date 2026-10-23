@@ -88,8 +88,9 @@ function clamp(
   );
 }
 
-class BlockPuzzleAudioRuntime {
+export class BlockPuzzleAudioRuntime {
   constructor() {
+    this.preferences = { sound: true, music: true, volume: 0.7 };
     this.context =
       null;
 
@@ -119,6 +120,18 @@ class BlockPuzzleAudioRuntime {
 
     this.nextMusicTime =
       0;
+  }
+
+  setPreferences(preferences) {
+    this.preferences = { ...this.preferences, ...preferences };
+    const now = this.context?.currentTime;
+    if (this.master && Number.isFinite(now)) {
+      this.master.gain.cancelScheduledValues(now);
+      this.master.gain.setTargetAtTime(SONIC.masterGain * this.preferences.volume, now, 0.018);
+      this.sfx.gain.cancelScheduledValues(now);
+      this.sfx.gain.setTargetAtTime(this.preferences.sound ? SONIC.sfxGain : 0, now, 0.012);
+    }
+    if (!this.preferences.music) this.stopMusic();
   }
 
   /*
@@ -157,7 +170,7 @@ class BlockPuzzleAudioRuntime {
 
     try {
       const context =
-        new AudioContextClass();
+        new AudioContextClass({ latencyHint: "interactive" });
 
       const master =
         context.createGain();
@@ -172,13 +185,13 @@ class BlockPuzzleAudioRuntime {
         context.createDynamicsCompressor();
 
       master.gain.value =
-        SONIC.masterGain;
+        SONIC.masterGain * this.preferences.volume;
 
       sfx.gain.value =
-        SONIC.sfxGain;
+        this.preferences.sound ? SONIC.sfxGain : 0;
 
       music.gain.value =
-        SONIC.musicGain;
+        this.preferences.music ? SONIC.musicGain : 0;
 
       compressor.threshold.value =
         -15;
@@ -384,6 +397,10 @@ class BlockPuzzleAudioRuntime {
       destination
     );
 
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      envelope.disconnect();
+    };
     oscillator.start(
       time
     );
@@ -470,6 +487,9 @@ class BlockPuzzleAudioRuntime {
       destination
     );
 
+    source.onended = () => {
+      source.disconnect(); hp.disconnect(); lp.disconnect(); envelope.disconnect();
+    };
     source.start(
       time,
       0,
@@ -624,7 +644,7 @@ class BlockPuzzleAudioRuntime {
       context.currentTime;
 
     const normal =
-      SONIC.musicGain;
+      this.preferences.music && this.musicRequested ? SONIC.musicGain : 0;
 
     const ducked =
       normal *
@@ -1028,6 +1048,7 @@ class BlockPuzzleAudioRuntime {
   playMoveEvent(
     event
   ) {
+    if (!this.preferences.sound || this.preferences.volume === 0) return;
     const cues =
       createBlockPuzzleAudioCuePlan(
         event
@@ -1288,6 +1309,9 @@ class BlockPuzzleAudioRuntime {
     const stepDuration =
       secondsPerBeat / 2;
 
+    if (this.nextMusicTime < context.currentTime - 0.1) {
+      this.nextMusicTime = context.currentTime + 0.025;
+    }
     const horizon =
       context.currentTime +
       SONIC.schedulerLookAheadSeconds;
@@ -1313,6 +1337,7 @@ class BlockPuzzleAudioRuntime {
   }
 
   startMusic() {
+    if (!this.preferences.music) return;
     if (
       !this.context
     ) {
@@ -1321,6 +1346,8 @@ class BlockPuzzleAudioRuntime {
 
     this.musicRequested =
       true;
+    this.music.gain.cancelScheduledValues(this.context.currentTime);
+    this.music.gain.setTargetAtTime(SONIC.musicGain, this.context.currentTime, 0.04);
 
     const beginScheduler =
       () => {
@@ -1371,6 +1398,10 @@ class BlockPuzzleAudioRuntime {
   }
 
   stopMusic() {
+    if (this.music && this.context) {
+      this.music.gain.cancelScheduledValues(this.context.currentTime);
+      this.music.gain.setTargetAtTime(0, this.context.currentTime, 0.025);
+    }
     this.musicRequested =
       false;
 

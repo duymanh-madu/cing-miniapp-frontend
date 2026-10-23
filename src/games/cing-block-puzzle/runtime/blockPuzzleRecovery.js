@@ -209,7 +209,8 @@ function normalizeSession(
 
 function normalizeEnvelope(
   envelope,
-  expectedOwnerKey
+  expectedOwnerKey,
+  { cloneReplay = true } = {}
 ) {
   if (
     !envelope ||
@@ -387,9 +388,9 @@ function normalizeEnvelope(
       ),
 
     replay:
-      cloneBlockPuzzleSerializableValue(
-        envelope.replay
-      ),
+      cloneReplay
+        ? cloneBlockPuzzleSerializableValue(envelope.replay)
+        : envelope.replay,
   });
 }
 
@@ -501,7 +502,8 @@ persistBlockPuzzleRuntime({
           replay:
             runtime.replay,
         },
-        ownerKey
+        ownerKey,
+        { cloneReplay: false }
       );
 
     target.setItem(

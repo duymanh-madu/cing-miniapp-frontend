@@ -1,0 +1,12 @@
+{
+  "release": "cing-block-puzzle-v2-production",
+  "preparedAt": "2026-10-23T01:01:04.561705+00:00",
+  "changes": [
+    "responsive-drag-and-drop",
+    "weekly-leaderboard-progress",
+    "multicolor-blocks-and-celebrations",
+    "optional-voice-haptic-controls",
+    "revive-and-submit-latency"
+  ],
+  "backendRequired": true
+}
