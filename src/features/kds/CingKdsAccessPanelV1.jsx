@@ -1,6 +1,6 @@
 import React,{useEffect,useState} from "react";
 import apiClient from "@/infra/api/apiClient";
-const rights=[["enabled","Bật quyền"],["can_read","Xem KDS / báo cáo"],["can_prepare","Đánh dấu pha xong"],["can_serve","Đánh dấu đã trả"],["can_manage_policy","Cấu hình SLA"]];
+const rights=[["enabled","Bật quyền"],["can_read","Xem vận hành KDS"],["can_prepare","Đánh dấu pha xong"],["can_serve","Đánh dấu đã trả"],["can_manage_policy","Cấu hình SLA"]];
 export default function CingKdsAccessPanelV1({token,branch}){
  const [audits,setAudits]=useState([]);
  const [rows,setRows]=useState([]),[busy,setBusy]=useState(""),[notice,setNotice]=useState("");
@@ -18,7 +18,7 @@ export default function CingKdsAccessPanelV1({token,branch}){
   }catch{setNotice("Chưa xác nhận lưu quyền. Hãy tải lại quyền trước khi thử tiếp.");}finally{setBusy("");}
  }
  return <section className="ckds-panel ckds-access-panel"><h2>Phân quyền KDS theo admin</h2>
-  <p>Áp dụng cho {branch.pos_parent} · {branch.pos_id}. Chỉ Super Admin được cấp hoặc thu hồi quyền.</p>
+  <p>Áp dụng cho {branch.pos_parent} · {branch.pos_id}. Chỉ Super Admin được cấp hoặc thu hồi quyền. Báo cáo và xuất file chỉ dành cho Super Admin.</p>
   {notice&&<p role="status" className="ckds-banner">{notice}</p>}
   <button type="button" onClick={()=>load().catch(()=>setNotice("Không thể tải lại quyền."))} disabled={Boolean(busy)}>Tải lại quyền</button>
   <div className="ckds-history-table"><table><thead><tr><th>Admin</th>{rights.map(([key,label])=><th key={key}>{label}</th>)}<th>Lưu</th></tr></thead>

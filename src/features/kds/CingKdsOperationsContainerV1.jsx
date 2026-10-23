@@ -66,6 +66,8 @@ export default function CingKdsOperationsContainerV1({token,role=""}) {
   },[selected,token,branches]);
 
   const snapshot=sessionState.snapshot;
+  const canReport=String(role).toLowerCase()==="super_admin" && snapshot?.canReport===true;
+  useEffect(()=>{if(workspaceView==="reports" && !canReport)setWorkspaceView("operations");},[workspaceView,canReport]);
   const status=kdsOperationsStatusV1(sessionState.error);
   async function transition(command) {
     setNotice("");
@@ -91,11 +93,11 @@ export default function CingKdsOperationsContainerV1({token,role=""}) {
       </select></label>
       {snapshot && <span>Cập nhật: {new Date(snapshot.sampled_at).toLocaleTimeString("vi-VN")} · Đồng bộ khi dữ liệu thay đổi</span>}
     </div>
-    <nav className="ckds-view-switch" aria-label="Chức năng KDS">
+    {String(role).toLowerCase()==="super_admin" && <nav className="ckds-view-switch" aria-label="Chức năng KDS">
       <button type="button" aria-pressed={workspaceView==="operations"} onClick={()=>setWorkspaceView("operations")}>Vận hành</button>
-      <button type="button" aria-pressed={workspaceView==="reports"} onClick={()=>setWorkspaceView("reports")}>Báo cáo / Xuất file</button>
+      {canReport && <button type="button" aria-pressed={workspaceView==="reports"} onClick={()=>setWorkspaceView("reports")}>Báo cáo / Xuất file</button>}
       {String(role).toLowerCase()==="super_admin" && <button type="button" aria-pressed={workspaceView==="access"} onClick={()=>setWorkspaceView("access")}>Phân quyền admin / SLA</button>}
-    </nav>
+    </nav>}
     {sessionState.syncNotice && <p role="status" className="ckds-banner">{sessionState.syncNotice}</p>}
     {notice && <p role="status" className="ckds-banner">{notice}</p>}
     {sessionState.error && !status.hold && <p role={status.hold?"status":"alert"} className={`ckds-banner${status.hold?"":" error"}`}>
@@ -114,13 +116,14 @@ export default function CingKdsOperationsContainerV1({token,role=""}) {
       branchName={branch?`${branch.pos_parent} · ${branch.pos_id}`:"Chưa chọn chi nhánh"}
       {...sessionState} {...(snapshot || {})}
       error={status.hold?"":sessionState.error}
+      allowReports={canReport}
       snapshotReady={Boolean(snapshot)}
       onRefresh={()=>session.current?.refresh()}
       onTransition={snapshot?.transitionsEnabled?transition:null}
       previewMessage={sessionState.error && status.hold?status.message:"Đang chờ cấp quyền và mở dữ liệu vận hành cho chi nhánh."}/>
     </div>
     {workspaceView==="access" && String(role).toLowerCase()==="super_admin" && (branch||managementBranch) && <CingKdsAccessPanelV1 token={token} branch={branch||managementBranch}/>}
-    {workspaceView==="reports" && snapshot && <section className="ckds-panel">
+    {workspaceView==="reports" && canReport && snapshot && <section className="ckds-panel">
       <h2>Báo cáo và lịch sử hoàn thành</h2>
       <p>Lọc theo ngày hoàn thành, tối đa 31 ngày mỗi lần. File CSV mở được bằng Excel.</p>
       <div className="ckds-live-controls">{[["summary","Xuất tổng hợp"],["completed","Xuất chi tiết hóa đơn"],["active","Xuất đơn đang phục vụ"]].map(([kind,label])=>

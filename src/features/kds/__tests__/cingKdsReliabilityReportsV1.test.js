@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {buildKdsCsvReportV1} from '../cingKdsCsvReportsV1.js';
 import {createKdsOperationsSessionV1,adaptKdsOperationsSnapshotV1} from '../cingKdsOperationsSessionV1.js';
 const branch={pos_parent:'BRAND-DQIR',pos_id:'109664'};
-function source(){return {success:true,branch,sampled_at:'2026-10-23T06:00:00Z',history_range:{from:'2026-10-22T00:00:00Z',to:'2026-10-23T00:00:00Z'},history:[],alerts:[],performance:[],policy:{},capabilities:{transitions_enabled:true,can_prepare:true,can_serve:true},serving:[],preparation:[{cup_id:'cup',order_id:'bill',status:'pending',version:0,item_name:'Tea',elapsed_minutes:1,severity:'normal'}]};}
+function source(){return {canReport:true,success:true,branch,sampled_at:'2026-10-23T06:00:00Z',history_range:{from:'2026-10-22T00:00:00Z',to:'2026-10-23T00:00:00Z'},history:[],alerts:[],performance:[],policy:{},capabilities:{transitions_enabled:true,can_prepare:true,can_serve:true},serving:[],preparation:[{cup_id:'cup',order_id:'bill',status:'pending',version:0,item_name:'Tea',elapsed_minutes:1,severity:'normal'}]};}
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 test('CSV safely exports Vietnamese names, embedded quotes/newlines and Excel formula-like invoice numbers',()=>{
  const data={...source(),history:[{tran_no:'=HYPERLINK("evil")',order_id:'invoice',started_at:source().history_range.from,completed_at:source().history_range.to,duration_minutes:10,cup_count:3,sla_severity:'warning'}]};
@@ -34,3 +34,5 @@ test('authority denial clears rows immediately even during reconnect, and cannot
  const session=createKdsOperationsSessionV1({api,branch,onState:x=>state=x,schedule:()=>1,cancel:()=>{}});session.start();await accept(source());offline({code:'KDS_OPS_FORBIDDEN'});
  assert.equal(state.snapshot,null);await flush();assert.equal(state.error,'KDS_OPS_FORBIDDEN');await assert.rejects(session.transition({cup_id:'cup',order_id:'bill',target_status:'prepared'}));session.stop();
 });
+
+test('CSV export requires explicit report capability, even if history was previously loaded',()=>{assert.throws(()=>buildKdsCsvReportV1({...source(),canReport:false}));});

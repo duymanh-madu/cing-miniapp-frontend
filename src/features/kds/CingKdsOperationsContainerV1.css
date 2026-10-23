@@ -18,3 +18,8 @@
 .ckds-live-shell .ckds-access-panel td{min-width:100px;vertical-align:middle}
 .ckds-live-shell .ckds-access-panel td:first-child{min-width:160px}
 .ckds-live-shell .ckds-access-panel li{padding:8px 0;line-height:1.6}
+
+.ckds-live-shell>.ckds-live-controls{gap:8px;margin:4px 0;align-items:center;font-size:11px}
+.ckds-live-shell>.ckds-live-controls label{font-size:11px;flex-direction:row;align-items:center}
+.ckds-live-shell>.ckds-live-controls select{min-height:32px;padding:4px 7px;font-size:11px}
+@media(max-width:650px){.ckds-live-shell>.ckds-live-controls>span{display:none}.ckds-live-shell>.ckds-live-controls label{width:auto}.ckds-live-shell>.ckds-live-controls select{max-width:235px}}

@@ -21,7 +21,7 @@ export function adaptKdsOperationsSnapshotV1(data, branch) {
   });
   if(data.bills && [...snapshot.preparation,...snapshot.serving].some(c=>!seen.has(c.cup_id)))throw new Error("KDS_BILL_INVALID");
   return {...snapshot,bills,history_range:data.history_range,duration_filter:data.duration_filter, history:data.history, policy:data.policy, sampled_at:data.sampled_at,
-    transitionsEnabled:enabled,
+    canReport:data.capabilities?.can_report === true,transitionsEnabled:enabled,
     preparation:snapshot.preparation.map(x=>({...x,transition_ready:enabled && data.capabilities?.can_prepare !== false && x.version !== null})),
     serving:snapshot.serving.map(x=>({...x,transition_ready:enabled && data.capabilities?.can_serve !== false && x.version !== null}))};
 }
@@ -114,6 +114,7 @@ export function createKdsOperationsSessionV1({api,branch,onState,
           catch{snapshot=null;publish({snapshot:null,loading:false,connectionState:"offline",error:"KDS_OPS_UNAVAILABLE"});throw new Error("KDS_SNAPSHOT_INVALID");}
         },(reason={})=>{
           if(active && startEpoch===epoch){streamHealthy=false;
+            if(reason.code==="KDS_OPS_FORBIDDEN")historyRange={};
             const authority=/^KDS_OPS_(FORBIDDEN|UNAUTHORIZED|SOURCE_STALE|READ_DISABLED|POLICY_REQUIRED)$/.test(reason.code||"");
             if(authority)snapshot=null;
             publish({snapshot,loading:false,connectionState:"offline",error:authority?reason.code:"",

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import "./CingKdsProPage.css";
+import {compactKdsLocationV1,splitKdsItemLabelV1} from "./cingKdsCompactLabelsV1.js";
 import {buildKdsBillBoardV1} from "./cingKdsBillBoardV1.js";
 
 const MODES = [
@@ -47,7 +48,7 @@ function formatMinutes(value) {
     return "< 1 phút";
   }
 
-  return `${Math.floor(minutes)} phút`;
+  return minutes>=60 ? `${Math.floor(minutes/60)}g ${Math.floor(minutes%60)}p` : `${Math.floor(minutes)}p`;
 }
 
 function severityClass(value) {
@@ -56,54 +57,23 @@ function severityClass(value) {
     : "normal";
 }
 
-function CupCard({ cup, mode, busy, onTransition }) {
-  const action = mode === "serving" ? (cup.status === "prepared" ? NEXT.prepared : null) : NEXT[cup.status];
-
-  return (
-    <article className={`ckds-cup ckds-${severityClass(cup.severity)}`}>
-      <div className="ckds-cup-top">
-        <span className="ckds-order-number">
-          {cup.tran_no || "Chưa có số hóa đơn"}
-        </span>
-        <span className="ckds-elapsed">
-          <Clock3 size={15} aria-hidden="true" />
-          {formatMinutes(cup.elapsed_minutes)}
-        </span>
-      </div>
-
-      <h3>{cup.item_name || "Chưa có tên món"}</h3>
-      {(cup.table_name || cup.card_number) && <p>{cup.table_name} {cup.card_number ? `· Thẻ ${cup.card_number}` : ""}</p>}
-
-      <div className="ckds-cup-meta">
-        <span>{cup.item_group || "Chưa phân nhóm"}</span>
-        <span>{STATUS_TEXT[cup.status] || "Không xác định"}</span>
-      </div>
-
-      {cup.severity === "critical" && (
-        <p className="ckds-warning">
-          <AlertTriangle size={16} aria-hidden="true" />
-          Đơn đã vượt ngưỡng SLA nghiêm trọng
-        </p>
-      )}
-
-      {mode !== "monitor" && action && onTransition && (
-        <button
-          type="button"
-          className="ckds-action"
-          disabled={busy || cup.transition_ready !== true}
-          onClick={() => onTransition({
-            order_id: cup.order_id,
-            cup_id: cup.cup_id,
-            target_status: action.status,
-            expected_version: cup.version
-          })}
-        >
-          {busy ? "Đang xử lý..." : action.label}
-          <Check size={18} aria-hidden="true" />
-        </button>
-      )}
-    </article>
-  );
+function CupCard({ cup, mode, busy, onTransition, compact=false }) {
+  const action=mode==="serving"?(cup.status==="prepared"?NEXT.prepared:null):NEXT[cup.status];
+  const label=splitKdsItemLabelV1(cup.item_name);
+  return <article className={`ckds-cup ckds-${severityClass(cup.severity)}${compact?" ckds-cup-row":""}`}>
+    {!compact && <div className="ckds-cup-top"><span className="ckds-order-number">#{cup.tran_no}</span>
+      <span className="ckds-elapsed"><Clock3 size={13}/>{formatMinutes(cup.elapsed_minutes)}</span></div>}
+    <div className="ckds-row-label"><h3>{label.name || "Chưa có tên món"}</h3>
+      {label.detail && <p className="ckds-row-detail">{label.detail}</p>}
+      {!compact && <p className="ckds-row-detail">{compactKdsLocationV1(cup.table_name)} · {cup.item_group}</p>}
+    </div>
+    {mode!=="monitor" && action && onTransition ? <button type="button" className="ckds-action"
+      aria-label={`${action.label}: ${cup.item_name} · hóa đơn ${cup.tran_no}`}
+      disabled={busy || cup.transition_ready!==true}
+      onClick={()=>onTransition({order_id:cup.order_id,cup_id:cup.cup_id,target_status:action.status,expected_version:cup.version})}>
+      <Check size={18} aria-hidden="true"/><span>{busy?"…":cup.status==="prepared"?"Đã trả":"Xong"}</span>
+    </button>:<span className={`ckds-row-status ckds-status-${cup.status}`}>{STATUS_TEXT[cup.status]}</span>}
+  </article>;
 }
 
 /*
@@ -133,11 +103,14 @@ export default function CingKdsProPage({
   busyCupIds = [],
   onRefresh = null,
   onTransition = null,
+  allowReports = false,
   snapshotReady = false,
   previewMessage = ""
 }) {
+  const [collapsed,setCollapsed]=useState(()=>new Set());
   const [view,setView] = useState("bills");
   const [mode, setMode] = useState("preparation");
+  useEffect(()=>{if(!allowReports && mode==="monitor")setMode("preparation");},[allowReports,mode]);
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("all");
 
@@ -227,7 +200,7 @@ export default function CingKdsProPage({
       </header>
 
       <nav className="ckds-nav" aria-label="Chế độ vận hành KDS">
-        {MODES.map(({ id, title, Icon }) => (
+        {MODES.filter(item=>item.id!=="monitor" || allowReports).map(({ id, title, Icon }) => (
           <button
             key={id}
             type="button"
@@ -247,15 +220,15 @@ export default function CingKdsProPage({
 
       <section className="ckds-summary" aria-label="Tổng quan vận hành">
         <div className="ckds-stat">
-          <span>Món chưa pha xong</span>
+          <span>Chưa xong</span>
           <strong>{ready ? preparation.length : "—"}</strong>
         </div>
         <div className="ckds-stat">
-          <span>Đã pha · chờ trả</span>
+          <span>Chờ trả</span>
           <strong>{ready ? serving.length : "—"}</strong>
         </div>
         <div className="ckds-stat">
-          <span>Hóa đơn chưa trả đủ · {alerts.length} cảnh báo SLA</span>
+          <span>Bill chưa trả đủ</span>
           <strong>{ready ? outstandingBills : "—"}</strong>
         </div>
       </section>
@@ -292,7 +265,7 @@ export default function CingKdsProPage({
               <Search size={19} aria-hidden="true" />
               <input
                 aria-label="Tìm món hoặc số hóa đơn"
-                placeholder="Tìm hóa đơn, bàn, thẻ hoặc tên món..."
+                placeholder="Bill, thẻ, tên món…"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
               />
@@ -314,6 +287,10 @@ export default function CingKdsProPage({
             <button type="button" aria-pressed={view==="bills"} onClick={()=>setView("bills")}>Theo hóa đơn</button>
             <button type="button" aria-pressed={view==="groups"} onClick={()=>setView("groups")}>Theo nhóm món</button>
           </div>
+          {view==="bills" && <div className="ckds-fold-controls">
+            <button type="button" onClick={()=>setCollapsed(new Set(billBoard.map(b=>b.order_id)))}>Thu gọn tất cả</button>
+            <button type="button" onClick={()=>setCollapsed(new Set())}>Mở tất cả</button>
+          </div>}
           <div className="ckds-section-heading">
             <div>
               <h2>
@@ -327,17 +304,26 @@ export default function CingKdsProPage({
           </div>
 
           {view === "bills" && billBoard.length > 0 ? <div className="ckds-bill-grid">
-            {billBoard.map(bill=><article className="ckds-bill" key={bill.order_id}>
-              <header><strong>Hóa đơn {bill.tran_no || bill.order_id}</strong><span>{formatMinutes(bill.elapsed_minutes)}</span></header>
-              <p className="ckds-bill-location">{bill.table_name}{bill.card_number?` · Thẻ ${bill.card_number}`:""}</p>
-              <div className="ckds-bill-progress"><strong>{bill.progress}</strong>
-                <span>Đã pha {bill.completed}/{bill.total} · Đã trả {bill.served}/{bill.total}</span>
-                <progress aria-label={`Tiến độ hóa đơn ${bill.tran_no}`} value={bill.completed} max={bill.total}/>
-                <span>Còn {bill.unfinished} món chưa pha xong · {bill.ready} món chờ trả</span>
-              </div>
-              <div className="ckds-bill-items">{bill.visibleCups.map(cup=><CupCard key={cup.cup_id} cup={cup} mode={mode}
-                busy={!canMutate || busyCupIds.includes(cup.cup_id)} onTransition={canMutate?onTransition:null}/>)}</div>
-            </article>)}
+            {billBoard.map(bill=>{
+              const folded=collapsed.has(bill.order_id);
+              const severity=bill.cups.some(c=>c.severity==="critical")?"critical":bill.cups.some(c=>c.severity==="warning")?"warning":"normal";
+              return <article className={`ckds-bill ckds-bill-${severity}`} key={bill.order_id}>
+                <button type="button" className="ckds-bill-toggle" aria-expanded={!folded} aria-controls={`bill-${bill.order_id}`}
+                  onClick={()=>setCollapsed(previous=>{const next=new Set(previous);if(next.has(bill.order_id))next.delete(bill.order_id);else next.add(bill.order_id);return next;})}>
+                  <strong>#{bill.tran_no || bill.order_id}</strong>
+                  <span className={`ckds-bill-age ckds-${severity}`} title={severity==="critical"?"Vượt SLA nghiêm trọng":severity==="warning"?"Vượt ngưỡng cảnh báo SLA":"Thời gian chờ"}>{severity!=="normal" && <AlertTriangle size={12}/>} {formatMinutes(bill.elapsed_minutes)}</span>
+                  <span aria-hidden="true">{folded?"＋":"−"}</span>
+                </button>
+                <div className="ckds-bill-context"><span title={bill.table_name}>{compactKdsLocationV1(bill.table_name)}{bill.card_number?` · Thẻ ${bill.card_number}`:""}</span>
+                  <span className="ckds-bill-progress" aria-label={`Tiến độ hóa đơn ${bill.tran_no}`}>Pha {bill.completed}/{bill.total} · Trả {bill.served}/{bill.total}</span>
+                </div>
+                {folded && <p className="ckds-folded-count">{bill.unfinished} chưa xong · {bill.ready} chờ trả</p>}
+                <div id={`bill-${bill.order_id}`} className="ckds-bill-items" hidden={folded}>
+                  {bill.visibleCups.map(cup=><CupCard key={cup.cup_id} compact cup={cup} mode={mode}
+                    busy={!canMutate || busyCupIds.includes(cup.cup_id)} onTransition={canMutate?onTransition:null}/>)}
+                </div>
+              </article>;
+            })}
           </div> : view === "groups" && visible.length ? (
             <div className="ckds-grid">
               {[...new Set(visible.map(c=>c.item_group))].map(name=><section className="ckds-group-section" key={name}>
@@ -371,7 +357,7 @@ export default function CingKdsProPage({
         </>
       )}
 
-      {ready && mode === "monitor" && (
+      {ready && allowReports && mode === "monitor" && (
         <div className="ckds-monitor">
           <section className="ckds-panel">
             <h2>Đơn cần chú ý</h2>

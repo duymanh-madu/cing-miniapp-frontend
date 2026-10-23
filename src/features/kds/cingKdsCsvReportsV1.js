@@ -8,7 +8,7 @@ const cell=value=>{
 const csv=rows=>"\ufeff"+rows.map(row=>row.map(cell).join(",")).join("\r\n");
 const date=value=>value?new Date(value).toLocaleString("vi-VN",{timeZone:"Asia/Ho_Chi_Minh",hour12:false}):"";
 export function buildKdsCsvReportV1(snapshot,kind="completed"){
- if(!snapshot?.branch || !Array.isArray(snapshot.history) || !snapshot.history_range)throw Error("KDS_REPORT_NOT_READY");
+ if(snapshot?.canReport!==true || !snapshot?.branch || !Array.isArray(snapshot.history) || !snapshot.history_range)throw Error("KDS_REPORT_NOT_READY");
  const metadata=[["Chi nhánh",snapshot.branch.pos_parent,snapshot.branch.pos_id],
   ["Khoảng ngày hoàn thành (giờ Việt Nam)",date(snapshot.history_range.from),date(snapshot.history_range.to)],
   ["Bộ lọc phút phục vụ",snapshot.duration_filter?.minimum??"Không giới hạn",snapshot.duration_filter?.maximum??"Không giới hạn"],
