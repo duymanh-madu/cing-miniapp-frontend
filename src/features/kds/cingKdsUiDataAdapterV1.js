@@ -107,6 +107,7 @@ function normalizeCup(cup, allowedStatuses) {
     cup_id: cupId,
     order_id: orderId,
     tran_no: String(cup.tran_no ?? ""),
+    payment_verification: cup.payment_verification === "verified" ? "verified" : "pending_verification",
     item_name: String(cup.item_name ?? ""),
     item_group:
       String(cup.item_group || "Chưa phân nhóm"),

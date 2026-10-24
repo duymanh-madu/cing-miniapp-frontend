@@ -314,6 +314,7 @@ export default function CingKdsProPage({
                   <span className={`ckds-bill-age ckds-${severity}`} title={severity==="critical"?"Vượt SLA nghiêm trọng":severity==="warning"?"Vượt ngưỡng cảnh báo SLA":"Thời gian chờ"}>{severity!=="normal" && <AlertTriangle size={12}/>} {formatMinutes(bill.elapsed_minutes)}</span>
                   <span aria-hidden="true">{folded?"＋":"−"}</span>
                 </button>
+                <div className="ckds-bill-payment">{bill.payment_verification === "pending_verification" ? "Chưa xác nhận thanh toán" : bill.payment_verification === "verified" ? "Đã thanh toán" : ""}</div>
                 <div className="ckds-bill-context"><span title={bill.table_name}>{compactKdsLocationV1(bill.table_name)}{bill.card_number?` · Thẻ ${bill.card_number}`:""}</span>
                   <span className="ckds-bill-progress" aria-label={`Tiến độ hóa đơn ${bill.tran_no}`}>Pha {bill.completed}/{bill.total} · Trả {bill.served}/{bill.total}</span>
                 </div>

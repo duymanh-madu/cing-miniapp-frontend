@@ -112,6 +112,11 @@ export default function CingKdsOperationsContainerV1({token,role=""}) {
         onChange={e=>setPolicy({...policy,critical:e.target.value})}/></label>
       <button disabled={saving} type="submit">{saving?"Đang lưu…":"Lưu SLA"}</button>
     </form>}
+    {workspaceView==="operations" && snapshot?.source_cancellations?.length>0 && <details className="ckds-source-cancellations" open>
+      <summary>Nguồn iPOS vừa giảm/hủy {snapshot.source_cancellations.length} món · kiểm tra trước khi tiếp tục pha/trả</summary>
+      <ul>{snapshot.source_cancellations.map(row=><li key={row.cup_id}>#{row.tran_no} · {row.item_name} — {row.prior_status==="served"?"đã trả trước khi hủy":row.prior_status==="prepared"?"đã pha trước khi hủy":"đã gỡ khỏi hàng chờ"}</li>)}</ul>
+      <small>Thay đổi trong 30 phút gần đây. Lịch sử thao tác đã được giữ lại.</small>
+    </details>}
     <div hidden={workspaceView!=="operations"}><CingKdsProPage branch={snapshot?.branch || null}
       branchName={branch?`${branch.pos_parent} · ${branch.pos_id}`:"Chưa chọn chi nhánh"}
       {...sessionState} {...(snapshot || {})}

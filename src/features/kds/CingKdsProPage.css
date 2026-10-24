@@ -389,3 +389,8 @@
 }
 
 .ckds-bill-critical{border-left:3px solid #c77a61}.ckds-bill-warning{border-left:3px solid #b69b4e}
+
+.ckds-bill-payment{padding:0 10px;color:#8a5100;font-size:11px;line-height:1.5;font-weight:600}
+.ckds-source-cancellations{padding:8px 12px;background:#fff4dc;color:#573500;border:1px solid #e4bc70;border-radius:8px;margin:8px 0}
+.ckds-source-cancellations summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+.ckds-source-cancellations ul{margin:0;padding-left:20px}

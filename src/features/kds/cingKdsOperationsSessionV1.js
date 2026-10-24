@@ -7,6 +7,8 @@ export function adaptKdsOperationsSnapshotV1(data, branch) {
   const response = values => ({success:true,branch:data.branch,data:values});
   const snapshot = buildKdsUiSnapshot({branch,ordersResponse:response(data.preparation),
     servingResponse:response(data.serving),alertsResponse:response(data.alerts),performanceResponse:response(data.performance)});
+  const cancellations=data.source_cancellations||[];
+  if(!Array.isArray(cancellations)||cancellations.length>50||cancellations.some(row=>!row||typeof row.cup_id!=="string"||typeof row.item_name!=="string"||!["pending","preparing","prepared","served"].includes(row.prior_status)||!Number.isFinite(Date.parse(row.occurred_at))))throw new Error("KDS_CANCELLATIONS_INVALID");
   const enabled = data.capabilities?.transitions_enabled === true;
   const seen=new Set();
   const bills=(data.bills||[]).map(bill=>{
@@ -20,7 +22,7 @@ export function adaptKdsOperationsSnapshotV1(data, branch) {
     return bill;
   });
   if(data.bills && [...snapshot.preparation,...snapshot.serving].some(c=>!seen.has(c.cup_id)))throw new Error("KDS_BILL_INVALID");
-  return {...snapshot,bills,history_range:data.history_range,duration_filter:data.duration_filter, history:data.history, policy:data.policy, sampled_at:data.sampled_at,
+  return {...snapshot,bills,source_cancellations:cancellations,history_range:data.history_range,duration_filter:data.duration_filter, history:data.history, policy:data.policy, sampled_at:data.sampled_at,
     canReport:data.capabilities?.can_report === true,transitionsEnabled:enabled,
     preparation:snapshot.preparation.map(x=>({...x,transition_ready:enabled && data.capabilities?.can_prepare !== false && x.version !== null})),
     serving:snapshot.serving.map(x=>({...x,transition_ready:enabled && data.capabilities?.can_serve !== false && x.version !== null}))};
