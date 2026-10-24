@@ -70,6 +70,10 @@ import { flushSync } from "react-dom";
 import { getBlockPuzzleEngineForContract } from "./runtime/blockPuzzleEngineRegistry.js";
 import { prepareAuthorizedBlockPuzzleDecision } from "./runtime/blockPuzzleAuthorityClient.js";
 import { piecePalette, celebrationForEvent, blockPuzzleVoice } from "./experience/blockPuzzleCelebration.js";
+import BlockPuzzleClearCanvas from "./experience/BlockPuzzleClearCanvas.jsx";
+import { CingSpark, CingGameEmblem } from "./experience/BlockPuzzleArtwork.jsx";
+import { clearedVisualCells, visualStageForScore } from "./experience/blockPuzzleVisualPlan.js";
+import { prepareBlockPuzzleHaptics } from "./experience/blockPuzzleNativeHaptics.js";
 import { useBlockPuzzleWeeklyProgress } from "./experience/useBlockPuzzleWeeklyProgress.js";
 import { measureBlockPuzzleOperation } from "./experience/blockPuzzleLatency.js";
 import "./CingBlockPuzzle.css";
@@ -439,6 +443,20 @@ CingBlockPuzzle({
     try { return readPreferences(window.localStorage); } catch { return readPreferences(null); }
   });
   const preferencesRef = useRef(preferences);
+  const previewExperience = useCallback((kind) => {
+    const event={type:'piece_placed',lineCount:2,comboAdvanced:false};
+    if (kind === 'vibration') {
+      Promise.resolve(prepareBlockPuzzleHaptics()).then(() => {
+        if (mountedRef.current) playHaptic(event, preferencesRef.current);
+      });
+      return;
+    }
+    blockPuzzleAudioRuntime.unlockFromGesture();
+    blockPuzzleAudioRuntime.playMoveEvent(event);
+    blockPuzzleVoice.prepare(blockPuzzleAudioRuntime.context)?.then(() => {
+      if (mountedRef.current && !document.hidden) blockPuzzleVoice.play(celebrationForEvent(event),preferencesRef.current);
+    });
+  }, []);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const changePreferences = useCallback((patch) => {
     const next = { ...preferencesRef.current, ...patch };
@@ -448,6 +466,7 @@ CingBlockPuzzle({
     if (!next.voice || !next.sound || next.volume === 0) blockPuzzleVoice.stop();
     blockPuzzleAudioRuntime.setPreferences(next);
     blockPuzzleAudioRuntime.unlockFromGesture();
+    blockPuzzleVoice.prepare(blockPuzzleAudioRuntime.context);
     if (next.music && !document.hidden) blockPuzzleAudioRuntime.startMusic();
   }, []);
   useEffect(() => {
@@ -575,6 +594,7 @@ CingBlockPuzzle({
           if (!colors[row]) colors[row]=[];
           colors[row][col]=event.shapeId;
         }
+        const visualCells = clearedVisualCells(event, colors);
         for(let row=0;row<BOARD_SIZE;row++) for(let col=0;col<BOARD_SIZE;col++) {
           if(!runtimeRef.current.state.board[row][col] && colors[row]) colors[row][col]=null;
         }
@@ -606,6 +626,7 @@ CingBlockPuzzle({
         setPresentation({
           serial,
           event,
+          visualCells,
         });
 
         presentationTimerRef
@@ -1407,6 +1428,8 @@ CingBlockPuzzle({
          */
         blockPuzzleAudioRuntime
           .unlockFromGesture();
+        blockPuzzleVoice.prepare(blockPuzzleAudioRuntime.context);
+        prepareBlockPuzzleHaptics();
 
         if (
           startInFlightRef
@@ -1686,6 +1709,8 @@ CingBlockPuzzle({
          */
         blockPuzzleAudioRuntime
           .unlockFromGesture();
+        blockPuzzleVoice.prepare(blockPuzzleAudioRuntime.context);
+        prepareBlockPuzzleHaptics();
 
         blockPuzzleAudioRuntime
           .startMusic();
@@ -2332,8 +2357,11 @@ CingBlockPuzzle({
       presentationEvent,
     ]);
 
+  const presentationShape = presentationEvent && runtime?.session ? getBlockPuzzleEngineForContract(runtime.session).getShape(presentationEvent.shapeId) : null;
   const moveCelebration = celebrationForEvent(presentationEvent);
   const celebration = rankCelebration || moveCelebration;
+
+  const visualStage = visualStageForScore(runtime?.state?.score || 0);
 
   const gameStarted =
     Boolean(board);
@@ -2342,6 +2370,7 @@ CingBlockPuzzle({
     <div
       className="cing-block-puzzle"
       data-effects={preferences.effects}
+      data-block-style={visualStage.id}
       style={{
         position: "fixed",
         inset: 0,
@@ -2418,7 +2447,7 @@ CingBlockPuzzle({
             </div>
           </div>
 
-          <button type="button" className="cing-block-puzzle__settings-trigger" aria-label="Cài đặt âm thanh và hiệu ứng" aria-haspopup="dialog" onClick={() => setSettingsOpen(true)}>⚙</button>
+          <button type="button" className="cing-block-puzzle__settings-trigger" aria-label="Cài đặt âm thanh và hiệu ứng" aria-haspopup="dialog" onClick={() => setSettingsOpen(true)}><CingGameEmblem kind="settings" /></button>
           <button
             type="button"
             onClick={exit}
@@ -2641,7 +2670,7 @@ CingBlockPuzzle({
           ) : (
             <>
               <div className="cing-block-puzzle__guidance" aria-live="polite">
-                {weeklyProgress.snapshot?.self?.rank === 1 ? "Bạn đang dẫn đầu BXH tuần 👑" : weeklyProgress.next ? `BXH tuần · Còn ${weeklyProgress.next.remaining} điểm để vượt ${weeklyProgress.next.player_name}` : preview?.valid && anticipatedClearMap.size > 0 ? "Thả tay để xoá hàng!" : runtime.state.combo > 0 && Number.isInteger(runtime.state.comboGraceMoves) ? `Xoá hàng trong ${runtime.state.comboGraceMoves} lần đặt để nối combo` : "Kéo khối · Lấp đầy hàng hoặc cột"}
+                {weeklyProgress.snapshot?.self?.rank === 1 ? "Bạn đang dẫn đầu BXH tuần" : weeklyProgress.next ? `BXH tuần · Còn ${weeklyProgress.next.remaining} điểm để vượt ${weeklyProgress.next.player_name}` : preview?.valid && anticipatedClearMap.size > 0 ? "Thả tay để xoá hàng!" : runtime.state.combo > 0 && Number.isInteger(runtime.state.comboGraceMoves) ? `Xoá hàng trong ${runtime.state.comboGraceMoves} lần đặt để nối combo` : "Kéo khối · Lấp đầy hàng hoặc cột"}
               </div>
               {runtime.state.combo >
                 0 && (
@@ -2691,6 +2720,8 @@ CingBlockPuzzle({
                 </div>
               )}
 
+              <div className="cing-block-puzzle__stage-label"><CingSpark /> <span>{visualStage.name}</span><small>{visualStage.next ? `Chất liệu tiếp theo · ${visualStage.next.toLocaleString('vi-VN')} điểm` : 'Chất liệu đỉnh cao'}</small></div>
+              <div className="cing-block-puzzle__board-stage">
               <div
                 ref={boardRef}
                 className="cing-block-puzzle__board"
@@ -2736,8 +2767,11 @@ CingBlockPuzzle({
                             key
                           );
 
+                        const isNewCell = presentationEvent?.type === 'piece_placed' && value === 1 &&
+                          presentationShape?.cells.some(([dr,dc]) => rowIndex === presentationEvent.row+dr && colIndex === presentationEvent.col+dc);
                         const className = [
                           "cing-block-puzzle__board-cell",
+                          isNewCell ? "cing-block-puzzle__board-cell--just-placed" : "",
 
                           value === 1
                             ? "cing-block-puzzle__board-cell--filled"
@@ -2766,7 +2800,7 @@ CingBlockPuzzle({
 
                         return (
                           <div
-                            key={key}
+                            key={isNewCell ? `${key}-${presentation.serial}` : key}
                             className={
                               className
                             }
@@ -2776,6 +2810,9 @@ CingBlockPuzzle({
                       }
                     )
                 )}
+              </div>
+
+              <BlockPuzzleClearCanvas presentation={presentation} effects={preferences.effects} />
               </div>
 
               <div
@@ -2827,35 +2864,11 @@ CingBlockPuzzle({
 
         {celebration && (
           <div key={rankCelebration ? `rank-${rankCelebration.label}` : `move-${presentation?.serial}`} className="cing-block-puzzle__celebration" role="status">
-            <span className="cing-block-puzzle__encouragement-icon" aria-hidden="true">{celebration.icon}</span>
+            <CingSpark variant={celebration.icon} className="cing-block-puzzle__encouragement-icon" />
             <div><strong>{celebration.label}</strong><small>{rankCelebration ? "Theo BXH tuần vừa tải · chờ xác nhận kết quả" : `+${presentationEvent.gainedScore} điểm`}</small></div>
           </div>
         )}
-        {settingsOpen && <ExperienceSettings preferences={preferences} onChange={changePreferences} onClose={() => setSettingsOpen(false)} />}
-        {presentationEvent
-          ?.lineCount > 0 && (
-          <div
-            key={`line-${presentation.serial}`}
-            className="cing-block-puzzle__line-burst"
-            aria-hidden="true"
-          >
-            {Array.from(
-              {
-                length: 12,
-              },
-              (_, index) => (
-                <i
-                  key={index}
-                  style={{
-                    "--particle-index":
-                      index,
-                  }}
-                />
-              )
-            )}
-          </div>
-        )}
-
+        {settingsOpen && <ExperienceSettings preferences={preferences} onPreview={previewExperience} onChange={changePreferences} onClose={() => setSettingsOpen(false)} />}
         {presentationEvent
           ?.comboAdvanced ===
           true && !presentationEvent.perfectClear && (
@@ -2975,7 +2988,7 @@ CingBlockPuzzle({
                     fontSize: 42,
                   }}
                 >
-                  ❤️
+                  <CingGameEmblem className="cing-block-puzzle__dialog-emblem" />
                 </div>
 
                 <h3
@@ -3324,7 +3337,7 @@ CingBlockPuzzle({
                     fontSize: 48,
                   }}
                 >
-                  🏆
+                  <CingGameEmblem kind="trophy" className="cing-block-puzzle__dialog-emblem" />
                 </div>
 
                 <div

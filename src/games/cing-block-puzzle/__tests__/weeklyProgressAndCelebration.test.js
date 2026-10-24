@@ -15,15 +15,17 @@ test('stale and previous-week snapshots cannot announce goals or ranks',()=>{
  assert.deepEqual(weeklyProgressForScore(snapshot,0,10000,Date.parse(snapshot.period.ends_at)),{next:null,passed:[]});
  assert.equal(isWeeklySnapshotFresh({...snapshot,scoring:'sum'},now),false);
 });
-test('voice prioritizes strong moves, never builds a speech queue and honors mute',()=>{
- let time=1000;const spoken=[];let cancelled=0;
- const host={SpeechSynthesisUtterance:class {constructor(text){this.text=text;}},speechSynthesis:{getVoices:()=>[],cancel:()=>cancelled++,speak:item=>spoken.push(item.text)}};
- const voice=createBlockPuzzleVoice({getHost:()=>host,now:()=>time});const prefs={voice:true,sound:true,volume:.7};
- const nice=celebrationForEvent({type:'piece_placed',lineCount:2});
+test('recorded voice decodes once, prioritizes strong moves and honors mute without a speech queue',async()=>{
+ let time=1000,started=0,stopped=0,fetches=0;
+ const context={state:'running',destination:{},decodeAudioData:async()=>({}),createBufferSource:()=>({playbackRate:{},connect(){},disconnect(){},start(){started++;},stop(){stopped++;}}),createGain:()=>({gain:{},connect(){},disconnect(){}})};
+ const voice=createBlockPuzzleVoice({now:()=>time,fetchClip:async()=>{fetches++;return {ok:true,arrayBuffer:async()=>new ArrayBuffer(4)};}});
+ const prefs={voice:true,sound:true,volume:.7},nice=celebrationForEvent({type:'piece_placed',lineCount:2});
+ assert.equal(voice.play(nice,prefs),false,'never fetch or queue from move path');
+ await voice.prepare(context);await voice.prepare(context);assert.equal(fetches,4);
  assert.equal(voice.play(nice,prefs),true);assert.equal(voice.play(nice,prefs),false);
  assert.equal(voice.play(celebrationForEvent({type:'piece_placed',lineCount:1,perfectClear:true}),prefs),true);
  assert.equal(voice.play(nice,{...prefs,sound:false}),false);
- time+=6001;assert.equal(voice.play(nice,prefs),true);assert.equal(spoken.length,3);assert.equal(cancelled,3);
- voice.stop();assert.equal(cancelled,4);
- assert.equal(createBlockPuzzleVoice({getHost:()=>({})}).play(nice,prefs),false);
+ time+=2201;assert.equal(voice.play(nice,prefs),true);assert.equal(started,3);assert.equal(stopped,2);
+ voice.stop();assert.equal(stopped,3);
+ context.state='suspended';assert.equal(voice.play(nice,prefs),false);
 });

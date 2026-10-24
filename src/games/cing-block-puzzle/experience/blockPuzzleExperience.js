@@ -1,3 +1,4 @@
+import { nativeBlockPuzzleHaptic } from './blockPuzzleNativeHaptics.js';
 // Presentation preferences never enter the replay, scoring or purchase contracts.
 export const PREFERENCES_KEY = 'cing.block-puzzle.experience.v1';
 export const DEFAULT_PREFERENCES = Object.freeze({
@@ -49,6 +50,8 @@ export function moveHapticPattern(event) {
 export function playHaptic(event, preferences, device = globalThis.navigator) {
   if (!preferences.vibration || globalThis.document?.hidden) return false;
   const pattern = moveHapticPattern(event);
-  if (!pattern.length || typeof device?.vibrate !== 'function') return false;
+  if (!pattern.length) return false;
+  if (device === globalThis.navigator && nativeBlockPuzzleHaptic(event)) return true;
+  if (typeof device?.vibrate !== 'function') return false;
   try { return device.vibrate(pattern); } catch { return false; }
 }

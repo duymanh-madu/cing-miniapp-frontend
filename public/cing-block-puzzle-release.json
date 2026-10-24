@@ -1,12 +1,14 @@
 {
-  "release": "cing-block-puzzle-v2-production",
-  "preparedAt": "2026-10-23T01:01:04.561705+00:00",
+  "release": "cing-block-puzzle-v3-sensory-20261025",
   "changes": [
-    "responsive-drag-and-drop",
-    "weekly-leaderboard-progress",
-    "multicolor-blocks-and-celebrations",
-    "optional-voice-haptic-controls",
-    "revive-and-submit-latency"
+    "board-local-clear-beams-and-fragments",
+    "original-cing-vector-artwork",
+    "four-score-based-materials",
+    "bundled-vietnamese-cheers",
+    "layered-clear-audio",
+    "zalo-native-haptics-with-browser-fallback",
+    "uninterrupted-drag-and-drop"
   ],
-  "backendRequired": true
+  "backendRequired": false,
+  "gameplayAuthorityChanged": false
 }

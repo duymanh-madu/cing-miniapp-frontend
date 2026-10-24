@@ -357,7 +357,7 @@ test(
 
     assert.match(
       component,
-      /cing-block-puzzle__line-burst/
+      /BlockPuzzleClearCanvas presentation=\{presentation\}/
     );
 
     assert.match(

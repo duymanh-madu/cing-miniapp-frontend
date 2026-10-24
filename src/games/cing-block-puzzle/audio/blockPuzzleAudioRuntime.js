@@ -1045,6 +1045,20 @@ export class BlockPuzzleAudioRuntime {
     }
   }
 
+  playClearFinish(event) {
+    if (!this.context || this.context.state !== 'running') return;
+    const now=this.context.currentTime;
+    // A short rising glass sweep follows the light core; tiny chips resolve behind it.
+    this.scheduleTone({time:now+.018,frequency:540,endFrequency:1680,duration:.13,gain:.045,type:'triangle',attack:.004});
+    for(let i=0;i<4;i++) this.scheduleNoise({time:now+.055+i*.035,duration:.025,gain:.018*(1-i*.15),highpass:2200+i*450,lowpass:8000});
+    if (event.perfectClear) {
+      this.duckMusic(.22,.9);
+      [523.251,659.255,783.991,1046.502].forEach((frequency,index)=>{
+        this.scheduleTone({time:now+.16+index*.045,frequency,duration:.48,gain:.045,type:'triangle',attack:.008});
+      });
+    }
+  }
+
   playMoveEvent(
     event
   ) {
@@ -1069,6 +1083,7 @@ export class BlockPuzzleAudioRuntime {
         this.playLineClear(
           cue.lineCount
         );
+        this.playClearFinish(event);
       } else if (
         cue.type ===
           "combo"
