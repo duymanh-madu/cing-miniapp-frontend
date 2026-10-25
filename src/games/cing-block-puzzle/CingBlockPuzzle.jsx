@@ -565,7 +565,7 @@ CingBlockPuzzle({
     clearTimeout(rankTimerRef.current);
     rankTimerRef.current=setTimeout(()=>setRankCelebration(null),1600);
   }, []);
-  const weeklyProgress = useBlockPuzzleWeeklyProgress({
+  useBlockPuzzleWeeklyProgress({
     ownerKey:recoveryOwnerKey,sessionId:runtime?.session?.session_id,
     score:runtime?.state?.score ?? 0,onOvertake,
   });
@@ -2447,10 +2447,12 @@ CingBlockPuzzle({
             </div>
           </div>
 
+          <div className="cing-block-puzzle__header-actions">
           <button type="button" className="cing-block-puzzle__settings-trigger" aria-label="Cài đặt âm thanh và hiệu ứng" aria-haspopup="dialog" onClick={() => setSettingsOpen(true)}><CingGameEmblem kind="settings" /></button>
           <button
             type="button"
             onClick={exit}
+            className="cing-block-puzzle__exit-trigger"
             style={{
               height: 40,
               padding: "0 14px",
@@ -2464,6 +2466,7 @@ CingBlockPuzzle({
           >
             Thoát
           </button>
+          </div>
         </header>
 
         <section
@@ -2669,9 +2672,6 @@ CingBlockPuzzle({
             </div>
           ) : (
             <>
-              <div className="cing-block-puzzle__guidance" aria-live="polite">
-                {weeklyProgress.snapshot?.self?.rank === 1 ? "Bạn đang dẫn đầu BXH tuần" : weeklyProgress.next ? `BXH tuần · Còn ${weeklyProgress.next.remaining} điểm để vượt ${weeklyProgress.next.player_name}` : preview?.valid && anticipatedClearMap.size > 0 ? "Thả tay để xoá hàng!" : runtime.state.combo > 0 && Number.isInteger(runtime.state.comboGraceMoves) ? `Xoá hàng trong ${runtime.state.comboGraceMoves} lần đặt để nối combo` : "Kéo khối · Lấp đầy hàng hoặc cột"}
-              </div>
               {runtime.state.combo >
                 0 && (
                 <div
@@ -2720,7 +2720,6 @@ CingBlockPuzzle({
                 </div>
               )}
 
-              <div className="cing-block-puzzle__stage-label"><CingSpark /> <span>{visualStage.name}</span><small>{visualStage.next ? `Chất liệu tiếp theo · ${visualStage.next.toLocaleString('vi-VN')} điểm` : 'Chất liệu đỉnh cao'}</small></div>
               <div className="cing-block-puzzle__board-stage">
               <div
                 ref={boardRef}
@@ -2865,7 +2864,7 @@ CingBlockPuzzle({
         {celebration && (
           <div key={rankCelebration ? `rank-${rankCelebration.label}` : `move-${presentation?.serial}`} className="cing-block-puzzle__celebration" role="status">
             <CingSpark variant={celebration.icon} className="cing-block-puzzle__encouragement-icon" />
-            <div><strong>{celebration.label}</strong><small>{rankCelebration ? "Theo BXH tuần vừa tải · chờ xác nhận kết quả" : `+${presentationEvent.gainedScore} điểm`}</small></div>
+            <div><strong>{celebration.label}</strong><small>{rankCelebration ? "BXH tuần" : `+${presentationEvent.gainedScore} điểm`}</small></div>
           </div>
         )}
         {settingsOpen && <ExperienceSettings preferences={preferences} onPreview={previewExperience} onChange={changePreferences} onClose={() => setSettingsOpen(false)} />}

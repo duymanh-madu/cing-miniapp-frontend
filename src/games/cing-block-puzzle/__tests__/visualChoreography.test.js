@@ -32,3 +32,12 @@ test('shipped voice files contain audible PCM, not empty synthesis placeholders'
   assert.ok(Math.sqrt(energy/(data.length/2))>.025,`${name} is audible`);
  }
 });
+
+import {clearPlanForEvent} from '../experience/blockPuzzleClearPlan.js';
+test('clear tiers use distinct choreography and remain bounded for large clears',()=>{
+ const event={type:'piece_placed',lineCount:1};
+ assert.deepEqual([1,2,3,4].map(lineCount=>clearPlanForEvent({...event,lineCount}).kind),['slice','duet','prism','nova']);
+ assert.equal(clearPlanForEvent({...event,perfectClear:true}).kind,'supernova');
+ assert.equal(clearPlanForEvent({...event,lineCount:16}).particles,4);
+ assert.equal(clearPlanForEvent({...event,lineCount:0}),null);
+});

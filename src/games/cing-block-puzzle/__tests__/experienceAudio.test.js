@@ -24,3 +24,12 @@ test('sound preference prevents cue allocation and disabled music cannot start',
   audio.playPlacement=()=>assert.fail('muted sound must not allocate oscillators');
   audio.playMoveEvent({type:'piece_placed',lineCount:0});audio.startMusic();assert.equal(audio.musicRequested,false);
 });
+
+test('placement is immediate, clear phrases vary by line count, and combo accents stay short',()=>{
+ const audio=new BlockPuzzleAudioRuntime();audio.context={currentTime:3,state:'running'};
+ const tones=[],bells=[];audio.scheduleTone=cue=>tones.push(cue);audio.scheduleNoise=()=>{};audio.scheduleCingBell=(...cue)=>bells.push(cue);audio.duckMusic=()=>{};
+ audio.playPlacement();assert.equal(tones[0].time,3);assert.ok(tones.every(cue=>cue.duration<.08));
+ const phrases=[];
+ for(let count=1;count<=4;count++){bells.length=0;audio.playLineClear(count);phrases.push(bells.map(cue=>cue[1]).join(','));}
+ assert.equal(new Set(phrases).size,4);tones.length=0;audio.playCombo(4);assert.equal(tones.length,2);assert.ok(tones.every(cue=>cue.duration<.2));
+});

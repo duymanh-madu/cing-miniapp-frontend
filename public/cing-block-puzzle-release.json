@@ -1,13 +1,11 @@
 {
-  "release": "cing-block-puzzle-v3-sensory-20261025",
+  "release": "cing-block-puzzle-v4-feedback",
   "changes": [
-    "board-local-clear-beams-and-fragments",
-    "original-cing-vector-artwork",
-    "four-score-based-materials",
-    "bundled-vietnamese-cheers",
-    "layered-clear-audio",
-    "zalo-native-haptics-with-browser-fallback",
-    "uninterrupted-drag-and-drop"
+    "remove-material-and-persistent-ranking-labels",
+    "transient-weekly-overtake-celebrations",
+    "host-capsule-safe-header-actions",
+    "tiered-clear-choreography-1-2-3-4-plus",
+    "new-placement-pop-and-tiered-clear-sound-phrases"
   ],
   "backendRequired": false,
   "gameplayAuthorityChanged": false

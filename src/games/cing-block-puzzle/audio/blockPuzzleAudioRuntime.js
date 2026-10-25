@@ -679,378 +679,46 @@ export class BlockPuzzleAudioRuntime {
   }
 
   playPlacement() {
-    const context =
-      this.context;
-
-    if (
-      !context ||
-      context.state !==
-        "running"
-    ) {
-      return;
-    }
-
-    const now =
-      context.currentTime;
-
-    /*
-     * "Tapioca tok":
-     * short warm body + crisp skin.
-     */
-    this.scheduleTone({
-      time:
-        now,
-
-      frequency:
-        215,
-
-      endFrequency:
-        154,
-
-      duration:
-        0.085,
-
-      gain:
-        0.115,
-
-      type:
-        "sine",
-    });
-
-    this.scheduleTone({
-      time:
-        now,
-
-      frequency:
-        720,
-
-      endFrequency:
-        520,
-
-      duration:
-        0.055,
-
-      gain:
-        0.045,
-
-      type:
-        "triangle",
-    });
-
-    this.scheduleNoise({
-      time:
-        now,
-
-      duration:
-        0.038,
-
-      gain:
-        0.022,
-
-      highpass:
-        950,
-
-      lowpass:
-        3100,
-    });
+    if (!this.context || this.context.state !== 'running') return;
+    const now=this.context.currentTime;
+    this.placementVoice=(this.placementVoice || 0)+1;
+    const pitch=[1,1.035,.98,1.018][this.placementVoice%4];
+    // Firm body, elastic pop and a very short contact tick: audible on a phone speaker.
+    this.scheduleTone({time:now,frequency:440*pitch,endFrequency:185*pitch,duration:.065,gain:.21,type:'sine',attack:.002});
+    this.scheduleTone({time:now+.003,frequency:960*pitch,endFrequency:610*pitch,duration:.033,gain:.055,type:'triangle',attack:.001});
+    this.scheduleNoise({time:now,duration:.018,gain:.035,highpass:1600,lowpass:5400});
   }
 
-  playLineClear(
-    lineCount
-  ) {
-    const context =
-      this.context;
-
-    if (
-      !context ||
-      context.state !==
-        "running"
-    ) {
-      return;
-    }
-
-    const count =
-      clamp(
-        lineCount,
-        1,
-        4
-      );
-
-    const now =
-      context.currentTime;
-
-    this.duckMusic(
-      0.36,
-      0.46
-    );
-
-    /*
-     * Initial golden impact.
-     */
-    this.scheduleTone({
-      time:
-        now,
-
-      frequency:
-        118,
-
-      endFrequency:
-        78,
-
-      duration:
-        0.17,
-
-      gain:
-        0.16 +
-        count * 0.012,
-
-      type:
-        "sine",
-    });
-
-    this.scheduleNoise({
-      time:
-        now + 0.006,
-
-      duration:
-        0.09,
-
-      gain:
-        0.052 +
-        count * 0.008,
-
-      highpass:
-        1200,
-
-      lowpass:
-        6800,
-    });
-
-    /*
-     * Sparkle aligns with the visual
-     * cell flash / punch.
-     */
-    const sparkle =
-      [
-        659.255,
-        830.609,
-        987.767,
-      ];
-
-    sparkle.forEach(
-      (
-        frequency,
-        index
-      ) => {
-        this.scheduleCingBell(
-          now +
-            0.035 +
-            index * 0.045,
-
-          frequency *
-            (
-              1 +
-              (count - 1) *
-              0.035
-            ),
-
-          0.055 +
-            count * 0.006
-        );
-      }
-    );
-
-    if (
-      count >= 2
-    ) {
-      this.scheduleCingBell(
-        now + 0.18,
-        1318.510,
-        0.055
-      );
-    }
-
-    if (
-      count >= 3
-    ) {
-      this.scheduleCingBell(
-        now + 0.23,
-        1661.219,
-        0.047
-      );
-    }
+  playLineClear(lineCount) {
+    if (!this.context || this.context.state !== 'running') return;
+    const now=this.context.currentTime, tier=clamp(lineCount,1,4);
+    const phrases=[null,[783.991,1174.659,1567.982],[659.255,830.609,987.767,1318.510],
+      [523.251,659.255,783.991,1046.502,1318.510],[523.251,783.991,1046.502,1318.510,1567.982,2093.005]];
+    this.duckMusic(.24,.32+tier*.09);
+    this.scheduleTone({time:now,frequency:190+tier*24,endFrequency:85,duration:.1+tier*.015,gain:.17,type:'sine',attack:.002});
+    // A brief, soft fracture, followed by a different consonant phrase at each clear level.
+    this.scheduleNoise({time:now+.004,duration:.045+tier*.008,gain:.045,highpass:1400,lowpass:6200});
+    phrases[tier].forEach((frequency,index)=>this.scheduleCingBell(now+.018+index*(tier===1?.026:.038),frequency,.065-index*.005));
+    if(tier>=2) this.scheduleTone({time:now+.055,frequency:phrases[tier][0]/2,duration:.22,gain:.06,type:'triangle',attack:.005});
+    if(tier>=3) [1,1.25,1.5].forEach(ratio=>this.scheduleTone({time:now+.12,frequency:523.251*ratio,duration:.26,gain:.025,type:'sine',attack:.015}));
   }
 
-  playCombo(
-    combo
-  ) {
-    const context =
-      this.context;
-
-    if (
-      !context ||
-      context.state !==
-        "running"
-    ) {
-      return;
-    }
-
-    const level =
-      Math.max(
-        1,
-        combo
-      );
-
-    const index =
-      Math.min(
-        level - 1,
-        SONIC.comboRoots.length - 1
-      );
-
-    const root =
-      SONIC.comboRoots[index];
-
-    const now =
-      context.currentTime +
-      0.045;
-
-    const intensity =
-      clamp(
-        0.072 +
-        level * 0.006,
-        0.076,
-        0.122
-      );
-
-    this.duckMusic(
-      0.42,
-      0.64
-    );
-
-    /*
-     * Luxury CING motif.
-     *
-     * Short ascending signature:
-     * root → major 3rd → perfect 5th.
-     *
-     * Register stays warm even at
-     * high combos; escalation comes
-     * from richness, not shrill pitch.
-     */
-    const motif =
-      [
-        root,
-        root * 1.25992105,
-        root * 1.49830708,
-      ];
-
-    motif.forEach(
-      (
-        frequency,
-        noteIndex
-      ) => {
-        this.scheduleLuxuryMallet(
-          now +
-          noteIndex * 0.082,
-
-          frequency,
-
-          intensity *
-          (
-            noteIndex === 2
-              ? 1.04
-              : 1
-          )
-        );
-      }
-    );
-
-    /*
-     * Soft caramel/sub impact under
-     * the visual badge arrival.
-     */
-    this.scheduleTone({
-      time:
-        now + 0.025,
-
-      frequency:
-        104,
-
-      endFrequency:
-        78,
-
-      duration:
-        0.24,
-
-      gain:
-        clamp(
-          0.092 +
-          level * 0.005,
-          0.095,
-          0.14
-        ),
-
-      type:
-        "sine",
-
-      attack:
-        0.012,
-    });
-
-    /*
-     * Higher combos become wider and
-     * richer, never brighter/shriller.
-     */
-    if (
-      level >= 4
-    ) {
-      this.scheduleLuxuryMallet(
-        now + 0.265,
-        root * 0.74915354,
-        0.052
-      );
-    }
-
-    if (
-      level >= 8
-    ) {
-      this.scheduleLuxuryMallet(
-        now + 0.315,
-        root,
-        0.048
-      );
-
-      this.scheduleTone({
-        time:
-          now + 0.19,
-
-        frequency:
-          82.407,
-
-        endFrequency:
-          65.406,
-
-        duration:
-          0.32,
-
-        gain:
-          0.075,
-
-        type:
-          "sine",
-
-        attack:
-          0.016,
-      });
-    }
+  playCombo(combo) {
+    if (!this.context || this.context.state !== 'running') return;
+    const now=this.context.currentTime, level=clamp(combo,1,8);
+    // A tiny ascending answer to the clear phrase, rather than another long overlapping melody.
+    const root=[987.767,1108.731,1174.659,1318.510][(level-1)%4];
+    this.scheduleTone({time:now+.17,frequency:root,duration:.13,gain:.042,type:'sine',attack:.003});
+    this.scheduleTone({time:now+.215,frequency:root*1.5,duration:.16,gain:.034,type:'sine',attack:.003});
   }
 
   playClearFinish(event) {
     if (!this.context || this.context.state !== 'running') return;
     const now=this.context.currentTime;
     // A short rising glass sweep follows the light core; tiny chips resolve behind it.
-    this.scheduleTone({time:now+.018,frequency:540,endFrequency:1680,duration:.13,gain:.045,type:'triangle',attack:.004});
-    for(let i=0;i<4;i++) this.scheduleNoise({time:now+.055+i*.035,duration:.025,gain:.018*(1-i*.15),highpass:2200+i*450,lowpass:8000});
+    const tier=clamp(event.lineCount,1,4);
+    this.scheduleTone({time:now+.012,frequency:420+tier*100,endFrequency:1100+tier*250,duration:.075+tier*.02,gain:.026,type:'sine',attack:.003});
+    for(let i=0;i<tier+1;i++) this.scheduleNoise({time:now+.055+i*.035,duration:.025,gain:.018*(1-i*.15),highpass:2200+i*450,lowpass:8000});
     if (event.perfectClear) {
       this.duckMusic(.22,.9);
       [523.251,659.255,783.991,1046.502].forEach((frequency,index)=>{
