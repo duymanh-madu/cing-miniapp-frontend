@@ -103,6 +103,7 @@ export default function CingKdsProPage({
   busyCupIds = [],
   onRefresh = null,
   onTransition = null,
+  onTransitionBill = null,
   allowReports = false,
   snapshotReady = false,
   previewMessage = ""
@@ -298,7 +299,7 @@ export default function CingKdsProPage({
                   ? "Hàng chờ pha chế"
                   : "Tiến độ pha và trả theo hóa đơn"}
               </h2>
-              <p>Ưu tiên hóa đơn chờ lâu nhất · mỗi món thao tác riêng</p>
+              <p>Ưu tiên hóa đơn chờ lâu nhất · hoàn tất từng món hoặc cả bill</p>
             </div>
             <span>{billBoard.length} hóa đơn · {visible.length} món</span>
           </div>
@@ -318,6 +319,13 @@ export default function CingKdsProPage({
                 <div className="ckds-bill-context"><span title={bill.table_name}>{compactKdsLocationV1(bill.table_name)}{bill.card_number?` · Thẻ ${bill.card_number}`:""}</span>
                   <span className="ckds-bill-progress" aria-label={`Tiến độ hóa đơn ${bill.tran_no}`}>Pha {bill.completed}/{bill.total} · Trả {bill.served}/{bill.total}</span>
                 </div>
+                {onTransitionBill && <button type="button" className="ckds-bill-complete"
+                  disabled={!canMutate || bill.cups.some(c=>busyCupIds.includes(c.cup_id)) ||
+                    (mode==="preparation" ? bill.unfinished===0 || bill.cups.filter(c=>["pending","preparing"].includes(c.status)).some(c=>c.transition_ready!==true)
+                    : bill.unfinished>0 || bill.ready===0 || bill.cups.filter(c=>c.status==="prepared").some(c=>c.transition_ready!==true))}
+                  onClick={()=>onTransitionBill({order_id:bill.order_id,target_status:mode==="preparation"?"prepared":"served"})}>
+                  {bill.cups.some(c=>busyCupIds.includes(c.cup_id))?"Đang xác nhận…":mode==="preparation"?`Xong cả bill (${bill.unfinished})`:`Đã trả cả bill (${bill.ready})`}
+                </button>}
                 {folded && <p className="ckds-folded-count">{bill.unfinished} chưa xong · {bill.ready} chờ trả</p>}
                 <div id={`bill-${bill.order_id}`} className="ckds-bill-items" hidden={folded}>
                   {bill.visibleCups.map(cup=><CupCard key={cup.cup_id} compact cup={cup} mode={mode}

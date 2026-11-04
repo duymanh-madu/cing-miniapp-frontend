@@ -75,7 +75,7 @@ export function createKdsOperationsSessionV1({api,branch,onState,
     try {await running;} finally { if(inflight?.promise===running) inflight=null; if(active && epoch===session && (!api.events || !streamHealthy)) later(); }
   }
   async function transition(command) {
-    if(!active || mutations.has(command.cup_id) || !snapshot?.transitionsEnabled) throw new Error("KDS_MUTATION_DISABLED");
+    if(!active || state.connectionState!=="online" || mutations.has(command.cup_id) || !snapshot?.transitionsEnabled) throw new Error("KDS_MUTATION_DISABLED");
     const cup=[...snapshot.preparation,...snapshot.serving].find(x=>x.cup_id===command.cup_id);
     const next={pending:"prepared",preparing:"prepared",prepared:"served"};
     if(!cup?.transition_ready || cup.order_id!==command.order_id || next[cup.status]!==command.target_status)
@@ -103,7 +103,41 @@ export function createKdsOperationsSessionV1({api,branch,onState,
       if(active && epoch===session) { publish({busyCupIds:[...mutations.keys()]}); await refresh(); }
     }
   }
+  async function transitionBill({order_id,target_status}) {
+    if(!active || state.connectionState!=="online" || !snapshot?.transitionsEnabled || !api.billTransition)
+      throw new Error("KDS_MUTATION_DISABLED");
+    const bill=snapshot.bills.find(b=>b.order_id===order_id);
+    if(!bill || !bill.cups.length || !["prepared","served"].includes(target_status) ||
+      bill.cups.some(c=>mutations.has(c.cup_id)) ||
+      (target_status==="served" && bill.cups.some(c=>["pending","preparing"].includes(c.status))))
+      throw new Error("KDS_MUTATION_DISABLED");
+    const eligible=bill.cups.filter(c=>target_status==="prepared"?["pending","preparing"].includes(c.status):c.status==="prepared");
+    if(!eligible.length || eligible.some(c=>![...snapshot.preparation,...snapshot.serving].some(r=>r.cup_id===c.cup_id && r.transition_ready)))
+      throw new Error("KDS_MUTATION_DISABLED");
+    const key="bill:"+order_id;
+    const cups=bill.cups.map(({cup_id,version,status})=>({cup_id,version,status})).sort((a,b)=>a.cup_id.localeCompare(b.cup_id));
+    let payload=pendingActions.get(key);
+    if(payload && (payload.target_status!==target_status || JSON.stringify(payload.cups)!==JSON.stringify(cups))) {
+      pendingActions.delete(key);await refresh();throw new Error("KDS_MUTATION_STALE");
+    }
+    payload=payload||{order_id,target_status,cups,action_key:actionKey()};pendingActions.set(key,payload);
+    const controller=new AbortController(),startedEpoch=epoch;
+    for(const c of bill.cups)mutations.set(c.cup_id,controller);
+    publish({busyCupIds:[...mutations.keys()]});
+    try {
+      const result=await api.billTransition(branch,payload,controller.signal);
+      if(result?.success!==true)throw new Error("KDS_MUTATION_UNCONFIRMED");
+      pendingActions.delete(key);
+    } catch(e) {
+      if(e?.response?.status && e.response.status<500)pendingActions.delete(key);
+      throw e;
+    } finally {
+      for(const c of bill.cups)if(mutations.get(c.cup_id)===controller)mutations.delete(c.cup_id);
+      if(active && epoch===startedEpoch){publish({busyCupIds:[...mutations.keys()]});await refresh();}
+    }
+  }
   return {
+    transitionBill,
     start() {if(active)return;active=true;epoch++;
       if(api.events){
         streamAbort=new AbortController();

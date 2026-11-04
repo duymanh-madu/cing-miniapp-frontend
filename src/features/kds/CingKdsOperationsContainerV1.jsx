@@ -51,6 +51,7 @@ export default function CingKdsOperationsContainerV1({token,role=""}) {
       events:(b,getHistory,signal,onSnapshot,onOffline)=>consumeKdsEventsV1({
         url:()=>`${String(apiClient.defaults.baseURL||"/api").replace(/\/$/,"")}/admin/kds/events?${new URLSearchParams({...b,...getHistory()})}`,
         headers:{...auth,Accept:"text/event-stream"},signal,onSnapshot,onOffline}),
+      billTransition:async(b,body,signal)=>(await apiClient.post("/admin/kds/bills/transition",body,{params:b,headers:auth,signal,timeout:20000})).data,
       transition:async(b,body,signal)=>(await apiClient.post("/admin/kds/cups/transition",body,{params:b,headers:auth,signal,timeout:10000})).data
     };
     const coordinator=createKdsOperationsSessionV1({api,branch,onState:setSessionState});
@@ -73,6 +74,11 @@ export default function CingKdsOperationsContainerV1({token,role=""}) {
     setNotice("");
     try {await session.current?.transition(command);}
     catch {setNotice("Thao tác chưa được xác nhận. Danh sách đã được đồng bộ lại; vui lòng kiểm tra trạng thái trước khi thử tiếp.");}
+  }
+  async function transitionBill(command) {
+    setNotice("");
+    try {await session.current?.transitionBill(command);}
+    catch {setNotice("Chưa xác nhận hoàn tất bill. Đã yêu cầu đồng bộ lại; kiểm tra trạng thái trước khi thử tiếp.");}
   }
   async function savePolicy(event) {
     event.preventDefault();if(!branch || saving)return;
@@ -124,6 +130,7 @@ export default function CingKdsOperationsContainerV1({token,role=""}) {
       allowReports={canReport}
       snapshotReady={Boolean(snapshot)}
       onRefresh={()=>session.current?.refresh()}
+      onTransitionBill={snapshot?.transitionsEnabled?transitionBill:null}
       onTransition={snapshot?.transitionsEnabled?transition:null}
       previewMessage={sessionState.error && status.hold?status.message:"Đang chờ cấp quyền và mở dữ liệu vận hành cho chi nhánh."}/>
     </div>

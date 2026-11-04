@@ -394,3 +394,5 @@
 .ckds-source-cancellations{padding:8px 12px;background:#fff4dc;color:#573500;border:1px solid #e4bc70;border-radius:8px;margin:8px 0}
 .ckds-source-cancellations summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
 .ckds-source-cancellations ul{margin:0;padding-left:20px}
+
+.ckds-bill-complete{display:block;width:calc(100% - 16px);margin:8px;min-height:44px;padding:8px 12px;border:1px solid #ed8632;border-radius:10px;background:#ed8632;color:#17120e;font-weight:700;cursor:pointer}.ckds-bill-complete:disabled{opacity:.45;cursor:default}
