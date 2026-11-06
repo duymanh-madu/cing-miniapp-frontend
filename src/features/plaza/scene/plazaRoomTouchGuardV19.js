@@ -11,7 +11,7 @@ export function installPlazaRoomTouchGuardV19(root) {
  const options={passive:false};
  for(const name of ['touchstart','touchmove','touchend'])root.addEventListener(name,touch,options);
  root.addEventListener('contextmenu',menu);root.addEventListener('selectstart',menu);
- function clearSelection(){const selection=globalThis.getSelection?.();if(selection?.rangeCount&&!editable(selection.anchorNode?.parentElement)&&root.contains(selection.anchorNode))selection.removeAllRanges();}
+ function clearSelection(){if(editable(globalThis.document?.activeElement))return;const selection=globalThis.getSelection?.();if(selection?.rangeCount&&!editable(selection.anchorNode?.parentElement)&&root.contains(selection.anchorNode))selection.removeAllRanges();}
  globalThis.document?.addEventListener('selectionchange',clearSelection);
  return()=>{for(const name of ['touchstart','touchmove','touchend'])root.removeEventListener(name,touch,options);root.removeEventListener('contextmenu',menu);root.removeEventListener('selectstart',menu);globalThis.document?.removeEventListener('selectionchange',clearSelection);};
 }

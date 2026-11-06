@@ -9,6 +9,7 @@ export function installAppInteractionGuard(doc = document, win = window) {
   const end = () => {edge=false;};
   const selection = event => {if(!editable(event.target))event.preventDefault();};
   const clear = () => {
+    if (editable(doc.activeElement)) return;
     const selected=win.getSelection?.();
     if(selected?.rangeCount && !editable(selected.anchorNode?.parentElement))selected.removeAllRanges();
   };
