@@ -403,3 +403,77 @@
 @media (prefers-reduced-motion: reduce) {
   .cing-plaza .plaza-v20-atelier * {transition-duration:0.01ms!important;scroll-behavior:auto!important;}
 }
+
+/* Atelier refinement: keep the fitting room present, reclaim vertical space for products. */
+.cing-plaza .plaza-v20-atelier {gap:7px;padding:8px clamp(9px,1.4vw,18px) 10px;}
+.cing-plaza .plaza-v20-atelier .plaza-v19-assets {min-height:34px;padding:0 1px 5px;gap:8px;}
+.cing-plaza .plaza-v20-atelier .plaza-v19-inventory-body {grid-template-columns:minmax(210px,.7fr) minmax(0,1.8fr);gap:9px;}
+.cing-plaza .plaza-v20-atelier .plaza-v20-stage-heading {min-height:22px;}
+.cing-plaza .plaza-v20-atelier .plaza-v20-avatar-stage {padding:9px;gap:5px;border-radius:18px;}
+.cing-plaza .plaza-v20-atelier .plaza-v19-catalog {gap:8px;padding:9px;border-radius:18px;}
+.cing-plaza .plaza-v20-atelier .plaza-v19-catalog > nav {gap:3px;padding:3px;border-radius:12px;}
+.cing-plaza .plaza-v20-atelier .plaza-v19-catalog > nav > button {min-height:35px;padding:5px 6px;font-size:10px;}
+.cing-plaza .plaza-v20-atelier .plaza-v16-filters > button {min-height:30px;padding:5px 10px;font-size:10px;}
+.cing-plaza .plaza-v20-atelier .plaza-v19-item-grid {grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:8px;}
+.cing-plaza .plaza-v20-atelier .plaza-v19-item-grid > .plaza-v19-item-card {min-height:0!important;padding:9px!important;gap:6px!important;border-radius:14px!important;}
+.cing-plaza .plaza-v20-atelier .plaza-v19-card-art {height:clamp(74px,9vw,112px);min-height:74px;}
+.cing-plaza .plaza-v20-atelier .plaza-v19-card-name {min-height:0;font-size:11px;}
+.cing-plaza .plaza-v20-atelier .plaza-v19-item-card > button {min-height:33px;padding:6px 7px;font-size:10px;}
+.cing-plaza .plaza-atelier-section-heading {display:flex;align-items:flex-end;justify-content:space-between;gap:12px;min-width:0;padding:1px 2px 6px;border-bottom:1px solid var(--atelier-line);}
+.cing-plaza .plaza-atelier-section-heading > div {min-width:0;}
+.cing-plaza .plaza-atelier-section-heading span {color:#e4c98e;font-size:8px;font-weight:850;letter-spacing:1.5px;}
+.cing-plaza .plaza-atelier-section-heading h3 {margin:3px 0 0;color:#fff2d8;font-size:15px;line-height:1.15;}
+.cing-plaza .plaza-atelier-section-heading p {max-width:310px;margin:0;color:#d0d5cf;font-size:9px;line-height:1.4;text-align:right;}
+.cing-plaza .plaza-v20-atelier .plaza-hair-grid,
+.cing-plaza .plaza-v20-atelier .plaza-skin-grid {grid-template-columns:repeat(auto-fill,minmax(168px,1fr));}
+.cing-plaza .plaza-hair-card,.cing-plaza .plaza-skin-card {position:relative;min-height:0!important;}
+.cing-plaza .plaza-hair-card.is-trying,.cing-plaza .plaza-skin-card.is-trying {border-color:#e8cb8f!important;box-shadow:inset 0 0 0 1px rgba(232,203,143,.3),0 0 0 2px rgba(232,203,143,.11)!important;}
+.cing-plaza .plaza-hair-art {position:relative;display:block;width:100%;height:76px;overflow:hidden;border:1px solid rgba(229,204,154,.17);border-radius:11px;background:radial-gradient(ellipse at 50% 20%,rgba(223,194,133,.16),transparent 62%),linear-gradient(145deg,#203740,#12252d);}
+.cing-plaza .plaza-hair-art:before {content:"";position:absolute;left:50%;top:14px;width:36px;height:39px;transform:translateX(-50%);border-radius:48% 48% 44% 44%;background:linear-gradient(145deg,color-mix(in srgb,var(--hair-color),#d6b876 21%),var(--hair-color));box-shadow:0 3px 14px rgba(0,0,0,.24);}
+.cing-plaza .plaza-hair-art:after {content:"";position:absolute;left:50%;top:7px;width:41px;height:27px;transform:translateX(-50%);border-radius:52% 52% 37% 37%;background:var(--hair-color);box-shadow:inset 5px 2px 0 rgba(255,255,255,.08);}
+.cing-plaza .plaza-hair-art i,.cing-plaza .plaza-hair-art b,.cing-plaza .plaza-hair-art em {position:absolute;z-index:1;display:block;background:var(--hair-color);font-style:normal;}
+.cing-plaza .plaza-hair-art i {left:calc(50% - 17px);top:25px;width:11px;height:18px;border-radius:4px 2px 9px 8px;transform:rotate(8deg);}
+.cing-plaza .plaza-hair-art b {left:calc(50% + 6px);top:23px;width:10px;height:18px;border-radius:2px 5px 8px 9px;transform:rotate(-9deg);}
+.cing-plaza .plaza-hair-art em {display:none;}
+.cing-plaza .plaza-hair-art--twin:before,.cing-plaza .plaza-hair-art--pony:before {box-shadow:-22px 19px 0 -8px var(--hair-color),22px 19px 0 -8px var(--hair-color),0 3px 14px rgba(0,0,0,.24);}
+.cing-plaza .plaza-hair-art--bun:after,.cing-plaza .plaza-hair-art--topknot:after {box-shadow:0 -9px 0 -2px var(--hair-color),inset 5px 2px 0 rgba(255,255,255,.08);}
+.cing-plaza .plaza-hair-art--long:before,.cing-plaza .plaza-hair-art--curtain:before {height:49px;border-radius:48% 48% 20% 20%;}
+.cing-plaza .plaza-hair-art--braid i {height:28px;top:31px;left:calc(50% - 24px);border-radius:9px;}
+.cing-plaza .plaza-hair-art--crest:after {height:31px;transform:translateX(-50%) rotate(-12deg);}
+.cing-plaza .plaza-hair-art--crop:after {height:20px;top:10px;border-radius:65% 45% 28% 28%;}
+.cing-plaza .plaza-hair-copy,.cing-plaza .plaza-skin-copy {display:grid;gap:3px;min-width:0;}
+.cing-plaza .plaza-hair-copy .plaza-v19-card-name {font-size:12px;}
+.cing-plaza .plaza-hair-copy small {color:#d6d7d1;font-size:9px;line-height:1.35;}
+.cing-plaza .plaza-hair-state {color:#e6c98a;font-size:8px;font-weight:850;letter-spacing:.9px;}
+.cing-plaza .plaza-hair-actions {display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:6px;margin-top:auto;}
+.cing-plaza .plaza-v20-atelier .plaza-hair-actions > button {min-height:34px;padding:5px;border:1px solid rgba(226,198,143,.28);border-radius:9px;background:rgba(255,255,255,.05);color:#fff0d2;font-size:9px;font-weight:750;white-space:normal;}
+.cing-plaza .plaza-v20-atelier .plaza-hair-actions > button:last-child {border-color:#d7b975;background:linear-gradient(135deg,#edd69d,#c8a45f);color:#1c3036;}
+.cing-plaza .plaza-v20-atelier .plaza-hair-actions > button:disabled {opacity:.62;}
+.cing-plaza .plaza-skin-card {display:grid!important;grid-template-columns:52px minmax(0,1fr);align-items:center!important;column-gap:11px!important;min-height:116px!important;padding:11px!important;}
+.cing-plaza .plaza-skin-swatch-wrap {position:relative;display:grid;place-items:center;width:50px;height:50px;border:1px solid rgba(235,211,163,.43);border-radius:50%;background:radial-gradient(circle at 32% 25%,rgba(255,255,255,.17),transparent 64%),#182c33;box-shadow:0 5px 15px rgba(0,0,0,.22);}
+.cing-plaza .plaza-skin-swatch {width:32px;height:32px;border:2px solid rgba(255,255,255,.68);border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.5),transparent 42%),var(--skin-color);box-shadow:0 0 0 3px rgba(0,0,0,.18);}
+.cing-plaza .plaza-skin-highlight {position:absolute;right:4px;top:5px;width:7px;height:7px;border:1px solid #f4d897;border-radius:50%;background:#f4d897;}
+.cing-plaza .plaza-skin-copy {align-self:center;}
+.cing-plaza .plaza-skin-kicker {color:#edcf91;font-size:7px;font-weight:850;letter-spacing:.7px;line-height:1.25;}
+.cing-plaza .plaza-skin-copy strong {color:#fff3dc;font-size:13px;line-height:1.15;}
+.cing-plaza .plaza-skin-copy small {color:#d5dbd5;font-size:8px;font-weight:800;letter-spacing:.7px;}
+.cing-plaza .plaza-skin-card .plaza-hair-actions {grid-column:1/-1;width:100%;}
+@media(max-width:720px) {
+ .cing-plaza .plaza-v20-atelier .plaza-v19-inventory-body {grid-template-rows:minmax(135px,27%) minmax(0,1fr)!important;}
+ .cing-plaza .plaza-v20-atelier .plaza-v20-avatar-stage {padding:6px 8px!important;}
+ .cing-plaza .plaza-v20-atelier .plaza-v19-catalog {gap:6px;padding:7px!important;}
+ .cing-plaza .plaza-v20-atelier .plaza-v19-item-grid,
+ .cing-plaza .plaza-v20-atelier .plaza-v19-item-grid.plaza-v18-title-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}
+ .cing-plaza .plaza-v20-atelier .plaza-hair-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .cing-plaza .plaza-v20-atelier .plaza-skin-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .cing-plaza .plaza-atelier-section-heading p {font-size:8px;max-width:46%;}
+ .cing-plaza .plaza-hair-art {height:62px;}
+ .cing-plaza .plaza-skin-card {grid-template-columns:42px minmax(0,1fr);column-gap:7px!important;min-height:104px!important;padding:8px!important;}
+ .cing-plaza .plaza-skin-swatch-wrap {width:40px;height:40px;}
+ .cing-plaza .plaza-skin-swatch {width:26px;height:26px;}
+ .cing-plaza .plaza-v20-atelier .plaza-hair-actions > button {min-height:32px;font-size:8px;}
+}
+@media(max-width:380px) {
+ .cing-plaza .plaza-v20-atelier .plaza-skin-grid {grid-template-columns:minmax(0,1fr);}
+ .cing-plaza .plaza-atelier-section-heading p {display:none;}
+}

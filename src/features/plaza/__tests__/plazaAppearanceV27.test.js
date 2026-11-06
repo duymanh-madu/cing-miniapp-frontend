@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {Mesh,BoxGeometry,MeshBasicMaterial,Group} from 'three';
-import {PLAZA_SKIN_ITEMS,createAppearanceController,materialSlot} from '../scene/plazaAppearanceV27.js';
+import {Bone,Mesh,BoxGeometry,MeshBasicMaterial,Group} from 'three';
+import {PLAZA_SKIN_ITEMS,PLAZA_HAIR_ITEMS,createAppearanceController,materialSlot} from '../scene/plazaAppearanceV27.js';
 test('three skin items have stable unique IDs at 30 Coin',()=>{
  assert.equal(new Set(PLAZA_SKIN_ITEMS.map(x=>x.id)).size,3);
  assert.ok(PLAZA_SKIN_ITEMS.every(x=>x.priceCoin===30));
@@ -35,4 +35,24 @@ test('skin has one soft lighting response without changing textures or clothing'
  const m=new MToonMaterial();m.name='Body_SKIN';m.color.set('#deb283');m.shadingToonyFactor=.95;m.shadingShiftFactor=-.05;
  softenPlazaSkin(m);assert.equal(m.shadingToonyFactor,.15);assert.equal(m.shadingShiftFactor,0);assert.equal(m.giEqualizationFactor,1);assert.equal(m.normalScale.length(),0);assert.ok(m.shadeColorFactor.equals(m.color.clone().multiplyScalar(.92)));
  const shirt=new MToonMaterial();shirt.name='Tops';const old=shirt.shadingToonyFactor;softenPlazaSkin(shirt);assert.equal(shirt.shadingToonyFactor,old);
+});
+
+test('hair catalogue has six server-safe designs for each gender',()=>{
+ assert.equal(PLAZA_HAIR_ITEMS.filter(item=>item.character==='girl').length,6);
+ assert.equal(PLAZA_HAIR_ITEMS.filter(item=>item.character==='boy').length,6);
+ assert.equal(new Set(PLAZA_HAIR_ITEMS.map(item=>item.id)).size,12);
+ assert.ok(PLAZA_HAIR_ITEMS.every(item=>/^hair_[a-z0-9_]+$/.test(item.id)&&item.slot==='hair'&&item.priceCoin===50));
+});
+
+test('selected hairstyle is rendered on the head bone and original VRM hair restores cleanly',()=>{
+ const root=new Group(),head=new Bone();head.name='J_Bip_C_Head';root.add(head);
+ const sourceHair=new Mesh(new BoxGeometry(),new MeshBasicMaterial());sourceHair.name='Hair';root.add(sourceHair);
+ const modularHair=new Mesh(new BoxGeometry(),new MeshBasicMaterial());modularHair.name='Cing_girl_hair';modularHair.userData.cingAppearanceSlot='hair';root.add(modularHair);
+ const controller=createAppearanceController(root,{character:'girl'}),style=PLAZA_HAIR_ITEMS.find(item=>item.character==='girl');
+ controller.apply({hair:style.id});
+ assert.equal(sourceHair.visible,false);assert.equal(modularHair.visible,false);
+ const worn=head.children.find(child=>child.name===`CingHairStyle:${style.style}`);
+ assert.ok(worn);assert.ok(worn.children.length>=4);
+ controller.apply({});assert.equal(sourceHair.visible,true);assert.equal(modularHair.visible,true);
+ controller.dispose();assert.equal(sourceHair.visible,true);assert.equal(modularHair.visible,true);
 });
