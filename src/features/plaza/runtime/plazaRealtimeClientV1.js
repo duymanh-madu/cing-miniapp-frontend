@@ -10,7 +10,9 @@ const TERMINAL_RESUME_CODES = new Set([
   ...[...TERMINAL_CONNECT_CODES].filter(code => code !== "PLAZA_UNAVAILABLE"),
   "PLAZA_ROOM_NOT_FOUND", "PLAZA_ROOM_MEMBERSHIP_REQUIRED",
 ]);
-const MAX_RECOVERY_RETRIES = 50; // bounded; membership retention is server authority
+// Keep reconnect enabled through long mobile radio/renderer stalls. Authentication
+// and session replacement remain terminal; transport recovery uses capped backoff.
+const SOCKET_RECONNECTION_ATTEMPTS = Number.MAX_SAFE_INTEGER;
 
 function plazaErrorCode(error) {
   const code = error?.data?.code || error?.code || error?.message;
@@ -67,12 +69,8 @@ export function createPlazaRealtimeClientV1({
   function scheduleRecoveryRetry(){
     clearRecoveryRetry();
     if(disposed || recoveryBlocked || lifecycle?.hidden)return;
-    if(retryCount >= MAX_RECOVERY_RETRIES){
-      update({status:"connection-error", lastError:"PLAZA_RECOVERY_EXHAUSTED"});
-      setReconnectAllowed(false);
-      return;
-    }
-    const delay=Math.min(5000,recoveryDelayMs * 2 ** Math.min(retryCount++,3));
+    const delay=Math.min(30000,recoveryDelayMs * 2 ** Math.min(retryCount,5));
+    retryCount=Math.min(retryCount+1,6);
     retryTimer=setTimeout(()=>{
       retryTimer=null;
       if(disposed || recoveryBlocked || lifecycle?.hidden)return;
@@ -105,9 +103,10 @@ export function createPlazaRealtimeClientV1({
     autoConnect: false,
     forceNew: true,
     reconnection: true,
-    reconnectionAttempts: MAX_RECOVERY_RETRIES,
+    reconnectionAttempts: SOCKET_RECONNECTION_ATTEMPTS,
     reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
+    reconnectionDelayMax: 15000,
+    randomizationFactor: 0.5,
     timeout: timeoutMs,
     // Read current token for every handshake, including reconnect.
     auth: callback => {
@@ -236,7 +235,8 @@ export function createPlazaRealtimeClientV1({
         blockRecovery(code);
       } else {
         // Temporary service, ACK timeout, rate limit, or transport disruption.
-        // Keep the scene and retry with a bounded backoff.
+        // Keep the scene and retry with a capped backoff; only server authority
+        // can clear room membership.
         update({status:"connection-error",lastError:code});
         scheduleRecoveryRetry();
       }

@@ -43,6 +43,8 @@ test("separate namespace; no connection at construction; refreshed handshake tok
   const s = setup();
   assert.equal(s.captured().url, "https://game.example/plaza");
   assert.equal(s.captured().config.forceNew, true);
+  assert.equal(s.captured().config.reconnectionAttempts, Number.MAX_SAFE_INTEGER);
+  assert.equal(s.captured().config.reconnectionDelayMax, 15000);
   assert.equal(s.socket.connected, false);
   let first;
   s.captured().config.auth(value => { first = value; });
