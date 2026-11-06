@@ -90,7 +90,6 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   host.appendChild(renderer.domElement);
   let cameraOccluders=[];
   const controls=createPlazaCameraV10(camera,renderer.domElement,WORLD_V3.bounds,{floorAt:(x,z,hint)=>groundAt(x,z,hint),occluders:()=>cameraOccluders});
-  if(mobileGround)controls.maxDistance=29.7;
   const cameraCenter=new THREE.Vector3();
   const hemisphere = new THREE.HemisphereLight('#fff4dd', '#796b53', 0.8);
   hemisphere.layers.enable(1);hemisphere.layers.enable(2);scene.add(hemisphere);

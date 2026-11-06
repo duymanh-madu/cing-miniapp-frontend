@@ -2,7 +2,7 @@ import * as THREE from "three";
 import {resolvePlazaCameraOcclusion} from "./plazaCameraOcclusionV19.js";
 export const PLAZA_CAMERA_V10 = Object.freeze({
   min: 1.8,
-  max: 42,
+  max: 18,
   minPitch: 0.06,
   maxPitch: 1.72,
   margin: 0.35,
