@@ -61,7 +61,7 @@ export function createPlazaRemoteAvatarsV2({scene,load,loadFashion,onNotice=()=>
    root.traverse(o=>{if(o.isMesh){o.layers.set(1);o.castShadow=false;o.receiveShadow=false;o.frustumCulled=false;}});
    const group=new THREE.Group();group.name=`PlazaMember_${id}`;group.add(root);scene.add(group);
    actions.sit=actions.idle;
-   const appearance=createAppearanceController(root,{character:value.character,load:loadFashion,onError:()=>onNotice('Chưa tải được trang phục của thành viên.')});appearance.apply(holder.identity?.appearance||value.appearance||{});
+   const appearance=createAppearanceController(root,{character:value.character,expressionManager:vrm.expressionManager,load:loadFashion,onError:()=>onNotice('Chưa tải được trang phục của thành viên.')});appearance.apply(holder.identity?.appearance||value.appearance||{});
    Object.assign(holder,{appearance,group,vrm,mixer,actions,character:value.character,current:null,accumulated:0,headPosition:new THREE.Vector3()});
   } catch(error){if(!disposed&&actors.get(id)===holder){holder.failed=true;onNotice('Chưa tải được một nhân vật trong phòng. Hãy mở lại cảnh khi mạng ổn định.');}}
  }

@@ -1,6 +1,5 @@
 import {createFashionControllerV29} from './plazaFashionV29.js';
 import {VRMExpression,VRMExpressionMorphTargetBind} from '@pixiv/three-vrm';
-import * as THREE from 'three';
 export const PLAZA_SKIN_ITEMS=Object.freeze([
  {id:'skin_white',slot:'skin',label:'Ngà sứ',shortLabel:'Trắng',toneLabel:'TÔNG DA · TRẮNG / NGÀ SỨ',priceCoin:30,color:'#fff0df'},
  {id:'skin_yellow',slot:'skin',label:'Mật ong',shortLabel:'Vàng',toneLabel:'TÔNG DA · VÀNG / MẬT ONG',priceCoin:30,color:'#dca36e'},
@@ -56,50 +55,10 @@ export function softenPlazaSkin(material){
  material.parametricRimColorFactor?.setRGB(0,0,0);
  return material;
 }
-function makeHairPiece(geometry,material,position,scale,rotationY=0){
- const mesh=new THREE.Mesh(geometry,material);mesh.position.set(...position);mesh.scale.set(...scale);mesh.rotation.y=rotationY;mesh.castShadow=true;mesh.receiveShadow=true;return mesh;
-}
-function createHairLook(style,material,accent){
- const group=new THREE.Group();group.name=`CingHairStyle:${style}`;
- const sphere=new THREE.SphereGeometry(1,14,10);
- const add=(pos,size,color=material)=>group.add(makeHairPiece(sphere,color,pos,size));
- // A compact chibi cap plus silhouette pieces. Pieces live under the VRM head
- // bone, so every style follows head animation without another animation rig.
- const capSize=style==='long'?[.12,.105,.105]:[.112,.09,.098];
- add([0,.035,-.006],capSize);
- const fringe=(count=3,drop=.036)=>{for(let i=0;i<count;i++){const x=(i-(count-1)/2)*.052;add([x,.005-drop*(i%2?.78:1),.078],[.034,.052,.026],material);}};
- const sideLocks=(length=.09)=>{for(const sign of [-1,1])add([sign*.092,-.035,-.003],[.029,length,.035],material);};
- const tail=(x,y,z,length,width,rot=0)=>{const piece=makeHairPiece(sphere,material,[x,y,z],[width,length,width*.72],rot);group.add(piece);};
- const clip=(x,y,z,angle=0)=>{const pin=makeHairPiece(new THREE.CapsuleGeometry(.009,.075,3,6),accent,[x,y,z],[1,1,1],angle);group.add(pin);add([x,y+.018,z+.006],[.026,.019,.012],accent);};
- switch(style){
-  case 'bob': fringe(5,.052);sideLocks(.09);tail(0,-.105,-.052,.075,.09);break;
-  case 'twin': fringe(5,.035);for(const x of [-.105,.105]){add([x,.075,-.008],[.047,.055,.05]);tail(x,-.075,-.02,.14,.035,x<0?-.16:.16);add([x,.035,.004],[.054,.018,.05],accent);}break;
-  case 'bun': fringe(3,.042);sideLocks(.11);add([0,.112,-.045],[.064,.06,.06]);for(let i=0;i<5;i++){const a=i*Math.PI*2/5;add([Math.cos(a)*.035,.126,-.045+Math.sin(a)*.035],[.025,.036,.018],accent);}clip(.055,.11,-.032,.4);break;
-  case 'long': fringe(5,.048);sideLocks(.14);tail(0,-.16,-.105,.20,.105);clip(.085,.01,.035,.75);break;
-  case 'pony': fringe(5,.043);sideLocks(.085);add([0,.112,-.035],[.052,.045,.05]);tail(0,-.015,-.12,.22,.052);add([0,.075,-.025],[.066,.018,.055],accent);break;
-  case 'braid': fringe(5,.05);sideLocks(.12);tail(-.112,-.095,-.015,.10,.032);for(let i=0;i<5;i++)add([-.13,-.17-i*.04,-.015],[.025,.035,.027],i%2?material:accent);break;
-  case 'part': fringe(3,.025);sideLocks(.055);for(let i=0;i<3;i++)add([-.025+i*.018,.105-i*.012,.02],[.063,.018,.038],material);break;
-  case 'texture': fringe(5,.04);for(let i=0;i<5;i++)add([-.08+i*.04,.105+(i%2)*.018,.015],[.035,.055,.032],material);sideLocks(.06);break;
-  case 'crest': fringe(3,.024);sideLocks(.045);for(let i=0;i<4;i++)add([-.06+i*.04,.125-i*.006,-.004],[.03,.065,.03],material);clip(.083,.035,.04,.95);break;
-  case 'topknot': fringe(3,.035);sideLocks(.07);add([0,.13,-.035],[.048,.055,.05]);tail(0,.19,-.045,.055,.02);clip(.045,.12,.005,.6);break;
-  case 'crop': fringe(5,.045);for(let i=0;i<4;i++)add([-.06+i*.04,.098+(i%2)*.015,.005],[.028,.047,.03],material);sideLocks(.055);break;
-  case 'curtain': fringe(5,.06);sideLocks(.15);tail(0,-.14,-.09,.16,.085);clip(.08,.005,.035,.65);break;
- }
- group.traverse(o=>{if(o.isMesh){o.frustumCulled=false;o.userData.cingAppearanceSlot='hair';}});
- return group;
-}
-function createHairController(root,character){
- const head=[];let anchor=null;root.traverse(object=>{if(object.isBone&&object.name==='J_Bip_C_Head')anchor=object;if(object.isMesh&&(object.userData?.cingAppearanceSlot==='hair'||object.name==='Hair'))head.push(object);});
- const materials=new Map();for(const item of PLAZA_HAIR_ITEMS){if(item.character!==character)continue;materials.set(item.id,{base:new THREE.MeshStandardMaterial({color:item.color,roughness:.76,metalness:.02}),accent:new THREE.MeshStandardMaterial({color:item.style==='bun'||item.style==='pony'?'#c9a66b':'#dfc990',roughness:.42,metalness:.25})});}
- let active=null,hidden=[];
- function apply(id){
-  for(const entry of hidden)entry.object.visible=entry.visible;hidden=[];active?.traverse(o=>{if(o.geometry)o.geometry.dispose();});if(active?.parent)active.parent.remove(active);active=null;
-  const item=PLAZA_HAIR_ITEMS.find(value=>value.id===id&&value.character===character);if(!item||!anchor)return;
-  for(const object of head){hidden.push({object,visible:object.visible});object.visible=false;}
-  const material=materials.get(item.id);active=createHairLook(item.style,material.base,material.accent);anchor.add(active);
- }
- return {apply,dispose(){apply(null);for(const value of materials.values()){value.base.dispose();value.accent.dispose();}}};
-}
+// The current VRM files only contain their authored base haircut. Do not build
+// replacement styles from primitive spheres: real, fitted hair assets are not
+// present in this release bundle, and the old spheres caused severe overlap.
+function createHairController(){return {apply(){},dispose(){}};}
 function createFaceExpressionController(root,manager){
  if(!manager?.registerExpression||!manager?.setValue)return {apply(){},dispose(){}};
  const meshes=[];root.traverse(object=>{if(object.isMesh&&object.morphTargetDictionary&&object.morphTargetInfluences)meshes.push(object);});

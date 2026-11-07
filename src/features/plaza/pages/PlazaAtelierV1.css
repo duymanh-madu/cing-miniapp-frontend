@@ -478,150 +478,65 @@
  .cing-plaza .plaza-atelier-section-heading p {display:none;}
 }
 
-/* Portrait repair: the V1 refinement block above was declared after the
-   original mobile rules and restored the desktop two-column split. */
+/* Portrait sizing: keep the inventory inside the lobby's fixed viewport.
+   The catalogue is the only vertical scroll surface. */
 @media (max-width: 720px) and (orientation: portrait) {
   .cing-plaza .plaza-v20-atelier {
     box-sizing: border-box;
-    width: 100%;
-    height: auto !important;
-    min-height: calc(100vh - 120px);
-    min-height: calc(100svh - 120px);
-    max-height: none;
-    overflow: visible;
+    height: 100%;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
   }
   .cing-plaza .plaza-v20-atelier .plaza-v19-inventory-body {
     grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: minmax(220px, 31vh) minmax(420px, 1fr) !important;
-    grid-template-rows: minmax(220px, 31svh) minmax(420px, 1fr) !important;
-    min-height: 660px;
-    flex: 1 0 auto;
-    gap: 10px;
+    grid-template-rows: minmax(135px, 27%) minmax(0, 1fr) !important;
+    flex: 1 1 0;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
   }
   .cing-plaza .plaza-v20-atelier .plaza-v20-avatar-stage {
-    min-height: 220px;
+    min-height: 0;
   }
   .cing-plaza .plaza-v20-atelier .plaza-v19-catalog {
     box-sizing: border-box;
-    height: auto;
-    min-height: 420px;
+    height: 100%;
+    min-height: 0;
+    max-height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
-  }
-  .cing-plaza .plaza-atelier-section-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .cing-plaza .plaza-atelier-section-heading p {
-    max-width: none;
-    text-align: left;
-    font-size: 10px;
-  }
-  .cing-plaza .plaza-v20-atelier .plaza-hair-grid,
-  .cing-plaza .plaza-v20-atelier .plaza-skin-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    align-items: stretch;
-  }
-  .cing-plaza .plaza-v20-atelier .plaza-hair-card {
-    min-height: 205px !important;
-  }
-  .cing-plaza .plaza-v20-atelier .plaza-hair-art {
-    height: 92px;
-  }
-  .cing-plaza .plaza-v20-atelier .plaza-hair-actions > button {
-    min-height: 38px;
-    padding: 7px 5px;
-    font-size: 10px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
   }
 }
 
 @media (max-width: 380px) and (orientation: portrait) {
   .cing-plaza .plaza-v20-atelier .plaza-hair-grid {
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
-  .cing-plaza .plaza-v20-atelier .plaza-hair-card {
-    min-height: 0 !important;
-    display: grid !important;
-    grid-template-columns: 88px minmax(0, 1fr);
-    align-items: center !important;
-    column-gap: 10px !important;
-  }
-  .cing-plaza .plaza-v20-atelier .plaza-hair-art {
-    grid-row: span 2;
-    height: 88px;
-  }
-  .cing-plaza .plaza-v20-atelier .plaza-hair-actions {
-    grid-column: 1 / -1;
-    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-/* Make the catalogue illustrations read as distinct styles instead of a row
-   of nearly identical dark head silhouettes. */
-.cing-plaza .plaza-hair-art:before {
-  top: 22px;
-  width: 38px;
-  height: 44px;
-  background: linear-gradient(145deg, #f3d7b6, #c99670);
-  box-shadow: 0 3px 14px rgba(0,0,0,.24);
+@media (max-width: 380px) {
+  .cing-plaza .plaza-v20-atelier .plaza-skin-grid {grid-template-columns:minmax(0,1fr);}
+  .cing-plaza .plaza-atelier-section-heading p {display:none;}
 }
-.cing-plaza .plaza-hair-art:after {
-  top: 12px;
-  width: 48px;
-  height: 32px;
-  border-radius: 55% 55% 35% 35%;
-  box-shadow: inset 5px 2px 0 rgba(255,255,255,.12);
+
+/* A clear placeholder replaces invented hair silhouettes until fitted VRM assets arrive. */
+.cing-plaza .plaza-hair-art {
+  display: grid;
+  place-items: center;
+  min-height: 72px;
+  padding: 8px;
+  border: 1px dashed rgba(229,204,154,.3);
+  border-radius: 11px;
+  background: linear-gradient(145deg,#203740,#12252d);
+  color: #d9c394;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .8px;
+  text-align: center;
 }
-.cing-plaza .plaza-hair-art i {
-  top: 27px;
-  width: 12px;
-  height: 18px;
-}
-.cing-plaza .plaza-hair-art b {
-  top: 26px;
-  width: 11px;
-  height: 17px;
-}
-.cing-plaza .plaza-hair-art em {
-  display: block;
-  left: calc(50% - 5px);
-  top: 52px;
-  width: 3px;
-  height: 2px;
-  border-radius: 50%;
-  background: #4a3632;
-  box-shadow: 9px 0 0 #4a3632, 5px 8px 0 0 #a45b5b;
-}
-.cing-plaza .plaza-hair-art--twin:after {
-  box-shadow: -24px 16px 0 -8px var(--hair-color), 24px 16px 0 -8px var(--hair-color), inset 5px 2px 0 rgba(255,255,255,.12);
-}
-.cing-plaza .plaza-hair-art--bun:after,
-.cing-plaza .plaza-hair-art--topknot:after {
-  box-shadow: 0 -11px 0 -2px var(--hair-color), inset 5px 2px 0 rgba(255,255,255,.12);
-}
-.cing-plaza .plaza-hair-art--long:before,
-.cing-plaza .plaza-hair-art--curtain:before {
-  height: 55px;
-  border-radius: 48% 48% 22% 22%;
-}
-.cing-plaza .plaza-hair-art--pony:after {
-  box-shadow: 20px 13px 0 -7px var(--hair-color), inset 5px 2px 0 rgba(255,255,255,.12);
-}
-.cing-plaza .plaza-hair-art--braid i {
-  left: calc(50% - 24px);
-  top: 30px;
-  width: 11px;
-  height: 34px;
-  border-radius: 9px;
-}
-.cing-plaza .plaza-hair-art--texture:after,
-.cing-plaza .plaza-hair-art--crest:after {
-  height: 38px;
-  transform: translateX(-50%) rotate(-10deg);
-}
-.cing-plaza .plaza-hair-art--crop:after {
-  height: 22px;
-  top: 14px;
-  border-radius: 65% 45% 28% 28%;
-}
+.cing-plaza .plaza-hair-art:before,.cing-plaza .plaza-hair-art:after,
+.cing-plaza .plaza-hair-art i,.cing-plaza .plaza-hair-art b,.cing-plaza .plaza-hair-art em {content:none;display:none;}
