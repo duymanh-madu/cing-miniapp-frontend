@@ -551,3 +551,23 @@
  .cing-plaza .plaza-v20-atelier .plaza-v19-inventory-body{height:auto!important;grid-template-rows:minmax(160px,36%) minmax(0,1fr)!important;gap:8px;}
  .cing-plaza .plaza-v20-atelier .plaza-v19-premium-rank{transform:scale(.7);transform-origin:top right;pointer-events:none;}
 }
+
+/* Plaza iOS safe header V3 */
+@media (max-width:720px) {
+  .cing-plaza .plaza-v16-inventory-lobby>header {
+    padding-top:calc(env(safe-area-inset-top, 0px) + 8px)!important;
+    box-sizing:border-box;
+  }
+  .cing-plaza .plaza-v20-atelier .plaza-v19-catalog>nav {
+    z-index:5;
+    background:#172b32;
+    isolation:isolate;
+  }
+}
+@supports (-webkit-touch-callout:none) {
+  @media (max-width:720px) and (orientation:portrait) {
+    .cing-plaza .plaza-v16-inventory-lobby>header {
+      padding-top:calc(max(54px, env(safe-area-inset-top, 0px)) + 8px)!important;
+    }
+  }
+}
