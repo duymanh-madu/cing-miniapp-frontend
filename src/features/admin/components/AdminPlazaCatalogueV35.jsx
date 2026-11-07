@@ -1,6 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import apiClient from '@/infra/api/apiClient';
-const labels={top:'Áo',bottom:'Quần / váy',shoes:'Giày',skin:'Màu da'};
+const labels={hair:'Tóc',face:'Biểu cảm',outfit:'Bộ đồ',top:'Áo',bottom:'Quần / váy',shoes:'Giày',skin:'Màu da',frame:'Khung hồ sơ'};
 function CatalogueRow({item,token,onSaved}){
  const [price,setPrice]=useState(String(item.price_coin)),[enabled,setEnabled]=useState(item.enabled),[reason,setReason]=useState(''),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');const command=useRef(null);
  useEffect(()=>{setPrice(String(item.price_coin));setEnabled(item.enabled);setReason('');command.current=null;},[item.revision]);

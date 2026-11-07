@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {X,Send,MessagesSquare,Globe,Mail,MessageCircle,Check,UserPlus,Megaphone} from 'lucide-react';
 import PlazaTitleV10 from './PlazaTitleV10.jsx';
 import {selectChatChannelsV16} from '../runtime/plazaSocialClientV16.js';
-const channels=[['room','Khu vực',MessageCircle],['world','Loa thế giới',Globe],['pm','PM',Mail],['all','Tất cả',MessagesSquare]];
+const channels=[['room','Khu vực',MessageCircle],['world','Loa thế giới',Globe],['pm','Nhắn riêng',Mail],['all','Tất cả',MessagesSquare]];
 export default function PlazaChatV7({room,messages,draft,setDraft,submit,connected,busy,onClose,social,initialPeerId,onProfile}){
  const [tab,setTab]=useState(initialPeerId?'pm':'room'),[peerId,setPeerId]=useState(initialPeerId||''),[worldConfirm,setWorldConfirm]=useState(false),[allCompose,setAllCompose]=useState('room');const root=useRef(null),end=useRef(null),close=useRef(onClose);close.current=onClose;
  const overview=social?.overview,compose=tab==='all'?allCompose:tab,peers=overview?.friends.filter(v=>v.status==='accepted')||[];
@@ -29,7 +29,7 @@ export default function PlazaChatV7({room,messages,draft,setDraft,submit,connect
       <span className="plaza-v18-vip-slot" aria-hidden="true"/>
     </span><time>{new Date(m.createdAt).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}</time></div><p>{m.body}</p></article>)}<div ref={end}/></div>
  {tab==='all'&&<select className="plaza-v16-compose-channel" aria-label="Kênh gửi tin nhắn" value={allCompose} onChange={e=>setAllCompose(e.target.value)}><option value="room">Gửi vào khu vực hiện tại</option><option value="world">Gửi bằng một loa thế giới</option><option value="pm">Gửi PM tới người bạn đã chọn</option></select>}
- {tab==='all'&&compose==='pm'&&<select className="plaza-v16-compose-channel" aria-label="Người nhận PM" value={peerId} onChange={e=>setPeerId(e.target.value)}><option value="">Chọn bạn để nhắn riêng</option>{peers.map(p=><option key={p.peerId} value={p.peerId}>{p.displayName}</option>)}</select>}
+ {tab==='all'&&compose==='pm'&&<select className="plaza-v16-compose-channel" aria-label="Người nhận tin nhắn" value={peerId} onChange={e=>setPeerId(e.target.value)}><option value="">Chọn bạn để nhắn riêng</option>{peers.map(p=><option key={p.peerId} value={p.peerId}>{p.displayName}</option>)}</select>}
  {compose==='world'&&<small className="plaza-v16-chat-stock"><Megaphone size={14}/>Bạn có {overview?.loudspeakers||0} loa · mỗi tin dùng 1 loa</small>}
  {social?.error&&<p role="alert" className="plaza-v16-chat-error">{social.error}</p>}
  <form onSubmit={send}><textarea aria-label="Tin nhắn" placeholder={compose==='room'?'Nhắn một lời với Cing iu…':compose==='world'?'Một lời gửi tới toàn Plaza…':'Tin nhắn chỉ hai người thấy…'} rows={1} maxLength={500} value={draft} readOnly={Boolean(social?.pending)} disabled={!connected||compose==='room'&&!room} onChange={e=>setDraft(e.target.value)}/><button aria-label="Gửi tin nhắn" disabled={!canSend}><Send size={21}/></button></form>

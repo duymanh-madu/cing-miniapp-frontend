@@ -59,26 +59,37 @@ export function softenPlazaSkin(material){
 // replacement styles from primitive spheres: real, fitted hair assets are not
 // present in this release bundle, and the old spheres caused severe overlap.
 function createHairController(){return {apply(){},dispose(){}};}
-function createFaceExpressionController(root,manager){
- if(!manager?.registerExpression||!manager?.setValue)return {apply(){},dispose(){}};
- const meshes=[];root.traverse(object=>{if(object.isMesh&&object.morphTargetDictionary&&object.morphTargetInfluences)meshes.push(object);});
- const expressions=[];
+export function registerPlazaFaceExpressionsV27(root,manager){
+ if(!manager?.registerExpression)return;
+ const meshes=[];root.traverse(o=>{if(o.isMesh&&o.morphTargetDictionary)meshes.push(o);});
  for(const item of PLAZA_FACE_EXPRESSION_ITEMS){
+  if(manager.getExpression(item.id))continue;
   const expression=new VRMExpression(item.id);
-  for(const [targetName,weight] of item.targets){
-   const primitives=meshes.filter(mesh=>Number.isInteger(mesh.morphTargetDictionary[targetName]));
-   if(primitives.length)expression.addBind(new VRMExpressionMorphTargetBind({primitives,index:primitives[0].morphTargetDictionary[targetName],weight}));
+  for(const [name,weight] of item.targets)for(const mesh of meshes){
+   const index=mesh.morphTargetDictionary[name];
+   if(Number.isInteger(index))expression.addBind(new VRMExpressionMorphTargetBind({primitives:[mesh],index,weight}));
   }
-  if(expression.binds.length){manager.registerExpression(expression);expressions.push(expression);}
+  if(expression.binds.length)manager.registerExpression(expression);
  }
- const baseValues=new Map((manager.expressions||[]).filter(expression=>!expressions.includes(expression)).map(expression=>[expression.expressionName,expression.weight]));
+}
+function createFaceExpressionController(root,manager){
+ registerPlazaFaceExpressionsV27(root,manager);
+ const meshes=[];root.traverse(o=>{if(o.isMesh&&o.morphTargetDictionary&&o.morphTargetInfluences)meshes.push(o);});
+ const touched=new Map();
+ function restore(){for(const [mesh,values] of touched)for(const [index,value] of values)mesh.morphTargetInfluences[index]=value;touched.clear();}
+ function write(mesh,index,value){if(!touched.has(mesh))touched.set(mesh,new Map());const values=touched.get(mesh);if(!values.has(index))values.set(index,mesh.morphTargetInfluences[index]);mesh.morphTargetInfluences[index]=value;}
  function apply(id){
-  manager.resetValues?.();
-  for(const [name,value] of baseValues)manager.setValue(name,value);
-  for(const expression of expressions)manager.setValue(expression.expressionName,0);
-  if(expressions.some(expression=>expression.expressionName===id))manager.setValue(id,1);
+  restore();
+  for(const item of PLAZA_FACE_EXPRESSION_ITEMS)manager?.setValue?.(item.id,item.id===id?1:0);
+  const item=PLAZA_FACE_EXPRESSION_ITEMS.find(x=>x.id===id);if(!item){manager?.update?.();return;}
+  if(manager?.getExpression?.(id)){manager.update?.();return;}
+  for(const mesh of meshes){
+   const compressed=mesh.morphTargetDictionary[id];
+   if(Number.isInteger(compressed)){write(mesh,compressed,1);continue;}
+   for(const [name,weight] of item.targets){const index=mesh.morphTargetDictionary[name];if(Number.isInteger(index))write(mesh,index,weight);}
+  }
  }
- return {apply,dispose(){apply(null);for(const expression of expressions)manager.unregisterExpression?.(expression);}};
+ return {apply,dispose(){apply(null);}};
 }
 // Private materials prevent a local recipe from changing every shared avatar.
 export function createAppearanceController(root,options={}){

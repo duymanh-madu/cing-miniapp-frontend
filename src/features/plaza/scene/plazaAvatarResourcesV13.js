@@ -1,8 +1,10 @@
+import {registerPlazaFaceExpressionsV27} from './plazaAppearanceV27.js';
 import {VRMUtils} from '@pixiv/three-vrm';
 
 // Preserve the authored mesh and textures. Merge only equivalent skeletons and
 // expression morphs, before any GPU upload or remote clone is constructed.
 export function preparePlazaAvatarV13(vrm,{combineSkeletons=true,combineMorphs=true}={}) {
+  registerPlazaFaceExpressionsV27(vrm.scene,vrm.expressionManager);
   if(combineSkeletons)VRMUtils.combineSkeletons(vrm.scene);
   if(combineMorphs)VRMUtils.combineMorphs(vrm);
 }
