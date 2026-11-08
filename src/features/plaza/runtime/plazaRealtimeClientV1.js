@@ -230,7 +230,10 @@ export function createPlazaRealtimeClientV1({
         handlers["plaza:room"]({room:null});
         retryCount=0;
         resumeNeeded=false;
-        update({status:"connected",profile:undefined});
+        // A server-confirmed missing character is a resolved profile, not loading.
+        // Character choice does not depend on optional badge/social identity reads.
+        recoveryBlocked=false;
+        update({status:"connected",lastError:null,profile:null});
         return;
       }
       const code=plazaErrorCode(error);trace.record("recover-error",{code});
