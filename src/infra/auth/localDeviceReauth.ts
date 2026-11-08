@@ -1,3 +1,4 @@
+import {authSessionEpochV42} from "./authSessionEpochV42.js";
 import apiClient from "@/infra/api/apiClient";
 
 import {
@@ -235,6 +236,7 @@ registerLocalDeviceReauthCredential(
   phoneToken: string,
   miniAccessToken: string
 ) {
+  const registerEpoch=authSessionEpochV42();
   const verifiedPhoneToken =
     String(
       phoneToken ||
@@ -320,6 +322,7 @@ registerLocalDeviceReauthCredential(
       return false;
     }
 
+    if(authSessionEpochV42()!==registerEpoch)return false;
     return persistEnvelope(
       next
     );
@@ -330,6 +333,7 @@ registerLocalDeviceReauthCredential(
 
 export async function
 recoverLocalDeviceReauthSession() {
+  const expectedEpoch=authSessionEpochV42();
   const current =
     readEnvelope();
 
@@ -367,6 +371,7 @@ recoverLocalDeviceReauthSession() {
   } catch (
     error: any
   ) {
+    if(authSessionEpochV42()!==expectedEpoch)return false;
     const status =
       Number(
         error?.response?.status ||
@@ -384,6 +389,7 @@ recoverLocalDeviceReauthSession() {
     return false;
   }
 
+  if(authSessionEpochV42()!==expectedEpoch)return false;
   const payload =
     response?.data?.data ||
     response?.data ||
@@ -451,6 +457,7 @@ recoverLocalDeviceReauthSession() {
       ? payload.customer
       : {};
 
+  if(authSessionEpochV42()!==expectedEpoch)return false;
   createSession({
     accessToken,
     refreshToken,

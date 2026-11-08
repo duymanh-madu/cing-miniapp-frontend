@@ -1,3 +1,5 @@
+import {currentCustomerPhoneV42} from "@/infra/auth/currentCustomerIdentityV42.js";
+import {advanceAuthSessionEpochV42,requireAuthSessionEpochV42} from "@/infra/auth/authSessionEpochV42.js";
 import { createSession } from "@/infra/auth/authSession";
 import useAuthStore from "@/stores/auth";
 import { getOrCreateRuntimeDeviceId } from "@/runtime/session/runtimeDeviceIdentity";
@@ -46,6 +48,7 @@ export interface ActivateMiniAppUserInput {
 }
 
 export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Promise<any> {
+  const expectedEpoch=advanceAuthSessionEpochV42();
   const payload = {
     zalo_id:       input.zaloUserId   || "",
     name:          input.name         || "",
@@ -73,13 +76,22 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
   }
 
   const json = await res.json();
-  const data = json.data || json;
+  let data = json.data || json;
+  const acceptedToken=String(data.accessToken||data.access_token||"").trim();
+  if(!acceptedToken)throw Object.assign(new Error("Chưa xác nhận được phiên đăng nhập. Vui lòng thử lại."),{code:"AUTH_LOGIN_SESSION_MISSING"});
+  if(typeof data.customer?.id!=="string" || !data.customer.id.trim() || !currentCustomerPhoneV42(data.customer?.phone)){
+    const sessionResponse=await fetch(`${BACKEND_URL}/auth/session`,{headers:{Authorization:`Bearer ${acceptedToken}`},cache:"no-store"});
+    if(!sessionResponse.ok)throw Object.assign(new Error("Chưa xác nhận được tài khoản."),{code:"AUTH_LOGIN_CUSTOMER_MISSING"});
+    const sessionJson=await sessionResponse.json();
+    const customer=sessionJson.data?.customer||sessionJson.customer;
+    if(typeof customer?.id!=="string" || !customer.id.trim() || !currentCustomerPhoneV42(customer.phone))throw Object.assign(new Error("Chưa xác nhận được tài khoản."),{code:"AUTH_LOGIN_CUSTOMER_MISSING"});
+    data={...data,customer};
+  }
 
+  requireAuthSessionEpochV42(expectedEpoch);
   if (data.accessToken || data.access_token) {
     const resolvedPhone =
-      data.customer?.phone ||
-      (input.phone !== "pending" ? input.phone : "") ||
-      "";
+      currentCustomerPhoneV42(data.customer?.phone);
 
     const existingProfile =
       useAuthStore.getState().profile;
@@ -96,6 +108,7 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
 
     const canReuseExistingProfile =
       existingProfile &&
+      existingProfile.id === data.customer.id &&
       existingPhone &&
       normalizedResolvedPhone &&
       existingPhone === normalizedResolvedPhone;
@@ -115,7 +128,9 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
       accessToken:  data.accessToken  || data.access_token,
       refreshToken: data.refreshToken || data.refresh_token || null,
       profile: {
-        id:     data.customer?.id || data.customer?.zalo_id || existingProfile?.id || "",
+        ...(canReuseExistingProfile ? existingProfile : {}),
+        ...data.customer,
+        id:     data.customer?.id || "",
         name:   sessionName,
         phone:  resolvedPhone,
         avatar: data.customer?.avatar || (canReuseExistingProfile ? existingProfile?.avatar : "") || input.avatar || "",
@@ -147,6 +162,10 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
       ).catch(() => false);
     }
 
+    const acceptedProfile=useAuthStore.getState();
+    if(!acceptedProfile.authenticated || acceptedProfile.profile?.id!==data.customer.id || currentCustomerPhoneV42(acceptedProfile.profile?.phone)!==resolvedPhone) {
+      throw Object.assign(new Error("Session changed during activation."),{code:"AUTH_SESSION_SUPERSEDED"});
+    }
     try {
       if (resolvedPhone && resolvedPhone !== "pending") {
         window.parent?.postMessage({
@@ -163,8 +182,8 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
   return {
     ...data,
     customerId:    data.customer?.id            || "",
-    fullName:      pickProfileName(data.customer?.fullName, data.customer?.name, input.name),
-    phone:         data.customer?.phone         || input.phone,
+    fullName:      pickProfileName(useAuthStore.getState().profile?.display_name, useAuthStore.getState().profile?.name, data.customer?.fullName, data.customer?.name),
+    phone:         currentCustomerPhoneV42(data.customer?.phone),
     totalSpent:    data.customer?.total_spent   || 0,
     monthlySpent:  data.customer?.monthly_spent || 0,
     loyaltyPoints: data.customer?.points        || 0,

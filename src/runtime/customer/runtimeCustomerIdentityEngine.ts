@@ -126,6 +126,7 @@ export async function initializeCustomerIdentityEngine() {
       if (resolvedPhone) localStorage.setItem("__user_phone", resolvedPhone);
     } catch {}
   } catch (err: any) {
+    if(err?.code === "AUTH_SESSION_SUPERSEDED") return;
     store.setProfileHydrated(true);
     store.setActivationStatus("guest" as any);
     throw err;

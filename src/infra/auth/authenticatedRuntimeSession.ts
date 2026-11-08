@@ -1,3 +1,4 @@
+import {authSessionEpochV42,requireAuthSessionEpochV42} from "./authSessionEpochV42.js";
 import apiClient from "@/infra/api/apiClient";
 import useAuthStore from "@/stores/auth/authStore";
 import { createSession } from "@/infra/auth/authSession";
@@ -79,7 +80,9 @@ async function openAuthenticatedRuntimeSessionAuthority():
   const openSession = async (
     token: string
   ) => {
-    return apiClient.post(
+    const expectedEpoch=authSessionEpochV42();
+    try {
+    const opened=await apiClient.post(
       "/auth/session/open",
       {
         installation_id:
@@ -95,6 +98,11 @@ async function openAuthenticatedRuntimeSessionAuthority():
         },
       }
     );
+    const customer=opened?.data?.data?.customer || opened?.data?.customer;
+    const accepted=customer?opened:await apiClient.get("/auth/session",{headers:{Authorization:`Bearer ${token}`}});
+    requireAuthSessionEpochV42(expectedEpoch);
+    return accepted;
+    } catch(error) { requireAuthSessionEpochV42(expectedEpoch); throw error; }
   };
 
   const hydrateAcceptedSession = (
@@ -110,13 +118,13 @@ async function openAuthenticatedRuntimeSessionAuthority():
 
     const customerPhone =
       String(customer?.phone || "")
-        .replace(/\\D/g, "")
+        .replace(/\D/g, "")
         .replace(/^84/, "0");
 
     if (
       !customerId ||
       !customerPhone ||
-      customerPhone.length < 9
+      !/^0\d{9}$/.test(customerPhone)
     ) {
       const error: any = new Error(
         "Backend-accepted session has no valid customer identity."

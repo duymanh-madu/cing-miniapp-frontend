@@ -2,7 +2,7 @@ import useAuthStore from "@/stores/auth";
 import { getPersistedAuthSession } from "./persistedAuthSession.js";
 
 function normalizePhone(value) {
-  const digits = String(value || "").replace(/\\D/g, "");
+  const digits = String(value || "").replace(/\D/g, "");
   return digits.startsWith("84")
     ? "0" + digits.slice(2)
     : digits;

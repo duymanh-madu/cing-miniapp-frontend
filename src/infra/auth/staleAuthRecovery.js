@@ -1,3 +1,4 @@
+import {advanceAuthSessionEpochV42} from "./authSessionEpochV42.js";
 import {
   clearAuthStorage,
 } from "./authStorage";
@@ -10,6 +11,7 @@ import sessionHydrator from
 
 export function
 clearStaleBackendAuthSession() {
+  advanceAuthSessionEpochV42();
   clearAuthStorage();
 
   try {

@@ -1,3 +1,4 @@
+import {currentCustomerIdentityV42,currentCustomerPhoneV42} from '@/infra/auth/currentCustomerIdentityV42.js';
 import {
   useQuery,
 } from "@tanstack/react-query";
@@ -38,27 +39,13 @@ function normalizePhone(
 export function useMembership(
   overridePhone = ""
 ) {
-  const profile =
-    useAuthStore(
-      state =>
-        state.profile
-    );
-
-  const storePhone =
-    normalizePhone(
-      profile?.phone ||
-      profile?.phoneNumber ||
-      profile?.mobile ||
-      ""
-    );
-
-  const phone =
-    normalizePhone(
-      overridePhone ||
-      storePhone ||
-      ""
-    );
-
+  const authenticated=useAuthStore(s=>s.authenticated);
+  const accessToken=useAuthStore(s=>s.accessToken);
+  const profile=useAuthStore(s=>s.profile);
+  const owner=currentCustomerIdentityV42({authenticated,accessToken,profile});
+  const developerOverride=import.meta.env.DEV===true?currentCustomerPhoneV42(overridePhone):'';
+  const phone=developerOverride||owner.phone;
+  const ownerId=developerOverride?'development-only':owner.id;
   const realtimePoints =
     useMembershipStore(
       state =>
@@ -78,6 +65,7 @@ export function useMembership(
       queryKey: [
         "membership",
         phone,
+        ownerId,
       ],
 
       queryFn: async ({
@@ -97,8 +85,9 @@ export function useMembership(
           );
 
         return (
-          response.data?.data ||
-          null
+          response.data?.success === true && currentCustomerPhoneV42(response.data?.data?.phone) === phone
+            ? response.data.data
+            : null
         );
       },
 

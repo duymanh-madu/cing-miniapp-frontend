@@ -8,6 +8,8 @@ export type RuntimeMembershipTier =
   | "doi_tac_than_thiet";
 
 export interface RuntimeCustomerIdentity {
+  // Credential recovery hint only; never a displayed/authenticated customer owner.
+  credentialPhone?: string;
 
   customerId:
     string;

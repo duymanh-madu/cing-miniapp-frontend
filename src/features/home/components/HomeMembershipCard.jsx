@@ -1,10 +1,7 @@
-import { resolveProfileName } from "@/utils/profile/profileDisplay";
+import {useCurrentCustomerV42} from "../hooks/useCurrentCustomerV42.js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMembership } from "../hooks/useMembership";
 import { useEffect, useRef } from "react";
-import useAuthStore from "@/stores/auth/authStore";
-import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
 
 import useWalletOverview from "@/features/wallet/hooks/useWalletOverview";
 
@@ -128,21 +125,13 @@ function mapTierKey(raw) {
 
 export default function HomeMembershipCard() {
   const navigate = useNavigate();
-  const profile = useAuthStore(s => s.profile);
-  const runtimePhone =
-    useRuntimeCustomerIdentityStore(
-      state =>
-        state.identity?.phone ||
-        ""
-    );
-  const phone = (profile?.phone || profile?.phoneNumber || profile?.mobile || runtimePhone || "").replace(/\D/g,"").replace(/^84/,"0");
-
   /*
    * Developer membership override is strictly a browser-test
    * facility. It must never override canonical member identity
    * inside Zalo Mini App production.
    */
   const isWeb =
+    import.meta.env.DEV === true &&
     typeof window !== "undefined" &&
     !window.__ZALO_MINI_APP__ &&
     !navigator.userAgent.includes("ZaloApp");
@@ -172,18 +161,17 @@ export default function HomeMembershipCard() {
     );
   };
 
+  const customer=useCurrentCustomerV42(isWeb?submittedPhone:"");
+  const profile=customer.profile;
+  const phone=customer.phone;
+
   const membershipPhone =
     isWeb
       ? submittedPhone || phone
       : phone;
 
-  const {
-    data: membership,
-    isLoading,
-  } = useMembership(
-    membershipPhone
-  );
-  const displayName = resolveProfileName(profile, membership?.name || "Hội viên"); // custom name ưu tiên
+  const {data:membership,isLoading}=customer.query;
+  const displayName = customer.displayName || "Hội viên";
 
   const {
     balance: walletBalance,
@@ -217,12 +205,15 @@ export default function HomeMembershipCard() {
   const userId = profile?.id || profile?.userId || profile?.zalo_id || phone;
 
   useEffect(() => {
+    setPartnerProgress(null);
     if (!isPartner || !userId) return;
+    let active=true;const controller=new AbortController();
     import("@/infra/api/apiClient").then(m =>
-      m.default.get("/membership/" + userId + "/partner-progress")
-        .then(r => setPartnerProgress(r.data?.data))
+      m.default.get("/membership/" + userId + "/partner-progress",{signal:controller.signal})
+        .then(r => {if(active)setPartnerProgress(r.data?.data);})
         .catch(() => {})
     );
+    return()=>{active=false;controller.abort();};
   }, [isPartner, userId]);
   const TIER_ORDER = ["member","loyal","silver","gold","diamond"];
   const currentIdx = TIER_ORDER.indexOf(tier);
@@ -269,9 +260,15 @@ export default function HomeMembershipCard() {
     );
   }
 
+  if (!phone && !isWeb) {
+    return <button type="button" onClick={()=>window.dispatchEvent(new CustomEvent("cing:customer-session-retry"))} style={{width:"100%",padding:20,borderRadius:20,border:"1px solid #eadaca",background:"#fff8f1",color:"#8b4828"}}>Kết nối lại tài khoản</button>;
+  }
+
   if (isLoading && !membership) {
     return <div style={{ height:220, borderRadius:24, background:"#e8e0d0", margin:"0 0 4px" }} className="animate-pulse"/>;
   }
+
+  if (!membership) return <button type="button" onClick={()=>customer.query.refetch()} style={{width:"100%",padding:20,borderRadius:20,border:"1px solid #eadaca",background:"#fff8f1",color:"#8b4828"}}>Chưa tải được thẻ hội viên. Chạm để thử lại.</button>;
 
   return (
     <button onClick={() => navigate("/account")}

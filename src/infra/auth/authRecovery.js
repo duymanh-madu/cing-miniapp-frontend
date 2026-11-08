@@ -1,3 +1,4 @@
+import {authSessionEpochV42,requireAuthSessionEpochV42} from "./authSessionEpochV42.js";
 import apiClient from "../api/apiClient.js";
 import { createSession } from "./authSession.js";
 import { getPersistedAuthSession } from "./persistedAuthSession.js";
@@ -31,6 +32,7 @@ export async function recoverBackendAuthSession() {
   }
 
   refreshInFlight = (async () => {
+    const expectedEpoch=authSessionEpochV42();
     const persisted = getPersistedAuthSession();
     const refreshToken = String(persisted?.refreshToken || "").trim();
 
@@ -74,10 +76,11 @@ export async function recoverBackendAuthSession() {
           : {};
 
       const profile = {
-        ...previousProfile,
+        ...(!refreshedCustomer.id || refreshedCustomer.id === previousProfile.id ? previousProfile : {}),
         ...refreshedCustomer,
       };
 
+      requireAuthSessionEpochV42(expectedEpoch);
       createSession({
         accessToken,
         refreshToken,
@@ -90,6 +93,7 @@ export async function recoverBackendAuthSession() {
         profile,
       };
     } catch (error) {
+      requireAuthSessionEpochV42(expectedEpoch);
       if (error?.authRejected) {
         throw error;
       }

@@ -1,3 +1,4 @@
+import {currentCustomerIdentityV42} from '@/infra/auth/currentCustomerIdentityV42.js';
 import apiClient from "@/infra/api/apiClient";
 import { recoverBackendAuthSession } from "@/infra/auth/authRecovery";
 import { getCanonicalAccessToken } from "@/infra/auth/persistedAuthSession";
@@ -14,10 +15,8 @@ export function startLiveMembershipSync() {
   let socket = null, owner = "", token = "", timer = null, lastRecoveryAt = 0;
   const currentOwner = () => {
     if (!getCanonicalAccessToken()) return "";
-    const identity = useRuntimeCustomerIdentityStore.getState().identity;
-    const profile = useAuthStore.getState().profile;
-    const phone = phoneOf(identity?.phone || profile?.phone || profile?.phoneNumber);
-    return /^0[0-9]{9}$/.test(phone) ? phone : "";
+    const auth=useAuthStore.getState();
+    return auth.accessToken===getCanonicalAccessToken()?currentCustomerIdentityV42(auth).phone:"";
   };
   const coordinator = createLiveBalanceCoordinator({
     currentOwner,

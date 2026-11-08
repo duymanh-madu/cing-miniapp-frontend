@@ -25,6 +25,7 @@ import {
 } from "@/runtime/customer/runtimeCustomerPermissionEngine";
 
 export function logout() {
+  window.dispatchEvent(new Event("cing:customer-session-logout"));
 
   const accessToken =
     String(
@@ -52,7 +53,7 @@ export function logout() {
     ).catch(() => {});
   }
 
-  void clearLocalDeviceReauthCredential()
+  void Promise.resolve(clearLocalDeviceReauthCredential())
     .catch(() => false);
 
   destroySession();

@@ -204,6 +204,8 @@ test(
   "cold current-account lookup reuses bounded shell startup budget",
   () => {
     const restore = restoreRegion();
+    assert.match(restore, /restoreActivatedMemberFromShellToken\(identityTimeoutMs = SHELL_BOOT_STARTUP_BUDGET_MS\)/);
+    assert.match(bootstrap, /restore:\(\)=>restoreActivatedMemberFromShellToken\(6000\)/);
 
     assert.match(
       bootstrap,
@@ -212,7 +214,7 @@ test(
 
     assert.match(
       restore,
-      /getZaloUserInfo\(\{[\s\S]*?forceRefresh:\s*true,[\s\S]*?timeoutMs:\s*SHELL_BOOT_STARTUP_BUDGET_MS/
+      /getZaloUserInfo\(\{[\s\S]*?forceRefresh:\s*true,[\s\S]*?timeoutMs:\s*identityTimeoutMs/
     );
   }
 );
@@ -231,3 +233,10 @@ test(
     );
   }
 );
+
+test("silent restore enrichment uses the session captured before the HTTP request",()=>{
+ const restore=restoreRegion();
+ assert.match(restore,/const profileRequestAuth = useAuthStore\.getState\(\);\s*const profileRes = await apiClient\.get/);
+ assert.match(restore,/syncAuthStoreAfterSilentRestore\(\{[\s\S]*?\} as any, profileRequestAuth\)/);
+ assert.match(restore,/if \(!committed\) return false/);
+});

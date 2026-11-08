@@ -1,3 +1,4 @@
+import {advanceAuthSessionEpochV42} from "./authSessionEpochV42.js";
 import {
   setAccessToken,
   setRefreshToken,
@@ -14,6 +15,7 @@ export function createSession({
   profile,
 }) {
 
+  advanceAuthSessionEpochV42();
   setAccessToken(
     accessToken
   );
@@ -43,6 +45,7 @@ export function createSession({
 }
 
 export function destroySession() {
+  advanceAuthSessionEpochV42();
 
   clearAuthStorage();
 

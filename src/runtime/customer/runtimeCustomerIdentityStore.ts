@@ -1,3 +1,5 @@
+import useAuthStore from "@/stores/auth/authStore";
+import {projectRuntimeCustomerIdentityV42} from "@/infra/auth/currentCustomerIdentityV42.js";
 import {
   create,
 } from "zustand";
@@ -133,10 +135,7 @@ export const useRuntimeCustomerIdentityStore =
       const current =
         get().identity || defaultIdentity;
 
-      const merged = {
-        ...current,
-        ...identity,
-      };
+      const merged = projectRuntimeCustomerIdentityV42(useAuthStore.getState(),current,identity);
 
       set({
         identity:

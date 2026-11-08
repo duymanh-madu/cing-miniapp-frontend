@@ -1,3 +1,5 @@
+import {currentCustomerIdentityV42} from "@/infra/auth/currentCustomerIdentityV42.js";
+import {createCustomerSessionRecoveryV42} from "@/infra/auth/customerSessionRecoveryV42.js";
 import { commitProfileEnrichment } from "@/infra/auth/commitProfileEnrichment";
 import { initializeRuntimeSocket, getRuntimeSocket } from "./socket/runtimeSocketClient";
 import { initializeRealtimeOrchestrator }    from "./realtime/runtimeRealtimeOrchestrator";
@@ -100,8 +102,8 @@ async function openCachedMemberRuntimeEntry({
   }
 }
 
-function syncAuthStoreAfterSilentRestore(profile: any) {
-  const auth = useAuthStore.getState();
+function syncAuthStoreAfterSilentRestore(profile: any, expectedAuth: any) {
+  const auth = expectedAuth;
 
   if (
     !auth.authenticated ||
@@ -112,7 +114,7 @@ function syncAuthStoreAfterSilentRestore(profile: any) {
     return;
   }
 
-  commitProfileEnrichment({
+  return commitProfileEnrichment({
     expectedCustomerId: auth.profile.id,
     expectedPhone: auth.profile.phone,
     expectedRefreshToken: auth.refreshToken,
@@ -120,7 +122,7 @@ function syncAuthStoreAfterSilentRestore(profile: any) {
   });
 }
 
-async function restoreActivatedMemberFromShellToken() {
+async function restoreActivatedMemberFromShellToken(identityTimeoutMs = SHELL_BOOT_STARTUP_BUDGET_MS) {
   try {
     const store = useRuntimeCustomerIdentityStore.getState();
     const identity = (store.identity || {}) as any;
@@ -145,6 +147,7 @@ async function restoreActivatedMemberFromShellToken() {
 
     const existingPhone =
       normalizeRuntimePhone(
+        identity.credentialPhone ||
         identity.phone ||
         getStoredRuntimePhone()
       );
@@ -192,7 +195,7 @@ async function restoreActivatedMemberFromShellToken() {
         await getZaloUserInfo({
           forceRefresh: true,
           timeoutMs:
-            SHELL_BOOT_STARTUP_BUDGET_MS,
+            identityTimeoutMs,
         }).catch(() => null);
 
       zaloUserId =
@@ -254,7 +257,8 @@ async function restoreActivatedMemberFromShellToken() {
     });
 
     const restoredPhone = normalizeRuntimePhone(result?.phone);
-    if (!restoredPhone) return false;
+    const acceptedOwner=currentCustomerIdentityV42(useAuthStore.getState());
+    if (!restoredPhone || !acceptedOwner.ready || acceptedOwner.phone!==restoredPhone) return false;
 
     store.setPermissionState({
       phoneGranted: true,
@@ -283,6 +287,7 @@ async function restoreActivatedMemberFromShellToken() {
     } catch {}
 
     try {
+      const profileRequestAuth = useAuthStore.getState();
       const profileRes = await apiClient.get(`/profile-update/profile/${restoredPhone}`);
       const serverProfile = profileRes?.data?.data || {};
       const displayName =
@@ -300,7 +305,7 @@ async function restoreActivatedMemberFromShellToken() {
         identity.avatar ||
         "";
 
-      syncAuthStoreAfterSilentRestore({
+      const committed = syncAuthStoreAfterSilentRestore({
         id: restoredPhone,
         phone: restoredPhone,
         name: displayName,
@@ -310,7 +315,8 @@ async function restoreActivatedMemberFromShellToken() {
         display_avatar: displayAvatar,
         zalo_name: serverProfile.zalo_name || "",
         zalo_avatar: serverProfile.zalo_avatar || "",
-      } as any);
+      } as any, profileRequestAuth);
+      if (!committed) return false;
 
       store.setIdentity({
         fullName: displayName,
@@ -450,7 +456,44 @@ async function requestShellBootData(): Promise<any> {
   });
 }
 
+let customerRecoveryV42: ReturnType<typeof createCustomerSessionRecoveryV42> | null = null;
+let stopCustomerRecoveryV42: (()=>void) | null = null;
 export async function bootstrapRuntime() {
+  stopCustomerRecoveryV42?.();customerRecoveryV42?.stop();
+  const projectAcceptedCustomer=()=>{
+    const owner=currentCustomerIdentityV42(useAuthStore.getState());
+    const store=useRuntimeCustomerIdentityStore.getState();
+    if(!owner.ready){
+      const previous=store.identity as any;
+      if(store.memberActivated||previous?.customerId||previous?.phone||previous?.fullName||previous?.avatar)store.setIdentity({credentialPhone:previous?.credentialPhone||previous?.phone||"",customerId:"",phone:"",fullName:"",avatar:"",memberActivated:false,loyaltyPoints:0,cumulativeSpending:0} as any);
+      return;
+    }
+    const previous=store.identity;
+    const fullName=String(owner.profile?.display_name||owner.profile?.displayName||owner.profile?.name||"");
+    const avatar=String(owner.profile?.display_avatar||owner.profile?.avatar||"");
+    if(previous?.customerId!==owner.id||previous?.phone!==owner.phone||previous?.fullName!==fullName||previous?.avatar!==avatar||!store.memberActivated){
+      store.setIdentity({customerId:owner.id,phone:owner.phone,fullName,avatar,memberActivated:true,
+        ...(previous?.customerId!==owner.id?{loyaltyPoints:0,cumulativeSpending:0}:{}),
+      } as any);
+      store.setActivationStatus("activated");
+    }
+  };
+  const unsubscribeAcceptedCustomer=useAuthStore.subscribe(projectAcceptedCustomer);
+  projectAcceptedCustomer();
+  let lateShellPending=false,explicitLogout=false;
+  const onExplicitLogout=()=>{explicitLogout=true;customerRecoveryV42?.stop();};
+  const onLateShell=(event:MessageEvent)=>{
+    if(explicitLogout || window.parent===window || event.source!==window.parent || event.data?.type!=="SHELL_BOOT_DATA")return;
+    (window as any).__shellBootData=event.data;lateShellPending=true;
+    if(customerRecoveryV42)void customerRecoveryV42.trigger();
+  };
+  const retryCustomer=()=>{if(!explicitLogout && document.visibilityState!=="hidden")void customerRecoveryV42?.trigger();};
+  window.addEventListener("message",onLateShell);
+  window.addEventListener("cing:customer-session-logout",onExplicitLogout);
+  window.addEventListener("online",retryCustomer);
+  window.addEventListener("cing:customer-session-retry",retryCustomer);
+  document.addEventListener("visibilitychange",retryCustomer);
+  stopCustomerRecoveryV42=()=>{unsubscribeAcceptedCustomer();window.removeEventListener("cing:customer-session-logout",onExplicitLogout);window.removeEventListener("message",onLateShell);window.removeEventListener("online",retryCustomer);window.removeEventListener("cing:customer-session-retry",retryCustomer);document.removeEventListener("visibilitychange",retryCustomer);};
 
   // 1. Request boot data từ shell (zalo_id, phone_token, mini_access_token)
   const persistedAtBoot = getPersistedAuthSession();
@@ -494,16 +537,18 @@ export async function bootstrapRuntime() {
         try {
           const store = useRuntimeCustomerIdentityStore.getState();
           const shellPhone = normalizeRuntimePhone((shellBootData as any)?.phone || "");
+          const acceptedOwner=currentCustomerIdentityV42(useAuthStore.getState());
 
           store.setIdentity({
             zaloUserId: shellBootData.zaloId || "",
             fullName: shellBootData.name || "",
             avatar: shellBootData.avatar || "",
-            phone: shellPhone,
+            phone: acceptedOwner.phone,
+            credentialPhone:shellPhone,
             phoneToken: shellBootData.phoneToken || "",
             miniAccessToken: shellBootData.miniAccessToken || "",
             phoneGranted: !!(shellPhone || shellBootData.phoneToken),
-            memberActivated: !!shellPhone,
+            memberActivated: acceptedOwner.ready,
           } as any);
 
           if (shellPhone) {
@@ -512,8 +557,8 @@ export async function bootstrapRuntime() {
             } catch {}
 
             store.setPermissionState({ phoneGranted: true, oaFollowed: true });
-            store.setActivationStatus("activated");
-            store.setProfileHydrated(true);
+            store.setActivationStatus(acceptedOwner.ready?"activated":"checking");
+            store.setProfileHydrated(acceptedOwner.ready);
 
             if (
               (shellBootData as any)?.cachedMember &&
@@ -538,7 +583,7 @@ export async function bootstrapRuntime() {
           });
         } catch(e) {}
       }
-
+      projectAcceptedCustomer();
     }
 
 const shellBootDataPromise =
@@ -598,7 +643,7 @@ const shellBootDataPromise =
       authSessionResult ===
         "auth_rejected"
     ) {
-      await restoreActivatedMemberFromShellToken();
+      if(!explicitLogout)await restoreActivatedMemberFromShellToken();
     }
   }
 
@@ -617,7 +662,7 @@ const shellBootDataPromise =
     authSessionResult === "auth_rejected"
   ) {
     finalAuthSessionResult =
-      await openAuthenticatedRuntimeSession();
+      explicitLogout?"no_access_token":await openAuthenticatedRuntimeSession();
   }
 
   /*
@@ -637,15 +682,26 @@ const shellBootDataPromise =
       .markInitialAuthResolved();
   }
 
+  customerRecoveryV42=createCustomerSessionRecoveryV42({
+    open:openAuthenticatedRuntimeSession,
+    restore:()=>restoreActivatedMemberFromShellToken(6000),
+    reconcile:()=>reconcileShellBootData((window as any).__shellBootData),
+    clearRejected:clearStaleBackendAuthSession,
+    authenticated:()=>currentCustomerIdentityV42(useAuthStore.getState()).ready,
+    resolved:()=>useAppBootstrapAuthState.getState().markInitialAuthResolved(),
+  });
+  if(explicitLogout)customerRecoveryV42.stop();
+  else if(finalAuthSessionResult!=="authenticated" || lateShellPending)void customerRecoveryV42.trigger(false);
+
   // 3. Khởi tạo stores
   await initializeRuntimeStores();
 
   // 3b. Restore activated member identity from persisted auth/session.
   // Do not call Zalo phone permission again if we already have a valid phone.
   try {
-    const rawSession = localStorage.getItem("cing_session");
-    const session = rawSession ? JSON.parse(rawSession) : null;
-    const storedPhone = getStoredRuntimePhone();
+    const acceptedOwner=currentCustomerIdentityV42(useAuthStore.getState());
+    const session={profile:acceptedOwner.profile};
+    const storedPhone=acceptedOwner.phone;
 
     if (storedPhone && storedPhone !== "pending" && storedPhone.length >= 9) {
       const store = useRuntimeCustomerIdentityStore.getState();
