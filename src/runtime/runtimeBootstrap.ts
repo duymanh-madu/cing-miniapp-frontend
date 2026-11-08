@@ -143,7 +143,7 @@ async function restoreActivatedMemberFromShellToken(identityTimeoutMs = SHELL_BO
      * canonical backend session using the shell-held Zalo
      * credentials.
      */
-    if (accessToken) return false;
+    if (accessToken || identity.requiresFreshPhoneProof) return false;
 
     const existingPhone =
       normalizeRuntimePhone(
@@ -332,7 +332,15 @@ async function restoreActivatedMemberFromShellToken(identityTimeoutMs = SHELL_BO
 
     console.log("[BOOT] Silent iOS member restore success:", restoredPhone);
     return true;
-  } catch(e) {
+  } catch(e: any) {
+    if(e?.code === "CACHED_MEMBER_IDENTITY_MISMATCH" || e?.code === "CACHED_MEMBER_IDENTITY_REQUIRED") {
+      const store=useRuntimeCustomerIdentityStore.getState();
+      if(!currentCustomerIdentityV42(useAuthStore.getState()).ready) {
+        store.setIdentity({requiresFreshPhoneProof:true} as any);
+        store.setActivationStatus("idle");
+        store.setProfileHydrated(true);
+      }
+    }
     console.warn("[BOOT] silent iOS member restore failed:", e);
     return false;
   }

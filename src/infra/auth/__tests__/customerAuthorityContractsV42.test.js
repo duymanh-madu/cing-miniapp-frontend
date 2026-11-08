@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
+import {existsSync} from 'node:fs';
 import {mkdtemp,writeFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
@@ -14,18 +15,18 @@ const source={
  epoch:`export const authSessionEpochV42=()=>globalThis.__v42.epoch;export const advanceAuthSessionEpochV42=()=>++globalThis.__v42.epoch;export function requireAuthSessionEpochV42(e){if(e!==globalThis.__v42.epoch)throw Object.assign(new Error('superseded'),{code:'AUTH_SESSION_SUPERSEDED'});}`,
  device:`export const getOrCreateRuntimeDeviceId=()=> 'fixture-device';`,
  local:`export const registerLocalDeviceReauthCredential=async()=>false;export const clearLocalDeviceReauthCredential=()=>true;`,
- misc:`export const runtimeLogger={info:()=>{}};export const resetQueryCache=()=>{};export const clearCachedZaloUserInfo=()=>{};`,
+ misc:`export const runtimeLogger={info:()=>{}};export const resetQueryCache=()=>{};export const clearCachedZaloUserInfo=()=>{};export const setCachedZaloUserInfo=()=>{};export const requestPhonePermission=async()=>{globalThis.__v42.permissionCalls=(globalThis.__v42.permissionCalls||0)+1;return globalThis.__v42.grant;};export const getZaloUserInfo=async()=>({id:"current-zalo",name:"Fresh Zalo"});export const verifyOAFollowStatus=async()=>true;export const requestOAFollow=async()=>true;`,
  recovery:`export const recoverBackendAuthSession=async()=>{throw new Error('unexpected refresh')};export const isDefinitiveAuthRecoveryRejection=e=>!!e.authRejected;`,
 };
-async function load(entry){
+async function load(entry,exposeStore=false){
  const dir=await mkdtemp(path.join(tmpdir(),'cing-v42-contract-'));
  const output=path.join(dir,'test.mjs');
- const result=await build({entryPoints:[path.join(root,entry)],bundle:true,write:false,platform:'node',format:'esm',define:{'import.meta.env.VITE_API_BASE_URL':'"https://fixture.invalid/api"'},plugins:[{name:'fixture-boundaries',setup(b){b.onResolve({filter:/.*/},a=>{
+ const result=await build({...(exposeStore?{stdin:{contents:`export * from '${path.join(root,entry)}';export {useRuntimeCustomerIdentityStore as runtimeStore} from '${path.join(root,'runtime/customer/runtimeCustomerIdentityStore.ts')}';`,resolveDir:root,sourcefile:'fixture-entry.js'}}:{entryPoints:[path.join(root,entry)]}),bundle:true,write:false,platform:'node',format:'esm',define:{'import.meta.env.VITE_API_BASE_URL':'"https://fixture.invalid/api"'},plugins:[{name:'fixture-boundaries',setup(b){b.onResolve({filter:/.*/},a=>{
  if(a.kind==='entry-point')return;
  const x=a.path;
- const key=x.includes('runtimeLogger')||x==='@/query'||x.includes('runtimeCustomerPermissionEngine')?'misc':x.includes('authSessionEpochV42')?'epoch':x.includes('apiClient')?'api':/stores\/auth/.test(x)?'store':/\/authSession(?:\.js)?$/.test(x)?'session':x.includes('persistedAuthSession')?'persisted':x.includes('runtimeDeviceIdentity')?'device':x.includes('localDeviceReauth')?'local':x.includes('authRecovery')?'recovery':null;
+ const key=x.includes('runtimeLogger')||x==='@/query'||x.includes('runtimeCustomerPermissionEngine')||x.includes('runtimeCustomerFollowEngine')?'misc':x.includes('authSessionEpochV42')?'epoch':x.includes('apiClient')?'api':/stores\/auth/.test(x)?'store':/\/authSession(?:\.js)?$/.test(x)?'session':x.includes('persistedAuthSession')?'persisted':x.includes('runtimeDeviceIdentity')?'device':x.includes('localDeviceReauth')?'local':x.includes('authRecovery')?'recovery':null;
  if(key)return {path:key,namespace:'fixture'};
- if(x.startsWith('@/'))return {path:path.join(root,x.slice(2))};
+ if(x.startsWith('@/')){const base=path.join(root,x.slice(2));return {path:['','.js','.jsx','.ts','.tsx','/index.js'].map(e=>base+e).find(existsSync)||base};}
  });b.onLoad({filter:/.*/,namespace:'fixture'},a=>({contents:source[a.path],loader:'js'}));}}]});
  await writeFile(output,result.outputFiles[0].text);
  const mod=await import(pathToFileURL(output));
@@ -44,3 +45,12 @@ test('membership-only login response cannot create a backend session',async()=>{
 test('legacy runtime writes cannot introduce a different phone or grant membership from cache',async()=>{const f=setup();const x=await load('runtime/customer/runtimeCustomerIdentityStore.ts');try{const store=x.mod.useRuntimeCustomerIdentityStore;store.getState().setIdentity({customerId:'cached',phone:'0970000000',fullName:'Cached',memberActivated:true});assert.equal(store.getState().identity.phone,'');assert.equal(store.getState().memberActivated,false);f.auth={authenticated:true,accessToken:'fixture',profile:{id:'owner',phone:'0980000000',name:'Accepted'}};store.getState().setIdentity({customerId:'forged',phone:'0970000000',fullName:'Wrong account',memberActivated:true});assert.equal(store.getState().identity.phone,'0980000000');assert.equal(store.getState().identity.customerId,'owner');assert.equal(store.getState().identity.fullName,'Accepted');}finally{await x.close();}});
 
 test('logout completes local destruction with synchronous device credential clearing',async()=>{const f=setup();globalThis.window={dispatchEvent:()=>true};const x=await load('infra/auth/logout.js');try{assert.doesNotThrow(()=>x.mod.logout());assert.equal(f.destroyed,true);assert.equal(f.auth.authenticated,false);}finally{delete globalThis.window;await x.close();}});
+
+test('reactivation from stale checking state obtains fresh proof once and never forwards cached phone',async()=>{
+ const f=setup();f.grant={phone:'0970000000',phoneToken:'fresh-phone-proof',miniAccessToken:'fresh-mini-proof',zaloUserInfo:{id:'current-zalo',name:'Fresh Zalo'}};
+ globalThis.window={parent:{postMessage:()=>{}}};
+ globalThis.localStorage={setItem:()=>{}};
+ let posts=0;globalThis.fetch=async(url,options)=>{posts++;const payload=JSON.parse(options.body);assert.equal(payload.phone,'');assert.equal(payload.phone_token,'fresh-phone-proof');assert.equal(payload.mini_access_token,'fresh-mini-proof');assert.equal(payload.zalo_id,'current-zalo');return {ok:true,json:async()=>({data:{accessToken:'fixture',refreshToken:'refresh',customer:{id:'member-A',phone:'0980000000',name:'Verified Member'}}})};};
+ const x=await load('runtime/customer/runtimeCustomerIdentityEngine.ts',true);x.mod.runtimeStore.getState().setActivationStatus('checking');
+ try {const a=x.mod.initializeCustomerIdentityEngine(),b=x.mod.initializeCustomerIdentityEngine();assert.equal(a,b);await a;assert.equal(f.permissionCalls,1);assert.equal(posts,1);assert.equal(f.created[0].profile.phone,'0980000000');}finally{delete globalThis.window;delete globalThis.localStorage;delete globalThis.fetch;await x.close();}
+});

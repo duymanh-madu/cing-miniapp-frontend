@@ -72,7 +72,7 @@ export async function activateMiniAppUser(input: ActivateMiniAppUserInput): Prom
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message || `Activation failed: ${res.status}`);
+    throw Object.assign(new Error(err?.message || `Activation failed: ${res.status}`),{code:err?.code || err?.error?.code || "",status:res.status});
   }
 
   const json = await res.json();

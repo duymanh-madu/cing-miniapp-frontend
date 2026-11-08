@@ -12,7 +12,7 @@ const source = fs.readFileSync(
 
 function activationRegion() {
   const start = source.indexOf(
-    "export async function initializeCustomerIdentityEngine()"
+    "async function activateCustomerIdentityAuthority()"
   );
 
   assert.ok(start >= 0);
@@ -46,7 +46,7 @@ test("activation attempts canonical Zalo SDK identity", () => {
 
   assert.match(
     region,
-    /await getZaloUserInfo\(\)\.catch\(\(\) => null\)/
+    /await getZaloUserInfo\(\{forceRefresh:true\}\)\.catch\(\(\) => null\)/
   );
 
   assert.match(

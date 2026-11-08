@@ -1,3 +1,4 @@
+import {memberActivationStateV43} from "@/infra/auth/memberActivationStateV43.js";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRuntimeCustomerIdentityStore } from "@/runtime/customer/runtimeCustomerIdentityStore";
@@ -6,12 +7,12 @@ import { initializeCustomerIdentityEngine } from "@/runtime/customer/runtimeCust
 
 export function useMemberRequired() {
   const activationStatus = useRuntimeCustomerIdentityStore(s => s.activationStatus);
-  const runtimePhone = useRuntimeCustomerIdentityStore(s => s.identity?.phone);
   const phoneToken = useRuntimeCustomerIdentityStore(s => (s.identity as any)?.phoneToken);
   const miniAccessToken = useRuntimeCustomerIdentityStore(s => (s.identity as any)?.miniAccessToken);
   const profileHydrated = useRuntimeCustomerIdentityStore(s => s.profileHydrated);
-  const memberActivated = useRuntimeCustomerIdentityStore(s => s.memberActivated);
-  const profilePhone = useAuthStore(s => s.profile?.phone);
+  const authenticated = useAuthStore(s => s.authenticated);
+  const accessToken = useAuthStore(s => s.accessToken);
+  const profile = useAuthStore(s => s.profile);
 
   const pendingCallbackRef = useRef<null | (() => void)>(null);
   const [bootGraceDone, setBootGraceDone] = useState(false);
@@ -21,48 +22,14 @@ export function useMemberRequired() {
     return () => window.clearTimeout(t);
   }, []);
 
-  const hasPhone = (() => {
-    const p = runtimePhone || profilePhone || "";
-    if (!p || p === "pending") return false;
-    return p.replace(/\D/g, "").length >= 9;
-  })();
-
-  const hasSilentRestoreToken = !!(phoneToken && miniAccessToken);
-
-  const isRestoringMember =
-    activationStatus === "checking" ||
-    (!profileHydrated && hasSilentRestoreToken) ||
-    (!bootGraceDone && hasSilentRestoreToken && !hasPhone);
-
-  const isActuallyActivated =
-    activationStatus === "activated" ||
-    memberActivated ||
-    hasPhone;
-
-  // Important:
-  // LeaderboardPage/GameCenterPage dùng isActivated để quyết định render màn active.
-  // Trong lúc iOS silent login đang chạy, coi là active tạm thời để không bắt active lại.
-  const isActivated =
-    isActuallyActivated ||
-    isRestoringMember;
+  const gate=memberActivationStateV43({authenticated,accessToken,profile},{activationStatus,profileHydrated,phoneToken,miniAccessToken,bootGraceDone});
+  const isActuallyActivated=gate.ready;
+  const isRestoringMember=gate.restoring;
+  const isActivated=isActuallyActivated;
 
   const [showPrompt, setShowPrompt] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!isActivated) return;
-
-    if (showPrompt) {
-      setShowPrompt(false);
-    }
-
-    const cb = pendingCallbackRef.current;
-    if (cb) {
-      pendingCallbackRef.current = null;
-      cb();
-    }
-  }, [isActivated, showPrompt]);
 
   useEffect(() => {
     if (!isActuallyActivated) return;
@@ -105,11 +72,9 @@ export function useMemberRequired() {
     try {
       await initializeCustomerIdentityEngine();
 
-      const state = useRuntimeCustomerIdentityStore.getState();
-      const status = state.activationStatus;
-      const phone = String(state.identity?.phone || "").replace(/\D/g, "");
+      const accepted=memberActivationStateV43(useAuthStore.getState()).ready;
 
-      if (status === "activated" || phone.length >= 9) {
+      if (accepted) {
         setShowPrompt(false);
         const cb = pendingCallbackRef.current;
         pendingCallbackRef.current = null;

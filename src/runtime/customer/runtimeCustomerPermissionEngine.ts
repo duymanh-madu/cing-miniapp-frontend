@@ -35,12 +35,12 @@ function requestPhonePermissionFromShell(): Promise<PhonePermissionResult> {
     // Đăng ký listener TRƯỚC — tránh miss message từ shell
     function handler(e: MessageEvent) {
       const data = e.data;
-      if (!data || data.type !== "ZALO_PHONE_PERMISSION_RESULT") return;
+      if (e.source !== window.parent || !data || data.type !== "ZALO_PHONE_PERMISSION_RESULT") return;
       if (data.requestId && data.requestId !== requestId) return;
       clearTimeout(timer);
       window.removeEventListener("message", handler);
       if (!data.success) { reject(new Error(data.error || "Zalo từ chối cấp quyền.")); return; }
-      if (!data.phoneToken) { reject(new Error("Shell không trả phoneToken.")); return; }
+      if (!data.phoneToken || !data.miniAccessToken) { reject(new Error("Chưa nhận đủ xác thực số điện thoại từ Zalo. Vui lòng thử lại.")); return; }
       resolve({ phone: data.phone || "", phoneToken: data.phoneToken, miniAccessToken: data.miniAccessToken || "", zaloUserInfo: data.zaloUserInfo || undefined });
     }
     window.addEventListener("message", handler);
@@ -57,6 +57,7 @@ function requestPhonePermissionFromShell(): Promise<PhonePermissionResult> {
 }
 
 function pickAccessToken(result: any): string {
+  if(typeof result === "string") return result;
   return result?.accessToken || result?.access_token || result?.token || result?.data?.accessToken || result?.data?.access_token || result?.data?.token || "";
 }
 function pickPhoneToken(result: any): string {

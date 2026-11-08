@@ -36,17 +36,17 @@ function pickRuntimeName(...values: unknown[]) {
   return "";
 }
 
-export async function initializeCustomerIdentityEngine() {
+async function activateCustomerIdentityAuthority() {
   const store = useRuntimeCustomerIdentityStore.getState();
 
-  if (store.activationStatus === "checking") return;
+
 
   try {
     store.setActivationStatus("checking");
 
     const phoneGrant = await requestPhonePermission();
 
-    if (!phoneGrant?.phoneToken) {
+    if (!phoneGrant?.phoneToken || !phoneGrant?.miniAccessToken) {
       throw new Error("Bạn cần đồng ý cấp quyền số điện thoại để kích hoạt thành viên.");
     }
 
@@ -73,10 +73,11 @@ export async function initializeCustomerIdentityEngine() {
     if (phoneGrant?.zaloUserInfo?.id) {
       setCachedZaloUserInfo(phoneGrant.zaloUserInfo);
     }
-    const zaloUserInfo = await getZaloUserInfo().catch(() => null);
+    const zaloUserInfo = phoneGrant?.zaloUserInfo?.id ? phoneGrant.zaloUserInfo : await getZaloUserInfo({forceRefresh:true}).catch(() => null);
     const currentIdentity = store.identity as any;
 
-    const zaloUserId = zaloUserInfo?.id || currentIdentity?.zaloUserId || "";
+    const zaloUserId = zaloUserInfo?.id || "";
+    if (!zaloUserId) throw new Error("Chưa xác minh được tài khoản Zalo hiện tại. Vui lòng thử lại.");
     const fullName = pickRuntimeName(zaloUserInfo?.name, currentIdentity?.fullName);
     const avatar = zaloUserInfo?.avatar || currentIdentity?.avatar || "";
 
@@ -84,7 +85,7 @@ export async function initializeCustomerIdentityEngine() {
       zaloUserId,
       name: fullName,
       avatar,
-      phone: normalizePhone(phoneGrant.phone),
+      phone: "", // Backend derives the phone from fresh Zalo proof.
       phoneToken: phoneGrant.phoneToken,
       miniAccessToken: phoneGrant.miniAccessToken,
       phoneGranted: true,
@@ -128,7 +129,14 @@ export async function initializeCustomerIdentityEngine() {
   } catch (err: any) {
     if(err?.code === "AUTH_SESSION_SUPERSEDED") return;
     store.setProfileHydrated(true);
-    store.setActivationStatus("guest" as any);
+    store.setActivationStatus("failed");
     throw err;
   }
+}
+
+let activationInFlight: Promise<void> | null = null;
+export function initializeCustomerIdentityEngine() {
+ if(activationInFlight)return activationInFlight;
+ activationInFlight=activateCustomerIdentityAuthority().finally(()=>{activationInFlight=null;});
+ return activationInFlight;
 }

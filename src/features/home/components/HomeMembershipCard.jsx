@@ -1,3 +1,4 @@
+import {useMemberRequired} from "@/hooks/useMemberRequired";
 import {useCurrentCustomerV42} from "../hooks/useCurrentCustomerV42.js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -125,6 +126,7 @@ function mapTierKey(raw) {
 
 export default function HomeMembershipCard() {
   const navigate = useNavigate();
+  const memberGate=useMemberRequired();
   /*
    * Developer membership override is strictly a browser-test
    * facility. It must never override canonical member identity
@@ -261,7 +263,7 @@ export default function HomeMembershipCard() {
   }
 
   if (!phone && !isWeb) {
-    return <button type="button" onClick={()=>window.dispatchEvent(new CustomEvent("cing:customer-session-retry"))} style={{width:"100%",padding:20,borderRadius:20,border:"1px solid #eadaca",background:"#fff8f1",color:"#8b4828"}}>Kết nối lại tài khoản</button>;
+    return <>{memberGate.MemberPrompt}<button type="button" onClick={()=>memberGate.requireMember()} style={{width:"100%",padding:20,borderRadius:20,border:"1px solid #eadaca",background:"#fff8f1",color:"#8b4828"}}>Xác thực lại tài khoản Zalo</button></>;
   }
 
   if (isLoading && !membership) {

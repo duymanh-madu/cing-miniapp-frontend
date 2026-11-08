@@ -18,5 +18,5 @@ export function projectRuntimeCustomerIdentityV42(auth,current={},incoming={}) {
  const owner=currentCustomerIdentityV42(auth);
  const next={...current,...incoming};
  if(!owner.ready)return {...next,credentialPhone:incoming.credentialPhone||current.credentialPhone||incoming.phone||current.phone||'',customerId:'',phone:'',fullName:'',avatar:'',memberActivated:false,loyaltyPoints:0,cumulativeSpending:0};
- return {...next,customerId:owner.id,phone:owner.phone,fullName:owner.displayName,avatar:owner.profile.display_avatar||owner.profile.avatar||'',memberActivated:true,...(current.customerId!==owner.id?{loyaltyPoints:0,cumulativeSpending:0}:{})};
+ return {...next,requiresFreshPhoneProof:false,customerId:owner.id,phone:owner.phone,fullName:owner.displayName,avatar:owner.profile.display_avatar||owner.profile.avatar||'',memberActivated:true,...(current.customerId!==owner.id?{loyaltyPoints:0,cumulativeSpending:0}:{})};
 }
