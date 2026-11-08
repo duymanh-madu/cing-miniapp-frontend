@@ -1,3 +1,4 @@
+import {plazaRoomTraceV24} from '../runtime/plazaRoomTraceV24.js';
 import {createAppearanceController} from './plazaAppearanceV27.js';
 import {remotePoseBudgetV22} from './plazaStaticTransformsV22.js';
 import {updatePlazaVrmInSubsteps} from './plazaFrameStepsV20.js';
@@ -45,6 +46,7 @@ export function createPlazaRemoteAvatarsV2({scene,load,loadFashion,onNotice=()=>
   return templates.get(character);
  }
  async function build(id,value,holder) {
+  const start=performance.now();plazaRoomTraceV24().record("peer-load-start",{character:value.character});
   try {
    const t=await getTemplate(value.character);if(disposed || actors.get(id)!==holder)return;
    // Animation seeds are populated before local ready/state publication.
@@ -63,7 +65,8 @@ export function createPlazaRemoteAvatarsV2({scene,load,loadFashion,onNotice=()=>
    actions.sit=actions.idle;
    const appearance=createAppearanceController(root,{character:value.character,expressionManager:vrm.expressionManager,load:loadFashion,onError:()=>onNotice('Chưa tải được trang phục của thành viên.')});appearance.apply(holder.identity?.appearance||value.appearance||{});
    Object.assign(holder,{appearance,group,vrm,mixer,actions,character:value.character,current:null,accumulated:0,headPosition:new THREE.Vector3()});
-  } catch(error){if(!disposed&&actors.get(id)===holder){holder.failed=true;onNotice('Chưa tải được một nhân vật trong phòng. Hãy mở lại cảnh khi mạng ổn định.');}}
+   plazaRoomTraceV24().record("peer-load-ok",{character:value.character,ms:Math.round(performance.now()-start),loaded:[...actors.values()].filter(a=>a.group).length});
+  } catch(error){plazaRoomTraceV24().record("peer-load-error",{error:error.name,character:value.character});if(!disposed&&actors.get(id)===holder){holder.failed=true;onNotice('Chưa tải được một nhân vật trong phòng. Hãy mở lại cảnh khi mạng ổn định.');}}
  }
  function remove(id) {
   const a=actors.get(id);if(!a)return;actors.delete(id);a.appearance?.dispose();a.mixer?.stopAllAction();if(a.vrm)a.mixer?.uncacheRoot(a.vrm.scene);

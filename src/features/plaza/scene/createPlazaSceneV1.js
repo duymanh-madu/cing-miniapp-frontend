@@ -1,3 +1,4 @@
+import {plazaRoomTraceV24} from '../runtime/plazaRoomTraceV24.js';
 import {createFashionCacheV29} from './plazaFashionV29.js';
 import {createAppearanceController} from './plazaAppearanceV27.js';
 import {freezePlazaStaticBatches} from './plazaStaticTransformsV22.js';
@@ -306,7 +307,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     }
     raf = requestAnimationFrame(tick);
     } catch (error) {
-      onQAEvent("render-loop-error",{name:error.name,message:error.message});
+      plazaRoomTraceV24().record("render-error",{error:error.name});onQAEvent("render-loop-error",{name:error.name,message:error.message});
       // An exception in the render loop previously stopped RAF silently, leaving a blank scene
       // and a still-active HUD. Fail visibly so the existing Retry button can rebuild the scene.
       input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
@@ -321,7 +322,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     else if (loaded && !disposed && !contextLost && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }
   function onContextLost(event) {
-    onQAEvent("webglcontextlost",{message:event.statusMessage||""});
+    plazaRoomTraceV24().record("context-lost");onQAEvent("webglcontextlost",{message:event.statusMessage||""});
     event.preventDefault();if(disposed)return;contextLost=true;
     input={x:0,z:0};stopPath();cancelAnimationFrame(raf);raf=0;
     onProgress({text:'Đang khôi phục hiển thị 3D…',percent:100});
@@ -333,7 +334,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     restoreTimer=setTimeout(()=>{if(!disposed&&contextLost&&!document.hidden){dispose();onProgress({error:'Thiết bị chưa khôi phục được hiển thị 3D. Hãy bấm Mở lại.'});}},12000);
   }
   function onContextRestored(){
-    onQAEvent("webglcontextrestored",{});
+    plazaRoomTraceV24().record("context-restored");onQAEvent("webglcontextrestored",{});
     if(disposed)return;contextLost=false;clearTimeout(restoreTimer);
     renderer.shadowMap.needsUpdate=true;resize();last=performance.now();
     if(loaded){onProgress({ready:true,percent:100});if(!document.hidden&&!raf)raf=requestAnimationFrame(tick);}

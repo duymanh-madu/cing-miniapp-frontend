@@ -1,3 +1,4 @@
+import {plazaRoomTraceV24} from "./plazaRoomTraceV24.js";
 import { mergePlazaPresenceV19 } from "./plazaPresenceMergeV19.js";
 // A refusal by server authority is not a transport interruption. Never turn
 // authentication, an administrator disable, or a replaced session into an
@@ -53,6 +54,8 @@ export function createPlazaRealtimeClientV1({
     throw failure("PLAZA_INVALID_SERVER_URL");
   }
 
+  const trace=plazaRoomTraceV24();
+  function traceSink(batch,done){if(!socket.connected)return done(false);let ended=false;const timer=setTimeout(()=>finish(false),5000);function finish(ok){if(ended)return;ended=true;clearTimeout(timer);done(ok);}socket.emit("plaza:diagnostic:v24",batch,response=>finish(response?.ok===true));}
   let disposed = false, resumeNeeded = false, recovery = 0;
   let retryTimer = null, retryCount = 0, recoveryBlocked = false;
   // Socket.IO starts with reconnection:true. Only notify its Manager when the
@@ -127,6 +130,7 @@ export function createPlazaRealtimeClientV1({
   const handlers = {
     connect: () => {
       if (disposed) return;
+      trace.setSink(traceSink);trace.record("connect");
       if(lifecycle?.hidden){socket.disconnect();return;}
       if(recoveryBlocked)return; // only an explicit connect/foreground can retry auth
       if(resumeOnConnect || resumeNeeded)void recover();
@@ -134,6 +138,7 @@ export function createPlazaRealtimeClientV1({
     },
     disconnect: reason => {
       if (disposed) return;
+      trace.setSink(null);trace.record("disconnect",{reason});
       clearRecoveryRetry();
       resumeNeeded=Boolean(snapshot.room);
       rejectPending();
@@ -150,7 +155,7 @@ export function createPlazaRealtimeClientV1({
     },
     connect_error: error => {
       if(disposed)return;
-      const code=plazaErrorCode(error);
+      const code=plazaErrorCode(error);trace.record("connect-error",{code});
       if(TERMINAL_CONNECT_CODES.has(code))blockRecovery(code);
       else {update({status:"connection-error",lastError:code});scheduleRecoveryRetry();}
     },
@@ -178,6 +183,7 @@ export function createPlazaRealtimeClientV1({
       if (room !== null &&
           (typeof room !== "object" || typeof room.roomId !== "string")) return;
       const changedRoom = snapshot.room?.roomId !== room?.roomId;
+      trace.record(room?(changedRoom?"room-enter":"room-update"):"room-lost",{before:snapshot.room?.memberCount||0,after:room?.memberCount||0});
       update({
         room,
         ...(changedRoom ? { roomMembers:Object.freeze([]),tables:Object.freeze([]),messages: Object.freeze([]), members: Object.freeze([]), selfId: null, correction:null } : {}),
@@ -207,11 +213,12 @@ export function createPlazaRealtimeClientV1({
   async function recover() {
     if(disposed || !socket.connected || lifecycle?.hidden)return;
     clearRecoveryRetry();
-    const attempt=++recovery;
+    const attempt=++recovery;trace.record("recover-start");
     update({status:"resuming"});
     try {
       const data=await request("plaza:resume",{});
       if(disposed || attempt!==recovery || !socket.connected)return;
+      trace.record("recover-ok",{count:data?.room?.memberCount||0});
       handlers["plaza:room"]({room:data?.room??null});
       retryCount=0;resumeNeeded=false;recoveryBlocked=false;
       update({status:"connected",lastError:null});
@@ -226,7 +233,7 @@ export function createPlazaRealtimeClientV1({
         update({status:"connected",profile:undefined});
         return;
       }
-      const code=plazaErrorCode(error);
+      const code=plazaErrorCode(error);trace.record("recover-error",{code});
       if(TERMINAL_RESUME_CODES.has(code)) {
         // Only authoritative server rejection can evict the old local room.
         if(["PLAZA_SESSION_REPLACED","PLAZA_ROOM_NOT_FOUND",
@@ -244,6 +251,7 @@ export function createPlazaRealtimeClientV1({
   }
   function visibility() {
     if(disposed)return;
+    trace.record(lifecycle.hidden?"page-hide":"page-show");
     setReconnectAllowed(!lifecycle.hidden);
     if(lifecycle.hidden){
       clearRecoveryRetry();recovery++;
@@ -346,7 +354,7 @@ export function createPlazaRealtimeClientV1({
     ),
     dispose: () => {
       if (disposed) return;
-      disposed = true;
+      disposed = true;trace.setSink(null);
       clearRecoveryRetry();recovery++;lifecycle?.removeEventListener?.("visibilitychange",visibility);
       lifecycleWindow?.removeEventListener?.("pageshow",foreground);
       lifecycleWindow?.removeEventListener?.("online",foreground);
