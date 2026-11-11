@@ -13,7 +13,7 @@ const KEY = {
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
 };
 
-export default function PlazaSceneV1({ appearance = {}, diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, controlsHidden=interactionPaused, onReadyChange=()=>{}, onOpenChat=()=>{}, onOpenMembers=()=>{} }) {
+export default function PlazaSceneV1({ onClose, appearance = {}, diagnostics = false, initialCharacter = 'girl', realtimeClient = null, members = [], selfId = null, correction = null, tables=[], roomId=null, messages=[], identity=null, interactionPaused=false, controlsHidden=interactionPaused, onReadyChange=()=>{}, onOpenChat=()=>{}, onOpenMembers=()=>{} }) {
   const chessAudio=useRef(null);
   useEffect(()=>{chessAudio.current=createPlazaChessAudioV4();function visibility(){if(document.hidden)chessAudio.current?.suspend();else chessAudio.current?.resumeExisting();}document.addEventListener('visibilitychange',visibility);return()=>{document.removeEventListener('visibilitychange',visibility);chessAudio.current?.dispose();chessAudio.current=null;};},[]);
   const [nearSeat,setNearSeat]=useState(null),[tableError,setTableError]=useState(''),[tableBusy,setTableBusy]=useState(false);
@@ -148,7 +148,7 @@ export default function PlazaSceneV1({ appearance = {}, diagnostics = false, ini
         {ready && ownTable && <PlazaChessPanelV3 key={ownTable.tableId} table={ownTable} selfId={selfId} client={realtimeClient} audio={chessAudio.current} onStand={()=>tableAction({action:'stand'})}/>}
         {tableError && <p className="cing-plaza-scene__seat-button" role="alert" onClick={()=>setTableError('')}>{tableError}</p>}
         {!ready && <div className="cing-plaza-scene__loading" role={progress.error ? 'alert' : 'status'}>
-          <PlazaLoadingV11 error={Boolean(progress.error)} percent={progress.percent} onRetry={()=>setEpoch(v=>v+1)}/>
+          <PlazaLoadingV11 key={epoch} timeoutMs={60000} onClose={onClose} diagnostic={{version:26,stage:"scene"}} error={Boolean(progress.error)} percent={progress.percent} onRetry={()=>setEpoch(v=>v+1)}/>
         </div>}
         {ready && review && <div className="cing-plaza-scene__view-buttons" aria-label="Góc nhìn">
           <button type="button" onClick={() => api.current?.cameraPreset('follow')}>Theo nhân vật</button>

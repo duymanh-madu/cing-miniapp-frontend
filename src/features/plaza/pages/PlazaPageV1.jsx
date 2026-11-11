@@ -1,3 +1,5 @@
+import PlazaLazyBoundaryV26 from "./PlazaLazyBoundaryV26.jsx";
+import {retryPlazaProfileV26,plazaEntryMessageV26,safePlazaEntryReportV26} from "../runtime/plazaEntryRecoveryV26.js";
 import {createFittingSessionV36} from '../runtime/plazaFittingSessionV36.js';
 import {installPlazaRoomTouchGuardV19} from '../scene/plazaRoomTouchGuardV19.js';
 import {usePlazaSocialV16} from '../runtime/usePlazaSocialV16.js';
@@ -74,7 +76,7 @@ function explain(error) {
 
 export default function PlazaPageV1({
   enabled = false, checking = false,
-  onClose,
+  onClose,onReauthenticate,
   createClient = createDefaultPlazaClientV1,
 }) {
   const [chatOpen, setChatOpen] = useState(false);
@@ -88,6 +90,7 @@ export default function PlazaPageV1({
   const [draft, setDraft] = useState("");
   const [notice, setNotice] = useState("");
   const [profileLoading,setProfileLoading]=useState(false);
+  const [profileError,setProfileError]=useState(null),[factoryError,setFactoryError]=useState(null),[clientEpoch,setClientEpoch]=useState(0),[profileEpoch,setProfileEpoch]=useState(0);
   const [busy, setBusy] = useState(false);
   const [history, setHistory] = useState({ roomId: null, messages: [] });
   const sending = useRef(null);
@@ -124,11 +127,14 @@ export default function PlazaPageV1({
       return () => { alive.current = false; };
     }
     let instance;
+    setFactoryError(null);setProfileError(null);
     try {
       instance = createClient();
       setClient(instance);
       instance.connect();
     } catch (error) {
+      setClient(null);
+      setFactoryError(error?.code||"PLAZA_CONNECTION_ERROR");
       setNotice(explain(error));
       instance?.dispose();
     }
@@ -136,7 +142,7 @@ export default function PlazaPageV1({
       alive.current = false;
       instance?.dispose();
     };
-  }, [enabled, createClient]);
+  }, [enabled, createClient,clientEpoch]);
 
   async function act(work) {
     if (!client || actionBusy.current) return;
@@ -163,23 +169,30 @@ export default function PlazaPageV1({
 
   useEffect(() => {
     if (!client || !connected) return;
-    let cancelled = false;
-    setProfileLoading(true);
-    client.getProfile().then(data=>{
-      if(cancelled)return;
-      if(data?.profile?.character){
-        client.listRooms().catch(error=>{
-          if(!cancelled)setNotice(explain(error));
-        });
+    let cancelled=false,timer=null;
+    setProfileError(null);setProfileLoading(true);
+    async function read(attempt=0){
+      try {
+        const data=await client.getProfile();if(cancelled)return;
+        setProfileError(null);setProfileLoading(false);
+        if(data?.profile?.character)client.listRooms().catch(error=>{if(!cancelled)setNotice(explain(error));});
+      }catch(error){
+        if(cancelled)return;
+        if(retryPlazaProfileV26(error?.code,attempt)) {timer=setTimeout(()=>void read(attempt+1),750*(attempt+1));return;}
+        setProfileError(error?.code||'PLAZA_PROFILE_UNAVAILABLE');setProfileLoading(false);
       }
-    }).catch(error=>{
-      if(!cancelled && error?.code!=="PLAZA_PROFILE_STALE")
-        setNotice(explain(error));
-    }).finally(()=>{
-      if(!cancelled)setProfileLoading(false);
-    });
-    return () => { cancelled = true; };
-  }, [client, connected]);
+    }
+    void read();return()=>{cancelled=true;clearTimeout(timer);};
+  }, [client, connected,profileEpoch]);
+  function retryEntry(){
+    setProfileError(null);setFactoryError(null);setNotice('');
+    if(!client){setClientEpoch(v=>v+1);return;}
+    if(client.getSnapshot().status==='connected'){setProfileEpoch(v=>v+1);return;}
+    try{client.connect();}catch(error){setFactoryError(error?.code||"PLAZA_CONNECTION_ERROR");setClient(null);}
+  }
+  const entryError=factoryError||profileError||state.lastError;
+  const entryMessage=entryError?plazaEntryMessageV26(entryError):connected?'Đang tải nhân vật…':state.status==='resuming'?'Đang khôi phục Plaza…':'Đang kết nối Plaza…';
+  const entryDiagnostic=safePlazaEntryReportV26(state,connected?'profile':'connection',entryError);
 
   useEffect(() => {
     setHistory({ roomId: null, messages: [] });
@@ -236,7 +249,7 @@ export default function PlazaPageV1({
 
   return <main ref={roomHost} className={`cing-plaza cing-plaza--immersive ${room?'cing-plaza--room':'cing-plaza--lobby'} ${(state.tables||[]).some(t=>t.seats.some(s=>s.memberId===state.selfId))?'cing-plaza--seated':''} plaza-v7`}>
     {notice&&<p className="plaza-v7-notice" role="alert">{notice}</p>}
-    {checking?<PlazaLoadingV11/>:!enabled?<div className="plaza-v7-loading">Plaza hiện chưa mở.</div>:room?<>
+    {checking?<PlazaLoadingV11 onClose={onClose}/>:!enabled?<div className="plaza-v7-loading"><p>Plaza hiện chưa mở.</p><button type="button" onClick={onClose}>Quay lại</button></div>:room?<>
       {room&&!connected&&<div className="plaza-v19-connection-state" role="status">{STATUS[state.status]||"Đang nối lại phòng"}<button type="button" disabled={state.status==="resuming"||state.status==="connecting"} onClick={()=>client?.connect()}>Kết nối lại</button></div>}
       {sceneReady&&<div className="plaza-v19-room-dock" aria-label="Điều khiển phòng Plaza"><div className="cing-plaza__room-hud plaza-v15-room-hud"><button disabled={busy} onClick={()=>act(async()=>{await client.leaveRoom();setChatOpen(false);await refreshRooms();await client.getProfile();})}>‹ Sảnh</button><div><strong>{room.name}</strong><span>Cing Plaza {String(room.roomNumber||'').padStart(2,'0')} · {room.memberCount}/{room.capacity}</span></div></div>{!chatOpen&&!membersOpen&&!profileMember&&<PlazaChatPeekV15 worldMessages={social.messages} roomId={room.roomId} messages={messages} onOpen={()=>setChatOpen(true)}/>}</div>}
       {!characterChoice&&<div className="plaza-v7-loading" role="status">
@@ -249,10 +262,10 @@ export default function PlazaPageV1({
           onClick={()=>act(()=>client.getProfile())}
         >Thử tải nhân vật</button>
       </div>}
-      {characterChoice&&<Suspense fallback={<PlazaLoadingV11/>}><PlazaSceneV1 appearance={social.overview?.appearance?.equipped} key={room.roomId} onReadyChange={setSceneReady} onOpenMembers={()=>{setChatOpen(false);setMembersOpen(true);}} onOpenChat={()=>{setMembersOpen(false);setChatOpen(true);}} controlsHidden={chatOpen||membersOpen||Boolean(profileMember)} interactionPaused={chatOpen||membersOpen||Boolean(profileMember)||connectionPaused} roomId={room.roomId} messages={messages} identity={state.identity} initialCharacter={state.members?.find(v=>v.memberId===state.selfId)?.character||characterChoice} correction={state.correction} tables={state.tables||[]} realtimeClient={client} members={state.members||[]} selfId={state.selfId}/></Suspense>}
+      {characterChoice&&<PlazaLazyBoundaryV26 key={room.roomId} onClose={onClose}><Suspense fallback={<PlazaLoadingV11 onClose={onClose}/>}><PlazaSceneV1 onClose={onClose} appearance={social.overview?.appearance?.equipped} key={room.roomId} onReadyChange={setSceneReady} onOpenMembers={()=>{setChatOpen(false);setMembersOpen(true);}} onOpenChat={()=>{setMembersOpen(false);setChatOpen(true);}} controlsHidden={chatOpen||membersOpen||Boolean(profileMember)} interactionPaused={chatOpen||membersOpen||Boolean(profileMember)||connectionPaused} roomId={room.roomId} messages={messages} identity={state.identity} initialCharacter={state.members?.find(v=>v.memberId===state.selfId)?.character||characterChoice} correction={state.correction} tables={state.tables||[]} realtimeClient={client} members={state.members||[]} selfId={state.selfId}/></Suspense></PlazaLazyBoundaryV26>}
 
       {sceneReady&&membersOpen&&<PlazaMembersV15 onProfile={openProfile} room={room} roster={state.roomMembers||[]} selfId={state.selfId} onClose={()=>setMembersOpen(false)}/>}
-    </>:<PlazaLobbyV7 fittingSession={fittingSession} social={social} onProfile={()=>openProfile(social.overview?.profile.memberId||state.identity?.memberId)} onLookupRooms={refreshRooms} onOpenPM={openPM} identity={state.identity} onChooseBadge={key=>act(()=>client.chooseBadge(key))} profile={state.profile} connected={connected} busy={busy} rooms={rooms} onClose={onClose} onChat={()=>setChatOpen(true)} choose={key=>act(async()=>{await client.chooseCharacter(key);await client.getProfile();await refreshRooms();})} onRefresh={()=>act(async()=>{await refreshRooms();await client.getProfile();})} onCreate={(name,password)=>act(async()=>{await client.createRoom(name,password);})} onJoin={(id,password)=>act(()=>client.joinRoom(id,password))}/>}
+    </>:<PlazaLobbyV7 entryError={entryError} entryMessage={entryMessage} entryDiagnostic={entryDiagnostic} onRetryEntry={retryEntry} onReauthenticate={onReauthenticate} fittingSession={fittingSession} social={social} onProfile={()=>openProfile(social.overview?.profile.memberId||state.identity?.memberId)} onLookupRooms={refreshRooms} onOpenPM={openPM} identity={state.identity} onChooseBadge={key=>act(()=>client.chooseBadge(key))} profile={state.profile} connected={connected} busy={busy} rooms={rooms} onClose={onClose} onChat={()=>setChatOpen(true)} choose={key=>act(async()=>{await client.chooseCharacter(key);await client.getProfile();await refreshRooms();})} onRefresh={()=>act(async()=>{const data=await client.getProfile();if(data?.profile?.character)await refreshRooms();})} onCreate={(name,password)=>act(async()=>{await client.createRoom(name,password);})} onJoin={(id,password)=>act(()=>client.joinRoom(id,password))}/>}
     {chatOpen&&!profileMember&&<PlazaChatV7 social={social} initialPeerId={pmPeer} onProfile={openProfile} room={room} messages={messages} draft={draft} setDraft={setDraft} submit={submitMessage} connected={connected} busy={busy} onClose={()=>setChatOpen(false)}/>}
     {profileMember&&<PlazaProfileV16 key={profileMember} memberId={profileMember} social={social} onClose={()=>setProfileMember(null)} onPM={openPM} onViewProfile={openProfile}/>}
   </main>;

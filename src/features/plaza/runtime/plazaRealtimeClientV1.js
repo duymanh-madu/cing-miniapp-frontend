@@ -6,6 +6,7 @@ import { mergePlazaPresenceV19 } from "./plazaPresenceMergeV19.js";
 const TERMINAL_CONNECT_CODES = new Set([
   "PLAZA_INVALID_TOKEN", "PLAZA_UNAUTHORIZED", "PLAZA_MEMBER_BLOCKED",
   "PLAZA_SESSION_REPLACED", "PLAZA_IDENTITY_CHANGED", "PLAZA_UNAVAILABLE",
+  "PLAZA_MEMBER_NOT_FOUND", "PLAZA_CUSTOMER_NOT_FOUND", "PLAZA_MEMBER_IDENTITY_INVALID",
 ]);
 const TERMINAL_RESUME_CODES = new Set([
   ...[...TERMINAL_CONNECT_CODES].filter(code => code !== "PLAZA_UNAVAILABLE"),
@@ -31,6 +32,7 @@ export function createPlazaRealtimeClientV1({
   url,
   ioFactory,
   getToken,
+  recoverToken = null,
   timeoutMs = 6000,
   lifecycle = globalThis.document,
   resumeOnConnect = true,
@@ -87,6 +89,22 @@ export function createPlazaRealtimeClientV1({
     clearRecoveryRetry();
     setReconnectAllowed(false);
     update({status:"connection-error",lastError:code});
+  }
+  let tokenRecoveryUsed=false,tokenRecoveryPending=false;
+  function recoverExpiredToken(code) {
+    if(!['PLAZA_INVALID_TOKEN','PLAZA_UNAUTHORIZED'].includes(code)||typeof recoverToken!=='function'||tokenRecoveryUsed||disposed)return false;
+    tokenRecoveryUsed=true;tokenRecoveryPending=true;
+    clearRecoveryRetry();setReconnectAllowed(false);update({status:'connecting',lastError:null});
+    const epoch=recovery;let timer;
+    const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>reject(failure('PLAZA_REQUEST_TIMEOUT')),15000);timer?.unref?.();});
+    Promise.race([Promise.resolve().then(()=>recoverToken()),deadline]).then(token=>{
+      if(disposed||epoch!==recovery)return;
+      if(typeof token!=='string'||!token.trim())throw failure('PLAZA_UNAUTHORIZED');
+      recoveryBlocked=false;retryCount=0;setReconnectAllowed(lifecycle?.hidden!==true);
+      if(socket.connected)socket.disconnect();
+      if(!lifecycle?.hidden)socket.connect();
+    }).catch(()=>{if(!disposed&&epoch===recovery)blockRecovery(code);}).finally(()=>{clearTimeout(timer);tokenRecoveryPending=false;});
+    return true;
   }
   let sequence = 0;
   let snapshot = Object.freeze({
@@ -156,6 +174,7 @@ export function createPlazaRealtimeClientV1({
     connect_error: error => {
       if(disposed)return;
       const code=plazaErrorCode(error);trace.record("connect-error",{code});
+      if(recoverExpiredToken(code))return;
       if(TERMINAL_CONNECT_CODES.has(code))blockRecovery(code);
       else {update({status:"connection-error",lastError:code});scheduleRecoveryRetry();}
     },
@@ -220,7 +239,7 @@ export function createPlazaRealtimeClientV1({
       if(disposed || attempt!==recovery || !socket.connected)return;
       trace.record("recover-ok",{count:data?.room?.memberCount||0});
       handlers["plaza:room"]({room:data?.room??null});
-      retryCount=0;resumeNeeded=false;recoveryBlocked=false;
+      retryCount=0;resumeNeeded=false;recoveryBlocked=false;tokenRecoveryUsed=false;
       update({status:"connected",lastError:null});
     } catch(error) {
       if(disposed || attempt!==recovery)return;
@@ -232,11 +251,12 @@ export function createPlazaRealtimeClientV1({
         resumeNeeded=false;
         // A server-confirmed missing character is a resolved profile, not loading.
         // Character choice does not depend on optional badge/social identity reads.
-        recoveryBlocked=false;
+        recoveryBlocked=false;tokenRecoveryUsed=false;
         update({status:"connected",lastError:null,profile:null});
         return;
       }
       const code=plazaErrorCode(error);trace.record("recover-error",{code});
+      if(recoverExpiredToken(code))return;
       if(TERMINAL_RESUME_CODES.has(code)) {
         // Only authoritative server rejection can evict the old local room.
         if(["PLAZA_SESSION_REPLACED","PLAZA_ROOM_NOT_FOUND",
@@ -321,7 +341,8 @@ export function createPlazaRealtimeClientV1({
     },
     connect: () => {
       if (disposed) throw failure("PLAZA_CLIENT_DISPOSED");
-      recoveryBlocked=false;retryCount=0;
+      if(tokenRecoveryPending)return;
+      recoveryBlocked=false;retryCount=0;tokenRecoveryUsed=false;
       clearRecoveryRetry();
       setReconnectAllowed(lifecycle?.hidden !== true);
       update({ status: "connecting",lastError:null });
@@ -332,6 +353,7 @@ export function createPlazaRealtimeClientV1({
       const data=await request("plaza:profile:get",{});
       if(disposed || attempt!==recovery || !socket.connected)
         throw failure("PLAZA_PROFILE_STALE");
+      if(!data || !Object.prototype.hasOwnProperty.call(data,'profile') || (data.profile!==null&&!['boy','girl'].includes(data.profile?.character)))throw failure('PLAZA_PROFILE_UNAVAILABLE');
       update({profile:data.profile,identity:data.identity});
       return data;
     },
