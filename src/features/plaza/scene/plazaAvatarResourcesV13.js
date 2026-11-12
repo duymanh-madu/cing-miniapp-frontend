@@ -1,4 +1,5 @@
 import {registerPlazaFaceExpressionsV27} from './plazaAppearanceV27.js';
+import {plazaMorphBudgetV31} from './plazaMorphBudgetV31.js';
 import {VRMUtils} from '@pixiv/three-vrm';
 
 // Preserve the authored mesh and textures. Merge only equivalent skeletons and
@@ -6,7 +7,7 @@ import {VRMUtils} from '@pixiv/three-vrm';
 export function preparePlazaAvatarV13(vrm,{combineSkeletons=true,combineMorphs=true}={}) {
   registerPlazaFaceExpressionsV27(vrm.scene,vrm.expressionManager);
   if(combineSkeletons)VRMUtils.combineSkeletons(vrm.scene);
-  if(combineMorphs)VRMUtils.combineMorphs(vrm);
+  if(combineMorphs&&plazaMorphBudgetV31(vrm).shouldCombine)VRMUtils.combineMorphs(vrm);
 }
 
 // SkeletonUtils clones each mesh's skeleton, even when the source shares one.

@@ -11,7 +11,7 @@ const engine=get('../scene/createPlazaSceneV1.js');
 const avatar=get('../scene/plazaAvatarV6.js');
 const remote=get('../scene/plazaRemoteAvatarsV2.js');
 test('Lobby uses live authenticated VRM and server-selected badge, no static hero portrait',()=>{assert.match(lobby,/HubAvatar character=\{profile.character\}/);assert.match(lobby,/identity\?\.selectedBadge/);assert.match(lobby,/plaza-v19-hub-avatar/);});
-test('Profile and friends are independent, PM uses existing trusted flow',()=>{assert.match(lobby,/>Profile<\/button>/);assert.match(lobby,/>Bạn bè /);assert.match(lobby,/onOpenPM\?\.\(friend.peerId\)/);assert.match(page,/onOpenPM=\{openPM\}/);});
+test('Profile and friends are independent, PM uses existing trusted flow',()=>{assert.match(lobby,/>Hồ sơ<\/button>/);assert.match(lobby,/>Bạn bè /);assert.match(lobby,/onOpenPM\?\.\(friend.peerId\)/);assert.match(page,/onOpenPM=\{openPM\}/);});
 test('Preview title gets its own lane without overlaying VRM',()=>{assert.match(style,/plaza-v19-avatar-stage \.plaza-v16-preview-canvas/);assert.match(style,/inset:76px 0 30px/);});
 test('New Kinh Bac premium loudspeaker art replaces cheap glyph',()=>{assert.match(inv,/loa-the-gioi-premium\.webp/g);assert.doesNotMatch(inv,/<Megaphone size=\{(?:38|66)\}\/>/);assert.ok(existsSync(new URL('../../../../public/cing-plaza/assets/v19/loa-the-gioi-premium.webp',import.meta.url)));});
 test('3D overhead title above centered name, chat remains untouched',()=>{assert.match(style,/plaza-v18-idrow--overhead>.plaza-prestige-v18/);assert.match(style,/flex-direction:column!important/);assert.doesNotMatch(style,/plaza-v18-idrow--chat/);});

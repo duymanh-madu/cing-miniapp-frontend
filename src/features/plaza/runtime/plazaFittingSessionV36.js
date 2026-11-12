@@ -12,7 +12,16 @@ export function createFittingSessionV36() {
   const listeners = new Set(),
     assets = new Map();
   const emit = () => listeners.forEach((fn) => fn());
+  function releaseAssets() {
+      generation++;
+      for (const entry of assets.values())
+        entry.promise
+          .then((asset) => entry.release(asset.scene))
+          .catch(() => {});
+      assets.clear();
+  }
   return {
+    releaseAssets,
     subscribe(fn) {
       listeners.add(fn);
       return () => listeners.delete(fn);
@@ -64,12 +73,7 @@ export function createFittingSessionV36() {
       return assets.get(file).promise;
     },
     dispose() {
-      generation++;
-      for (const entry of assets.values())
-        entry.promise
-          .then((asset) => entry.release(asset.scene))
-          .catch(() => {});
-      assets.clear();
+      releaseAssets();
       drafts = {};
       emit();
     },

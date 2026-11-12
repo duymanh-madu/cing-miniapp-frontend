@@ -1,3 +1,5 @@
+import {compressedPlazaAssetV29,configurePlazaGpuTexturesV29,plazaTextureInventoryV29} from './plazaGpuTextureAssetsV29.js';
+import {createPlazaEnvironmentV27} from './plazaEnvironmentV27.js';
 import {plazaRoomTraceV24} from '../runtime/plazaRoomTraceV24.js';
 import {createFashionCacheV29} from './plazaFashionV29.js';
 import {createAppearanceController} from './plazaAppearanceV27.js';
@@ -25,7 +27,6 @@ import {createPlazaTableSignsV3} from './plazaTableSignsV3.js';
 import * as THREE from 'three';
 import {createPlazaRemoteAvatarsV2} from './plazaRemoteAvatarsV2.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { VRMAnimationLoaderPlugin, createVRMAnimationClip } from '@pixiv/three-vrm-animation';
 import { batchPlazaMapV1 } from './batchPlazaMapV1.js';
@@ -81,7 +82,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.95;
-  renderer.debug.onShaderError=(gl,program,vertex,fragment)=>onQAEvent('shader-error',{program:gl.getProgramInfoLog(program),vertex:gl.getShaderInfoLog(vertex),fragment:gl.getShaderInfoLog(fragment)});
+  renderer.debug.onShaderError=(gl,program,vertex,fragment)=>{plazaRoomTraceV24().record('render-error',{code:'PLAZA_SHADER_ERROR',error:'Error'});onQAEvent('shader-error',{program:gl.getProgramInfoLog(program),vertex:gl.getShaderInfoLog(vertex),fragment:gl.getShaderInfoLog(fragment)});};
   const profiler=qaBudgetSwitchable?createPlazaFrameProfiler(renderer.getContext()):{beginFrame(){},beginRender(){},endRender(){},endFrame(){},reset(){},snapshot(){return null;},dispose(){}};
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -104,16 +105,14 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   sun.shadow.camera.top = 27; sun.shadow.camera.bottom = -27;
   sun.shadow.camera.far = 70; sun.shadow.normalBias = 0.03;
   scene.add(sun, sun.target);
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  const environmentScene = new RoomEnvironment();
-  const environmentTarget = pmrem.fromScene(environmentScene, 0.04);
-  scene.environment = environmentTarget.texture;
+  const environment = createPlazaEnvironmentV27(renderer);
+  scene.environment = environment.texture;
   scene.environmentIntensity = 0.65;
-  environmentScene.dispose();
-  pmrem.dispose();
 
   const abort = new AbortController();
+  const assetRoot = new URL(`${import.meta.env.BASE_URL || '/'}cing-plaza/assets/`, window.location.origin);
   const loader = new GLTFLoader();
+  const gpuTextures=configurePlazaGpuTexturesV29(loader,renderer,assetRoot);
   loader.register(parser => new VRMLoaderPlugin(parser));
   loader.register(parser => new VRMAnimationLoaderPlugin(parser));
   let contextLost = false, restoreTimer = null;
@@ -170,9 +169,9 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   contact.rotation.x = -Math.PI / 2;
   scene.add(contact);
 
-  const assetRoot = new URL(`${import.meta.env.BASE_URL || '/'}cing-plaza/assets/`, window.location.origin);
+
   async function load(file) {
-    const assetURL=new URL(file,assetRoot);if(/cing-(boy|girl)-(idle|walk)\.vrma$/.test(file))assetURL.searchParams.set('v','15');
+    const assetURL=new URL(compressedPlazaAssetV29(file),assetRoot);if(/cing-(boy|girl)-(idle|walk)\.vrma$/.test(file))assetURL.searchParams.set('v','15');
     const response = await fetch(assetURL, { signal: abort.signal });
     if (!response.ok) throw new Error(`Không tải được ${file} (${response.status}).`);
     const buffer = await response.arrayBuffer();
@@ -182,6 +181,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     }
     const gltf = await loader.parseAsync(buffer, assetRoot.href);
     if (disposed) { if (gltf.scene) disposeTree(gltf.scene); throw new DOMException('Disposed', 'AbortError'); }
+    if(compressedPlazaAssetV29(file)!==file)stats.gpuTextureAssets={...stats.gpuTextureAssets,[file]:plazaTextureInventoryV29(gltf.scene)};
     return gltf;
   }
 
@@ -242,13 +242,14 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   observer.observe(host); resize();
   const oldPosition=new THREE.Vector3(),floorHits=[],floorOrigin=new THREE.Vector3(),floorDirection=new THREE.Vector3(0,-1,0);
   let floorIndex=null;const framePacer=createPlazaFramePacerV19(60);
-  let last = performance.now(), statLast = last, frames = 0;
+  let last = performance.now(), statLast = last, frames = 0, lastStallTrace = -Infinity;
   function tick(now) {
     if (disposed || contextLost) return;
     raf = 0;
     if (document.hidden) return;
     if(!framePacer.shouldRender(now)){raf=requestAnimationFrame(tick);return;}
     try {
+    if(now-last>1500 && now-lastStallTrace>30000){lastStallTrace=now;plazaRoomTraceV24().record('render-error',{code:'PLAZA_FRAME_STALL',ms:Math.min(3600000,Math.round(now-last))});}
     const dt = plazaFrameSecondsV20(now,last,mobileSceneBudget?.2:.05); last = now;
     profiler.beginFrame(now);
     updateLighting(); world?.updateDoors(avatar.position, dt, remote.positions());
@@ -335,9 +336,19 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
   }
   function onContextRestored(){
     plazaRoomTraceV24().record("context-restored");onQAEvent("webglcontextrestored",{});
-    if(disposed)return;contextLost=false;clearTimeout(restoreTimer);
-    renderer.shadowMap.needsUpdate=true;resize();last=performance.now();
-    if(loaded){onProgress({ready:true,percent:100});if(!document.hidden&&!raf)raf=requestAnimationFrame(tick);}
+    if(disposed)return;clearTimeout(restoreTimer);
+    try {
+      // Render-target contents do not survive WebGL context loss.
+      environment.restore();scene.environment=environment.texture;
+      renderer.resetState();clockMinute='';updateLighting();
+      renderer.shadowMap.needsUpdate=true;resize();last=performance.now();
+      contextLost=false;
+      if(loaded){onProgress({ready:true,percent:100});if(!document.hidden&&!raf)raf=requestAnimationFrame(tick);}
+    } catch(error) {
+      contextLost=true;
+      plazaRoomTraceV24().record('render-error',{error:error.name});
+      onProgress({ready:false,error:'Chưa khôi phục được hiển thị 3D. Hãy chọn Mở lại.'});
+    }
   }
   document.addEventListener('visibilitychange', onVisibility);
   renderer.domElement.addEventListener('webglcontextlost', onContextLost);
@@ -352,7 +363,7 @@ export function createPlazaSceneV1(host, { onProgress = () => {}, onState = () =
     renderer.domElement.removeEventListener('webglcontextrestored', onContextRestored);
     if (mixer) { mixer.stopAllAction(); mixer.uncacheRoot(vrm?.scene); }
     appearanceController?.dispose();appearanceController=null;
-    profiler.dispose();groundDetail?.dispose();if(map&&map.parent!==scene)disposeTree(map);for(const texture of pendingTextures)texture.dispose();pendingTextures.clear();disposeTree(scene); worldAssets?.dispose(); materialResources?.dispose(); environmentTarget.dispose();
+    gpuTextures.dispose();profiler.dispose();groundDetail?.dispose();if(map&&map.parent!==scene)disposeTree(map);for(const texture of pendingTextures)texture.dispose();pendingTextures.clear();disposeTree(scene); worldAssets?.dispose(); materialResources?.dispose(); environment.dispose();
     sun.shadow.map?.dispose(); renderer.dispose(); renderer.forceContextLoss();
     renderer.domElement.remove();
     scene.clear();floors = [];pendingMembers=[];pendingSelfId=null;map = null;world=null;cafeRoof=null;worldAssets=null;materialResources=null;vrm=null;mixer=null;collision = () => false;

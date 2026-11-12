@@ -9,8 +9,8 @@ test('leaving while clothing loads cannot attach to the disposed actor',async()=
 import {BufferGeometry,Float32BufferAttribute,Uint16BufferAttribute} from 'three';
 test('covered body triangles are hidden with private indices and restored for default clothing',async()=>{
  const actor=fixture(),asset=fixture();const g=new BufferGeometry();g.setAttribute('position',new Float32BufferAttribute([0,1.2,0,.01,1.2,0,0,1.21,0, 0,.2,0,.01,.2,0,0,.21,0],3));g.setIndex(new Uint16BufferAttribute([0,1,2,3,4,5],1));actor.mesh.geometry=g;actor.mesh.material.name='Body_SKIN';
- const c=createFashionControllerV29(actor.root,{character:'boy',load:async()=>({scene:asset.root})});c.apply({top:'boy_campus_top'});await new Promise(r=>setImmediate(r));assert.notEqual(actor.mesh.geometry,g);assert.equal(actor.mesh.geometry.drawRange.count,3);assert.equal(g.index.count,6);const privateGeometry=actor.mesh.geometry,privateIndex=privateGeometry.index;
- c.apply({top:'boy_royal_top'});await new Promise(r=>setImmediate(r));assert.equal(actor.mesh.geometry.index,privateIndex);
+ const c=createFashionControllerV29(actor.root,{character:'boy',load:async()=>({scene:asset.root})});c.apply({top:'boy_campus_top'});await new Promise(r=>setImmediate(r));assert.notEqual(actor.mesh.geometry,g);assert.equal(actor.mesh.geometry.drawRange.count,3);assert.equal(g.index.count,6);const privateGeometry=actor.mesh.geometry;
+ c.apply({top:'boy_royal_top'});await new Promise(r=>setImmediate(r));assert.notEqual(actor.mesh.geometry,privateGeometry);assert.deepEqual(Array.from(actor.mesh.geometry.index.array),[3,4,5]);assert.deepEqual(Array.from(g.index.array),[0,1,2,3,4,5]);
  c.apply({});await new Promise(r=>setImmediate(r));assert.equal(actor.mesh.geometry,g);c.dispose();assert.equal(actor.mesh.geometry,g);
 });
 import fs from 'node:fs';

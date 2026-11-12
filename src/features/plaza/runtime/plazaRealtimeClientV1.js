@@ -237,6 +237,10 @@ export function createPlazaRealtimeClientV1({
     try {
       const data=await request("plaza:resume",{});
       if(disposed || attempt!==recovery || !socket.connected)return;
+      // Only an explicit, valid server room result may clear authoritative membership.
+      if(!data || typeof data!=='object' || !Object.hasOwn(data,'room') ||
+         (data.room!==null && (typeof data.room!=='object' || typeof data.room.roomId!=='string' || !data.room.roomId)))
+        throw Object.assign(new Error('PLAZA_RESUME_UNAVAILABLE'),{code:'PLAZA_RESUME_UNAVAILABLE'});
       trace.record("recover-ok",{count:data?.room?.memberCount||0});
       handlers["plaza:room"]({room:data?.room??null});
       retryCount=0;resumeNeeded=false;recoveryBlocked=false;tokenRecoveryUsed=false;

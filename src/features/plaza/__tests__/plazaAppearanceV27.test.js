@@ -44,15 +44,15 @@ test('hair catalogue has six server-safe designs for each gender',()=>{
  assert.ok(PLAZA_HAIR_ITEMS.every(item=>/^hair_[a-z0-9_]+$/.test(item.id)&&item.slot==='hair'&&item.priceCoin===50));
 });
 
-test('selected hairstyle is rendered on the head bone and original VRM hair restores cleanly',()=>{
+test('unavailable designed hair preserves authored hair and creates no primitive placeholder',()=>{
  const root=new Group(),head=new Bone();head.name='J_Bip_C_Head';root.add(head);
  const sourceHair=new Mesh(new BoxGeometry(),new MeshBasicMaterial());sourceHair.name='Hair';root.add(sourceHair);
  const modularHair=new Mesh(new BoxGeometry(),new MeshBasicMaterial());modularHair.name='Cing_girl_hair';modularHair.userData.cingAppearanceSlot='hair';root.add(modularHair);
  const controller=createAppearanceController(root,{character:'girl'}),style=PLAZA_HAIR_ITEMS.find(item=>item.character==='girl');
  controller.apply({hair:style.id});
- assert.equal(sourceHair.visible,false);assert.equal(modularHair.visible,false);
+ assert.equal(sourceHair.visible,true);assert.equal(modularHair.visible,true);
  const worn=head.children.find(child=>child.name===`CingHairStyle:${style.style}`);
- assert.ok(worn);assert.ok(worn.children.length>=4);
+ assert.equal(worn,undefined);assert.equal(head.children.length,0);
  controller.apply({});assert.equal(sourceHair.visible,true);assert.equal(modularHair.visible,true);
  controller.dispose();assert.equal(sourceHair.visible,true);assert.equal(modularHair.visible,true);
 });

@@ -1,4 +1,5 @@
 import { BufferAttribute } from "three";
+import { wardrobeTorsoVerticesV27, acquireWardrobeGeometryV27 } from "./plazaWardrobeResourcesV27.js";
 import { attachPlazaGarmentV27 } from "./plazaGarmentV27.js";
 export const WARDROBE_STYLES = Object.freeze(["campus", "royal", "street"]);
 export const wardrobeBase = (character) =>
@@ -28,46 +29,18 @@ export function createWardrobeFitting(root, load, { character = "boy" } = {}) {
       materials.some((m) => /Body.*SKIN/i.test(m?.name || ""))
     ) {
       // Find the authored central torso once. The continuous shirt fully replaces it.
-      const index = mesh.geometry.index,
-        pos = mesh.geometry.attributes.position,
-        adj = new Map();
-      for (let i = 0; i < index.count; i += 3) {
-        const f = [index.getX(i), index.getX(i + 1), index.getX(i + 2)];
-        for (const a of f) {
-          if (!adj.has(a)) adj.set(a, new Set());
-          for (const b of f) adj.get(a).add(b);
-        }
-      }
-      const rem = new Set(adj.keys()),
-        torso = new Set();
-      while (rem.size) {
-        const first = rem.values().next().value;
-        rem.delete(first);
-        const pending = [first],
-          component = [];
-        let minY = Infinity,
-          maxY = -Infinity,
-          maxX = 0;
-        while (pending.length) {
-          const a = pending.pop();
-          component.push(a);
-          minY = Math.min(minY, pos.getY(a));
-          maxY = Math.max(maxY, pos.getY(a));
-          maxX = Math.max(maxX, Math.abs(pos.getX(a)));
-          for (const b of adj.get(a)) if (rem.delete(b)) pending.push(b);
-        }
-        if (minY < 0.9 && maxY > 1.4 && maxX < 0.2)
-          for (const v of component) torso.add(v);
-      }
-      bodies.push({ mesh, original: mesh.geometry, private: null, torso });
+      const torso = wardrobeTorsoVerticesV27(mesh.geometry);
+      bodies.push({ mesh, original: mesh.geometry, lease: null, torso });
     }
   });
   function cover(parts) {
     for (const body of bodies) {
       if (!Object.values(parts).some(Boolean)) {
         body.mesh.geometry = body.original;
+        body.lease?.release(); body.lease = null;
         continue;
       }
+      const nextLease = acquireWardrobeGeometryV27(body.original, JSON.stringify([character,parts.top,parts.bottom,parts.shoes]), () => {
       const positions = body.original.attributes.position,
         index = body.original.index,
         kept = [];
@@ -130,16 +103,13 @@ export function createWardrobeFitting(root, load, { character = "boy" } = {}) {
           });
         if (!covered) for (let j = 0; j < 3; j++) kept.push(index.getX(i + j));
       }
-      if (!body.private) {
-        body.private = body.original.clone();
-        body.private.setIndex(
-          new BufferAttribute(new Uint32Array(index.count), 1),
-        );
-      }
-      body.private.index.array.set(kept);
-      body.private.index.needsUpdate = true;
-      body.private.setDrawRange(0, kept.length);
-      body.mesh.geometry = body.private;
+      const geometry = body.original.clone();
+      geometry.setIndex(new BufferAttribute(new Uint32Array(kept), 1));
+      geometry.setDrawRange(0, kept.length);
+      return geometry;
+      });
+      body.mesh.geometry = nextLease.geometry;
+      body.lease?.release(); body.lease = nextLease;
     }
   }
   return {
@@ -202,7 +172,7 @@ export function createWardrobeFitting(root, load, { character = "boy" } = {}) {
       current = [];
       for (const b of bodies) {
         b.mesh.geometry = b.original;
-        b.private?.dispose();
+        b.lease?.release(); b.lease = null;
       }
     },
   };

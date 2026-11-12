@@ -13,7 +13,7 @@ export function attachPlazaGarmentV27(actorRoot,assetRoot,slot,{part}={}){
  for(const source of sources)for(const bone of source.skeleton.bones)if(!bones.has(bone.name))throw Error('GARMENT_RIG_MISMATCH');
  try{
   for(const source of sources){
-   const mesh=source.clone(false);mesh.geometry=source.geometry.clone();
+   const mesh=source.clone(false);mesh.geometry=source.geometry; // Immutable asset geometry is owned by the scene cache.
    mesh.material=Array.isArray(source.material)?source.material.map(m=>m.clone()):source.material.clone();
    mesh.skeleton=new Skeleton(source.skeleton.bones.map(b=>bones.get(b.name)),source.skeleton.boneInverses.map(m=>m.clone()));
    mesh.bind(mesh.skeleton,source.bindMatrix.clone());
@@ -22,7 +22,7 @@ export function attachPlazaGarmentV27(actorRoot,assetRoot,slot,{part}={}){
   }
   actorRoot.traverse(o=>{let tagged=o;while(tagged&&tagged!==actorRoot&&!tagged.userData?.cingAppearanceSlot)tagged=tagged.parent;const taggedSlot=tagged?.userData?.cingAppearanceSlot;const materials=Array.isArray(o.material)?o.material:[o.material];if(o.isMesh&&(taggedSlot?slots.has(taggedSlot):materials.length&&materials.every(m=>m&&slots.has(materialSlot(m.name))))){hidden.push([o,o.visible]);o.visible=false;}});
   for(const mesh of attached){mesh.layers.mask=hidden[0]?.[0].layers.mask??1;actorRoot.add(mesh);}
- }catch(error){for(const mesh of attached){mesh.geometry.dispose();for(const m of Array.isArray(mesh.material)?mesh.material:[mesh.material])m.dispose();mesh.skeleton.dispose();}throw error;}
+ }catch(error){for(const mesh of attached){for(const m of Array.isArray(mesh.material)?mesh.material:[mesh.material])m.dispose();mesh.skeleton.dispose();}throw error;}
  let disposed=false;
- return {dispose(){if(disposed)return;disposed=true;for(const [o,visible]of hidden)o.visible=visible;for(const mesh of attached){mesh.removeFromParent();mesh.geometry.dispose();for(const m of Array.isArray(mesh.material)?mesh.material:[mesh.material])m.dispose();mesh.skeleton.dispose();}}};
+ return {dispose(){if(disposed)return;disposed=true;for(const [o,visible]of hidden)o.visible=visible;for(const mesh of attached){mesh.removeFromParent();for(const m of Array.isArray(mesh.material)?mesh.material:[mesh.material])m.dispose();mesh.skeleton.dispose();}}};
 }

@@ -152,7 +152,7 @@ export function createPlazaCameraV10(
       rotate(e.clientX - old.x, e.clientY - old.y);
       pinch = null;
     } else pinch = next;
-    api.update();
+    // The scene updates once per rendered frame; pointer events only change intent.
   }
   function up(e) {
     pointers.delete(e.pointerId);
@@ -168,7 +168,7 @@ export function createPlazaCameraV10(
       api.minDistance,
       api.maxDistance,
     );
-    api.update();
+    // Coalesce wheel events with the same frame update as orbit gestures.
   }
   const listeners = [
     ["pointerdown", down],

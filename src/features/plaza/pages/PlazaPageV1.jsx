@@ -109,6 +109,7 @@ export default function PlazaPageV1({
   const fittingSession=useMemo(()=>createFittingSessionV36(),[state.identity?.memberId]);
   useEffect(()=>()=>fittingSession.dispose(),[fittingSession]);
   useEffect(()=>{if(!enabled)fittingSession.dispose();},[enabled,fittingSession]);
+  useEffect(()=>{if(room?.roomId)fittingSession.releaseAssets();},[room?.roomId,fittingSession]);
   const social=usePlazaSocialV16({enabled:enabled&&Boolean(state.profile)&&Boolean(state.identity?.memberId),memberId:state.identity?.memberId,connected,revision:state.socialRevision||0,stream:state.socialMessages||[]});
   function openProfile(id){if(id)setProfileMember(id);}
   function openPM(id){setProfileMember(null);setMembersOpen(false);setPmPeer(id);setChatOpen(true);}

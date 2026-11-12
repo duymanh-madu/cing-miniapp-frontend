@@ -1,0 +1,79 @@
+{
+  "version": 29,
+  "encoder": "KTX-Software 4.4.2 / UASTC quality3 / Zstd18 / mipmaps",
+  "dimensions_preserved": true,
+  "assets": {
+    "v30/cing-boy-modular-v30.vrm": {
+      "path": "v29-gpu/cing-boy-modular-v30.vrm",
+      "source_sha256": "22945f39ced373e5e02a55b82b3af8c6ea6dfcb5766bbffb27457c41dfc792ac",
+      "sha256": "6215d3302bf00431333cdb2cdbe224c0cba775c0e5d9d445e36d7f1175ce6241",
+      "bytes": 15172740,
+      "source_bytes": 16353352,
+      "rgba_mip_bytes_estimate": 197482836,
+      "astc4x4_mip_bytes": 49371504
+    },
+    "v32/cing-girl-modular-v32.vrm": {
+      "path": "v29-gpu/cing-girl-modular-v32.vrm",
+      "source_sha256": "ef30b6fe9d5129a42fd150f23a60502a387c3740b546974a1e78a9ea6d578265",
+      "sha256": "cf0c41937d7fe4ce827d51985f49f4ca7fa7077f08f71432129baadab9b7ffd5",
+      "bytes": 18163112,
+      "source_bytes": 19413896,
+      "rgba_mip_bytes_estimate": 268086972,
+      "astc4x4_mip_bytes": 67022800
+    },
+    "v34/boy-campus-v34.glb": {
+      "path": "v29-gpu/boy-campus-v34.glb",
+      "source_sha256": "540ec7bbd98a98772bbe1d73ebfb518770e6860b173e82414889938628b13b76",
+      "sha256": "81e411ac76a425cdaf8ebda5ef2d1f366c49f022eb3699eeb8746df3242e201a",
+      "bytes": 3647276,
+      "source_bytes": 996596,
+      "rgba_mip_bytes_estimate": 23767712,
+      "astc4x4_mip_bytes": 5942032
+    },
+    "v34/boy-royal-v34.glb": {
+      "path": "v29-gpu/boy-royal-v34.glb",
+      "source_sha256": "24ba06b0c00f4fde6b2ea1b5c1bc4322bdf8ba3dd982e4e44fb96b2902f3a665",
+      "sha256": "7d4cf7af33f2d79d72299fd1582f4a1faae8e9b9b277eb9b2d3fe84ba3272d40",
+      "bytes": 3501592,
+      "source_bytes": 973536,
+      "rgba_mip_bytes_estimate": 23767712,
+      "astc4x4_mip_bytes": 5942032
+    },
+    "v34/boy-street-v34.glb": {
+      "path": "v29-gpu/boy-street-v34.glb",
+      "source_sha256": "6de7146f270ec8b9072cb110fa4ce02c7129d9ecbafe12a7129efd2157b767dd",
+      "sha256": "5c4b8d7e4961211a3a4d9629929f1a8bcc6b691465969ffbb82fcbd6bab49ca3",
+      "bytes": 4161476,
+      "source_bytes": 1015856,
+      "rgba_mip_bytes_estimate": 30758212,
+      "astc4x4_mip_bytes": 7689680
+    },
+    "v34/girl-campus-v34.glb": {
+      "path": "v29-gpu/girl-campus-v34.glb",
+      "source_sha256": "4168313ddc630bf2f18c32e0303b495ca8c01771501acac72fc19fca8bef4ab7",
+      "sha256": "abacde71a081ac0f79b1b3f6b3d83a5074366ae9a6a024808dc1dc71ce5f4be1",
+      "bytes": 3823748,
+      "source_bytes": 1385896,
+      "rgba_mip_bytes_estimate": 23767712,
+      "astc4x4_mip_bytes": 5942032
+    },
+    "v34/girl-royal-v34.glb": {
+      "path": "v29-gpu/girl-royal-v34.glb",
+      "source_sha256": "dcb6351632c7e5b397793989d9cee893550371be4d12f13ef73e660d66255a85",
+      "sha256": "3e318335905e63c60fa14454e176992e32146f3a80d35bcab77dffc18b99dc8a",
+      "bytes": 3902660,
+      "source_bytes": 1451180,
+      "rgba_mip_bytes_estimate": 23767712,
+      "astc4x4_mip_bytes": 5942032
+    },
+    "v34/girl-street-v34.glb": {
+      "path": "v29-gpu/girl-street-v34.glb",
+      "source_sha256": "e9fcb354fbe71fdbc92c634e9af0d270e5746af82c907a1650a7183f138e08b9",
+      "sha256": "5e2c060488f237e12d80f071742eb86acffe0968f07bfc52efaa7359a56b06cb",
+      "bytes": 3849256,
+      "source_bytes": 1306428,
+      "rgba_mip_bytes_estimate": 23767712,
+      "astc4x4_mip_bytes": 5942032
+    }
+  }
+}
