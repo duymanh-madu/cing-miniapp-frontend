@@ -104,6 +104,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
     const epoch = ++requestEpoch.current;
     if (!background) {
       setLoading(true);
+      setRewards([]);
     }
     try {
       const r = await apiClient.get(`/leaderboard/top-games/${gameKey}`);
@@ -112,7 +113,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
       setLoadError(false);
       applyRealtimeRows(rows);
 
-      if (r.data?.rewards?.length) setRewards(r.data.rewards);
+      setRewards(r.data?.rewards_enabled === true && Array.isArray(r.data?.rewards) ? r.data.rewards : []);
 
       const phone = getPhone();
       const rankId = phone || profileId;
@@ -131,7 +132,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
         }
       );
 
-      if(epoch === requestEpoch.current)setLoadError(true);
+      if(epoch === requestEpoch.current) { setLoadError(true); setRewards([]); }
     }
     finally {
       if (epoch === requestEpoch.current) {
@@ -143,7 +144,7 @@ export default function GameLeaderboard({ gameKey, onClose }) {
   useLiveEffect(({background}) => {
     void fetchData({background});
     return () => { requestEpoch.current++; if(animationTimer.current)clearTimeout(animationTimer.current); };
-  }, [gameKey, profileId, runtimePhone, profilePhone], ['leaderboard','profile']);
+  }, [gameKey, profileId, runtimePhone, profilePhone], ['leaderboard','profile','config']);
 
   const phone = getPhone();
   const publicTop10 = data.slice(0, 10);
