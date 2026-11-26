@@ -75,3 +75,15 @@ test("realtime authority remains present", () => {
     /initializeRuntimeSocket\(\);[\s\S]*await initializeRealtimeOrchestrator\(\);[\s\S]*registerMenuRealtime\(\)/
   );
 });
+
+test("shell restore releases after backend acceptance while display enrichment runs separately", () => {
+  const restore = source.slice(
+    source.indexOf("async function restoreActivatedMemberFromShellToken"),
+    source.indexOf("async function requestShellBootData")
+  );
+  assert.match(restore, /if \(!restoredPhone \|\| !acceptedOwner\.ready/);
+  assert.match(
+    restore,
+    /void \(async \(\) => \{[\s\S]*?await apiClient\.get\(\x60\/profile-update\/profile\/\$\{restoredPhone\}\x60\)[\s\S]*?syncAuthStoreAfterSilentRestore[\s\S]*?\}\)\(\);[\s\S]*?return true;/
+  );
+});

@@ -286,49 +286,52 @@ async function restoreActivatedMemberFromShellToken(identityTimeoutMs = SHELL_BO
       localStorage.setItem("__user_phone", restoredPhone);
     } catch {}
 
-    try {
-      const profileRequestAuth = useAuthStore.getState();
-      const profileRes = await apiClient.get(`/profile-update/profile/${restoredPhone}`);
-      const serverProfile = profileRes?.data?.data || {};
-      const displayName =
-        serverProfile.display_name ||
-        serverProfile.zalo_name ||
-        serverProfile.name ||
-        result?.fullName ||
-        identity.fullName ||
-        "";
-      const displayAvatar =
-        serverProfile.display_avatar ||
-        serverProfile.avatar ||
-        serverProfile.zalo_avatar ||
-        result?.avatar ||
-        identity.avatar ||
-        "";
+    // The backend session is already accepted. Enrich the display profile independently.
+    void (async () => {
+      try {
+        const profileRequestAuth = useAuthStore.getState();
+        const profileRes = await apiClient.get(`/profile-update/profile/${restoredPhone}`);
+        const serverProfile = profileRes?.data?.data || {};
+        const displayName =
+          serverProfile.display_name ||
+          serverProfile.zalo_name ||
+          serverProfile.name ||
+          result?.fullName ||
+          identity.fullName ||
+          "";
+        const displayAvatar =
+          serverProfile.display_avatar ||
+          serverProfile.avatar ||
+          serverProfile.zalo_avatar ||
+          result?.avatar ||
+          identity.avatar ||
+          "";
 
-      const committed = syncAuthStoreAfterSilentRestore({
-        id: restoredPhone,
-        phone: restoredPhone,
-        name: displayName,
-        display_name: displayName,
-        displayName,
-        avatar: displayAvatar,
-        display_avatar: displayAvatar,
-        zalo_name: serverProfile.zalo_name || "",
-        zalo_avatar: serverProfile.zalo_avatar || "",
-      } as any, profileRequestAuth);
-      if (!committed) return false;
+        const committed = syncAuthStoreAfterSilentRestore({
+          id: restoredPhone,
+          phone: restoredPhone,
+          name: displayName,
+          display_name: displayName,
+          displayName,
+          avatar: displayAvatar,
+          display_avatar: displayAvatar,
+          zalo_name: serverProfile.zalo_name || "",
+          zalo_avatar: serverProfile.zalo_avatar || "",
+        } as any, profileRequestAuth);
+        if (!committed) return;
 
-      store.setIdentity({
-        fullName: displayName,
-        avatar: displayAvatar,
-        phone: restoredPhone,
-        phoneGranted: true,
-        oaFollowed: true,
-        memberActivated: true,
-      } as any);
-    } catch(e) {
-      console.warn("[BOOT] silent restore display profile failed:", e);
-    }
+        store.setIdentity({
+          fullName: displayName,
+          avatar: displayAvatar,
+          phone: restoredPhone,
+          phoneGranted: true,
+          oaFollowed: true,
+          memberActivated: true,
+        } as any);
+      } catch(e) {
+        console.warn("[BOOT] silent restore display profile failed:", e);
+      }
+    })();
 
     console.log("[BOOT] Silent iOS member restore success:", restoredPhone);
     return true;

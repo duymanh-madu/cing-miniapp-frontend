@@ -56,7 +56,7 @@ test(
   () => {
     assert.match(
       hook,
-      /loading:\s*walletReady\s*&&\s*!cachedSnapshot/
+      /loading:\s*walletReady\s*&&\s*!\(cachedOwner\s*===\s*owner\s*&&\s*cachedSnapshot\)/
     );
   }
 );
@@ -85,3 +85,11 @@ test(
     );
   }
 );
+
+test("Home can start the wallet read while the member lookup is pending", () => {
+  const card = fs.readFileSync(
+    new URL("../../home/components/HomeMembershipCard.jsx", import.meta.url),
+    "utf8"
+  );
+  assert.match(card, /useWalletOverview\(\{\s*enabled: customer\.ready\s*,?\s*\}\)/);
+});

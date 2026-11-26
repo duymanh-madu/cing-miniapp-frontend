@@ -238,5 +238,5 @@ test("silent restore enrichment uses the session captured before the HTTP reques
  const restore=restoreRegion();
  assert.match(restore,/const profileRequestAuth = useAuthStore\.getState\(\);\s*const profileRes = await apiClient\.get/);
  assert.match(restore,/syncAuthStoreAfterSilentRestore\(\{[\s\S]*?\} as any, profileRequestAuth\)/);
- assert.match(restore,/if \(!committed\) return false/);
+ assert.match(restore,/if \(!committed\) return;/);
 });

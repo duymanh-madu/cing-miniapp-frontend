@@ -180,7 +180,7 @@ export default function HomeMembershipCard() {
     loading: walletLoading,
     error: walletError,
   } = useWalletOverview({
-    enabled: Boolean(membership),
+    enabled: customer.ready,
   });
 
   const tierRaw = membership?.tierName || membership?.tierKey || "member";
