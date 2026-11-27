@@ -1,4 +1,5 @@
 import {useLiveEffect} from "@/runtime/live/useLiveEffect";
+import {currentCustomerIdentityV42} from "@/infra/auth/currentCustomerIdentityV42";
 import {
   useCallback,
   useEffect,
@@ -55,13 +56,16 @@ export default function useWalletOverview({
         current.initialAuthResolved
     );
 
-  const owner=useAuthStore(state=>String(state.profile?.phone || state.profile?.id || state.profile?.customerId || state.accessToken || ""));
+  const owner = useAuthStore(state => {
+    const identity = currentCustomerIdentityV42(state);
+    return identity.ready ? JSON.stringify([identity.id, identity.phone]) : "";
+  });
   const ownerRef=useRef(owner);ownerRef.current=owner;
 
   const walletReady =
     enabled &&
     initialAuthResolved &&
-    authenticated;
+    authenticated && Boolean(owner);
 
   const [
     state,

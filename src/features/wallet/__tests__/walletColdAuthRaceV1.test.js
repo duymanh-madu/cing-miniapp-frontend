@@ -93,3 +93,46 @@ test("Home can start the wallet read while the member lookup is pending", () => 
   );
   assert.match(card, /useWalletOverview\(\{\s*enabled: customer\.ready\s*,?\s*\}\)/);
 });
+
+async function walletRetryFixture({ switchOwner = false } = {}) {
+  const { runInNewContext } = await import("node:vm");
+  const api = fs.readFileSync(new URL("../api/walletOverviewApi.js", import.meta.url), "utf8");
+  let epoch = 1;
+  let auth = { authenticated: true, accessToken: "old-fixture", profile: { id: "A", phone: "0900000000" } };
+  let refreshes = 0;
+  const headers = [];
+  const fetchOverview = runInNewContext(
+    api.replace(/^import .*;$/gm, "").replace(/^export /gm, "") + "\nfetchWalletOverview;",
+    {
+      useAuthStore: { getState: () => auth },
+      currentCustomerIdentityV42: auth => ({ ready: auth.authenticated, ...auth.profile }),
+      authSessionEpochV42: () => epoch,
+      requireAuthSessionEpochV42: expected => { assert.equal(expected, epoch); },
+      recoverBackendAuthSession: async () => {
+        refreshes++;
+        auth = { ...auth, accessToken: "new-fixture", profile: { ...auth.profile, id: switchOwner ? "B" : "A" } };
+        epoch++;
+        return { accessToken: auth.accessToken };
+      },
+      apiClient: { get: async (_url, config) => {
+        headers.push(config.headers.Authorization);
+        if (headers.length === 1) throw Object.assign(new Error("expired"), { response: { status: 401 } });
+        return { data: { data: { account: { balance: 120 }, transactions: [] } } };
+      } },
+    }
+  );
+  return { fetchOverview, headers, refreshes: () => refreshes };
+}
+
+test("Wallet retries an expired access token once using the recovered session", async () => {
+  const fixture = await walletRetryFixture();
+  assert.equal((await fixture.fetchOverview()).balance, 120);
+  assert.deepEqual(fixture.headers, ["Bearer old-fixture", "Bearer new-fixture"]);
+  assert.equal(fixture.refreshes(), 1);
+});
+
+test("Wallet does not retry for a different owner after session recovery", async () => {
+  const fixture = await walletRetryFixture({ switchOwner: true });
+  await assert.rejects(fixture.fetchOverview(), /PROJECTION_INVALID: session/);
+  assert.deepEqual(fixture.headers, ["Bearer old-fixture"]);
+});

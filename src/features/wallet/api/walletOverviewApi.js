@@ -1,4 +1,8 @@
 import apiClient from "@/infra/api/apiClient";
+import { recoverBackendAuthSession } from "@/infra/auth/authRecovery";
+import { authSessionEpochV42, requireAuthSessionEpochV42 } from "@/infra/auth/authSessionEpochV42";
+import { currentCustomerIdentityV42 } from "@/infra/auth/currentCustomerIdentityV42";
+import useAuthStore from "@/stores/auth/authStore";
 
 
 function walletProjectionError(
@@ -238,15 +242,36 @@ export function resolveWalletTransactions(
 
 
 export async function fetchWalletOverview() {
-  const response =
-    await apiClient.get(
-      "/wallet",
-      {
-        params: {
-          limit: 20,
-        },
-      }
-    );
+  const auth = useAuthStore.getState();
+  const owner = currentCustomerIdentityV42(auth);
+  if (!owner.ready) throw walletProjectionError("session");
+
+  async function read(token) {
+    const epoch = authSessionEpochV42();
+    const response = await apiClient.get("/wallet", {
+      params: { limit: 20 },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    requireAuthSessionEpochV42(epoch);
+    return response;
+  }
+
+  const initialEpoch = authSessionEpochV42();
+  let response;
+  try {
+    response = await read(auth.accessToken);
+  } catch (error) {
+    if (error?.response?.status !== 401) throw error;
+    requireAuthSessionEpochV42(initialEpoch);
+    const refreshed = await recoverBackendAuthSession();
+    const current = useAuthStore.getState();
+    const currentOwner = currentCustomerIdentityV42(current);
+    if (!currentOwner.ready || currentOwner.id !== owner.id ||
+        currentOwner.phone !== owner.phone || current.accessToken !== refreshed.accessToken) {
+      throw walletProjectionError("session");
+    }
+    response = await read(refreshed.accessToken);
+  }
 
   const data =
     response.data?.data;
